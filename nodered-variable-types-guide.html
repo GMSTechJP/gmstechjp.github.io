@@ -381,7 +381,7 @@
                         <div class="code-block" style="margin-top: 10px; text-align: left;">
 temperature<br>
 counter<br>
-sensorName
+isActive
                         </div>
                     </div>
                     
@@ -545,6 +545,7 @@ $env("SERVER_URL")
         <div class="section">
             <h2>2. Node-REDの変数の種類</h2>
             <p>Node-REDでは、変数の使い方によって大きく<strong>2つのグループ</strong>に分かれます。</p>
+            <p style="margin-top: 10px;">変数を使うには、まず<strong>「宣言」</strong>という作業が必要です。宣言とは、<span style="background: #fff3cd; padding: 2px 6px; border-radius: 3px;">「これから○○という名前の変数を使います」とプログラムに伝えること</span>です。宣言の方法が、変数の種類によって異なります。</p>
             
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 25px; margin: 30px 0;">
                 <div style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); padding: 25px; border-radius: 12px; border: 3px solid #2196F3;">
@@ -561,6 +562,7 @@ var message = "Hello";
                     <div style="background: white; padding: 15px; border-radius: 8px; margin-top: 15px;">
                         <h4 style="color: #333; margin-bottom: 10px;">特徴：</h4>
                         <ul style="margin-left: 20px; line-height: 1.8;">
+                            <li><strong>宣言方法：</strong>const, let, var キーワードを使う</li>
                             <li>Functionノードの処理中のみ存在</li>
                             <li>処理が終わると消える</li>
                             <li>他のノードからはアクセス不可</li>
@@ -583,6 +585,7 @@ global.set('apiKey', 'xxx');
                     <div style="background: white; padding: 15px; border-radius: 8px; margin-top: 15px;">
                         <h4 style="color: #333; margin-bottom: 10px;">特徴：</h4>
                         <ul style="margin-left: 20px; line-height: 1.8;">
+                            <li><strong>宣言方法：</strong>set() メソッドで値を保存（宣言不要）</li>
                             <li>処理が終わっても値が保持される</li>
                             <li>周期的なフロー実行時に参照可能</li>
                             <li>スコープによって共有範囲が異なる</li>
@@ -600,6 +603,24 @@ global.set('apiKey', 'xxx');
         <div class="section">
             <h2>3. 通常の変数のスコープ</h2>
             <p>通常の変数（const, let, var）は、<strong>宣言する場所</strong>によってスコープ（有効範囲）が変わります。</p>
+
+            <div style="background: #e7f3ff; border-left: 4px solid #2196F3; padding: 20px; margin: 20px 0; border-radius: 5px;">
+                <h3 style="color: #1565C0; margin-bottom: 15px;">📖 スコープとは？</h3>
+                <p style="margin-bottom: 15px; line-height: 1.8;">
+                    <strong>スコープ</strong>とは、変数を<strong>参照できる範囲（使える範囲）</strong>のことです。<br>
+                    例えるなら、<span style="background: #fff3cd; padding: 2px 6px; border-radius: 3px;">「その変数がどこまで見えるか」「どこまでアクセスできるか」</span>を決める範囲のルールです。
+                </p>
+                
+                <div style="background: white; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                    <h4 style="color: #333; margin-bottom: 10px;">🏠 日常での例え</h4>
+                    <p style="line-height: 1.8;">
+                        部屋Aで書いたメモは、部屋Aの中でしか読めません。<br>
+                        部屋Bに行ったら、部屋Aのメモは見えない（参照できない）のと同じです。<br>
+                        <br>
+                        <strong>変数のスコープ</strong>も同じように、<strong>宣言した場所</strong>によって「どこまで参照できるか」が決まります。
+                    </p>
+                </div>
+            </div>
 
             <div style="background: #f9f9f9; padding: 25px; border-radius: 10px; margin: 20px 0;">
                 <h3 style="color: #333; margin-bottom: 15px;">宣言場所によるスコープの違い</h3>
@@ -646,7 +667,7 @@ node.warn(loopValue); // ❌ エラー！スコープ外
 
         <div class="section">
             <h2>4. context変数のスコープ</h2>
-            <p>context変数は、<strong>使用するAPIの種類</strong>によってスコープ（共有範囲）が変わります。</p>
+            <p>context変数は、<strong>宣言の仕方</strong>によってスコープ（共有範囲）が変わります。</p>
             
             <div class="scope-container">
                 <div class="scope-card" style="border-color: #9C27B0; background: #F3E5F5;">
