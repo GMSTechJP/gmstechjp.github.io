@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED Debugノード 完全ガイド</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        h1 {
+            color: #8f0000;
+            border-bottom: 3px solid #8f0000;
+            padding-bottom: 10px;
+        }
+        
+        h2 {
+            color: #c00000;
+            margin-top: 30px;
+            border-left: 5px solid #c00000;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #555;
+            margin-top: 25px;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .node-example {
+            background-color: #2d3133;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            color: white;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .node {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 4px;
+            margin: 5px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .node-inject {
+            background-color: #3fadb5;
+            color: white;
+        }
+        
+        .node-debug {
+            background-color: #87a48d;
+            color: white;
+        }
+        
+        .node-function {
+            background-color: #e8a658;
+            color: white;
+        }
+        
+        .node-change {
+            background-color: #e7a070;
+            color: white;
+        }
+        
+        .arrow {
+            color: #999;
+            font-size: 20px;
+            margin: 0 10px;
+        }
+        
+        .important {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .tip {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .code-block {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            position: relative;
+        }
+        
+        .copy-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 6px 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: 'Segoe UI', sans-serif;
+            transition: background-color 0.2s;
+            z-index: 10;
+        }
+        
+        .copy-button:hover {
+            background-color: #0056b3;
+        }
+        
+        .copy-button.copied {
+            background-color: #28a745;
+        }
+        
+        .exercise {
+            background-color: #e8f5e9;
+            border: 2px solid #4caf50;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        
+        .exercise h3 {
+            color: #2e7d32;
+            margin-top: 0;
+        }
+        
+        .difficulty {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .difficulty-easy {
+            background-color: #4caf50;
+            color: white;
+        }
+        
+        .difficulty-medium {
+            background-color: #ff9800;
+            color: white;
+        }
+        
+        .difficulty-hard {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        ul, ol {
+            padding-left: 25px;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #8f0000;
+            color: white;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .flow-json {
+            background-color: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        details {
+            margin: 15px 0;
+        }
+        
+        summary {
+            cursor: pointer;
+            padding: 10px;
+            background-color: #6c757d;
+            color: white;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        summary:hover {
+            background-color: #5a6268;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .feature-card {
+            background-color: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .feature-card h4 {
+            color: #87a48d;
+            margin-top: 0;
+        }
+        
+        .output-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        
+        .badge-sidebar {
+            background-color: #87a48d;
+            color: white;
+        }
+        
+        .badge-console {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .badge-status {
+            background-color: #17a2b8;
+            color: white;
+        }
+        
+        .badge-jsonata {
+            background-color: #6f42c1;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🐛 Node-RED Debugノード 完全ガイド</h1>
+        
+        <p>このガイドでは、Node-REDの<strong>Debugノード</strong>について、初心者の方でも理解できるように詳しく説明します。</p>
+        
+        <h2>📚 1. Debugノードとは?</h2>
+        
+        <h3>🤔 「デバッグ」って何?</h3>
+        <p>
+            Debugノードは、フローを流れるメッセージの内容を<strong>確認・検証するための観察窓</strong>です。
+            日常生活で例えると、<strong>料理の味見</strong>のようなものです。
+        </p>
+        
+        <div class="important">
+            <p><strong>👨‍🍳 料理の味見に例えると:</strong></p>
+            <ul>
+                <li>🍲 <strong>調理中の料理</strong> = フローを流れるメッセージ</li>
+                <li>🥄 <strong>味見をする</strong> = Debugノードでメッセージを確認</li>
+                <li>👅 <strong>味を確認</strong> = データの内容や構造をチェック</li>
+                <li>📝 <strong>調整が必要か判断</strong> = フローの問題を発見・修正</li>
+            </ul>
+        </div>
+        
+        <h3>📦 基本的な動作</h3>
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">Function</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <p>
+            Debugノードは、フローの途中や最後に配置して、メッセージがどのような内容で流れているのかを確認します。
+            <strong>開発・デバッグに不可欠</strong>なノードです。
+        </p>
+        
+        <h2>⚙️ 2. Debugノードの設定</h2>
+        
+        <h3>🔧 基本設定項目</h3>
+        
+        <table>
+            <tr>
+                <th>設定項目</th>
+                <th>説明</th>
+                <th>例</th>
+            </tr>
+            <tr>
+                <td><strong>Output</strong></td>
+                <td>出力する内容の選択</td>
+                <td>msg.payload, complete msg, msg.topic</td>
+            </tr>
+            <tr>
+                <td><strong>to</strong></td>
+                <td>出力先の選択</td>
+                <td>debug window, console, node status</td>
+            </tr>
+            <tr>
+                <td><strong>Name</strong></td>
+                <td>ノードの識別名</td>
+                <td>"温度センサー", "処理結果"</td>
+            </tr>
+            <tr>
+                <td><strong>Active</strong></td>
+                <td>デバッグの有効/無効切り替え</td>
+                <td>ON/OFF (緑のボタン)</td>
+            </tr>
+        </table>
+        
+        <h3>📋 出力内容のオプション</h3>
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h4><span class="output-badge badge-sidebar">msg.payload</span></h4>
+                <p>最も一般的な使い方。ペイロードの値のみを表示</p>
+                <div class="code-block">Output: msg.payload
+→ "Hello, World!"</div>
+            </div>
+            
+            <div class="feature-card">
+                <h4><span class="output-badge badge-sidebar">complete message</span></h4>
+                <p>メッセージオブジェクト全体を表示</p>
+                <div class="code-block">Output: complete msg
+→ {payload: ..., topic: ..., _msgid: ...}</div>
+            </div>
+            
+            <div class="feature-card">
+                <h4><span class="output-badge badge-sidebar">特定プロパティ</span></h4>
+                <p>指定したプロパティのみ表示</p>
+                <div class="code-block">Output: msg.topic
+→ "temperature"</div>
+            </div>
+            
+            <div class="feature-card">
+                <h4><span class="output-badge badge-jsonata">JSONata式</span></h4>
+                <p>JSONataでフォーマットした内容を表示</p>
+                <div class="code-block">Output: "[" & topic & "] " & payload
+→ "[temperature] 25.3"</div>
+            </div>
+        </div>
+        
+        <h3>🎯 出力先のオプション</h3>
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h4><span class="output-badge badge-sidebar">debug window</span> デバッグサイドバー</h4>
+                <p>右側のデバッグパネルに表示される(最も一般的)</p>
+                <ul>
+                    <li>✅ 複数のメッセージを時系列で確認可能</li>
+                    <li>✅ オブジェクトの階層を展開して確認</li>
+                    <li>✅ クリアボタンで履歴をクリア</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <h4><span class="output-badge badge-console">system console</span> システムコンソール</h4>
+                <p>Node-REDを起動したターミナル/コンソールに出力</p>
+                <ul>
+                    <li>🖥️ サーバー側のログとして記録</li>
+                    <li>🖥️ 本番環境での問題追跡に有用</li>
+                    <li>⚠️ ブラウザでは見えない</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <h4><span class="output-badge badge-status">node status</span> ノードステータス</h4>
+                <p>Debugノードの下に小さく表示</p>
+                <ul>
+                    <li>👁️ フローエディタ上で直接確認</li>
+                    <li>👁️ 最新の1つの値のみ表示</li>
+                    <li>👁️ シンプルな値の監視に最適</li>
+                </ul>
+            </div>
+        </div>
+        
+        <h2>🎯 3. 実用的な使用パターン</h2>
+        
+        <h3>パターン1: 基本的なデバッグ</h3>
+        <p>最もシンプルな使い方。msg.payloadの内容を確認:</p>
+        
+        <div class="code-block">
+Inject → Function → Debug
+
+Debug設定:
+- Output: msg.payload
+- to: debug window
+        </div>
+        
+        <h3>パターン2: メッセージ全体の確認</h3>
+        <p>オブジェクトの構造を詳しく調べる:</p>
+        
+        <div class="code-block">
+Inject → HTTP Request → Debug
+
+Debug設定:
+- Output: complete msg
+- to: debug window
+
+→ statusCode, headers, payload等すべて確認可能
+        </div>
+        
+        <h3>パターン3: 複数ポイントでの監視</h3>
+        <p>フローの各段階でデータ変化を追跡:</p>
+        
+        <div class="code-block">
+Inject → Debug①(処理前) → Function → Debug②(処理後) → Change → Debug③(最終)
+
+名前を付けると識別しやすい:
+Debug①: "入力データ"
+Debug②: "計算結果"
+Debug③: "出力データ"
+        </div>
+        
+        <h3>パターン4: JSONataでのフォーマット</h3>
+        <p>読みやすい形式で出力:</p>
+        
+        <div class="code-block">
+センサーデータ: {topic: "temperature", payload: 25.3}
+
+JSONata式: "[" & topic & "] " & payload & "℃"
+出力: [temperature] 25.3℃
+        </div>
+        
+        <div class="tip">
+            <h3>💡 ヒント: Debugノードの有効/無効切り替え</h3>
+            <p><strong>開発フェーズでの使い分け:</strong></p>
+            <ul>
+                <li><strong>開発中:</strong> すべてのDebugノードをON → 詳細な情報を収集</li>
+                <li><strong>テスト中:</strong> 重要なポイントのみON → 必要な情報に絞る</li>
+                <li><strong>本番稼働:</strong> すべてOFF または削除 → パフォーマンス向上</li>
+            </ul>
+            <p>Debugノードの左側の緑ボタンをクリックすると、デプロイなしで即座にON/OFF切り替えが可能!</p>
+        </div>
+        
+        <h2>🏋️ 4. 実践演習</h2>
+        
+        <div class="exercise">
+            <h3>演習1: 基本的なデバッグ出力<span class="difficulty difficulty-easy">初級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>Injectノードで送信したメッセージをDebugノードで確認するシンプルなフローを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Injectノードで"Hello, Node-RED!"という文字列を送信</li>
+                <li>Debugノードでmsg.payloadを表示</li>
+                <li>デバッグサイドバーに結果が表示されることを確認</li>
+            </ul>
+            
+            <p><strong>📊 期待される動作:</strong></p>
+            <ul>
+                <li>Injectボタンをクリック</li>
+                <li>デバッグウィンドウに "Hello, Node-RED!" と表示される</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Debugノードの設定:</strong></p>
+                <ul>
+                    <li>Output: msg.payload</li>
+                    <li>to: debug window (デフォルト)</li>
+                </ul>
+                <p>特別な設定は不要。Debugノードをデフォルト設定のまま使用すればOK!</p>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">
+[
+    {
+        "id": "ex1_inject",
+        "type": "inject",
+        "name": "メッセージ送信",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "Hello, Node-RED!",
+        "payloadType": "str",
+        "x": 140,
+        "y": 100,
+        "wires": [["ex1_debug"]]
+    },
+    {
+        "id": "ex1_debug",
+        "type": "debug",
+        "name": "結果表示",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 340,
+        "y": 100,
+        "wires": []
+    }
+]
+                </div>
+                <p><strong>✅ 動作確認:</strong></p>
+                <ul>
+                    <li>Injectボタンをクリック</li>
+                    <li>右側のデバッグパネル(虫のアイコン)を開く</li>
+                    <li>"Hello, Node-RED!" が表示される</li>
+                </ul>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習2: メッセージオブジェクト全体の確認<span class="difficulty difficulty-easy">初級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>メッセージオブジェクトの全体構造を確認し、payload以外のプロパティも見てみましょう。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Injectノードでpayloadとtopicの両方を設定
+                    <ul>
+                        <li>payload: "Test Data"</li>
+                        <li>topic: "sensor/temperature"</li>
+                    </ul>
+                </li>
+                <li>Debugノードで complete message を出力</li>
+                <li>デバッグウィンドウでオブジェクトの階層を展開</li>
+            </ul>
+            
+            <p><strong>📊 期待される動作:</strong></p>
+            <ul>
+                <li>msg全体が表示される</li>
+                <li>payload, topic, _msgid等のプロパティが確認できる</li>
+                <li>▶マークをクリックして階層を展開できる</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Debugノードの設定:</strong></p>
+                <ul>
+                    <li>Output: complete msg (ドロップダウンから選択)</li>
+                    <li>to: debug window</li>
+                </ul>
+                <p><strong>Injectノードでtopicを設定する方法:</strong></p>
+                <div class="code-block">
+Injectノード設定画面で:
+1. 「+ プロパティを追加」をクリック
+2. 「topic」を選択
+3. 値を入力: "sensor/temperature"
+                </div>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">
+[
+    {
+        "id": "ex2_inject",
+        "type": "inject",
+        "name": "センサーデータ",
+        "props": [
+            {"p": "payload"},
+            {"p": "topic", "vt": "str"}
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "sensor/temperature",
+        "payload": "Test Data",
+        "payloadType": "str",
+        "x": 150,
+        "y": 100,
+        "wires": [["ex2_debug"]]
+    },
+    {
+        "id": "ex2_debug",
+        "type": "debug",
+        "name": "完全なメッセージ",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "x": 370,
+        "y": 100,
+        "wires": []
+    }
+]
+                </div>
+                <p><strong>✅ 動作確認:</strong></p>
+                <ul>
+                    <li>Injectボタンをクリック</li>
+                    <li>デバッグウィンドウに msg: object と表示される</li>
+                    <li>▶ をクリックして展開すると:
+                        <ul>
+                            <li>payload: "Test Data"</li>
+                            <li>topic: "sensor/temperature"</li>
+                            <li>_msgid: "ランダムなID"</li>
+                        </ul>
+                    </li>
+                </ul>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習3: 複数デバッグポイントでの監視<span class="difficulty difficulty-medium">中級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>Functionノードで値を変換する前後をそれぞれDebugノードで監視し、データの変化を追跡してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Injectノードで数値10を送信</li>
+                <li>1つ目のDebugノードで入力値を確認(名前:"入力")</li>
+                <li>Functionノードで値を2倍にする処理</li>
+                <li>2つ目のDebugノードで出力値を確認(名前:"出力")</li>
+            </ul>
+            
+            <p><strong>📊 期待される動作:</strong></p>
+            <ul>
+                <li>入力Debugに "10" と表示</li>
+                <li>出力Debugに "20" と表示</li>
+                <li>デバッグウィンドウで処理の流れが追跡できる</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Functionノードのコード(完全な回答):</strong></p>
+                <div class="code-block">
+msg.payload = msg.payload * 2;
+return msg;
+                </div>
+                <p><strong>Debugノードの名前設定:</strong></p>
+                <ul>
+                    <li>Debugノードの設定画面で "Name" フィールドに名前を入力</li>
+                    <li>デバッグウィンドウで、この名前が表示される</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">
+[
+    {
+        "id": "ex3_inject",
+        "type": "inject",
+        "name": "数値10",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "10",
+        "payloadType": "num",
+        "x": 110,
+        "y": 100,
+        "wires": [["ex3_debug1", "ex3_function"]]
+    },
+    {
+        "id": "ex3_debug1",
+        "type": "debug",
+        "name": "入力",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 270,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "ex3_function",
+        "type": "function",
+        "name": "2倍にする",
+        "func": "msg.payload = msg.payload * 2;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 290,
+        "y": 120,
+        "wires": [["ex3_debug2"]]
+    },
+    {
+        "id": "ex3_debug2",
+        "type": "debug",
+        "name": "出力",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 470,
+        "y": 120,
+        "wires": []
+    }
+]
+                </div>
+                <p><strong>✅ 動作確認:</strong></p>
+                <ul>
+                    <li>Injectボタンをクリック</li>
+                    <li>デバッグウィンドウに2つのメッセージが表示:
+                        <ul>
+                            <li>"入力" : 10</li>
+                            <li>"出力" : 20</li>
+                        </ul>
+                    </li>
+                    <li>処理前後の値の変化が一目で確認できる</li>
+                </ul>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習4: JSONataでフォーマットされた出力<span class="difficulty difficulty-hard">上級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>センサーデータをJSONataを使って読みやすい形式でデバッグ出力してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Injectノードで以下を設定:
+                    <ul>
+                        <li>payload: 25.3 (数値)</li>
+                        <li>topic: "temperature" (文字列)</li>
+                    </ul>
+                </li>
+                <li>DebugノードでJSONata式を使用して以下の形式で出力:
+                    <ul>
+                        <li>フォーマット: "[センサー名] 値℃"</li>
+                        <li>例: "[temperature] 25.3℃"</li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <p><strong>📊 期待される動作:</strong></p>
+            <ul>
+                <li>デバッグウィンドウに "[temperature] 25.3℃" と表示</li>
+                <li>見やすくフォーマットされた出力</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Debugノードの設定手順:</strong></p>
+                <ol>
+                    <li>Output: ドロップダウンから "JSONata expression" を選択</li>
+                    <li>式を入力するテキストボックスが表示される</li>
+                    <li>以下のJSONata式を入力</li>
+                </ol>
+                <p><strong>JSONata式(完全な回答):</strong></p>
+                <div class="code-block">
+"[" & topic & "] " & payload & "℃"
+                </div>
+                <p><strong>JSONataの基本:</strong></p>
+                <ul>
+                    <li><code>&</code>: 文字列を連結</li>
+                    <li><code>"文字列"</code>: リテラル文字列</li>
+                    <li><code>topic</code>, <code>payload</code>: msg.topicとmsg.payloadを参照</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">
+[
+    {
+        "id": "ex4_inject",
+        "type": "inject",
+        "name": "温度センサー",
+        "props": [
+            {"p": "payload"},
+            {"p": "topic", "vt": "str"}
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "temperature",
+        "payload": "25.3",
+        "payloadType": "num",
+        "x": 140,
+        "y": 100,
+        "wires": [["ex4_debug"]]
+    },
+    {
+        "id": "ex4_debug",
+        "type": "debug",
+        "name": "フォーマット出力",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "\"[\" & topic & \"] \" & payload & \"℃\"",
+        "targetType": "jsonata",
+        "x": 370,
+        "y": 100,
+        "wires": []
+    }
+]
+                </div>
+                <p><strong>✅ 動作確認:</strong></p>
+                <ul>
+                    <li>Injectボタンをクリック</li>
+                    <li>デバッグウィンドウに "[temperature] 25.3℃" と表示</li>
+                    <li>topicを変更してみる(例: "humidity" → "[humidity] 25.3℃")</li>
+                </ul>
+                <p><strong>🎓 発展課題:</strong></p>
+                <ul>
+                    <li>湿度センサー用に "%RH" を追加</li>
+                    <li>タイムスタンプも含めてみる: <code>$now() & ": [" & topic & "] " & payload & "℃"</code></li>
+                    <li>条件分岐を追加: 高温時は "⚠️" マークを付ける</li>
+                </ul>
+            </details>
+        </div>
+        
+        <h2>🎓 5. まとめ</h2>
+        
+        <div class="important">
+            <h3>Debugノードの重要ポイント</h3>
+            <ul>
+                <li>✅ <strong>必須ツール</strong>: フロー開発・デバッグに欠かせない</li>
+                <li>✅ <strong>柔軟な出力</strong>: payload、complete msg、特定プロパティ、JSONata式</li>
+                <li>✅ <strong>複数の出力先</strong>: サイドバー、コンソール、ノードステータス</li>
+                <li>✅ <strong>ON/OFF切り替え</strong>: デプロイなしで即座に有効/無効化</li>
+                <li>✅ <strong>識別しやすい</strong>: 名前を付けて複数のDebugを区別</li>
+            </ul>
+        </div>
+        
+        <div class="tip">
+            <h3>📚 次のステップ</h3>
+            <p>Debugノードをマスターしたら、以下も活用してみましょう:</p>
+            <ul>
+                <li><strong>Catchノード</strong>: エラー発生時の詳細情報を取得</li>
+                <li><strong>Statusノード</strong>: 他のノードのステータス変化を監視</li>
+                <li><strong>Linkノード</strong>: 複雑なフローでのデバッグポイント配置</li>
+                <li><strong>Context変数</strong>: flow/global変数の内容確認</li>
+            </ul>
+        </div>
+        
+        <h2>🔧 6. トラブルシューティング</h2>
+        
+        <h3>よくある問題と解決方法</h3>
+        
+        <table>
+            <tr>
+                <th>問題</th>
+                <th>原因</th>
+                <th>解決方法</th>
+            </tr>
+            <tr>
+                <td>デバッグウィンドウに何も表示されない</td>
+                <td>Debugノードが無効(灰色ボタン)</td>
+                <td>ノード左側の緑ボタンをクリックして有効化</td>
+            </tr>
+            <tr>
+                <td>メッセージが多すぎて見づらい</td>
+                <td>複数のDebugが同時に動作</td>
+                <td>不要なDebugを無効化。クリアボタンで履歴削除</td>
+            </tr>
+            <tr>
+                <td>"undefined"と表示される</td>
+                <td>指定したプロパティが存在しない</td>
+                <td>complete msgで確認してプロパティ名をチェック</td>
+            </tr>
+            <tr>
+                <td>JSONataエラーが出る</td>
+                <td>式の構文エラー</td>
+                <td>引用符やカッコの対応を確認。式をシンプルにして試す</td>
+            </tr>
+            <tr>
+                <td>オブジェクトが [Object] としか表示されない</td>
+                <td>ネストが深すぎる</td>
+                <td>▶マークで展開。またはJSON.stringifyで文字列化</td>
+            </tr>
+        </table>
+        
+        <h2>💡 7. 実務での活用例</h2>
+        
+        <h3>ケース1: API開発時のレスポンス確認</h3>
+        <div class="code-block">
+HTTP Request → Debug(complete msg)
+
+確認内容:
+- statusCode: 200 OK?
+- headers: Content-Typeは正しい?
+- payload: 期待通りのJSON構造?
+        </div>
+        
+        <h3>ケース2: データ変換の各ステップ検証</h3>
+        <div class="code-block">
+センサー入力 
+→ Debug①(生データ)
+→ Function(単位変換)
+→ Debug②(変換後)
+→ Change(プロパティ追加)
+→ Debug③(最終形)
+→ データベース保存
+
+各段階で期待通りのデータか確認
+        </div>
+        
+        <h3>ケース3: 本番環境でのエラー追跡</h3>
+        <div class="code-block">
+通常フロー → Catchノード → Debug(console出力)
+
+設定:
+- to: system console
+- Output: complete msg
+
+→ サーバーログにエラー詳細が記録される
+→ エラー発生時の状況を後から分析可能
+        </div>
+        
+        <h3>ケース4: パフォーマンス測定</h3>
+        <div class="code-block">
+Function(開始時刻記録)
+→ 処理ノード群
+→ Function(終了時刻記録)
+→ Debug(処理時間表示)
+
+JSONata: "処理時間: " & (end_time - start_time) & "ms"
+        </div>
+        
+        <h2>🔗 8. 追加リソース</h2>
+        
+        <ul>
+            <li><a href="https://nodered.org/docs/user-guide/nodes#debug" target="_blank">Node-RED公式ドキュメント: Debugノード</a></li>
+            <li><a href="https://docs.jsonata.org/overview.html" target="_blank">JSONata公式ドキュメント</a></li>
+            <li><a href="https://cookbook.nodered.org/" target="_blank">Node-RED Cookbook</a></li>
+        </ul>
+        
+        <hr>
+        
+        <p style="text-align: center; color: #999; margin-top: 40px;">
+            <small>このガイドが役に立ちましたら、実際のプロジェクトで練習してみてください!<br>
+            Debugノードは開発の必須ツールです。積極的に活用しましょう!</small>
+        </p>
+    </div>
+    
+    <script>
+        // ページ読み込み時にコピーボタンを追加
+        document.addEventListener('DOMContentLoaded', function() {
+            // すべての.code-blockと.flow-jsonにコピーボタンを追加
+            const codeBlocks = document.querySelectorAll('.code-block, .flow-json');
+            
+            codeBlocks.forEach(function(block) {
+                // コピーボタンを作成
+                const button = document.createElement('button');
+                button.className = 'copy-button';
+                button.textContent = 'コピー';
+                
+                // クリックイベントを追加
+                button.addEventListener('click', function() {
+                    // コードブロックのテキストを取得
+                    const code = block.textContent.replace('コピー', '').trim();
+                    
+                    // クリップボードにコピー
+                    navigator.clipboard.writeText(code).then(function() {
+                        // 成功時の視覚的フィードバック
+                        button.textContent = 'コピーしました!';
+                        button.classList.add('copied');
+                        
+                        // 2秒後に元に戻す
+                        setTimeout(function() {
+                            button.textContent = 'コピー';
+                            button.classList.remove('copied');
+                        }, 2000);
+                    }).catch(function(err) {
+                        console.error('コピーに失敗しました:', err);
+                        button.textContent = 'エラー';
+                        setTimeout(function() {
+                            button.textContent = 'コピー';
+                        }, 2000);
+                    });
+                });
+                
+                // ボタンをコードブロックに追加
+                block.style.position = 'relative';
+                block.appendChild(button);
+            });
+        });
+    </script>
+</body>
+</html>
