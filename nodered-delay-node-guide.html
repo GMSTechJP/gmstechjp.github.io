@@ -1,0 +1,1424 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED Delayノード 完全ガイド</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        h1 {
+            color: #8f0000;
+            border-bottom: 3px solid #8f0000;
+            padding-bottom: 10px;
+        }
+        
+        h2 {
+            color: #c00000;
+            margin-top: 30px;
+            border-left: 5px solid #c00000;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #555;
+            margin-top: 25px;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .node-example {
+            background-color: #2d3133;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            color: white;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .node {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 4px;
+            margin: 5px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .node-inject {
+            background-color: #3fadb5;
+            color: white;
+        }
+        
+        .node-delay {
+            background-color: #b5a7d6;
+            color: white;
+        }
+        
+        .node-debug {
+            background-color: #87a48d;
+            color: white;
+        }
+        
+        .node-change {
+            background-color: #e7a070;
+            color: white;
+        }
+        
+        .node-split {
+            background-color: #e8c46b;
+            color: #333;
+        }
+        
+        .arrow {
+            color: #999;
+            font-size: 20px;
+            margin: 0 10px;
+        }
+        
+        .important {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .tip {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .code-block {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            position: relative;
+        }
+        
+        .copy-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 6px 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: 'Segoe UI', sans-serif;
+            transition: background-color 0.2s;
+            z-index: 10;
+        }
+        
+        .copy-button:hover {
+            background-color: #0056b3;
+        }
+        
+        .copy-button.copied {
+            background-color: #28a745;
+        }
+        
+        .exercise {
+            background-color: #e8f5e9;
+            border: 2px solid #4caf50;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        
+        .exercise h3 {
+            color: #2e7d32;
+            margin-top: 0;
+        }
+        
+        .difficulty {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .difficulty-easy {
+            background-color: #4caf50;
+            color: white;
+        }
+        
+        .difficulty-medium {
+            background-color: #ff9800;
+            color: white;
+        }
+        
+        .difficulty-hard {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        ul, ol {
+            padding-left: 25px;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #8f0000;
+            color: white;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .flow-json {
+            background-color: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        details {
+            margin: 15px 0;
+        }
+        
+        summary {
+            cursor: pointer;
+            padding: 10px;
+            background-color: #6c757d;
+            color: white;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        summary:hover {
+            background-color: #5a6268;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .feature-card {
+            background-color: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .feature-card h4 {
+            color: #b5a7d6;
+            margin-top: 0;
+        }
+        
+        .mode-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        
+        .badge-delay {
+            background-color: #b5a7d6;
+            color: white;
+        }
+        
+        .badge-rate {
+            background-color: #17a2b8;
+            color: white;
+        }
+        
+        .badge-queue {
+            background-color: #ffc107;
+            color: #333;
+        }
+        
+        .badge-random {
+            background-color: #6c757d;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⏱️ Node-RED Delayノード 完全ガイド</h1>
+        
+        <p>このガイドでは、Node-REDの<strong>Delayノード</strong>について、初心者の方でも理解できるように詳しく説明します。</p>
+        
+        <h2>📚 1. Delayノードとは?</h2>
+        
+        <h3>🤔 「遅延」って何?</h3>
+        <p>遅延とは、「わざと待つ」ということです。メッセージが流れてくるスピードをコントロールするのがDelayノードの役割です。</p>
+        
+        <div class="important">
+            <strong>💡 日常の例で考えてみましょう:</strong>
+            <ul>
+                <li>信号機 → 一定時間待ってから車を進める(固定遅延)</li>
+                <li>レストランの注文 → 料理ができるまで待つ(可変遅延)</li>
+                <li>行列の整理 → 一度に入場できる人数を制限(レート制限)</li>
+                <li>エレベーター → 満員になるまで少し待つ(キューイング)</li>
+            </ul>
+            <p>Delayノードは、これらの「待つ」「制限する」をプログラムで実現します!</p>
+        </div>
+        
+        <h3>🎯 Delayノードの役割</h3>
+        <p><strong>Delayノード</strong>は、メッセージの流れを時間的に制御するノードです。主に3つの用途があります:</p>
+        
+        <div class="tip">
+            <strong>🚦 交通整理の例:</strong><br>
+            <br>
+            <strong>1. 遅延モード</strong> = 信号機<br>
+            メッセージが来たら、指定時間だけ待ってから次に送る<br>
+            <br>
+            <strong>2. レート制限モード</strong> = 流量計<br>
+            メッセージが大量に来ても、一定のペースに調整して送る<br>
+            <br>
+            <strong>3. キューモード</strong> = バッファ<br>
+            メッセージを一時的に溜めて、適切なタイミングで送る
+        </div>
+        
+        <h2>🔍 2. サンプルフローの詳しい解説</h2>
+        
+        <p>サンプルフローには、Delayノードの<strong>5つの主要な使い方</strong>が含まれています:</p>
+        
+        <h3>パターン1: 固定時間の遅延</h3>
+        <div class="node-example">
+            <span class="node node-inject">inject<br>"Hello"</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">即座に表示</span>
+            <br><br>
+            <span style="margin-left: 100px;">↓</span>
+            <br>
+            <span style="margin-left: 70px;"><span class="node node-delay">delay<br>3秒</span></span>
+            <span class="arrow">→</span>
+            <span class="node node-change">change<br>"Goodbye"</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">3秒後に表示</span>
+        </div>
+        <p>Injectを押すと、すぐに"Hello"が表示され、3秒後に"Goodbye"が表示されます。</p>
+        
+        <h3>パターン2: msg.delayで動的に遅延時間を指定</h3>
+        <div class="node-example">
+            <span class="node node-inject">inject<br>delay=1000ms</span>
+            <span class="arrow">→</span>
+            <span class="node node-delay">動的遅延</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">1秒後</span>
+            <br><br>
+            <span class="node node-inject">inject<br>delay=10000ms</span>
+            <span class="arrow">→</span>
+            <span class="node node-delay">動的遅延</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">10秒後</span>
+        </div>
+        <p>メッセージごとに異なる遅延時間を指定できます。msg.delayにミリ秒単位で指定します。</p>
+        
+        <h3>パターン3: reset/flushでキューを制御</h3>
+        <div class="node-example">
+            <span class="node node-inject">メッセージ送信</span>
+            <span class="arrow">→</span>
+            <span class="node node-delay">10秒遅延</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">debug</span>
+            <br><br>
+            <span class="node node-inject">reset</span>
+            <span class="arrow">→</span>
+            <span style="color: #aaa;">待機中のメッセージを削除</span>
+            <br><br>
+            <span class="node node-inject">flush</span>
+            <span class="arrow">→</span>
+            <span style="color: #aaa;">待機中のメッセージを即座に送信</span>
+        </div>
+        <p>resetで待機中のメッセージをキャンセル、flushで即座に送信できます。</p>
+        
+        <h3>パターン4: レート制限(1秒に1メッセージ)</h3>
+        <div class="node-example">
+            <span class="node node-inject">配列[0-9]</span>
+            <span class="arrow">→</span>
+            <span class="node node-split">split</span>
+            <span class="arrow">→</span>
+            <span class="node node-delay">1秒に1個</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">1秒間隔</span>
+        </div>
+        <p>10個の要素が一度に来ても、1秒に1個ずつ処理されます。</p>
+        
+        <h3>パターン5: トピックごとのレート制限</h3>
+        <div class="node-example">
+            <span class="node node-inject">apple: 1,2,3<br>orange: 1,2,3<br>banana: 1,2,3</span>
+            <span class="arrow">→</span>
+            <span class="node node-delay">2秒に1個<br>(トピック別)</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">最後の値のみ</span>
+        </div>
+        <p>トピックごとに最新のメッセージだけを送信します。</p>
+        
+        <h2>⚙️ 3. Delayノードの設定項目</h2>
+        
+        <h3>4つの主要な動作モード</h3>
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h4><span class="mode-badge badge-delay">Delay</span> 固定遅延</h4>
+                <p>指定した時間だけメッセージを遅らせる</p>
+                <ul>
+                    <li>秒/分/時間単位で指定</li>
+                    <li>すべてのメッセージを遅延</li>
+                    <li>順番は保持される</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <h4><span class="mode-badge badge-delay">Delay (override)</span> 可変遅延</h4>
+                <p>msg.delayで動的に遅延時間を指定</p>
+                <ul>
+                    <li>ミリ秒単位で指定</li>
+                    <li>メッセージごとに異なる遅延</li>
+                    <li>柔軟な制御が可能</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <h4><span class="mode-badge badge-rate">Rate Limit</span> レート制限</h4>
+                <p>指定したペースでメッセージを流す</p>
+                <ul>
+                    <li>1秒に何個など指定</li>
+                    <li>超過分は待機または破棄</li>
+                    <li>API制限対策に有効</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <h4><span class="mode-badge badge-queue">Rate Limit (topic)</span> トピック別制限</h4>
+                <p>トピックごとに独立してレート制限</p>
+                <ul>
+                    <li>最新の値のみ保持</li>
+                    <li>古いメッセージは破棄</li>
+                    <li>センサーデータに最適</li>
+                </ul>
+            </div>
+        </div>
+        
+        <h3>📋 詳細設定項目</h3>
+        
+        <table>
+            <tr>
+                <th>設定項目</th>
+                <th>説明</th>
+                <th>例</th>
+            </tr>
+            <tr>
+                <td>Action</td>
+                <td>動作モード</td>
+                <td>Delay / Rate Limit</td>
+            </tr>
+            <tr>
+                <td>For</td>
+                <td>遅延時間</td>
+                <td>3 seconds / 500 milliseconds</td>
+            </tr>
+            <tr>
+                <td>Rate</td>
+                <td>レート(個数/時間)</td>
+                <td>1 message per 1 second</td>
+            </tr>
+            <tr>
+                <td>Drop intermediate messages</td>
+                <td>待機中のメッセージを破棄</td>
+                <td>ON: 最新のみ / OFF: すべて保持</td>
+            </tr>
+            <tr>
+                <td>Allow override by msg.delay</td>
+                <td>msg.delayで上書き可能に</td>
+                <td>動的遅延を使用する場合ON</td>
+            </tr>
+            <tr>
+                <td>Random delay</td>
+                <td>ランダムな遅延時間</td>
+                <td>1-5秒の範囲でランダム</td>
+            </tr>
+        </table>
+        
+        <h3>🔧 resetとflushの使い方</h3>
+        
+        <div class="important">
+            <p><strong>reset</strong>と<strong>flush</strong>は、Delayノードに対する特殊な制御コマンドです。</p>
+            
+            <p><strong>reset:</strong></p>
+            <ul>
+                <li>待機中のメッセージをすべて削除</li>
+                <li>msg.resetをtrueに設定</li>
+                <li>使用例: キャンセル操作、エラー発生時のクリア</li>
+            </ul>
+            
+            <p><strong>flush:</strong></p>
+            <ul>
+                <li>待機中のメッセージを即座に送信</li>
+                <li>msg.flushをtrueに設定</li>
+                <li>使用例: 緊急送信、タイムアウト処理</li>
+            </ul>
+            
+            <p><strong>設定方法:</strong></p>
+            <div class="code-block">
+// Injectノードで以下のプロパティを追加
+msg.reset = true;  // または
+msg.flush = true;
+            </div>
+        </div>
+        
+        <h2>💡 4. Delayノードの実用的な使い方</h2>
+        
+        <h3>実際のプロジェクトでの活用例</h3>
+        
+        <h4>例1: API呼び出しのレート制限</h4>
+        <div class="node-example">
+            <span class="node node-inject">大量データ</span>
+            <span class="arrow">→</span>
+            <span class="node node-split">分割</span>
+            <span class="arrow">→</span>
+            <span class="node node-delay">1秒に1個</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">API送信</span>
+        </div>
+        <p>APIの制限(例: 1秒に1リクエストまで)を守りながら処理します。</p>
+        
+        <h4>例2: チャタリング防止</h4>
+        <div class="node-example">
+            <span class="node node-inject">ボタン連打</span>
+            <span class="arrow">→</span>
+            <span class="node node-delay">1秒に1個<br>最新のみ</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">処理</span>
+        </div>
+        <p>短時間に何度も押されても、最後の1回だけ処理します。</p>
+        
+        <h4>例3: タイマー機能</h4>
+        <div class="node-example">
+            <span class="node node-inject">開始</span>
+            <span class="arrow">→</span>
+            <span class="node node-delay">5秒</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">時間切れ通知</span>
+            <br><br>
+            <span class="node node-inject">キャンセル<br>(reset)</span>
+            <span class="arrow">→</span>
+            <span style="color: #aaa;">タイマー解除</span>
+        </div>
+        <p>一定時間後に動作し、途中でキャンセルもできます。</p>
+        
+        <h2>📝 5. 練習問題</h2>
+        
+        <div class="exercise">
+            <h3>練習問題 1: シンプルな遅延 <span class="difficulty difficulty-easy">初級</span></h3>
+            
+            <h4>🎯 目標</h4>
+            <p>メッセージを2秒遅延させてから表示する</p>
+            
+            <h4>📋 要件</h4>
+            <ol>
+                <li>Injectノードで「処理開始」というメッセージを送信</li>
+                <li>Delayノードで2秒遅延</li>
+                <li>Changeノードで「処理完了」に変更</li>
+                <li>Debugノードで表示</li>
+            </ol>
+            
+            <h4>💭 ヒント</h4>
+            
+            <p><strong>🎯 Delayノードの設定(自分で設定してみよう):</strong></p>
+            <ul>
+                <li>Actionは何を選ぶ?</li>
+                <li>遅延時間は?</li>
+                <li>単位は?</li>
+            </ul>
+            
+            <p><strong>🔢 Injectノードの設定(そのまま設定してください):</strong></p>
+            <ul>
+                <li>Payload: string型</li>
+                <li>値: <code>処理開始</code></li>
+            </ul>
+            
+            <p><strong>🔧 Changeノードの詳細設定:</strong></p>
+            <div class="important">
+                <p>Changeノードで1つのルールを追加:</p>
+                <ul>
+                    <li>動作: Set(設定)</li>
+                    <li>対象: <code>msg.payload</code></li>
+                    <li>値: <code>処理完了</code> (string型)</li>
+                </ul>
+            </div>
+            
+            <details>
+                <summary>📦 解答フロー (クリックして表示)</summary>
+                <div class="flow-json">
+[
+    {
+        "id": "ex1_inject",
+        "type": "inject",
+        "z": "exercise1",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "処理開始",
+        "payloadType": "str",
+        "x": 120,
+        "y": 100,
+        "wires": [
+            ["ex1_delay"]
+        ]
+    },
+    {
+        "id": "ex1_delay",
+        "type": "delay",
+        "z": "exercise1",
+        "name": "2秒遅延",
+        "pauseType": "delay",
+        "timeout": "2",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "outputs": 1,
+        "x": 280,
+        "y": 100,
+        "wires": [
+            ["ex1_change"]
+        ]
+    },
+    {
+        "id": "ex1_change",
+        "type": "change",
+        "z": "exercise1",
+        "name": "完了メッセージ",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "処理完了",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 440,
+        "y": 100,
+        "wires": [
+            ["ex1_debug"]
+        ]
+    },
+    {
+        "id": "ex1_debug",
+        "type": "debug",
+        "z": "exercise1",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 610,
+        "y": 100,
+        "wires": []
+    }
+]
+                </div>
+                <p><strong>✅ 動作確認:</strong></p>
+                <ul>
+                    <li>Injectをクリック</li>
+                    <li>2秒待つ</li>
+                    <li>「処理完了」と表示される</li>
+                </ul>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>練習問題 2: カウントダウンタイマー <span class="difficulty difficulty-medium">中級</span></h3>
+            
+            <h4>🎯 目標</h4>
+            <p>5秒のカウントダウンタイマーを作成し、途中でキャンセルできるようにする</p>
+            
+            <h4>📋 要件</h4>
+            <ol>
+                <li>「開始」ボタン: カウントダウンを開始(5秒後に通知)</li>
+                <li>「キャンセル」ボタン: カウントダウンを中止</li>
+                <li>時間切れになったら「タイムアップ!」と表示</li>
+            </ol>
+            
+            <h4>💭 ヒント</h4>
+            
+            <p><strong>🎯 Delayノードの設定(自分で考えてみよう):</strong></p>
+            <ul>
+                <li>何秒遅延させる?</li>
+                <li>キャンセルを実現するには?</li>
+            </ul>
+            
+            <p><strong>🔢 Injectノード1(開始)の設定:</strong></p>
+            <ul>
+                <li>名前: <code>開始</code></li>
+                <li>Payload: string型で <code>カウントダウン開始</code></li>
+            </ul>
+            
+            <p><strong>🔢 Injectノード2(キャンセル)の設定:</strong></p>
+            <div class="important">
+                <p>キャンセル用のInjectノードの設定:</p>
+                <ul>
+                    <li>名前: <code>キャンセル</code></li>
+                    <li>プロパティ1: <code>msg.reset</code> = <code>true</code> (boolean型)</li>
+                </ul>
+                <p>※ Payloadは不要です。msg.resetだけ設定してください。</p>
+            </div>
+            
+            <p><strong>🔧 Changeノードの設定:</strong></p>
+            <div class="important">
+                <ul>
+                    <li>動作: Set(設定)</li>
+                    <li>対象: <code>msg.payload</code></li>
+                    <li>値: <code>タイムアップ!</code> (string型)</li>
+                </ul>
+            </div>
+            
+            <p><strong>🔀 フローの接続:</strong></p>
+            <ul>
+                <li>「開始」Inject → Delay → Change → Debug</li>
+                <li>「キャンセル」Inject → Delay (同じDelayノード)</li>
+            </ul>
+            
+            <details>
+                <summary>📦 解答フロー (クリックして表示)</summary>
+                <div class="flow-json">
+[
+    {
+        "id": "ex2_inject_start",
+        "type": "inject",
+        "z": "exercise2",
+        "name": "開始",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "カウントダウン開始",
+        "payloadType": "str",
+        "x": 110,
+        "y": 100,
+        "wires": [
+            ["ex2_delay"]
+        ]
+    },
+    {
+        "id": "ex2_inject_cancel",
+        "type": "inject",
+        "z": "exercise2",
+        "name": "キャンセル",
+        "props": [
+            {
+                "p": "reset",
+                "v": "true",
+                "vt": "bool"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 120,
+        "y": 160,
+        "wires": [
+            ["ex2_delay"]
+        ]
+    },
+    {
+        "id": "ex2_delay",
+        "type": "delay",
+        "z": "exercise2",
+        "name": "5秒タイマー",
+        "pauseType": "delay",
+        "timeout": "5",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "outputs": 1,
+        "x": 310,
+        "y": 100,
+        "wires": [
+            ["ex2_change"]
+        ]
+    },
+    {
+        "id": "ex2_change",
+        "type": "change",
+        "z": "exercise2",
+        "name": "タイムアップ",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "タイムアップ!",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 490,
+        "y": 100,
+        "wires": [
+            ["ex2_debug"]
+        ]
+    },
+    {
+        "id": "ex2_debug",
+        "type": "debug",
+        "z": "exercise2",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 650,
+        "y": 100,
+        "wires": []
+    }
+]
+                </div>
+                <p><strong>✅ 動作確認:</strong></p>
+                <ul>
+                    <li>「開始」をクリック → 5秒後に「タイムアップ!」が表示</li>
+                    <li>「開始」をクリック → 3秒後に「キャンセル」をクリック → 何も表示されない</li>
+                </ul>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>練習問題 3: API呼び出しのレート制限 <span class="difficulty difficulty-medium">中級</span></h3>
+            
+            <h4>🎯 目標</h4>
+            <p>10個のIDを持つ配列から、1秒に1回のペースでAPI呼び出しをシミュレートする</p>
+            
+            <h4>📋 要件</h4>
+            <ol>
+                <li>Injectノードで10個のIDを含む配列を送信</li>
+                <li>Splitノードで配列を個別のメッセージに分割</li>
+                <li>Delayノードで1秒に1個のペースに制限</li>
+                <li>Functionノードで「API呼び出し: ID=X」と表示</li>
+                <li>Debugノードで結果を表示</li>
+            </ol>
+            
+            <h4>💭 ヒント</h4>
+            
+            <p><strong>🎯 Delayノードの設定(自分で考えてみよう):</strong></p>
+            <ul>
+                <li>Actionは何を選ぶ?</li>
+                <li>レートはどう設定する?</li>
+            </ul>
+            
+            <p><strong>🔢 Injectノードの設定(そのまま設定してください):</strong></p>
+            <div class="important">
+                <ul>
+                    <li>Payload: JSON型を選択</li>
+                    <li>以下のJSONを入力:</li>
+                </ul>
+                <div class="code-block">
+[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+                </div>
+            </div>
+            
+            <p><strong>🔀 Splitノードの設定:</strong></p>
+            <ul>
+                <li>デフォルト設定のままでOK</li>
+                <li>配列を自動的に分割してくれます</li>
+            </ul>
+            
+            <p><strong>📝 Functionノードの完全なコード(そのままコピーしてOK):</strong></p>
+            <div class="code-block">
+// API呼び出しをシミュレート
+msg.payload = "API呼び出し: ID=" + msg.payload;
+return msg;
+            </div>
+            
+            <details>
+                <summary>📦 解答フロー (クリックして表示)</summary>
+                <div class="flow-json">
+[
+    {
+        "id": "ex3_inject",
+        "type": "inject",
+        "z": "exercise3",
+        "name": "ID配列",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[1,2,3,4,5,6,7,8,9,10]",
+        "payloadType": "json",
+        "x": 120,
+        "y": 100,
+        "wires": [
+            ["ex3_split"]
+        ]
+    },
+    {
+        "id": "ex3_split",
+        "type": "split",
+        "z": "exercise3",
+        "name": "",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "x": 270,
+        "y": 100,
+        "wires": [
+            ["ex3_delay"]
+        ]
+    },
+    {
+        "id": "ex3_delay",
+        "type": "delay",
+        "z": "exercise3",
+        "name": "1秒に1個",
+        "pauseType": "rate",
+        "timeout": "5",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "outputs": 1,
+        "x": 400,
+        "y": 100,
+        "wires": [
+            ["ex3_function"]
+        ]
+    },
+    {
+        "id": "ex3_function",
+        "type": "function",
+        "z": "exercise3",
+        "name": "API呼び出し",
+        "func": "// API呼び出しをシミュレート\nmsg.payload = \"API呼び出し: ID=\" + msg.payload;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 560,
+        "y": 100,
+        "wires": [
+            ["ex3_debug"]
+        ]
+    },
+    {
+        "id": "ex3_debug",
+        "type": "debug",
+        "z": "exercise3",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 710,
+        "y": 100,
+        "wires": []
+    }
+]
+                </div>
+                <p><strong>✅ 動作確認:</strong></p>
+                <ul>
+                    <li>Injectをクリック</li>
+                    <li>1秒ごとに「API呼び出し: ID=1」「API呼び出し: ID=2」...と表示</li>
+                    <li>10個すべて表示されるまで10秒かかる</li>
+                </ul>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>練習問題 4: センサーデータのバッファリング <span class="difficulty difficulty-hard">上級</span></h3>
+            
+            <h4>🎯 目標</h4>
+            <p>高頻度で更新されるセンサーデータを、トピックごとに2秒に1回だけ送信する</p>
+            
+            <h4>📋 シナリオ</h4>
+            <p>3つのセンサー(temperature, humidity, pressure)がそれぞれ0.5秒ごとにデータを送信します。しかし、クラウドへの送信は2秒に1回に制限したい。各センサーの最新値だけを送信します。</p>
+            
+            <h4>📋 要件</h4>
+            <ol>
+                <li>Injectノードで3つのセンサーデータを高頻度で送信(0.5秒ごと)</li>
+                <li>Changeノードでtopicを設定(temperature/humidity/pressure)</li>
+                <li>Delayノードでトピックごとに2秒に1個のペースに制限</li>
+                <li>中間のメッセージは破棄し、最新のみ保持</li>
+                <li>Functionノードで整形して表示</li>
+            </ol>
+            
+            <h4>💭 ヒント</h4>
+            
+            <p><strong>🎯 Delayノードの設定(自分で考えてみよう):</strong></p>
+            <ul>
+                <li>どのActionを使う?</li>
+                <li>「All messages」と「For each topic」のどちらを選ぶ?</li>
+                <li>「Drop intermediate messages」はどうする?</li>
+            </ul>
+            
+            <p><strong>🔢 Injectノード(温度)の設定:</strong></p>
+            <div class="important">
+                <ul>
+                    <li>名前: <code>温度センサー</code></li>
+                    <li>Repeat: interval - 0.5 seconds</li>
+                    <li>Payload: JSONata式</li>
+                    <li>値: <code>$round($random() * 10 + 20, 1)</code></li>
+                    <li>※ これは20-30℃の範囲でランダムな温度を生成します</li>
+                </ul>
+            </div>
+            
+            <p><strong>🔧 Changeノード(温度)の設定:</strong></p>
+            <div class="important">
+                <ul>
+                    <li>動作: Set(設定)</li>
+                    <li>対象: <code>msg.topic</code></li>
+                    <li>値: <code>temperature</code> (string型)</li>
+                </ul>
+            </div>
+            
+            <p><strong>📝 同様に湿度と気圧も作成:</strong></p>
+            <ul>
+                <li>湿度: 40-80% → <code>$round($random() * 40 + 40, 1)</code></li>
+                <li>気圧: 990-1030hPa → <code>$round($random() * 40 + 990, 1)</code></li>
+            </ul>
+            
+            <p><strong>📝 Functionノードの完全なコード(そのままコピーしてOK):</strong></p>
+            <div class="code-block">
+// センサーデータを整形
+let sensorName = {
+    "temperature": "温度",
+    "humidity": "湿度",
+    "pressure": "気圧"
+};
+
+let unit = {
+    "temperature": "℃",
+    "humidity": "%",
+    "pressure": "hPa"
+};
+
+msg.payload = sensorName[msg.topic] + ": " + msg.payload + unit[msg.topic];
+return msg;
+            </div>
+            
+            <details>
+                <summary>📦 解答フロー (クリックして表示)</summary>
+                <div class="flow-json">
+[
+    {
+        "id": "ex4_inject_temp",
+        "type": "inject",
+        "z": "exercise4",
+        "name": "温度センサー",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "0.5",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "$round($random() * 10 + 20, 1)",
+        "payloadType": "jsonata",
+        "x": 140,
+        "y": 100,
+        "wires": [
+            ["ex4_change_temp"]
+        ]
+    },
+    {
+        "id": "ex4_change_temp",
+        "type": "change",
+        "z": "exercise4",
+        "name": "topic=temperature",
+        "rules": [
+            {
+                "t": "set",
+                "p": "topic",
+                "pt": "msg",
+                "to": "temperature",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 350,
+        "y": 100,
+        "wires": [
+            ["ex4_delay"]
+        ]
+    },
+    {
+        "id": "ex4_inject_humid",
+        "type": "inject",
+        "z": "exercise4",
+        "name": "湿度センサー",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "0.5",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "$round($random() * 40 + 40, 1)",
+        "payloadType": "jsonata",
+        "x": 140,
+        "y": 160,
+        "wires": [
+            ["ex4_change_humid"]
+        ]
+    },
+    {
+        "id": "ex4_change_humid",
+        "type": "change",
+        "z": "exercise4",
+        "name": "topic=humidity",
+        "rules": [
+            {
+                "t": "set",
+                "p": "topic",
+                "pt": "msg",
+                "to": "humidity",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 340,
+        "y": 160,
+        "wires": [
+            ["ex4_delay"]
+        ]
+    },
+    {
+        "id": "ex4_inject_press",
+        "type": "inject",
+        "z": "exercise4",
+        "name": "気圧センサー",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "0.5",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "$round($random() * 40 + 990, 1)",
+        "payloadType": "jsonata",
+        "x": 140,
+        "y": 220,
+        "wires": [
+            ["ex4_change_press"]
+        ]
+    },
+    {
+        "id": "ex4_change_press",
+        "type": "change",
+        "z": "exercise4",
+        "name": "topic=pressure",
+        "rules": [
+            {
+                "t": "set",
+                "p": "topic",
+                "pt": "msg",
+                "to": "pressure",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 340,
+        "y": 220,
+        "wires": [
+            ["ex4_delay"]
+        ]
+    },
+    {
+        "id": "ex4_delay",
+        "type": "delay",
+        "z": "exercise4",
+        "name": "2秒に1個(トピック別)",
+        "pauseType": "timed",
+        "timeout": "5",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "2",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": true,
+        "outputs": 1,
+        "x": 580,
+        "y": 160,
+        "wires": [
+            ["ex4_function"]
+        ]
+    },
+    {
+        "id": "ex4_function",
+        "type": "function",
+        "z": "exercise4",
+        "name": "データ整形",
+        "func": "// センサーデータを整形\nlet sensorName = {\n    \"temperature\": \"温度\",\n    \"humidity\": \"湿度\",\n    \"pressure\": \"気圧\"\n};\n\nlet unit = {\n    \"temperature\": \"℃\",\n    \"humidity\": \"%\",\n    \"pressure\": \"hPa\"\n};\n\nmsg.payload = sensorName[msg.topic] + \": \" + msg.payload + unit[msg.topic];\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 790,
+        "y": 160,
+        "wires": [
+            ["ex4_debug"]
+        ]
+    },
+    {
+        "id": "ex4_debug",
+        "type": "debug",
+        "z": "exercise4",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 950,
+        "y": 160,
+        "wires": []
+    }
+]
+                </div>
+                <p><strong>✅ 動作確認:</strong></p>
+                <ul>
+                    <li>フローをデプロイすると、自動的に0.5秒ごとにセンサーデータが発生</li>
+                    <li>Debugには2秒ごとに表示される</li>
+                    <li>各センサーの最新値のみが送信される</li>
+                    <li>例: 「温度: 25.3℃」「湿度: 62.1%」「気圧: 1012.5hPa」</li>
+                </ul>
+            </details>
+        </div>
+        
+        <h2>🎓 6. まとめ</h2>
+        
+        <div class="important">
+            <h3>Delayノードの重要ポイント</h3>
+            <ul>
+                <li>✅ <strong>時間制御</strong>: メッセージの流れを時間的に制御</li>
+                <li>✅ <strong>4つのモード</strong>: 固定遅延、可変遅延、レート制限、トピック別制限</li>
+                <li>✅ <strong>reset/flush</strong>: 待機中のメッセージを制御できる</li>
+                <li>✅ <strong>API制限対策</strong>: レート制限で外部APIの呼び出し制限を守る</li>
+                <li>✅ <strong>チャタリング防止</strong>: 短時間の連続入力を整理</li>
+            </ul>
+        </div>
+        
+        <div class="tip">
+            <h3>📚 次のステップ</h3>
+            <p>Delayノードをマスターしたら、以下のノードも学んでみましょう:</p>
+            <ul>
+                <li><strong>Triggerノード</strong>: タイムアウト付きの高度な制御</li>
+                <li><strong>Batchノード</strong>: メッセージをグループ化</li>
+                <li><strong>Sortノード</strong>: メッセージを並び替え</li>
+                <li><strong>Joinノード</strong>: 複数のメッセージを結合</li>
+            </ul>
+        </div>
+        
+        <h2>🔧 7. トラブルシューティング</h2>
+        
+        <h3>よくある問題と解決方法</h3>
+        
+        <table>
+            <tr>
+                <th>問題</th>
+                <th>原因</th>
+                <th>解決方法</th>
+            </tr>
+            <tr>
+                <td>メッセージが出てこない</td>
+                <td>待機中またはキューに溜まっている</td>
+                <td>flushメッセージを送るか、しばらく待つ</td>
+            </tr>
+            <tr>
+                <td>レート制限が効かない</td>
+                <td>Actionの設定ミス</td>
+                <td>「Rate Limit」を選択しているか確認</td>
+            </tr>
+            <tr>
+                <td>resetが効かない</td>
+                <td>msg.resetがtrueになっていない</td>
+                <td>Injectノードでboolean型のtrueを設定</td>
+            </tr>
+            <tr>
+                <td>トピック別制限が機能しない</td>
+                <td>「For each topic」が選ばれていない</td>
+                <td>設定を確認し、msg.topicが設定されているか確認</td>
+            </tr>
+        </table>
+        
+        <h2>🔗 8. 追加リソース</h2>
+        
+        <ul>
+            <li><a href="https://nodered.org/docs/user-guide/nodes#delay" target="_blank">Node-RED公式ドキュメント: Delayノード</a></li>
+            <li><a href="https://cookbook.nodered.org/basic/rate-limit-messages" target="_blank">Node-RED Cookbook: レート制限</a></li>
+            <li><a href="https://flows.nodered.org/" target="_blank">Node-RED Flow Library: サンプルフロー集</a></li>
+        </ul>
+        
+        <hr>
+        
+        <p style="text-align: center; color: #999; margin-top: 40px;">
+            <small>このガイドが役に立ちましたら、実際のプロジェクトで練習してみてください!<br>
+            Delayノードはメッセージの流れを制御する重要なノードです。</small>
+        </p>
+    </div>
+    
+    <script>
+        // ページ読み込み時にコピーボタンを追加
+        document.addEventListener('DOMContentLoaded', function() {
+            // すべての.code-blockと.flow-jsonにコピーボタンを追加
+            const codeBlocks = document.querySelectorAll('.code-block, .flow-json');
+            
+            codeBlocks.forEach(function(block) {
+                // コピーボタンを作成
+                const button = document.createElement('button');
+                button.className = 'copy-button';
+                button.textContent = 'コピー';
+                
+                // クリックイベントを追加
+                button.addEventListener('click', function() {
+                    // コードブロックのテキストを取得
+                    const code = block.textContent.replace('コピー', '').trim();
+                    
+                    // クリップボードにコピー
+                    navigator.clipboard.writeText(code).then(function() {
+                        // 成功時の視覚的フィードバック
+                        button.textContent = 'コピーしました!';
+                        button.classList.add('copied');
+                        
+                        // 2秒後に元に戻す
+                        setTimeout(function() {
+                            button.textContent = 'コピー';
+                            button.classList.remove('copied');
+                        }, 2000);
+                    }).catch(function(err) {
+                        console.error('コピーに失敗しました:', err);
+                        button.textContent = 'エラー';
+                        setTimeout(function() {
+                            button.textContent = 'コピー';
+                        }, 2000);
+                    });
+                });
+                
+                // ボタンをコードブロックに追加
+                block.style.position = 'relative';
+                block.appendChild(button);
+            });
+        });
+    </script>
+</body>
+</html>

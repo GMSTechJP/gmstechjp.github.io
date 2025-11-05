@@ -1,0 +1,1539 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED Changeノード 完全ガイド</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        h1 {
+            color: #8f0000;
+            border-bottom: 3px solid #8f0000;
+            padding-bottom: 10px;
+        }
+        
+        h2 {
+            color: #c00000;
+            margin-top: 30px;
+            border-left: 5px solid #c00000;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #555;
+            margin-top: 25px;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .node-example {
+            background-color: #2d3133;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            color: white;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .node {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 4px;
+            margin: 5px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .node-inject {
+            background-color: #3fadb5;
+            color: white;
+        }
+        
+        .node-function {
+            background-color: #e6b0aa;
+            color: #333;
+        }
+        
+        .node-catch {
+            background-color: #f39c12;
+            color: white;
+        }
+        
+        .node-debug {
+            background-color: #87a48d;
+            color: white;
+        }
+        
+        .node-change {
+            background-color: #e7a070;
+            color: white;
+        }
+        
+        .node-switch {
+            background-color: #e8c46b;
+            color: #333;
+        }
+        
+        .arrow {
+            color: #999;
+            font-size: 20px;
+            margin: 0 10px;
+        }
+        
+        .important {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .tip {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .code-block {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            position: relative;
+        }
+        
+        .copy-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 6px 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: 'Segoe UI', sans-serif;
+            transition: background-color 0.2s;
+            z-index: 10;
+        }
+        
+        .copy-button:hover {
+            background-color: #0056b3;
+        }
+        
+        .copy-button.copied {
+            background-color: #28a745;
+        }
+        
+        .exercise {
+            background-color: #e8f5e9;
+            border: 2px solid #4caf50;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        
+        .exercise h3 {
+            color: #2e7d32;
+            margin-top: 0;
+        }
+        
+        .difficulty {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .difficulty-easy {
+            background-color: #4caf50;
+            color: white;
+        }
+        
+        .difficulty-medium {
+            background-color: #ff9800;
+            color: white;
+        }
+        
+        .difficulty-hard {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        ul, ol {
+            padding-left: 25px;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #8f0000;
+            color: white;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .flow-json {
+            background-color: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        .answer-section {
+            background-color: #fff9e6;
+            border: 2px dashed #ffc107;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        details {
+            margin: 15px 0;
+        }
+        
+        summary {
+            cursor: pointer;
+            padding: 10px;
+            background-color: #6c757d;
+            color: white;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        summary:hover {
+            background-color: #5a6268;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .feature-card {
+            background-color: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .feature-card h4 {
+            color: #e7a070;
+            margin-top: 0;
+        }
+        
+        .operation-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        
+        .badge-set {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .badge-delete {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .badge-move {
+            background-color: #17a2b8;
+            color: white;
+        }
+        
+        .badge-change {
+            background-color: #ffc107;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 Node-RED Changeノード 完全ガイド</h1>
+        
+        <p>このガイドでは、Node-REDの<strong>Changeノード</strong>について、初心者の方でも理解できるように詳しく説明します。</p>
+        
+        <h2>📚 1. Changeノードとは?</h2>
+        
+        <h3>🤔 「メッセージの加工」って何?</h3>
+        <p>Node-REDでは、ノードからノードへ「メッセージ」が流れます。Changeノードは、その流れる途中でメッセージの中身を<strong>変更・追加・削除</strong>できるノードです。</p>
+        
+        <div class="important">
+            <strong>💡 日常の例で考えてみましょう:</strong>
+            <ul>
+                <li>郵便物の転送 → 宛先を変更する(メッセージのプロパティ変更)</li>
+                <li>荷物の梱包 → ラベルを追加する(プロパティの追加)</li>
+                <li>書類の編集 → 不要な情報を消す(プロパティの削除)</li>
+                <li>ファイルの移動 → あるフォルダから別のフォルダへ(プロパティの移動)</li>
+            </ul>
+            <p>Changeノードは、これらの「加工」をコードを書かずに簡単に行えます!</p>
+        </div>
+        
+        <h3>🎯 Changeノードの役割</h3>
+        <p><strong>Changeノード</strong>は、Functionノードを使わずに、メッセージの内容を変更できる便利なノードです。</p>
+        
+        <div class="tip">
+            <strong>🏭 工場の作業工程の例:</strong><br>
+            メッセージ = 製品<br>
+            Changeノード = 加工担当の作業員<br>
+            <br>
+            製品(メッセージ)が流れてきたら、作業員(Changeノード)が:<br>
+            ・ラベルを貼る(プロパティを設定)<br>
+            ・不良品マークを消す(プロパティを削除)<br>
+            ・箱を入れ替える(プロパティを移動)<br>
+            <br>
+            コードを書かずに、設定だけで加工できるのが特徴です!
+        </div>
+        
+        <h2>🔍 2. サンプルフローの詳しい解説</h2>
+        
+        <p>サンプルフローには、Changeノードの<strong>7つの主要な使い方</strong>が含まれています:</p>
+        
+        <h3>パターン1: 固定値をセット</h3>
+        <div class="node-example">
+            <span class="node node-inject">inject<br>(timestamp)</span>
+            <span class="arrow">→</span>
+            <span class="node node-change">change<br>payload="Hello World!"</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">debug</span>
+        </div>
+        <p>元のpayload(タイムスタンプ)を「Hello World!」という文字列に置き換えます。</p>
+        
+        <h3>パターン2: 複数のプロパティをセット</h3>
+        <div class="node-example">
+            <span class="node node-inject">inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-change">change<br>payload="Hello, World!"<br>topic="Title"</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">debug</span>
+        </div>
+        <p>payloadとtopicの両方を一度に設定します。</p>
+        
+        <h3>パターン3: JSONataで動的に値を生成</h3>
+        <div class="node-example">
+            <span class="node node-inject">inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-change">change<br>payload="Hello"<br>→"Hello, World!"</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">debug</span>
+        </div>
+        <p>既存の値に文字列を追加するなど、動的な加工ができます。</p>
+        
+        <h3>パターン4: 環境変数から値を取得</h3>
+        <div class="node-example">
+            <span class="node node-inject">inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-change">change<br>payload=env.HOME</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">debug</span>
+        </div>
+        <p>システムの環境変数(例: HOMEディレクトリ)を取得します。</p>
+        
+        <h3>パターン5: Flow変数の操作</h3>
+        <div class="node-example">
+            <span class="node node-inject">初期化</span>
+            <span class="arrow">→</span>
+            <span class="node node-change">flow.count=0</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">debug</span>
+            <br><br>
+            <span class="node node-inject">カウントアップ</span>
+            <span class="arrow">→</span>
+            <span class="node node-change">flow.count+1</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">debug</span>
+        </div>
+        <p>flow変数を使って、フロー全体で共有するカウンターを作成します。</p>
+        
+        <h3>パターン6: プロパティの削除</h3>
+        <div class="node-example">
+            <span class="node node-inject">inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-change">change<br>delete payload</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">debug</span>
+        </div>
+        <p>payloadプロパティを削除します(undefinedになります)。</p>
+        
+        <h3>パターン7: プロパティの移動</h3>
+        <div class="node-example">
+            <span class="node node-inject">inject<br>topic="Hello"</span>
+            <span class="arrow">→</span>
+            <span class="node node-change">change<br>topic→payload</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">debug</span>
+        </div>
+        <p>topicの値をpayloadに移動します(元のtopicは削除されます)。</p>
+        
+        <h2>⚙️ 3. Changeノードの設定項目</h2>
+        
+        <h3>4つの主要な操作</h3>
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h4><span class="operation-badge badge-set">Set</span> 値を設定</h4>
+                <p>プロパティに値を設定します</p>
+                <ul>
+                    <li>固定値</li>
+                    <li>他のプロパティの値</li>
+                    <li>JSONata式</li>
+                    <li>環境変数</li>
+                    <li>flow/global変数</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <h4><span class="operation-badge badge-change">Change</span> 値を変更</h4>
+                <p>文字列の置換を行います</p>
+                <ul>
+                    <li>通常の文字列置換</li>
+                    <li>正規表現を使った置換</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <h4><span class="operation-badge badge-delete">Delete</span> 値を削除</h4>
+                <p>プロパティを削除します</p>
+                <ul>
+                    <li>不要なプロパティの削除</li>
+                    <li>センシティブ情報の除去</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <h4><span class="operation-badge badge-move">Move</span> 値を移動</h4>
+                <p>プロパティを移動します</p>
+                <ul>
+                    <li>元のプロパティは削除</li>
+                    <li>新しいプロパティに設定</li>
+                </ul>
+            </div>
+        </div>
+        
+        <h3>📋 値の型(Type)について</h3>
+        
+        <table>
+            <tr>
+                <th>型</th>
+                <th>説明</th>
+                <th>例</th>
+            </tr>
+            <tr>
+                <td>string</td>
+                <td>文字列</td>
+                <td>"Hello, World!"</td>
+            </tr>
+            <tr>
+                <td>number</td>
+                <td>数値</td>
+                <td>42, 3.14</td>
+            </tr>
+            <tr>
+                <td>boolean</td>
+                <td>真偽値</td>
+                <td>true, false</td>
+            </tr>
+            <tr>
+                <td>timestamp</td>
+                <td>現在時刻(ミリ秒)</td>
+                <td>1699123456789</td>
+            </tr>
+            <tr>
+                <td>JSON</td>
+                <td>JSONオブジェクト</td>
+                <td>{"temp": 25}</td>
+            </tr>
+            <tr>
+                <td>JSONata</td>
+                <td>JSONata式(動的計算)</td>
+                <td>payload & ", World!"</td>
+            </tr>
+            <tr>
+                <td>msg</td>
+                <td>メッセージのプロパティ</td>
+                <td>msg.payload</td>
+            </tr>
+            <tr>
+                <td>flow</td>
+                <td>flow変数</td>
+                <td>flow.counter</td>
+            </tr>
+            <tr>
+                <td>global</td>
+                <td>global変数</td>
+                <td>global.settings</td>
+            </tr>
+            <tr>
+                <td>env</td>
+                <td>環境変数</td>
+                <td>env.HOME</td>
+            </tr>
+        </table>
+        
+        <h3>🔧 JSONataとは?</h3>
+        
+        <div class="important">
+            <p><strong>JSONata</strong>は、JSON データを変換・クエリするための軽量言語です。</p>
+            
+            <p><strong>よく使う例:</strong></p>
+            <ul>
+                <li><code>payload & ", World!"</code> → 文字列を連結</li>
+                <li><code>payload * 2</code> → 数値を2倍にする</li>
+                <li><code>$number(payload)</code> → 文字列を数値に変換</li>
+                <li><code>$substring(payload, 0, 5)</code> → 先頭5文字を取得</li>
+                <li><code>$flowContext("count") + 1</code> → flow変数を増やす</li>
+            </ul>
+        </div>
+        
+        <h2>💡 4. Changeノードの実用的な使い方</h2>
+        
+        <h3>実際のプロジェクトでの活用例</h3>
+        
+        <h4>例1: センサーデータの単位変換</h4>
+        <div class="node-example">
+            <span class="node node-inject">温度センサー<br>(°F)</span>
+            <span class="arrow">→</span>
+            <span class="node node-change">°F→°C変換<br>(payload-32)*5/9</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">表示(°C)</span>
+        </div>
+        <p>華氏(°F)を摂氏(°C)に変換します。</p>
+        
+        <h4>例2: APIキーの除去(セキュリティ)</h4>
+        <div class="node-example">
+            <span class="node node-function">API呼び出し<br>(キー含む)</span>
+            <span class="arrow">→</span>
+            <span class="node node-change">delete apiKey</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">ログ出力</span>
+        </div>
+        <p>ログに出力する前に、センシティブな情報を削除します。</p>
+        
+        <h4>例3: デバイス識別情報の追加</h4>
+        <div class="node-example">
+            <span class="node node-inject">センサー値</span>
+            <span class="arrow">→</span>
+            <span class="node node-change">deviceId追加<br>location追加</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">クラウド送信</span>
+        </div>
+        <p>センサーデータにデバイスIDと位置情報を追加します。</p>
+        
+        <h2>📝 5. 練習問題</h2>
+        
+        <div class="exercise">
+            <h3>練習問題 1: 温度の単位変換 <span class="difficulty difficulty-easy">初級</span></h3>
+            
+            <h4>🎯 目標</h4>
+            <p>華氏(°F)の温度を摂氏(°C)に変換する</p>
+            
+            <h4>📋 要件</h4>
+            <ol>
+                <li>Injectノードで華氏温度(例: 68°F)を送信</li>
+                <li>Changeノードで摂氏に変換(公式: (°F - 32) × 5 / 9)</li>
+                <li>Debugノードで摂氏温度を表示</li>
+            </ol>
+            
+            <h4>💭 ヒント</h4>
+            
+            <p><strong>🎯 Changeノードの設定(自分で設定してみよう):</strong></p>
+            <ul>
+                <li>どの操作を使う? (Set/Change/Delete/Move)</li>
+                <li>どの型を使う? (number/string/JSONata/...)</li>
+                <li>変換式をどう書く?</li>
+            </ul>
+            
+            <p><strong>🔢 Injectノードの設定(そのまま設定してください):</strong></p>
+            <ul>
+                <li>Payload: number型</li>
+                <li>値: <code>68</code> (68°F)</li>
+            </ul>
+            
+            <p><strong>🐛 Debugノードの設定:</strong></p>
+            <ul>
+                <li>Output: <code>msg.payload</code> (デフォルトのまま)</li>
+            </ul>
+            
+            <p><strong>📐 変換式のヒント:</strong></p>
+            <div class="code-block">
+JSONata式で計算: (payload - 32) * 5 / 9
+            </div>
+            
+            <details>
+                <summary>📦 解答フロー (クリックして表示)</summary>
+                <div class="flow-json">
+[
+    {
+        "id": "ex1_inject",
+        "type": "inject",
+        "z": "exercise1",
+        "name": "華氏68度",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "68",
+        "payloadType": "num",
+        "x": 130,
+        "y": 100,
+        "wires": [
+            ["ex1_change"]
+        ]
+    },
+    {
+        "id": "ex1_change",
+        "type": "change",
+        "z": "exercise1",
+        "name": "°F → °C",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "(payload - 32) * 5 / 9",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 300,
+        "y": 100,
+        "wires": [
+            ["ex1_debug"]
+        ]
+    },
+    {
+        "id": "ex1_debug",
+        "type": "debug",
+        "z": "exercise1",
+        "name": "摂氏温度",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 470,
+        "y": 100,
+        "wires": []
+    }
+]
+                </div>
+                <p><strong>✅ 動作確認:</strong></p>
+                <ul>
+                    <li>68°F → 20°C が表示される</li>
+                    <li>Injectノードの値を変えて、他の温度も試してみましょう</li>
+                    <li>32°F → 0°C (水の凍結点)</li>
+                    <li>212°F → 100°C (水の沸点)</li>
+                </ul>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>練習問題 2: センサーデータの整形 <span class="difficulty difficulty-medium">中級</span></h3>
+            
+            <h4>🎯 目標</h4>
+            <p>温度センサーのデータに、デバイス情報とタイムスタンプを追加する</p>
+            
+            <h4>📋 要件</h4>
+            <ol>
+                <li>Injectノードで温度(例: 25)を送信</li>
+                <li>Changeノードで以下の情報を追加:
+                    <ul>
+                        <li>deviceId: "sensor-001"</li>
+                        <li>location: "Office Room A"</li>
+                        <li>timestamp: 現在時刻</li>
+                        <li>unit: "celsius"</li>
+                    </ul>
+                </li>
+                <li>元のpayloadはそのまま保持</li>
+                <li>Debugノードで完全なメッセージオブジェクトを表示</li>
+            </ol>
+            
+            <h4>💭 ヒント</h4>
+            
+            <p><strong>🎯 Changeノードの設定(自分で設定してみよう):</strong></p>
+            <ul>
+                <li>複数のプロパティを設定するには、どうする?</li>
+                <li>「+ルールを追加」ボタンを使いましょう</li>
+                <li>timestampはどの型を使う?</li>
+            </ul>
+            
+            <p><strong>🔧 Changeノードの詳細設定(設定画面で以下の通りに設定してください):</strong></p>
+            <div class="important">
+                <p>Changeノードで4つのルールを追加します:</p>
+                
+                <p><strong>ルール1:</strong></p>
+                <ul>
+                    <li>動作: Set(設定)</li>
+                    <li>対象: <code>msg.deviceId</code></li>
+                    <li>値: <code>sensor-001</code> (string型)</li>
+                </ul>
+                
+                <p><strong>ルール2:</strong></p>
+                <ul>
+                    <li>動作: Set(設定)</li>
+                    <li>対象: <code>msg.location</code></li>
+                    <li>値: <code>Office Room A</code> (string型)</li>
+                </ul>
+                
+                <p><strong>ルール3:</strong></p>
+                <ul>
+                    <li>動作: Set(設定)</li>
+                    <li>対象: <code>msg.timestamp</code></li>
+                    <li>値: timestamp型を選択</li>
+                </ul>
+                
+                <p><strong>ルール4:</strong></p>
+                <ul>
+                    <li>動作: Set(設定)</li>
+                    <li>対象: <code>msg.unit</code></li>
+                    <li>値: <code>celsius</code> (string型)</li>
+                </ul>
+            </div>
+            
+            <p><strong>🔢 Injectノードの設定:</strong></p>
+            <ul>
+                <li>Payload: number型で <code>25</code></li>
+            </ul>
+            
+            <p><strong>🐛 Debugノードの設定:</strong></p>
+            <ul>
+                <li>Output: <code>complete msg object</code> を選択</li>
+                <li>これにより、すべてのプロパティが表示されます</li>
+            </ul>
+            
+            <details>
+                <summary>📦 解答フロー (クリックして表示)</summary>
+                <div class="flow-json">
+[
+    {
+        "id": "ex2_inject",
+        "type": "inject",
+        "z": "exercise2",
+        "name": "温度25℃",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "25",
+        "payloadType": "num",
+        "x": 130,
+        "y": 100,
+        "wires": [
+            ["ex2_change"]
+        ]
+    },
+    {
+        "id": "ex2_change",
+        "type": "change",
+        "z": "exercise2",
+        "name": "デバイス情報追加",
+        "rules": [
+            {
+                "t": "set",
+                "p": "deviceId",
+                "pt": "msg",
+                "to": "sensor-001",
+                "tot": "str"
+            },
+            {
+                "t": "set",
+                "p": "location",
+                "pt": "msg",
+                "to": "Office Room A",
+                "tot": "str"
+            },
+            {
+                "t": "set",
+                "p": "timestamp",
+                "pt": "msg",
+                "to": "",
+                "tot": "date"
+            },
+            {
+                "t": "set",
+                "p": "unit",
+                "pt": "msg",
+                "to": "celsius",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 340,
+        "y": 100,
+        "wires": [
+            ["ex2_debug"]
+        ]
+    },
+    {
+        "id": "ex2_debug",
+        "type": "debug",
+        "z": "exercise2",
+        "name": "完全なメッセージ",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "x": 560,
+        "y": 100,
+        "wires": []
+    }
+]
+                </div>
+                <p><strong>✅ 動作確認:</strong></p>
+                <ul>
+                    <li>Debugタブで以下の構造が表示される:</li>
+                </ul>
+                <div class="code-block">
+{
+    "payload": 25,
+    "deviceId": "sensor-001",
+    "location": "Office Room A",
+    "timestamp": 1699123456789,
+    "unit": "celsius",
+    "_msgid": "..."
+}
+                </div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>練習問題 3: カウンターシステム <span class="difficulty difficulty-medium">中級</span></h3>
+            
+            <h4>🎯 目標</h4>
+            <p>flow変数を使ってカウンターを作成し、リセット機能も実装する</p>
+            
+            <h4>📋 要件</h4>
+            <ol>
+                <li>「リセット」ボタン: カウンターを0に初期化</li>
+                <li>「カウント」ボタン: カウンターを1増やす</li>
+                <li>両方ともDebugで現在のカウント値を表示</li>
+                <li>flow変数 "counter" を使用</li>
+            </ol>
+            
+            <h4>💭 ヒント</h4>
+            
+            <p><strong>🎯 Changeノードの設定(自分で考えてみよう):</strong></p>
+            <ul>
+                <li>flow変数を設定するには?</li>
+                <li>flow変数を増やすには?</li>
+                <li>JSONataで計算する方法は?</li>
+            </ul>
+            
+            <p><strong>🔧 Changeノード1(リセット)の詳細設定:</strong></p>
+            <div class="important">
+                <p>2つのルールを追加します:</p>
+                
+                <p><strong>ルール1:</strong></p>
+                <ul>
+                    <li>動作: Set(設定)</li>
+                    <li>対象: <code>flow.counter</code></li>
+                    <li>値: <code>0</code> (number型)</li>
+                </ul>
+                
+                <p><strong>ルール2:</strong></p>
+                <ul>
+                    <li>動作: Set(設定)</li>
+                    <li>対象: <code>msg.payload</code></li>
+                    <li>値: <code>counter</code> (flow型を選択)</li>
+                </ul>
+                
+                <p>これにより、カウンターを0にリセットし、その値をpayloadに設定します。</p>
+            </div>
+            
+            <p><strong>🔧 Changeノード2(カウントアップ)の詳細設定:</strong></p>
+            <div class="important">
+                <p>2つのルールを追加します:</p>
+                
+                <p><strong>ルール1:</strong></p>
+                <ul>
+                    <li>動作: Set(設定)</li>
+                    <li>対象: <code>flow.counter</code></li>
+                    <li>値タイプ: JSONata式</li>
+                    <li>値: <code>$flowContext("counter") + 1</code></li>
+                </ul>
+                
+                <p><strong>ルール2:</strong></p>
+                <ul>
+                    <li>動作: Set(設定)</li>
+                    <li>対象: <code>msg.payload</code></li>
+                    <li>値: <code>counter</code> (flow型を選択)</li>
+                </ul>
+                
+                <p>これにより、カウンターを1増やし、その値をpayloadに設定します。</p>
+            </div>
+            
+            <p><strong>🔢 Injectノードの設定:</strong></p>
+            <ul>
+                <li>2つのInjectノードを作成</li>
+                <li>名前: 「リセット」と「カウント」</li>
+                <li>Payload: どちらもtimestampでOK(使用しない)</li>
+            </ul>
+            
+            <details>
+                <summary>📦 解答フロー (クリックして表示)</summary>
+                <div class="flow-json">
+[
+    {
+        "id": "ex3_inject_reset",
+        "type": "inject",
+        "z": "exercise3",
+        "name": "リセット",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 120,
+        "y": 100,
+        "wires": [
+            ["ex3_reset"]
+        ]
+    },
+    {
+        "id": "ex3_reset",
+        "type": "change",
+        "z": "exercise3",
+        "name": "カウンター=0",
+        "rules": [
+            {
+                "t": "set",
+                "p": "counter",
+                "pt": "flow",
+                "to": "0",
+                "tot": "num"
+            },
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "counter",
+                "tot": "flow"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 310,
+        "y": 100,
+        "wires": [
+            ["ex3_debug"]
+        ]
+    },
+    {
+        "id": "ex3_inject_count",
+        "type": "inject",
+        "z": "exercise3",
+        "name": "カウント",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 120,
+        "y": 180,
+        "wires": [
+            ["ex3_increment"]
+        ]
+    },
+    {
+        "id": "ex3_increment",
+        "type": "change",
+        "z": "exercise3",
+        "name": "カウンター+1",
+        "rules": [
+            {
+                "t": "set",
+                "p": "counter",
+                "pt": "flow",
+                "to": "$flowContext(\"counter\") + 1",
+                "tot": "jsonata"
+            },
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "counter",
+                "tot": "flow"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 310,
+        "y": 180,
+        "wires": [
+            ["ex3_debug"]
+        ]
+    },
+    {
+        "id": "ex3_debug",
+        "type": "debug",
+        "z": "exercise3",
+        "name": "カウント表示",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 520,
+        "y": 140,
+        "wires": []
+    }
+]
+                </div>
+                <p><strong>✅ 動作確認:</strong></p>
+                <ul>
+                    <li>「リセット」をクリック → 0が表示される</li>
+                    <li>「カウント」をクリック → 1が表示される</li>
+                    <li>「カウント」を何度かクリック → 2, 3, 4...と増える</li>
+                    <li>「リセット」をクリック → 再び0に戻る</li>
+                </ul>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>練習問題 4: データクリーニングシステム <span class="difficulty difficulty-hard">上級</span></h3>
+            
+            <h4>🎯 目標</h4>
+            <p>複数の処理を組み合わせて、センサーデータをクリーニングする</p>
+            
+            <h4>📋 シナリオ</h4>
+            <p>温度センサーから受信したデータには余分な情報が含まれています。以下の処理を行ってクリーンなデータにします:</p>
+            
+            <h4>📋 要件</h4>
+            <ol>
+                <li>Injectノードで以下のような生データを送信:
+                    <div class="code-block">
+{
+    "sensorId": "temp-001",
+    "rawValue": "25.5C",
+    "apiKey": "secret123",
+    "metadata": "debug info"
+}
+                    </div>
+                </li>
+                <li>Changeノード1で以下の処理:
+                    <ul>
+                        <li>rawValueから数値だけを抽出(25.5)</li>
+                        <li>payloadに数値を設定</li>
+                    </ul>
+                </li>
+                <li>Changeノード2で以下の処理:
+                    <ul>
+                        <li>センシティブな情報(apiKey, metadata)を削除</li>
+                    </ul>
+                </li>
+                <li>Changeノード3で以下の処理:
+                    <ul>
+                        <li>timestampを追加</li>
+                        <li>処理済みフラグ(processed: true)を追加</li>
+                    </ul>
+                </li>
+                <li>Debugノードで最終結果を表示</li>
+            </ol>
+            
+            <h4>💭 ヒント</h4>
+            
+            <p><strong>🎯 Changeノードの設定(自分で考えてみよう):</strong></p>
+            <ul>
+                <li>文字列から数値を抽出するには?</li>
+                <li>複数のプロパティを削除するには?</li>
+                <li>どのような順番で処理する?</li>
+            </ul>
+            
+            <p><strong>🔢 Injectノードの設定(そのまま設定してください):</strong></p>
+            <div class="important">
+                <p>Injectノードの設定:</p>
+                <ul>
+                    <li>Payload: JSON型を選択</li>
+                    <li>以下のJSONを入力:</li>
+                </ul>
+                <div class="code-block">
+{
+    "sensorId": "temp-001",
+    "rawValue": "25.5C",
+    "apiKey": "secret123",
+    "metadata": "debug info"
+}
+                </div>
+            </div>
+            
+            <p><strong>🔧 Changeノード1(数値抽出)の詳細設定:</strong></p>
+            <div class="important">
+                <p>2つのルールを追加:</p>
+                
+                <p><strong>ルール1:</strong></p>
+                <ul>
+                    <li>動作: Set(設定)</li>
+                    <li>対象: <code>msg.payload</code></li>
+                    <li>値タイプ: JSONata式</li>
+                    <li>値: <code>$number($substringBefore(rawValue, "C"))</code></li>
+                </ul>
+                <p>※ これは"25.5C"から"C"より前の部分を取り出し、数値に変換します</p>
+                
+                <p><strong>ルール2:</strong></p>
+                <ul>
+                    <li>動作: Delete(削除)</li>
+                    <li>対象: <code>msg.rawValue</code></li>
+                </ul>
+            </div>
+            
+            <p><strong>🔧 Changeノード2(情報削除)の詳細設定:</strong></p>
+            <div class="important">
+                <p>2つのルールを追加:</p>
+                
+                <p><strong>ルール1:</strong></p>
+                <ul>
+                    <li>動作: Delete(削除)</li>
+                    <li>対象: <code>msg.apiKey</code></li>
+                </ul>
+                
+                <p><strong>ルール2:</strong></p>
+                <ul>
+                    <li>動作: Delete(削除)</li>
+                    <li>対象: <code>msg.metadata</code></li>
+                </ul>
+            </div>
+            
+            <p><strong>🔧 Changeノード3(情報追加)の詳細設定:</strong></p>
+            <div class="important">
+                <p>2つのルールを追加:</p>
+                
+                <p><strong>ルール1:</strong></p>
+                <ul>
+                    <li>動作: Set(設定)</li>
+                    <li>対象: <code>msg.timestamp</code></li>
+                    <li>値: timestamp型を選択</li>
+                </ul>
+                
+                <p><strong>ルール2:</strong></p>
+                <ul>
+                    <li>動作: Set(設定)</li>
+                    <li>対象: <code>msg.processed</code></li>
+                    <li>値: <code>true</code> (boolean型)</li>
+                </ul>
+            </div>
+            
+            <p><strong>🐛 Debugノードの設定:</strong></p>
+            <ul>
+                <li>Output: <code>complete msg object</code></li>
+            </ul>
+            
+            <details>
+                <summary>📦 解答フロー (クリックして表示)</summary>
+                <div class="flow-json">
+[
+    {
+        "id": "ex4_inject",
+        "type": "inject",
+        "z": "exercise4",
+        "name": "生データ",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"sensorId\":\"temp-001\",\"rawValue\":\"25.5C\",\"apiKey\":\"secret123\",\"metadata\":\"debug info\"}",
+        "payloadType": "json",
+        "x": 120,
+        "y": 100,
+        "wires": [
+            ["ex4_extract"]
+        ]
+    },
+    {
+        "id": "ex4_extract",
+        "type": "change",
+        "z": "exercise4",
+        "name": "数値抽出",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "$number($substringBefore(rawValue, \"C\"))",
+                "tot": "jsonata"
+            },
+            {
+                "t": "delete",
+                "p": "rawValue",
+                "pt": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 280,
+        "y": 100,
+        "wires": [
+            ["ex4_clean"]
+        ]
+    },
+    {
+        "id": "ex4_clean",
+        "type": "change",
+        "z": "exercise4",
+        "name": "情報削除",
+        "rules": [
+            {
+                "t": "delete",
+                "p": "apiKey",
+                "pt": "msg"
+            },
+            {
+                "t": "delete",
+                "p": "metadata",
+                "pt": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 430,
+        "y": 100,
+        "wires": [
+            ["ex4_add"]
+        ]
+    },
+    {
+        "id": "ex4_add",
+        "type": "change",
+        "z": "exercise4",
+        "name": "情報追加",
+        "rules": [
+            {
+                "t": "set",
+                "p": "timestamp",
+                "pt": "msg",
+                "to": "",
+                "tot": "date"
+            },
+            {
+                "t": "set",
+                "p": "processed",
+                "pt": "msg",
+                "to": "true",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 580,
+        "y": 100,
+        "wires": [
+            ["ex4_debug"]
+        ]
+    },
+    {
+        "id": "ex4_debug",
+        "type": "debug",
+        "z": "exercise4",
+        "name": "クリーンデータ",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "x": 750,
+        "y": 100,
+        "wires": []
+    }
+]
+                </div>
+                <p><strong>✅ 動作確認:</strong></p>
+                <p>最終的に以下のようなクリーンなデータが得られます:</p>
+                <div class="code-block">
+{
+    "sensorId": "temp-001",
+    "payload": 25.5,
+    "timestamp": 1699123456789,
+    "processed": true,
+    "_msgid": "..."
+}
+                </div>
+                <ul>
+                    <li>rawValueが数値に変換されpayloadに格納された</li>
+                    <li>apiKeyとmetadataが削除された</li>
+                    <li>timestampとprocessedフラグが追加された</li>
+                </ul>
+            </details>
+        </div>
+        
+        <h2>🎓 6. まとめ</h2>
+        
+        <div class="important">
+            <h3>Changeノードの重要ポイント</h3>
+            <ul>
+                <li>✅ <strong>コード不要</strong>: Functionノードを使わずにメッセージを加工</li>
+                <li>✅ <strong>4つの操作</strong>: Set(設定)、Change(変更)、Delete(削除)、Move(移動)</li>
+                <li>✅ <strong>多様な型</strong>: 文字列、数値、JSON、JSONata、変数など</li>
+                <li>✅ <strong>複数ルール</strong>: 1つのノードで複数の処理を実行可能</li>
+                <li>✅ <strong>変数管理</strong>: flow変数やglobal変数の操作が簡単</li>
+            </ul>
+        </div>
+        
+        <div class="tip">
+            <h3>📚 次のステップ</h3>
+            <p>Changeノードをマスターしたら、以下のノードも学んでみましょう:</p>
+            <ul>
+                <li><strong>Switchノード</strong>: 条件分岐とルーティング</li>
+                <li><strong>Templateノード</strong>: テキストやHTMLの生成</li>
+                <li><strong>JSONノード</strong>: JSON⇔文字列の相互変換</li>
+                <li><strong>Functionノード</strong>: より複雑なロジックの実装</li>
+            </ul>
+        </div>
+        
+        <h2>🔧 7. トラブルシューティング</h2>
+        
+        <h3>よくある問題と解決方法</h3>
+        
+        <table>
+            <tr>
+                <th>問題</th>
+                <th>原因</th>
+                <th>解決方法</th>
+            </tr>
+            <tr>
+                <td>プロパティが設定されない</td>
+                <td>型の選択ミス</td>
+                <td>string/number/JSONataなど、正しい型を選択</td>
+            </tr>
+            <tr>
+                <td>JSONata式がエラー</td>
+                <td>構文エラー</td>
+                <td>式を確認。公式ドキュメントで構文を確認</td>
+            </tr>
+            <tr>
+                <td>flow変数が保存されない</td>
+                <td>対象がmsgになっている</td>
+                <td>対象を「flow」に変更</td>
+            </tr>
+            <tr>
+                <td>削除したプロパティがまだある</td>
+                <td>削除操作の順番</td>
+                <td>ルールの順番を確認。上から順に実行される</td>
+            </tr>
+        </table>
+        
+        <h2>📖 8. JSONata参考資料</h2>
+        
+        <h3>よく使うJSONata関数</h3>
+        
+        <table>
+            <tr>
+                <th>関数</th>
+                <th>説明</th>
+                <th>例</th>
+            </tr>
+            <tr>
+                <td>$number()</td>
+                <td>数値に変換</td>
+                <td>$number("42") → 42</td>
+            </tr>
+            <tr>
+                <td>$string()</td>
+                <td>文字列に変換</td>
+                <td>$string(42) → "42"</td>
+            </tr>
+            <tr>
+                <td>$substring()</td>
+                <td>部分文字列を取得</td>
+                <td>$substring("Hello", 0, 3) → "Hel"</td>
+            </tr>
+            <tr>
+                <td>$substringBefore()</td>
+                <td>指定文字より前を取得</td>
+                <td>$substringBefore("a-b-c", "-") → "a"</td>
+            </tr>
+            <tr>
+                <td>$substringAfter()</td>
+                <td>指定文字より後を取得</td>
+                <td>$substringAfter("a-b-c", "-") → "b-c"</td>
+            </tr>
+            <tr>
+                <td>$uppercase()</td>
+                <td>大文字に変換</td>
+                <td>$uppercase("hello") → "HELLO"</td>
+            </tr>
+            <tr>
+                <td>$lowercase()</td>
+                <td>小文字に変換</td>
+                <td>$lowercase("HELLO") → "hello"</td>
+            </tr>
+            <tr>
+                <td>$round()</td>
+                <td>四捨五入</td>
+                <td>$round(3.14159, 2) → 3.14</td>
+            </tr>
+        </table>
+        
+        <h2>🔗 9. 追加リソース</h2>
+        
+        <ul>
+            <li><a href="https://nodered.org/docs/user-guide/nodes#change" target="_blank">Node-RED公式ドキュメント: Changeノード</a></li>
+            <li><a href="https://cookbook.nodered.org/" target="_blank">Node-RED Cookbook: パターン集</a></li>
+            <li><a href="https://docs.jsonata.org/" target="_blank">JSONata公式ドキュメント</a></li>
+            <li><a href="https://try.jsonata.org/" target="_blank">JSONata Exerciser: オンラインテストツール</a></li>
+        </ul>
+        
+        <hr>
+        
+        <p style="text-align: center; color: #999; margin-top: 40px;">
+            <small>このガイドが役に立ちましたら、実際のプロジェクトで練習してみてください!<br>
+            Changeノードはコード不要でメッセージを加工できる、とても便利なノードです。</small>
+        </p>
+    </div>
+    
+    <script>
+        // ページ読み込み時にコピーボタンを追加
+        document.addEventListener('DOMContentLoaded', function() {
+            // すべての.code-blockと.flow-jsonにコピーボタンを追加
+            const codeBlocks = document.querySelectorAll('.code-block, .flow-json');
+            
+            codeBlocks.forEach(function(block) {
+                // コピーボタンを作成
+                const button = document.createElement('button');
+                button.className = 'copy-button';
+                button.textContent = 'コピー';
+                
+                // クリックイベントを追加
+                button.addEventListener('click', function() {
+                    // コードブロックのテキストを取得
+                    const code = block.textContent.replace('コピー', '').trim();
+                    
+                    // クリップボードにコピー
+                    navigator.clipboard.writeText(code).then(function() {
+                        // 成功時の視覚的フィードバック
+                        button.textContent = 'コピーしました!';
+                        button.classList.add('copied');
+                        
+                        // 2秒後に元に戻す
+                        setTimeout(function() {
+                            button.textContent = 'コピー';
+                            button.classList.remove('copied');
+                        }, 2000);
+                    }).catch(function(err) {
+                        console.error('コピーに失敗しました:', err);
+                        button.textContent = 'エラー';
+                        setTimeout(function() {
+                            button.textContent = 'コピー';
+                        }, 2000);
+                    });
+                });
+                
+                // ボタンをコードブロックに追加
+                block.style.position = 'relative';
+                block.appendChild(button);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1589 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED Switchノード 完全ガイド</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        h1 {
+            color: #8f0000;
+            border-bottom: 3px solid #8f0000;
+            padding-bottom: 10px;
+        }
+        
+        h2 {
+            color: #c00000;
+            margin-top: 30px;
+            border-left: 5px solid #c00000;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #555;
+            margin-top: 25px;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .node-example {
+            background-color: #2d3133;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            color: white;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .node {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 4px;
+            margin: 5px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .node-inject {
+            background-color: #3fadb5;
+            color: white;
+        }
+        
+        .node-switch {
+            background-color: #e8c46b;
+            color: #333;
+        }
+        
+        .node-debug {
+            background-color: #87a48d;
+            color: white;
+        }
+        
+        .node-change {
+            background-color: #e7a070;
+            color: white;
+        }
+        
+        .node-function {
+            background-color: #e8a658;
+            color: white;
+        }
+        
+        .arrow {
+            color: #999;
+            font-size: 20px;
+            margin: 0 10px;
+        }
+        
+        .important {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .tip {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .code-block {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            position: relative;
+        }
+        
+        .copy-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 6px 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: 'Segoe UI', sans-serif;
+            transition: background-color 0.2s;
+            z-index: 10;
+        }
+        
+        .copy-button:hover {
+            background-color: #0056b3;
+        }
+        
+        .copy-button.copied {
+            background-color: #28a745;
+        }
+        
+        .exercise {
+            background-color: #e8f5e9;
+            border: 2px solid #4caf50;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        
+        .exercise h3 {
+            color: #2e7d32;
+            margin-top: 0;
+        }
+        
+        .difficulty {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .difficulty-easy {
+            background-color: #4caf50;
+            color: white;
+        }
+        
+        .difficulty-medium {
+            background-color: #ff9800;
+            color: white;
+        }
+        
+        .difficulty-hard {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        ul, ol {
+            padding-left: 25px;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #8f0000;
+            color: white;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .flow-json {
+            background-color: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        details {
+            margin: 15px 0;
+        }
+        
+        summary {
+            cursor: pointer;
+            padding: 10px;
+            background-color: #6c757d;
+            color: white;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        summary:hover {
+            background-color: #5a6268;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .feature-card {
+            background-color: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .feature-card h4 {
+            color: #e8c46b;
+            margin-top: 0;
+        }
+        
+        .rule-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        
+        .badge-eq {
+            background-color: #17a2b8;
+            color: white;
+        }
+        
+        .badge-neq {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .badge-lt {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .badge-gt {
+            background-color: #ffc107;
+            color: #333;
+        }
+        
+        .badge-regex {
+            background-color: #e83e8c;
+            color: white;
+        }
+        
+        .badge-type {
+            background-color: #6f42c1;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔀 Node-RED Switchノード 完全ガイド</h1>
+        
+        <p>このガイドでは、Node-REDの<strong>Switchノード</strong>について、初心者の方でも理解できるように詳しく説明します。</p>
+        
+        <h2>📚 1. Switchノードとは?</h2>
+        
+        <h3>🤔 「分岐」って何?</h3>
+        <p>
+            Switchノードは、メッセージの内容に応じて<strong>異なる出力先へメッセージを振り分ける</strong>ノードです。
+            日常生活で例えると、<strong>郵便局の仕分け作業</strong>のようなものです。
+        </p>
+        
+        <div class="important">
+            <p><strong>🏣 郵便局の仕分け作業に例えると:</strong></p>
+            <ul>
+                <li>📨 <strong>到着した郵便物</strong> = 入力メッセージ</li>
+                <li>🏷️ <strong>郵便番号や住所をチェック</strong> = Switchノードのルール判定</li>
+                <li>📮 <strong>配達先ごとに仕分け</strong> = 条件に合った出力ポートへ振り分け</li>
+                <li>🚚 <strong>それぞれの配達車へ</strong> = 後続のノードへ送信</li>
+            </ul>
+        </div>
+        
+        <h3>📦 基本的な動作</h3>
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-switch">Switch</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug 1</span>
+            <br>
+            <span style="margin-left: 220px;"></span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug 2</span>
+            <br>
+            <span style="margin-left: 220px;"></span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug 3</span>
+        </div>
+        
+        <p>
+            Switchノードは、設定したルールに基づいてメッセージを評価し、条件に合致した出力ポートからメッセージを送信します。
+        </p>
+        
+        <h2>⚙️ 2. Switchノードの設定</h2>
+        
+        <h3>🔧 基本設定項目</h3>
+        
+        <table>
+            <tr>
+                <th>設定項目</th>
+                <th>説明</th>
+                <th>例</th>
+            </tr>
+            <tr>
+                <td><strong>Property</strong></td>
+                <td>評価する対象のプロパティ</td>
+                <td>msg.payload, msg.topic, flow.state</td>
+            </tr>
+            <tr>
+                <td><strong>Rules</strong></td>
+                <td>分岐条件のルールリスト</td>
+                <td>== 10, > 50, contains "error"</td>
+            </tr>
+            <tr>
+                <td><strong>checking all rules</strong></td>
+                <td>全てのルールを評価するか</td>
+                <td>✓ = 複数出力可能、✗ = 最初の一致のみ</td>
+            </tr>
+            <tr>
+                <td><strong>stopping after first match</strong></td>
+                <td>最初の一致で評価を停止</td>
+                <td>✓ = 1つのみ出力、✗ = 複数出力可能</td>
+            </tr>
+        </table>
+        
+        <h3>📋 利用可能な条件タイプ</h3>
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h4><span class="rule-badge badge-eq">==</span> 等しい (Equal)</h4>
+                <p>値が完全に一致する場合</p>
+                <div class="code-block">msg.payload == 10</div>
+            </div>
+            
+            <div class="feature-card">
+                <h4><span class="rule-badge badge-neq">!=</span> 等しくない (Not equal)</h4>
+                <p>値が一致しない場合</p>
+                <div class="code-block">msg.payload != "error"</div>
+            </div>
+            
+            <div class="feature-card">
+                <h4><span class="rule-badge badge-lt">&lt;</span> より小さい (Less than)</h4>
+                <p>値が指定値より小さい場合</p>
+                <div class="code-block">msg.payload < 0</div>
+            </div>
+            
+            <div class="feature-card">
+                <h4><span class="rule-badge badge-lt">&lt;=</span> 以下 (Less than or equal)</h4>
+                <p>値が指定値以下の場合</p>
+                <div class="code-block">msg.payload <= 100</div>
+            </div>
+            
+            <div class="feature-card">
+                <h4><span class="rule-badge badge-gt">&gt;</span> より大きい (Greater than)</h4>
+                <p>値が指定値より大きい場合</p>
+                <div class="code-block">msg.payload > 50</div>
+            </div>
+            
+            <div class="feature-card">
+                <h4><span class="rule-badge badge-gt">&gt;=</span> 以上 (Greater than or equal)</h4>
+                <p>値が指定値以上の場合</p>
+                <div class="code-block">msg.payload >= 0</div>
+            </div>
+            
+            <div class="feature-card">
+                <h4><span class="rule-badge badge-type">between</span> 範囲内</h4>
+                <p>値が指定範囲内にある場合</p>
+                <div class="code-block">10 <= msg.payload <= 50</div>
+            </div>
+            
+            <div class="feature-card">
+                <h4><span class="rule-badge badge-regex">contains</span> 含む</h4>
+                <p>文字列が指定文字を含む場合</p>
+                <div class="code-block">msg.payload contains "温度"</div>
+            </div>
+            
+            <div class="feature-card">
+                <h4><span class="rule-badge badge-regex">matches regex</span> 正規表現</h4>
+                <p>正規表現パターンに一致</p>
+                <div class="code-block">msg.payload =~ /^[0-9]+$/</div>
+            </div>
+            
+            <div class="feature-card">
+                <h4><span class="rule-badge badge-type">is true / is false</span> 真偽値</h4>
+                <p>boolean型の値を判定</p>
+                <div class="code-block">msg.payload === true</div>
+            </div>
+            
+            <div class="feature-card">
+                <h4><span class="rule-badge badge-type">is null / is not null</span> NULL判定</h4>
+                <p>値の有無を判定</p>
+                <div class="code-block">msg.payload == null</div>
+            </div>
+            
+            <div class="feature-card">
+                <h4><span class="rule-badge badge-type">is of type</span> 型判定</h4>
+                <p>データ型を判定</p>
+                <div class="code-block">typeof msg.payload</div>
+            </div>
+        </div>
+        
+        <h2>🎯 3. 実用的な使用パターン</h2>
+        
+        <h3>パターン1: 数値の範囲による分岐</h3>
+        <p>温度センサーの値を範囲で分類する例:</p>
+        
+        <div class="code-block">
+ルール1: msg.payload < 10   → 「低温」
+ルール2: msg.payload <= 25  → 「適温」
+ルール3: msg.payload > 25   → 「高温」
+        </div>
+        
+        <h3>パターン2: 文字列パターンマッチング</h3>
+        <p>ログメッセージの内容でアラートレベルを振り分ける:</p>
+        
+        <div class="code-block">
+ルール1: msg.payload contains "ERROR"   → エラー処理
+ルール2: msg.payload contains "WARNING" → 警告処理
+ルール3: otherwise                      → 通常処理
+        </div>
+        
+        <h3>パターン3: トピック別のルーティング</h3>
+        <p>センサーの種類ごとに処理を分ける:</p>
+        
+        <div class="code-block">
+Property: msg.topic
+ルール1: msg.topic == "temperature" → 温度処理
+ルール2: msg.topic == "humidity"    → 湿度処理
+ルール3: msg.topic == "pressure"    → 気圧処理
+        </div>
+        
+        <h3>パターン4: コンテキスト変数による動的ルーティング</h3>
+        <p>システムの状態に応じて処理を切り替える:</p>
+        
+        <div class="code-block">
+Property: flow.state
+ルール1: flow.state == 1 → モード1の処理
+ルール2: flow.state == 2 → モード2の処理
+ルール3: flow.state == 3 → モード3の処理
+        </div>
+        
+        <div class="tip">
+            <h3>💡 ヒント: "checking all rules" の使い分け</h3>
+            <p><strong>✅ チェックなし(デフォルト):</strong></p>
+            <ul>
+                <li>最初に一致したルールのみ実行</li>
+                <li>排他的な分岐に最適</li>
+                <li>例: if-else if-else のような処理</li>
+            </ul>
+            <p><strong>✅ チェックあり:</strong></p>
+            <ul>
+                <li>全てのルールを評価し、一致したもの全てから出力</li>
+                <li>複数の条件を同時に満たす場合に使用</li>
+                <li>例: 温度が「高温」かつ「アラート範囲」の両方に該当</li>
+            </ul>
+        </div>
+        
+        <h2>🏋️ 4. 実践演習</h2>
+        
+        <div class="exercise">
+            <h3>演習1: 正・負・ゼロの判定<span class="difficulty difficulty-easy">初級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>入力された数値が正の数、負の数、ゼロのいずれかを判定し、それぞれ異なるメッセージを表示するフローを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Injectノードで-10, 0, 10の3つのボタンを作成</li>
+                <li>Switchノードで3つの条件で分岐</li>
+                <li>各出力からChangeノードで判定結果のテキストに変換</li>
+                <li>Debugノードで結果を表示</li>
+            </ul>
+            
+            <p><strong>📊 期待される動作:</strong></p>
+            <ul>
+                <li>-10を送信 → "negative" と表示</li>
+                <li>0を送信 → "zero" と表示</li>
+                <li>10を送信 → "positive" と表示</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Switchノードの設定:</strong></p>
+                <ul>
+                    <li>Property: msg.payload</li>
+                    <li>ルール1: < 0</li>
+                    <li>ルール2: == 0</li>
+                    <li>ルール3: > 0</li>
+                </ul>
+                <p><strong>Changeノードの設定例(完全な回答):</strong></p>
+                <div class="code-block">
+// Negative用
+msg.payload を "negative" に設定
+
+// Zero用
+msg.payload を "zero" に設定
+
+// Positive用
+msg.payload を "positive" に設定
+                </div>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">
+[
+    {
+        "id": "ex1_inject_neg",
+        "type": "inject",
+        "name": "-10",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "-10",
+        "payloadType": "num",
+        "x": 110,
+        "y": 100,
+        "wires": [["ex1_switch"]]
+    },
+    {
+        "id": "ex1_inject_zero",
+        "type": "inject",
+        "name": "0",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "0",
+        "payloadType": "num",
+        "x": 110,
+        "y": 140,
+        "wires": [["ex1_switch"]]
+    },
+    {
+        "id": "ex1_inject_pos",
+        "type": "inject",
+        "name": "10",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "10",
+        "payloadType": "num",
+        "x": 110,
+        "y": 180,
+        "wires": [["ex1_switch"]]
+    },
+    {
+        "id": "ex1_switch",
+        "type": "switch",
+        "name": "数値判定",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {"t": "lt", "v": "0", "vt": "num"},
+            {"t": "eq", "v": "0", "vt": "num"},
+            {"t": "gt", "v": "0", "vt": "num"}
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 3,
+        "x": 260,
+        "y": 140,
+        "wires": [
+            ["ex1_change_neg"],
+            ["ex1_change_zero"],
+            ["ex1_change_pos"]
+        ]
+    },
+    {
+        "id": "ex1_change_neg",
+        "type": "change",
+        "name": "Negative",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "negative",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 420,
+        "y": 100,
+        "wires": [["ex1_debug_neg"]]
+    },
+    {
+        "id": "ex1_change_zero",
+        "type": "change",
+        "name": "Zero",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "zero",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 410,
+        "y": 140,
+        "wires": [["ex1_debug_zero"]]
+    },
+    {
+        "id": "ex1_change_pos",
+        "type": "change",
+        "name": "Positive",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "positive",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 420,
+        "y": 180,
+        "wires": [["ex1_debug_pos"]]
+    },
+    {
+        "id": "ex1_debug_neg",
+        "type": "debug",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 590,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "ex1_debug_zero",
+        "type": "debug",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 590,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "ex1_debug_pos",
+        "type": "debug",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 590,
+        "y": 180,
+        "wires": []
+    }
+]
+                </div>
+                <p><strong>✅ 動作確認:</strong></p>
+                <ul>
+                    <li>各Injectボタンをクリック</li>
+                    <li>Debugウィンドウに対応する結果が表示される</li>
+                    <li>-10 → "negative"</li>
+                    <li>0 → "zero"</li>
+                    <li>10 → "positive"</li>
+                </ul>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習2: 温度センサーのアラートシステム<span class="difficulty difficulty-easy">初級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>温度センサーの値に応じて、3段階のアラートレベルを判定するシステムを構築してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Injectノードで温度値を送信(例: 5℃、20℃、35℃)</li>
+                <li>Switchノードで3つの温度範囲に分岐
+                    <ul>
+                        <li>10℃未満 → 低温アラート</li>
+                        <li>10℃以上30℃未満 → 正常</li>
+                        <li>30℃以上 → 高温アラート</li>
+                    </ul>
+                </li>
+                <li>それぞれの状態を示すメッセージをDebugに表示</li>
+            </ul>
+            
+            <p><strong>📊 期待される動作:</strong></p>
+            <ul>
+                <li>5℃を送信 → "⚠️ 低温警告: 5℃"</li>
+                <li>20℃を送信 → "✅ 正常: 20℃"</li>
+                <li>35℃を送信 → "🔥 高温警告: 35℃"</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Switchノードの設定:</strong></p>
+                <ul>
+                    <li>Property: msg.payload</li>
+                    <li>ルール1: < 10</li>
+                    <li>ルール2: between 10 and 30 (または >= 10 と < 30)</li>
+                    <li>ルール3: >= 30</li>
+                </ul>
+                <p><strong>Functionノードでのメッセージ整形(完全な回答):</strong></p>
+                <div class="code-block">
+// 低温アラート用
+msg.payload = "⚠️ 低温警告: " + msg.payload + "℃";
+return msg;
+
+// 正常範囲用
+msg.payload = "✅ 正常: " + msg.payload + "℃";
+return msg;
+
+// 高温アラート用
+msg.payload = "🔥 高温警告: " + msg.payload + "℃";
+return msg;
+                </div>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">
+[
+    {
+        "id": "ex2_inject_low",
+        "type": "inject",
+        "name": "低温(5℃)",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "5",
+        "payloadType": "num",
+        "x": 120,
+        "y": 100,
+        "wires": [["ex2_switch"]]
+    },
+    {
+        "id": "ex2_inject_normal",
+        "type": "inject",
+        "name": "正常(20℃)",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "20",
+        "payloadType": "num",
+        "x": 130,
+        "y": 140,
+        "wires": [["ex2_switch"]]
+    },
+    {
+        "id": "ex2_inject_high",
+        "type": "inject",
+        "name": "高温(35℃)",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "35",
+        "payloadType": "num",
+        "x": 130,
+        "y": 180,
+        "wires": [["ex2_switch"]]
+    },
+    {
+        "id": "ex2_switch",
+        "type": "switch",
+        "name": "温度判定",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {"t": "lt", "v": "10", "vt": "num"},
+            {"t": "btwn", "v": "10", "vt": "num", "v2": "30", "v2t": "num"},
+            {"t": "gte", "v": "30", "vt": "num"}
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 3,
+        "x": 300,
+        "y": 140,
+        "wires": [
+            ["ex2_function_low"],
+            ["ex2_function_normal"],
+            ["ex2_function_high"]
+        ]
+    },
+    {
+        "id": "ex2_function_low",
+        "type": "function",
+        "name": "低温メッセージ",
+        "func": "msg.payload = \"⚠️ 低温警告: \" + msg.payload + \"℃\";\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 480,
+        "y": 100,
+        "wires": [["ex2_debug_low"]]
+    },
+    {
+        "id": "ex2_function_normal",
+        "type": "function",
+        "name": "正常メッセージ",
+        "func": "msg.payload = \"✅ 正常: \" + msg.payload + \"℃\";\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 480,
+        "y": 140,
+        "wires": [["ex2_debug_normal"]]
+    },
+    {
+        "id": "ex2_function_high",
+        "type": "function",
+        "name": "高温メッセージ",
+        "func": "msg.payload = \"🔥 高温警告: \" + msg.payload + \"℃\";\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 480,
+        "y": 180,
+        "wires": [["ex2_debug_high"]]
+    },
+    {
+        "id": "ex2_debug_low",
+        "type": "debug",
+        "name": "低温アラート",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 690,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "ex2_debug_normal",
+        "type": "debug",
+        "name": "正常",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 670,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "ex2_debug_high",
+        "type": "debug",
+        "name": "高温アラート",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 690,
+        "y": 180,
+        "wires": []
+    }
+]
+                </div>
+                <p><strong>✅ 動作確認:</strong></p>
+                <ul>
+                    <li>各温度のInjectボタンをクリック</li>
+                    <li>対応するアラートメッセージが表示される</li>
+                    <li>低温(5℃) → ⚠️ 低温警告: 5℃</li>
+                    <li>正常(20℃) → ✅ 正常: 20℃</li>
+                    <li>高温(35℃) → 🔥 高温警告: 35℃</li>
+                </ul>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習3: センサー種類別ルーティング<span class="difficulty difficulty-medium">中級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>異なる種類のセンサーデータ(温度・湿度・気圧)をmsg.topicで識別し、それぞれ専用の処理フローに振り分けるシステムを構築してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>3つのInjectノードでそれぞれtopicを設定
+                    <ul>
+                        <li>topic: "temperature", payload: 25</li>
+                        <li>topic: "humidity", payload: 60</li>
+                        <li>topic: "pressure", payload: 1013</li>
+                    </ul>
+                </li>
+                <li>Switchノードでmsg.topicを評価して3つの出力に分岐</li>
+                <li>各センサータイプごとに単位付きの表示を行う</li>
+            </ul>
+            
+            <p><strong>📊 期待される動作:</strong></p>
+            <ul>
+                <li>温度データ → "温度: 25℃"</li>
+                <li>湿度データ → "湿度: 60%"</li>
+                <li>気圧データ → "気圧: 1013hPa"</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Switchノードの設定:</strong></p>
+                <ul>
+                    <li>Property: msg.topic</li>
+                    <li>ルール1: == "temperature"</li>
+                    <li>ルール2: == "humidity"</li>
+                    <li>ルール3: == "pressure"</li>
+                </ul>
+                <p><strong>Functionノードでの単位付与(完全な回答):</strong></p>
+                <div class="code-block">
+// 温度用
+msg.payload = "温度: " + msg.payload + "℃";
+return msg;
+
+// 湿度用
+msg.payload = "湿度: " + msg.payload + "%";
+return msg;
+
+// 気圧用
+msg.payload = "気圧: " + msg.payload + "hPa";
+return msg;
+                </div>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">
+[
+    {
+        "id": "ex3_inject_temp",
+        "type": "inject",
+        "name": "温度センサー",
+        "props": [
+            {"p": "payload"},
+            {"p": "topic", "vt": "str"}
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "temperature",
+        "payload": "25",
+        "payloadType": "num",
+        "x": 140,
+        "y": 100,
+        "wires": [["ex3_switch"]]
+    },
+    {
+        "id": "ex3_inject_humid",
+        "type": "inject",
+        "name": "湿度センサー",
+        "props": [
+            {"p": "payload"},
+            {"p": "topic", "vt": "str"}
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "humidity",
+        "payload": "60",
+        "payloadType": "num",
+        "x": 140,
+        "y": 140,
+        "wires": [["ex3_switch"]]
+    },
+    {
+        "id": "ex3_inject_press",
+        "type": "inject",
+        "name": "気圧センサー",
+        "props": [
+            {"p": "payload"},
+            {"p": "topic", "vt": "str"}
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "pressure",
+        "payload": "1013",
+        "payloadType": "num",
+        "x": 140,
+        "y": 180,
+        "wires": [["ex3_switch"]]
+    },
+    {
+        "id": "ex3_switch",
+        "type": "switch",
+        "name": "センサー種類判定",
+        "property": "topic",
+        "propertyType": "msg",
+        "rules": [
+            {"t": "eq", "v": "temperature", "vt": "str"},
+            {"t": "eq", "v": "humidity", "vt": "str"},
+            {"t": "eq", "v": "pressure", "vt": "str"}
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 3,
+        "x": 340,
+        "y": 140,
+        "wires": [
+            ["ex3_function_temp"],
+            ["ex3_function_humid"],
+            ["ex3_function_press"]
+        ]
+    },
+    {
+        "id": "ex3_function_temp",
+        "type": "function",
+        "name": "温度単位付与",
+        "func": "msg.payload = \"温度: \" + msg.payload + \"℃\";\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 550,
+        "y": 100,
+        "wires": [["ex3_debug_temp"]]
+    },
+    {
+        "id": "ex3_function_humid",
+        "type": "function",
+        "name": "湿度単位付与",
+        "func": "msg.payload = \"湿度: \" + msg.payload + \"%\";\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 550,
+        "y": 140,
+        "wires": [["ex3_debug_humid"]]
+    },
+    {
+        "id": "ex3_function_press",
+        "type": "function",
+        "name": "気圧単位付与",
+        "func": "msg.payload = \"気圧: \" + msg.payload + \"hPa\";\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 550,
+        "y": 180,
+        "wires": [["ex3_debug_press"]]
+    },
+    {
+        "id": "ex3_debug_temp",
+        "type": "debug",
+        "name": "Temperature",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 750,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "ex3_debug_humid",
+        "type": "debug",
+        "name": "Humidity",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 740,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "ex3_debug_press",
+        "type": "debug",
+        "name": "Pressure",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 740,
+        "y": 180,
+        "wires": []
+    }
+]
+                </div>
+                <p><strong>✅ 動作確認:</strong></p>
+                <ul>
+                    <li>各センサーのInjectボタンをクリック</li>
+                    <li>対応するDebugノードに単位付きデータが表示される</li>
+                    <li>温度センサー → "温度: 25℃"</li>
+                    <li>湿度センサー → "湿度: 60%"</li>
+                    <li>気圧センサー → "気圧: 1013hPa"</li>
+                </ul>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習4: 複数条件の同時評価システム<span class="difficulty difficulty-hard">上級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>"checking all rules" オプションを使用して、1つの値が複数の条件に同時に該当するケースを処理するシステムを構築してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Injectノードで数値を送信(例: -5, 0, 5)</li>
+                <li>Switchノードで以下の2つのルールを設定し、"checking all rules" を有効化
+                    <ul>
+                        <li>ルール1: < 10 (10未満)</li>
+                        <li>ルール2: > -10 (-10より大きい)</li>
+                    </ul>
+                </li>
+                <li>それぞれの条件を満たす場合のメッセージを表示</li>
+                <li>両方の条件を満たす場合は、両方のメッセージが表示される</li>
+            </ul>
+            
+            <p><strong>📊 期待される動作:</strong></p>
+            <ul>
+                <li>-5を送信 → "< 10" と "> -10" の両方が表示される</li>
+                <li>0を送信 → "< 10" と "> -10" の両方が表示される</li>
+                <li>5を送信 → "< 10" と "> -10" の両方が表示される</li>
+                <li>15を送信 → "> -10" のみ表示される</li>
+                <li>-15を送信 → "< 10" のみ表示される</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Switchノードの重要設定:</strong></p>
+                <ul>
+                    <li>Property: msg.payload</li>
+                    <li>✅ "checking all rules" をチェック</li>
+                    <li>ルール1: < 10</li>
+                    <li>ルール2: > -10</li>
+                </ul>
+                <p><strong>この設定により:</strong></p>
+                <ul>
+                    <li>-10 < 値 < 10 の範囲では、両方のルールが true となり、両方の出力から送信される</li>
+                    <li>値 >= 10 の場合は、ルール2のみ true</li>
+                    <li>値 <= -10 の場合は、ルール1のみ true</li>
+                </ul>
+                <p><strong>Changeノードの設定(完全な回答):</strong></p>
+                <div class="code-block">
+// ルール1用
+msg.payload を "< 10" に設定
+
+// ルール2用
+msg.payload を "> -10" に設定
+                </div>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">
+[
+    {
+        "id": "ex4_inject_1",
+        "type": "inject",
+        "name": "-15",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "-15",
+        "payloadType": "num",
+        "x": 110,
+        "y": 80,
+        "wires": [["ex4_switch"]]
+    },
+    {
+        "id": "ex4_inject_2",
+        "type": "inject",
+        "name": "-5",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "-5",
+        "payloadType": "num",
+        "x": 110,
+        "y": 120,
+        "wires": [["ex4_switch"]]
+    },
+    {
+        "id": "ex4_inject_3",
+        "type": "inject",
+        "name": "0",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "0",
+        "payloadType": "num",
+        "x": 110,
+        "y": 160,
+        "wires": [["ex4_switch"]]
+    },
+    {
+        "id": "ex4_inject_4",
+        "type": "inject",
+        "name": "5",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "5",
+        "payloadType": "num",
+        "x": 110,
+        "y": 200,
+        "wires": [["ex4_switch"]]
+    },
+    {
+        "id": "ex4_inject_5",
+        "type": "inject",
+        "name": "15",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "15",
+        "payloadType": "num",
+        "x": 110,
+        "y": 240,
+        "wires": [["ex4_switch"]]
+    },
+    {
+        "id": "ex4_switch",
+        "type": "switch",
+        "name": "複数条件チェック",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {"t": "lt", "v": "10", "vt": "num"},
+            {"t": "gt", "v": "-10", "vt": "num"}
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 290,
+        "y": 160,
+        "wires": [
+            ["ex4_change_1"],
+            ["ex4_change_2"]
+        ]
+    },
+    {
+        "id": "ex4_change_1",
+        "type": "change",
+        "name": "< 10",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "< 10",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 470,
+        "y": 140,
+        "wires": [["ex4_debug_1"]]
+    },
+    {
+        "id": "ex4_change_2",
+        "type": "change",
+        "name": "> -10",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "> -10",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 480,
+        "y": 180,
+        "wires": [["ex4_debug_2"]]
+    },
+    {
+        "id": "ex4_debug_1",
+        "type": "debug",
+        "name": "条件1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 620,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "ex4_debug_2",
+        "type": "debug",
+        "name": "条件2",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 620,
+        "y": 180,
+        "wires": []
+    }
+]
+                </div>
+                <p><strong>✅ 動作確認:</strong></p>
+                <ul>
+                    <li>-15を送信 → "< 10" のみ表示</li>
+                    <li>-5を送信 → "< 10" と "> -10" の両方表示</li>
+                    <li>0を送信 → "< 10" と "> -10" の両方表示</li>
+                    <li>5を送信 → "< 10" と "> -10" の両方表示</li>
+                    <li>15を送信 → "> -10" のみ表示</li>
+                </ul>
+                <p><strong>🎓 学習ポイント:</strong></p>
+                <ul>
+                    <li>"checking all rules" により、1つのメッセージが複数の条件に同時マッチできる</li>
+                    <li>範囲の重複部分では、複数の出力から同時にメッセージが送信される</li>
+                    <li>この機能は、1つのイベントに対して複数の処理を並行して実行したい場合に有用</li>
+                </ul>
+            </details>
+        </div>
+        
+        <h2>🎓 5. まとめ</h2>
+        
+        <div class="important">
+            <h3>Switchノードの重要ポイント</h3>
+            <ul>
+                <li>✅ <strong>条件分岐</strong>: メッセージの内容に応じて異なる出力先へルーティング</li>
+                <li>✅ <strong>多様なルール</strong>: 等価比較、大小比較、範囲判定、パターンマッチング、型判定など</li>
+                <li>✅ <strong>複数プロパティ対応</strong>: msg.payload, msg.topic, context変数など</li>
+                <li>✅ <strong>複数条件評価</strong>: "checking all rules" で1つのメッセージを複数の出力に送信可能</li>
+                <li>✅ <strong>IoTの定番</strong>: センサーデータの分類、アラート判定、デバイス制御の振り分けに最適</li>
+            </ul>
+        </div>
+        
+        <div class="tip">
+            <h3>📚 次のステップ</h3>
+            <p>Switchノードをマスターしたら、以下のノードも学んでみましょう:</p>
+            <ul>
+                <li><strong>Changeノード</strong>: メッセージプロパティの変更・追加・削除</li>
+                <li><strong>Functionノード</strong>: JavaScriptで複雑な条件判定やデータ処理</li>
+                <li><strong>Filterノード</strong>: 条件に基づくメッセージのブロック</li>
+                <li><strong>Linkノード</strong>: フローをまたいだメッセージ転送</li>
+            </ul>
+        </div>
+        
+        <h2>🔧 6. トラブルシューティング</h2>
+        
+        <h3>よくある問題と解決方法</h3>
+        
+        <table>
+            <tr>
+                <th>問題</th>
+                <th>原因</th>
+                <th>解決方法</th>
+            </tr>
+            <tr>
+                <td>メッセージがどこにも流れない</td>
+                <td>全てのルールに不一致</td>
+                <td>「otherwise」ルールを追加するか、ルールを見直す</td>
+            </tr>
+            <tr>
+                <td>複数の出力から送信されてしまう</td>
+                <td>"checking all rules" が有効</td>
+                <td>設定を確認し、必要に応じて無効化</td>
+            </tr>
+            <tr>
+                <td>文字列と数値の比較がうまくいかない</td>
+                <td>型の不一致</td>
+                <td>Changeノードで型変換するか、"is of type" で型をチェック</td>
+            </tr>
+            <tr>
+                <td>正規表現がマッチしない</td>
+                <td>パターンの誤り</td>
+                <td>正規表現テストツールで確認。エスケープ文字に注意</td>
+            </tr>
+            <tr>
+                <td>コンテキスト変数が見つからない</td>
+                <td>変数が未定義</td>
+                <td>Changeノードで事前に変数を初期化</td>
+            </tr>
+        </table>
+        
+        <h2>💡 7. 実務での活用例</h2>
+        
+        <h3>ケース1: IoTセンサーデータの振り分け</h3>
+        <div class="code-block">
+センサーハブから受信したJSONデータを解析
+↓
+Switchノードでセンサー種類(msg.topic)を判定
+├→ 温度センサー → 温度管理システムへ
+├→ 湿度センサー → 空調制御システムへ
+└→ 人感センサー → セキュリティシステムへ
+        </div>
+        
+        <h3>ケース2: エラーレベルによる通知の振り分け</h3>
+        <div class="code-block">
+システムログの受信
+↓
+Switchノードでエラーレベル(msg.payload.level)を判定
+├→ "ERROR" → 緊急通知(メール送信)
+├→ "WARNING" → Slackへ通知
+├→ "INFO" → ログファイルへ記録のみ
+└→ それ以外 → 無視
+        </div>
+        
+        <h3>ケース3: 時間帯による制御モードの切り替え</h3>
+        <div class="code-block">
+定期実行トリガー(1分ごと)
+↓
+Functionノードで現在時刻を取得
+↓
+Switchノードで時刻判定
+├→ 6:00-9:00 → 朝モード(照明100%、空調23℃)
+├→ 9:00-18:00 → 業務モード(照明80%、空調25℃)
+├→ 18:00-22:00 → 夜モード(照明60%、空調26℃)
+└→ 22:00-6:00 → 省エネモード(照明OFF、空調28℃)
+        </div>
+        
+        <h2>🔗 8. 追加リソース</h2>
+        
+        <ul>
+            <li><a href="https://nodered.org/docs/user-guide/nodes#switch" target="_blank">Node-RED公式ドキュメント: Switchノード</a></li>
+            <li><a href="https://cookbook.nodered.org/basic/operate-on-array-of-messages" target="_blank">Node-RED Cookbook: メッセージ配列の操作</a></li>
+            <li><a href="https://flows.nodered.org/" target="_blank">Node-RED Flow Library: サンプルフロー集</a></li>
+        </ul>
+        
+        <hr>
+        
+        <p style="text-align: center; color: #999; margin-top: 40px;">
+            <small>このガイドが役に立ちましたら、実際のプロジェクトで練習してみてください!<br>
+            Switchノードはメッセージの振り分けを行う重要なノードです。</small>
+        </p>
+    </div>
+    
+    <script>
+        // ページ読み込み時にコピーボタンを追加
+        document.addEventListener('DOMContentLoaded', function() {
+            // すべての.code-blockと.flow-jsonにコピーボタンを追加
+            const codeBlocks = document.querySelectorAll('.code-block, .flow-json');
+            
+            codeBlocks.forEach(function(block) {
+                // コピーボタンを作成
+                const button = document.createElement('button');
+                button.className = 'copy-button';
+                button.textContent = 'コピー';
+                
+                // クリックイベントを追加
+                button.addEventListener('click', function() {
+                    // コードブロックのテキストを取得
+                    const code = block.textContent.replace('コピー', '').trim();
+                    
+                    // クリップボードにコピー
+                    navigator.clipboard.writeText(code).then(function() {
+                        // 成功時の視覚的フィードバック
+                        button.textContent = 'コピーしました!';
+                        button.classList.add('copied');
+                        
+                        // 2秒後に元に戻す
+                        setTimeout(function() {
+                            button.textContent = 'コピー';
+                            button.classList.remove('copied');
+                        }, 2000);
+                    }).catch(function(err) {
+                        console.error('コピーに失敗しました:', err);
+                        button.textContent = 'エラー';
+                        setTimeout(function() {
+                            button.textContent = 'コピー';
+                        }, 2000);
+                    });
+                });
+                
+                // ボタンをコードブロックに追加
+                block.style.position = 'relative';
+                block.appendChild(button);
+            });
+        });
+    </script>
+</body>
+</html>

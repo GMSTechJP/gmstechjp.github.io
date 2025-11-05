@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED Functionノード 完全ガイド</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        h1 {
+            color: #8f0000;
+            border-bottom: 3px solid #8f0000;
+            padding-bottom: 10px;
+        }
+        
+        h2 {
+            color: #c00000;
+            margin-top: 30px;
+            border-left: 5px solid #c00000;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #555;
+            margin-top: 25px;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .node-example {
+            background-color: #2d3133;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            color: white;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .node {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 4px;
+            margin: 5px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .node-inject {
+            background-color: #3fadb5;
+            color: white;
+        }
+        
+        .node-function {
+            background-color: #e6b0aa;
+            color: #333;
+        }
+        
+        .node-debug {
+            background-color: #87a48d;
+            color: white;
+        }
+        
+        .node-change {
+            background-color: #e7a070;
+            color: white;
+        }
+        
+        .arrow {
+            color: #999;
+            font-size: 20px;
+            margin: 0 10px;
+        }
+        
+        .important {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .tip {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .warning {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .code-block {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            position: relative;
+        }
+        
+        .copy-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 6px 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: 'Segoe UI', sans-serif;
+            transition: background-color 0.2s;
+            z-index: 10;
+        }
+        
+        .copy-button:hover {
+            background-color: #0056b3;
+        }
+        
+        .copy-button.copied {
+            background-color: #28a745;
+        }
+        
+        .exercise {
+            background-color: #e8f5e9;
+            border: 2px solid #4caf50;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        
+        .exercise h3 {
+            color: #2e7d32;
+            margin-top: 0;
+        }
+        
+        .difficulty {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .difficulty-easy {
+            background-color: #4caf50;
+            color: white;
+        }
+        
+        .difficulty-medium {
+            background-color: #ff9800;
+            color: white;
+        }
+        
+        .difficulty-hard {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        ul, ol {
+            padding-left: 25px;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #8f0000;
+            color: white;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .flow-json {
+            background-color: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        details {
+            margin: 15px 0;
+        }
+        
+        summary {
+            cursor: pointer;
+            padding: 10px;
+            background-color: #6c757d;
+            color: white;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        summary:hover {
+            background-color: #5a6268;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .feature-card {
+            background-color: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .feature-card h4 {
+            color: #e6b0aa;
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💻 Node-RED Functionノード 完全ガイド</h1>
+        
+        <p>このガイドでは、Node-REDの<strong>Functionノード</strong>について、初心者の方でも理解できるように詳しく説明します。</p>
+        
+        <h2>📚 1. Functionノードとは?</h2>
+        
+        <h3>🤔 「プログラミング」って何?</h3>
+        <p>Functionノードは、<strong>JavaScriptでプログラムを書ける</strong>ノードです。ChangeノードやSwitchノードではできない、複雑な処理を自由に書くことができます。</p>
+        
+        <div class="important">
+            <strong>💡 日常の例で考えてみましょう:</strong>
+            <ul>
+                <li>料理のレシピ → 手順を書いたもの = プログラム</li>
+                <li>数学の計算 → 複雑な計算式 = プログラム</li>
+                <li>ゲームのルール → 条件判断と処理 = プログラム</li>
+            </ul>
+            <p>Functionノードは、これらの「手順」「計算」「判断」を自由に書けるノードです!</p>
+        </div>
+        
+        <h3>🎯 Functionノードの役割</h3>
+        <p><strong>Functionノード</strong>は、JavaScriptコードを使って、ChangeノードやSwitchノードでは難しい処理を実現します。</p>
+        
+        <div class="tip">
+            <strong>🍳 料理の例:</strong><br>
+            <br>
+            <strong>Changeノード</strong> = 決まった調味料を入れる<br>
+            →「塩を5g入れる」など、シンプルな操作<br>
+            <br>
+            <strong>Functionノード</strong> = 料理人が自由に料理する<br>
+            →「味見しながら調整」「複数の工程を組み合わせ」など、複雑な操作<br>
+            <br>
+            より柔軟で強力ですが、JavaScriptの知識が必要です!
+        </div>
+        
+        <h2>🔍 2. サンプルフローの詳しい解説</h2>
+        
+        <p>サンプルフローには、Functionノードの<strong>7つの主要な使い方</strong>が含まれています:</p>
+        
+        <h3>パターン1: メッセージを返す</h3>
+        <div class="node-example">
+            <span class="node node-inject">inject<br>"World"</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">function<br>"Hello, "+msg.payload+"!"</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">debug<br>"Hello, World!"</span>
+        </div>
+        <p>payloadに文字列を追加して返します。</p>
+        
+        <h3>パターン2: 複数のメッセージを返す</h3>
+        <div class="node-example">
+            <span class="node node-inject">inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">function<br>配列を返す</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">output1<br>(3個)</span>
+            <br><br>
+            <span style="margin-left: 200px;">↓</span>
+            <br>
+            <span style="margin-left: 170px;"><span class="node node-debug">output2<br>(1個)</span></span>
+        </div>
+        <p>出力ポートごとに異なるメッセージを送信できます。</p>
+        
+        <h3>パターン3: 非同期でメッセージ送信</h3>
+        <div class="node-example">
+            <span class="node node-inject">inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">function<br>setTimeout 2秒</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">2秒後に表示</span>
+        </div>
+        <p>setTimeoutを使って、一定時間後にメッセージを送信します。</p>
+        
+        <h3>パターン4: コンテキスト変数の使用</h3>
+        <div class="node-example">
+            <span class="node node-inject">inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">function<br>flow.get/set</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">変数を保存・取得</span>
+        </div>
+        <p>flow変数やglobal変数を使って、データを保存・取得します。</p>
+        
+        <h3>パターン5: ノードステータスの表示</h3>
+        <div class="node-example">
+            <span class="node node-inject">inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">function<br>node.status()</span>
+        </div>
+        <p>ノードの下に状態を表示できます(例: 処理中、完了、エラー)。</p>
+        
+        <h3>パターン6: 外部モジュールの使用</h3>
+        <div class="node-example">
+            <span class="node node-inject">inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">function<br>os module</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">OS情報表示</span>
+        </div>
+        <p>外部のnpmモジュールを使って高度な処理ができます。</p>
+        
+        <h3>パターン7: Setup/Closeコード</h3>
+        <div class="node-example">
+            <span style="color: #aaa;">Setup: 初期化処理</span>
+            <br>
+            <span class="node node-inject">inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">function<br>counter</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">カウント表示</span>
+            <br>
+            <span style="color: #aaa;">Close: 終了処理</span>
+        </div>
+        <p>ノード起動時と停止時に特別な処理を実行できます。</p>
+        
+        <h2>⚙️ 3. Functionノードの基本</h2>
+        
+        <h3>msgオブジェクトとは</h3>
+        
+        <div class="important">
+            <p><strong>msg</strong>は、ノード間を流れるメッセージオブジェクトです。</p>
+            
+            <p><strong>主なプロパティ:</strong></p>
+            <ul>
+                <li><code>msg.payload</code> → メッセージの本体(データ)</li>
+                <li><code>msg.topic</code> → メッセージのトピック(種類)</li>
+                <li><code>msg._msgid</code> → メッセージの一意なID</li>
+            </ul>
+            
+            <p><strong>基本的な使い方:</strong></p>
+            <div class="code-block">
+// payloadを読み取る
+let value = msg.payload;
+
+// payloadを変更する
+msg.payload = "新しい値";
+
+// 新しいプロパティを追加
+msg.customProperty = "カスタム値";
+
+// メッセージを返す(次のノードに送信)
+return msg;
+            </div>
+        </div>
+        
+        <h3>returnの使い方</h3>
+        
+        <table>
+            <tr>
+                <th>返し方</th>
+                <th>コード例</th>
+                <th>説明</th>
+            </tr>
+            <tr>
+                <td>1つのメッセージ</td>
+                <td><code>return msg;</code></td>
+                <td>msgをそのまま次のノードに送信</td>
+            </tr>
+            <tr>
+                <td>何も送信しない</td>
+                <td><code>return null;</code></td>
+                <td>メッセージを破棄(次のノードに送らない)</td>
+            </tr>
+            <tr>
+                <td>複数のメッセージ(1出力)</td>
+                <td><code>return [msg1, msg2];</code></td>
+                <td>同じ出力から2つのメッセージを送信</td>
+            </tr>
+            <tr>
+                <td>複数の出力に送信</td>
+                <td><code>return [msg1, msg2];</code></td>
+                <td>出力1にmsg1、出力2にmsg2を送信</td>
+            </tr>
+        </table>
+        
+        <h3>📋 よく使うJavaScript構文</h3>
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h4>変数の宣言</h4>
+                <div class="code-block">
+// 変数を宣言
+let name = "太郎";
+let age = 25;
+const PI = 3.14; // 定数
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <h4>条件分岐</h4>
+                <div class="code-block">
+if (msg.payload > 10) {
+    msg.payload = "大きい";
+} else {
+    msg.payload = "小さい";
+}
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <h4>ループ処理</h4>
+                <div class="code-block">
+// 配列をループ
+for (let i = 0; i < 5; i++) {
+    // 処理
+}
+
+// 配列の各要素を処理
+arr.forEach(item => {
+    // 処理
+});
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <h4>配列操作</h4>
+                <div class="code-block">
+// 配列の作成
+let arr = [1, 2, 3, 4, 5];
+
+// 要素の追加
+arr.push(6);
+
+// 要素の取得
+let first = arr[0];
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <h4>オブジェクト操作</h4>
+                <div class="code-block">
+// オブジェクトの作成
+let obj = {
+    name: "太郎",
+    age: 25
+};
+
+// プロパティの取得
+let name = obj.name;
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <h4>文字列操作</h4>
+                <div class="code-block">
+// 文字列の結合
+let str = "Hello, " + "World!";
+
+// テンプレート文字列
+let msg = `値は${value}です`;
+                </div>
+            </div>
+        </div>
+        
+        <h2>💡 4. コンテキスト変数</h2>
+        
+        <h3>3種類のコンテキスト</h3>
+        
+        <table>
+            <tr>
+                <th>種類</th>
+                <th>スコープ</th>
+                <th>使い方</th>
+            </tr>
+            <tr>
+                <td>flow</td>
+                <td>同じフロー内で共有</td>
+                <td><code>flow.get("key")</code><br><code>flow.set("key", value)</code></td>
+            </tr>
+            <tr>
+                <td>global</td>
+                <td>すべてのフローで共有</td>
+                <td><code>global.get("key")</code><br><code>global.set("key", value)</code></td>
+            </tr>
+            <tr>
+                <td>context</td>
+                <td>ノード内でのみ有効</td>
+                <td><code>context.get("key")</code><br><code>context.set("key", value)</code></td>
+            </tr>
+        </table>
+        
+        <div class="code-block">
+// カウンターの例
+let count = flow.get('counter') || 0;  // 取得(初回は0)
+count = count + 1;                      // 増やす
+flow.set('counter', count);             // 保存
+msg.payload = count;
+return msg;
+        </div>
+        
+        <h2>📝 5. 練習問題</h2>
+        
+        <div class="exercise">
+            <h3>練習問題 1: 温度の判定 <span class="difficulty difficulty-easy">初級</span></h3>
+            
+            <h4>🎯 目標</h4>
+            <p>温度の値を受け取り、30℃以上なら「暑い」、30℃未満なら「涼しい」と表示する</p>
+            
+            <h4>📋 要件</h4>
+            <ol>
+                <li>Injectノードで温度(数値)を送信</li>
+                <li>Functionノードで温度を判定</li>
+                <li>Debugノードで結果を表示</li>
+            </ol>
+            
+            <h4>💭 ヒント</h4>
+            
+            <p><strong>🎯 Functionノードのコード(自分で書いてみよう):</strong></p>
+            <ul>
+                <li>msg.payloadに温度が入っている</li>
+                <li>if文で条件分岐する</li>
+                <li>msg.payloadに結果の文字列を設定</li>
+                <li>return msgで返す</li>
+            </ul>
+            
+            <p><strong>🔢 Injectノードの設定(そのまま設定してください):</strong></p>
+            <ul>
+                <li>名前: <code>温度35℃</code></li>
+                <li>Payload: number型で <code>35</code></li>
+            </ul>
+            
+            <p><strong>🔢 もう1つInjectノードを作成:</strong></p>
+            <ul>
+                <li>名前: <code>温度25℃</code></li>
+                <li>Payload: number型で <code>25</code></li>
+            </ul>
+            
+            <details>
+                <summary>📦 解答フロー (クリックして表示)</summary>
+                <div class="flow-json">
+[
+    {
+        "id": "ex1_inject1",
+        "type": "inject",
+        "z": "exercise1",
+        "name": "温度35℃",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "35",
+        "payloadType": "num",
+        "x": 120,
+        "y": 100,
+        "wires": [
+            ["ex1_function"]
+        ]
+    },
+    {
+        "id": "ex1_inject2",
+        "type": "inject",
+        "z": "exercise1",
+        "name": "温度25℃",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "25",
+        "payloadType": "num",
+        "x": 120,
+        "y": 140,
+        "wires": [
+            ["ex1_function"]
+        ]
+    },
+    {
+        "id": "ex1_function",
+        "type": "function",
+        "z": "exercise1",
+        "name": "温度判定",
+        "func": "// 温度を取得\nlet temp = msg.payload;\n\n// 条件分岐\nif (temp >= 30) {\n    msg.payload = \"暑い(\" + temp + \"℃)\";\n} else {\n    msg.payload = \"涼しい(\" + temp + \"℃)\";\n}\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 300,
+        "y": 120,
+        "wires": [
+            ["ex1_debug"]
+        ]
+    },
+    {
+        "id": "ex1_debug",
+        "type": "debug",
+        "z": "exercise1",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 470,
+        "y": 120,
+        "wires": []
+    }
+]
+                </div>
+                <p><strong>✅ 動作確認:</strong></p>
+                <ul>
+                    <li>「温度35℃」をクリック → 「暑い(35℃)」と表示</li>
+                    <li>「温度25℃」をクリック → 「涼しい(25℃)」と表示</li>
+                </ul>
+                
+                <p><strong>📝 解答コード:</strong></p>
+                <div class="code-block">
+// 温度を取得
+let temp = msg.payload;
+
+// 条件分岐
+if (temp >= 30) {
+    msg.payload = "暑い(" + temp + "℃)";
+} else {
+    msg.payload = "涼しい(" + temp + "℃)";
+}
+
+return msg;
+                </div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>練習問題 2: 配列の合計と平均 <span class="difficulty difficulty-medium">中級</span></h3>
+            
+            <h4>🎯 目標</h4>
+            <p>数値の配列を受け取り、合計と平均を計算して返す</p>
+            
+            <h4>📋 要件</h4>
+            <ol>
+                <li>Injectノードで数値の配列を送信</li>
+                <li>Functionノードで合計と平均を計算</li>
+                <li>結果をオブジェクトで返す: <code>{sum: 合計, avg: 平均}</code></li>
+                <li>Debugノードで結果を表示</li>
+            </ol>
+            
+            <h4>💭 ヒント</h4>
+            
+            <p><strong>🎯 Functionノードのコード(自分で書いてみよう):</strong></p>
+            <ul>
+                <li>msg.payloadに配列が入っている</li>
+                <li>forループまたはforEachで配列をループ</li>
+                <li>合計を計算してから、配列の長さで割って平均を求める</li>
+            </ul>
+            
+            <p><strong>🔢 Injectノードの設定(そのまま設定してください):</strong></p>
+            <div class="important">
+                <ul>
+                    <li>Payload: JSON型を選択</li>
+                    <li>以下のJSONを入力:</li>
+                </ul>
+                <div class="code-block">
+[10, 20, 30, 40, 50]
+                </div>
+            </div>
+            
+            <details>
+                <summary>📦 解答フロー (クリックして表示)</summary>
+                <div class="flow-json">
+[
+    {
+        "id": "ex2_inject",
+        "type": "inject",
+        "z": "exercise2",
+        "name": "数値配列",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[10,20,30,40,50]",
+        "payloadType": "json",
+        "x": 120,
+        "y": 100,
+        "wires": [
+            ["ex2_function"]
+        ]
+    },
+    {
+        "id": "ex2_function",
+        "type": "function",
+        "z": "exercise2",
+        "name": "合計と平均",
+        "func": "// 配列を取得\nlet numbers = msg.payload;\n\n// 合計を計算\nlet sum = 0;\nfor (let i = 0; i < numbers.length; i++) {\n    sum = sum + numbers[i];\n}\n\n// 平均を計算\nlet avg = sum / numbers.length;\n\n// 結果をオブジェクトで返す\nmsg.payload = {\n    sum: sum,\n    avg: avg,\n    count: numbers.length\n};\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 290,
+        "y": 100,
+        "wires": [
+            ["ex2_debug"]
+        ]
+    },
+    {
+        "id": "ex2_debug",
+        "type": "debug",
+        "z": "exercise2",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 450,
+        "y": 100,
+        "wires": []
+    }
+]
+                </div>
+                <p><strong>✅ 動作確認:</strong></p>
+                <ul>
+                    <li>Injectをクリック</li>
+                    <li>結果: <code>{sum: 150, avg: 30, count: 5}</code> が表示される</li>
+                </ul>
+                
+                <p><strong>📝 解答コード:</strong></p>
+                <div class="code-block">
+// 配列を取得
+let numbers = msg.payload;
+
+// 合計を計算
+let sum = 0;
+for (let i = 0; i < numbers.length; i++) {
+    sum = sum + numbers[i];
+}
+
+// 平均を計算
+let avg = sum / numbers.length;
+
+// 結果をオブジェクトで返す
+msg.payload = {
+    sum: sum,
+    avg: avg,
+    count: numbers.length
+};
+
+return msg;
+                </div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>練習問題 3: アクセスカウンター <span class="difficulty difficulty-medium">中級</span></h3>
+            
+            <h4>🎯 目標</h4>
+            <p>flow変数を使って、アクセス回数をカウントする</p>
+            
+            <h4>📋 要件</h4>
+            <ol>
+                <li>「アクセス」ボタン: クリックするたびにカウントが1増える</li>
+                <li>「リセット」ボタン: カウントを0に戻す</li>
+                <li>「確認」ボタン: 現在のカウントを表示</li>
+                <li>flow変数 "accessCount" を使用</li>
+            </ol>
+            
+            <h4>💭 ヒント</h4>
+            
+            <p><strong>🎯 Functionノードのコード(自分で書いてみよう):</strong></p>
+            <ul>
+                <li>flow.get() で値を取得</li>
+                <li>flow.set() で値を保存</li>
+                <li>初回は値がないので、|| 0 でデフォルト値を設定</li>
+            </ul>
+            
+            <p><strong>🔢 Injectノードの設定:</strong></p>
+            <ul>
+                <li>3つのInjectノードを作成</li>
+                <li>名前: 「アクセス」「リセット」「確認」</li>
+                <li>Payloadは何でもOK(使用しない)</li>
+            </ul>
+            
+            <details>
+                <summary>📦 解答フロー (クリックして表示)</summary>
+                <div class="flow-json">
+[
+    {
+        "id": "ex3_inject_access",
+        "type": "inject",
+        "z": "exercise3",
+        "name": "アクセス",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 120,
+        "y": 100,
+        "wires": [
+            ["ex3_function_access"]
+        ]
+    },
+    {
+        "id": "ex3_inject_reset",
+        "type": "inject",
+        "z": "exercise3",
+        "name": "リセット",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 120,
+        "y": 140,
+        "wires": [
+            ["ex3_function_reset"]
+        ]
+    },
+    {
+        "id": "ex3_inject_check",
+        "type": "inject",
+        "z": "exercise3",
+        "name": "確認",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 110,
+        "y": 180,
+        "wires": [
+            ["ex3_function_check"]
+        ]
+    },
+    {
+        "id": "ex3_function_access",
+        "type": "function",
+        "z": "exercise3",
+        "name": "カウント+1",
+        "func": "// 現在のカウントを取得(初回は0)\nlet count = flow.get('accessCount') || 0;\n\n// カウントを1増やす\ncount = count + 1;\n\n// 保存\nflow.set('accessCount', count);\n\n// 結果を返す\nmsg.payload = \"アクセス回数: \" + count;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 290,
+        "y": 100,
+        "wires": [
+            ["ex3_debug"]
+        ]
+    },
+    {
+        "id": "ex3_function_reset",
+        "type": "function",
+        "z": "exercise3",
+        "name": "カウントリセット",
+        "func": "// カウントを0にリセット\nflow.set('accessCount', 0);\n\n// 結果を返す\nmsg.payload = \"カウントをリセットしました\";\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 300,
+        "y": 140,
+        "wires": [
+            ["ex3_debug"]
+        ]
+    },
+    {
+        "id": "ex3_function_check",
+        "type": "function",
+        "z": "exercise3",
+        "name": "カウント確認",
+        "func": "// 現在のカウントを取得\nlet count = flow.get('accessCount') || 0;\n\n// 結果を返す\nmsg.payload = \"現在のアクセス回数: \" + count;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 290,
+        "y": 180,
+        "wires": [
+            ["ex3_debug"]
+        ]
+    },
+    {
+        "id": "ex3_debug",
+        "type": "debug",
+        "z": "exercise3",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 490,
+        "y": 140,
+        "wires": []
+    }
+]
+                </div>
+                <p><strong>✅ 動作確認:</strong></p>
+                <ul>
+                    <li>「アクセス」を何度かクリック → 「アクセス回数: 1」「アクセス回数: 2」...</li>
+                    <li>「確認」をクリック → 「現在のアクセス回数: X」</li>
+                    <li>「リセット」をクリック → 「カウントをリセットしました」</li>
+                    <li>「確認」をクリック → 「現在のアクセス回数: 0」</li>
+                </ul>
+                
+                <p><strong>📝 解答コード(アクセス):</strong></p>
+                <div class="code-block">
+// 現在のカウントを取得(初回は0)
+let count = flow.get('accessCount') || 0;
+
+// カウントを1増やす
+count = count + 1;
+
+// 保存
+flow.set('accessCount', count);
+
+// 結果を返す
+msg.payload = "アクセス回数: " + count;
+return msg;
+                </div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>練習問題 4: センサーデータの異常検知 <span class="difficulty difficulty-hard">上級</span></h3>
+            
+            <h4>🎯 目標</h4>
+            <p>温度センサーのデータを監視し、異常値(5℃以下または40℃以上)を検出して警告を出す</p>
+            
+            <h4>📋 シナリオ</h4>
+            <p>温度センサーから定期的にデータが送られてきます。正常範囲(5-40℃)を外れた場合、警告メッセージを出力し、異常回数をカウントします。</p>
+            
+            <h4>📋 要件</h4>
+            <ol>
+                <li>Injectノードでランダムな温度データを送信(0-50℃)</li>
+                <li>Functionノードで以下の処理:
+                    <ul>
+                        <li>温度が正常範囲内かチェック</li>
+                        <li>異常の場合、警告メッセージを作成</li>
+                        <li>異常回数をflow変数でカウント</li>
+                        <li>正常値と異常値を別の出力ポートから送信(outputs: 2)</li>
+                    </ul>
+                </li>
+                <li>2つのDebugノードで正常値と異常値を別々に表示</li>
+            </ol>
+            
+            <h4>💭 ヒント</h4>
+            
+            <p><strong>🎯 Functionノードのコード(自分で書いてみよう):</strong></p>
+            <ul>
+                <li>複数の出力ポートを使うには、配列で返す</li>
+                <li><code>return [正常用msg, 異常用msg];</code></li>
+                <li>送信しない方は<code>null</code>にする</li>
+            </ul>
+            
+            <p><strong>🔢 Injectノードの設定(そのまま設定してください):</strong></p>
+            <div class="important">
+                <ul>
+                    <li>名前: <code>温度センサー</code></li>
+                    <li>Repeat: interval - 2 seconds</li>
+                    <li>Payload: JSONata式</li>
+                    <li>値: <code>$round($random() * 50)</code></li>
+                    <li>※ これは0-50℃の範囲でランダムな温度を生成します</li>
+                </ul>
+            </div>
+            
+            <p><strong>⚙️ Functionノードの設定:</strong></p>
+            <ul>
+                <li>Outputs: <code>2</code> に設定(2つの出力ポート)</li>
+            </ul>
+            
+            <details>
+                <summary>📦 解答フロー (クリックして表示)</summary>
+                <div class="flow-json">
+[
+    {
+        "id": "ex4_inject",
+        "type": "inject",
+        "z": "exercise4",
+        "name": "温度センサー",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "2",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "$round($random() * 50)",
+        "payloadType": "jsonata",
+        "x": 140,
+        "y": 100,
+        "wires": [
+            ["ex4_function"]
+        ]
+    },
+    {
+        "id": "ex4_function",
+        "type": "function",
+        "z": "exercise4",
+        "name": "異常検知",
+        "func": "// 温度を取得\nlet temp = msg.payload;\n\n// 正常範囲の定義\nconst MIN_TEMP = 5;\nconst MAX_TEMP = 40;\n\n// 異常回数を取得\nlet errorCount = flow.get('errorCount') || 0;\n\n// 温度をチェック\nif (temp < MIN_TEMP || temp > MAX_TEMP) {\n    // 異常の場合\n    errorCount = errorCount + 1;\n    flow.set('errorCount', errorCount);\n    \n    // 異常メッセージを作成\n    let alertMsg = {\n        payload: {\n            temperature: temp,\n            status: \"異常\",\n            reason: temp < MIN_TEMP ? \"低温\" : \"高温\",\n            errorCount: errorCount,\n            timestamp: new Date().toLocaleString('ja-JP')\n        }\n    };\n    \n    // 出力1: null (正常用なので送信しない)\n    // 出力2: 異常メッセージ\n    return [null, alertMsg];\n    \n} else {\n    // 正常の場合\n    let normalMsg = {\n        payload: {\n            temperature: temp,\n            status: \"正常\",\n            timestamp: new Date().toLocaleString('ja-JP')\n        }\n    };\n    \n    // 出力1: 正常メッセージ\n    // 出力2: null (異常用なので送信しない)\n    return [normalMsg, null];\n}",
+        "outputs": 2,
+        "noerr": 0,
+        "x": 320,
+        "y": 100,
+        "wires": [
+            ["ex4_debug_normal"],
+            ["ex4_debug_alert"]
+        ]
+    },
+    {
+        "id": "ex4_debug_normal",
+        "type": "debug",
+        "z": "exercise4",
+        "name": "✅ 正常値",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 500,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "ex4_debug_alert",
+        "type": "debug",
+        "z": "exercise4",
+        "name": "⚠️ 異常値",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 500,
+        "y": 120,
+        "wires": []
+    }
+]
+                </div>
+                <p><strong>✅ 動作確認:</strong></p>
+                <ul>
+                    <li>フローをデプロイすると、2秒ごとに自動実行される</li>
+                    <li>正常値(5-40℃): 「✅ 正常値」に表示</li>
+                    <li>異常値(5℃未満または40℃超): 「⚠️ 異常値」に表示</li>
+                    <li>異常値には累積エラー回数も表示される</li>
+                </ul>
+                
+                <p><strong>📝 解答コード:</strong></p>
+                <div class="code-block">
+// 温度を取得
+let temp = msg.payload;
+
+// 正常範囲の定義
+const MIN_TEMP = 5;
+const MAX_TEMP = 40;
+
+// 異常回数を取得
+let errorCount = flow.get('errorCount') || 0;
+
+// 温度をチェック
+if (temp < MIN_TEMP || temp > MAX_TEMP) {
+    // 異常の場合
+    errorCount = errorCount + 1;
+    flow.set('errorCount', errorCount);
+    
+    // 異常メッセージを作成
+    let alertMsg = {
+        payload: {
+            temperature: temp,
+            status: "異常",
+            reason: temp < MIN_TEMP ? "低温" : "高温",
+            errorCount: errorCount,
+            timestamp: new Date().toLocaleString('ja-JP')
+        }
+    };
+    
+    // 出力1: null (正常用なので送信しない)
+    // 出力2: 異常メッセージ
+    return [null, alertMsg];
+    
+} else {
+    // 正常の場合
+    let normalMsg = {
+        payload: {
+            temperature: temp,
+            status: "正常",
+            timestamp: new Date().toLocaleString('ja-JP')
+        }
+    };
+    
+    // 出力1: 正常メッセージ
+    // 出力2: null (異常用なので送信しない)
+    return [normalMsg, null];
+}
+                </div>
+            </details>
+        </div>
+        
+        <h2>🎓 6. まとめ</h2>
+        
+        <div class="important">
+            <h3>Functionノードの重要ポイント</h3>
+            <ul>
+                <li>✅ <strong>JavaScriptが使える</strong>: 複雑な処理を自由に記述</li>
+                <li>✅ <strong>msgオブジェクト</strong>: msg.payloadでデータを取得・設定</li>
+                <li>✅ <strong>return</strong>: メッセージを返して次のノードに送信</li>
+                <li>✅ <strong>コンテキスト変数</strong>: flow/global/contextでデータを保存</li>
+                <li>✅ <strong>複数出力</strong>: 配列で返すと複数の出力ポートから送信可能</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <h3>⚠️ 注意事項</h3>
+            <ul>
+                <li><strong>エラーハンドリング</strong>: try-catch文でエラーを適切に処理しよう</li>
+                <li><strong>無限ループ</strong>: while文などで無限ループを作らないよう注意</li>
+                <li><strong>メモリリーク</strong>: 大量のデータをcontext変数に保存しすぎない</li>
+                <li><strong>非同期処理</strong>: setTimeoutなどを使う場合は、node.send()を使う</li>
+            </ul>
+        </div>
+        
+        <div class="tip">
+            <h3>📚 次のステップ</h3>
+            <p>Functionノードをマスターしたら、以下も学んでみましょう:</p>
+            <ul>
+                <li><strong>JSONata</strong>: より簡潔にデータ変換できる</li>
+                <li><strong>Promiseと非同期処理</strong>: async/awaitの使い方</li>
+                <li><strong>外部モジュール</strong>: npmパッケージの活用</li>
+                <li><strong>エラーハンドリング</strong>: try-catchとCatchノードの連携</li>
+            </ul>
+        </div>
+        
+        <h2>🔧 7. トラブルシューティング</h2>
+        
+        <h3>よくある問題と解決方法</h3>
+        
+        <table>
+            <tr>
+                <th>問題</th>
+                <th>原因</th>
+                <th>解決方法</th>
+            </tr>
+            <tr>
+                <td>メッセージが送信されない</td>
+                <td>returnを忘れている</td>
+                <td>関数の最後に<code>return msg;</code>を追加</td>
+            </tr>
+            <tr>
+                <td>エラーが表示される</td>
+                <td>構文エラー</td>
+                <td>エラーメッセージを確認し、コードを修正</td>
+            </tr>
+            <tr>
+                <td>変数が保存されない</td>
+                <td>flow.set()を忘れている</td>
+                <td>値を変更したら必ずflow.set()で保存</td>
+            </tr>
+            <tr>
+                <td>複数出力が機能しない</td>
+                <td>Outputsの設定が1のまま</td>
+                <td>Functionノードの設定でOutputsを2以上に</td>
+            </tr>
+        </table>
+        
+        <h2>📖 8. よく使うJavaScript関数</h2>
+        
+        <h3>配列操作</h3>
+        
+        <table>
+            <tr>
+                <th>関数</th>
+                <th>説明</th>
+                <th>例</th>
+            </tr>
+            <tr>
+                <td>push()</td>
+                <td>末尾に追加</td>
+                <td><code>arr.push(item)</code></td>
+            </tr>
+            <tr>
+                <td>pop()</td>
+                <td>末尾を削除</td>
+                <td><code>arr.pop()</code></td>
+            </tr>
+            <tr>
+                <td>forEach()</td>
+                <td>各要素を処理</td>
+                <td><code>arr.forEach(item => {...})</code></td>
+            </tr>
+            <tr>
+                <td>map()</td>
+                <td>各要素を変換</td>
+                <td><code>arr.map(x => x * 2)</code></td>
+            </tr>
+            <tr>
+                <td>filter()</td>
+                <td>条件に合う要素を抽出</td>
+                <td><code>arr.filter(x => x > 10)</code></td>
+            </tr>
+        </table>
+        
+        <h3>文字列操作</h3>
+        
+        <table>
+            <tr>
+                <th>関数</th>
+                <th>説明</th>
+                <th>例</th>
+            </tr>
+            <tr>
+                <td>split()</td>
+                <td>文字列を分割</td>
+                <td><code>"a,b,c".split(",")</code> → ["a","b","c"]</td>
+            </tr>
+            <tr>
+                <td>join()</td>
+                <td>配列を結合</td>
+                <td><code>["a","b"].join(",")</code> → "a,b"</td>
+            </tr>
+            <tr>
+                <td>toUpperCase()</td>
+                <td>大文字に変換</td>
+                <td><code>"hello".toUpperCase()</code> → "HELLO"</td>
+            </tr>
+            <tr>
+                <td>substring()</td>
+                <td>部分文字列を取得</td>
+                <td><code>"hello".substring(0, 3)</code> → "hel"</td>
+            </tr>
+        </table>
+        
+        <h2>🔗 9. 追加リソース</h2>
+        
+        <ul>
+            <li><a href="https://nodered.org/docs/user-guide/writing-functions" target="_blank">Node-RED公式ドキュメント: Functionノード</a></li>
+            <li><a href="https://developer.mozilla.org/ja/docs/Web/JavaScript" target="_blank">MDN Web Docs: JavaScript</a></li>
+            <li><a href="https://cookbook.nodered.org/" target="_blank">Node-RED Cookbook: パターン集</a></li>
+        </ul>
+        
+        <hr>
+        
+        <p style="text-align: center; color: #999; margin-top: 40px;">
+            <small>このガイドが役に立ちましたら、実際のプロジェクトで練習してみてください!<br>
+            FunctionノードはNode-REDの最も強力で柔軟なノードです。</small>
+        </p>
+    </div>
+    
+    <script>
+        // ページ読み込み時にコピーボタンを追加
+        document.addEventListener('DOMContentLoaded', function() {
+            // すべての.code-blockと.flow-jsonにコピーボタンを追加
+            const codeBlocks = document.querySelectorAll('.code-block, .flow-json');
+            
+            codeBlocks.forEach(function(block) {
+                // コピーボタンを作成
+                const button = document.createElement('button');
+                button.className = 'copy-button';
+                button.textContent = 'コピー';
+                
+                // クリックイベントを追加
+                button.addEventListener('click', function() {
+                    // コードブロックのテキストを取得
+                    const code = block.textContent.replace('コピー', '').trim();
+                    
+                    // クリップボードにコピー
+                    navigator.clipboard.writeText(code).then(function() {
+                        // 成功時の視覚的フィードバック
+                        button.textContent = 'コピーしました!';
+                        button.classList.add('copied');
+                        
+                        // 2秒後に元に戻す
+                        setTimeout(function() {
+                            button.textContent = 'コピー';
+                            button.classList.remove('copied');
+                        }, 2000);
+                    }).catch(function(err) {
+                        console.error('コピーに失敗しました:', err);
+                        button.textContent = 'エラー';
+                        setTimeout(function() {
+                            button.textContent = 'コピー';
+                        }, 2000);
+                    });
+                });
+                
+                // ボタンをコードブロックに追加
+                block.style.position = 'relative';
+                block.appendChild(button);
+            });
+        });
+    </script>
+</body>
+</html>

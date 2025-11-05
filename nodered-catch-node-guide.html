@@ -1,0 +1,1343 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED Catchノード 完全ガイド</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        h1 {
+            color: #8f0000;
+            border-bottom: 3px solid #8f0000;
+            padding-bottom: 10px;
+        }
+        
+        h2 {
+            color: #c00000;
+            margin-top: 30px;
+            border-left: 5px solid #c00000;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #555;
+            margin-top: 25px;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .node-example {
+            background-color: #2d3133;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            color: white;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .node {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 4px;
+            margin: 5px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .node-inject {
+            background-color: #3fadb5;
+            color: white;
+        }
+        
+        .node-function {
+            background-color: #e6b0aa;
+            color: #333;
+        }
+        
+        .node-catch {
+            background-color: #f39c12;
+            color: white;
+        }
+        
+        .node-debug {
+            background-color: #87a48d;
+            color: white;
+        }
+        
+        .node-change {
+            background-color: #e7a070;
+            color: white;
+        }
+        
+        .arrow {
+            color: #999;
+            font-size: 20px;
+            margin: 0 10px;
+        }
+        
+        .important {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .tip {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .code-block {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            position: relative;
+        }
+        
+        .copy-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 6px 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: 'Segoe UI', sans-serif;
+            transition: background-color 0.2s;
+            z-index: 10;
+        }
+        
+        .copy-button:hover {
+            background-color: #0056b3;
+        }
+        
+        .copy-button.copied {
+            background-color: #28a745;
+        }
+        
+        .exercise {
+            background-color: #e8f5e9;
+            border: 2px solid #4caf50;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        
+        .exercise h3 {
+            color: #2e7d32;
+            margin-top: 0;
+        }
+        
+        .difficulty {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .difficulty-easy {
+            background-color: #4caf50;
+            color: white;
+        }
+        
+        .difficulty-medium {
+            background-color: #ff9800;
+            color: white;
+        }
+        
+        .difficulty-hard {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        ul, ol {
+            padding-left: 25px;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #8f0000;
+            color: white;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .flow-json {
+            background-color: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        .answer-section {
+            background-color: #fff9e6;
+            border: 2px dashed #ffc107;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        details {
+            margin: 15px 0;
+        }
+        
+        summary {
+            cursor: pointer;
+            padding: 10px;
+            background-color: #6c757d;
+            color: white;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        summary:hover {
+            background-color: #5a6268;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛡️ Node-RED Catchノード 完全ガイド</h1>
+        
+        <p>このガイドでは、Node-REDの<strong>Catchノード</strong>について、初心者の方でも理解できるように詳しく説明します。</p>
+        
+        <h2>📚 1. Catchノードとは?</h2>
+        
+        <h3>🤔 「エラー」って何?</h3>
+        <p>プログラムを動かしていると、時々「想定外のこと」が起こります。これを<strong>エラー</strong>と呼びます。</p>
+        
+        <div class="important">
+            <strong>💡 日常の例で考えてみましょう:</strong>
+            <ul>
+                <li>自動販売機でジュースを買おうとしたら、お金が足りなかった → エラー</li>
+                <li>ドアを開けようとしたら、鍵がかかっていた → エラー</li>
+                <li>ファイルを開こうとしたら、存在しなかった → エラー</li>
+            </ul>
+            <p>これらの「予期しない状況」をプログラムで<strong>適切に処理</strong>することが重要です。</p>
+        </div>
+        
+        <h3>🎯 Catchノードの役割</h3>
+        <p><strong>Catchノード</strong>は、フロー内で発生したエラーを「キャッチ(捕まえる)」して、適切に処理するためのノードです。</p>
+        
+        <div class="tip">
+            <strong>🏀 野球の例:</strong><br>
+            エラーが発生 = ボールが飛んでくる<br>
+            Catchノード = キャッチャーがボールを受け止める<br>
+            <br>
+            キャッチャーがいないと、ボールはどこかに飛んでいってしまいます。<br>
+            Catchノードがないと、エラーはそのまま放置されてしまいます。
+        </div>
+        
+        <h2>🔍 2. サンプルフローの詳しい解説</h2>
+        
+        <h3>フローの全体像</h3>
+        <div class="node-example">
+            <span class="node node-inject">inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">function<br>(Error)</span>
+            <span class="arrow">→ (エラー発生!)</span>
+            <br><br>
+            <span style="margin-left: 220px;">↓</span>
+            <br>
+            <span style="margin-left: 150px;"><span class="node node-catch">catch</span></span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">debug</span>
+        </div>
+        
+        <h3>各ノードの役割</h3>
+        
+        <table>
+            <tr>
+                <th>ノード</th>
+                <th>名前</th>
+                <th>役割</th>
+            </tr>
+            <tr>
+                <td><span class="node node-inject">inject</span></td>
+                <td>Inject(インジェクト)</td>
+                <td>ボタンをクリックすると「Hello, World!」というメッセージを送信</td>
+            </tr>
+            <tr>
+                <td><span class="node node-function">function</span></td>
+                <td>Function(エラー)</td>
+                <td>わざと<strong>エラーを発生</strong>させる(練習用)</td>
+            </tr>
+            <tr>
+                <td><span class="node node-catch">catch</span></td>
+                <td>Catch(キャッチ)</td>
+                <td>Functionノードで発生したエラーを<strong>キャッチ</strong>する</td>
+            </tr>
+            <tr>
+                <td><span class="node node-debug">debug</span></td>
+                <td>Debug(デバッグ)</td>
+                <td>キャッチしたエラー情報を画面に<strong>表示</strong>する</td>
+            </tr>
+        </table>
+        
+        <h3>🔬 動作の流れ(ステップバイステップ)</h3>
+        <ol>
+            <li><strong>Injectノードをクリック</strong>
+                <ul>
+                    <li>「Hello, World!」というメッセージが作成されます</li>
+                    <li>このメッセージがFunctionノードに送られます</li>
+                </ul>
+            </li>
+            
+            <li><strong>Functionノードでエラーが発生</strong>
+                <ul>
+                    <li>コード: <code>throw new Error("Error Occured!")</code></li>
+                    <li>このコードは「意図的にエラーを投げる」という意味です</li>
+                    <li>通常のメッセージの流れが<strong>中断</strong>されます</li>
+                </ul>
+            </li>
+            
+            <li><strong>Catchノードがエラーをキャッチ</strong>
+                <ul>
+                    <li>Catchノードは特定のノード(ここではFunctionノード)を監視しています</li>
+                    <li>エラーが発生すると、自動的に反応します</li>
+                    <li>エラー情報を含むメッセージを作成します</li>
+                </ul>
+            </li>
+            
+            <li><strong>Debugノードで表示</strong>
+                <ul>
+                    <li>Catchノードから受け取ったエラー情報を表示</li>
+                    <li>画面右側の「デバッグ」タブで確認できます</li>
+                </ul>
+            </li>
+        </ol>
+        
+        <h2>⚙️ 3. Catchノードの設定項目</h2>
+        
+        <h3>設定画面で見るべきポイント</h3>
+        
+        <div class="important">
+            <strong>📝 Catchノードの主な設定:</strong>
+            
+            <h4>1. Catch errors from(エラーをキャッチする対象)</h4>
+            <ul>
+                <li><strong>selected nodes(選択されたノード)</strong>: 特定のノードのエラーだけをキャッチ</li>
+                <li><strong>all nodes(すべてのノード)</strong>: フロー内のすべてのノードのエラーをキャッチ</li>
+            </ul>
+            
+            <h4>2. Scope(スコープ - 範囲)</h4>
+            <p>サンプルフローでは、<code>"scope": ["7bab9134.35ad"]</code>となっています。</p>
+            <p>これは「IDが7bab9134.35adのノード(Functionノード)のエラーだけをキャッチ」という意味です。</p>
+            
+            <h4>3. Include uncaught errors from other catch nodes</h4>
+            <p>他のCatchノードでキャッチされなかったエラーも拾うかどうかを設定できます。</p>
+        </div>
+        
+        <h2>💡 4. エラー情報の内容</h2>
+        
+        <p>Catchノードがキャッチしたメッセージ(msg)には、以下のような情報が含まれています:</p>
+        
+        <div class="code-block">
+{
+    "error": {
+        "message": "Error Occured!",  // エラーメッセージ
+        "source": {
+            "id": "7bab9134.35ad",     // エラーが発生したノードのID
+            "type": "function",         // ノードのタイプ
+            "name": "Error"             // ノードの名前
+        }
+    },
+    "_msgid": "...",                    // メッセージID
+    "payload": "Hello, World!"          // 元のペイロード
+}
+        </div>
+        
+        <div class="tip">
+            <strong>🎓 これらの情報を使って、何ができる?</strong>
+            <ul>
+                <li>どのノードでエラーが起きたか特定できる</li>
+                <li>エラーの原因(message)を知ることができる</li>
+                <li>エラーが起きた時の入力データ(payload)を確認できる</li>
+                <li>ログに記録したり、管理者に通知したりできる</li>
+            </ul>
+        </div>
+        
+        <h2>🎯 5. Catchノードの実用的な使い方</h2>
+        
+        <h3>実際のプロジェクトでの活用例</h3>
+        
+        <h4>例1: センサーデータの取得失敗を処理</h4>
+        <div class="node-example">
+            <span class="node node-inject">温度センサー</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">データ処理</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">結果表示</span>
+            <br><br>
+            <span style="margin-left: 180px;">↓ (センサーエラー)</span>
+            <br>
+            <span style="margin-left: 100px;"><span class="node node-catch">catch</span></span>
+            <span class="arrow">→</span>
+            <span class="node node-change">デフォルト値設定</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">警告表示</span>
+        </div>
+        
+        <h4>例2: APIリクエストの失敗をリトライ</h4>
+        <div class="node-example">
+            <span class="node node-inject">タイマー</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">API呼び出し</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">成功</span>
+            <br><br>
+            <span style="margin-left: 180px;">↓ (通信エラー)</span>
+            <br>
+            <span style="margin-left: 100px;"><span class="node node-catch">catch</span></span>
+            <span class="arrow">→</span>
+            <span class="node node-change">リトライカウント</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">再試行</span>
+        </div>
+        
+        <h2>📝 6. 練習問題</h2>
+        
+        <div class="exercise">
+            <h3>練習問題 1: 基本のCatchノード <span class="difficulty difficulty-easy">初級</span></h3>
+            
+            <h4>🎯 目標</h4>
+            <p>Catchノードを使って、エラーメッセージを画面に表示する</p>
+            
+            <h4>📋 要件</h4>
+            <ol>
+                <li>Injectノードで数値「10」を送信</li>
+                <li>Functionノードで「10より小さい場合エラーを発生」させる</li>
+                <li>Catchノードでエラーをキャッチ</li>
+                <li>Debugノードでエラーメッセージを表示</li>
+            </ol>
+            
+            <h4>💭 ヒント</h4>
+            
+            <p><strong>🎯 Catchノードの設定(自分で設定してみよう):</strong></p>
+            <ul>
+                <li>Catch errors from: ??? を選択</li>
+                <li>どのノードのエラーをキャッチする?</li>
+            </ul>
+            
+            <p><strong>📝 Functionノードの完全なコード(そのままコピーしてOK):</strong></p>
+            <div class="code-block">
+// msg.payloadの値をチェック
+if (msg.payload < 10) {
+    // 10未満の場合、エラーを投げる
+    throw new Error("値が10未満です: " + msg.payload);
+}
+
+// 10以上の場合、そのまま次に渡す
+return msg;
+            </div>
+            <p>このコードをFunctionノードにそのまま貼り付けてください。</p>
+            
+            <p><strong>🔢 Injectノードの設定:</strong></p>
+            <ul>
+                <li>Payload: 数値型(number)を選択</li>
+                <li>値: まず「5」で試してエラーを確認、次に「15」で成功を確認</li>
+            </ul>
+            
+            <p><strong>🐛 Debugノードの設定:</strong></p>
+            <ul>
+                <li>エラー用Debug: <code>msg.error.message</code> を表示すると、エラーメッセージだけが見やすく表示されます</li>
+                <li>成功用Debug: <code>msg.payload</code> を表示(デフォルトのまま)</li>
+            </ul>
+            
+            <details>
+                <summary>📦 解答フロー (クリックして表示)</summary>
+                <div class="flow-json">
+[
+    {
+        "id": "ex1_inject",
+        "type": "inject",
+        "z": "exercise1",
+        "name": "数値10を送信",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "5",
+        "payloadType": "num",
+        "x": 130,
+        "y": 100,
+        "wires": [
+            ["ex1_function"]
+        ]
+    },
+    {
+        "id": "ex1_function",
+        "type": "function",
+        "z": "exercise1",
+        "name": "値チェック",
+        "func": "if (msg.payload < 10) {\n    throw new Error(\"値が10未満です: \" + msg.payload);\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 310,
+        "y": 100,
+        "wires": [
+            ["ex1_debug_success"]
+        ]
+    },
+    {
+        "id": "ex1_catch",
+        "type": "catch",
+        "z": "exercise1",
+        "name": "エラーキャッチ",
+        "scope": ["ex1_function"],
+        "uncaught": false,
+        "x": 320,
+        "y": 180,
+        "wires": [
+            ["ex1_debug_error"]
+        ]
+    },
+    {
+        "id": "ex1_debug_error",
+        "type": "debug",
+        "z": "exercise1",
+        "name": "エラー表示",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "error.message",
+        "targetType": "msg",
+        "x": 510,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "ex1_debug_success",
+        "type": "debug",
+        "z": "exercise1",
+        "name": "成功",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 490,
+        "y": 100,
+        "wires": []
+    }
+]
+                </div>
+                <p><strong>✅ 動作確認:</strong></p>
+                <ul>
+                    <li>Injectノードのpayloadを「5」にして実行 → エラーメッセージが表示される</li>
+                    <li>Injectノードのpayloadを「15」にして実行 → 成功メッセージが表示される</li>
+                </ul>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>練習問題 2: 複数ノードのエラーハンドリング <span class="difficulty difficulty-medium">中級</span></h3>
+            
+            <h4>🎯 目標</h4>
+            <p>複数のFunctionノードのエラーを1つのCatchノードでキャッチする</p>
+            
+            <h4>📋 要件</h4>
+            <ol>
+                <li>2つのInjectノードを作成(「テスト1」「テスト2」)</li>
+                <li>それぞれ異なるFunctionノードに接続</li>
+                <li>各Functionノードで異なるエラーを発生させる</li>
+                <li>1つのCatchノードですべてのエラーをキャッチ</li>
+                <li>どのノードでエラーが発生したか分かるようにDebugで表示</li>
+            </ol>
+            
+            <h4>💭 ヒント</h4>
+            
+            <p><strong>🎯 Catchノードの設定(自分で設定してみよう):</strong></p>
+            <ul>
+                <li>Catch errors from: 「selected nodes」と「all nodes」のどちらを選ぶ?</li>
+                <li>selected nodesを選んだ場合、両方のFunctionノードを選択する必要があります</li>
+            </ul>
+            
+            <p><strong>📝 Functionノード1(処理A)の完全なコード(そのままコピーしてOK):</strong></p>
+            <div class="code-block">
+// 処理Aでエラーを発生させる
+throw new Error("処理Aでエラーが発生しました");
+            </div>
+            
+            <p><strong>📝 Functionノード2(処理B)の完全なコード(そのままコピーしてOK):</strong></p>
+            <div class="code-block">
+// 処理Bでエラーを発生させる
+throw new Error("処理Bでエラーが発生しました");
+            </div>
+            
+            <p><strong>🔢 Injectノードの設定:</strong></p>
+            <ul>
+                <li>2つのInjectノードを作成</li>
+                <li>名前をそれぞれ「テスト1」「テスト2」に設定すると分かりやすい</li>
+                <li>Payload: 文字列型で「test1」「test2」など(何でもOK)</li>
+            </ul>
+            
+            <p><strong>🐛 Debugノードの設定:</strong></p>
+            <ul>
+                <li>Output: <code>complete msg object</code> を選択</li>
+                <li>これにより、<code>msg.error.source.name</code> など、すべての情報が見られます</li>
+            </ul>
+            
+            <details>
+                <summary>📦 解答フロー (クリックして表示)</summary>
+                <div class="flow-json">
+[
+    {
+        "id": "ex2_inject1",
+        "type": "inject",
+        "z": "exercise2",
+        "name": "テスト1",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "test1",
+        "payloadType": "str",
+        "x": 110,
+        "y": 100,
+        "wires": [
+            ["ex2_function1"]
+        ]
+    },
+    {
+        "id": "ex2_inject2",
+        "type": "inject",
+        "z": "exercise2",
+        "name": "テスト2",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "test2",
+        "payloadType": "str",
+        "x": 110,
+        "y": 180,
+        "wires": [
+            ["ex2_function2"]
+        ]
+    },
+    {
+        "id": "ex2_function1",
+        "type": "function",
+        "z": "exercise2",
+        "name": "処理A",
+        "func": "throw new Error(\"処理Aでエラーが発生しました\");",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 280,
+        "y": 100,
+        "wires": [[]]
+    },
+    {
+        "id": "ex2_function2",
+        "type": "function",
+        "z": "exercise2",
+        "name": "処理B",
+        "func": "throw new Error(\"処理Bでエラーが発生しました\");",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 280,
+        "y": 180,
+        "wires": [[]]
+    },
+    {
+        "id": "ex2_catch",
+        "type": "catch",
+        "z": "exercise2",
+        "name": "すべてのエラーをキャッチ",
+        "scope": null,
+        "uncaught": false,
+        "x": 330,
+        "y": 260,
+        "wires": [
+            ["ex2_debug"]
+        ]
+    },
+    {
+        "id": "ex2_debug",
+        "type": "debug",
+        "z": "exercise2",
+        "name": "エラー詳細",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "x": 540,
+        "y": 260,
+        "wires": []
+    }
+]
+                </div>
+                <p><strong>✅ 動作確認:</strong></p>
+                <ul>
+                    <li>「テスト1」をクリック → 「処理Aでエラーが発生しました」と表示</li>
+                    <li>「テスト2」をクリック → 「処理Bでエラーが発生しました」と表示</li>
+                    <li>Debugタブで <code>error.source.name</code> を見ると、どのノードのエラーか分かる</li>
+                </ul>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>練習問題 3: エラー発生時のデフォルト値設定 <span class="difficulty difficulty-medium">中級</span></h3>
+            
+            <h4>🎯 目標</h4>
+            <p>エラーが発生した場合、デフォルト値を設定して処理を続行する</p>
+            
+            <h4>📋 シナリオ</h4>
+            <p>温度センサーからデータを取得するシステムを作ります。センサーが故障した場合、デフォルト値「20℃」を使用して処理を続けます。</p>
+            
+            <h4>📋 要件</h4>
+            <ol>
+                <li>Injectノードで「センサーデータ取得」をトリガー</li>
+                <li>Functionノードで温度センサーをシミュレート(ランダムにエラーを発生)</li>
+                <li>Catchノードでエラーをキャッチ</li>
+                <li>Changeノードでpayloadを「20」(デフォルト温度)に設定</li>
+                <li>最終的にDebugで温度を表示</li>
+            </ol>
+            
+            <h4>💭 ヒント</h4>
+            
+            <p><strong>🎯 Catchノードの設定(自分で設定してみよう):</strong></p>
+            <ul>
+                <li>どのノードのエラーをキャッチする?</li>
+                <li>Scopeにセンサー用のFunctionノードを指定します</li>
+            </ul>
+            
+            <p><strong>📝 Functionノード(温度センサー)の完全なコード(そのままコピーしてOK):</strong></p>
+            <div class="code-block">
+// 50%の確率でエラーを発生させる(センサー故障をシミュレート)
+if (Math.random() > 0.5) {
+    throw new Error("センサー読み取り失敗");
+}
+
+// 正常時: 10-40℃の範囲でランダムな温度を返す
+msg.payload = Math.floor(Math.random() * 30) + 10;
+return msg;
+            </div>
+            <p>このコードをFunctionノードにそのまま貼り付けてください。</p>
+            
+            <p><strong>🔧 Changeノードの詳細設定(設定画面で以下の通りに設定してください):</strong></p>
+            <div class="important">
+                <p>Changeノードで2つのルールを追加します:</p>
+                
+                <p><strong>ルール1:</strong></p>
+                <ul>
+                    <li>動作: Set(設定)</li>
+                    <li>対象: <code>msg.payload</code></li>
+                    <li>値: <code>20</code> (number型)</li>
+                </ul>
+                
+                <p><strong>ルール2:</strong></p>
+                <ul>
+                    <li>動作: Set(設定)</li>
+                    <li>対象: <code>msg.isDefault</code></li>
+                    <li>値: <code>true</code> (boolean型)</li>
+                </ul>
+                
+                <p>これにより、デフォルト値を使用したことが分かります。</p>
+            </div>
+            
+            <p><strong>🔢 Injectノードの設定:</strong></p>
+            <ul>
+                <li>Payload: timestamp (現在時刻)</li>
+                <li>名前: 「センサーデータ取得」など分かりやすい名前を付ける</li>
+            </ul>
+            
+            <p><strong>🔀 フローの接続:</strong></p>
+            <ul>
+                <li>Inject → Function(センサー) → Debug(温度表示)</li>
+                <li>Function → Catch → Change(デフォルト値) → Debug(温度表示)</li>
+                <li>※ChangeノードのワイヤーをDebugノードに接続することで、エラー時もデフォルト値が表示されます</li>
+            </ul>
+            
+            <details>
+                <summary>📦 解答フロー (クリックして表示)</summary>
+                <div class="flow-json">
+[
+    {
+        "id": "ex3_inject",
+        "type": "inject",
+        "z": "exercise3",
+        "name": "センサーデータ取得",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 150,
+        "y": 100,
+        "wires": [
+            ["ex3_sensor"]
+        ]
+    },
+    {
+        "id": "ex3_sensor",
+        "type": "function",
+        "z": "exercise3",
+        "name": "温度センサー",
+        "func": "// 50%の確率でエラーを発生\nif (Math.random() > 0.5) {\n    throw new Error(\"センサー読み取り失敗\");\n}\n\n// 正常時: 10-40℃の温度を返す\nmsg.payload = Math.floor(Math.random() * 30) + 10;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 360,
+        "y": 100,
+        "wires": [
+            ["ex3_display"]
+        ]
+    },
+    {
+        "id": "ex3_catch",
+        "type": "catch",
+        "z": "exercise3",
+        "name": "エラーハンドラ",
+        "scope": ["ex3_sensor"],
+        "uncaught": false,
+        "x": 360,
+        "y": 180,
+        "wires": [
+            ["ex3_default"]
+        ]
+    },
+    {
+        "id": "ex3_default",
+        "type": "change",
+        "z": "exercise3",
+        "name": "デフォルト値: 20℃",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "20",
+                "tot": "num"
+            },
+            {
+                "t": "set",
+                "p": "isDefault",
+                "pt": "msg",
+                "to": "true",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 560,
+        "y": 180,
+        "wires": [
+            ["ex3_display"]
+        ]
+    },
+    {
+        "id": "ex3_display",
+        "type": "debug",
+        "z": "exercise3",
+        "name": "温度表示",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 550,
+        "y": 100,
+        "wires": []
+    }
+]
+                </div>
+                <p><strong>✅ 動作確認:</strong></p>
+                <ul>
+                    <li>Injectノードを何度かクリック</li>
+                    <li>成功時: 10-40の範囲の温度が表示される</li>
+                    <li>エラー時: デフォルト値「20」が表示される</li>
+                    <li><code>msg.isDefault</code> が <code>true</code> の場合、デフォルト値が使用されたことが分かる</li>
+                </ul>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>練習問題 4: リトライ処理の実装 <span class="difficulty difficulty-hard">上級</span></h3>
+            
+            <h4>🎯 目標</h4>
+            <p>エラーが発生した場合、最大3回まで自動的に再試行する仕組みを作る</p>
+            
+            <h4>📋 シナリオ</h4>
+            <p>外部APIへのリクエストが失敗した場合、最大3回まで再試行します。3回失敗したら、エラーとして報告します。</p>
+            
+            <h4>📋 要件</h4>
+            <ol>
+                <li>Injectノードで「API呼び出し」をトリガー</li>
+                <li>Functionノードでランダムに成功/失敗するAPI呼び出しをシミュレート</li>
+                <li>Catchノードでエラーをキャッチ</li>
+                <li>Changeノードでリトライカウントを管理(flow変数を使用)</li>
+                <li>Switchノードで「リトライ回数 < 3」なら再試行、「>= 3」なら諦める</li>
+                <li>成功時とリトライ上限到達時にそれぞれDebugで表示</li>
+            </ol>
+            
+            <h4>💭 ヒント</h4>
+            
+            <p><strong>🎯 Catchノードの設定(自分で設定してみよう):</strong></p>
+            <ul>
+                <li>どのノードのエラーをキャッチする?</li>
+                <li>Scopeにはどのノードを指定しますか?</li>
+            </ul>
+            
+            <p><strong>📝 Functionノード(API呼び出し)の完全なコード(そのままコピーしてOK):</strong></p>
+            <div class="code-block">
+// 70%の確率で失敗するAPIをシミュレート
+if (Math.random() > 0.3) {
+    throw new Error("API呼び出し失敗: タイムアウト");
+}
+
+// 成功した場合
+msg.payload = {
+    status: "success",
+    data: "APIからのデータ",
+    timestamp: new Date().toISOString()
+};
+
+return msg;
+            </div>
+            <p>このコードをFunctionノードにそのまま貼り付けてください。</p>
+            
+            <p><strong>🔧 Changeノード(リトライカウント増加)の詳細設定:</strong></p>
+            <div class="important">
+                <p>Changeノードで2つのルールを追加します:</p>
+                
+                <p><strong>ルール1:</strong></p>
+                <ul>
+                    <li>動作: Set(設定)</li>
+                    <li>対象: <code>msg.retryCount</code></li>
+                    <li>値タイプ: JSONata式</li>
+                    <li>値: <code>$flowContext('retryCount') + 1</code></li>
+                </ul>
+                
+                <p><strong>ルール2:</strong></p>
+                <ul>
+                    <li>動作: Set(設定)</li>
+                    <li>対象: <code>flow.retryCount</code></li>
+                    <li>値タイプ: msg.</li>
+                    <li>値: <code>msg.retryCount</code></li>
+                </ul>
+                
+                <p>これにより、カウントを増やしてflow変数に保存します。</p>
+            </div>
+            
+            <p><strong>🔧 Changeノード(カウントリセット)の設定:</strong></p>
+            <div class="important">
+                <p>最初のInjectノードの後に配置するChangeノード:</p>
+                <ul>
+                    <li>動作: Set(設定)</li>
+                    <li>対象: <code>flow.retryCount</code></li>
+                    <li>値: <code>0</code> (number型)</li>
+                </ul>
+                <p>これにより、新しい試行を開始する際にカウントをリセットします。</p>
+            </div>
+            
+            <p><strong>🔀 Switchノードの設定:</strong></p>
+            <div class="important">
+                <p>Switchノードの条件設定:</p>
+                <ul>
+                    <li>プロパティ: <code>msg.retryCount</code></li>
+                    <li>条件1: <code>&lt; 3</code> (3未満) → 出力1へ</li>
+                    <li>条件2: <code>&gt;= 3</code> (3以上) → 出力2へ</li>
+                </ul>
+                <p>出力1はDelayノードへ、出力2は失敗のDebugノードへ接続します。</p>
+            </div>
+            
+            <p><strong>⏱️ Delayノードの設定:</strong></p>
+            <ul>
+                <li>Action: Delay message</li>
+                <li>For: 1 seconds</li>
+                <li>これにより、リトライの間に1秒の待機時間が入ります</li>
+            </ul>
+            
+            <p><strong>🔢 Injectノードの設定:</strong></p>
+            <ul>
+                <li>Payload: timestamp (現在時刻)</li>
+                <li>名前: 「API呼び出し開始」など分かりやすい名前</li>
+            </ul>
+            
+            <p><strong>🔀 フローの接続図:</strong></p>
+            <div class="code-block">
+Inject → Change(リセット) → Function(API)
+                                 │
+                                 ├→ 成功 → Debug(成功)
+                                 │
+                                 └→ Catch → Change(カウント増) → Switch
+                                                                    │
+                                                                    ├→ <3 → Delay → Function(API)へ戻る
+                                                                    │
+                                                                    └→ >=3 → Debug(失敗)
+            </div>
+            
+            <details>
+                <summary>📦 解答フロー (クリックして表示)</summary>
+                <div class="flow-json">
+[
+    {
+        "id": "ex4_inject",
+        "type": "inject",
+        "z": "exercise4",
+        "name": "API呼び出し開始",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 140,
+        "y": 100,
+        "wires": [
+            ["ex4_reset"]
+        ]
+    },
+    {
+        "id": "ex4_reset",
+        "type": "change",
+        "z": "exercise4",
+        "name": "カウントリセット",
+        "rules": [
+            {
+                "t": "set",
+                "p": "retryCount",
+                "pt": "flow",
+                "to": "0",
+                "tot": "num"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 340,
+        "y": 100,
+        "wires": [
+            ["ex4_api"]
+        ]
+    },
+    {
+        "id": "ex4_api",
+        "type": "function",
+        "z": "exercise4",
+        "name": "API呼び出し(70%で失敗)",
+        "func": "// 70%の確率で失敗するAPI\nif (Math.random() > 0.3) {\n    throw new Error(\"API呼び出し失敗: タイムアウト\");\n}\n\n// 成功\nmsg.payload = {\n    status: \"success\",\n    data: \"APIからのデータ\",\n    timestamp: new Date().toISOString()\n};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 370,
+        "y": 180,
+        "wires": [
+            ["ex4_success"]
+        ]
+    },
+    {
+        "id": "ex4_catch",
+        "type": "catch",
+        "z": "exercise4",
+        "name": "エラーキャッチ",
+        "scope": ["ex4_api"],
+        "uncaught": false,
+        "x": 340,
+        "y": 260,
+        "wires": [
+            ["ex4_retry_count"]
+        ]
+    },
+    {
+        "id": "ex4_retry_count",
+        "type": "change",
+        "z": "exercise4",
+        "name": "リトライカウント増加",
+        "rules": [
+            {
+                "t": "set",
+                "p": "retryCount",
+                "pt": "msg",
+                "to": "$flowContext('retryCount') + 1",
+                "tot": "jsonata"
+            },
+            {
+                "t": "set",
+                "p": "retryCount",
+                "pt": "flow",
+                "to": "retryCount",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 550,
+        "y": 260,
+        "wires": [
+            ["ex4_switch"]
+        ]
+    },
+    {
+        "id": "ex4_switch",
+        "type": "switch",
+        "z": "exercise4",
+        "name": "リトライ判定",
+        "property": "retryCount",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "lt",
+                "v": "3",
+                "vt": "num"
+            },
+            {
+                "t": "gte",
+                "v": "3",
+                "vt": "num"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 740,
+        "y": 260,
+        "wires": [
+            ["ex4_delay"],
+            ["ex4_failed"]
+        ]
+    },
+    {
+        "id": "ex4_delay",
+        "type": "delay",
+        "z": "exercise4",
+        "name": "1秒待機",
+        "pauseType": "delay",
+        "timeout": "1",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "x": 560,
+        "y": 340,
+        "wires": [
+            ["ex4_api"]
+        ]
+    },
+    {
+        "id": "ex4_success",
+        "type": "debug",
+        "z": "exercise4",
+        "name": "✅ 成功",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 580,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "ex4_failed",
+        "type": "debug",
+        "z": "exercise4",
+        "name": "❌ 3回失敗しました",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "x": 930,
+        "y": 280,
+        "wires": []
+    }
+]
+                </div>
+                <p><strong>✅ 動作確認:</strong></p>
+                <ul>
+                    <li>Injectノードをクリックして実行</li>
+                    <li>成功するまで自動的に再試行される(最大1秒間隔)</li>
+                    <li>成功時: 「✅ 成功」のDebugが表示される</li>
+                    <li>3回失敗時: 「❌ 3回失敗しました」のDebugが表示される</li>
+                    <li>Debugタブで <code>msg.retryCount</code> を見ると、何回試行したか分かる</li>
+                </ul>
+            </details>
+        </div>
+        
+        <h2>🎓 7. まとめ</h2>
+        
+        <div class="important">
+            <h3>Catchノードの重要ポイント</h3>
+            <ul>
+                <li>✅ <strong>エラーを放置しない</strong>: Catchノードで適切に処理する</li>
+                <li>✅ <strong>エラー情報を活用</strong>: どこで、なぜエラーが起きたか把握する</li>
+                <li>✅ <strong>代替処理を用意</strong>: デフォルト値やリトライで処理を継続</li>
+                <li>✅ <strong>ログに記録</strong>: 後で問題を分析できるようにする</li>
+                <li>✅ <strong>ユーザーに通知</strong>: 必要に応じてエラーを知らせる</li>
+            </ul>
+        </div>
+        
+        <div class="tip">
+            <h3>📚 次のステップ</h3>
+            <p>Catchノードをマスターしたら、以下のノードも学んでみましょう:</p>
+            <ul>
+                <li><strong>Statusノード</strong>: ノードの状態変化を監視</li>
+                <li><strong>Completeノード</strong>: メッセージ処理完了を検知</li>
+                <li><strong>Linkノード</strong>: フローを整理してサブフローを作成</li>
+            </ul>
+        </div>
+        
+        <h2>🔗 8. 追加リソース</h2>
+        
+        <ul>
+            <li><a href="https://nodered.org/docs/user-guide/handling-errors" target="_blank">Node-RED公式ドキュメント: エラーハンドリング</a></li>
+            <li><a href="https://flows.nodered.org/" target="_blank">Node-RED Flow Library: サンプルフロー集</a></li>
+        </ul>
+        
+        <hr>
+        
+        <p style="text-align: center; color: #999; margin-top: 40px;">
+            <small>このガイドが役に立ちましたら、実際のプロジェクトで練習してみてください!<br>
+            エラーハンドリングは堅牢なIoTシステムを作る上で非常に重要なスキルです。</small>
+        </p>
+    </div>
+    
+    <script>
+        // ページ読み込み時にコピーボタンを追加
+        document.addEventListener('DOMContentLoaded', function() {
+            // すべての.code-blockと.flow-jsonにコピーボタンを追加
+            const codeBlocks = document.querySelectorAll('.code-block, .flow-json');
+            
+            codeBlocks.forEach(function(block) {
+                // コピーボタンを作成
+                const button = document.createElement('button');
+                button.className = 'copy-button';
+                button.textContent = 'コピー';
+                
+                // クリックイベントを追加
+                button.addEventListener('click', function() {
+                    // コードブロックのテキストを取得
+                    const code = block.textContent.replace('コピー', '').trim();
+                    
+                    // クリップボードにコピー
+                    navigator.clipboard.writeText(code).then(function() {
+                        // 成功時の視覚的フィードバック
+                        button.textContent = 'コピーしました!';
+                        button.classList.add('copied');
+                        
+                        // 2秒後に元に戻す
+                        setTimeout(function() {
+                            button.textContent = 'コピー';
+                            button.classList.remove('copied');
+                        }, 2000);
+                    }).catch(function(err) {
+                        console.error('コピーに失敗しました:', err);
+                        button.textContent = 'エラー';
+                        setTimeout(function() {
+                            button.textContent = 'コピー';
+                        }, 2000);
+                    });
+                });
+                
+                // ボタンをコードブロックに追加
+                block.style.position = 'relative';
+                block.appendChild(button);
+            });
+        });
+    </script>
+</body>
+</html>
