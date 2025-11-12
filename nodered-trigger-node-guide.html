@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED Triggerノード 完全ガイド</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        h1 {
+            color: #8f0000;
+            border-bottom: 3px solid #8f0000;
+            padding-bottom: 10px;
+        }
+        
+        h2 {
+            color: #c00000;
+            margin-top: 30px;
+            border-left: 5px solid #c00000;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #555;
+            margin-top: 25px;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .node-example {
+            background-color: #2d3133;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            color: white;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .node {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 4px;
+            margin: 5px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .node-inject {
+            background-color: #3fadb5;
+            color: white;
+        }
+        
+        .node-trigger {
+            background-color: #c9b6d5;
+            color: white;
+        }
+        
+        .node-debug {
+            background-color: #87a48d;
+            color: white;
+        }
+        
+        .node-function {
+            background-color: #e8a658;
+            color: white;
+        }
+        
+        .node-change {
+            background-color: #e7a070;
+            color: white;
+        }
+        
+        .arrow {
+            color: #999;
+            font-size: 20px;
+            margin: 0 10px;
+        }
+        
+        .important {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .tip {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .code-block {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            position: relative;
+        }
+        
+        .copy-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 6px 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: 'Segoe UI', sans-serif;
+            transition: background-color 0.2s;
+            z-index: 10;
+        }
+        
+        .copy-button:hover {
+            background-color: #0056b3;
+        }
+        
+        .copy-button.copied {
+            background-color: #28a745;
+        }
+        
+        .exercise {
+            background-color: #e8f5e9;
+            border: 2px solid #4caf50;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        
+        .exercise h3 {
+            color: #2e7d32;
+            margin-top: 0;
+        }
+        
+        .difficulty {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .difficulty-easy {
+            background-color: #4caf50;
+            color: white;
+        }
+        
+        .difficulty-medium {
+            background-color: #ff9800;
+            color: white;
+        }
+        
+        .difficulty-hard {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        ul, ol {
+            padding-left: 25px;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #8f0000;
+            color: white;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .flow-json {
+            background-color: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        details {
+            margin: 15px 0;
+        }
+        
+        summary {
+            cursor: pointer;
+            padding: 10px;
+            background-color: #6c757d;
+            color: white;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        summary:hover {
+            background-color: #5a6268;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .feature-card {
+            background-color: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .feature-card h4 {
+            color: #c9b6d5;
+            margin-top: 0;
+        }
+        
+        .mode-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        
+        .badge-basic {
+            background-color: #c9b6d5;
+            color: white;
+        }
+        
+        .badge-extend {
+            background-color: #17a2b8;
+            color: white;
+        }
+        
+        .badge-reset {
+            background-color: #ffc107;
+            color: #333;
+        }
+        
+        .badge-watchdog {
+            background-color: #dc3545;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⏲️ Node-RED Triggerノード 完全ガイド</h1>
+        
+        <p>このガイドでは、Node-REDの<strong>Triggerノード</strong>について、初心者の方でも理解できるように詳しく説明します。</p>
+        
+        <h2>📚 1. Triggerノードとは?</h2>
+        
+        <h3>🤔 「トリガー」って何?</h3>
+        <p>
+            Triggerノードは、1つのメッセージを受け取ったら<strong>2つのメッセージを時間差で送信する</strong>ノードです。
+            日常生活で例えると、<strong>洗濯機のタイマー</strong>のようなものです。
+        </p>
+        
+        <div class="important">
+            <p><strong>🧺 洗濯機のタイマーに例えると:</strong></p>
+            <ul>
+                <li>👕 <strong>洗濯ボタンを押す</strong> = 入力メッセージ</li>
+                <li>💧 <strong>すぐに洗濯開始</strong> = 1つ目のメッセージ送信</li>
+                <li>⏰ <strong>30分後に自動停止</strong> = 2つ目のメッセージ送信</li>
+                <li>🔄 <strong>追加の洗濯物でタイマー延長</strong> = Extendモード</li>
+            </ul>
+        </div>
+        
+        <h3>📦 基本的な動作</h3>
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-trigger">Trigger</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <p>
+            Triggerノードは、入力を受けると即座に1つ目のメッセージを送信し、指定した時間が経過した後に2つ目のメッセージを送信します。
+            <strong>タイムアウト処理やウォッチドッグタイマー</strong>などに活用できます。
+        </p>
+        
+        <h2>⚙️ 2. Triggerノードの設定</h2>
+        
+        <h3>🔧 基本設定項目</h3>
+        
+        <table>
+            <tr>
+                <th>設定項目</th>
+                <th>説明</th>
+                <th>例</th>
+            </tr>
+            <tr>
+                <td><strong>Send</strong></td>
+                <td>最初に送信する値</td>
+                <td>"1", msg.payload, timestamp</td>
+            </tr>
+            <tr>
+                <td><strong>then</strong></td>
+                <td>指定時間後に送信する値</td>
+                <td>"0", "timeout", nothing</td>
+            </tr>
+            <tr>
+                <td><strong>wait for</strong></td>
+                <td>1つ目と2つ目の間の待機時間</td>
+                <td>2秒, 5分, 1時間</td>
+            </tr>
+            <tr>
+                <td><strong>extend if new message arrives</strong></td>
+                <td>新しいメッセージでタイマーをリセット</td>
+                <td>✓ = ウォッチドッグモード</td>
+            </tr>
+            <tr>
+                <td><strong>handle each topic separately</strong></td>
+                <td>トピックごとに個別タイマー管理</td>
+                <td>複数センサーの個別監視</td>
+            </tr>
+        </table>
+        
+        <h3>📋 送信値のオプション</h3>
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h4><span class="mode-badge badge-basic">String/Number</span> 固定値</h4>
+                <p>指定した固定値を送信</p>
+                <div class="code-block">Send: "1"
+then: "0"
+
+→ LEDのON/OFF制御</div>
+            </div>
+            
+            <div class="feature-card">
+                <h4><span class="mode-badge badge-basic">msg.payload</span> 入力値</h4>
+                <p>受け取った値をそのまま送信</p>
+                <div class="code-block">Send: the payload of the message
+then: "timeout"
+
+→ 元の値 → タイムアウト通知</div>
+            </div>
+            
+            <div class="feature-card">
+                <h4><span class="mode-badge badge-basic">timestamp</span> タイムスタンプ</h4>
+                <p>現在時刻を送信</p>
+                <div class="code-block">Send: timestamp
+then: nothing
+
+→ イベント発生時刻を記録</div>
+            </div>
+            
+            <div class="feature-card">
+                <h4><span class="mode-badge badge-basic">nothing</span> 送信しない</h4>
+                <p>メッセージを送信しない</p>
+                <div class="code-block">Send: nothing
+then: "done"
+
+→ 待機後にのみメッセージ送信</div>
+            </div>
+        </div>
+        
+        <h3>🎯 動作モードの種類</h3>
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h4><span class="mode-badge badge-basic">基本モード</span></h4>
+                <p>シンプルな時間差送信</p>
+                <ul>
+                    <li>✅ 入力を受けたら即座に1つ目を送信</li>
+                    <li>✅ 指定時間後に2つ目を送信</li>
+                    <li>✅ Extend: OFF</li>
+                    <li>📌 用途: LED点滅、一時的な状態変更</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <h4><span class="mode-badge badge-extend">Extendモード</span></h4>
+                <p>新しい入力でタイマーをリセット</p>
+                <ul>
+                    <li>🔄 新しいメッセージが来るたびタイマー延長</li>
+                    <li>🔄 入力が途切れてから指定時間後に2つ目を送信</li>
+                    <li>✅ Extend: ON</li>
+                    <li>📌 用途: 動作検知タイムアウト、データ途絶検知</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <h4><span class="mode-badge badge-reset">Resetモード</span></h4>
+                <p>特定メッセージでキャンセル</p>
+                <ul>
+                    <li>🛑 reset messageで待機中のタイマーをキャンセル</li>
+                    <li>🛑 2つ目のメッセージは送信されない</li>
+                    <li>✅ reset: msg.reset (または指定値)</li>
+                    <li>📌 用途: 手動キャンセル、条件付きタイムアウト</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <h4><span class="mode-badge badge-watchdog">2出力モード</span></h4>
+                <p>通常処理とタイムアウト処理を分離</p>
+                <ul>
+                    <li>📤 1つ目のメッセージは出力1から送信</li>
+                    <li>📤 2つ目のメッセージは出力2から送信</li>
+                    <li>✅ "send second message to separate output"</li>
+                    <li>📌 用途: タイムアウト検知、並列処理</li>
+                </ul>
+            </div>
+        </div>
+        
+        <h2>🎯 3. 実用的な使用パターン</h2>
+        
+        <h3>パターン1: 2つの値を時間間隔をおいて出力</h3>
+        <p><strong>用途:</strong> Raspberry Pi GPIOピンに接続されたLEDを点滅させる</p>
+        
+        <div class="code-block pattern-explanation">
+Inject → Trigger → Debug(またはGPIO出力)
+
+Trigger設定:
+- Send: "1" (文字列)
+- then: "0" (文字列)  
+- wait for: 2秒
+
+動作フロー:
+1. Injectボタンを押す
+2. 即座に "1" を出力 → LED点灯
+3. 2秒間待機
+4. "0" を出力 → LED消灯
+
+📌 特徴: シンプルな時間差送信。一定時間後に自動的に状態を戻す。
+        </div>
+        
+        <p><strong>実例:</strong> ドアベルを押すと2秒間LEDが光る、警告灯を一時的に点灯させる、など。</p>
+        
+        <h3>パターン2: 定義された時間内にメッセージが届かない場合のフロートリガー</h3>
+        <p><strong>用途:</strong> 指定時間メッセージが届かなかったことを検知する(ウォッチドッグタイマー)</p>
+        
+        <div class="code-block pattern-explanation">
+センサーデータ → Trigger(Extend:ON) → Debug
+
+Trigger設定:
+- Send: nothing (何も送信しない)
+- then: "timeout" (文字列)
+- wait for: 5秒
+- Extend: ✓ (重要!)
+
+動作フロー:
+1. センサーからメッセージ受信 → タイマー開始(または再スタート)
+2. 5秒以内に次のメッセージ → タイマーリセット(何も出力しない)
+3. 5秒以内にメッセージなし → "timeout"を出力
+
+📌 特徴: Extendモードにより、新しいメッセージが来るたびにタイマーが
+         リセットされる。メッセージが途切れたときだけ検知。
+        </div>
+        
+        <p><strong>実例:</strong> IoTデバイスのハートビート監視、通信切断検知、定期実行タスクの異常検知。</p>
+        <p><strong>Node-RED Cookbook参考:</strong> <a href="https://cookbook.nodered.org/basic/trigger-timeout" target="_blank">タイムアウト処理</a></p>
+        
+        
+        <h3>パターン3: ストリームが停止したときにプレースホルダーメッセージを送信</h3>
+        <p><strong>用途:</strong> データが途切れたときに代替データ(プレースホルダー)を定期的に送信</p>
+        
+        <div class="code-block pattern-explanation">
+データ源 → Trigger1(検知用) → Trigger2(送信用) → 出力
+           ↓
+      データ途切れ検知
+           ↓
+    プレースホルダー定期送信開始
+
+【Trigger1設定】(データ途絶検知用)
+- Send: "reset" (文字列)
+- then: true (boolean)
+- wait for: 2秒
+- Extend: ✓
+
+【Trigger2設定】(プレースホルダー送信用)
+- Send: "placeholder" (文字列)
+- then: "placeholder" (文字列)
+- wait for: -2秒 (負の値 = 無限ループで2秒ごと送信)
+- reset: "reset" (Trigger1からのresetで停止)
+
+動作フロー:
+1. 通常時: データ受信 → Trigger1が"reset"送信 → Trigger2停止
+2. データ途絶(2秒): Trigger1がtrue送信 → Trigger2起動
+3. Trigger2が2秒ごとに"placeholder"を連続送信
+4. データ再開: Trigger1が"reset"送信 → Trigger2停止
+
+📌 特徴: 2つのTriggerノードを組み合わせることで、データの途絶を検知し、
+         途絶中は代替データを定期的に送信し続ける。
+        </div>
+        
+        <p><strong>実例:</strong> センサーデータのグラフ表示の連続性確保、通信切断時のデフォルト値送信。</p>
+        <p><strong>Node-RED Cookbook参考:</strong> <a href="https://cookbook.nodered.org/basic/trigger-placeholder" target="_blank">プレースホルダーメッセージ</a></p>
+        
+        <h3>パターン4: Triggerノードを使ったタイムアウト処理</h3>
+        <p><strong>用途:</strong> 処理が指定時間内に完了しない場合にタイムアウトとして扱う</p>
+        
+        <div class="important">
+            <p><strong>🔑 仕組みの概要:</strong></p>
+            <p>2つのTriggerノードを組み合わせて、「処理が時間内に完了」と「タイムアウト」のどちらか<strong>先に発生した方だけ</strong>を出力する高度な制御を実現します。</p>
+        </div>
+        
+        <div class="code-block pattern-explanation">
+Inject → Trigger1(2出力) → 出力1 → 処理実行 → Trigger2 → 最終結果
+                         ↓
+                      出力2 → タイムアウト処理 → Trigger2 → 最終結果
+
+【Trigger1設定】(処理開始とタイムアウト監視)
+- Send: the payload (入力値をそのまま)
+- then: "0" または "timeout"
+- wait for: 3秒
+- ✅ send second message to separate output (2出力モード)
+- outputs: 2
+
+⚙️ Trigger1の動作:
+  - 出力1(上): 入力メッセージを即座に送信 → 処理実行へ
+  - 出力2(下): 3秒後にタイムアウトメッセージ送信 → タイムアウト処理へ
+
+【処理ノード】(Functionノード例)
+- 指定秒数だけ待機してから結果を返す
+- 重要: msg._msgid を保持したまま送信
+
+【Trigger2設定】(重複メッセージフィルタ)
+- Send: the payload
+- then: nothing
+- wait for: 10秒
+- handle separately: by msg._msgid (重要!)
+
+⚙️ Trigger2の動作:
+  - 同じmsg._msgidを持つメッセージのうち、最初の1つだけを通過させる
+  - 2つ目以降(遅れて届いたメッセージ)はブロック
+  - 10秒 = メッセージIDの保持期間(タイムアウト時間より長く設定)
+
+動作シナリオ:
+
+📗 ケース1: 処理が時間内に完了(1秒で完了、制限3秒)
+1. Trigger1受信 → msg._msgid生成
+2. 出力1から処理実行(1秒で完了)
+3. 出力2から3秒後にタイムアウト
+4. Trigger2に先に届くのは「処理完了」→ これが出力される
+5. 3秒後に「タイムアウト」がTrigger2に届く → 同じmsg._msgidなのでブロック
+
+📕 ケース2: 処理がタイムアウト(5秒かかる、制限3秒)
+1. Trigger1受信 → msg._msgid生成
+2. 出力1から処理実行(5秒かかる)
+3. 出力2から3秒後にタイムアウト
+4. Trigger2に先に届くのは「タイムアウト」→ これが出力される
+5. 5秒後に「処理完了」がTrigger2に届く → 同じmsg._msgidなのでブロック
+
+📌 特徴: msg._msgidという一意のIDを使って、競合する2つのメッセージ
+         (処理完了 vs タイムアウト)のうち先に到着した方だけを採用。
+        </div>
+        
+        <p><strong>実例:</strong> API呼び出しのタイムアウト、外部サービス連携の応答時間制限、長時間処理の制限。</p>
+        <p><strong>重要ポイント:</strong></p>
+        <ul>
+            <li>Trigger2のwait時間(10秒)は、Trigger1のタイムアウト時間(3秒)より長く設定する必要がある</li>
+            <li>処理ノードは必ずmsg._msgidを保持して送信すること</li>
+            <li>"handle separately: by msg._msgid"がこのパターンの核心技術</li>
+        </ul>
+        
+        <div class="tip">
+            <h3>💡 ヒント: ExtendモードとResetの使い分け</h3>
+            <p><strong>Extendモード:</strong></p>
+            <ul>
+                <li>連続的に到着するデータのタイムアウト監視</li>
+                <li>例: センサーデータが5秒来なければ異常</li>
+            </ul>
+            <p><strong>Resetモード:</strong></p>
+            <ul>
+                <li>明示的なキャンセルメッセージが必要</li>
+                <li>例: 処理完了通知でタイムアウトをキャンセル</li>
+            </ul>
+        </div>
+        <h2>🏋️ 4. 実践演習</h2>
+        
+        <div class="exercise">
+            <h3>演習1: 基本的な時間差送信<span class="difficulty difficulty-easy">初級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>ボタンを押すと"1"を送信し、2秒後に"0"を送信する基本的なTriggerフローを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Injectノードでボタンを作成</li>
+                <li>Triggerノードを使用して、"1"を送信してから2秒後に"0"を送信</li>
+                <li>Debugノードで結果を表示</li>
+            </ul>
+            
+            <p><strong>📊 期待される動作:</strong></p>
+            <ul>
+                <li>Injectボタンをクリック → すぐに"1"が表示</li>
+                <li>2秒待機 → "0"が表示</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Triggerノードの設定:</strong></p>
+                <ul>
+                    <li>Send: a string → "1"</li>
+                    <li>then: a string → "0"</li>
+                    <li>wait for: 2 seconds</li>
+                    <li>Extend: チェックなし</li>
+                </ul>
+                <p>この設定でLED制御やリレー制御などに応用できます!</p>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">
+[
+    {
+        "id": "ex1_inject",
+        "type": "inject",
+        "name": "開始ボタン",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 120,
+        "y": 100,
+        "wires": [["ex1_trigger"]]
+    },
+    {
+        "id": "ex1_trigger",
+        "type": "trigger",
+        "name": "2秒間隔",
+        "op1": "1",
+        "op2": "0",
+        "op1type": "str",
+        "op2type": "str",
+        "duration": "2",
+        "extend": false,
+        "units": "s",
+        "reset": "",
+        "bytopic": "all",
+        "topic": "topic",
+        "outputs": 1,
+        "x": 290,
+        "y": 100,
+        "wires": [["ex1_debug"]]
+    },
+    {
+        "id": "ex1_debug",
+        "type": "debug",
+        "name": "結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 450,
+        "y": 100,
+        "wires": []
+    }
+]
+                </div>
+                <p><strong>✅ 動作確認:</strong></p>
+                <ul>
+                    <li>開始ボタンをクリック</li>
+                    <li>デバッグウィンドウに即座に "1" が表示</li>
+                    <li>2秒後に "0" が表示</li>
+                    <li>連続してクリックすると、それぞれ独立して動作</li>
+                </ul>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習2: ウォッチドッグタイマー<span class="difficulty difficulty-medium">中級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>定期的にメッセージを送信し、5秒間メッセージが途切れたら"timeout"を出力するウォッチドッグタイマーを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Injectノードで手動でメッセージ送信(ハートビート模擬)</li>
+                <li>Triggerノードを使用して、5秒間メッセージが途切れたら"timeout"を出力</li>
+                <li>2つのDebugノードで入力と出力を表示</li>
+            </ul>
+            
+            <p><strong>📊 期待される動作:</strong></p>
+            <ul>
+                <li>定期的にボタンをクリック → タイムアウトは発生しない</li>
+                <li>5秒以上ボタンを押さない → "timeout"が表示</li>
+                <li>再度ボタンを押す → タイムアウトがリセットされる</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Triggerノードの重要設定:</strong></p>
+                <ul>
+                    <li>Send: nothing (何も送信しない)</li>
+                    <li>then: a string → "timeout"</li>
+                    <li>wait for: 5 seconds</li>
+                    <li>✅ <strong>extend if new message arrives</strong> にチェック!</li>
+                </ul>
+                <p>Extendオプションがポイント。新しいメッセージが来るたびにタイマーがリセットされます。</p>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">
+[
+    {
+        "id": "ex2_inject",
+        "type": "inject",
+        "name": "ハートビート",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 130,
+        "y": 100,
+        "wires": [["ex2_debug1", "ex2_trigger"]]
+    },
+    {
+        "id": "ex2_debug1",
+        "type": "debug",
+        "name": "入力",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 310,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "ex2_trigger",
+        "type": "trigger",
+        "name": "Watchdog(5秒)",
+        "op1": "",
+        "op2": "timeout",
+        "op1type": "nul",
+        "op2type": "str",
+        "duration": "5",
+        "extend": true,
+        "units": "s",
+        "reset": "",
+        "bytopic": "all",
+        "topic": "topic",
+        "outputs": 1,
+        "x": 320,
+        "y": 120,
+        "wires": [["ex2_debug2"]]
+    },
+    {
+        "id": "ex2_debug2",
+        "type": "debug",
+        "name": "タイムアウト",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 530,
+        "y": 120,
+        "wires": []
+    }
+]
+                </div>
+                <p><strong>✅ 動作確認:</strong></p>
+                <ul>
+                    <li>ハートビートボタンを5秒以内に連続クリック → タイムアウトなし</li>
+                    <li>5秒以上待つ → "timeout" が表示</li>
+                    <li>再度クリック → タイマーリセット</li>
+                </ul>
+                <p><strong>🎓 応用:</strong></p>
+                <ul>
+                    <li>センサーデータの途絶検知</li>
+                    <li>通信切断の監視</li>
+                    <li>定期実行タスクの異常検知</li>
+                </ul>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習3: データストリーム監視システム<span class="difficulty difficulty-medium">中級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>データストリームが途切れた場合に、代替データ(プレースホルダー)を定期的に送信するシステムを構築してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Injectノードでデータ源を模擬</li>
+                <li>2つのTriggerノードを組み合わせて、データ途絶を検知し代替データを送信</li>
+                <li>データが途切れたら2秒ごとに"placeholder"を送信</li>
+                <li>データ再開時はプレースホルダーを停止</li>
+            </ul>
+            
+            <p><strong>📊 期待される動作:</strong></p>
+            <ul>
+                <li>通常時: 実データが通過</li>
+                <li>データ途絶2秒後: "placeholder"の定期送信開始</li>
+                <li>データ再開: プレースホルダー停止、実データ再開</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>2つのTriggerノードを使用:</strong></p>
+                <div class="code-block pattern-explanation">
+Trigger1(検知用):
+- Send: nothing
+- then: "reset"
+- wait for: 2秒
+- Extend: ✓
+
+Trigger2(送信用):
+- Send: nothing
+- then: nothing
+- wait for: -2秒 (無限ループ)
+- reset: "reset"
+                </div>
+                <p>Trigger2のduration: -2は「2秒ごとに無限に送信」を意味します。</p>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">
+[
+    {
+        "id": "ex3_inject",
+        "type": "inject",
+        "name": "データ源",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "data",
+        "payloadType": "str",
+        "x": 120,
+        "y": 100,
+        "wires": [["ex3_debug1", "ex3_trigger1"]]
+    },
+    {
+        "id": "ex3_debug1",
+        "type": "debug",
+        "name": "実データ",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 520,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "ex3_trigger1",
+        "type": "trigger",
+        "name": "途絶検知",
+        "op1": "reset",
+        "op2": "true",
+        "op1type": "str",
+        "op2type": "bool",
+        "duration": "2",
+        "extend": true,
+        "units": "s",
+        "reset": "",
+        "bytopic": "all",
+        "outputs": 1,
+        "x": 290,
+        "y": 140,
+        "wires": [["ex3_trigger2"]]
+    },
+    {
+        "id": "ex3_trigger2",
+        "type": "trigger",
+        "name": "プレースホルダー送信",
+        "op1": "placeholder",
+        "op2": "placeholder",
+        "op1type": "str",
+        "op2type": "str",
+        "duration": "-2",
+        "extend": false,
+        "units": "s",
+        "reset": "reset",
+        "bytopic": "all",
+        "outputs": 1,
+        "x": 340,
+        "y": 180,
+        "wires": [["ex3_debug1"]]
+    }
+]
+                </div>
+                <p><strong>✅ 動作確認:</strong></p>
+                <ul>
+                    <li>データ源ボタンを連続クリック → 実データが表示</li>
+                    <li>2秒間クリックを停止 → "placeholder"が2秒ごとに表示開始</li>
+                    <li>再度クリック → プレースホルダー停止、実データ再開</li>
+                </ul>
+                <p><strong>🎓 実務での応用:</strong></p>
+                <ul>
+                    <li>センサーデータの欠損補完</li>
+                    <li>通信切断時のデフォルト値送信</li>
+                    <li>ストリーミングデータの連続性保証</li>
+                </ul>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習4: タイムアウト付き処理システム<span class="difficulty difficulty-hard">上級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>処理が指定時間内に完了しなかった場合にタイムアウトとして扱う、2つのTriggerノードを組み合わせた高度なシステムを構築してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Injectノードで処理時間を指定(1秒 or 5秒)</li>
+                <li>1つ目のTriggerノードを2出力モードで使用し、処理とタイムアウト(3秒)を同時に開始</li>
+                <li>Functionノードで指定秒数の処理を模擬</li>
+                <li>2つ目のTriggerノードで、処理完了またはタイムアウトの最初の結果のみを通過させる</li>
+            </ul>
+            
+            <p><strong>📊 期待される動作:</strong></p>
+            <ul>
+                <li>1秒ボタン → 処理完了 → "done: 1s" 表示</li>
+                <li>5秒ボタン → タイムアウト → "timeout" 表示</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Trigger1設定(2出力):</strong></p>
+                <div class="code-block pattern-explanation">
+- Send: the payload
+- then: "0"
+- wait for: 3秒
+- ✅ send second message to separate output
+- outputs: 2
+                </div>
+                <p><strong>Functionノード(完全な回答):</strong></p>
+                <div class="code-block pattern-explanation">
+var wait = msg.payload;
+setTimeout(function() {
+    msg.payload = "done: " + wait + "s";
+    node.send(msg);
+}, wait * 1000);
+                </div>
+                <p><strong>Trigger2設定:</strong></p>
+                <div class="code-block pattern-explanation">
+- Send: the payload
+- then: nothing
+- wait for: 10秒
+- handle separately: by msg._msgid
+                </div>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">
+[
+    {
+        "id": "ex4_inject1",
+        "type": "inject",
+        "name": "1秒処理",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "1",
+        "payloadType": "num",
+        "x": 120,
+        "y": 100,
+        "wires": [["ex4_trigger1"]]
+    },
+    {
+        "id": "ex4_inject2",
+        "type": "inject",
+        "name": "5秒処理",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "5",
+        "payloadType": "num",
+        "x": 120,
+        "y": 140,
+        "wires": [["ex4_trigger1"]]
+    },
+    {
+        "id": "ex4_trigger1",
+        "type": "trigger",
+        "name": "タイムアウト監視",
+        "op1": "",
+        "op2": "0",
+        "op1type": "pay",
+        "op2type": "str",
+        "duration": "3",
+        "extend": false,
+        "units": "s",
+        "reset": "",
+        "bytopic": "all",
+        "topic": "topic",
+        "outputs": 2,
+        "x": 310,
+        "y": 120,
+        "wires": [
+            ["ex4_function"],
+            ["ex4_change"]
+        ]
+    },
+    {
+        "id": "ex4_function",
+        "type": "function",
+        "name": "処理実行",
+        "func": "var wait = msg.payload;\nsetTimeout(function() {\n    msg.payload = \"done: \" + wait + \"s\";\n    node.send(msg);\n}, wait * 1000);",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 500,
+        "y": 100,
+        "wires": [["ex4_trigger2"]]
+    },
+    {
+        "id": "ex4_change",
+        "type": "change",
+        "name": "タイムアウトフラグ",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "timeout",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 530,
+        "y": 140,
+        "wires": [["ex4_trigger2"]]
+    },
+    {
+        "id": "ex4_trigger2",
+        "type": "trigger",
+        "name": "最初のみ通過",
+        "op1": "",
+        "op2": "",
+        "op1type": "pay",
+        "op2type": "nul",
+        "duration": "10",
+        "extend": false,
+        "units": "s",
+        "reset": "",
+        "bytopic": "topic",
+        "topic": "_msgid",
+        "outputs": 1,
+        "x": 720,
+        "y": 120,
+        "wires": [["ex4_debug"]]
+    },
+    {
+        "id": "ex4_debug",
+        "type": "debug",
+        "name": "結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 890,
+        "y": 120,
+        "wires": []
+    }
+]
+                </div>
+                <p><strong>✅ 動作確認:</strong></p>
+                <ul>
+                    <li>1秒処理ボタン → 1秒後に "done: 1s" 表示</li>
+                    <li>5秒処理ボタン → 3秒後に "timeout" 表示</li>
+                    <li>msg._msgidで同じメッセージIDの最初のものだけが通過</li>
+                </ul>
+                <p><strong>🎓 仕組みの理解:</strong></p>
+                <ul>
+                    <li>Trigger1が処理開始と同時にタイムアウトタイマー開始</li>
+                    <li>処理完了またはタイムアウトのどちらか先に届いたものが出力</li>
+                    <li>Trigger2が同じmsg._msgidの2つ目以降をブロック</li>
+                </ul>
+            </details>
+        </div>
+        
+        <h2>🎓 5. まとめ</h2>
+        
+        <div class="important">
+            <h3>Triggerノードの重要ポイント</h3>
+            <ul>
+                <li>✅ <strong>時間差送信</strong>: 1つの入力から2つの出力を時間差で送信</li>
+                <li>✅ <strong>Extendモード</strong>: ウォッチドッグタイマーやデータ途絶検知に最適</li>
+                <li>✅ <strong>Resetモード</strong>: 待機中のタイマーをキャンセル可能</li>
+                <li>✅ <strong>2出力モード</strong>: 通常処理とタイムアウト処理を分離</li>
+                <li>✅ <strong>トピック別管理</strong>: 複数のストリームを個別に監視</li>
+            </ul>
+        </div>
+        
+        <div class="tip">
+            <h3>📚 次のステップ</h3>
+            <p>Triggerノードをマスターしたら、以下のノードも学んでみましょう:</p>
+            <ul>
+                <li><strong>Delayノード</strong>: よりシンプルな遅延とレート制限</li>
+                <li><strong>Statusノード</strong>: 他のノードの状態変化を監視</li>
+                <li><strong>Completeノード</strong>: メッセージ処理完了を検知</li>
+                <li><strong>Catchノード</strong>: エラー発生時の処理</li>
+            </ul>
+        </div>
+        
+        <h2>🔧 6. トラブルシューティング</h2>
+        
+        <h3>よくある問題と解決方法</h3>
+        
+        <table>
+            <tr>
+                <th>問題</th>
+                <th>原因</th>
+                <th>解決方法</th>
+            </tr>
+            <tr>
+                <td>2つ目のメッセージが送信されない</td>
+                <td>Extendモードで連続入力</td>
+                <td>入力を止めて待機。またはExtendをOFFに</td>
+            </tr>
+            <tr>
+                <td>タイマーがキャンセルされない</td>
+                <td>resetメッセージの設定ミス</td>
+                <td>reset値を確認(デフォルトはmsg.reset)</td>
+            </tr>
+            <tr>
+                <td>プレースホルダーが止まらない</td>
+                <td>resetメッセージが届いていない</td>
+                <td>フローの接続とreset値を確認</td>
+            </tr>
+            <tr>
+                <td>複数のタイムアウトが同時発生</td>
+                <td>トピック別管理が無効</td>
+                <td>"handle each topic separately"を有効化</td>
+            </tr>
+            <tr>
+                <td>意図しないメッセージが通過</td>
+                <td>2出力モードの配線ミス</td>
+                <td>出力1と出力2の接続先を確認</td>
+            </tr>
+        </table>
+        
+        <h2>💡 7. 実務での活用例</h2>
+        
+        <h3>ケース1: IoTデバイスの死活監視</h3>
+        <div class="code-block pattern-explanation">
+デバイスからのハートビート受信
+↓
+Trigger(Extend: ON, 30秒)
+↓
+30秒間ハートビートなし
+↓
+アラート送信(Slack/メール)
+        </div>
+        
+        <h3>ケース2: LED通知システム</h3>
+        <div class="code-block pattern-explanation">
+アラート発生
+↓
+Trigger(1→0, 5秒)
+↓
+LED点灯(5秒間)
+↓
+自動消灯
+        </div>
+        
+        <h3>ケース3: API呼び出しのタイムアウト制御</h3>
+        <div class="code-block pattern-explanation">
+API呼び出し開始
+↓
+Trigger1(2出力, 10秒)
+├→ 出力1: API実行 → 結果 → Trigger2
+└→ 出力2: タイムアウト → エラー処理 → Trigger2
+↓
+Trigger2(msg._msgid管理): 最初のレスポンスのみ採用
+        </div>
+        
+        <h3>ケース4: センサーデータの欠損補完</h3>
+        <div class="code-block pattern-explanation">
+温度センサー(通常1分ごと)
+↓
+Trigger1(Extend, 2分) → データ途絶検知
+↓
+Trigger2(ループ) → 前回値または推定値を1分ごと送信
+↓
+グラフ表示(途切れなし)
+        </div>
+        
+        <h2>🔗 8. 追加リソース</h2>
+        
+        <ul>
+            <li><a href="https://nodered.org/docs/user-guide/nodes#trigger" target="_blank">Node-RED公式ドキュメント: Triggerノード</a></li>
+            <li><a href="https://cookbook.nodered.org/basic/trigger-timeout" target="_blank">Node-RED Cookbook: タイムアウト処理</a></li>
+            <li><a href="https://cookbook.nodered.org/basic/trigger-placeholder" target="_blank">Node-RED Cookbook: プレースホルダーメッセージ</a></li>
+        </ul>
+        
+        <hr>
+        
+        <p style="text-align: center; color: #999; margin-top: 40px;">
+            <small>このガイドが役に立ちましたら、実際のプロジェクトで練習してみてください!<br>
+            Triggerノードは時間制御の強力なツールです。</small>
+        </p>
+    </div>
+    
+    <script>
+        // ページ読み込み時にコピーボタンを追加
+        document.addEventListener('DOMContentLoaded', function() {
+            // .flow-jsonクラスのみにコピーボタンを追加（演習問題のJSONフローのみ）
+            const codeBlocks = document.querySelectorAll('.flow-json');
+            
+            codeBlocks.forEach(function(block) {
+                // コピーボタンを作成
+                const button = document.createElement('button');
+                button.className = 'copy-button';
+                button.textContent = 'コピー';
+                
+                // クリックイベントを追加
+                button.addEventListener('click', function() {
+                    // コードブロックのテキストを取得
+                    const code = block.textContent.replace('コピー', '').trim();
+                    
+                    // クリップボードにコピー
+                    navigator.clipboard.writeText(code).then(function() {
+                        // 成功時の視覚的フィードバック
+                        button.textContent = 'コピーしました!';
+                        button.classList.add('copied');
+                        
+                        // 2秒後に元に戻す
+                        setTimeout(function() {
+                            button.textContent = 'コピー';
+                            button.classList.remove('copied');
+                        }, 2000);
+                    }).catch(function(err) {
+                        console.error('コピーに失敗しました:', err);
+                        button.textContent = 'エラー';
+                        setTimeout(function() {
+                            button.textContent = 'コピー';
+                        }, 2000);
+                    });
+                });
+                
+                // ボタンをコードブロックに追加
+                block.style.position = 'relative';
+                block.appendChild(button);
+            });
+        });
+    </script>
+</body>
+</html>
