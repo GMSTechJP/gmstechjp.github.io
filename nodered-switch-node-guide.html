@@ -755,13 +755,7 @@ msg.payload を "positive" に設定
             <p><strong>🎯 要求仕様:</strong></p>
             <ul>
                 <li>Injectノードで温度値を送信(例: 5℃、20℃、35℃)</li>
-                <li>Switchノードで3つの温度範囲に分岐
-                    <ul>
-                        <li>10℃未満 → 低温アラート</li>
-                        <li>10℃以上30℃未満 → 正常</li>
-                        <li>30℃以上 → 高温アラート</li>
-                    </ul>
-                </li>
+                <li>Switchノードで3つの温度範囲(低温・正常・高温)に分岐</li>
                 <li>それぞれの状態を示すメッセージをDebugに表示</li>
             </ul>
             
@@ -967,13 +961,7 @@ return msg;
             
             <p><strong>🎯 要求仕様:</strong></p>
             <ul>
-                <li>3つのInjectノードでそれぞれtopicを設定
-                    <ul>
-                        <li>topic: "temperature", payload: 25</li>
-                        <li>topic: "humidity", payload: 60</li>
-                        <li>topic: "pressure", payload: 1013</li>
-                    </ul>
-                </li>
+                <li>3つのInjectノードでそれぞれ異なるセンサー種類をtopicに設定(温度・湿度・気圧)</li>
                 <li>Switchノードでmsg.topicを評価して3つの出力に分岐</li>
                 <li>各センサータイプごとに単位付きの表示を行う</li>
             </ul>
@@ -1189,13 +1177,8 @@ return msg;
             
             <p><strong>🎯 要求仕様:</strong></p>
             <ul>
-                <li>Injectノードで数値を送信(例: -5, 0, 5)</li>
-                <li>Switchノードで以下の2つのルールを設定し、"checking all rules" を有効化
-                    <ul>
-                        <li>ルール1: < 10 (10未満)</li>
-                        <li>ルール2: > -10 (-10より大きい)</li>
-                    </ul>
-                </li>
+                <li>Injectノードで数値を送信(例: -15, -5, 0, 5, 15)</li>
+                <li>Switchノードで2つのルールを設定し、"checking all rules" を有効化</li>
                 <li>それぞれの条件を満たす場合のメッセージを表示</li>
                 <li>両方の条件を満たす場合は、両方のメッセージが表示される</li>
             </ul>
@@ -1546,7 +1529,8 @@ Switchノードで時刻判定
         // ページ読み込み時にコピーボタンを追加
         document.addEventListener('DOMContentLoaded', function() {
             // すべての.code-blockと.flow-jsonにコピーボタンを追加
-            const codeBlocks = document.querySelectorAll('.code-block, .flow-json');
+            // .flow-jsonクラスのみにコピーボタンを追加(演習問題のJSONフローのみ)
+            const codeBlocks = document.querySelectorAll('.flow-json');
             
             codeBlocks.forEach(function(block) {
                 // コピーボタンを作成
