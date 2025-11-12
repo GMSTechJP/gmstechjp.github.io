@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED Templateノード 完全ガイド</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        h1 {
+            color: #8f0000;
+            border-bottom: 3px solid #8f0000;
+            padding-bottom: 10px;
+        }
+        
+        h2 {
+            color: #c00000;
+            margin-top: 30px;
+            border-left: 5px solid #c00000;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #555;
+            margin-top: 25px;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .node-example {
+            background-color: #2d3133;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            color: white;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .node {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 4px;
+            margin: 5px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .node-inject {
+            background-color: #3fadb5;
+            color: white;
+        }
+        
+        .node-template {
+            background-color: #deb887;
+            color: white;
+        }
+        
+        .node-debug {
+            background-color: #87a48d;
+            color: white;
+        }
+        
+        .node-function {
+            background-color: #e8a658;
+            color: white;
+        }
+        
+        .node-change {
+            background-color: #e7a070;
+            color: white;
+        }
+        
+        .arrow {
+            color: #999;
+            font-size: 20px;
+            margin: 0 10px;
+        }
+        
+        .important {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .tip {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .code-block {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            position: relative;
+        }
+        
+        .copy-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 6px 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: 'Segoe UI', sans-serif;
+            transition: background-color 0.2s;
+            z-index: 10;
+        }
+        
+        .copy-button:hover {
+            background-color: #0056b3;
+        }
+        
+        .copy-button.copied {
+            background-color: #28a745;
+        }
+        
+        .exercise {
+            background-color: #e8f5e9;
+            border: 2px solid #4caf50;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        
+        .exercise h3 {
+            color: #2e7d32;
+            margin-top: 0;
+        }
+        
+        .difficulty {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .difficulty-easy {
+            background-color: #4caf50;
+            color: white;
+        }
+        
+        .difficulty-medium {
+            background-color: #ff9800;
+            color: white;
+        }
+        
+        .difficulty-hard {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        ul, ol {
+            padding-left: 25px;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #8f0000;
+            color: white;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .flow-json {
+            background-color: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        details {
+            margin: 15px 0;
+        }
+        
+        summary {
+            cursor: pointer;
+            padding: 10px;
+            background-color: #6c757d;
+            color: white;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        summary:hover {
+            background-color: #5a6268;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .feature-card {
+            background-color: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .feature-card h4 {
+            color: #deb887;
+            margin-top: 0;
+        }
+        
+        .syntax-example {
+            background-color: #fff;
+            border: 2px solid #deb887;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .syntax-example h4 {
+            color: #deb887;
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📝 Node-RED Templateノード 完全ガイド</h1>
+        
+        <p>このガイドでは、Node-REDの<strong>Templateノード</strong>について、初心者の方でも理解できるように詳しく説明します。</p>
+        
+        <h2>📚 1. Templateノードとは?</h2>
+        
+        <h3>🤔 「テンプレート」って何?</h3>
+        <p>
+            Templateノードは、<strong>変数を含む文書の型紙</strong>を使って、動的にテキストを生成するノードです。
+            日常生活で例えると、<strong>差し込み印刷</strong>のようなものです。
+        </p>
+        
+        <div class="tip">
+            <h3>💡 日常生活での例え</h3>
+            <p><strong>結婚式の招待状作成</strong></p>
+            <ul>
+                <li>「〇〇様へ」← 名前の部分だけ変える</li>
+                <li>基本的な文面は同じまま</li>
+                <li>それぞれの人に合わせた招待状ができる</li>
+            </ul>
+            <p>Templateノードも同じように、基本的な型紙に変数を埋め込んで、データに応じた文書を自動生成します!</p>
+        </div>
+        
+        <h3>🎯 Templateノードができること</h3>
+        <ul>
+            <li>メッセージ変数(msg)を使った動的な文字列生成</li>
+            <li>Mustache記法による柔軟なテンプレート処理</li>
+            <li>HTML、JSON、YAML形式の出力</li>
+            <li>センサーデータの整形表示</li>
+            <li>ダッシュボード用のメッセージ作成</li>
+            <li>API応答の整形</li>
+        </ul>
+        
+        <h3>📊 基本的な動作例</h3>
+        
+        <div class="node-example">
+            <span class="node node-inject">inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-template">template</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">debug</span>
+        </div>
+        
+        <p><strong>流れ:</strong></p>
+        <ol>
+            <li>Injectノードからデータを送信: <code>msg.payload = {name: "太郎", temp: 25}</code></li>
+            <li>Templateノードでテンプレート適用: <code>"こんにちは{{payload.name}}さん、気温は{{payload.temp}}℃です"</code></li>
+            <li>結果を出力: <code>"こんにちは太郎さん、気温は25℃です"</code></li>
+        </ol>
+        
+        <h2>🔧 2. Mustache記法の基本</h2>
+        
+        <p>Templateノードは<strong>Mustache</strong>というテンプレート記法を使用します。</p>
+        
+        <h3>基本構文</h3>
+        
+        <div class="syntax-example">
+            <h4>変数の展開</h4>
+            <div class="code-block">
+{{変数名}}           ← 変数の値を表示
+{{payload.name}}     ← msg.payloadオブジェクトのnameプロパティ
+{{topic}}            ← msg.topicの値
+            </div>
+        </div>
+        
+        <div class="syntax-example">
+            <h4>条件分岐</h4>
+            <div class="code-block">
+{{#payload.isError}}
+  エラーが発生しました
+{{/payload.isError}}
+
+{{^payload.isError}}
+  正常に動作しています
+{{/payload.isError}}
+            </div>
+        </div>
+        
+        <div class="syntax-example">
+            <h4>ループ処理</h4>
+            <div class="code-block">
+{{#payload.sensors}}
+  センサー名: {{name}}、値: {{value}}
+{{/payload.sensors}}
+            </div>
+        </div>
+        
+        <h3>📋 Mustache記法のリファレンス</h3>
+        
+        <table>
+            <tr>
+                <th>記法</th>
+                <th>説明</th>
+                <th>使用例</th>
+            </tr>
+            <tr>
+                <td><code>{{変数}}</code></td>
+                <td>変数の値を表示</td>
+                <td><code>{{payload.temperature}}</code></td>
+            </tr>
+            <tr>
+                <td><code>{{#変数}}...{{/変数}}</code></td>
+                <td>条件が真の時、または配列をループ</td>
+                <td><code>{{#payload.data}}{{value}}{{/payload.data}}</code></td>
+            </tr>
+            <tr>
+                <td><code>{{^変数}}...{{/変数}}</code></td>
+                <td>条件が偽の時</td>
+                <td><code>{{^payload.error}}OK{{/payload.error}}</code></td>
+            </tr>
+            <tr>
+                <td><code>{{!コメント}}</code></td>
+                <td>コメント(出力されない)</td>
+                <td><code>{{!これは説明文です}}</code></td>
+            </tr>
+            <tr>
+                <td><code>{{&変数}}</code></td>
+                <td>HTMLエスケープなしで出力</td>
+                <td><code>{{&payload.html}}</code></td>
+            </tr>
+        </table>
+        
+        <h2>⚙️ 3. 詳細な設定項目</h2>
+        
+        <h3>出力フォーマット設定</h3>
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h4>Plain text</h4>
+                <p>通常のテキストとして出力します。最も一般的な使用方法です。</p>
+                <p><strong>用途:</strong> メッセージ表示、ログ出力</p>
+            </div>
+            
+            <div class="feature-card">
+                <h4>Parsed JSON</h4>
+                <p>テンプレートの結果をJSON形式としてパースし、JavaScriptオブジェクトとして出力します。</p>
+                <p><strong>用途:</strong> 動的なJSONデータ生成</p>
+            </div>
+            
+            <div class="feature-card">
+                <h4>Parsed YAML</h4>
+                <p>テンプレートの結果をYAML形式としてパースし、JavaScriptオブジェクトとして出力します。</p>
+                <p><strong>用途:</strong> 設定ファイル生成</p>
+            </div>
+        </div>
+        
+        <h3>📝 サンプルフロー解析</h3>
+        
+        <p>実際のNode-REDで動作する3つのサンプルフローを見てみましょう:</p>
+        
+        <h4>サンプル1: 配列データのループ処理(Advanced Mustache)</h4>
+        
+        <div class="node-example">
+            <span class="node node-inject">Price of fruits</span>
+            <span class="arrow">→</span>
+            <span class="node node-template">template</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">debug</span>
+        </div>
+        
+        <p><strong>Injectノードの設定:</strong></p>
+        <div class="code-block">
+// msg.topic = "Fruits"
+// msg.payload = 
+[
+  {"name":"apple", "price":100},
+  {"name":"orange", "price":80},
+  {"name":"banana", "price":210}
+]
+        </div>
+        
+        <p><strong>Templateノード:</strong></p>
+        <div class="code-block">
+# Price List of {{topic}}
+
+{{! outputs list of prices }}
+{{#payload}}
+- {{name}}: {{price}}
+{{/payload}}
+        </div>
+        
+        <p><strong>出力結果:</strong></p>
+        <div class="code-block">
+# Price List of Fruits
+
+- apple: 100
+- orange: 80
+- banana: 210
+        </div>
+        
+        <div class="tip">
+            <h4>💡 ポイント解説</h4>
+            <ul>
+                <li><code>{{topic}}</code>: msg.topicの値を表示</li>
+                <li><code>{{! コメント }}</code>: Mustacheのコメント(出力されない)</li>
+                <li><code>{{#payload}}...{{/payload}}</code>: 配列の各要素をループ</li>
+                <li>ループ内で<code>{{name}}</code>と<code>{{price}}</code>にアクセス</li>
+            </ul>
+        </div>
+        
+        <h4>サンプル2: Parsed JSON出力</h4>
+        
+        <div class="node-example">
+            <span class="node node-inject">inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-template">JSON template</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">debug</span>
+        </div>
+        
+        <p><strong>Injectノードの設定:</strong></p>
+        <div class="code-block">
+// msg.topic = "message"
+// msg.payload = "Hello, World!"
+        </div>
+        
+        <p><strong>Templateノード:</strong></p>
+        <div class="code-block">
+// Output as: Parsed JSON
+{
+    "key" : "{{topic}}",
+    "value": "{{payload}}"
+}
+        </div>
+        
+        <p><strong>出力結果(JavaScriptオブジェクト):</strong></p>
+        <div class="code-block">
+{
+  key: "message",
+  value: "Hello, World!"
+}
+        </div>
+        
+        <div class="important">
+            <h4>⚠️ 重要: Parsed JSON出力の特徴</h4>
+            <p><strong>Output as: Parsed JSON</strong> を選択すると:</p>
+            <ul>
+                <li>テンプレートで生成した文字列がJSONとしてパースされる</li>
+                <li>msg.payloadは<strong>オブジェクト型</strong>になる(文字列ではない)</li>
+                <li>次のノードでプロパティに直接アクセス可能</li>
+                <li>例: <code>msg.payload.key</code>, <code>msg.payload.value</code></li>
+            </ul>
+        </div>
+        
+        <h4>サンプル3: Parsed YAML出力</h4>
+        
+        <div class="node-example">
+            <span class="node node-inject">inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-template">YAML template</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">debug</span>
+        </div>
+        
+        <p><strong>Injectノードの設定:</strong></p>
+        <div class="code-block">
+// msg.topic = "message"
+// msg.payload = "Hello, World!"
+        </div>
+        
+        <p><strong>Templateノード:</strong></p>
+        <div class="code-block">
+// Output as: Parsed YAML
+key: {{topic}}
+value: {{payload}}
+        </div>
+        
+        <p><strong>出力結果(JavaScriptオブジェクト):</strong></p>
+        <div class="code-block">
+{
+  key: "message",
+  value: "Hello, World!"
+}
+        </div>
+        
+        <div class="tip">
+            <h4>💡 YAML形式の利点</h4>
+            <ul>
+                <li>JSONより読みやすく、書きやすい</li>
+                <li>引用符が不要</li>
+                <li>設定ファイルの生成に最適</li>
+                <li>最終的にはJavaScriptオブジェクトとして扱える</li>
+            </ul>
+        </div>
+        
+        <h4>🔧 インポート可能なサンプルフロー</h4>
+        <details>
+            <summary>📦 完全なサンプルフローをインポート</summary>
+            <p>以下のJSONをNode-REDにインポートして、3つのサンプルを試してみましょう:</p>
+            <div class="flow-json">
+[
+    {
+        "id": "eaf91a6b.a55da8",
+        "type": "comment",
+        "z": "be6b9938caeba497",
+        "name": "1 Advanced mustache example",
+        "info": "Template node can create a string value using [Mustache](http://mustache.github.io/mustache.5.html) syntax.",
+        "x": 290,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "61fbfe34.14a02",
+        "type": "inject",
+        "z": "be6b9938caeba497",
+        "name": "Price of fruits",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "Fruits",
+        "payload": "[{\"name\":\"apple\",\"price\":100},{\"name\":\"orange\",\"price\":80},{\"name\":\"banana\",\"price\":210}]",
+        "payloadType": "json",
+        "x": 290,
+        "y": 180,
+        "wires": [
+            [
+                "bf0cb02.d8e4b5"
+            ]
+        ]
+    },
+    {
+        "id": "bf0cb02.d8e4b5",
+        "type": "template",
+        "z": "be6b9938caeba497",
+        "name": "",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "# Price List of {{topic}}\n\n{{! outputs list of prices }}\n{{#payload}}\n- {{name}}: {{price}}\n{{/payload}}\n",
+        "output": "str",
+        "x": 460,
+        "y": 180,
+        "wires": [
+            [
+                "153eb0ff.5622df"
+            ]
+        ]
+    },
+    {
+        "id": "153eb0ff.5622df",
+        "type": "debug",
+        "z": "be6b9938caeba497",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 630,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "fe821493.2e0e28",
+        "type": "comment",
+        "z": "be6b9938caeba497",
+        "name": "2 Parse result as JSON",
+        "info": "Template node can create a string value using [Mustache](http://mustache.github.io/mustache.5.html) syntax.\nIf `Partsed JSON` output is selected, the created string is parsed as JSON format and JavaScript object is send as an output payload value.",
+        "x": 260,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "931f94e8.592cd8",
+        "type": "inject",
+        "z": "be6b9938caeba497",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "message",
+        "payload": "Hello, World!",
+        "payloadType": "str",
+        "x": 320,
+        "y": 360,
+        "wires": [
+            [
+                "bb2b0dad.b24b5"
+            ]
+        ]
+    },
+    {
+        "id": "bb2b0dad.b24b5",
+        "type": "template",
+        "z": "be6b9938caeba497",
+        "name": "JSON template",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "json",
+        "syntax": "mustache",
+        "template": "{\n    \"key\" : \"{{topic}}\",\n    \"value\": \"{{payload}}\"\n}\n",
+        "output": "json",
+        "x": 540,
+        "y": 360,
+        "wires": [
+            [
+                "baf2e48.2b97418"
+            ]
+        ]
+    },
+    {
+        "id": "baf2e48.2b97418",
+        "type": "debug",
+        "z": "be6b9938caeba497",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 730,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "6ad06659.a1e4e8",
+        "type": "comment",
+        "z": "be6b9938caeba497",
+        "name": "3 Parse result as YAML",
+        "info": "Template node can create a string value using [Mustache](http://mustache.github.io/mustache.5.html) syntax.\nIf `Partsed YAML` output is selected, the created string is parsed as YAML format and JavaScript object is send as an output payload value.",
+        "x": 260,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "8d6be9a2.c3fa58",
+        "type": "inject",
+        "z": "be6b9938caeba497",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "message",
+        "payload": "Hello, World!",
+        "payloadType": "str",
+        "x": 320,
+        "y": 560,
+        "wires": [
+            [
+                "69369c3.4a98164"
+            ]
+        ]
+    },
+    {
+        "id": "69369c3.4a98164",
+        "type": "template",
+        "z": "be6b9938caeba497",
+        "name": "YAML template",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "yaml",
+        "syntax": "mustache",
+        "template": "key: {{topic}}\nvalue: {{payload}}",
+        "output": "yaml",
+        "x": 540,
+        "y": 560,
+        "wires": [
+            [
+                "11fb2934.f5de27"
+            ]
+        ]
+    },
+    {
+        "id": "11fb2934.f5de27",
+        "type": "debug",
+        "z": "be6b9938caeba497",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 730,
+        "y": 560,
+        "wires": []
+    }
+]
+            </div>
+        </details>
+        
+        <h2>🏋️ 4. 実践演習</h2>
+        
+        <div class="exercise">
+            <h3>演習1: 基本的なメッセージテンプレート<span class="difficulty difficulty-easy">初級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>センサーから受け取った温度データを、読みやすいメッセージに整形して表示するフローを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Injectノードで温度データ(例: 25)を送信</li>
+                <li>Templateノードを使用して「現在の温度は〇℃です」という形式に整形</li>
+                <li>Debugノードで結果を表示</li>
+            </ul>
+            
+            <p><strong>📊 期待される動作:</strong></p>
+            <ul>
+                <li>25を送信 → "現在の温度は25℃です" と表示</li>
+                <li>30を送信 → "現在の温度は30℃です" と表示</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Templateノードの設定:</strong></p>
+                <ul>
+                    <li>Format: Plain text</li>
+                    <li>Template: <code>現在の温度は{{payload}}℃です</code></li>
+                    <li>Output as: Plain text</li>
+                </ul>
+                <p><strong>Injectノードの設定:</strong></p>
+                <ul>
+                    <li>Payload: number型で温度の値(例: 25)</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">
+[
+    {
+        "id": "ex1_inject",
+        "type": "inject",
+        "name": "温度25℃",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "25",
+        "payloadType": "num",
+        "x": 120,
+        "y": 100,
+        "wires": [["ex1_template"]]
+    },
+    {
+        "id": "ex1_template",
+        "type": "template",
+        "name": "メッセージ整形",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "現在の温度は{{payload}}℃です",
+        "output": "str",
+        "x": 290,
+        "y": 100,
+        "wires": [["ex1_debug"]]
+    },
+    {
+        "id": "ex1_debug",
+        "type": "debug",
+        "name": "結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 450,
+        "y": 100,
+        "wires": []
+    }
+]
+                </div>
+                <p><strong>✅ 動作確認:</strong></p>
+                <ul>
+                    <li>温度25℃ボタンをクリック</li>
+                    <li>デバッグウィンドウに "現在の温度は25℃です" が表示</li>
+                </ul>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習2: センサーデータのHTML整形<span class="difficulty difficulty-easy">初級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>温度と湿度のデータを受け取り、HTML形式で整形表示するフローを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Injectノードで温度と湿度のオブジェクトを送信</li>
+                <li>Templateノードを使用してHTML形式で整形</li>
+                <li>Debugノードで結果を表示</li>
+            </ul>
+            
+            <p><strong>📊 期待される動作:</strong></p>
+            <ul>
+                <li>温度25℃、湿度60%のデータ → HTML形式で表示</li>
+                <li>h2タグで見出し、pタグでデータを表示</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Templateノードの設定:</strong></p>
+                <ul>
+                    <li>Format: Plain text</li>
+                    <li>HTML構造を含むテンプレートを作成</li>
+                    <li><code>{{payload.temperature}}</code> と <code>{{payload.humidity}}</code> を使用</li>
+                </ul>
+                <p><strong>Injectノードの設定:</strong></p>
+                <ul>
+                    <li>Payload: JSON型</li>
+                    <li>値: <code>{"temperature": 25, "humidity": 60}</code></li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">
+[
+    {
+        "id": "ex2_inject",
+        "type": "inject",
+        "name": "センサーデータ",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"temperature\":25,\"humidity\":60}",
+        "payloadType": "json",
+        "x": 140,
+        "y": 100,
+        "wires": [["ex2_template"]]
+    },
+    {
+        "id": "ex2_template",
+        "type": "template",
+        "name": "HTML整形",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "<h2>環境センサーデータ</h2>\n<p>温度: {{payload.temperature}}℃</p>\n<p>湿度: {{payload.humidity}}%</p>\n<p>測定日時: {{_msgid}}</p>",
+        "output": "str",
+        "x": 310,
+        "y": 100,
+        "wires": [["ex2_debug"]]
+    },
+    {
+        "id": "ex2_debug",
+        "type": "debug",
+        "name": "HTML出力",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 470,
+        "y": 100,
+        "wires": []
+    }
+]
+                </div>
+                <p><strong>✅ 動作確認:</strong></p>
+                <ul>
+                    <li>センサーデータボタンをクリック</li>
+                    <li>HTML形式で整形されたデータが表示</li>
+                    <li>msg._msgidも自動的に埋め込まれる</li>
+                </ul>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習3: 配列データのMarkdown整形<span class="difficulty difficulty-medium">中級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>商品の配列データを受け取り、Mustacheのループ機能を使ってMarkdown形式の商品リストを生成するフローを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Injectノードで商品データの配列を送信(商品名と価格)</li>
+                <li>Templateノードを使用してループ処理でリストを生成</li>
+                <li>Markdown形式(箇条書き)で出力</li>
+                <li>Debugノードで結果を表示</li>
+            </ul>
+            
+            <p><strong>📊 期待される動作:</strong></p>
+            <ul>
+                <li>各商品が「- 商品名: 価格」の形式で表示される</li>
+                <li>見出しに"Price List of 〇〇"が表示される</li>
+                <li>配列の全ての要素が順番に処理される</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Templateノードの高度な機能:</strong></p>
+                <ul>
+                    <li>ループ: <code>{{#payload}}...{{/payload}}</code></li>
+                    <li>コメント: <code>{{! これはコメント }}</code></li>
+                    <li>配列の要素にアクセス: <code>{{name}}</code>, <code>{{price}}</code></li>
+                    <li>topicの利用: <code>{{topic}}</code></li>
+                </ul>
+                <p><strong>Injectノードのデータ構造例:</strong></p>
+                <div class="code-block">
+[
+  {"name": "apple", "price": 100},
+  {"name": "orange", "price": 80},
+  {"name": "banana", "price": 210}
+]
+                </div>
+                <p><strong>Templateの書き方:</strong></p>
+                <div class="code-block">
+# Price List of {{topic}}
+
+{{! outputs list of prices }}
+{{#payload}}
+- {{name}}: {{price}}
+{{/payload}}
+                </div>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">
+[
+    {
+        "id": "ex3_inject",
+        "type": "inject",
+        "name": "Price of fruits",
+        "props": [
+            {"p": "payload"},
+            {"p": "topic", "vt": "str"}
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "Fruits",
+        "payload": "[{\"name\":\"apple\",\"price\":100},{\"name\":\"orange\",\"price\":80},{\"name\":\"banana\",\"price\":210}]",
+        "payloadType": "json",
+        "x": 140,
+        "y": 100,
+        "wires": [["ex3_template"]]
+    },
+    {
+        "id": "ex3_template",
+        "type": "template",
+        "name": "Markdown生成",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "# Price List of {{topic}}\n\n{{! outputs list of prices }}\n{{#payload}}\n- {{name}}: {{price}}\n{{/payload}}\n",
+        "output": "str",
+        "x": 330,
+        "y": 100,
+        "wires": [["ex3_debug"]]
+    },
+    {
+        "id": "ex3_debug",
+        "type": "debug",
+        "name": "Markdown出力",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 510,
+        "y": 100,
+        "wires": []
+    }
+]
+                </div>
+                <p><strong>✅ 動作確認:</strong></p>
+                <ul>
+                    <li>Price of fruitsボタンをクリック</li>
+                    <li>Markdown形式のリストが生成される</li>
+                    <li>出力:</li>
+                </ul>
+                <div class="code-block">
+# Price List of Fruits
+
+- apple: 100
+- orange: 80
+- banana: 210
+                </div>
+                <p><strong>🎓 学習ポイント:</strong></p>
+                <ul>
+                    <li>{{#payload}}...{{/payload}}で配列の各要素をループ</li>
+                    <li>ループ内では要素のプロパティに直接アクセス可能</li>
+                    <li>{{! コメント }}は出力されない(テンプレート内メモ用)</li>
+                    <li>Markdown形式で見やすい出力が可能</li>
+                </ul>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習4: Parsed JSON/YAML出力の活用<span class="difficulty difficulty-hard">上級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>センサーデータをTemplateノードで受け取り、Parsed JSON機能を使ってAPIレスポンス形式のオブジェクトを生成するフローを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Injectノードでセンサー名と測定値を送信</li>
+                <li>Templateノードを使用してJSON形式でメタデータを追加</li>
+                <li>出力フォーマットを"Parsed JSON"に設定</li>
+                <li>Debugノードでオブジェクトとして表示</li>
+            </ul>
+            
+            <p><strong>📊 期待される動作:</strong></p>
+            <ul>
+                <li>入力: <code>{name: "温度センサー1", value: 25}</code></li>
+                <li>出力: JSONオブジェクト(文字列ではない)として次のノードに渡される</li>
+                <li>タイムスタンプやステータスなどのメタデータが自動付与される</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Templateノードの重要設定:</strong></p>
+                <ul>
+                    <li>Format: JSON</li>
+                    <li>Output as: <strong>Parsed JSON</strong> (重要!)</li>
+                    <li>テンプレート内で有効なJSON構文を使用</li>
+                    <li>数値は引用符なし、文字列は引用符あり</li>
+                </ul>
+                <p><strong>Parsed JSON vs Plain text:</strong></p>
+                <table>
+                    <tr>
+                        <th>設定</th>
+                        <th>出力型</th>
+                        <th>用途</th>
+                    </tr>
+                    <tr>
+                        <td>Plain text</td>
+                        <td>文字列</td>
+                        <td>表示、ログ出力</td>
+                    </tr>
+                    <tr>
+                        <td>Parsed JSON</td>
+                        <td>オブジェクト</td>
+                        <td>API応答、次ノードでのデータ処理</td>
+                    </tr>
+                </table>
+                <p><strong>テンプレート例:</strong></p>
+                <div class="code-block">
+{
+    "sensor": "{{payload.name}}",
+    "value": {{payload.value}},
+    "unit": "℃",
+    "status": "active",
+    "timestamp": "{{_msgid}}"
+}
+                </div>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー(Parsed JSON版)</summary>
+                <div class="flow-json">
+[
+    {
+        "id": "ex4_inject_json",
+        "type": "inject",
+        "name": "センサーデータ",
+        "props": [
+            {"p": "payload"},
+            {"p": "topic", "vt": "str"}
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "sensor_data",
+        "payload": "{\"name\":\"温度センサー1\",\"value\":25}",
+        "payloadType": "json",
+        "x": 140,
+        "y": 80,
+        "wires": [["ex4_template_json"]]
+    },
+    {
+        "id": "ex4_template_json",
+        "type": "template",
+        "name": "JSON API Response",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "json",
+        "syntax": "mustache",
+        "template": "{\n    \"sensor\": \"{{payload.name}}\",\n    \"value\": {{payload.value}},\n    \"unit\": \"℃\",\n    \"status\": \"active\",\n    \"timestamp\": \"{{_msgid}}\"\n}",
+        "output": "json",
+        "x": 360,
+        "y": 80,
+        "wires": [["ex4_debug_json"]]
+    },
+    {
+        "id": "ex4_debug_json",
+        "type": "debug",
+        "name": "JSON Object",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 570,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "ex4_inject_yaml",
+        "type": "inject",
+        "name": "センサーデータ",
+        "props": [
+            {"p": "payload"},
+            {"p": "topic", "vt": "str"}
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "sensor_data",
+        "payload": "{\"name\":\"温度センサー2\",\"value\":28}",
+        "payloadType": "json",
+        "x": 140,
+        "y": 160,
+        "wires": [["ex4_template_yaml"]]
+    },
+    {
+        "id": "ex4_template_yaml",
+        "type": "template",
+        "name": "YAML Config",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "yaml",
+        "syntax": "mustache",
+        "template": "sensor: {{payload.name}}\nvalue: {{payload.value}}\nunit: ℃\nstatus: active\ntimestamp: {{_msgid}}",
+        "output": "yaml",
+        "x": 330,
+        "y": 160,
+        "wires": [["ex4_debug_yaml"]]
+    },
+    {
+        "id": "ex4_debug_yaml",
+        "type": "debug",
+        "name": "YAML Object",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 570,
+        "y": 160,
+        "wires": []
+    }
+]
+                </div>
+                <p><strong>✅ 動作確認:</strong></p>
+                <ul>
+                    <li>上のセンサーデータボタン → JSON形式でオブジェクト生成</li>
+                    <li>下のセンサーデータボタン → YAML形式でオブジェクト生成</li>
+                    <li>どちらも最終的にはJavaScriptオブジェクトとして出力</li>
+                    <li>次のノードで <code>msg.payload.sensor</code> などにアクセス可能</li>
+                </ul>
+                <p><strong>🎓 応用例:</strong></p>
+                <ul>
+                    <li><strong>API応答生成:</strong> http responseノードへ接続してREST API構築</li>
+                    <li><strong>データ変換:</strong> 外部システムとの連携に必要な形式へ変換</li>
+                    <li><strong>設定ファイル生成:</strong> YAML形式で動的に設定ファイル作成</li>
+                    <li><strong>ダッシュボード:</strong> グラフ表示用のデータ構造を整形</li>
+                </ul>
+                <p><strong>🔍 JSON vs YAML比較:</strong></p>
+                <div class="code-block">
+// JSON形式
+{
+    "key": "{{topic}}",
+    "value": "{{payload}}"
+}
+
+// YAML形式(引用符不要で読みやすい)
+key: {{topic}}
+value: {{payload}}
+                </div>
+            </details>
+        </div>
+        
+        <h2>🎓 5. まとめ</h2>
+        
+        <div class="important">
+            <h3>Templateノードの重要ポイント</h3>
+            <ul>
+                <li>✅ <strong>Mustache記法</strong>: シンプルで強力なテンプレートエンジン</li>
+                <li>✅ <strong>動的文字列生成</strong>: 変数を埋め込んでカスタマイズされたメッセージを作成</li>
+                <li>✅ <strong>複数の出力形式</strong>: Plain text、JSON、YAMLに対応</li>
+                <li>✅ <strong>条件分岐とループ</strong>: 複雑なデータ構造にも対応</li>
+                <li>✅ <strong>IoT活用</strong>: センサーデータの整形、レポート生成に最適</li>
+            </ul>
+        </div>
+        
+        <div class="tip">
+            <h3>📚 次のステップ</h3>
+            <p>Templateノードをマスターしたら、以下のノードも学んでみましょう:</p>
+            <ul>
+                <li><strong>Changeノード</strong>: より簡単なデータ変換</li>
+                <li><strong>Functionノード</strong>: JavaScriptでの高度な処理</li>
+                <li><strong>Dashboardノード</strong>: Templateで生成したHTMLを表示</li>
+                <li><strong>http responseノード</strong>: WebサーバーでのTemplate活用</li>
+            </ul>
+        </div>
+        
+        <h2>🔧 6. トラブルシューティング</h2>
+        
+        <h3>よくある問題と解決方法</h3>
+        
+        <table>
+            <tr>
+                <th>問題</th>
+                <th>原因</th>
+                <th>解決方法</th>
+            </tr>
+            <tr>
+                <td>変数が展開されず{{}}がそのまま表示</td>
+                <td>構文エラーまたは変数が存在しない</td>
+                <td>変数名のスペルと階層を確認</td>
+            </tr>
+            <tr>
+                <td>JSON出力でエラーが発生</td>
+                <td>無効なJSON形式</td>
+                <td>カンマ、括弧、引用符をチェック</td>
+            </tr>
+            <tr>
+                <td>ループが動作しない</td>
+                <td>配列でないデータを使用</td>
+                <td>msg.payloadが配列か確認</td>
+            </tr>
+            <tr>
+                <td>HTMLタグがエスケープされる</td>
+                <td>デフォルトの安全な出力</td>
+                <td>{{&変数}}を使用(要注意)</td>
+            </tr>
+            <tr>
+                <td>YAML出力でエラー</td>
+                <td>インデントの不整合</td>
+                <td>スペースとタブを統一</td>
+            </tr>
+        </table>
+        
+        <h2>💡 7. 実務での活用例</h2>
+        
+        <h3>ケース1: IoTセンサーダッシュボード</h3>
+        <div class="code-block">
+Injectノード(定期実行)
+↓
+Functionノード(センサーデータ収集)
+↓
+Templateノード(HTMLレポート生成)
+↓
+Dashboard UIノード(表示)
+        </div>
+        
+        <h3>ケース2: API応答の整形</h3>
+        <div class="code-block">
+HTTP Inノード(リクエスト受信)
+↓
+Functionノード(データ処理)
+↓
+Templateノード(JSON応答生成)
+↓
+HTTP Responseノード(応答返送)
+        </div>
+        
+        <h3>ケース3: メール通知テンプレート</h3>
+        <div class="code-block">
+Triggerノード(異常検知)
+↓
+Templateノード(メール本文生成)
+↓
+Email送信ノード
+        </div>
+        
+        <h3>ケース4: 設定ファイルの動的生成</h3>
+        <div class="code-block">
+Injectノード(設定値送信)
+↓
+Templateノード(YAML生成)
+↓
+File Writeノード(ファイル保存)
+        </div>
+        
+        <h2>🔗 8. 追加リソース</h2>
+        
+        <ul>
+            <li><a href="https://nodered.org/docs/user-guide/nodes#template" target="_blank">Node-RED公式ドキュメント: Templateノード</a></li>
+            <li><a href="http://mustache.github.io/mustache.5.html" target="_blank">Mustache記法 公式ドキュメント</a></li>
+            <li><a href="https://cookbook.nodered.org/basic/operate-on-payload" target="_blank">Node-RED Cookbook: データ操作</a></li>
+        </ul>
+        
+        <hr>
+        
+        <p style="text-align: center; color: #999; margin-top: 40px;">
+            <small>このガイドが役に立ちましたら、実際のプロジェクトで練習してみてください!<br>
+            Templateノードはデータ整形の強力なツールです。</small>
+        </p>
+    </div>
+    
+    <script>
+        // ページ読み込み時にコピーボタンを追加
+        document.addEventListener('DOMContentLoaded', function() {
+            // .flow-jsonクラスのみにコピーボタンを追加(演習問題のJSONフローのみ)
+            const codeBlocks = document.querySelectorAll('.flow-json');
+            
+            codeBlocks.forEach(function(block) {
+                // コピーボタンを作成
+                const button = document.createElement('button');
+                button.className = 'copy-button';
+                button.textContent = 'コピー';
+                
+                // クリックイベントを追加
+                button.addEventListener('click', function() {
+                    // コードブロックのテキストを取得
+                    const code = block.textContent.replace('コピー', '').trim();
+                    
+                    // クリップボードにコピー
+                    navigator.clipboard.writeText(code).then(function() {
+                        // 成功時の視覚的フィードバック
+                        button.textContent = 'コピーしました!';
+                        button.classList.add('copied');
+                        
+                        // 2秒後に元に戻す
+                        setTimeout(function() {
+                            button.textContent = 'コピー';
+                            button.classList.remove('copied');
+                        }, 2000);
+                    }).catch(function(err) {
+                        console.error('コピーに失敗しました:', err);
+                        button.textContent = 'エラー';
+                        setTimeout(function() {
+                            button.textContent = 'コピー';
+                        }, 2000);
+                    });
+                });
+                
+                // ボタンをコードブロックに追加
+                block.style.position = 'relative';
+                block.appendChild(button);
+            });
+        });
+    </script>
+</body>
+</html>

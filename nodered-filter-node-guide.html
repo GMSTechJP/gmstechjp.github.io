@@ -1,0 +1,1494 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED Filterノード(RBE) 完全ガイド</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        h1 {
+            color: #8f0000;
+            border-bottom: 3px solid #8f0000;
+            padding-bottom: 10px;
+        }
+        
+        h2 {
+            color: #c00000;
+            margin-top: 30px;
+            border-left: 5px solid #c00000;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #555;
+            margin-top: 25px;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .node-example {
+            background-color: #2d3133;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            color: white;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .node {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 4px;
+            margin: 5px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .node-inject {
+            background-color: #3fadb5;
+            color: white;
+        }
+        
+        .node-filter {
+            background-color: #daa520;
+            color: white;
+        }
+        
+        .node-rbe {
+            background-color: #daa520;
+            color: white;
+        }
+        
+        .node-debug {
+            background-color: #87a48d;
+            color: white;
+        }
+        
+        .node-split {
+            background-color: #e7a070;
+            color: white;
+        }
+        
+        .arrow {
+            color: #999;
+            font-size: 20px;
+            margin: 0 10px;
+        }
+        
+        .important {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .tip {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .code-block {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            position: relative;
+        }
+        
+        .copy-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 6px 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: 'Segoe UI', sans-serif;
+            transition: background-color 0.2s;
+            z-index: 10;
+        }
+        
+        .copy-button:hover {
+            background-color: #0056b3;
+        }
+        
+        .copy-button.copied {
+            background-color: #28a745;
+        }
+        
+        .exercise {
+            background-color: #e8f5e9;
+            border: 2px solid #4caf50;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        
+        .exercise h3 {
+            color: #2e7d32;
+            margin-top: 0;
+        }
+        
+        .difficulty {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .difficulty-easy {
+            background-color: #4caf50;
+            color: white;
+        }
+        
+        .difficulty-medium {
+            background-color: #ff9800;
+            color: white;
+        }
+        
+        .difficulty-hard {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        ul, ol {
+            padding-left: 25px;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #8f0000;
+            color: white;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .flow-json {
+            background-color: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        details {
+            margin: 15px 0;
+        }
+        
+        summary {
+            cursor: pointer;
+            padding: 10px;
+            background-color: #6c757d;
+            color: white;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        summary:hover {
+            background-color: #5a6268;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .feature-card {
+            background-color: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .feature-card h4 {
+            color: #daa520;
+            margin-top: 0;
+        }
+        
+        .mode-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-right: 5px;
+            background-color: #daa520;
+            color: white;
+        }
+        
+        .data-flow {
+            background-color: #f0f8ff;
+            border: 2px solid #4682b4;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .data-flow h4 {
+            color: #4682b4;
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Node-RED Filterノード(RBE) 完全ガイド</h1>
+        
+        <p>このガイドでは、Node-REDの<strong>Filterノード(RBE: Report By Exception)</strong>について、初心者の方でも理解できるように詳しく説明します。</p>
+        
+        <h2>📚 1. Filterノード(RBE)とは?</h2>
+        
+        <h3>🤔 「RBE」って何?</h3>
+        <p>
+            RBE(Report By Exception)ノードは、<strong>値が変化した時だけメッセージを通過させる</strong>フィルタリングノードです。
+            日常生活で例えると、<strong>変化検知センサー</strong>のようなものです。
+        </p>
+        
+        <div class="tip">
+            <h3>💡 日常生活での例え</h3>
+            <p><strong>自動ドアのセンサー</strong></p>
+            <ul>
+                <li>人がいない → 何もしない</li>
+                <li>人が近づいた → ドアを開ける(変化を検知!)</li>
+                <li>人が立ち止まっている → 何もしない(変化なし)</li>
+                <li>人が離れた → ドアを閉める(変化を検知!)</li>
+            </ul>
+            <p>Filterノードも同じように、値が変化した時だけ次のノードにメッセージを送ります!</p>
+        </div>
+        
+        <h3>🎯 Filterノードができること</h3>
+        <ul>
+            <li>重複データの除去(同じ値が続く場合はブロック)</li>
+            <li>センサーノイズの除去</li>
+            <li>通信量の削減(変化がある時だけ送信)</li>
+            <li>特定の閾値を超えた変化のみ検知</li>
+            <li>特定の値のみを通過させる</li>
+        </ul>
+        
+        <h3>📊 基本的な動作例</h3>
+        
+        <div class="node-example">
+            <span class="node node-inject">inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-filter">filter(RBE)</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">debug</span>
+        </div>
+        
+        <p><strong>入力データの流れ:</strong></p>
+        <div class="data-flow">
+            <h4>入力: 1 → 2 → 2 → 3</h4>
+            <p><strong>RBEモード(変化のみ通過):</strong></p>
+            <ul>
+                <li>1 → ✅ 通過(初回)</li>
+                <li>2 → ✅ 通過(1から2に変化)</li>
+                <li>2 → ❌ ブロック(前回と同じ)</li>
+                <li>3 → ✅ 通過(2から3に変化)</li>
+            </ul>
+            <p><strong>出力: 1 → 2 → 3</strong></p>
+        </div>
+        
+        <h2>⚙️ 2. 動作モードの詳細</h2>
+        
+        <p>Filterノード(RBE)には主に4つの動作モードがあります:</p>
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h4><span class="mode-badge">rbe</span> 基本モード</h4>
+                <p><strong>動作:</strong> 値が変化した時のみ通過</p>
+                <p><strong>用途:</strong> 重複データの除去</p>
+                <p><strong>例:</strong> [1,2,2,3] → [1,2,3]</p>
+            </div>
+            
+            <div class="feature-card">
+                <h4><span class="mode-badge">rbei</span> 初期値無視モード</h4>
+                <p><strong>動作:</strong> 初期値は記憶するが出力せず、変化時のみ通過</p>
+                <p><strong>用途:</strong> 起動時の初期値を除外</p>
+                <p><strong>例:</strong> [1,2,2] → [2]</p>
+            </div>
+            
+            <div class="feature-card">
+                <h4><span class="mode-badge">deadband</span> デッドバンドモード</h4>
+                <p><strong>動作:</strong> 指定した閾値以上の変化のみ通過</p>
+                <p><strong>用途:</strong> ノイズ除去、大きな変化のみ検知</p>
+                <p><strong>例:</strong> [1,2,2,1] → [2,1] (50%閾値)</p>
+            </div>
+            
+            <div class="feature-card">
+                <h4><span class="mode-badge">narrowband</span> ナローバンドモード</h4>
+                <p><strong>動作:</strong> 特定の値のみ通過</p>
+                <p><strong>用途:</strong> 特定の状態検知</p>
+                <p><strong>例:</strong> [1,2,2,3] → [2,2] (値2のみ)</p>
+            </div>
+        </div>
+        
+        <h3>📝 サンプルフロー解析</h3>
+        
+        <p>実際のNode-REDで動作する4つのサンプルフローを見てみましょう:</p>
+        
+        <h4>サンプル1: 変化のみ報告(Report all changes)</h4>
+        
+        <div class="node-example">
+            <span class="node node-inject">inject [1,2,2]</span>
+            <span class="arrow">→</span>
+            <span class="node node-split">split</span>
+            <span class="arrow">→</span>
+            <span class="node node-rbe">RBE(rbe)</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">debug</span>
+        </div>
+        
+        <p><strong>Injectノードの設定:</strong></p>
+        <div class="code-block">
+msg.payload = [1, 2, 2]
+        </div>
+        
+        <p><strong>Filterノード(RBE)の設定:</strong></p>
+        <div class="code-block">
+Mode: rbe (block unless value changes)
+Property: msg.payload
+        </div>
+        
+        <p><strong>動作の流れ:</strong></p>
+        <div class="data-flow">
+            <h4>処理ステップ</h4>
+            <ol>
+                <li>配列[1,2,2]がSplitノードで1つずつに分割</li>
+                <li>1 → ✅ 通過(初回メッセージ)</li>
+                <li>2 → ✅ 通過(1から2に変化)</li>
+                <li>2 → ❌ ブロック(前回と同じ値)</li>
+            </ol>
+            <p><strong>デバッグ出力: 1, 2</strong></p>
+        </div>
+        
+        <h4>サンプル2: 初期値を無視(Report changes, ignore initial value)</h4>
+        
+        <div class="node-example">
+            <span class="node node-inject">inject [1,2,2]</span>
+            <span class="arrow">→</span>
+            <span class="node node-split">split</span>
+            <span class="arrow">→</span>
+            <span class="node node-rbe">RBE(rbei)</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">debug</span>
+        </div>
+        
+        <p><strong>Filterノード(RBE)の設定:</strong></p>
+        <div class="code-block">
+Mode: rbei (block unless value changes, ignore initial value)
+Property: msg.payload
+        </div>
+        
+        <p><strong>動作の流れ:</strong></p>
+        <div class="data-flow">
+            <h4>処理ステップ</h4>
+            <ol>
+                <li>1 → ❌ 記憶するが出力しない(初期値)</li>
+                <li>2 → ✅ 通過(1から2に変化)</li>
+                <li>2 → ❌ ブロック(前回と同じ値)</li>
+            </ol>
+            <p><strong>デバッグ出力: 2</strong></p>
+        </div>
+        
+        <div class="tip">
+            <h4>💡 rbei モードの用途</h4>
+            <p>センサー起動時の初期値を除外したい場合に有用です。例:</p>
+            <ul>
+                <li>システム起動時の不安定な値を無視</li>
+                <li>キャリブレーション中のデータを除外</li>
+                <li>初回の基準値設定</li>
+            </ul>
+        </div>
+        
+        <h4>サンプル3: デッドバンド(大きな変化のみ報告)</h4>
+        
+        <div class="node-example">
+            <span class="node node-inject">inject [1,2,2,1]</span>
+            <span class="arrow">→</span>
+            <span class="node node-split">split</span>
+            <span class="arrow">→</span>
+            <span class="node node-rbe">RBE(deadband 50%)</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">debug</span>
+        </div>
+        
+        <p><strong>Filterノード(RBE)の設定:</strong></p>
+        <div class="code-block">
+Mode: deadbandEq (block unless value change >= threshold)
+Threshold: 50%
+Comparison: compared to last valid output value
+Property: msg.payload
+        </div>
+        
+        <p><strong>動作の流れ:</strong></p>
+        <div class="data-flow">
+            <h4>詳細な処理ステップ</h4>
+            <ol>
+                <li>1 → ✅ 通過(初期値、センチネル値=1)</li>
+                <li>2 → ✅ 通過(1→2は100%増加、50%超えなので通過、センチネル値=2)</li>
+                <li>2 → ❌ ブロック(変化0%、50%未満)</li>
+                <li>1 → ✅ 通過(2→1は50%減少、50%以上なので通過)</li>
+            </ol>
+            <p><strong>デバッグ出力: 1, 2, 1</strong></p>
+        </div>
+        
+        <div class="important">
+            <h4>⚠️ デッドバンドの計算方法</h4>
+            <p>変化率の計算式:</p>
+            <div class="code-block">
+変化率(%) = |新しい値 - 基準値| / 基準値 × 100
+
+例: 2から1への変化
+変化率 = |1 - 2| / 2 × 100 = 50%
+            </div>
+        </div>
+        
+        <h4>サンプル4: 特定の値のみ報告(Narrowband)</h4>
+        
+        <div class="node-example">
+            <span class="node node-inject">inject [1,2,2]</span>
+            <span class="arrow">→</span>
+            <span class="node node-split">split</span>
+            <span class="arrow">→</span>
+            <span class="node node-rbe">RBE(narrowband=2)</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">debug</span>
+        </div>
+        
+        <p><strong>Filterノード(RBE)の設定:</strong></p>
+        <div class="code-block">
+Mode: narrowbandEq (block unless value change < threshold)
+Start value: 2
+Threshold: 1
+Property: msg.payload
+        </div>
+        
+        <p><strong>動作の流れ:</strong></p>
+        <div class="data-flow">
+            <h4>処理ステップ</h4>
+            <ol>
+                <li>1 → ❌ ブロック(|1-2|=1、閾値1以上なのでブロック)</li>
+                <li>2 → ✅ 通過(|2-2|=0、閾値1未満なので通過)</li>
+                <li>2 → ✅ 通過(|2-2|=0、閾値1未満なので通過)</li>
+            </ol>
+            <p><strong>デバッグ出力: 2, 2</strong></p>
+        </div>
+        
+        <div class="tip">
+            <h4>💡 Narrowbandモードの仕組み</h4>
+            <p>開始値(Start value)から閾値(Threshold)未満の変化のみを通過させます:</p>
+            <ul>
+                <li>Start value = 2、Threshold = 1 の場合</li>
+                <li>通過する値の範囲: 1 < 値 < 3 (つまり値=2のみ)</li>
+                <li>特定の状態やアラートレベルの検知に最適</li>
+            </ul>
+        </div>
+        
+        <h4>🔧 インポート可能なサンプルフロー</h4>
+        <details>
+            <summary>📦 完全なサンプルフローをインポート (出典: FlowFuse-HP https://flowfuse.com/node-red/core-nodes/filter/)</summary>
+            <p>以下のJSONをNode-REDにインポートして、4つのサンプルを試してみましょう:</p>
+            <div class="flow-json">
+[
+    {
+        "id": "9573fa4b057fe7b2",
+        "type": "comment",
+        "z": "55a31d046b0519df",
+        "name": "1 Report all changes",
+        "info": "フィルタノードに3つのメッセージ(1、2、2)が送信された場合、最初のメッセージ(1と2)はそれぞれ順に通過します。最後のメッセージ(2)は、前回のメッセージ送信以降に変更が確認されなかったため、フィルタリングされます。",
+        "x": 210,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "5adf6b757e2a7bb2",
+        "type": "rbe",
+        "z": "55a31d046b0519df",
+        "name": "Only report changes",
+        "func": "rbe",
+        "gap": "",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "topi": "topic",
+        "x": 500,
+        "y": 200,
+        "wires": [["6682a9e8826ad09b"]]
+    },
+    {
+        "id": "f60dc26f8d634312",
+        "type": "inject",
+        "z": "55a31d046b0519df",
+        "name": "",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[1,2,2]",
+        "payloadType": "json",
+        "x": 210,
+        "y": 200,
+        "wires": [["5b2b61bb112b23e7"]]
+    },
+    {
+        "id": "6682a9e8826ad09b",
+        "type": "debug",
+        "z": "55a31d046b0519df",
+        "name": "Print changes",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 700,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "5b2b61bb112b23e7",
+        "type": "split",
+        "z": "55a31d046b0519df",
+        "name": "",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "x": 330,
+        "y": 200,
+        "wires": [["5adf6b757e2a7bb2"]]
+    },
+    {
+        "id": "79e041e499ad21e9",
+        "type": "comment",
+        "z": "55a31d046b0519df",
+        "name": "2 Report changes, ignore the initial value",
+        "info": "初期値がセンティネル値として使用され、その後の変更が転送される。",
+        "x": 280,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "d5c20441fc01294b",
+        "type": "rbe",
+        "z": "55a31d046b0519df",
+        "name": "Ignore first message, only report changes",
+        "func": "rbei",
+        "gap": "",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "topi": "topic",
+        "x": 560,
+        "y": 380,
+        "wires": [["c5845cc63c81f81d"]]
+    },
+    {
+        "id": "eef24d9b8c3f98c7",
+        "type": "inject",
+        "z": "55a31d046b0519df",
+        "name": "",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[1,2,2]",
+        "payloadType": "json",
+        "x": 210,
+        "y": 380,
+        "wires": [["9e8e79801228c3bb"]]
+    },
+    {
+        "id": "c5845cc63c81f81d",
+        "type": "debug",
+        "z": "55a31d046b0519df",
+        "name": "Print changes",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 820,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "9e8e79801228c3bb",
+        "type": "split",
+        "z": "55a31d046b0519df",
+        "name": "",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "x": 330,
+        "y": 380,
+        "wires": [["d5c20441fc01294b"]]
+    },
+    {
+        "id": "c6ddaefee2877538",
+        "type": "comment",
+        "z": "55a31d046b0519df",
+        "name": "3 Report changes larger than a certain percentage Deadband",
+        "info": "50%以上の変化のみを報告するデッドバンドモード",
+        "x": 350,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "af9390a840a0b28a",
+        "type": "rbe",
+        "z": "55a31d046b0519df",
+        "name": "Report changes over ",
+        "func": "deadbandEq",
+        "gap": "50%",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "topi": "topic",
+        "x": 500,
+        "y": 560,
+        "wires": [["f76f04bfb73ad8db"]]
+    },
+    {
+        "id": "2a28d48e44fd6450",
+        "type": "inject",
+        "z": "55a31d046b0519df",
+        "name": "",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[1,2,2,1]",
+        "payloadType": "json",
+        "x": 210,
+        "y": 560,
+        "wires": [["9155ade283e76ab6"]]
+    },
+    {
+        "id": "f76f04bfb73ad8db",
+        "type": "debug",
+        "z": "55a31d046b0519df",
+        "name": "Print changes",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 700,
+        "y": 560,
+        "wires": []
+    },
+    {
+        "id": "9155ade283e76ab6",
+        "type": "split",
+        "z": "55a31d046b0519df",
+        "name": "",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "x": 330,
+        "y": 560,
+        "wires": [["af9390a840a0b28a"]]
+    },
+    {
+        "id": "9867760eef458ee6",
+        "type": "comment",
+        "z": "55a31d046b0519df",
+        "name": "4 Report only on one specific value",
+        "info": "特定の値(2)のみを報告するナローバンドモード",
+        "x": 260,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "6b70bed3e7360f58",
+        "type": "rbe",
+        "z": "55a31d046b0519df",
+        "name": "Only send 2's",
+        "func": "narrowbandEq",
+        "gap": "1",
+        "start": "2",
+        "inout": "out",
+        "septopics": false,
+        "property": "payload",
+        "topi": "topic",
+        "x": 480,
+        "y": 740,
+        "wires": [["5f02aa2b43499ca8"]]
+    },
+    {
+        "id": "a5b05fcbe6fdf53e",
+        "type": "inject",
+        "z": "55a31d046b0519df",
+        "name": "",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[1,2,2]",
+        "payloadType": "json",
+        "x": 210,
+        "y": 740,
+        "wires": [["e58f98ecb220d7f3"]]
+    },
+    {
+        "id": "5f02aa2b43499ca8",
+        "type": "debug",
+        "z": "55a31d046b0519df",
+        "name": "Print the same values",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 680,
+        "y": 740,
+        "wires": []
+    },
+    {
+        "id": "e58f98ecb220d7f3",
+        "type": "split",
+        "z": "55a31d046b0519df",
+        "name": "",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "x": 330,
+        "y": 740,
+        "wires": [["6b70bed3e7360f58"]]
+    }
+]
+            </div>
+        </details>
+        
+        <h2>🏋️ 3. 実践演習</h2>
+        
+        <div class="exercise">
+            <h3>演習1: センサーデータの重複除去<span class="difficulty difficulty-easy">初級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>温度センサーから送られてくるデータに重複がある場合、変化があった値のみを記録するフローを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Injectノードで温度データの配列を送信(例: [20, 20, 21, 21, 22])</li>
+                <li>Splitノードで配列を個別のメッセージに分割</li>
+                <li>Filterノード(RBE)を使用して変化があった値のみ通過</li>
+                <li>Debugノードで結果を表示</li>
+            </ul>
+            
+            <p><strong>📊 期待される動作:</strong></p>
+            <ul>
+                <li>入力: [20, 20, 21, 21, 22]</li>
+                <li>出力: 20, 21, 22</li>
+                <li>重複した値がフィルタリングされる</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Filterノード(RBE)の設定:</strong></p>
+                <ul>
+                    <li>Mode: <strong>rbe</strong> (block unless value changes)</li>
+                    <li>Property: msg.payload</li>
+                    <li>Apply mode separately for each msg.topic: チェック推奨</li>
+                </ul>
+                <p><strong>Splitノードの役割:</strong></p>
+                <ul>
+                    <li>配列を1つずつのメッセージに分割</li>
+                    <li>これによりRBEノードが各値を比較できる</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">
+[
+    {
+        "id": "ex1_inject",
+        "type": "inject",
+        "name": "温度データ",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[20,20,21,21,22]",
+        "payloadType": "json",
+        "x": 120,
+        "y": 100,
+        "wires": [["ex1_split"]]
+    },
+    {
+        "id": "ex1_split",
+        "type": "split",
+        "name": "配列分割",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "x": 270,
+        "y": 100,
+        "wires": [["ex1_rbe"]]
+    },
+    {
+        "id": "ex1_rbe",
+        "type": "rbe",
+        "name": "重複除去",
+        "func": "rbe",
+        "gap": "",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "topi": "topic",
+        "x": 410,
+        "y": 100,
+        "wires": [["ex1_debug"]]
+    },
+    {
+        "id": "ex1_debug",
+        "type": "debug",
+        "name": "変化のみ",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 550,
+        "y": 100,
+        "wires": []
+    }
+]
+                </div>
+                <p><strong>✅ 動作確認:</strong></p>
+                <ul>
+                    <li>温度データボタンをクリック</li>
+                    <li>デバッグウィンドウに 20, 21, 22 が表示される</li>
+                    <li>連続する同じ値(20,20や21,21)がフィルタリングされる</li>
+                </ul>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習2: センサー起動時の初期値除外<span class="difficulty difficulty-easy">初級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>センサーから送られるデータのうち、起動時の初期値を除外し、その後の変化のみを記録するフローを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Injectノードでセンサーデータを送信</li>
+                <li>Splitノードで分割</li>
+                <li>Filterノード(RBE)を使用して初期値を除外</li>
+                <li>Debugノードで結果を表示</li>
+            </ul>
+            
+            <p><strong>📊 期待される動作:</strong></p>
+            <ul>
+                <li>入力: [10, 15, 15, 20]</li>
+                <li>出力: 15, 20 (初期値10は出力されない)</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Filterノード(RBE)の設定:</strong></p>
+                <ul>
+                    <li>Mode: <strong>rbei</strong> (block unless value changes, ignore initial)</li>
+                    <li>Property: msg.payload</li>
+                </ul>
+                <p><strong>rbei モードの特徴:</strong></p>
+                <ul>
+                    <li>最初のメッセージは記憶するが出力しない</li>
+                    <li>2つ目以降で値が変化したときのみ出力</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">
+[
+    {
+        "id": "ex2_inject",
+        "type": "inject",
+        "name": "センサーデータ",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[10,15,15,20]",
+        "payloadType": "json",
+        "x": 140,
+        "y": 100,
+        "wires": [["ex2_split"]]
+    },
+    {
+        "id": "ex2_split",
+        "type": "split",
+        "name": "",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "x": 290,
+        "y": 100,
+        "wires": [["ex2_rbe"]]
+    },
+    {
+        "id": "ex2_rbe",
+        "type": "rbe",
+        "name": "初期値無視",
+        "func": "rbei",
+        "gap": "",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "topi": "topic",
+        "x": 420,
+        "y": 100,
+        "wires": [["ex2_debug"]]
+    },
+    {
+        "id": "ex2_debug",
+        "type": "debug",
+        "name": "変化のみ(初期値なし)",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 600,
+        "y": 100,
+        "wires": []
+    }
+]
+                </div>
+                <p><strong>✅ 動作確認:</strong></p>
+                <ul>
+                    <li>センサーデータボタンをクリック</li>
+                    <li>デバッグウィンドウに 15, 20 のみが表示される</li>
+                    <li>初期値10は記憶されるが出力されない</li>
+                </ul>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習3: デッドバンドフィルタでノイズ除去<span class="difficulty difficulty-medium">中級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>温度センサーのわずかな揺らぎ(ノイズ)を除去し、10%以上の変化があった時のみ記録するフローを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Injectノードで温度データを送信</li>
+                <li>Splitノードで分割</li>
+                <li>Filterノード(RBE)をデッドバンドモードで使用(閾値10%)</li>
+                <li>Debugノードで結果を表示</li>
+            </ul>
+            
+            <p><strong>📊 期待される動作:</strong></p>
+            <ul>
+                <li>入力: [100, 105, 108, 120]</li>
+                <li>出力: 100, 120</li>
+                <li>10%未満の変化(105, 108)はフィルタリング</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Filterノード(RBE)の設定:</strong></p>
+                <ul>
+                    <li>Mode: <strong>deadbandEq</strong></li>
+                    <li>Threshold: <strong>10%</strong></li>
+                    <li>Comparison: compared to last valid output value</li>
+                    <li>Property: msg.payload</li>
+                </ul>
+                <p><strong>変化率の計算:</strong></p>
+                <div class="code-block">
+100 → 105: 5%変化 → ブロック
+100 → 108: 8%変化 → ブロック  
+100 → 120: 20%変化 → 通過(基準値更新)
+                </div>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">
+[
+    {
+        "id": "ex3_inject",
+        "type": "inject",
+        "name": "温度データ(ノイズあり)",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[100,105,108,120]",
+        "payloadType": "json",
+        "x": 170,
+        "y": 100,
+        "wires": [["ex3_split"]]
+    },
+    {
+        "id": "ex3_split",
+        "type": "split",
+        "name": "",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "x": 350,
+        "y": 100,
+        "wires": [["ex3_rbe"]]
+    },
+    {
+        "id": "ex3_rbe",
+        "type": "rbe",
+        "name": "10%デッドバンド",
+        "func": "deadbandEq",
+        "gap": "10%",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "topi": "topic",
+        "x": 500,
+        "y": 100,
+        "wires": [["ex3_debug"]]
+    },
+    {
+        "id": "ex3_debug",
+        "type": "debug",
+        "name": "大きな変化のみ",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 670,
+        "y": 100,
+        "wires": []
+    }
+]
+                </div>
+                <p><strong>✅ 動作確認:</strong></p>
+                <ul>
+                    <li>温度データ(ノイズあり)ボタンをクリック</li>
+                    <li>デバッグウィンドウに 100, 120 のみが表示される</li>
+                    <li>105(5%変化)と108(8%変化)はフィルタリングされる</li>
+                </ul>
+                <p><strong>🎓 実用例:</strong></p>
+                <ul>
+                    <li>センサーノイズの除去</li>
+                    <li>不要な通信量の削減</li>
+                    <li>アラート閾値の管理</li>
+                </ul>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習4: 特定アラートレベルの検知<span class="difficulty difficulty-hard">上級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>機械の振動センサーから、危険レベル(値=3)の振動のみを検知して警告を発するフローを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Injectノードで振動レベルデータを送信(1:正常、2:注意、3:危険)</li>
+                <li>Splitノードで分割</li>
+                <li>Filterノード(RBE)をナローバンドモードで使用</li>
+                <li>危険レベル(3)のみを通過させる</li>
+                <li>Debugノードで警告を表示</li>
+            </ul>
+            
+            <p><strong>📊 期待される動作:</strong></p>
+            <ul>
+                <li>入力: [1, 1, 2, 3, 3, 2, 1]</li>
+                <li>出力: 3, 3 (危険レベルのみ)</li>
+                <li>正常(1)と注意(2)レベルはフィルタリング</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Filterノード(RBE)の設定:</strong></p>
+                <ul>
+                    <li>Mode: <strong>narrowbandEq</strong></li>
+                    <li>Start value: <strong>3</strong> (検知したい値)</li>
+                    <li>Threshold: <strong>1</strong></li>
+                    <li>Property: msg.payload</li>
+                </ul>
+                <p><strong>ナローバンドの仕組み:</strong></p>
+                <div class="code-block">
+通過条件: |値 - Start value| < Threshold
+Start=3, Threshold=1 の場合:
+- 値=1: |1-3|=2 >= 1 → ブロック
+- 値=2: |2-3|=1 >= 1 → ブロック
+- 値=3: |3-3|=0 < 1 → 通過✅
+- 値=4: |4-3|=1 >= 1 → ブロック
+                </div>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">
+[
+    {
+        "id": "ex4_inject",
+        "type": "inject",
+        "name": "振動レベル",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[1,1,2,3,3,2,1]",
+        "payloadType": "json",
+        "x": 130,
+        "y": 100,
+        "wires": [["ex4_split"]]
+    },
+    {
+        "id": "ex4_split",
+        "type": "split",
+        "name": "",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "x": 270,
+        "y": 100,
+        "wires": [["ex4_rbe"]]
+    },
+    {
+        "id": "ex4_rbe",
+        "type": "rbe",
+        "name": "危険レベルのみ検知",
+        "func": "narrowbandEq",
+        "gap": "1",
+        "start": "3",
+        "inout": "out",
+        "septopics": false,
+        "property": "payload",
+        "topi": "topic",
+        "x": 430,
+        "y": 100,
+        "wires": [["ex4_change"]]
+    },
+    {
+        "id": "ex4_change",
+        "type": "change",
+        "name": "警告メッセージ",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "⚠️ 危険! 振動レベル3を検知しました",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 620,
+        "y": 100,
+        "wires": [["ex4_debug"]]
+    },
+    {
+        "id": "ex4_debug",
+        "type": "debug",
+        "name": "危険アラート",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 790,
+        "y": 100,
+        "wires": []
+    }
+]
+                </div>
+                <p><strong>✅ 動作確認:</strong></p>
+                <ul>
+                    <li>振動レベルボタンをクリック</li>
+                    <li>危険レベル(3)が検知された時だけ警告メッセージが表示される</li>
+                    <li>入力: [1,1,2,3,3,2,1]</li>
+                    <li>出力: 警告メッセージが2回表示(3が2回検知)</li>
+                </ul>
+                <p><strong>🎓 実務での応用:</strong></p>
+                <ul>
+                    <li>特定の異常状態検知(温度、圧力、振動など)</li>
+                    <li>アラートレベル別の処理分岐</li>
+                    <li>品質管理での不良品検知</li>
+                    <li>プロセス制御での特定状態監視</li>
+                </ul>
+            </details>
+        </div>
+        
+        <h2>🎓 4. まとめ</h2>
+        
+        <div class="important">
+            <h3>Filterノード(RBE)の重要ポイント</h3>
+            <ul>
+                <li>✅ <strong>rbe</strong>: 値の変化のみ通過 - 重複データ除去</li>
+                <li>✅ <strong>rbei</strong>: 初期値を無視 - 起動時データの除外</li>
+                <li>✅ <strong>deadband</strong>: 大きな変化のみ通過 - ノイズ除去</li>
+                <li>✅ <strong>narrowband</strong>: 特定の値のみ通過 - 状態検知</li>
+                <li>✅ <strong>IoT最適化</strong>: 通信量削減、バッテリー節約に最適</li>
+            </ul>
+        </div>
+        
+        <div class="tip">
+            <h3>📚 次のステップ</h3>
+            <p>Filterノード(RBE)をマスターしたら、以下のノードも学んでみましょう:</p>
+            <ul>
+                <li><strong>Switchノード</strong>: 条件分岐によるルーティング</li>
+                <li><strong>Delayノード</strong>: レート制限とタイミング制御</li>
+                <li><strong>Triggerノード</strong>: タイムアウト検知</li>
+                <li><strong>Batchノード</strong>: メッセージのグループ化</li>
+            </ul>
+        </div>
+        
+        <h2>🔧 5. トラブルシューティング</h2>
+        
+        <h3>よくある問題と解決方法</h3>
+        
+        <table>
+            <tr>
+                <th>問題</th>
+                <th>原因</th>
+                <th>解決方法</th>
+            </tr>
+            <tr>
+                <td>すべてのメッセージがブロックされる</td>
+                <td>デッドバンドの閾値が小さすぎる</td>
+                <td>閾値を大きくするか、rbeモードを使用</td>
+            </tr>
+            <tr>
+                <td>初回のメッセージが出力されない</td>
+                <td>rbeiモードになっている</td>
+                <td>rbeモードに変更</td>
+            </tr>
+            <tr>
+                <td>配列が1つのメッセージとして扱われる</td>
+                <td>Splitノードがない</td>
+                <td>RBEの前にSplitノードを挿入</td>
+            </tr>
+            <tr>
+                <td>異なるtopicのデータが混在する</td>
+                <td>topic別管理が無効</td>
+                <td>"Apply mode separately" を有効化</td>
+            </tr>
+            <tr>
+                <td>Narrowbandで期待値以外も通過</td>
+                <td>閾値が大きすぎる</td>
+                <td>閾値を小さくして範囲を狭める</td>
+            </tr>
+        </table>
+        
+        <h2>💡 6. 実務での活用例</h2>
+        
+        <h3>ケース1: IoTセンサーデータの最適化</h3>
+        <div class="code-block">
+温度センサー(1秒ごと)
+↓
+RBE(rbe) - 変化のみ通過
+↓
+クラウドに送信(通信量90%削減)
+        </div>
+        
+        <h3>ケース2: 異常検知システム</h3>
+        <div class="code-block">
+圧力センサー
+↓
+RBE(deadband 10%) - ノイズ除去
+↓
+Switch(閾値判定)
+↓
+アラート送信
+        </div>
+        
+        <h3>ケース3: 機器状態監視</h3>
+        <div class="code-block">
+状態センサー(0:停止、1:稼働、2:エラー)
+↓
+RBE(narrowband=2) - エラー状態のみ
+↓
+Slack通知
+        </div>
+        
+        <h3>ケース4: バッテリー駆動デバイス</h3>
+        <div class="code-block">
+環境センサー
+↓
+RBE(deadband 5%) - 大きな変化のみ
+↓
+LoRaWAN送信(バッテリー寿命延長)
+        </div>
+        
+        <h2>🔗 7. 追加リソース</h2>
+        
+        <ul>
+            <li><a href="https://nodered.org/docs/user-guide/nodes#rbe" target="_blank">Node-RED公式ドキュメント: RBEノード</a></li>
+            <li><a href="https://flowfuse.com/node-red/core-nodes/filter/" target="_blank">FlowFuse: Filterノードガイド</a></li>
+            <li><a href="https://cookbook.nodered.org/" target="_blank">Node-RED Cookbook</a></li>
+        </ul>
+        
+        <hr>
+        
+        <p style="text-align: center; color: #999; margin-top: 40px;">
+            <small>このガイドが役に立ちましたら、実際のプロジェクトで練習してみてください!<br>
+            Filterノード(RBE)はIoTシステムの効率化に欠かせないツールです。</small>
+        </p>
+    </div>
+    
+    <script>
+        // ページ読み込み時にコピーボタンを追加
+        document.addEventListener('DOMContentLoaded', function() {
+            // .flow-jsonクラスのみにコピーボタンを追加(演習問題のJSONフローのみ)
+            const codeBlocks = document.querySelectorAll('.flow-json');
+            
+            codeBlocks.forEach(function(block) {
+                // コピーボタンを作成
+                const button = document.createElement('button');
+                button.className = 'copy-button';
+                button.textContent = 'コピー';
+                
+                // クリックイベントを追加
+                button.addEventListener('click', function() {
+                    // コードブロックのテキストを取得
+                    const code = block.textContent.replace('コピー', '').trim();
+                    
+                    // クリップボードにコピー
+                    navigator.clipboard.writeText(code).then(function() {
+                        // 成功時の視覚的フィードバック
+                        button.textContent = 'コピーしました!';
+                        button.classList.add('copied');
+                        
+                        // 2秒後に元に戻す
+                        setTimeout(function() {
+                            button.textContent = 'コピー';
+                            button.classList.remove('copied');
+                        }, 2000);
+                    }).catch(function(err) {
+                        console.error('コピーに失敗しました:', err);
+                        button.textContent = 'エラー';
+                        setTimeout(function() {
+                            button.textContent = 'コピー';
+                        }, 2000);
+                    });
+                });
+                
+                // ボタンをコードブロックに追加
+                block.style.position = 'relative';
+                block.appendChild(button);
+            });
+        });
+    </script>
+</body>
+</html>
