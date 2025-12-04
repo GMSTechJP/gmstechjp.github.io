@@ -5,71 +5,180 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Node-RED 変数タイプガイド</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans JP', sans-serif;
-           <div class="section">
-            <h2>1. データ型（値のタイプ）</h2>
-            <p>Node-REDで扱えるデータ型について、具体例とともに説明します。これらのデータ型は、すべての変数（通常の変数、context変数）で共通に使用できます。</p>      line-height: 1.8;
-            color: #333;
-            background: #f5f5f5;
-        }
-        
-        .container {
-            max-width: 1        <div class="section">
-            <h2>5. ノードでの使用方法</h2>
-            
-            <h3>Injectノード（データ送信）</h3>x;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            max-width: 1000px;
             margin: 0 auto;
             padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
         }
         
-        header {
-            background: #2c3e50;
-            color: white;
-            padding: 40px 20px;
-            text-align: center;
-            margin-bottom: 40px;
-            border-radius: 8px;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.08);
-        }
-        
-        header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-        }
-        
-        header p {
-            font-size: 1.1em;
-            opacity: 0.9;
-        }
-        
-        .section {
-            background: white;
-            padding: 30px;
-            margin-bottom: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        h1 {
+            color: #8f0000;
+            border-bottom: 3px solid #8f0000;
+            padding-bottom: 10px;
         }
         
         h2 {
-            color: #2c3e50;
-            font-size: 2em;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 3px solid #34495e;
+            color: #c00000;
+            margin-top: 30px;
+            border-left: 5px solid #c00000;
+            padding-left: 15px;
         }
         
         h3 {
-            color: #34495e;
-            font-size: 1.5em;
-            margin-top: 30px;
-            margin-bottom: 15px;
+            color: #555;
+            margin-top: 25px;
+        }
+        
+        h4 {
+            color: #666;
+            margin-top: 20px;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .code-block {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+        }
+        
+        .dark-code {
+            background-color: #263238;
+            color: #aed581;
+            border: none;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+        }
+        
+        .important {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .tip {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .warning {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #e2d96e;
+            color: #333;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        ul, ol {
+            padding-left: 25px;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .feature-card {
+            background-color: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .feature-card h4 {
+            color: #555;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        
+        .type-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .type-card {
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            background: #fafafa;
+        }
+        
+        .type-card h4 {
+            margin-top: 0;
+            color: #555;
+        }
+        
+        .type-icon {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            margin-right: 10px;
+            background: #e2d96e;
+            color: #333;
+        }
+        
+        .example-box {
+            background: #f0f0f0;
+            border-left: 4px solid #c00000;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
         }
         
         .scope-container {
@@ -83,17 +192,11 @@
             border: 2px solid #ddd;
             border-radius: 8px;
             padding: 20px;
-            transition: transform 0.3s, box-shadow 0.3s;
         }
         
-        .scope-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        
-        .scope-card.msg {
-            border-color: #4CAF50;
-            background: #f1f8f4;
+        .scope-card.context {
+            border-color: #9C27B0;
+            background: #faf5fc;
         }
         
         .scope-card.flow {
@@ -107,881 +210,777 @@
         }
         
         .scope-card h4 {
-            font-size: 1.3em;
+            font-size: 1.2em;
             margin-bottom: 10px;
             padding: 8px 12px;
             border-radius: 5px;
+            color: white;
         }
         
-        .scope-card.msg h4 {
-            background: #4CAF50;
-            color: white;
+        .scope-card.context h4 {
+            background: #9C27B0;
         }
         
         .scope-card.flow h4 {
             background: #2196F3;
-            color: white;
         }
         
         .scope-card.global h4 {
             background: #7f8c8d;
-            color: white;
         }
         
-        .type-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            margin: 20px 0;
-        }
-        
-        .type-card {
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
+        .node-example {
+            background-color: #2d3133;
             padding: 20px;
-            background: #fafafa;
-        }
-        
-        .type-icon {
-            display: inline-block;
-            padding: 5px 10px;
             border-radius: 5px;
-            font-weight: bold;
-            margin-right: 10px;
-        }
-        
-        .type-string { background: #ecf0f1; color: #2c3e50; }
-        .type-number { background: #ecf0f1; color: #34495e; }
-        .type-boolean { background: #ecf0f1; color: #2c3e50; }
-        .type-json { background: #ecf0f1; color: #34495e; }
-        .type-buffer { background: #ecf0f1; color: #2c3e50; }
-        .type-timestamp { background: #ecf0f1; color: #34495e; }
-        .type-jsonata { background: #ecf0f1; color: #2c3e50; }
-        .type-env { background: #ecf0f1; color: #34495e; }
-        
-        .code-block {
-            background: #263238;
-            color: #AED581;
-            padding: 15px;
-            border-radius: 5px;
-            margin: 15px 0;
-            overflow-x: auto;
-            font-family: 'Courier New', monospace;
-            font-size: 0.95em;
-        }
-        
-        .example-box {
-            background: #f9f9f9;
-            border-left: 4px solid #2c3e50;
-            padding: 15px;
-            margin: 15px 0;
-        }
-        
-        .flow-diagram {
-            background: white;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            padding: 30px;
             margin: 20px 0;
+            color: white;
+            font-family: 'Courier New', monospace;
             text-align: center;
         }
         
         .node {
             display: inline-block;
-            padding: 15px 25px;
-            margin: 10px;
-            border-radius: 5px;
+            padding: 8px 15px;
+            border-radius: 4px;
+            margin: 5px;
             font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .node-inject {
+            background-color: #3fadb5;
             color: white;
         }
         
-        .node-inject { background: #95a5a6; }
-        .node-change { background: #7f8c8d; }
-        .node-debug { background: #566573; }
+        .node-change {
+            background-color: #e7a070;
+            color: white;
+        }
+        
+        .node-debug {
+            background-color: #87a48d;
+            color: white;
+        }
+        
+        .node-function {
+            background-color: #e8a658;
+            color: white;
+        }
         
         .arrow {
-            display: inline-block;
+            color: #999;
+            font-size: 20px;
             margin: 0 10px;
-            font-size: 1.5em;
-            color: #666;
         }
         
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }
-        
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border: 1px solid #ddd;
-        }
-        
-        th {
-            background: #2c3e50;
-            color: white;
-            font-weight: bold;
-        }
-        
-        tr:nth-child(even) {
-            background: #f9f9f9;
-        }
-        
-        .tip {
+        .variable-group {
             background: #f8f9fa;
-            border-left: 4px solid #7f8c8d;
-            padding: 15px;
+            padding: 25px;
+            border-radius: 12px;
+            border: 2px solid #dee2e6;
+            margin: 15px 0;
+        }
+        
+        .variable-group.normal {
+            border-color: #17a2b8;
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        }
+        
+        .variable-group.context-type {
+            border-color: #9C27B0;
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+        }
+        
+        .analogy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
             margin: 20px 0;
         }
         
-        .tip::before {
-            content: "💡 ";
-            font-size: 1.2em;
+        .analogy-card {
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid;
         }
         
-        .warning {
-            background: #f8f9fa;
-            border-left: 4px solid #5d6d7e;
+        .analogy-card.drawer {
+            background: #E3F2FD;
+            border-color: #2196F3;
+        }
+        
+        .analogy-card.memo {
+            background: #F3E5F5;
+            border-color: #9C27B0;
+        }
+        
+        .analogy-card.excel {
+            background: #E8F5E9;
+            border-color: #4CAF50;
+        }
+        
+        .analogy-card h4 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .data-flow {
+            background-color: #f0f0f0;
+            border: 2px dashed #999;
+            border-radius: 8px;
             padding: 15px;
-            margin: 20px 0;
-        }
-        
-        .warning::before {
-            content: "⚠️ ";
-            font-size: 1.2em;
-        }
-        
-        footer {
+            margin: 15px 0;
             text-align: center;
-            padding: 30px;
-            color: #666;
-            margin-top: 40px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>📚 Node-RED 変数タイプガイド</h1>
-        </header>
-
-        <div class="section">
-            <h2>はじめに</h2>
-            <p>Node-REDでは、データを保存したり操作したりするために様々な<strong>変数のタイプ</strong>を使用します。このガイドでは、InjectノードやChangeノードで使用できる変数タイプについて、実例を交えながら説明します。</p>
-        </div>
-
-        <div class="section">
-            <h2>変数とは？</h2>
-            <p><strong>変数</strong>とは、<span style="background: #ecf0f1; padding: 2px 6px; border-radius: 3px;">データを入れておく「箱」</span>のようなものです。プログラムで使うデータ（数値、文字、情報など）を一時的に保存しておく場所と考えてください。</p>
-
-            <h3>🏠 日常生活での例え</h3>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin: 20px 0;">
-                <div style="background: #E3F2FD; padding: 20px; border-radius: 8px; border: 2px solid #2196F3;">
-                    <h4 style="color: #1565C0; margin-bottom: 10px;">📦 引き出し</h4>
-                    <p>引き出しにラベル（変数名）を貼って、中に物（データ）を入れる</p>
-                    <div class="code-block" style="margin-top: 10px;">
-温度 = 25度<br>
-湿度 = 60%<br>
-場所 = "リビング"
-                    </div>
-                </div>
-                
-                <div style="background: #F3E5F5; padding: 20px; border-radius: 8px; border: 2px solid #9C27B0;">
-                    <h4 style="color: #6A1B9A; margin-bottom: 10px;">🏷️ 付箋メモ</h4>
-                    <p>メモ帳に「温度: 25度」と書いて保存しておくイメージ</p>
-                    <div class="code-block" style="margin-top: 10px;">
-メモ1: カウント = 5回<br>
-メモ2: 名前 = "センサーA"<br>
-メモ3: 状態 = オン
-                    </div>
-                </div>
-                
-                <div style="background: #E8F5E9; padding: 20px; border-radius: 8px; border: 2px solid #4CAF50;">
-                    <h4 style="color: #2E7D32; margin-bottom: 10px;">📊 Excel のセル</h4>
-                    <p>セルにデータを入れて、他のセルから参照する（参照される側が変数）</p>
-                    <div style="margin-top: 15px; background: white; padding: 15px; border-radius: 6px; border: 1px solid #ddd;">
-                        <!-- Excel風の表 -->
-                        <div style="display: grid; grid-template-columns: 30px repeat(2, 80px); gap: 1px; font-family: monospace; font-size: 0.85em;">
-                            <!-- ヘッダー行 -->
-                            <div style="background: #f0f0f0; padding: 4px; text-align: center; font-weight: bold;"></div>
-                            <div style="background: #f0f0f0; padding: 4px; text-align: center; font-weight: bold; border: 1px solid #ccc;">A</div>
-                            <div style="background: #f0f0f0; padding: 4px; text-align: center; font-weight: bold; border: 1px solid #ccc;">B</div>
-                            
-                            <!-- 1行目 -->
-                            <div style="background: #f0f0f0; padding: 4px; text-align: center; font-weight: bold; border: 1px solid #ccc;">1</div>
-                            <div style="background: #fff3cd; padding: 4px; text-align: center; border: 2px solid #ffc107; font-weight: bold;">25</div>
-                            <div style="background: #e8f5e9; padding: 4px; text-align: center; border: 2px solid #4CAF50; font-weight: bold;">50</div>
-                            
-                            <!-- 2行目 -->
-                            <div style="background: #f0f0f0; padding: 4px; text-align: center; font-weight: bold; border: 1px solid #ccc;">2</div>
-                            <div style="background: #fff3cd; padding: 4px; text-align: center; border: 2px solid #ffc107; font-weight: bold;">30</div>
-                            <div style="background: #e8f5e9; padding: 4px; text-align: center; border: 2px solid #4CAF50; font-weight: bold;">55</div>
-                        </div>
-                        <div style="margin-top: 8px; font-size: 0.75em; color: #666; background: #f8f9fa; padding: 8px; border-radius: 4px;">
-                            💡 <strong>実際のExcel：</strong><br>
-                            • B1セルには「=A1*2」と入力するが、表示は「50」<br>
-                            • B2セルには「=A2+A1」と入力するが、表示は「55」
-                        </div>
-                        <div style="margin-top: 10px; font-size: 0.8em; color: #666;">
-                            <strong>A1, A2セル</strong> = 変数（データを保存）<br>
-                            <strong>B1, B2セル</strong> = 関数の結果（計算結果を表示）
-                        </div>
-                    </div>
-                </div>
+        <h1>📚 Node-RED 変数タイプガイド</h1>
+        
+        <p>Node-REDでは、データを保存したり操作したりするために様々な<strong>変数のタイプ</strong>を使用します。このガイドでは、InjectノードやChangeノードで使用できる変数タイプについて、実例を交えながら説明します。</p>
+        
+        <h2>📖 変数とは？</h2>
+        
+        <p><strong>変数</strong>とは、<span style="background: #fff3cd; padding: 2px 6px; border-radius: 3px;">データを入れておく「箱」</span>のようなものです。プログラムで使うデータ（数値、文字、情報など）を一時的に保存しておく場所と考えてください。</p>
+        
+        <h3>🏠 日常生活での例え</h3>
+        
+        <div class="analogy-grid">
+            <div class="analogy-card drawer">
+                <h4>📦 引き出し</h4>
+                <p>引き出しにラベル（変数名）を貼って、中に物（データ）を入れる</p>
+                <div class="dark-code">温度 = 25度
+湿度 = 60%
+場所 = "リビング"</div>
             </div>
-
-            <h3>💻 Node-REDでの変数</h3>
-            <p>Node-REDでは、変数を使ってこんなことができます：</p>
             
-            <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                <div style="display: grid; gap: 15px;">
-                    <div style="display: flex; align-items: start; gap: 15px;">
-                        <span style="font-size: 2em;">💾</span>
-                        <div>
-                            <strong>データの保存</strong><br>
-                            センサーから受け取った温度データを保存して、後で使う
-                        </div>
-                    </div>
-                    
-                    <div style="display: flex; align-items: start; gap: 15px;">
-                        <span style="font-size: 2em;">🔄</span>
-                        <div>
-                            <strong>データの受け渡し</strong><br>
-                            あるノードから次のノードへデータを渡す
-                        </div>
-                    </div>
-                    
-                    <div style="display: flex; align-items: start; gap: 15px;">
-                        <span style="font-size: 2em;">🔢</span>
-                        <div>
-                            <strong>計算や処理</strong><br>
-                            保存したデータを使って計算したり、比較したりする
-                        </div>
-                    </div>
-                    
-                    <div style="display: flex; align-items: start; gap: 15px;">
-                        <span style="font-size: 2em;">📊</span>
-                        <div>
-                            <strong>状態の記録</strong><br>
-                            「何回ボタンが押されたか」などの状態を覚えておく
-                        </div>
-                    </div>
-                </div>
+            <div class="analogy-card memo">
+                <h4>🏷️ 付箋メモ</h4>
+                <p>メモ帳に「温度: 25度」と書いて保存しておくイメージ</p>
+                <div class="dark-code">メモ1: カウント = 5回
+メモ2: 名前 = "センサーA"
+メモ3: 状態 = オン</div>
             </div>
-
-            <h3>🎨 変数の3つの要素</h3>
-            <div style="background: white; border: 2px solid #2c3e50; border-radius: 10px; padding: 30px; margin: 20px 0;">
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; text-align: center;">
-                    <div>
-                        <div style="background: #2c3e50; color: white; padding: 15px; border-radius: 8px; margin-bottom: 10px;">
-                            <strong style="font-size: 1.2em;">1️⃣ 名前</strong>
-                        </div>
-                        <p style="margin-top: 10px;">変数の識別子</p>
-                        <div class="code-block" style="margin-top: 10px; text-align: left;">
-temperature<br>
-counter<br>
-isActive
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <div style="background: #34495e; color: white; padding: 15px; border-radius: 8px; margin-bottom: 10px;">
-                            <strong style="font-size: 1.2em;">2️⃣ 型（タイプ）</strong>
-                        </div>
-                        <p style="margin-top: 10px;">データの種類</p>
-                        <div class="code-block" style="margin-top: 10px; text-align: left;">
-数値<br>
-文字列<br>
-真偽値
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <div style="background: #5d6d7e; color: white; padding: 15px; border-radius: 8px; margin-bottom: 10px;">
-                            <strong style="font-size: 1.2em;">3️⃣ 値</strong>
-                        </div>
-                        <p style="margin-top: 10px;">実際のデータ</p>
-                        <div class="code-block" style="margin-top: 10px; text-align: left;">
-25<br>
-"センサーA"<br>
-true
-                        </div>
-                    </div>
-                </div>
-                
-                <div style="margin-top: 30px; padding: 20px; background: #f0f7ff; border-radius: 8px;">
-                    <strong>具体例：</strong>
-                    <div class="code-block" style="margin-top: 10px;">
-<span style="color: #DC143C;">temperature</span> (<span style="color: #2196F3;">数値</span>) = <span style="color: #4CAF50;">25</span>
-                    </div>
-                    <p style="margin-top: 10px; text-align: center;">
-                        「temperature」という名前の、「数値」型の変数に、「25」という値が入っている
-                    </p>
-                </div>
-            </div>
-
-            <div class="tip">
-                <strong>初心者の方へ：</strong> 最初は難しく感じるかもしれませんが、「変数 = ラベル付きの箱」と覚えておけば大丈夫です。Node-REDを使いながら、少しずつ慣れていきましょう！
-            </div>
-        </div>
-
-        <div class="section">
-            <h2>1. データ型（値のタイプ）</h2>
-            <p>Node-REDで扱えるデータ型について、具体例とともに説明します。これらのデータ型は、すべての変数（通常の変数、context変数）で共通に使用できます。</p>
-
-            <div class="type-grid">
-                <div class="type-card">
-                    <h4><span class="type-icon type-string">a_z</span>文字列（String）</h4>
-                    <p>テキストデータを保存します</p>
-                    <div class="code-block">
-"こんにちは"<br>
-"温度: 25度"<br>
-"sensor001"
-                    </div>
-                    <div class="example-box">
-                        <strong>使用例：</strong><br>
-                        センサー名、メッセージ、住所など
-                    </div>
-                </div>
-
-                <div class="type-card">
-                    <h4><span class="type-icon type-number">0_9</span>数値（Number）</h4>
-                    <p>数字のデータを保存します</p>
-                    <div class="code-block">
-25<br>
-3.14<br>
--10<br>
-100.5
-                    </div>
-                    <div class="example-box">
-                        <strong>使用例：</strong><br>
-                        温度、湿度、カウント数、計算結果など
-                    </div>
-                </div>
-
-                <div class="type-card">
-                    <h4><span class="type-icon type-boolean">◉</span>真偽値（Boolean）</h4>
-                    <p>true（真）またはfalse（偽）の2つの値のみ</p>
-                    <div class="code-block">
-true（オン、正しい）<br>
-false（オフ、間違い）
-                    </div>
-                    <div class="example-box">
-                        <strong>使用例：</strong><br>
-                        スイッチのON/OFF、条件判定の結果など
-                    </div>
-                </div>
-
-                <div class="type-card">
-                    <h4><span class="type-icon type-json">{}</span>JSON</h4>
-                    <p>複数のデータをまとめて保存</p>
-                    <div class="code-block">
-{<br>
-  "温度": 25,<br>
-  "湿度": 60,<br>
-  "場所": "リビング"<br>
-}
-                    </div>
-                    <div class="example-box">
-                        <strong>使用例：</strong><br>
-                        センサーの複数データ、設定情報など
-                    </div>
-                </div>
-
-                <div class="type-card">
-                    <h4><span class="type-icon type-buffer">01/10</span>バッファ（Buffer）</h4>
-                    <p>バイナリデータ（画像、音声など）</p>
-                    <div class="code-block">
-&lt;Buffer 48 65 6c 6c 6f&gt;
-                    </div>
-                    <div class="example-box">
-                        <strong>使用例：</strong><br>
-                        画像データ、ファイルの中身など
-                    </div>
-                </div>
-
-                <div class="type-card">
-                    <h4><span class="type-icon type-timestamp">🕐</span>日時（Timestamp）</h4>
-                    <p>現在の日時を数値で保存</p>
-                    <div class="code-block">
-1696582800000<br>
-（ミリ秒単位のUnix時間）
-                    </div>
-                    <div class="example-box">
-                        <strong>使用例：</strong><br>
-                        データ取得時刻、イベント発生時刻など
-                    </div>
-                </div>
-
-                <div class="type-card">
-                    <h4><span class="type-icon type-jsonata">J></span>JSONata式</h4>
-                    <p>データを加工・計算する式</p>
-                    <div class="code-block">
-$number(payload) * 2<br>
-$substring(topic, 0, 5)
-                    </div>
-                    <div class="example-box">
-                        <strong>使用例：</strong><br>
-                        データの変換、計算、文字列操作など
-                    </div>
-                </div>
-
-                <div class="type-card">
-                    <h4><span class="type-icon type-env">$</span>環境変数</h4>
-                    <p>設定ファイルから値を読み込む</p>
-                    <div class="code-block">
-$env("API_KEY")<br>
-$env("SERVER_URL")
-                    </div>
-                    <div class="example-box">
-                        <strong>使用例：</strong><br>
-                        APIキー、サーバーアドレスなどの設定値
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="section">
-            <h2>2. Node-REDの変数の種類</h2>
-            <p>Node-REDでは、変数の使い方によって大きく<strong>2つのグループ</strong>に分かれます。</p>
-            <p style="margin-top: 10px;">変数を使うには、まず<strong>「宣言」</strong>という作業が必要です。宣言とは、<span style="background: #fff3cd; padding: 2px 6px; border-radius: 3px;">「これから○○という名前の変数を使います」とプログラムに伝えること</span>です。宣言の方法が、変数の種類によって異なります。</p>
             
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 25px; margin: 30px 0;">
-                <div style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); padding: 25px; border-radius: 12px; border: 3px solid #2196F3;">
-                    <h3 style="color: #1565C0; margin-bottom: 15px; font-size: 1.4em;">1️⃣ 通常の変数</h3>
-                    <p style="margin-bottom: 15px; line-height: 1.8;"><strong>Functionノード内でのみ使用される一時的な変数</strong></p>
-                    
-                    <div class="code-block" style="margin: 15px 0;">
-// const, let, var で宣言<br>
-const temperature = 25;<br>
-let counter = 0;<br>
-var message = "Hello";
+            <div class="analogy-card excel">
+                <h4>📊 Excel のセル</h4>
+                <p>セルにデータを入れて、他のセルから参照する（参照される側が変数）</p>
+                <div style="margin-top: 15px; background: white; padding: 15px; border-radius: 6px; border: 1px solid #ddd;">
+                    <div style="display: grid; grid-template-columns: 30px repeat(2, 80px); gap: 1px; font-family: monospace; font-size: 0.85em;">
+                        <div style="background: #f0f0f0; padding: 4px; text-align: center; font-weight: bold;"></div>
+                        <div style="background: #f0f0f0; padding: 4px; text-align: center; font-weight: bold; border: 1px solid #ccc;">A</div>
+                        <div style="background: #f0f0f0; padding: 4px; text-align: center; font-weight: bold; border: 1px solid #ccc;">B</div>
+                        <div style="background: #f0f0f0; padding: 4px; text-align: center; font-weight: bold; border: 1px solid #ccc;">1</div>
+                        <div style="background: #fff3cd; padding: 4px; text-align: center; border: 2px solid #ffc107; font-weight: bold;">25</div>
+                        <div style="background: #e8f5e9; padding: 4px; text-align: center; border: 2px solid #4CAF50; font-weight: bold;">50</div>
+                        <div style="background: #f0f0f0; padding: 4px; text-align: center; font-weight: bold; border: 1px solid #ccc;">2</div>
+                        <div style="background: #fff3cd; padding: 4px; text-align: center; border: 2px solid #ffc107; font-weight: bold;">30</div>
+                        <div style="background: #e8f5e9; padding: 4px; text-align: center; border: 2px solid #4CAF50; font-weight: bold;">55</div>
                     </div>
-                    
-                    <div style="background: white; padding: 15px; border-radius: 8px; margin-top: 15px;">
-                        <h4 style="color: #333; margin-bottom: 10px;">特徴：</h4>
-                        <ul style="margin-left: 20px; line-height: 1.8;">
-                            <li><strong>宣言方法：</strong>const, let, var キーワードを使う</li>
-                            <li>Functionノードの処理中のみ存在</li>
-                            <li>処理が終わると消える</li>
-                            <li>他のノードからはアクセス不可</li>
-                            <li>JavaScriptの通常の変数と同じ</li>
-                        </ul>
+                    <div style="margin-top: 8px; font-size: 0.75em; color: #666; background: #f8f9fa; padding: 8px; border-radius: 4px;">
+                        💡 <strong>実際のExcel：</strong><br>
+                        • B1セルには「=A1*2」と入力するが、表示は「50」<br>
+                        • B2セルには「=A2+A1」と入力するが、表示は「55」
                     </div>
-                </div>
-                
-                <div style="background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%); padding: 25px; border-radius: 12px; border: 3px solid #9C27B0;">
-                    <h3 style="color: #6A1B9A; margin-bottom: 15px; font-size: 1.4em;">2️⃣ context変数</h3>
-                    <p style="margin-bottom: 15px; line-height: 1.8;"><strong>ノードの処理が終わっても保持され、他のフローからも参照可能な変数</strong></p>
-                    
-                    <div class="code-block" style="margin: 15px 0;">
-// context APIで保存・取得<br>
-context.set('lastValue', 25);<br>
-flow.set('counter', 0);<br>
-global.set('apiKey', 'xxx');
-                    </div>
-                    
-                    <div style="background: white; padding: 15px; border-radius: 8px; margin-top: 15px;">
-                        <h4 style="color: #333; margin-bottom: 10px;">特徴：</h4>
-                        <ul style="margin-left: 20px; line-height: 1.8;">
-                            <li><strong>宣言方法：</strong>set() メソッドで値を保存（宣言不要）</li>
-                            <li>処理が終わっても値が保持される</li>
-                            <li>周期的なフロー実行時に参照可能</li>
-                            <li>スコープによって共有範囲が異なる</li>
-                            <li>Node-RED特有の仕組み</li>
-                        </ul>
+                    <div style="margin-top: 10px; font-size: 0.8em; color: #666;">
+                        <strong>A1, A2セル</strong> = 変数（データを保存）<br>
+                        <strong>B1, B2セル</strong> = 関数の結果（計算結果を表示）
                     </div>
                 </div>
-            </div>
-
-            <div class="tip">
-                <strong>💡 重要なポイント：</strong> 通常の変数は「その場限り」の一時的な計算用。context変数は「記憶しておく」ための永続的なデータ保存用です。
             </div>
         </div>
+        
+        <h3>💻 Node-REDでの変数</h3>
+        <p>Node-REDでは、変数を使ってこんなことができます：</p>
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h4>💾 データの保存</h4>
+                <p>センサーから受け取った温度データを保存して、後で使う</p>
+            </div>
+            <div class="feature-card">
+                <h4>🔄 データの受け渡し</h4>
+                <p>あるノードから次のノードへデータを渡す</p>
+            </div>
+            <div class="feature-card">
+                <h4>🔢 計算や処理</h4>
+                <p>保存したデータを使って計算したり、比較したりする</p>
+            </div>
+            <div class="feature-card">
+                <h4>📊 状態の記録</h4>
+                <p>「何回ボタンが押されたか」などの状態を覚えておく</p>
+            </div>
+        </div>
+        
+        <h3>🎨 変数の3つの要素</h3>
+        
+        <table>
+            <tr>
+                <th>要素</th>
+                <th>説明</th>
+                <th>例</th>
+            </tr>
+            <tr>
+                <td><strong>1️⃣ 名前</strong></td>
+                <td>変数の識別子</td>
+                <td>temperature, counter, isActive</td>
+            </tr>
+            <tr>
+                <td><strong>2️⃣ 型（タイプ）</strong></td>
+                <td>データの種類</td>
+                <td>数値、文字列、真偽値</td>
+            </tr>
+            <tr>
+                <td><strong>3️⃣ 値</strong></td>
+                <td>実際のデータ</td>
+                <td>25, "センサーA", true</td>
+            </tr>
+        </table>
+        
+        <div class="example-box">
+            <strong>具体例：</strong>
+            <div class="dark-code">temperature (数値) = 25</div>
+            <p>「temperature」という名前の、「数値」型の変数に、「25」という値が入っている</p>
+        </div>
+        
+        <div class="tip">
+            <strong>💡 初心者の方へ：</strong> 最初は難しく感じるかもしれませんが、「変数 = ラベル付きの箱」と覚えておけば大丈夫です。Node-REDを使いながら、少しずつ慣れていきましょう！
+        </div>
+        
+        <h2>📋 1. データ型（値のタイプ）</h2>
+        <p>Node-REDで扱えるデータ型について、具体例とともに説明します。これらのデータ型は、すべての変数（通常の変数、context変数）で共通に使用できます。</p>
+        
+        <div class="type-grid">
+            <div class="type-card">
+                <h4><span class="type-icon">a_z</span>文字列（String）</h4>
+                <p>テキストデータを保存します</p>
+                <div class="dark-code">"こんにちは"
+"温度: 25度"
+"sensor001"</div>
+                <div class="example-box">
+                    <strong>使用例：</strong><br>
+                    センサー名、メッセージ、住所など
+                </div>
+            </div>
+            
+            <div class="type-card">
+                <h4><span class="type-icon">0_9</span>数値（Number）</h4>
+                <p>数字のデータを保存します</p>
+                <div class="dark-code">25
+3.14
+-10
+100.5</div>
+                <div class="example-box">
+                    <strong>使用例：</strong><br>
+                    温度、湿度、カウント数、計算結果など
+                </div>
+            </div>
+            
+            <div class="type-card">
+                <h4><span class="type-icon">◉</span>真偽値（Boolean）</h4>
+                <p>true（真）またはfalse（偽）の2つの値のみ</p>
+                <div class="dark-code">true（オン、正しい）
+false（オフ、間違い）</div>
+                <div class="example-box">
+                    <strong>使用例：</strong><br>
+                    スイッチのON/OFF、条件判定の結果など
+                </div>
+            </div>
+            
+            <div class="type-card">
+                <h4><span class="type-icon">[]</span>配列（Array）</h4>
+                <p>複数のデータを順番に並べて保存</p>
+                <div class="dark-code">[1, 2, 3, 4, 5]
+["apple", "banana", "orange"]
+[{"name": "A"}, {"name": "B"}]</div>
+                <div class="example-box">
+                    <strong>使用例：</strong><br>
+                    センサー値のリスト、複数デバイスのデータ、履歴データなど
+                </div>
+            </div>
+            
+            <div class="type-card">
+                <h4><span class="type-icon">{}</span>JSON（オブジェクト）</h4>
+                <p>複数のデータをキーと値のペアで保存</p>
+                <div class="dark-code">{
+  "温度": 25,
+  "湿度": 60,
+  "場所": "リビング"
+}</div>
+                <div class="example-box">
+                    <strong>使用例：</strong><br>
+                    センサーの複数データ、設定情報など
+                </div>
+            </div>
+            
+            <div class="type-card">
+                <h4><span class="type-icon">01</span>バッファ（Buffer）</h4>
+                <p>バイナリデータ（画像、音声など）</p>
+                <div class="dark-code">&lt;Buffer 48 65 6c 6c 6f&gt;</div>
+                <div class="example-box">
+                    <strong>使用例：</strong><br>
+                    画像データ、ファイルの中身など
+                </div>
+            </div>
+            
+            <div class="type-card">
+                <h4><span class="type-icon">🕐</span>日時（Timestamp）</h4>
+                <p>現在の日時を数値で保存</p>
+                <div class="dark-code">1696582800000
+（ミリ秒単位のUnix時間）</div>
+                <div class="example-box">
+                    <strong>使用例：</strong><br>
+                    データ取得時刻、イベント発生時刻など
+                </div>
+            </div>
+            
+            <div class="type-card">
+                <h4><span class="type-icon">J:</span>JSONata式</h4>
+                <p>データを加工・計算する式</p>
+                <div class="dark-code">$number(payload) * 2
+$substring(topic, 0, 5)</div>
+                <div class="example-box">
+                    <strong>使用例：</strong><br>
+                    データの変換、計算、文字列操作など
+                </div>
+            </div>
+            
+            <div class="type-card">
+                <h4><span class="type-icon">$</span>環境変数</h4>
+                <p>設定ファイルから値を読み込む</p>
+                <div class="dark-code">$env("API_KEY")
+$env("SERVER_URL")</div>
+                <div class="example-box">
+                    <strong>使用例：</strong><br>
+                    APIキー、サーバーアドレスなどの設定値
+                </div>
+            </div>
+        </div>
+        
+        <div class="important">
+            <strong>📌 配列とJSONの違い：</strong>
+            <ul>
+                <li><strong>配列</strong>：順序のあるデータの集まり。インデックス番号（0, 1, 2...）でアクセス</li>
+                <li><strong>JSON</strong>：名前（キー）と値のペアの集まり。キー名でアクセス</li>
+            </ul>
+            <div class="dark-code">// 配列：インデックスでアクセス
+fruits[0] → "apple"
+fruits[1] → "banana"
 
-        <div class="section">
-            <h2>3. 通常の変数のスコープ</h2>
-            <p>通常の変数（const, let, var）は、<strong>宣言する場所</strong>によってスコープ（有効範囲）が変わります。</p>
-
-            <div style="background: #e7f3ff; border-left: 4px solid #2196F3; padding: 20px; margin: 20px 0; border-radius: 5px;">
-                <h3 style="color: #1565C0; margin-bottom: 15px;">📖 スコープとは？</h3>
-                <p style="margin-bottom: 15px; line-height: 1.8;">
-                    <strong>スコープ</strong>とは、変数を<strong>参照できる範囲（使える範囲）</strong>のことです。<br>
-                    例えるなら、<span style="background: #fff3cd; padding: 2px 6px; border-radius: 3px;">「その変数がどこまで見えるか」「どこまでアクセスできるか」</span>を決める範囲のルールです。
-                </p>
+// JSON：キー名でアクセス
+sensor.温度 → 25
+sensor.湿度 → 60</div>
+        </div>
+        
+        <h2>🔄 2. Node-REDの変数の種類</h2>
+        <p>Node-REDでは、変数の使い方によって大きく<strong>2つのグループ</strong>に分かれます。</p>
+        <p style="margin-top: 10px;">変数を使うには、まず<strong>「宣言」</strong>という作業が必要です。宣言とは、<span style="background: #fff3cd; padding: 2px 6px; border-radius: 3px;">「これから○○という名前の変数を使います」とプログラムに伝えること</span>です。宣言の方法が、変数の種類によって異なります。</p>
+        
+        <div class="feature-grid">
+            <div class="variable-group normal">
+                <h3 style="color: #1565C0; margin-top: 0;">1️⃣ 通常の変数</h3>
+                <p><strong>Functionノード内でのみ使用される一時的な変数</strong></p>
+                
+                <div class="dark-code">// const, let, var で宣言
+const temperature = 25;
+let counter = 0;
+var message = "Hello";</div>
                 
                 <div style="background: white; padding: 15px; border-radius: 8px; margin-top: 15px;">
-                    <h4 style="color: #333; margin-bottom: 10px;">🏠 日常での例え</h4>
-                    <p style="line-height: 1.8;">
-                        部屋Aで書いたメモは、部屋Aの中でしか読めません。<br>
-                        部屋Bに行ったら、部屋Aのメモは見えない（参照できない）のと同じです。<br>
-                        <br>
-                        <strong>変数のスコープ</strong>も同じように、<strong>宣言した場所</strong>によって「どこまで参照できるか」が決まります。
-                    </p>
+                    <h4 style="margin-top: 0; color: #333;">特徴：</h4>
+                    <ul>
+                        <li><strong>宣言方法：</strong>const, let, var キーワードを使う</li>
+                        <li>Functionノードの処理中のみ存在</li>
+                        <li>処理が終わると消える</li>
+                        <li>他のノードからはアクセス不可</li>
+                        <li>JavaScriptの通常の変数と同じ</li>
+                    </ul>
                 </div>
             </div>
-
-            <div style="background: #f9f9f9; padding: 25px; border-radius: 10px; margin: 20px 0;">
-                <h3 style="color: #333; margin-bottom: 15px;">宣言場所によるスコープの違い</h3>
+            
+            <div class="variable-group context-type">
+                <h3 style="color: #6A1B9A; margin-top: 0;">2️⃣ context変数</h3>
+                <p><strong>ノードの処理が終わっても保持され、他のフローからも参照可能な変数</strong></p>
                 
-                <div class="code-block" style="margin: 15px 0;">
-// ❶ 関数の先頭で宣言 → 関数全体で使用可能<br>
-function processData() {<br>
-&nbsp;&nbsp;&nbsp;&nbsp;const globalTemp = 25; // 関数内のどこでも使える<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;if (globalTemp > 20) {<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;node.warn(globalTemp); // ✅ 使える<br>
-&nbsp;&nbsp;&nbsp;&nbsp;}<br>
-&nbsp;&nbsp;&nbsp;&nbsp;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;for (let i = 0; i < 3; i++) {<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;node.warn(globalTemp); // ✅ 使える<br>
-&nbsp;&nbsp;&nbsp;&nbsp;}<br>
-}<br>
-<br>
-// ❷ if文の中で宣言 → if文の中のみで使用可能<br>
-if (temperature > 20) {<br>
-&nbsp;&nbsp;&nbsp;&nbsp;const message = "暑い"; // if文内でのみ使える<br>
-&nbsp;&nbsp;&nbsp;&nbsp;node.warn(message); // ✅ 使える<br>
-}<br>
-node.warn(message); // ❌ エラー！スコープ外<br>
-<br>
-// ❸ forループ内で宣言 → ループ内のみで使用可能<br>
-for (let i = 0; i < 3; i++) {<br>
-&nbsp;&nbsp;&nbsp;&nbsp;const loopValue = i * 10; // ループ内でのみ使える<br>
-&nbsp;&nbsp;&nbsp;&nbsp;node.warn(loopValue); // ✅ 使える<br>
-}<br>
-node.warn(loopValue); // ❌ エラー！スコープ外
-                </div>
-
-                <div style="background: white; padding: 20px; border-radius: 8px; margin-top: 20px;">
-                    <h4 style="color: #333; margin-bottom: 10px;">📌 覚えておくポイント</h4>
-                    <ul style="margin-left: 20px; line-height: 1.8;">
-                        <li><strong>const / let</strong>: ブロック（{ }）内でのみ有効（ブロックスコープ）</li>
-                        <li><strong>var</strong>: 関数全体で有効（関数スコープ）※非推奨</li>
-                        <li>できるだけ<strong>使う場所の近く</strong>で宣言するのが良い習慣</li>
+                <div class="dark-code">// context APIで保存・取得
+context.set('lastValue', 25);
+flow.set('counter', 0);
+global.set('apiKey', 'xxx');</div>
+                
+                <div style="background: white; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                    <h4 style="margin-top: 0; color: #333;">特徴：</h4>
+                    <ul>
+                        <li><strong>宣言方法：</strong>set() メソッドで値を保存（宣言不要）</li>
+                        <li>処理が終わっても値が保持される</li>
+                        <li>周期的なフロー実行時に参照可能</li>
+                        <li>スコープによって共有範囲が異なる</li>
+                        <li>Node-RED特有の仕組み</li>
                     </ul>
                 </div>
             </div>
         </div>
-
-        <div class="section">
-            <h2>4. context変数のスコープ</h2>
-            <p>context変数は、<strong>宣言の仕方</strong>によってスコープ（共有範囲）が変わります。</p>
+        
+        <div class="tip">
+            <strong>💡 重要なポイント：</strong> 通常の変数は「その場限り」の一時的な計算用。context変数は「記憶しておく」ための永続的なデータ保存用です。
+        </div>
+        
+        <h2>🔍 3. 通常の変数のスコープ</h2>
+        <p>通常の変数（const, let, var）は、<strong>宣言する場所</strong>によってスコープ（有効範囲）が変わります。</p>
+        
+        <div class="tip">
+            <h4 style="margin-top: 0;">📖 スコープとは？</h4>
+            <p><strong>スコープ</strong>とは、変数を<strong>参照できる範囲（使える範囲）</strong>のことです。<br>
+            例えるなら、<span style="background: #fff3cd; padding: 2px 6px; border-radius: 3px;">「その変数がどこまで見えるか」「どこまでアクセスできるか」</span>を決める範囲のルールです。</p>
             
-            <div class="scope-container">
-                <div class="scope-card" style="border-color: #9C27B0; background: #F3E5F5;">
-                    <h4 style="background: #9C27B0; color: white; font-size: 1.3em; margin-bottom: 10px; padding: 8px 12px; border-radius: 5px;">context（ノード）</h4>
-                    <p><strong>範囲：</strong>定義されたノード内のみ</p>
-                    <p><strong>有効期限：</strong>Node-REDを再起動するまで</p>
-                    <p><strong>宣言方法：</strong>context.set() / context.get()</p>
-                    <div class="code-block" style="margin: 10px 0;">
-context.set('lastValue', 25);<br>
-let val = context.get('lastValue');
-                    </div>
-                    <div class="example-box">
-                        <strong>📝 例：</strong><br>
-                        特定のFunctionノード内でのみ使用する前回値や状態を保存
-                    </div>
-                </div>
-                
-                <div class="scope-card flow">
-                    <h4>flow（フロー）</h4>
-                    <p><strong>範囲：</strong>同じフロー（タブ）内のすべてのノード</p>
-                    <p><strong>有効期限：</strong>Node-REDを再起動するまで</p>
-                    <p><strong>宣言方法：</strong>flow.set() / flow.get()</p>
-                    <div class="code-block" style="margin: 10px 0;">
-flow.set('counter', 0);<br>
-let count = flow.get('counter');
-                    </div>
-                    <div class="example-box">
-                        <strong>📝 例：</strong><br>
-                        同じフロー内の複数ノードで共有するカウンター値や設定値
-                    </div>
-                </div>
-                
-                <div class="scope-card global">
-                    <h4>global（グローバル）</h4>
-                    <p><strong>範囲：</strong>すべてのフロー（全タブ）</p>
-                    <p><strong>有効期限：</strong>Node-REDを再起動するまで</p>
-                    <p><strong>宣言方法：</strong>global.set() / global.get()</p>
-                    <div class="code-block" style="margin: 10px 0;">
-global.set('apiKey', 'xxx');<br>
-let key = global.get('apiKey');
-                    </div>
-                    <div class="example-box">
-                        <strong>📝 例：</strong><br>
-                        全フローで共有するAPIキーやユーザー設定
-                    </div>
-                </div>
-            </div>
-
-            <div style="margin: 30px 0; text-align: center;">
-                <img src="img/contextfunc.png" 
-                     alt="Context変数のスコープ図解" 
-                     style="max-width: 100%; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-            </div>
-
-            <div class="tip" style="margin-top: 25px;">
-                <strong>💡 使い分けのポイント：</strong><br>
-                • <strong>context</strong>: そのノードだけで覚えておきたいデータ<br>
-                • <strong>flow</strong>: 同じタブ内の複数ノードで共有したいデータ<br>
-                • <strong>global</strong>: すべてのタブで共有したいデータ（使いすぎ注意）
+            <div style="background: white; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                <h4 style="margin-top: 0; color: #333;">🏠 日常での例え</h4>
+                <p>部屋Aで書いたメモは、部屋Aの中でしか読めません。<br>
+                部屋Bに行ったら、部屋Aのメモは見えない（参照できない）のと同じです。<br><br>
+                <strong>変数のスコープ</strong>も同じように、<strong>宣言した場所</strong>によって「どこまで参照できるか」が決まります。</p>
             </div>
         </div>
-
-        <div class="section">
-            <h2>5. ノードでの使用方法</h2>
-            
-            <h3>Injectノード（データ送信）</h3>
-            <p>Injectノードでは、送信するデータの型を指定できます。</p>
-            
-            <div class="flow-diagram">
-                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='200'%3E%3Crect x='50' y='50' width='150' height='100' rx='10' fill='%237EC9F2' stroke='%23333' stroke-width='2'/%3E%3Ctext x='125' y='105' text-anchor='middle' fill='white' font-size='18' font-weight='bold'%3EInject%3C/text%3E%3Ctext x='250' y='100' font-size='24'%3E→%3C/text%3E%3Crect x='300' y='70' width='250' height='60' rx='5' fill='white' stroke='%23666' stroke-width='1'/%3E%3Ctext x='320' y='95' font-size='14'%3Emsg.payload%3C/text%3E%3Ctext x='320' y='115' font-size='12' fill='%234CAF50'%3E型: 数値 値: 25%3C/text%3E%3C/svg%3E" alt="Inject node example" style="max-width: 100%;">
-            </div>
-
-            <table>
-                <tr>
-                    <th>設定項目</th>
-                    <th>型の選択</th>
-                    <th>説明</th>
-                </tr>
-                <tr>
-                    <td>msg.payload</td>
-                    <td>文字列、数値、JSON、日時など</td>
-                    <td>送信するメインデータ</td>
-                </tr>
-                <tr>
-                    <td>msg.topic</td>
-                    <td>文字列（通常）</td>
-                    <td>データの種類やカテゴリ</td>
-                </tr>
-            </table>
-
-            <div class="tip">
-                <strong>ヒント：</strong> Injectノードの型セレクタ（▼ボタン）をクリックすると、すべてのデータ型が表示されます。画像のように、flow.やglobal.も選択できます！
-            </div>
-
-            <h3>Changeノード（データ変更）</h3>
-            <p>Changeノードでは、データを変換したり、新しい値を設定したりできます。</p>
-
-            <table>
-                <tr>
-                    <th>操作</th>
-                    <th>使用する型</th>
-                    <th>例</th>
-                </tr>
-                <tr>
-                    <td>値の設定</td>
-                    <td>すべての型</td>
-                    <td>msg.payload を 数値 25 に設定</td>
-                </tr>
-                <tr>
-                    <td>値の変更</td>
-                    <td>文字列、JSONata</td>
-                    <td>msg.topic を 文字列 "sensor/temp" に変更</td>
-                </tr>
-                <tr>
-                    <td>移動</td>
-                    <td>msg、flow、global</td>
-                    <td>msg.payload を flow.lastValue に移動</td>
-                </tr>
-                <tr>
-                    <td>削除</td>
-                    <td>-</td>
-                    <td>msg.tempData を削除</td>
-                </tr>
-            </table>
-        </div>
-
-        <div class="section">
-            <h2>6. 実践例</h2>
-            
-            <h3>例1: 温度センサーのデータ処理</h3>
-            <div class="flow-diagram">
-                <div class="node node-inject">Inject</div>
-                <span class="arrow">→</span>
-                <div class="node node-change">Change</div>
-                <span class="arrow">→</span>
-                <div class="node node-debug">Debug</div>
-            </div>
-
-            <p><strong>Injectノードの設定：</strong></p>
-            <div class="code-block">
-msg.payload: 数値 → 25.5<br>
-msg.topic: 文字列 → "temperature"
-            </div>
-
-            <p><strong>Changeノードの設定：</strong></p>
-            <div class="code-block">
-① msg.payload を flow.currentTemp に保存（コピー）<br>
-② msg.timestamp を 日時 に設定<br>
-③ msg.unit を 文字列 "℃" に設定
-            </div>
-
-            <h3>例2: カウンターの作成</h3>
-            <div class="flow-diagram">
-                <div class="node node-inject">ボタン</div>
-                <span class="arrow">→</span>
-                <div class="node node-change">カウント+1</div>
-                <span class="arrow">→</span>
-                <div class="node node-debug">表示</div>
-            </div>
-
-            <p><strong>Changeノードの設定：</strong></p>
-            <div class="code-block">
-① flow.counter を JSONata に設定<br>
-   式: ($flowContext("counter") || 0) + 1<br>
-   （現在の値 + 1、初回は0）<br>
-<br>
-② msg.payload を flow.counter に設定
-            </div>
-
-            <h3>例3: Functionノード内でcontextを使う</h3>
-            <div class="code-block">
-// Functionノード内のコード例<br>
-<br>
-// context変数に前回の値を保存<br>
-let lastValue = context.get('lastValue') || 0;<br>
-<br>
-// 現在の値と前回の値を比較<br>
-let currentValue = msg.payload;<br>
-let difference = currentValue - lastValue;<br>
-<br>
-// 今回の値を保存（次回用）<br>
-context.set('lastValue', currentValue);<br>
-<br>
-// 差分を出力<br>
-msg.payload = {<br>
-    current: currentValue,<br>
-    previous: lastValue,<br>
-    difference: difference<br>
-};<br>
-<br>
-return msg;
-            </div>
-            <div class="tip">
-                <strong>context変数の特徴：</strong> このFunctionノード専用の変数なので、他のノードからはアクセスできません。ノードごとに独立した状態を保持したい時に便利です。
-            </div>
-
-            <h3>例4: 複数センサーのデータ統合</h3>
-            <div class="code-block">
-// Changeノードで複数の値を1つのJSONにまとめる
-
-msg.payload を JSON に設定:<br>
-{<br>
-  "temperature": flow.temp,<br>
-  "humidity": flow.humid,<br>
-  "timestamp": msg.timestamp,<br>
-  "location": "リビング"<br>
+        
+        <h3>宣言場所によるスコープの違い</h3>
+        
+        <div class="code-block">// ❶ 関数の先頭で宣言 → 関数全体で使用可能
+function processData() {
+    const globalTemp = 25; // 関数内のどこでも使える
+    
+    if (globalTemp > 20) {
+        node.warn(globalTemp); // ✅ 使える
+    }
+    
+    for (let i = 0; i < 3; i++) {
+        node.warn(globalTemp); // ✅ 使える
+    }
 }
-            </div>
+
+// ❷ if文の中で宣言 → if文の中のみで使用可能
+if (temperature > 20) {
+    const message = "暑い"; // if文内でのみ使える
+    node.warn(message); // ✅ 使える
+}
+node.warn(message); // ❌ エラー！スコープ外
+
+// ❸ forループ内で宣言 → ループ内のみで使用可能
+for (let i = 0; i < 3; i++) {
+    const loopValue = i * 10; // ループ内でのみ使える
+    node.warn(loopValue); // ✅ 使える
+}
+node.warn(loopValue); // ❌ エラー！スコープ外</div>
+        
+        <div class="important">
+            <strong>📌 覚えておくポイント</strong>
+            <ul>
+                <li><strong>const / let</strong>: ブロック（{ }）内でのみ有効（ブロックスコープ）</li>
+                <li><strong>var</strong>: 関数全体で有効（関数スコープ）※非推奨</li>
+                <li>できるだけ<strong>使う場所の近く</strong>で宣言するのが良い習慣</li>
+            </ul>
         </div>
-
-        <div class="section">
-            <h2>7. よくある使い方のパターン</h2>
-
-            <h3>パターン1: 一時的なデータ → msg</h3>
-            <div class="example-box">
-                センサーからの1回の読み取り値、APIレスポンス、計算の中間結果など、次のノードに渡すだけのデータ
+        
+        <h2>🌐 4. context変数のスコープ</h2>
+        <p>context変数は、<strong>宣言の仕方</strong>によってスコープ（共有範囲）が変わります。</p>
+        
+        <div class="scope-container">
+            <div class="scope-card context">
+                <h4>context（ノード）</h4>
+                <p><strong>範囲：</strong>定義されたノード内のみ</p>
+                <p><strong>有効期限：</strong>Node-REDを再起動するまで</p>
+                <p><strong>宣言方法：</strong>context.set() / context.get()</p>
+                <div class="dark-code">context.set('lastValue', 25);
+let val = context.get('lastValue');</div>
+                <div class="example-box">
+                    <strong>📝 例：</strong><br>
+                    特定のFunctionノード内でのみ使用する前回値や状態を保存
+                </div>
             </div>
-
-            <h3>パターン2: ノード内での記憶 → context</h3>
-            <div class="example-box">
-                そのノード内だけで使う一時データや状態。Functionノード内でのカウンターや前回値の保存など
-            </div>
-
-            <h3>パターン3: フロー内で共有 → flow</h3>
-            <div class="example-box">
-                同じタブ内の複数ノードで使いたいデータ。カウンター、最後の値、設定値など
-            </div>
-
-            <h3>パターン4: 全体で共有 → global</h3>
-            <div class="example-box">
-                すべてのフローで使いたいデータ。APIキー、ユーザー設定、共通の定数など
-            </div>
-
-            <div class="warning">
-                <strong>注意：</strong> global変数は便利ですが、使いすぎるとフローが複雑になります。本当に必要な場合だけ使用しましょう。
-            </div>
-        </div>
-
-        <div class="section">
-            <h2>8. チートシート</h2>
             
-            <table>
-                <tr>
-                    <th>アイコン</th>
-                    <th>型名</th>
-                    <th>使用場面</th>
-                    <th>例</th>
-                </tr>
-                <tr>
-                    <td><span class="type-icon type-string">a_z</span></td>
-                    <td>文字列</td>
-                    <td>テキスト、名前、メッセージ</td>
-                    <td>"温度センサー"</td>
-                </tr>
-                <tr>
-                    <td><span class="type-icon type-number">0_9</span></td>
-                    <td>数値</td>
-                    <td>温度、カウント、計算</td>
-                    <td>25.5</td>
-                </tr>
-                <tr>
-                    <td><span class="type-icon type-boolean">◉</span></td>
-                    <td>真偽値</td>
-                    <td>ON/OFF、判定結果</td>
-                    <td>true / false</td>
-                </tr>
-                <tr>
-                    <td><span class="type-icon type-json">{}</span></td>
-                    <td>JSON</td>
-                    <td>複数データ、オブジェクト</td>
-                    <td>{"temp": 25}</td>
-                </tr>
-                <tr>
-                    <td><span class="type-icon type-timestamp">🕐</span></td>
-                    <td>日時</td>
-                    <td>現在時刻、タイムスタンプ</td>
-                    <td>1696582800000</td>
-                </tr>
-                <tr>
-                    <td><span class="type-icon type-jsonata">J></span></td>
-                    <td>JSONata</td>
-                    <td>データ変換、計算式</td>
-                    <td>payload * 2</td>
-                </tr>
-                <tr>
-                    <td><span class="type-icon type-env">$</span></td>
-                    <td>環境変数</td>
-                    <td>設定値、機密情報</td>
-                    <td>$env("API_KEY")</td>
-                </tr>
-            </table>
-        </div>
-
-        <div class="section">
-            <h2>まとめ</h2>
-            <div class="tip">
-                <strong>覚えておきたいポイント：</strong>
-                <ul style="margin-top: 10px; margin-left: 20px;">
-                    <li><strong>msg</strong> = その時だけのデータ（メッセージと一緒に流れる）</li>
-                    <li><strong>context</strong> = ノード内だけのデータ（そのノード専用）</li>
-                    <li><strong>flow</strong> = フロー内で共有するデータ（同じタブ内）</li>
-                    <li><strong>global</strong> = 全体で共有するデータ（全タブ）</li>
-                    <li>型セレクタ（▼）で目的に合った型を選ぶ</li>
-                    <li>Debugノードで値を確認しながら開発する</li>
-                </ul>
+            <div class="scope-card flow">
+                <h4>flow（フロー）</h4>
+                <p><strong>範囲：</strong>同じフロー（タブ）内のすべてのノード</p>
+                <p><strong>有効期限：</strong>Node-REDを再起動するまで</p>
+                <p><strong>宣言方法：</strong>flow.set() / flow.get()</p>
+                <div class="dark-code">flow.set('counter', 0);
+let count = flow.get('counter');</div>
+                <div class="example-box">
+                    <strong>📝 例：</strong><br>
+                    同じフロー内の複数ノードで共有するカウンター値や設定値
+                </div>
             </div>
-
-            <p style="margin-top: 20px;">この知識があれば、Node-REDでより複雑なIoTアプリケーションを開発できます！実際にInjectノードとChangeノードを使って、色々な型を試してみてください。</p>
+            
+            <div class="scope-card global">
+                <h4>global（グローバル）</h4>
+                <p><strong>範囲：</strong>すべてのフロー（全タブ）</p>
+                <p><strong>有効期限：</strong>Node-REDを再起動するまで</p>
+                <p><strong>宣言方法：</strong>global.set() / global.get()</p>
+                <div class="dark-code">global.set('apiKey', 'xxx');
+let key = global.get('apiKey');</div>
+                <div class="example-box">
+                    <strong>📝 例：</strong><br>
+                    全フローで共有するAPIキーやユーザー設定
+                </div>
+            </div>
         </div>
+        
+        <div class="tip">
+            <strong>💡 使い分けのポイント：</strong>
+            <ul>
+                <li><strong>context</strong>: そのノードだけで覚えておきたいデータ</li>
+                <li><strong>flow</strong>: 同じタブ内の複数ノードで共有したいデータ</li>
+                <li><strong>global</strong>: すべてのタブで共有したいデータ（使いすぎ注意）</li>
+            </ul>
+        </div>
+        
+        <h2>⚙️ 5. ノードでの使用方法</h2>
+        
+        <h3>Injectノード（データ送信）</h3>
+        <p>Injectノードでは、送信するデータの型を指定できます。</p>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span style="background: white; color: #333; padding: 10px 20px; border-radius: 4px;">
+                msg.payload: 数値 → 25
+            </span>
+        </div>
+        
+        <table>
+            <tr>
+                <th>設定項目</th>
+                <th>型の選択</th>
+                <th>説明</th>
+            </tr>
+            <tr>
+                <td>msg.payload</td>
+                <td>文字列、数値、JSON、配列、日時など</td>
+                <td>送信するメインデータ</td>
+            </tr>
+            <tr>
+                <td>msg.topic</td>
+                <td>文字列（通常）</td>
+                <td>データの種類やカテゴリ</td>
+            </tr>
+        </table>
+        
+        <div class="tip">
+            <strong>💡 ヒント：</strong> Injectノードの型セレクタ（▼ボタン）をクリックすると、すべてのデータ型が表示されます。flow.やglobal.も選択できます！
+        </div>
+        
+        <h3>Changeノード（データ変更）</h3>
+        <p>Changeノードでは、データを変換したり、新しい値を設定したりできます。</p>
+        
+        <table>
+            <tr>
+                <th>操作</th>
+                <th>使用する型</th>
+                <th>例</th>
+            </tr>
+            <tr>
+                <td>値の設定</td>
+                <td>すべての型</td>
+                <td>msg.payload を 数値 25 に設定</td>
+            </tr>
+            <tr>
+                <td>値の変更</td>
+                <td>文字列、JSONata</td>
+                <td>msg.topic を 文字列 "sensor/temp" に変更</td>
+            </tr>
+            <tr>
+                <td>移動</td>
+                <td>msg、flow、global</td>
+                <td>msg.payload を flow.lastValue に移動</td>
+            </tr>
+            <tr>
+                <td>削除</td>
+                <td>-</td>
+                <td>msg.tempData を削除</td>
+            </tr>
+        </table>
+        
+        <h2>📝 6. 実践例</h2>
+        
+        <h3>例1: 温度センサーのデータ処理</h3>
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-change">Change</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <p><strong>Injectノードの設定：</strong></p>
+        <div class="code-block">msg.payload: 数値 → 25.5
+msg.topic: 文字列 → "temperature"</div>
+        
+        <p><strong>Changeノードの設定：</strong></p>
+        <div class="code-block">① msg.payload を flow.currentTemp に保存（コピー）
+② msg.timestamp を 日時 に設定
+③ msg.unit を 文字列 "℃" に設定</div>
+        
+        <h3>例2: カウンターの作成</h3>
+        <div class="node-example">
+            <span class="node node-inject">ボタン</span>
+            <span class="arrow">→</span>
+            <span class="node node-change">カウント+1</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">表示</span>
+        </div>
+        
+        <p><strong>Changeノードの設定：</strong></p>
+        <div class="code-block">① flow.counter を JSONata に設定
+   式: ($flowContext("counter") || 0) + 1
+   （現在の値 + 1、初回は0）
 
-        <footer>
-            <p>Node-RED Variable Types Guide</p>
-            <p style="margin-top: 10px; font-size: 0.9em;">💻 Happy Coding with Node-RED! 🚀</p>
-        </footer>
+② msg.payload を flow.counter に設定</div>
+        
+        <h3>例3: Functionノード内でcontextを使う</h3>
+        <div class="code-block">// Functionノード内のコード例
+
+// context変数に前回の値を保存
+let lastValue = context.get('lastValue') || 0;
+
+// 現在の値と前回の値を比較
+let currentValue = msg.payload;
+let difference = currentValue - lastValue;
+
+// 今回の値を保存（次回用）
+context.set('lastValue', currentValue);
+
+// 差分を出力
+msg.payload = {
+    current: currentValue,
+    previous: lastValue,
+    difference: difference
+};
+
+return msg;</div>
+        
+        <div class="tip">
+            <strong>💡 context変数の特徴：</strong> このFunctionノード専用の変数なので、他のノードからはアクセスできません。ノードごとに独立した状態を保持したい時に便利です。
+        </div>
+        
+        <h3>例4: 複数センサーのデータ統合</h3>
+        <div class="code-block">// Changeノードで複数の値を1つのJSONにまとめる
+
+msg.payload を JSON に設定:
+{
+  "temperature": flow.temp,
+  "humidity": flow.humid,
+  "timestamp": msg.timestamp,
+  "location": "リビング"
+}</div>
+        
+        <h2>📊 7. よくある使い方のパターン</h2>
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h4>パターン1: 一時的なデータ → msg</h4>
+                <p>センサーからの1回の読み取り値、APIレスポンス、計算の中間結果など、次のノードに渡すだけのデータ</p>
+            </div>
+            
+            <div class="feature-card">
+                <h4>パターン2: ノード内での記憶 → context</h4>
+                <p>そのノード内だけで使う一時データや状態。Functionノード内でのカウンターや前回値の保存など</p>
+            </div>
+            
+            <div class="feature-card">
+                <h4>パターン3: フロー内で共有 → flow</h4>
+                <p>同じタブ内の複数ノードで使いたいデータ。カウンター、最後の値、設定値など</p>
+            </div>
+            
+            <div class="feature-card">
+                <h4>パターン4: 全体で共有 → global</h4>
+                <p>すべてのフローで使いたいデータ。APIキー、ユーザー設定、共通の定数など</p>
+            </div>
+        </div>
+        
+        <div class="warning">
+            <strong>⚠️ 注意：</strong> global変数は便利ですが、使いすぎるとフローが複雑になります。本当に必要な場合だけ使用しましょう。
+        </div>
+        
+        <h2>📋 8. チートシート</h2>
+        
+        <table>
+            <tr>
+                <th>アイコン</th>
+                <th>型名</th>
+                <th>使用場面</th>
+                <th>例</th>
+            </tr>
+            <tr>
+                <td><span class="type-icon">a_z</span></td>
+                <td>文字列</td>
+                <td>テキスト、名前、メッセージ</td>
+                <td>"温度センサー"</td>
+            </tr>
+            <tr>
+                <td><span class="type-icon">0_9</span></td>
+                <td>数値</td>
+                <td>温度、カウント、計算</td>
+                <td>25.5</td>
+            </tr>
+            <tr>
+                <td><span class="type-icon">◉</span></td>
+                <td>真偽値</td>
+                <td>ON/OFF、判定結果</td>
+                <td>true / false</td>
+            </tr>
+            <tr>
+                <td><span class="type-icon">[]</span></td>
+                <td>配列</td>
+                <td>データのリスト、履歴</td>
+                <td>[1, 2, 3]</td>
+            </tr>
+            <tr>
+                <td><span class="type-icon">{}</span></td>
+                <td>JSON</td>
+                <td>複数データ、オブジェクト</td>
+                <td>{"temp": 25}</td>
+            </tr>
+            <tr>
+                <td><span class="type-icon">🕐</span></td>
+                <td>日時</td>
+                <td>現在時刻、タイムスタンプ</td>
+                <td>1696582800000</td>
+            </tr>
+            <tr>
+                <td><span class="type-icon">J:</span></td>
+                <td>JSONata</td>
+                <td>データ変換、計算式</td>
+                <td>payload * 2</td>
+            </tr>
+            <tr>
+                <td><span class="type-icon">$</span></td>
+                <td>環境変数</td>
+                <td>設定値、機密情報</td>
+                <td>$env("API_KEY")</td>
+            </tr>
+        </table>
+        
+        <h2>🎓 まとめ</h2>
+        
+        <div class="important">
+            <strong>📌 覚えておきたいポイント：</strong>
+            <ul>
+                <li><strong>msg</strong> = その時だけのデータ（メッセージと一緒に流れる）</li>
+                <li><strong>context</strong> = ノード内だけのデータ（そのノード専用）</li>
+                <li><strong>flow</strong> = フロー内で共有するデータ（同じタブ内）</li>
+                <li><strong>global</strong> = 全体で共有するデータ（全タブ）</li>
+                <li>型セレクタ（▼）で目的に合った型を選ぶ</li>
+                <li>Debugノードで値を確認しながら開発する</li>
+            </ul>
+        </div>
+        
+        <p style="margin-top: 20px;">この知識があれば、Node-REDでより複雑なIoTアプリケーションを開発できます！実際にInjectノードとChangeノードを使って、色々な型を試してみてください。</p>
+        
+        <hr style="margin-top: 40px;">
+        
+        <p style="text-align: center; color: #999; margin-top: 20px;">
+            <small>Node-RED Variable Types Guide</small><br>
+            <small>💻 Happy Coding with Node-RED! 🚀</small>
+        </p>
     </div>
 </body>
 </html>
