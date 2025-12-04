@@ -65,12 +65,17 @@
         }
         
         .node-function {
-            background-color: #e6b0aa;
-            color: #333;
+            background-color: #e8a658;
+            color: white;
         }
         
         .node-debug {
             background-color: #87a48d;
+            color: white;
+        }
+        
+        .node-catch {
+            background-color: #e87d7d;
             color: white;
         }
         
@@ -119,6 +124,21 @@
             font-family: 'Courier New', monospace;
             font-size: 14px;
             position: relative;
+            white-space: pre-wrap;
+        }
+        
+        .js-code {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            border: none;
+            padding: 15px;
+            padding-top: 40px;
+            border-radius: 5px;
+            position: relative;
+            white-space: pre;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
         }
         
         .copy-button {
@@ -135,6 +155,9 @@
             font-family: 'Segoe UI', sans-serif;
             transition: background-color 0.2s;
             z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
         
         .copy-button:hover {
@@ -143,6 +166,12 @@
         
         .copy-button.copied {
             background-color: #28a745;
+        }
+        
+        .copy-button svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
         }
         
         .exercise {
@@ -203,7 +232,7 @@
         }
         
         th {
-            background-color: #8f0000;
+            background-color: #e8a658;
             color: white;
         }
         
@@ -215,6 +244,7 @@
             background-color: #263238;
             color: #aed581;
             padding: 15px;
+            padding-top: 40px;
             border-radius: 5px;
             overflow-x: auto;
             font-family: 'Courier New', monospace;
@@ -256,374 +286,282 @@
         }
         
         .feature-card h4 {
-            color: #e6b0aa;
+            color: #e8a658;
             margin-top: 0;
+        }
+        
+        .mode-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        
+        .badge-basic {
+            background-color: #e8a658;
+            color: white;
+        }
+        
+        .badge-async {
+            background-color: #17a2b8;
+            color: white;
+        }
+        
+        .badge-context {
+            background-color: #6f42c1;
+            color: white;
+        }
+        
+        .badge-error {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .pattern-explanation {
+            background-color: #2d3133;
+            color: #f8f9fa;
+        }
+        
+        .tab-container {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin: 15px 0;
+        }
+        
+        .tab-buttons {
+            display: flex;
+            background-color: #f1f1f1;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .tab-button {
+            padding: 10px 20px;
+            border: none;
+            background-color: transparent;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+        
+        .tab-button:hover {
+            background-color: #ddd;
+        }
+        
+        .tab-button.active {
+            background-color: #e8a658;
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 15px;
+        }
+        
+        .tab-content.active {
+            display: block;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>💻 Node-RED Functionノード 完全ガイド</h1>
+        <h1>⚡ Node-RED Functionノード 完全ガイド</h1>
         
         <p>このガイドでは、Node-REDの<strong>Functionノード</strong>について、初心者の方でも理解できるように詳しく説明します。</p>
         
         <h2>📚 1. Functionノードとは?</h2>
         
-        <h3>🤔 「プログラミング」って何?</h3>
-        <p>Functionノードは、<strong>JavaScriptでプログラムを書ける</strong>ノードです。ChangeノードやSwitchノードではできない、複雑な処理を自由に書くことができます。</p>
+        <h3>🤔 「Function」って何?</h3>
+        <p>
+            Functionノードは、<strong>JavaScriptコードを書いてメッセージを自由に加工できる</strong>ノードです。
+            日常生活で例えると、<strong>料理人</strong>のようなものです。
+        </p>
         
         <div class="important">
-            <strong>💡 日常の例で考えてみましょう:</strong>
+            <p><strong>👨‍🍳 料理人に例えると:</strong></p>
             <ul>
-                <li>料理のレシピ → 手順を書いたもの = プログラム</li>
-                <li>数学の計算 → 複雑な計算式 = プログラム</li>
-                <li>ゲームのルール → 条件判断と処理 = プログラム</li>
+                <li>🥕 <strong>材料を受け取る</strong> = 入力メッセージ(msg)</li>
+                <li>🔪 <strong>調理する(切る、煮る、焼く)</strong> = JavaScriptで加工</li>
+                <li>🍽️ <strong>料理を提供する</strong> = 出力メッセージを返す</li>
+                <li>📋 <strong>レシピを覚えておく</strong> = コンテキスト(変数の保存)</li>
             </ul>
-            <p>Functionノードは、これらの「手順」「計算」「判断」を自由に書けるノードです!</p>
         </div>
         
-        <h3>🎯 Functionノードの役割</h3>
-        <p><strong>Functionノード</strong>は、JavaScriptコードを使って、ChangeノードやSwitchノードでは難しい処理を実現します。</p>
-        
-        <div class="tip">
-            <strong>🍳 料理の例:</strong><br>
-            <br>
-            <strong>Changeノード</strong> = 決まった調味料を入れる<br>
-            →「塩を5g入れる」など、シンプルな操作<br>
-            <br>
-            <strong>Functionノード</strong> = 料理人が自由に料理する<br>
-            →「味見しながら調整」「複数の工程を組み合わせ」など、複雑な操作<br>
-            <br>
-            より柔軟で強力ですが、JavaScriptの知識が必要です!
-        </div>
-        
-        <h2>🔍 2. サンプルフローの詳しい解説</h2>
-        
-        <p>サンプルフローには、Functionノードの<strong>7つの主要な使い方</strong>が含まれています:</p>
-        
-        <h3>パターン1: メッセージを返す</h3>
+        <h3>📦 基本的な動作</h3>
         <div class="node-example">
-            <span class="node node-inject">inject<br>"World"</span>
+            <span class="node node-inject">Inject</span>
             <span class="arrow">→</span>
-            <span class="node node-function">function<br>"Hello, "+msg.payload+"!"</span>
+            <span class="node node-function">Function</span>
             <span class="arrow">→</span>
-            <span class="node node-debug">debug<br>"Hello, World!"</span>
+            <span class="node node-debug">Debug</span>
         </div>
-        <p>payloadに文字列を追加して返します。</p>
         
-        <h3>パターン2: 複数のメッセージを返す</h3>
-        <div class="node-example">
-            <span class="node node-inject">inject</span>
-            <span class="arrow">→</span>
-            <span class="node node-function">function<br>配列を返す</span>
-            <span class="arrow">→</span>
-            <span class="node node-debug">output1<br>(3個)</span>
-            <br><br>
-            <span style="margin-left: 200px;">↓</span>
-            <br>
-            <span style="margin-left: 170px;"><span class="node node-debug">output2<br>(1個)</span></span>
-        </div>
-        <p>出力ポートごとに異なるメッセージを送信できます。</p>
+        <p>
+            Functionノードは、入力メッセージを受け取り、JavaScriptコードで処理して、結果を出力します。
+            <strong>他のノードでは実現できない複雑な処理</strong>を実装できます。
+        </p>
         
-        <h3>パターン3: 非同期でメッセージ送信</h3>
-        <div class="node-example">
-            <span class="node node-inject">inject</span>
-            <span class="arrow">→</span>
-            <span class="node node-function">function<br>setTimeout 2秒</span>
-            <span class="arrow">→</span>
-            <span class="node node-debug">2秒後に表示</span>
-        </div>
-        <p>setTimeoutを使って、一定時間後にメッセージを送信します。</p>
+        <h2>⚙️ 2. Functionノードの設定</h2>
         
-        <h3>パターン4: コンテキスト変数の使用</h3>
-        <div class="node-example">
-            <span class="node node-inject">inject</span>
-            <span class="arrow">→</span>
-            <span class="node node-function">function<br>flow.get/set</span>
-            <span class="arrow">→</span>
-            <span class="node node-debug">変数を保存・取得</span>
-        </div>
-        <p>flow変数やglobal変数を使って、データを保存・取得します。</p>
+        <h3>🔧 設定タブの構成</h3>
         
-        <h3>パターン5: ノードステータスの表示</h3>
-        <div class="node-example">
-            <span class="node node-inject">inject</span>
-            <span class="arrow">→</span>
-            <span class="node node-function">function<br>node.status()</span>
-        </div>
-        <p>ノードの下に状態を表示できます(例: 処理中、完了、エラー)。</p>
-        
-        <h3>パターン6: 外部モジュールの使用</h3>
-        <div class="node-example">
-            <span class="node node-inject">inject</span>
-            <span class="arrow">→</span>
-            <span class="node node-function">function<br>os module</span>
-            <span class="arrow">→</span>
-            <span class="node node-debug">OS情報表示</span>
-        </div>
-        <p>外部のnpmモジュールを使って高度な処理ができます。</p>
-        
-        <h3>パターン7: Setup/Closeコード</h3>
-        <div class="node-example">
-            <span style="color: #aaa;">Setup: 初期化処理</span>
-            <br>
-            <span class="node node-inject">inject</span>
-            <span class="arrow">→</span>
-            <span class="node node-function">function<br>counter</span>
-            <span class="arrow">→</span>
-            <span class="node node-debug">カウント表示</span>
-            <br>
-            <span style="color: #aaa;">Close: 終了処理</span>
-        </div>
-        <p>ノード起動時と停止時に特別な処理を実行できます。</p>
-        
-        <h2>⚙️ 3. Functionノードの基本</h2>
-        
-        <h3>msgオブジェクトとは</h3>
-        
-        <div class="important">
-            <p><strong>msg</strong>は、ノード間を流れるメッセージオブジェクトです。</p>
-            
-            <p><strong>主なプロパティ:</strong></p>
-            <ul>
-                <li><code>msg.payload</code> → メッセージの本体(データ)</li>
-                <li><code>msg.topic</code> → メッセージのトピック(種類)</li>
-                <li><code>msg._msgid</code> → メッセージの一意なID</li>
-            </ul>
-            
-            <p><strong>基本的な使い方:</strong></p>
-            <div class="code-block">
-// payloadを読み取る
-let value = msg.payload;
-
-// payloadを変更する
-msg.payload = "新しい値";
-
-// 新しいプロパティを追加
-msg.customProperty = "カスタム値";
-
-// メッセージを返す(次のノードに送信)
-return msg;
+        <div class="tab-container">
+            <div class="tab-buttons">
+                <button class="tab-button active" onclick="showTab('tab-setup')">Setup</button>
+                <button class="tab-button" onclick="showTab('tab-function')">Function</button>
+                <button class="tab-button" onclick="showTab('tab-close')">Close</button>
+            </div>
+            <div id="tab-setup" class="tab-content active">
+                <h4>Setupタブ</h4>
+                <p>ノードが起動するときに<strong>1回だけ実行</strong>されるコード。初期化処理に使用。</p>
+                <ul>
+                    <li>変数の初期化</li>
+                    <li>外部リソースへの接続</li>
+                    <li>非同期処理も可能(Promiseを返す)</li>
+                </ul>
+            </div>
+            <div id="tab-function" class="tab-content">
+                <h4>Functionタブ</h4>
+                <p>メッセージを受け取るたびに実行される<strong>メインのコード</strong>。</p>
+                <ul>
+                    <li>msg.payloadの加工</li>
+                    <li>条件分岐</li>
+                    <li>データ変換</li>
+                </ul>
+            </div>
+            <div id="tab-close" class="tab-content">
+                <h4>Closeタブ</h4>
+                <p>ノードが停止するときに<strong>1回だけ実行</strong>されるコード。クリーンアップ処理に使用。</p>
+                <ul>
+                    <li>リソースの解放</li>
+                    <li>ログ出力</li>
+                    <li>状態の保存</li>
+                </ul>
             </div>
         </div>
         
-        <h3>returnの使い方</h3>
+        <h3>📋 基本設定項目</h3>
         
         <table>
             <tr>
-                <th>返し方</th>
-                <th>コード例</th>
+                <th>設定項目</th>
                 <th>説明</th>
+                <th>例</th>
             </tr>
             <tr>
-                <td>1つのメッセージ</td>
-                <td><code>return msg;</code></td>
-                <td>msgをそのまま次のノードに送信</td>
+                <td><strong>Name</strong></td>
+                <td>ノードの表示名</td>
+                <td>"データ変換", "カウンター"</td>
             </tr>
             <tr>
-                <td>何も送信しない</td>
-                <td><code>return null;</code></td>
-                <td>メッセージを破棄(次のノードに送らない)</td>
+                <td><strong>Outputs</strong></td>
+                <td>出力ポートの数</td>
+                <td>1〜複数(条件分岐時に増やす)</td>
             </tr>
             <tr>
-                <td>複数のメッセージ(1出力)</td>
-                <td><code>return [msg1, msg2];</code></td>
-                <td>同じ出力から2つのメッセージを送信</td>
+                <td><strong>Setup</strong></td>
+                <td>初期化コード</td>
+                <td>context.set('count', 0);</td>
             </tr>
             <tr>
-                <td>複数の出力に送信</td>
-                <td><code>return [msg1, msg2];</code></td>
-                <td>出力1にmsg1、出力2にmsg2を送信</td>
+                <td><strong>Function</strong></td>
+                <td>メイン処理コード</td>
+                <td>msg.payload = ...;</td>
+            </tr>
+            <tr>
+                <td><strong>Close</strong></td>
+                <td>終了処理コード</td>
+                <td>console.log("終了");</td>
             </tr>
         </table>
         
-        <h3>📋 よく使うJavaScript構文</h3>
+        <h3>🎯 利用可能な組み込みオブジェクト</h3>
         
         <div class="feature-grid">
             <div class="feature-card">
-                <h4>変数の宣言</h4>
-                <div class="code-block">
-// 変数を宣言
-let name = "太郎";
-let age = 25;
-const PI = 3.14; // 定数
-                </div>
+                <h4><span class="mode-badge badge-basic">msg</span> メッセージオブジェクト</h4>
+                <p>入力メッセージを参照・変更</p>
+                <div class="code-block">msg.payload  // データ本体
+msg.topic    // トピック名
+msg._msgid   // メッセージID</div>
             </div>
             
             <div class="feature-card">
-                <h4>条件分岐</h4>
-                <div class="code-block">
-if (msg.payload > 10) {
-    msg.payload = "大きい";
-} else {
-    msg.payload = "小さい";
-}
-                </div>
+                <h4><span class="mode-badge badge-context">context</span> ノードコンテキスト</h4>
+                <p>ノード内でデータを永続化</p>
+                <div class="code-block">context.get('key')
+context.set('key', value)</div>
             </div>
             
             <div class="feature-card">
-                <h4>ループ処理</h4>
-                <div class="code-block">
-// 配列をループ
-for (let i = 0; i < 5; i++) {
-    // 処理
-}
-
-// 配列の各要素を処理
-arr.forEach(item => {
-    // 処理
-});
-                </div>
+                <h4><span class="mode-badge badge-context">flow</span> フローコンテキスト</h4>
+                <p>同じフロー内で共有</p>
+                <div class="code-block">flow.get('key')
+flow.set('key', value)</div>
             </div>
             
             <div class="feature-card">
-                <h4>配列操作</h4>
-                <div class="code-block">
-// 配列の作成
-let arr = [1, 2, 3, 4, 5];
-
-// 要素の追加
-arr.push(6);
-
-// 要素の取得
-let first = arr[0];
-                </div>
+                <h4><span class="mode-badge badge-context">global</span> グローバルコンテキスト</h4>
+                <p>全フローで共有</p>
+                <div class="code-block">global.get('key')
+global.set('key', value)</div>
             </div>
             
             <div class="feature-card">
-                <h4>オブジェクト操作</h4>
-                <div class="code-block">
-// オブジェクトの作成
-let obj = {
-    name: "太郎",
-    age: 25
-};
-
-// プロパティの取得
-let name = obj.name;
-                </div>
+                <h4><span class="mode-badge badge-async">node</span> ノードオブジェクト</h4>
+                <p>ノード制御・ログ出力</p>
+                <div class="code-block">node.send(msg)
+node.log("情報")
+node.warn("警告")
+node.error("エラー", msg)
+node.status({...})</div>
             </div>
             
             <div class="feature-card">
-                <h4>文字列操作</h4>
-                <div class="code-block">
-// 文字列の結合
-let str = "Hello, " + "World!";
-
-// テンプレート文字列
-let msg = `値は${value}です`;
-                </div>
+                <h4><span class="mode-badge badge-basic">env</span> 環境変数</h4>
+                <p>環境変数へのアクセス</p>
+                <div class="code-block">env.get('MY_VAR')</div>
             </div>
         </div>
         
-        <h2>💡 4. コンテキスト変数</h2>
+        <h2>🎯 3. 実用的な使用パターン</h2>
         
-        <h3>3種類のコンテキスト</h3>
-        
-        <table>
-            <tr>
-                <th>種類</th>
-                <th>スコープ</th>
-                <th>使い方</th>
-            </tr>
-            <tr>
-                <td>flow</td>
-                <td>同じフロー内で共有</td>
-                <td><code>flow.get("key")</code><br><code>flow.set("key", value)</code></td>
-            </tr>
-            <tr>
-                <td>global</td>
-                <td>すべてのフローで共有</td>
-                <td><code>global.get("key")</code><br><code>global.set("key", value)</code></td>
-            </tr>
-            <tr>
-                <td>context</td>
-                <td>ノード内でのみ有効</td>
-                <td><code>context.get("key")</code><br><code>context.set("key", value)</code></td>
-            </tr>
-        </table>
-        
-        <div class="code-block">
-// カウンターの例
-let count = flow.get('counter') || 0;  // 取得(初回は0)
-count = count + 1;                      // 増やす
-flow.set('counter', count);             // 保存
-msg.payload = count;
-return msg;
-        </div>
-        
-        <h2>📝 5. 練習問題</h2>
-        
-        <div class="exercise">
-            <h3>練習問題 1: 温度の判定 <span class="difficulty difficulty-easy">初級</span></h3>
-            
-            <h4>🎯 目標</h4>
-            <p>温度の値を受け取り、30℃以上なら「暑い」、30℃未満なら「涼しい」と表示する</p>
-            
-            <h4>📋 要件</h4>
+        <div class="important">
+            <p><strong>📥 サンプルフローのインポート方法:</strong></p>
             <ol>
-                <li>Injectノードで温度(数値)を送信</li>
-                <li>Functionノードで温度を判定</li>
-                <li>Debugノードで結果を表示</li>
+                <li>下のサンプルフローJSONをコピー</li>
+                <li>Node-REDエディタで <strong>メニュー → 読み込み</strong> を選択</li>
+                <li>JSONをペーストして「読み込み」をクリック</li>
             </ol>
-            
-            <h4>💭 ヒント</h4>
-            
-            <p><strong>🎯 Functionノードのコード(自分で書いてみよう):</strong></p>
-            <ul>
-                <li>msg.payloadに温度が入っている</li>
-                <li>if文で条件分岐する</li>
-                <li>msg.payloadに結果の文字列を設定</li>
-                <li>return msgで返す</li>
-            </ul>
-            
-            <p><strong>🔢 Injectノードの設定(そのまま設定してください):</strong></p>
-            <ul>
-                <li>名前: <code>温度35℃</code></li>
-                <li>Payload: number型で <code>35</code></li>
-            </ul>
-            
-            <p><strong>🔢 もう1つInjectノードを作成:</strong></p>
-            <ul>
-                <li>名前: <code>温度25℃</code></li>
-                <li>Payload: number型で <code>25</code></li>
-            </ul>
-            
-            <details>
-                <summary>📦 解答フロー (クリックして表示)</summary>
-                <div class="flow-json">
+            <p>このサンプルフローには、以下で説明する全パターンの実例が含まれています。</p>
+        </div>
+        
+        <details>
+            <summary>📋 サンプルフロー（クリックで展開）</summary>
+            <p style="margin: 10px 0; color: #666;"><small>提供: FlowFuse-HP</small></p>
+            <div class="flow-json">
 [
     {
-        "id": "ex1_inject1",
-        "type": "inject",
-        "z": "exercise1",
-        "name": "温度35℃",
-        "props": [
-            {
-                "p": "payload"
-            }
-        ],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "35",
-        "payloadType": "num",
-        "x": 120,
-        "y": 100,
-        "wires": [
-            ["ex1_function"]
-        ]
+        "id": "98aa28d4a248e8cb",
+        "type": "tab",
+        "label": "function",
+        "disabled": false,
+        "info": "",
+        "env": []
     },
     {
-        "id": "ex1_inject2",
+        "id": "ec5a531b.68b65",
         "type": "inject",
-        "z": "exercise1",
-        "name": "温度25℃",
+        "z": "98aa28d4a248e8cb",
+        "name": "",
         "props": [
             {
                 "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
             }
         ],
         "repeat": "",
@@ -631,114 +569,72 @@ return msg;
         "once": false,
         "onceDelay": 0.1,
         "topic": "",
-        "payload": "25",
-        "payloadType": "num",
-        "x": 120,
+        "payload": "World",
+        "payloadType": "str",
+        "x": 290,
         "y": 140,
         "wires": [
-            ["ex1_function"]
+            [
+                "961abba6.04a028"
+            ]
         ]
     },
     {
-        "id": "ex1_function",
-        "type": "function",
-        "z": "exercise1",
-        "name": "温度判定",
-        "func": "// 温度を取得\nlet temp = msg.payload;\n\n// 条件分岐\nif (temp >= 30) {\n    msg.payload = \"暑い(\" + temp + \"℃)\";\n} else {\n    msg.payload = \"涼しい(\" + temp + \"℃)\";\n}\n\nreturn msg;",
-        "outputs": 1,
-        "noerr": 0,
-        "x": 300,
-        "y": 120,
-        "wires": [
-            ["ex1_debug"]
-        ]
-    },
-    {
-        "id": "ex1_debug",
+        "id": "1b0f8c3e.1fd7e4",
         "type": "debug",
-        "z": "exercise1",
+        "z": "98aa28d4a248e8cb",
         "name": "",
         "active": true,
         "tosidebar": true,
         "console": false,
         "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "x": 470,
-        "y": 120,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 670,
+        "y": 140,
         "wires": []
-    }
-]
-                </div>
-                <p><strong>✅ 動作確認:</strong></p>
-                <ul>
-                    <li>「温度35℃」をクリック → 「暑い(35℃)」と表示</li>
-                    <li>「温度25℃」をクリック → 「涼しい(25℃)」と表示</li>
-                </ul>
-                
-                <p><strong>📝 解答コード:</strong></p>
-                <div class="code-block">
-// 温度を取得
-let temp = msg.payload;
-
-// 条件分岐
-if (temp >= 30) {
-    msg.payload = "暑い(" + temp + "℃)";
-} else {
-    msg.payload = "涼しい(" + temp + "℃)";
-}
-
-return msg;
-                </div>
-            </details>
-        </div>
-        
-        <div class="exercise">
-            <h3>練習問題 2: 配列の合計と平均 <span class="difficulty difficulty-medium">中級</span></h3>
-            
-            <h4>🎯 目標</h4>
-            <p>数値の配列を受け取り、合計と平均を計算して返す</p>
-            
-            <h4>📋 要件</h4>
-            <ol>
-                <li>Injectノードで数値の配列を送信</li>
-                <li>Functionノードで合計と平均を計算</li>
-                <li>結果をオブジェクトで返す: <code>{sum: 合計, avg: 平均}</code></li>
-                <li>Debugノードで結果を表示</li>
-            </ol>
-            
-            <h4>💭 ヒント</h4>
-            
-            <p><strong>🎯 Functionノードのコード(自分で書いてみよう):</strong></p>
-            <ul>
-                <li>msg.payloadに配列が入っている</li>
-                <li>forループまたはforEachで配列をループ</li>
-                <li>合計を計算してから、配列の長さで割って平均を求める</li>
-            </ul>
-            
-            <p><strong>🔢 Injectノードの設定(そのまま設定してください):</strong></p>
-            <div class="important">
-                <ul>
-                    <li>Payload: JSON型を選択</li>
-                    <li>以下のJSONを入力:</li>
-                </ul>
-                <div class="code-block">
-[10, 20, 30, 40, 50]
-                </div>
-            </div>
-            
-            <details>
-                <summary>📦 解答フロー (クリックして表示)</summary>
-                <div class="flow-json">
-[
+    },
     {
-        "id": "ex2_inject",
+        "id": "4e5bf6b2.b4dd58",
+        "type": "comment",
+        "z": "98aa28d4a248e8cb",
+        "name": "send a message to output port",
+        "info": "Function node can be used to write JavaScript code to handle messages.\nThe input message can be referrenced by `msg` variable.  \nA message returned from body of the function is sent to output port.\n\nSee Node-RED user guide about [functions](https://nodered.org/docs/user-guide/writing-functions).",
+        "x": 310,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "961abba6.04a028",
+        "type": "function",
+        "z": "98aa28d4a248e8cb",
+        "name": "return a message",
+        "func": "// returning message send it to output port\nmsg.payload = \"Hello, \"+msg.payload +\"!\";\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 470,
+        "y": 140,
+        "wires": [
+            [
+                "1b0f8c3e.1fd7e4"
+            ]
+        ]
+    },
+    {
+        "id": "c2b3b0f1.62189",
         "type": "inject",
-        "z": "exercise2",
-        "name": "数値配列",
+        "z": "98aa28d4a248e8cb",
+        "name": "",
         "props": [
             {
                 "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
             }
         ],
         "repeat": "",
@@ -746,33 +642,1105 @@ return msg;
         "once": false,
         "onceDelay": 0.1,
         "topic": "",
-        "payload": "[10,20,30,40,50]",
-        "payloadType": "json",
-        "x": 120,
-        "y": 100,
+        "payload": "",
+        "payloadType": "date",
+        "x": 300,
+        "y": 280,
         "wires": [
-            ["ex2_function"]
+            [
+                "7241db1e.8946c4"
+            ]
         ]
     },
     {
-        "id": "ex2_function",
+        "id": "c6191361.0f3c",
+        "type": "debug",
+        "z": "98aa28d4a248e8cb",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 730,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "3aa5727c.e5019e",
+        "type": "comment",
+        "z": "98aa28d4a248e8cb",
+        "name": "send multiple message",
+        "info": "Function node can send multiple messages to output ports by returning an array of messages.  \n\nSee Node-RED user guide about [functions](https://nodered.org/docs/user-guide/writing-functions).",
+        "x": 280,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "7241db1e.8946c4",
         "type": "function",
-        "z": "exercise2",
-        "name": "合計と平均",
-        "func": "// 配列を取得\nlet numbers = msg.payload;\n\n// 合計を計算\nlet sum = 0;\nfor (let i = 0; i < numbers.length; i++) {\n    sum = sum + numbers[i];\n}\n\n// 平均を計算\nlet avg = sum / numbers.length;\n\n// 結果をオブジェクトで返す\nmsg.payload = {\n    sum: sum,\n    avg: avg,\n    count: numbers.length\n};\n\nreturn msg;",
+        "z": "98aa28d4a248e8cb",
+        "name": "return array of messages",
+        "func": "// returning array of message send elements to output ports\nvar msg1 = { payload:\"first out of output 1\" };\nvar msg2 = { payload:\"second out of output 1\" };\nvar msg3 = { payload:\"third out of output 1\" };\nvar msg4 = { payload:\"only message from output 2\" };\nreturn [ [ msg1, msg2, msg3 ], msg4 ];",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 510,
+        "y": 280,
+        "wires": [
+            [
+                "c6191361.0f3c"
+            ],
+            [
+                "23a53d00.c89b74"
+            ]
+        ]
+    },
+    {
+        "id": "23a53d00.c89b74",
+        "type": "debug",
+        "z": "98aa28d4a248e8cb",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 730,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "cc74476e.cbdf68",
+        "type": "inject",
+        "z": "98aa28d4a248e8cb",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "Hello, World!",
+        "payloadType": "str",
+        "x": 310,
+        "y": 420,
+        "wires": [
+            [
+                "7d90286.706e9d8"
+            ]
+        ]
+    },
+    {
+        "id": "909906c3.ea9f58",
+        "type": "debug",
+        "z": "98aa28d4a248e8cb",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 770,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "d5fc0512.4cd9c8",
+        "type": "comment",
+        "z": "98aa28d4a248e8cb",
+        "name": "sending messages asynchronously",
+        "info": "Function node can asynchronously send a messages to output ports by calling `node.send` function.\n\nSee Node-RED user guide about [functions](https://nodered.org/docs/user-guide/writing-functions).",
+        "x": 320,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "7d90286.706e9d8",
+        "type": "function",
+        "z": "98aa28d4a248e8cb",
+        "name": "wait 2s then send message",
+        "func": "// setTimeout calls calls specified callback function asynchronously after a specified time\nsetTimeout(function () {\n    node.send(msg);\n}, 2*1000);\n",
         "outputs": 1,
         "noerr": 0,
-        "x": 290,
-        "y": 100,
+        "initialize": "",
+        "finalize": "",
+        "x": 540,
+        "y": 420,
         "wires": [
-            ["ex2_debug"]
+            [
+                "909906c3.ea9f58"
+            ]
         ]
     },
     {
-        "id": "ex2_debug",
-        "type": "debug",
-        "z": "exercise2",
+        "id": "89c17d21.15da2",
+        "type": "inject",
+        "z": "98aa28d4a248e8cb",
         "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 300,
+        "y": 660,
+        "wires": [
+            [
+                "1bcca7af.619428"
+            ]
+        ]
+    },
+    {
+        "id": "3b9cd70e.8e66e8",
+        "type": "debug",
+        "z": "98aa28d4a248e8cb",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 650,
+        "y": 660,
+        "wires": []
+    },
+    {
+        "id": "f76ea68a.6f3c58",
+        "type": "comment",
+        "z": "98aa28d4a248e8cb",
+        "name": "handling errors",
+        "info": "Calling `node.error` function with the original message as a second argument, function node can trigger a catch node in the same tab.\n\nSee Node-RED user guide about [functions](https://nodered.org/docs/user-guide/writing-functions).",
+        "x": 260,
+        "y": 600,
+        "wires": []
+    },
+    {
+        "id": "1bcca7af.619428",
+        "type": "function",
+        "z": "98aa28d4a248e8cb",
+        "name": "report error",
+        "func": "// In function node, calling node.error functions with the original input message as its second argument triggers catch node\n// See debug sidebar and console output\nnode.error(\"Oh no, something bad happened\", msg);\n// execution should stops here",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 470,
+        "y": 660,
+        "wires": [
+            [
+                "3b9cd70e.8e66e8"
+            ]
+        ]
+    },
+    {
+        "id": "74854950.d99558",
+        "type": "catch",
+        "z": "98aa28d4a248e8cb",
+        "name": "",
+        "scope": [
+            "1bcca7af.619428"
+        ],
+        "uncaught": false,
+        "x": 450,
+        "y": 720,
+        "wires": [
+            [
+                "32743f74.e718a"
+            ]
+        ]
+    },
+    {
+        "id": "32743f74.e718a",
+        "type": "debug",
+        "z": "98aa28d4a248e8cb",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 630,
+        "y": 720,
+        "wires": []
+    },
+    {
+        "id": "fb884166.e42f3",
+        "type": "comment",
+        "z": "98aa28d4a248e8cb",
+        "name": "↑ error information can be found in msg.error",
+        "info": "",
+        "x": 750,
+        "y": 760,
+        "wires": []
+    },
+    {
+        "id": "64470964.a291a8",
+        "type": "inject",
+        "z": "98aa28d4a248e8cb",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 300,
+        "y": 540,
+        "wires": [
+            [
+                "ee4f5964.5cdae8"
+            ]
+        ]
+    },
+    {
+        "id": "ed028c2f.924b",
+        "type": "debug",
+        "z": "98aa28d4a248e8cb",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 650,
+        "y": 540,
+        "wires": []
+    },
+    {
+        "id": "b1686e70.a9f6d",
+        "type": "comment",
+        "z": "98aa28d4a248e8cb",
+        "name": "logging events",
+        "info": "In body of function node code, following logging functions can be used to log events:\n- `node.log`\n- `node.warn`\n- `node.error`\n- `node.trace`\n- `node.debug`\n\nSee Node-RED user guide about [functions](https://nodered.org/docs/user-guide/writing-functions).",
+        "x": 260,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "ee4f5964.5cdae8",
+        "type": "function",
+        "z": "98aa28d4a248e8cb",
+        "name": "log events",
+        "func": "// In function node, node.log, node.warn, and node.error functions can be used for logging\n// See debug sidebar and console output\nnode.log(\"Something happened\");\nnode.warn(\"Something happened you should know about\");\nnode.error(\"Oh no, something bad happened\");\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 470,
+        "y": 540,
+        "wires": [
+            [
+                "ed028c2f.924b"
+            ]
+        ]
+    },
+    {
+        "id": "a3a635eb.191188",
+        "type": "inject",
+        "z": "98aa28d4a248e8cb",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 300,
+        "y": 860,
+        "wires": [
+            [
+                "77f57d92.06fa14"
+            ]
+        ]
+    },
+    {
+        "id": "1a218bea.61ae04",
+        "type": "debug",
+        "z": "98aa28d4a248e8cb",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 630,
+        "y": 860,
+        "wires": []
+    },
+    {
+        "id": "a56bde3a.330e1",
+        "type": "comment",
+        "z": "98aa28d4a248e8cb",
+        "name": "storing data in context",
+        "info": "The function node code can store data in the context store.\n\nSee Node-RED user guide about [functions](https://nodered.org/docs/user-guide/writing-functions) and [context store](https://nodered.org/docs/user-guide/context).",
+        "x": 280,
+        "y": 800,
+        "wires": []
+    },
+    {
+        "id": "77f57d92.06fa14",
+        "type": "function",
+        "z": "98aa28d4a248e8cb",
+        "name": "counter",
+        "func": "// initialise the counter to 0 if it doesn't exist already\nvar count = context.get('count')||0;\ncount += 1;\n// store the value back\ncontext.set('count',count);\n// make it part of the outgoing msg object\nmsg.payload = count;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 460,
+        "y": 860,
+        "wires": [
+            [
+                "1a218bea.61ae04"
+            ]
+        ]
+    },
+    {
+        "id": "ce0b7cca.34817",
+        "type": "inject",
+        "z": "98aa28d4a248e8cb",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "red",
+        "payloadType": "str",
+        "x": 290,
+        "y": 1000,
+        "wires": [
+            [
+                "a4a6c205.8afd4"
+            ]
+        ]
+    },
+    {
+        "id": "c98c52d0.ab51f",
+        "type": "comment",
+        "z": "98aa28d4a248e8cb",
+        "name": "showing status information",
+        "info": "The function node code can provide status decoration by calling `node.status` function.\n\nSee Node-RED user guide about [functions](https://nodered.org/docs/user-guide/writing-functions).",
+        "x": 290,
+        "y": 940,
+        "wires": []
+    },
+    {
+        "id": "a4a6c205.8afd4",
+        "type": "function",
+        "z": "98aa28d4a248e8cb",
+        "name": "show status",
+        "func": "// calling node.status show status information below the function node\nswitch (msg.payload) {\n    case \"red\":\n        node.status({fill:\"red\",shape:\"ring\",text:\"disconnected\"});\n        break;\n    case \"green\":\n        node.status({fill:\"green\",shape:\"dot\",text:\"connected\"});\n        break;\n    case \"text\":\n        node.status({text:\"Just text status\"});\n        break;\n    case \"clear\":\n        node.status({});   // to clear the status    \n        break;\n}\n\n",
+        "outputs": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 470,
+        "y": 1000,
+        "wires": []
+    },
+    {
+        "id": "9f29ae74.8dd11",
+        "type": "inject",
+        "z": "98aa28d4a248e8cb",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "green",
+        "payloadType": "str",
+        "x": 290,
+        "y": 1040,
+        "wires": [
+            [
+                "a4a6c205.8afd4"
+            ]
+        ]
+    },
+    {
+        "id": "83fc1404.ec0b98",
+        "type": "inject",
+        "z": "98aa28d4a248e8cb",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "text",
+        "payloadType": "str",
+        "x": 290,
+        "y": 1080,
+        "wires": [
+            [
+                "a4a6c205.8afd4"
+            ]
+        ]
+    },
+    {
+        "id": "517a869c.0ceab8",
+        "type": "inject",
+        "z": "98aa28d4a248e8cb",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "clear",
+        "payloadType": "str",
+        "x": 290,
+        "y": 1120,
+        "wires": [
+            [
+                "a4a6c205.8afd4"
+            ]
+        ]
+    },
+    {
+        "id": "3ece1efd.306c22",
+        "type": "inject",
+        "z": "98aa28d4a248e8cb",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 380,
+        "y": 1240,
+        "wires": [
+            [
+                "c9100743.673598"
+            ]
+        ]
+    },
+    {
+        "id": "ed3da95d.62ee98",
+        "type": "debug",
+        "z": "98aa28d4a248e8cb",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 750,
+        "y": 1240,
+        "wires": []
+    },
+    {
+        "id": "85b5b8ad.0717d8",
+        "type": "comment",
+        "z": "98aa28d4a248e8cb",
+        "name": "using external modules (needs change in settings.js)",
+        "info": "The function node can use external node modules using global context value.\n\nAdditional node modules must be loaded in `settings.js` file and added to the `functionGlobalContext` property.  \n\nFor example, following definition in `settings.js` load `os` module on start up of Node-RED.  \n\n```\nfunctionGlobalContext: {\n    os: require(\"os\")\n}\n```\n\nThe `os` module can be accessed in a function blocks as:\n```\nglobal.get(\"os\")\n```\n\nSee Node-RED user guide about [functions](https://nodered.org/docs/user-guide/writing-functions) and [context store](https://nodered.org/docs/user-guide/context).",
+        "x": 520,
+        "y": 1180,
+        "wires": []
+    },
+    {
+        "id": "c9100743.673598",
+        "type": "function",
+        "z": "98aa28d4a248e8cb",
+        "name": "use os module",
+        "func": "// use external os module to access OS information\nvar os = global.get(\"os\");\nmsg.payload = { \n    hostname: os.hostname(),\n    arch: os.arch(),\n    platform: os.platform(),\n    release: os.release(),\n    free: os.freemem()\n};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 560,
+        "y": 1240,
+        "wires": [
+            [
+                "ed3da95d.62ee98"
+            ]
+        ]
+    },
+    {
+        "id": "e397736b.a96af",
+        "type": "inject",
+        "z": "98aa28d4a248e8cb",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 300,
+        "y": 1380,
+        "wires": [
+            [
+                "900ad01c.561f"
+            ]
+        ]
+    },
+    {
+        "id": "1e2a78d6.33f617",
+        "type": "debug",
+        "z": "98aa28d4a248e8cb",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 630,
+        "y": 1380,
+        "wires": []
+    },
+    {
+        "id": "83d3f2fd.593b4",
+        "type": "comment",
+        "z": "98aa28d4a248e8cb",
+        "name": "setup and close",
+        "info": "The function node code provide setup and closecode.  \nThe `Setup` tab contains code that will be run whenever the node is started. The `Close` tab contains code that will be run when the node is stopped.\n\nSee Node-RED user guide about [functions](https://nodered.org/docs/user-guide/writing-functions).",
+        "x": 260,
+        "y": 1320,
+        "wires": []
+    },
+    {
+        "id": "900ad01c.561f",
+        "type": "function",
+        "z": "98aa28d4a248e8cb",
+        "name": "counter",
+        "func": "// get value of global counter\nvar count = global.get('count');\ncount += 1;\n// store the value back\nglobal.set('count',count);\n// make it part of the outgoing msg object\nmsg.payload = count;\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "// initialize global counter\nglobal.set('count', 0);",
+        "finalize": "// report current counter to console\nvar count = global.get('count');\nconsole.log(\"count:\", count);",
+        "x": 460,
+        "y": 1380,
+        "wires": [
+            [
+                "1e2a78d6.33f617"
+            ]
+        ]
+    },
+    {
+        "id": "89904b80.4fcd08",
+        "type": "inject",
+        "z": "98aa28d4a248e8cb",
+        "d": true,
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 310,
+        "y": 1520,
+        "wires": [
+            [
+                "22c235a0.acb41a"
+            ]
+        ]
+    },
+    {
+        "id": "20fa70dc.7107f",
+        "type": "debug",
+        "z": "98aa28d4a248e8cb",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 670,
+        "y": 1520,
+        "wires": []
+    },
+    {
+        "id": "cddf88c9.9df018",
+        "type": "comment",
+        "z": "98aa28d4a248e8cb",
+        "name": "asynchronous setup",
+        "info": "The `Setup` code that performs asynchronous work can return a promise object of the work.  The completion of the promise is waited before starting function body.\n\nSee Node-RED user guide about [functions](https://nodered.org/docs/user-guide/writing-functions).",
+        "x": 270,
+        "y": 1460,
+        "wires": []
+    },
+    {
+        "id": "22c235a0.acb41a",
+        "type": "function",
+        "z": "98aa28d4a248e8cb",
+        "name": "async. setup",
+        "func": "// retrieve message value\nmsg.payload = global.get('message');\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "// set initial value of message\nglobal.set(\"message\", \"Initializing, World!\");\n// create promise for async work\nvar promise = new Promise((resolve, reject) => {\n    // async work: wait 1s, then set message\n    setTimeout(() => {\n        global.set(\"message\", \"Hello, World!\");\n        // report this work successfuly ended\n        resolve();\n    }, 1000);\n});\n// return the promise that should be executed before function code\nreturn promise;",
+        "finalize": "",
+        "x": 490,
+        "y": 1520,
+        "wires": [
+            [
+                "20fa70dc.7107f"
+            ]
+        ]
+    }
+]
+            </div>
+        </details>
+        
+        <h3>パターン1: 基本的なメッセージ加工</h3>
+        <p><strong>用途:</strong> 入力メッセージを加工して出力する最も基本的なパターン</p>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">Function</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <div class="tip">
+            <p><strong>📌 動作の流れ:</strong></p>
+            <ol>
+                <li>Injectノードからメッセージを受信</li>
+                <li>Functionノードで <code>msg.payload</code> を加工</li>
+                <li><code>return msg;</code> で次のノードに送信</li>
+            </ol>
+        </div>
+        
+        <p><strong>コード例:</strong></p>
+        <div class="js-code" data-copy="true">// 入力値に挨拶を追加する
+
+msg.payload = "Hello, " + msg.payload + "!";
+
+return msg;</div>
+        
+        <h3>パターン2: 複数出力への振り分け</h3>
+        <p><strong>用途:</strong> 条件に応じて異なる出力ポートにメッセージを送信</p>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">Function<br><small>(2出力)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug 1</span>
+            <br><br>
+            <span style="margin-left: 232px;" class="arrow">→</span>
+            <span class="node node-debug">Debug 2</span>
+        </div>
+        
+        <div class="tip">
+            <p><strong>📌 戻り値の形式:</strong></p>
+            <ul>
+                <li><code>[msg, null]</code> → 出力1のみに送信</li>
+                <li><code>[null, msg]</code> → 出力2のみに送信</li>
+                <li><code>[msg1, msg2]</code> → 両方に送信</li>
+            </ul>
+        </div>
+        
+        <p><strong>コード例:</strong></p>
+        <div class="js-code" data-copy="true">// 数値が50以上なら出力1、未満なら出力2に振り分け
+
+if (msg.payload >= 50) {
+    return [msg, null];
+} else {
+    return [null, msg];
+}</div>
+        
+        <h3>パターン3: 複数メッセージの送信</h3>
+        <p><strong>用途:</strong> 1つの入力から複数のメッセージを生成</p>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject<br><small>(1回)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-function">Function</span>
+            <span class="arrow">→→→</span>
+            <span class="node node-debug">Debug<br><small>(3回受信)</small></span>
+        </div>
+        
+        <div class="tip">
+            <p><strong>📌 戻り値の形式:</strong></p>
+            <ul>
+                <li><code>[[msg1, msg2, msg3]]</code> → 出力1に3つのメッセージを順次送信</li>
+                <li><code>[[msg1, msg2], [msg3]]</code> → 出力1に2つ、出力2に1つ</li>
+            </ul>
+        </div>
+        
+        <p><strong>コード例:</strong></p>
+        <div class="js-code" data-copy="true">// 3つのメッセージを順次送信
+
+var msg1 = { payload: "first" };
+var msg2 = { payload: "second" };
+var msg3 = { payload: "third" };
+
+return [[msg1, msg2, msg3]];</div>
+        
+        <h3>パターン4: 非同期処理</h3>
+        <p><strong>用途:</strong> setTimeout、API呼び出し等の非同期処理後にメッセージを送信</p>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">Function<br><small>(2秒待機)</small></span>
+            <span class="arrow">⋯→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <div class="tip">
+            <p><strong>📌 動作の流れ:</strong></p>
+            <ol>
+                <li>メッセージを受信</li>
+                <li><code>setTimeout()</code> で遅延実行を設定</li>
+                <li><code>return</code> は不要（何も返さない）</li>
+                <li>処理完了後、<code>node.send(msg)</code> でメッセージを送信</li>
+            </ol>
+        </div>
+        
+        <p><strong>コード例:</strong></p>
+        <div class="js-code" data-copy="true">// 2秒後にメッセージを送信
+
+setTimeout(function() {
+    node.send(msg);
+}, 2000);
+
+// 注意: 非同期処理では return しない</div>
+        
+        <h3>パターン5: コンテキストでデータを保存</h3>
+        <p><strong>用途:</strong> メッセージ間でデータを保持する(カウンター、状態管理など)</p>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject<br><small>(複数回)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-function">Function<br><small>(カウンター)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug<br><small>(1, 2, 3...)</small></span>
+        </div>
+        
+        <div class="tip">
+            <p><strong>📌 コンテキストの種類:</strong></p>
+            <ul>
+                <li><code>context</code> → このノード内のみ</li>
+                <li><code>flow</code> → 同じフロー(タブ)内で共有</li>
+                <li><code>global</code> → 全フローで共有</li>
+            </ul>
+        </div>
+        
+        <p><strong>コード例:</strong></p>
+        <div class="js-code" data-copy="true">// カウンター: 0から始めて1ずつ増加
+
+var count = context.get('count') || 0;
+count += 1;
+context.set('count', count);
+
+msg.payload = count;
+
+return msg;</div>
+        
+        <h3>パターン6: ステータス表示</h3>
+        <p><strong>用途:</strong> ノードの下に状態を表示して可視化</p>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-function" style="position: relative;">Function<br>
+                <small style="display: block; margin-top: 5px; padding: 2px 6px; background: #4caf50; border-radius: 3px; font-size: 10px;">● 接続中</small>
+            </span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <div class="tip">
+            <p><strong>📌 node.status() のオプション:</strong></p>
+            <ul>
+                <li><code>fill</code>: "red", "green", "yellow", "blue", "grey"</li>
+                <li><code>shape</code>: "ring"(輪), "dot"(点)</li>
+                <li><code>text</code>: 表示するテキスト</li>
+            </ul>
+        </div>
+        
+        <p><strong>コード例:</strong></p>
+        <div class="js-code" data-copy="true">// 接続状態をステータスで表示
+
+if (msg.payload === "connected") {
+    node.status({
+        fill: "green",
+        shape: "dot",
+        text: "接続中"
+    });
+} else {
+    node.status({
+        fill: "red",
+        shape: "ring",
+        text: "切断"
+    });
+}</div>
+        
+        <h3>パターン7: エラーハンドリング</h3>
+        <p><strong>用途:</strong> エラーを適切に処理し、Catchノードで捕捉する</p>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">Function</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+            <br><br>
+            <span style="margin-left: 155px;" class="node node-catch">Catch</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Error Debug</span>
+        </div>
+        
+        <div class="tip">
+            <p><strong>📌 エラー報告の種類:</strong></p>
+            <ul>
+                <li><code>node.error("message")</code> → ログにエラー出力のみ</li>
+                <li><code>node.error("message", msg)</code> → Catchノードでキャッチ可能</li>
+            </ul>
+            <p><em>※ 第2引数にmsgを渡すとCatchノードが受け取れる</em></p>
+        </div>
+        
+        <p><strong>コード例:</strong></p>
+        <div class="js-code" data-copy="true">// 入力値の検証とエラー処理
+
+if (typeof msg.payload !== "number") {
+    node.error("数値ではありません", msg);
+    return null;
+}
+
+msg.payload = msg.payload * 2;
+
+return msg;</div>
+        
+        <div class="tip">
+            <h3>💡 ヒント: ログ出力関数の使い分け</h3>
+            <table>
+                <tr>
+                    <th>関数</th>
+                    <th>用途</th>
+                    <th>デバッグサイドバー</th>
+                </tr>
+                <tr>
+                    <td><code>node.log()</code></td>
+                    <td>一般的な情報</td>
+                    <td>表示されない</td>
+                </tr>
+                <tr>
+                    <td><code>node.warn()</code></td>
+                    <td>警告</td>
+                    <td>表示される</td>
+                </tr>
+                <tr>
+                    <td><code>node.error()</code></td>
+                    <td>エラー</td>
+                    <td>表示される</td>
+                </tr>
+                <tr>
+                    <td><code>node.trace()</code></td>
+                    <td>詳細なトレース</td>
+                    <td>設定による</td>
+                </tr>
+                <tr>
+                    <td><code>node.debug()</code></td>
+                    <td>デバッグ情報</td>
+                    <td>設定による</td>
+                </tr>
+            </table>
+        </div>
+        
+        <h2>🏋️ 4. 実践演習</h2>
+        
+        <div class="exercise">
+            <h3>演習1: 基本的なメッセージ加工<span class="difficulty difficulty-easy">初級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>名前を入力すると「Hello, [名前]!」と挨拶メッセージを生成するフローを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Inject、Function、Debugノードを使用</li>
+                <li>入力: "World" → 出力: "Hello, World!"</li>
+            </ul>
+            
+            <p><strong>📊 期待される動作:</strong></p>
+            <ul>
+                <li>Injectボタンをクリック → Debugに "Hello, World!" が表示</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Functionノードの基本構造:</strong></p>
+                <ul>
+                    <li><code>msg.payload</code>で入力値を取得</li>
+                    <li>文字列結合は <code>+</code> 演算子を使用</li>
+                    <li><code>return msg;</code> で結果を出力</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">
+[
+    {
+        "id": "ex1_inject",
+        "type": "inject",
+        "name": "名前入力",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "World",
+        "payloadType": "str",
+        "x": 120,
+        "y": 100,
+        "wires": [["ex1_function"]]
+    },
+    {
+        "id": "ex1_function",
+        "type": "function",
+        "name": "挨拶生成",
+        "func": "// 入力値に挨拶を追加する\nmsg.payload = \"Hello, \" + msg.payload + \"!\";\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 290,
+        "y": 100,
+        "wires": [["ex1_debug"]]
+    },
+    {
+        "id": "ex1_debug",
+        "type": "debug",
+        "name": "結果",
         "active": true,
         "tosidebar": true,
         "console": false,
@@ -785,82 +1753,48 @@ return msg;
     }
 ]
                 </div>
-                <p><strong>✅ 動作確認:</strong></p>
-                <ul>
-                    <li>Injectをクリック</li>
-                    <li>結果: <code>{sum: 150, avg: 30, count: 5}</code> が表示される</li>
-                </ul>
-                
-                <p><strong>📝 解答コード:</strong></p>
-                <div class="code-block">
-// 配列を取得
-let numbers = msg.payload;
-
-// 合計を計算
-let sum = 0;
-for (let i = 0; i < numbers.length; i++) {
-    sum = sum + numbers[i];
-}
-
-// 平均を計算
-let avg = sum / numbers.length;
-
-// 結果をオブジェクトで返す
-msg.payload = {
-    sum: sum,
-    avg: avg,
-    count: numbers.length
-};
-
-return msg;
-                </div>
             </details>
         </div>
         
         <div class="exercise">
-            <h3>練習問題 3: アクセスカウンター <span class="difficulty difficulty-medium">中級</span></h3>
+            <h3>演習2: カウンター機能<span class="difficulty difficulty-medium">中級</span></h3>
             
-            <h4>🎯 目標</h4>
-            <p>flow変数を使って、アクセス回数をカウントする</p>
+            <p><strong>📝 課題:</strong></p>
+            <p>ボタンを押すたびにカウントが1ずつ増加するカウンターを作成してください。</p>
             
-            <h4>📋 要件</h4>
-            <ol>
-                <li>「アクセス」ボタン: クリックするたびにカウントが1増える</li>
-                <li>「リセット」ボタン: カウントを0に戻す</li>
-                <li>「確認」ボタン: 現在のカウントを表示</li>
-                <li>flow変数 "accessCount" を使用</li>
-            </ol>
-            
-            <h4>💭 ヒント</h4>
-            
-            <p><strong>🎯 Functionノードのコード(自分で書いてみよう):</strong></p>
+            <p><strong>🎯 要求仕様:</strong></p>
             <ul>
-                <li>flow.get() で値を取得</li>
-                <li>flow.set() で値を保存</li>
-                <li>初回は値がないので、|| 0 でデフォルト値を設定</li>
+                <li>Inject、Function、Debugノードを使用</li>
+                <li>contextを使用してカウントを保持</li>
+                <li>ボタンを押すたびに1, 2, 3...と増加</li>
             </ul>
             
-            <p><strong>🔢 Injectノードの設定:</strong></p>
+            <p><strong>📊 期待される動作:</strong></p>
             <ul>
-                <li>3つのInjectノードを作成</li>
-                <li>名前: 「アクセス」「リセット」「確認」</li>
-                <li>Payloadは何でもOK(使用しない)</li>
+                <li>1回目クリック → 1</li>
+                <li>2回目クリック → 2</li>
+                <li>3回目クリック → 3</li>
             </ul>
             
             <details>
-                <summary>📦 解答フロー (クリックして表示)</summary>
+                <summary>💡 ヒント</summary>
+                <p><strong>contextの使い方:</strong></p>
+                <ul>
+                    <li><code>context.get('count')</code>で値を取得</li>
+                    <li>値がない場合のデフォルト: <code>|| 0</code></li>
+                    <li><code>context.set('count', value)</code>で値を保存</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">
 [
     {
-        "id": "ex3_inject_access",
+        "id": "ex2_inject",
         "type": "inject",
-        "z": "exercise3",
-        "name": "アクセス",
-        "props": [
-            {
-                "p": "payload"
-            }
-        ],
+        "name": "カウントアップ",
+        "props": [{"p": "payload"}],
         "repeat": "",
         "crontab": "",
         "once": false,
@@ -868,105 +1802,28 @@ return msg;
         "topic": "",
         "payload": "",
         "payloadType": "date",
-        "x": 120,
+        "x": 130,
         "y": 100,
-        "wires": [
-            ["ex3_function_access"]
-        ]
+        "wires": [["ex2_function"]]
     },
     {
-        "id": "ex3_inject_reset",
-        "type": "inject",
-        "z": "exercise3",
-        "name": "リセット",
-        "props": [
-            {
-                "p": "payload"
-            }
-        ],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "",
-        "payloadType": "date",
-        "x": 120,
-        "y": 140,
-        "wires": [
-            ["ex3_function_reset"]
-        ]
-    },
-    {
-        "id": "ex3_inject_check",
-        "type": "inject",
-        "z": "exercise3",
-        "name": "確認",
-        "props": [
-            {
-                "p": "payload"
-            }
-        ],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "",
-        "payloadType": "date",
-        "x": 110,
-        "y": 180,
-        "wires": [
-            ["ex3_function_check"]
-        ]
-    },
-    {
-        "id": "ex3_function_access",
+        "id": "ex2_function",
         "type": "function",
-        "z": "exercise3",
-        "name": "カウント+1",
-        "func": "// 現在のカウントを取得(初回は0)\nlet count = flow.get('accessCount') || 0;\n\n// カウントを1増やす\ncount = count + 1;\n\n// 保存\nflow.set('accessCount', count);\n\n// 結果を返す\nmsg.payload = \"アクセス回数: \" + count;\nreturn msg;",
+        "name": "カウンター",
+        "func": "// 現在のカウント値を取得（未定義なら0）\nvar count = context.get('count') || 0;\n\n// カウントを1増加\ncount += 1;\n\n// 値を保存\ncontext.set('count', count);\n\n// 出力\nmsg.payload = count;\nreturn msg;",
         "outputs": 1,
+        "timeout": "",
         "noerr": 0,
-        "x": 290,
+        "initialize": "",
+        "finalize": "",
+        "x": 310,
         "y": 100,
-        "wires": [
-            ["ex3_debug"]
-        ]
+        "wires": [["ex2_debug"]]
     },
     {
-        "id": "ex3_function_reset",
-        "type": "function",
-        "z": "exercise3",
-        "name": "カウントリセット",
-        "func": "// カウントを0にリセット\nflow.set('accessCount', 0);\n\n// 結果を返す\nmsg.payload = \"カウントをリセットしました\";\nreturn msg;",
-        "outputs": 1,
-        "noerr": 0,
-        "x": 300,
-        "y": 140,
-        "wires": [
-            ["ex3_debug"]
-        ]
-    },
-    {
-        "id": "ex3_function_check",
-        "type": "function",
-        "z": "exercise3",
-        "name": "カウント確認",
-        "func": "// 現在のカウントを取得\nlet count = flow.get('accessCount') || 0;\n\n// 結果を返す\nmsg.payload = \"現在のアクセス回数: \" + count;\nreturn msg;",
-        "outputs": 1,
-        "noerr": 0,
-        "x": 290,
-        "y": 180,
-        "wires": [
-            ["ex3_debug"]
-        ]
-    },
-    {
-        "id": "ex3_debug",
+        "id": "ex2_debug",
         "type": "debug",
-        "z": "exercise3",
-        "name": "",
+        "name": "カウント値",
         "active": true,
         "tosidebar": true,
         "console": false,
@@ -974,253 +1831,290 @@ return msg;
         "complete": "payload",
         "targetType": "msg",
         "x": 490,
-        "y": 140,
+        "y": 100,
         "wires": []
     }
 ]
-                </div>
-                <p><strong>✅ 動作確認:</strong></p>
-                <ul>
-                    <li>「アクセス」を何度かクリック → 「アクセス回数: 1」「アクセス回数: 2」...</li>
-                    <li>「確認」をクリック → 「現在のアクセス回数: X」</li>
-                    <li>「リセット」をクリック → 「カウントをリセットしました」</li>
-                    <li>「確認」をクリック → 「現在のアクセス回数: 0」</li>
-                </ul>
-                
-                <p><strong>📝 解答コード(アクセス):</strong></p>
-                <div class="code-block">
-// 現在のカウントを取得(初回は0)
-let count = flow.get('accessCount') || 0;
-
-// カウントを1増やす
-count = count + 1;
-
-// 保存
-flow.set('accessCount', count);
-
-// 結果を返す
-msg.payload = "アクセス回数: " + count;
-return msg;
                 </div>
             </details>
         </div>
         
         <div class="exercise">
-            <h3>練習問題 4: センサーデータの異常検知 <span class="difficulty difficulty-hard">上級</span></h3>
+            <h3>演習3: 条件分岐とステータス表示<span class="difficulty difficulty-medium">中級</span></h3>
             
-            <h4>🎯 目標</h4>
-            <p>温度センサーのデータを監視し、異常値(5℃以下または40℃以上)を検出して警告を出す</p>
+            <p><strong>📝 課題:</strong></p>
+            <p>温度データを受け取り、30度以上なら「高温」、10度以下なら「低温」、それ以外は「適温」と判定し、ノードにステータスを表示してください。</p>
             
-            <h4>📋 シナリオ</h4>
-            <p>温度センサーから定期的にデータが送られてきます。正常範囲(5-40℃)を外れた場合、警告メッセージを出力し、異常回数をカウントします。</p>
-            
-            <h4>📋 要件</h4>
-            <ol>
-                <li>Injectノードでランダムな温度データを送信(0-50℃)</li>
-                <li>Functionノードで以下の処理:
-                    <ul>
-                        <li>温度が正常範囲内かチェック</li>
-                        <li>異常の場合、警告メッセージを作成</li>
-                        <li>異常回数をflow変数でカウント</li>
-                        <li>正常値と異常値を別の出力ポートから送信(outputs: 2)</li>
-                    </ul>
-                </li>
-                <li>2つのDebugノードで正常値と異常値を別々に表示</li>
-            </ol>
-            
-            <h4>💭 ヒント</h4>
-            
-            <p><strong>🎯 Functionノードのコード(自分で書いてみよう):</strong></p>
+            <p><strong>🎯 要求仕様:</strong></p>
             <ul>
-                <li>複数の出力ポートを使うには、配列で返す</li>
-                <li><code>return [正常用msg, 異常用msg];</code></li>
-                <li>送信しない方は<code>null</code>にする</li>
+                <li>Injectノードで数値を入力(10, 25, 35など)</li>
+                <li>Functionノードで温度を判定</li>
+                <li>node.status()でノードにステータスを表示</li>
+                <li>30度以上: 赤色、10度以下: 青色、それ以外: 緑色</li>
             </ul>
             
-            <p><strong>🔢 Injectノードの設定(そのまま設定してください):</strong></p>
-            <div class="important">
-                <ul>
-                    <li>名前: <code>温度センサー</code></li>
-                    <li>Repeat: interval - 2 seconds</li>
-                    <li>Payload: JSONata式</li>
-                    <li>値: <code>$round($random() * 50)</code></li>
-                    <li>※ これは0-50℃の範囲でランダムな温度を生成します</li>
-                </ul>
-            </div>
-            
-            <p><strong>⚙️ Functionノードの設定:</strong></p>
+            <p><strong>📊 期待される動作:</strong></p>
             <ul>
-                <li>Outputs: <code>2</code> に設定(2つの出力ポート)</li>
+                <li>35を入力 → ステータスに赤で「高温: 35℃」</li>
+                <li>5を入力 → ステータスに青で「低温: 5℃」</li>
+                <li>25を入力 → ステータスに緑で「適温: 25℃」</li>
             </ul>
             
             <details>
-                <summary>📦 解答フロー (クリックして表示)</summary>
+                <summary>💡 ヒント</summary>
+                <p><strong>node.status()のオプション:</strong></p>
+                <ul>
+                    <li>fill: "red", "blue", "green"</li>
+                    <li>shape: "dot"(塗りつぶし)または"ring"(輪)</li>
+                    <li>text: 表示するテキスト</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">
 [
     {
-        "id": "ex4_inject",
+        "id": "ex3_inject_hot",
         "type": "inject",
-        "z": "exercise4",
-        "name": "温度センサー",
-        "props": [
-            {
-                "p": "payload"
-            }
-        ],
-        "repeat": "2",
+        "name": "35度(高温)",
+        "props": [{"p": "payload"}],
+        "repeat": "",
         "crontab": "",
         "once": false,
         "onceDelay": 0.1,
         "topic": "",
-        "payload": "$round($random() * 50)",
-        "payloadType": "jsonata",
-        "x": 140,
-        "y": 100,
-        "wires": [
-            ["ex4_function"]
-        ]
-    },
-    {
-        "id": "ex4_function",
-        "type": "function",
-        "z": "exercise4",
-        "name": "異常検知",
-        "func": "// 温度を取得\nlet temp = msg.payload;\n\n// 正常範囲の定義\nconst MIN_TEMP = 5;\nconst MAX_TEMP = 40;\n\n// 異常回数を取得\nlet errorCount = flow.get('errorCount') || 0;\n\n// 温度をチェック\nif (temp < MIN_TEMP || temp > MAX_TEMP) {\n    // 異常の場合\n    errorCount = errorCount + 1;\n    flow.set('errorCount', errorCount);\n    \n    // 異常メッセージを作成\n    let alertMsg = {\n        payload: {\n            temperature: temp,\n            status: \"異常\",\n            reason: temp < MIN_TEMP ? \"低温\" : \"高温\",\n            errorCount: errorCount,\n            timestamp: new Date().toLocaleString('ja-JP')\n        }\n    };\n    \n    // 出力1: null (正常用なので送信しない)\n    // 出力2: 異常メッセージ\n    return [null, alertMsg];\n    \n} else {\n    // 正常の場合\n    let normalMsg = {\n        payload: {\n            temperature: temp,\n            status: \"正常\",\n            timestamp: new Date().toLocaleString('ja-JP')\n        }\n    };\n    \n    // 出力1: 正常メッセージ\n    // 出力2: null (異常用なので送信しない)\n    return [normalMsg, null];\n}",
-        "outputs": 2,
-        "noerr": 0,
-        "x": 320,
-        "y": 100,
-        "wires": [
-            ["ex4_debug_normal"],
-            ["ex4_debug_alert"]
-        ]
-    },
-    {
-        "id": "ex4_debug_normal",
-        "type": "debug",
-        "z": "exercise4",
-        "name": "✅ 正常値",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "x": 500,
+        "payload": "35",
+        "payloadType": "num",
+        "x": 130,
         "y": 80,
-        "wires": []
+        "wires": [["ex3_function"]]
     },
     {
-        "id": "ex4_debug_alert",
+        "id": "ex3_inject_normal",
+        "type": "inject",
+        "name": "25度(適温)",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "25",
+        "payloadType": "num",
+        "x": 130,
+        "y": 120,
+        "wires": [["ex3_function"]]
+    },
+    {
+        "id": "ex3_inject_cold",
+        "type": "inject",
+        "name": "5度(低温)",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "5",
+        "payloadType": "num",
+        "x": 130,
+        "y": 160,
+        "wires": [["ex3_function"]]
+    },
+    {
+        "id": "ex3_function",
+        "type": "function",
+        "name": "温度判定",
+        "func": "// 温度を取得\nvar temp = msg.payload;\nvar status = {};\n\n// 温度に応じてステータスを設定\nif (temp >= 30) {\n    status = {\n        fill: \"red\",\n        shape: \"dot\",\n        text: \"高温: \" + temp + \"℃\"\n    };\n    msg.payload = \"高温\";\n} else if (temp <= 10) {\n    status = {\n        fill: \"blue\",\n        shape: \"dot\",\n        text: \"低温: \" + temp + \"℃\"\n    };\n    msg.payload = \"低温\";\n} else {\n    status = {\n        fill: \"green\",\n        shape: \"dot\",\n        text: \"適温: \" + temp + \"℃\"\n    };\n    msg.payload = \"適温\";\n}\n\n// ステータスを表示\nnode.status(status);\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 330,
+        "y": 120,
+        "wires": [["ex3_debug"]]
+    },
+    {
+        "id": "ex3_debug",
         "type": "debug",
-        "z": "exercise4",
-        "name": "⚠️ 異常値",
+        "name": "判定結果",
         "active": true,
         "tosidebar": true,
         "console": false,
         "tostatus": false,
         "complete": "payload",
         "targetType": "msg",
-        "x": 500,
+        "x": 510,
         "y": 120,
         "wires": []
     }
 ]
                 </div>
-                <p><strong>✅ 動作確認:</strong></p>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習4: 非同期処理とエラーハンドリング<span class="difficulty difficulty-hard">上級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>センサーデータを受け取り、2秒後にデータを処理して送信するシステムを作成してください。ただし、データが不正な場合はエラーを発生させ、Catchノードで捕捉してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Inject、Function、Debug、Catchノードを使用</li>
+                <li>数値データは2秒後に2倍にして出力</li>
+                <li>数値以外の場合はnode.error()でエラーを発生</li>
+                <li>Catchノードでエラーを捕捉してDebugに出力</li>
+            </ul>
+            
+            <p><strong>📊 期待される動作:</strong></p>
+            <ul>
+                <li>50を入力 → 2秒後に100が出力</li>
+                <li>"text"を入力 → Catchノードでエラー捕捉</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>非同期処理とエラーの組み合わせ:</strong></p>
                 <ul>
-                    <li>フローをデプロイすると、2秒ごとに自動実行される</li>
-                    <li>正常値(5-40℃): 「✅ 正常値」に表示</li>
-                    <li>異常値(5℃未満または40℃超): 「⚠️ 異常値」に表示</li>
-                    <li>異常値には累積エラー回数も表示される</li>
+                    <li><code>typeof msg.payload === "number"</code>で型チェック</li>
+                    <li><code>setTimeout()</code>で遅延処理</li>
+                    <li><code>node.error("message", msg)</code>でCatchノードに送信</li>
+                    <li>エラー時は<code>return null;</code>で処理を終了</li>
                 </ul>
-                
-                <p><strong>📝 解答コード:</strong></p>
-                <div class="code-block">
-// 温度を取得
-let temp = msg.payload;
-
-// 正常範囲の定義
-const MIN_TEMP = 5;
-const MAX_TEMP = 40;
-
-// 異常回数を取得
-let errorCount = flow.get('errorCount') || 0;
-
-// 温度をチェック
-if (temp < MIN_TEMP || temp > MAX_TEMP) {
-    // 異常の場合
-    errorCount = errorCount + 1;
-    flow.set('errorCount', errorCount);
-    
-    // 異常メッセージを作成
-    let alertMsg = {
-        payload: {
-            temperature: temp,
-            status: "異常",
-            reason: temp < MIN_TEMP ? "低温" : "高温",
-            errorCount: errorCount,
-            timestamp: new Date().toLocaleString('ja-JP')
-        }
-    };
-    
-    // 出力1: null (正常用なので送信しない)
-    // 出力2: 異常メッセージ
-    return [null, alertMsg];
-    
-} else {
-    // 正常の場合
-    let normalMsg = {
-        payload: {
-            temperature: temp,
-            status: "正常",
-            timestamp: new Date().toLocaleString('ja-JP')
-        }
-    };
-    
-    // 出力1: 正常メッセージ
-    // 出力2: null (異常用なので送信しない)
-    return [normalMsg, null];
-}
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">
+[
+    {
+        "id": "ex4_inject_num",
+        "type": "inject",
+        "name": "数値(50)",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "50",
+        "payloadType": "num",
+        "x": 120,
+        "y": 80,
+        "wires": [["ex4_function"]]
+    },
+    {
+        "id": "ex4_inject_str",
+        "type": "inject",
+        "name": "文字列(error)",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "error",
+        "payloadType": "str",
+        "x": 130,
+        "y": 120,
+        "wires": [["ex4_function"]]
+    },
+    {
+        "id": "ex4_function",
+        "type": "function",
+        "name": "非同期処理",
+        "func": "// 入力値の型チェック\nif (typeof msg.payload !== \"number\") {\n    node.error(\"数値ではありません: \" + msg.payload, msg);\n    return null;\n}\n\n// 2秒後に処理を実行\nvar value = msg.payload;\nsetTimeout(function() {\n    msg.payload = value * 2;\n    node.send(msg);\n}, 2000);\n\n// 非同期処理なのでreturnしない",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 330,
+        "y": 100,
+        "wires": [["ex4_debug"]]
+    },
+    {
+        "id": "ex4_debug",
+        "type": "debug",
+        "name": "処理結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 530,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "ex4_catch",
+        "type": "catch",
+        "name": "エラー捕捉",
+        "scope": ["ex4_function"],
+        "uncaught": false,
+        "x": 330,
+        "y": 160,
+        "wires": [["ex4_error_debug"]]
+    },
+    {
+        "id": "ex4_error_debug",
+        "type": "debug",
+        "name": "エラー情報",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "x": 530,
+        "y": 160,
+        "wires": []
+    }
+]
                 </div>
             </details>
         </div>
         
-        <h2>🎓 6. まとめ</h2>
+        <h2>🎓 5. まとめ</h2>
         
         <div class="important">
             <h3>Functionノードの重要ポイント</h3>
             <ul>
-                <li>✅ <strong>JavaScriptが使える</strong>: 複雑な処理を自由に記述</li>
-                <li>✅ <strong>msgオブジェクト</strong>: msg.payloadでデータを取得・設定</li>
-                <li>✅ <strong>return</strong>: メッセージを返して次のノードに送信</li>
-                <li>✅ <strong>コンテキスト変数</strong>: flow/global/contextでデータを保存</li>
-                <li>✅ <strong>複数出力</strong>: 配列で返すと複数の出力ポートから送信可能</li>
+                <li>✅ <strong>基本構造</strong>: msg.payloadを加工し、return msgで出力</li>
+                <li>✅ <strong>複数出力</strong>: 配列で返して出力を振り分け</li>
+                <li>✅ <strong>非同期処理</strong>: node.send()でタイミングを制御</li>
+                <li>✅ <strong>データ保存</strong>: context/flow/globalで状態を保持</li>
+                <li>✅ <strong>エラー処理</strong>: node.error(msg, originalMsg)でCatchノードと連携</li>
+                <li>✅ <strong>ステータス表示</strong>: node.status()で視覚的フィードバック</li>
             </ul>
         </div>
         
         <div class="warning">
-            <h3>⚠️ 注意事項</h3>
+            <h3>⚠️ よくある間違い</h3>
             <ul>
-                <li><strong>エラーハンドリング</strong>: try-catch文でエラーを適切に処理しよう</li>
-                <li><strong>無限ループ</strong>: while文などで無限ループを作らないよう注意</li>
-                <li><strong>メモリリーク</strong>: 大量のデータをcontext変数に保存しすぎない</li>
-                <li><strong>非同期処理</strong>: setTimeoutなどを使う場合は、node.send()を使う</li>
+                <li><strong>return忘れ</strong>: returnしないとメッセージが送信されない</li>
+                <li><strong>非同期でreturn</strong>: setTimeout内ではnode.send()を使う</li>
+                <li><strong>msg上書き</strong>: 新しいオブジェクトを作る場合は<code>{ payload: "..." }</code></li>
+                <li><strong>contextの初期化忘れ</strong>: <code>|| デフォルト値</code>で対処</li>
             </ul>
         </div>
         
         <div class="tip">
             <h3>📚 次のステップ</h3>
-            <p>Functionノードをマスターしたら、以下も学んでみましょう:</p>
+            <p>Functionノードをマスターしたら、以下のノードも学んでみましょう:</p>
             <ul>
-                <li><strong>JSONata</strong>: より簡潔にデータ変換できる</li>
-                <li><strong>Promiseと非同期処理</strong>: async/awaitの使い方</li>
-                <li><strong>外部モジュール</strong>: npmパッケージの活用</li>
-                <li><strong>エラーハンドリング</strong>: try-catchとCatchノードの連携</li>
+                <li><strong>Changeノード</strong>: コードなしでプロパティを変更</li>
+                <li><strong>Switchノード</strong>: 条件分岐をGUIで設定</li>
+                <li><strong>Templateノード</strong>: Mustache構文でテンプレート生成</li>
+                <li><strong>Joinノード</strong>: 複数メッセージを結合</li>
             </ul>
         </div>
         
-        <h2>🔧 7. トラブルシューティング</h2>
+        <h2>🔧 6. トラブルシューティング</h2>
         
         <h3>よくある問題と解決方法</h3>
         
@@ -1231,144 +2125,184 @@ if (temp < MIN_TEMP || temp > MAX_TEMP) {
                 <th>解決方法</th>
             </tr>
             <tr>
-                <td>メッセージが送信されない</td>
-                <td>returnを忘れている</td>
-                <td>関数の最後に<code>return msg;</code>を追加</td>
+                <td>メッセージが出力されない</td>
+                <td>return文がない</td>
+                <td>コードの最後に<code>return msg;</code>を追加</td>
             </tr>
             <tr>
-                <td>エラーが表示される</td>
-                <td>構文エラー</td>
-                <td>エラーメッセージを確認し、コードを修正</td>
+                <td>非同期処理後に出力されない</td>
+                <td>returnを使っている</td>
+                <td><code>node.send(msg);</code>に変更</td>
             </tr>
             <tr>
-                <td>変数が保存されない</td>
-                <td>flow.set()を忘れている</td>
-                <td>値を変更したら必ずflow.set()で保存</td>
+                <td>カウンターがリセットされる</td>
+                <td>ローカル変数を使用</td>
+                <td><code>context.set/get</code>を使用</td>
             </tr>
             <tr>
-                <td>複数出力が機能しない</td>
-                <td>Outputsの設定が1のまま</td>
-                <td>Functionノードの設定でOutputsを2以上に</td>
+                <td>エラーがCatchで捕捉されない</td>
+                <td>第2引数がない</td>
+                <td><code>node.error("msg", msg)</code>と記述</td>
+            </tr>
+            <tr>
+                <td>JSONのパースエラー</td>
+                <td>文字列がJSON形式でない</td>
+                <td>try-catchで囲む</td>
+            </tr>
+            <tr>
+                <td>外部モジュールが使えない</td>
+                <td>settings.jsの設定不足</td>
+                <td>functionGlobalContextに追加</td>
             </tr>
         </table>
         
-        <h2>📖 8. よく使うJavaScript関数</h2>
+        <h2>💡 7. 実務での活用例</h2>
         
-        <h3>配列操作</h3>
+        <h3>ケース1: センサーデータの変換</h3>
+        <div class="js-code" data-copy="true">// 温度センサーの生データを摂氏に変換
+
+var rawValue = msg.payload;
+var celsius = (rawValue - 32) * 5 / 9;
+
+msg.payload = {
+    raw: rawValue,
+    celsius: celsius.toFixed(2),
+    timestamp: new Date().toISOString()
+};
+
+return msg;</div>
         
-        <table>
-            <tr>
-                <th>関数</th>
-                <th>説明</th>
-                <th>例</th>
-            </tr>
-            <tr>
-                <td>push()</td>
-                <td>末尾に追加</td>
-                <td><code>arr.push(item)</code></td>
-            </tr>
-            <tr>
-                <td>pop()</td>
-                <td>末尾を削除</td>
-                <td><code>arr.pop()</code></td>
-            </tr>
-            <tr>
-                <td>forEach()</td>
-                <td>各要素を処理</td>
-                <td><code>arr.forEach(item => {...})</code></td>
-            </tr>
-            <tr>
-                <td>map()</td>
-                <td>各要素を変換</td>
-                <td><code>arr.map(x => x * 2)</code></td>
-            </tr>
-            <tr>
-                <td>filter()</td>
-                <td>条件に合う要素を抽出</td>
-                <td><code>arr.filter(x => x > 10)</code></td>
-            </tr>
-        </table>
+        <h3>ケース2: データの集約</h3>
+        <div class="js-code" data-copy="true">// 複数のセンサー値を集約
+
+var data = flow.get('sensorData') || [];
+data.push(msg.payload);
+
+// 最新10件のみ保持
+if (data.length > 10) {
+    data.shift();
+}
+
+flow.set('sensorData', data);
+
+// 平均値を計算
+var sum = data.reduce(function(a, b) { return a + b; }, 0);
+
+msg.payload = {
+    average: sum / data.length,
+    count: data.length
+};
+
+return msg;</div>
         
-        <h3>文字列操作</h3>
+        <h3>ケース3: APIレスポンスの整形</h3>
+        <div class="js-code" data-copy="true">// APIレスポンスから必要なデータを抽出
+
+try {
+    var response = msg.payload;
+    
+    msg.payload = {
+        id: response.data.id,
+        name: response.data.name,
+        status: response.data.active ? "有効" : "無効"
+    };
+    
+    node.status({fill:"green", shape:"dot", text:"成功"});
+    return msg;
+    
+} catch (e) {
+    node.error("パースエラー: " + e.message, msg);
+    node.status({fill:"red", shape:"ring", text:"エラー"});
+    return null;
+}</div>
         
-        <table>
-            <tr>
-                <th>関数</th>
-                <th>説明</th>
-                <th>例</th>
-            </tr>
-            <tr>
-                <td>split()</td>
-                <td>文字列を分割</td>
-                <td><code>"a,b,c".split(",")</code> → ["a","b","c"]</td>
-            </tr>
-            <tr>
-                <td>join()</td>
-                <td>配列を結合</td>
-                <td><code>["a","b"].join(",")</code> → "a,b"</td>
-            </tr>
-            <tr>
-                <td>toUpperCase()</td>
-                <td>大文字に変換</td>
-                <td><code>"hello".toUpperCase()</code> → "HELLO"</td>
-            </tr>
-            <tr>
-                <td>substring()</td>
-                <td>部分文字列を取得</td>
-                <td><code>"hello".substring(0, 3)</code> → "hel"</td>
-            </tr>
-        </table>
+        <h3>ケース4: メッセージのフィルタリング</h3>
+        <div class="js-code" data-copy="true">// 重複メッセージを除外
+
+var lastValue = context.get('lastValue');
+
+if (msg.payload === lastValue) {
+    // 同じ値なら送信しない
+    return null;
+}
+
+// 新しい値を保存
+context.set('lastValue', msg.payload);
+
+return msg;</div>
         
-        <h2>🔗 9. 追加リソース</h2>
+        <h2>📗 8. 追加リソース</h2>
         
         <ul>
             <li><a href="https://nodered.org/docs/user-guide/writing-functions" target="_blank">Node-RED公式ドキュメント: Functionノード</a></li>
-            <li><a href="https://developer.mozilla.org/ja/docs/Web/JavaScript" target="_blank">MDN Web Docs: JavaScript</a></li>
-            <li><a href="https://cookbook.nodered.org/" target="_blank">Node-RED Cookbook: パターン集</a></li>
+            <li><a href="https://nodered.org/docs/user-guide/context" target="_blank">Node-RED公式ドキュメント: コンテキスト</a></li>
+            <li><a href="https://cookbook.nodered.org/" target="_blank">Node-RED Cookbook</a></li>
         </ul>
         
         <hr>
         
         <p style="text-align: center; color: #999; margin-top: 40px;">
             <small>このガイドが役に立ちましたら、実際のプロジェクトで練習してみてください!<br>
-            FunctionノードはNode-REDの最も強力で柔軟なノードです。</small>
+            Functionノードはカスタム処理の強力なツールです。</small><br>
+            <small>サンプルフロー提供: FlowFuse-HP</small>
         </p>
     </div>
     
     <script>
+        // タブ切り替え機能
+        function showTab(tabId) {
+            // 全てのタブコンテンツを非表示
+            document.querySelectorAll('.tab-content').forEach(function(tab) {
+                tab.classList.remove('active');
+            });
+            // 全てのボタンの選択状態を解除
+            document.querySelectorAll('.tab-button').forEach(function(btn) {
+                btn.classList.remove('active');
+            });
+            // 指定タブを表示
+            document.getElementById(tabId).classList.add('active');
+            // 対応ボタンを選択状態に
+            event.target.classList.add('active');
+        }
+        
         // ページ読み込み時にコピーボタンを追加
         document.addEventListener('DOMContentLoaded', function() {
-            // すべての.code-blockと.flow-jsonにコピーボタンを追加
-            // .flow-jsonクラスのみにコピーボタンを追加(演習問題のJSONフローのみ)
-            const codeBlocks = document.querySelectorAll('.flow-json');
+            // .flow-jsonと.js-code[data-copy="true"]にコピーボタンを追加
+            var codeBlocks = document.querySelectorAll('.flow-json, .js-code[data-copy="true"]');
             
             codeBlocks.forEach(function(block) {
                 // コピーボタンを作成
-                const button = document.createElement('button');
+                var button = document.createElement('button');
                 button.className = 'copy-button';
-                button.textContent = 'コピー';
+                button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
                 
                 // クリックイベントを追加
                 button.addEventListener('click', function() {
-                    // コードブロックのテキストを取得
-                    const code = block.textContent.replace('コピー', '').trim();
+                    // コードブロックのテキストを取得（ボタンテキストを除外）
+                    var code = block.textContent.replace(/コピー(しました!)?$/, '').trim();
+                    
+                    // 改行を適切に処理（Node-REDにペースト時に見やすくする）
+                    if (block.classList.contains('js-code')) {
+                        // JavaScriptコードの場合、行ごとに改行を維持
+                        code = block.innerText.replace(/コピー(しました!)?$/, '').trim();
+                    }
                     
                     // クリップボードにコピー
                     navigator.clipboard.writeText(code).then(function() {
                         // 成功時の視覚的フィードバック
-                        button.textContent = 'コピーしました!';
+                        button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>コピーしました!';
                         button.classList.add('copied');
                         
                         // 2秒後に元に戻す
                         setTimeout(function() {
-                            button.textContent = 'コピー';
+                            button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
                             button.classList.remove('copied');
                         }, 2000);
                     }).catch(function(err) {
                         console.error('コピーに失敗しました:', err);
                         button.textContent = 'エラー';
                         setTimeout(function() {
-                            button.textContent = 'コピー';
+                            button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
                         }, 2000);
                     });
                 });
