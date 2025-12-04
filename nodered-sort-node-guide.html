@@ -1,0 +1,1596 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED Sortノード 完全ガイド</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        h1 {
+            color: #8f0000;
+            border-bottom: 3px solid #8f0000;
+            padding-bottom: 10px;
+        }
+        
+        h2 {
+            color: #c00000;
+            margin-top: 30px;
+            border-left: 5px solid #c00000;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #555;
+            margin-top: 25px;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .node-example {
+            background-color: #2d3133;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            color: white;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .node {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 4px;
+            margin: 5px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .node-inject {
+            background-color: #3fadb5;
+            color: white;
+        }
+        
+        .node-split {
+            background-color: #e2d96e;
+            color: #333;
+        }
+        
+        .node-sort {
+            background-color: #e2d96e;
+            color: #333;
+        }
+        
+        .node-join {
+            background-color: #e2d96e;
+            color: #333;
+        }
+        
+        .node-debug {
+            background-color: #87a48d;
+            color: white;
+        }
+        
+        .node-template {
+            background-color: #d4b8a0;
+            color: #333;
+        }
+        
+        .node-function {
+            background-color: #e8a658;
+            color: white;
+        }
+        
+        .node-change {
+            background-color: #e7a070;
+            color: white;
+        }
+        
+        .arrow {
+            color: #999;
+            font-size: 20px;
+            margin: 0 10px;
+        }
+        
+        .important {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .tip {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .warning {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .code-block {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            position: relative;
+            white-space: pre-wrap;
+        }
+        
+        .copy-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 6px 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: 'Segoe UI', sans-serif;
+            transition: background-color 0.2s;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .copy-button:hover {
+            background-color: #0056b3;
+        }
+        
+        .copy-button.copied {
+            background-color: #28a745;
+        }
+        
+        .copy-button svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+        }
+        
+        .exercise {
+            background-color: #e8f5e9;
+            border: 2px solid #4caf50;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        
+        .exercise h3 {
+            color: #2e7d32;
+            margin-top: 0;
+        }
+        
+        .difficulty {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .difficulty-easy {
+            background-color: #4caf50;
+            color: white;
+        }
+        
+        .difficulty-medium {
+            background-color: #ff9800;
+            color: white;
+        }
+        
+        .difficulty-hard {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        ul, ol {
+            padding-left: 25px;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #e2d96e;
+            color: #333;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .flow-json {
+            background-color: #263238;
+            color: #aed581;
+            padding: 15px;
+            padding-top: 40px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        details {
+            margin: 15px 0;
+        }
+        
+        summary {
+            cursor: pointer;
+            padding: 10px;
+            background-color: #6c757d;
+            color: white;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        summary:hover {
+            background-color: #5a6268;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .feature-card {
+            background-color: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .feature-card h4 {
+            color: #b8a830;
+            margin-top: 0;
+        }
+        
+        .mode-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        
+        .badge-array {
+            background-color: #17a2b8;
+            color: white;
+        }
+        
+        .badge-sequence {
+            background-color: #6f42c1;
+            color: white;
+        }
+        
+        .badge-asc {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .badge-desc {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .data-flow {
+            background-color: #f0f0f0;
+            border: 2px dashed #999;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+        }
+        
+        .data-flow .before {
+            background-color: #ffcccc;
+            padding: 10px;
+            border-radius: 4px;
+            display: inline-block;
+            margin: 5px;
+        }
+        
+        .data-flow .after {
+            background-color: #ccffcc;
+            padding: 10px;
+            border-radius: 4px;
+            display: inline-block;
+            margin: 5px;
+        }
+        
+        .data-flow .arrow-down {
+            display: block;
+            font-size: 24px;
+            color: #666;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔢 Node-RED Sortノード 完全ガイド</h1>
+        
+        <p>このガイドでは、Node-REDの<strong>Sortノード</strong>について、初心者の方でも理解できるように詳しく説明します。</p>
+        
+        <h2>📚 1. Sortノードとは?</h2>
+        
+        <h3>🤔 「Sort」って何?</h3>
+        <p>
+            Sortノードは、<strong>配列やメッセージシーケンスを並べ替える</strong>ノードです。
+            日常生活で例えると、<strong>図書館の司書が本を著者名順やタイトル順に棚に並べ替える</strong>ような作業です。
+        </p>
+        
+        <div class="important">
+            <p><strong>📚 図書館の本の整理に例えると:</strong></p>
+            <ul>
+                <li>📖 <strong>バラバラに積まれた本</strong> = ソートされていない配列</li>
+                <li>🔤 <strong>タイトルのABC順で並べる</strong> = 昇順（ascending）ソート</li>
+                <li>🔢 <strong>出版年の新しい順で並べる</strong> = 降順（descending）ソート</li>
+                <li>📑 <strong>著者名で並べ、同じ著者は発売日順</strong> = 複合キーでのソート</li>
+            </ul>
+        </div>
+        
+        <h3>📦 基本的な動作</h3>
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-template">Template</span>
+            <span class="arrow">→</span>
+            <span class="node node-sort">Sort</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <p>
+            Sortノードは、配列またはメッセージシーケンスを受け取り、指定した条件で<strong>並べ替えて出力</strong>します。
+            文字列順、数値順、オブジェクトのプロパティ順など、様々な方法でソートできます。
+        </p>
+        
+        <div class="data-flow">
+            <div class="before">
+                <strong>入力（未ソート）</strong><br>
+                ["orange", "banana", "apple", "kiwi"]
+            </div>
+            <span class="arrow-down">↓ Sort（昇順） ↓</span>
+            <div class="after">
+                <strong>出力（ソート済み）</strong><br>
+                ["apple", "banana", "kiwi", "orange"]
+            </div>
+        </div>
+        
+        <h2>⚙️ 2. Sortノードの2つのモード</h2>
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h4><span class="mode-badge badge-array">配列</span> 配列ソート</h4>
+                <p>msg.payloadの配列を並べ替え</p>
+                <div class="code-block">配列の要素を
+直接ソート</div>
+            </div>
+            
+            <div class="feature-card">
+                <h4><span class="mode-badge badge-sequence">シーケンス</span> メッセージシーケンス</h4>
+                <p>Splitで分割したメッセージを並べ替え</p>
+                <div class="code-block">msg.partsを使用して
+メッセージ順序を変更</div>
+            </div>
+        </div>
+        
+        <h3>📋 設定項目一覧</h3>
+        
+        <table>
+            <tr>
+                <th>設定項目</th>
+                <th>説明</th>
+                <th>選択肢</th>
+            </tr>
+            <tr>
+                <td><strong>ソート対象</strong></td>
+                <td>配列またはメッセージシーケンスを選択</td>
+                <td>msg.payload / メッセージシーケンス</td>
+            </tr>
+            <tr>
+                <td><strong>ソート順</strong></td>
+                <td>昇順または降順を選択</td>
+                <td>昇順 / 降順</td>
+            </tr>
+            <tr>
+                <td><strong>数値として</strong></td>
+                <td>数値としてソートするかどうか</td>
+                <td>チェックボックス</td>
+            </tr>
+            <tr>
+                <td><strong>キー</strong></td>
+                <td>ソートの基準となる値を指定</td>
+                <td>要素の値 / JSONata式</td>
+            </tr>
+        </table>
+        
+        <h3>🎯 文字列ソート vs 数値ソート</h3>
+        
+        <p>同じデータでも「文字列として」と「数値として」でソート結果が異なります。</p>
+        
+        <div class="data-flow">
+            <div class="before">
+                <strong>入力</strong><br>
+                ["1024", "86", "256", "100", "9"]
+            </div>
+            <span class="arrow-down">↓ ソート ↓</span>
+            <div class="after">
+                <strong>文字列順</strong><br>
+                ["100", "1024", "256", "86", "9"]<br><br>
+                <strong>数値順</strong><br>
+                ["9", "86", "100", "256", "1024"]
+            </div>
+        </div>
+        
+        <div class="tip">
+            <p><strong>📌 文字列順と数値順の違い:</strong></p>
+            <ul>
+                <li><strong>文字列順</strong>: 先頭文字から辞書順で比較（"1024" は "256" より前）</li>
+                <li><strong>数値順</strong>: 数値の大小で比較（9 < 86 < 100 < 256 < 1024）</li>
+            </ul>
+        </div>
+        
+        <h2>🎯 3. 実用的な使用パターン</h2>
+        
+        <div class="important">
+            <p><strong>📥 サンプルフローのインポート方法:</strong></p>
+            <ol>
+                <li>下のサンプルフローJSONをコピー</li>
+                <li>Node-REDエディタで <strong>メニュー → 読み込み</strong> を選択</li>
+                <li>JSONをペーストして「読み込み」をクリック</li>
+            </ol>
+            <p>このサンプルフローには、以下で説明する全パターンの実例が含まれています。</p>
+        </div>
+        
+        <details>
+            <summary>📋 サンプルフロー（クリックで展開）</summary>
+            <p style="margin: 10px 0; color: #666;"><small>参照元：NodeREDエディター内サンプルフロー</small></p>
+            <div class="flow-json">[
+    {
+        "id": "9b4586fe59798b63",
+        "type": "tab",
+        "label": "sort",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "6451c8bb.b52278",
+        "type": "sort",
+        "z": "9b4586fe59798b63",
+        "name": "",
+        "order": "ascending",
+        "as_num": false,
+        "target": "payload",
+        "targetType": "msg",
+        "msgKey": "",
+        "msgKeyType": "elem",
+        "seqKey": "payload",
+        "seqKeyType": "msg",
+        "x": 570,
+        "y": 200,
+        "wires": [["cb34307c.ac1dd"]]
+    },
+    {
+        "id": "638546c.38f1fb8",
+        "type": "inject",
+        "z": "9b4586fe59798b63",
+        "name": "",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 280,
+        "y": 200,
+        "wires": [["db5d90ac.bbb3f"]]
+    },
+    {
+        "id": "3ec02cae.012ce4",
+        "type": "comment",
+        "z": "9b4586fe59798b63",
+        "name": "Sort array payload as string in ascending order",
+        "info": "",
+        "x": 340,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "db5d90ac.bbb3f",
+        "type": "template",
+        "z": "9b4586fe59798b63",
+        "name": "data",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "json",
+        "syntax": "mustache",
+        "template": "[\"orange\", \"banana\", \"apple\", \"pear\", \"kiwi\"]",
+        "output": "json",
+        "x": 430,
+        "y": 200,
+        "wires": [["6451c8bb.b52278"]]
+    },
+    {
+        "id": "cb34307c.ac1dd",
+        "type": "debug",
+        "z": "9b4586fe59798b63",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "x": 730,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "735ec14e.4ed55",
+        "type": "sort",
+        "z": "9b4586fe59798b63",
+        "name": "",
+        "order": "descending",
+        "as_num": false,
+        "target": "payload",
+        "targetType": "msg",
+        "msgKey": "",
+        "msgKeyType": "elem",
+        "seqKey": "payload",
+        "seqKeyType": "msg",
+        "x": 570,
+        "y": 360,
+        "wires": [["e8dc4ae5.f08598"]]
+    },
+    {
+        "id": "c8ce4e74.9db68",
+        "type": "inject",
+        "z": "9b4586fe59798b63",
+        "name": "",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 280,
+        "y": 360,
+        "wires": [["ea0384a6.1346b8"]]
+    },
+    {
+        "id": "70333397.d78f6c",
+        "type": "comment",
+        "z": "9b4586fe59798b63",
+        "name": "Sort array payload as string in descending order",
+        "info": "",
+        "x": 340,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "ea0384a6.1346b8",
+        "type": "template",
+        "z": "9b4586fe59798b63",
+        "name": "data",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "json",
+        "syntax": "mustache",
+        "template": "[\"orange\", \"banana\", \"apple\", \"pear\", \"kiwi\"]",
+        "output": "json",
+        "x": 430,
+        "y": 360,
+        "wires": [["735ec14e.4ed55"]]
+    },
+    {
+        "id": "e8dc4ae5.f08598",
+        "type": "debug",
+        "z": "9b4586fe59798b63",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "x": 730,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "d4b49c22.32685",
+        "type": "sort",
+        "z": "9b4586fe59798b63",
+        "name": "",
+        "order": "ascending",
+        "as_num": true,
+        "target": "payload",
+        "targetType": "msg",
+        "msgKey": "",
+        "msgKeyType": "elem",
+        "seqKey": "payload",
+        "seqKeyType": "msg",
+        "x": 570,
+        "y": 520,
+        "wires": [["45738f07.16416"]]
+    },
+    {
+        "id": "87ce9955.924868",
+        "type": "inject",
+        "z": "9b4586fe59798b63",
+        "name": "",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 280,
+        "y": 520,
+        "wires": [["30b81283.f0772e"]]
+    },
+    {
+        "id": "f6e624df.703a88",
+        "type": "comment",
+        "z": "9b4586fe59798b63",
+        "name": "Sort array payload as number",
+        "info": "",
+        "x": 280,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "30b81283.f0772e",
+        "type": "template",
+        "z": "9b4586fe59798b63",
+        "name": "data",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "json",
+        "syntax": "mustache",
+        "template": "[\"1024\", \"86\", \"256\", \"100\", \"9\"]",
+        "output": "json",
+        "x": 430,
+        "y": 520,
+        "wires": [["d4b49c22.32685"]]
+    },
+    {
+        "id": "45738f07.16416",
+        "type": "debug",
+        "z": "9b4586fe59798b63",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "x": 730,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "b91c19b1.b66b18",
+        "type": "sort",
+        "z": "9b4586fe59798b63",
+        "name": "",
+        "order": "ascending",
+        "as_num": false,
+        "target": "payload",
+        "targetType": "msg",
+        "msgKey": "price",
+        "msgKeyType": "jsonata",
+        "seqKey": "payload",
+        "seqKeyType": "msg",
+        "x": 570,
+        "y": 680,
+        "wires": [["32dd80a1.226e4"]]
+    },
+    {
+        "id": "adb0daa2.d85a48",
+        "type": "inject",
+        "z": "9b4586fe59798b63",
+        "name": "",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 280,
+        "y": 680,
+        "wires": [["b3ee1b9e.dbf388"]]
+    },
+    {
+        "id": "d1190f8b.9a74b",
+        "type": "comment",
+        "z": "9b4586fe59798b63",
+        "name": "Sort array of objects using JSONata (price)",
+        "info": "",
+        "x": 340,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "b3ee1b9e.dbf388",
+        "type": "template",
+        "z": "9b4586fe59798b63",
+        "name": "data",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "json",
+        "syntax": "mustache",
+        "template": "[{\"name\": \"orange\", \"price\": 80}, {\"name\": \"banana\", \"price\": 250}, {\"name\": \"apple\", \"price\": 100}]",
+        "output": "json",
+        "x": 430,
+        "y": 680,
+        "wires": [["b91c19b1.b66b18"]]
+    },
+    {
+        "id": "32dd80a1.226e4",
+        "type": "debug",
+        "z": "9b4586fe59798b63",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "x": 730,
+        "y": 680,
+        "wires": []
+    }
+]</div>
+        </details>
+        
+        <h3>パターン1: 配列の昇順ソート（文字列）</h3>
+        <p><strong>用途:</strong> 文字列配列をアルファベット順に並べ替え</p>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-template">Template</span>
+            <span class="arrow">→</span>
+            <span class="node node-sort">Sort<br><small>(昇順)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <div class="tip">
+            <p><strong>📌 動作の流れ:</strong></p>
+            <ol>
+                <li>["orange", "banana", "apple", "kiwi"] を入力</li>
+                <li>Sortノードが文字列として昇順ソート</li>
+                <li>["apple", "banana", "kiwi", "orange"] を出力</li>
+            </ol>
+        </div>
+        
+        <p><strong>設定例:</strong></p>
+        <div class="code-block">ソート対象: msg.payload
+ソート順: 昇順
+数値として: OFF
+
+入力: ["orange", "banana", "apple", "kiwi"]
+出力: ["apple", "banana", "kiwi", "orange"]</div>
+        
+        <h3>パターン2: 配列の降順ソート</h3>
+        <p><strong>用途:</strong> 配列を逆順に並べ替え</p>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-template">Template</span>
+            <span class="arrow">→</span>
+            <span class="node node-sort">Sort<br><small>(降順)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <p><strong>設定例:</strong></p>
+        <div class="code-block">ソート対象: msg.payload
+ソート順: 降順
+数値として: OFF
+
+入力: ["orange", "banana", "apple", "kiwi"]
+出力: ["pear", "orange", "kiwi", "banana", "apple"]</div>
+        
+        <h3>パターン3: 数値としてソート</h3>
+        <p><strong>用途:</strong> 数値を含む配列を数値順に並べ替え</p>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-template">Template</span>
+            <span class="arrow">→</span>
+            <span class="node node-sort">Sort<br><small>(数値)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <div class="tip">
+            <p><strong>📌 数値ソートのポイント:</strong></p>
+            <ul>
+                <li>「数値として」にチェックを入れると、文字列でも数値として比較</li>
+                <li>"9" は "100" より小さいと判定される（文字列順だと逆）</li>
+            </ul>
+        </div>
+        
+        <p><strong>設定例:</strong></p>
+        <div class="code-block">ソート対象: msg.payload
+ソート順: 昇順
+数値として: ON
+
+入力: ["1024", "86", "256", "100", "9"]
+出力: ["9", "86", "100", "256", "1024"]</div>
+        
+        <h3>パターン4: オブジェクト配列のソート（JSONata式）</h3>
+        <p><strong>用途:</strong> オブジェクトの特定プロパティで並べ替え</p>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-template">Template<br><small>(商品配列)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-sort">Sort<br><small>(price)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <div class="tip">
+            <p><strong>📌 JSONata式でのソート:</strong></p>
+            <ul>
+                <li>キーに <code>price</code> を指定すると、各要素のpriceプロパティでソート</li>
+                <li>配列要素がオブジェクトの場合に使用</li>
+            </ul>
+        </div>
+        
+        <p><strong>設定例:</strong></p>
+        <div class="code-block">ソート対象: msg.payload
+キー: price (JSONata式)
+ソート順: 昇順
+
+入力: [
+  {"name": "orange", "price": 80},
+  {"name": "banana", "price": 250},
+  {"name": "apple", "price": 100}
+]
+出力: [
+  {"name": "orange", "price": 80},
+  {"name": "apple", "price": 100},
+  {"name": "banana", "price": 250}
+]</div>
+        
+        <h3>パターン5: 複合キーでのソート</h3>
+        <p><strong>用途:</strong> 複数の条件で並べ替え（第1キー、第2キー）</p>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-template">Template</span>
+            <span class="arrow">→</span>
+            <span class="node node-sort">Sort<br><small>(price+name)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <p><strong>設定例:</strong></p>
+        <div class="code-block">ソート対象: msg.payload
+キー: $substring("0000" & $string(price), -4) & name
+ソート順: 昇順
+
+この式の意味:
+1. priceを4桁のゼロ埋め文字列に変換（100 → "0100"）
+2. nameを連結（"0100apple"）
+3. この連結文字列でソート
+
+結果: 価格順、同じ価格なら名前順</div>
+        
+        <h3>パターン6: メッセージシーケンスのソート</h3>
+        <p><strong>用途:</strong> Splitで分割したメッセージを並べ替え</p>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-template">Template</span>
+            <span class="arrow">→</span>
+            <span class="node node-split">Split</span>
+            <span class="arrow">→→→</span>
+            <span class="node node-sort">Sort<br><small>(シーケンス)</small></span>
+            <span class="arrow">→→→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <div class="tip">
+            <p><strong>📌 メッセージシーケンスのポイント:</strong></p>
+            <ul>
+                <li>Splitノードで分割されたメッセージにはmsg.partsが付与される</li>
+                <li>Sortノードはmsg.partsを使ってメッセージの順序を変更</li>
+                <li>出力もメッセージシーケンス（複数メッセージ）として出力</li>
+            </ul>
+        </div>
+        
+        <p><strong>設定例:</strong></p>
+        <div class="code-block">ソート対象: メッセージシーケンス
+キー: msg.payload
+ソート順: 昇順
+
+入力シーケンス: "orange" → "banana" → "apple" → "kiwi"
+出力シーケンス: "apple" → "banana" → "kiwi" → "orange"</div>
+        
+        <h2>🏋️ 4. 実践演習</h2>
+        
+        <div class="exercise">
+            <h3>演習1: 果物名のソート<span class="difficulty difficulty-easy">初級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>果物名の配列を降順（Z→A）に並べ替えてください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Inject、Template、Sort、Debugノードを使用</li>
+                <li>入力: ["grape", "apple", "cherry", "banana"]</li>
+                <li>出力: ["grape", "cherry", "banana", "apple"]</li>
+            </ul>
+            
+            <p><strong>📊 期待される動作:</strong></p>
+            <ul>
+                <li>Injectボタンをクリック → Debugにソートされた配列が表示</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Injectノードの設定:</strong></p>
+                <ul>
+                    <li>payload: タイムスタンプ（デフォルト）</li>
+                </ul>
+                <p><strong>Templateノードの設定:</strong></p>
+                <ul>
+                    <li>形式: JSON</li>
+                    <li>テンプレート: ["grape", "apple", "cherry", "banana"]</li>
+                    <li>出力: JSONオブジェクト</li>
+                </ul>
+                <p><strong>Sortノードの設定:</strong></p>
+                <ul>
+                    <li>ソート対象: msg.payload</li>
+                    <li>ソート順: 降順</li>
+                    <li>数値として: OFF（チェックなし）</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "ex1_inject",
+        "type": "inject",
+        "name": "実行",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 110,
+        "y": 100,
+        "wires": [["ex1_template"]]
+    },
+    {
+        "id": "ex1_template",
+        "type": "template",
+        "name": "果物配列",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "json",
+        "syntax": "plain",
+        "template": "[\"grape\", \"apple\", \"cherry\", \"banana\"]",
+        "output": "json",
+        "x": 260,
+        "y": 100,
+        "wires": [["ex1_sort"]]
+    },
+    {
+        "id": "ex1_sort",
+        "type": "sort",
+        "name": "降順ソート",
+        "order": "descending",
+        "as_num": false,
+        "target": "payload",
+        "targetType": "msg",
+        "msgKey": "",
+        "msgKeyType": "elem",
+        "seqKey": "payload",
+        "seqKeyType": "msg",
+        "x": 420,
+        "y": 100,
+        "wires": [["ex1_debug"]]
+    },
+    {
+        "id": "ex1_debug",
+        "type": "debug",
+        "name": "結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 570,
+        "y": 100,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習2: センサー値の数値ソート<span class="difficulty difficulty-medium">中級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>センサーから取得した数値データを昇順に並べ替えてください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Inject、Template、Sort、Debugノードを使用</li>
+                <li>入力: [42, 7, 128, 15, 99]</li>
+                <li>出力: [7, 15, 42, 99, 128]</li>
+            </ul>
+            
+            <p><strong>📊 期待される動作:</strong></p>
+            <ul>
+                <li>数値として正しく昇順ソートされる</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Templateノードの設定:</strong></p>
+                <ul>
+                    <li>形式: JSON</li>
+                    <li>テンプレート: [42, 7, 128, 15, 99]</li>
+                    <li>出力: JSONオブジェクト</li>
+                </ul>
+                <p><strong>Sortノードの設定:</strong></p>
+                <ul>
+                    <li>ソート対象: msg.payload</li>
+                    <li>ソート順: 昇順</li>
+                    <li>数値として: ON（チェック）</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "ex2_inject",
+        "type": "inject",
+        "name": "実行",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 110,
+        "y": 100,
+        "wires": [["ex2_template"]]
+    },
+    {
+        "id": "ex2_template",
+        "type": "template",
+        "name": "センサー値",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "json",
+        "syntax": "plain",
+        "template": "[42, 7, 128, 15, 99]",
+        "output": "json",
+        "x": 270,
+        "y": 100,
+        "wires": [["ex2_sort"]]
+    },
+    {
+        "id": "ex2_sort",
+        "type": "sort",
+        "name": "数値昇順",
+        "order": "ascending",
+        "as_num": true,
+        "target": "payload",
+        "targetType": "msg",
+        "msgKey": "",
+        "msgKeyType": "elem",
+        "seqKey": "payload",
+        "seqKeyType": "msg",
+        "x": 420,
+        "y": 100,
+        "wires": [["ex2_debug"]]
+    },
+    {
+        "id": "ex2_debug",
+        "type": "debug",
+        "name": "結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 570,
+        "y": 100,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習3: 商品価格でソート<span class="difficulty difficulty-medium">中級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>商品オブジェクトの配列を価格の安い順に並べ替えてください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Inject、Template、Sort、Debugノードを使用</li>
+                <li>入力: 商品名と価格を持つオブジェクトの配列</li>
+                <li>出力: 価格の昇順でソートされた配列</li>
+            </ul>
+            
+            <p><strong>📊 期待される動作:</strong></p>
+            <ul>
+                <li>最も安い商品が先頭に来る</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Templateノードの設定:</strong></p>
+                <ul>
+                    <li>形式: JSON</li>
+                    <li>テンプレート例: [{"name": "Pen", "price": 150}, {"name": "Eraser", "price": 50}, {"name": "Notebook", "price": 300}]</li>
+                </ul>
+                <p><strong>Sortノードの設定:</strong></p>
+                <ul>
+                    <li>ソート対象: msg.payload</li>
+                    <li>キー: price（JSONata式を選択）</li>
+                    <li>ソート順: 昇順</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "ex3_inject",
+        "type": "inject",
+        "name": "実行",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 110,
+        "y": 100,
+        "wires": [["ex3_template"]]
+    },
+    {
+        "id": "ex3_template",
+        "type": "template",
+        "name": "商品データ",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "json",
+        "syntax": "plain",
+        "template": "[{\"name\": \"Pen\", \"price\": 150}, {\"name\": \"Eraser\", \"price\": 50}, {\"name\": \"Notebook\", \"price\": 300}]",
+        "output": "json",
+        "x": 270,
+        "y": 100,
+        "wires": [["ex3_sort"]]
+    },
+    {
+        "id": "ex3_sort",
+        "type": "sort",
+        "name": "価格順ソート",
+        "order": "ascending",
+        "as_num": false,
+        "target": "payload",
+        "targetType": "msg",
+        "msgKey": "price",
+        "msgKeyType": "jsonata",
+        "seqKey": "payload",
+        "seqKeyType": "msg",
+        "x": 440,
+        "y": 100,
+        "wires": [["ex3_debug"]]
+    },
+    {
+        "id": "ex3_debug",
+        "type": "debug",
+        "name": "結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 590,
+        "y": 100,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習4: メッセージシーケンスのソート<span class="difficulty difficulty-hard">上級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>Splitで分割したメッセージシーケンスをソートし、Joinで再結合してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Inject、Template、Split、Sort、Join、Debugノードを使用</li>
+                <li>入力: 改行区切りの都市名リスト</li>
+                <li>出力: アルファベット順に並べ替えられた配列</li>
+            </ul>
+            
+            <p><strong>📊 期待される動作:</strong></p>
+            <ul>
+                <li>Splitで分割 → Sortで並べ替え → Joinで配列に再結合</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Templateノードの設定:</strong></p>
+                <ul>
+                    <li>形式: テキスト</li>
+                    <li>テンプレート: Tokyo, Osaka, Kyoto, Nagoyaを改行で区切って入力</li>
+                    <li>出力: 文字列</li>
+                </ul>
+                <p><strong>Splitノードの設定:</strong></p>
+                <ul>
+                    <li>分割: 改行（\n）</li>
+                </ul>
+                <p><strong>Sortノードの設定:</strong></p>
+                <ul>
+                    <li>ソート対象: メッセージシーケンス</li>
+                    <li>キー: msg.payload</li>
+                    <li>ソート順: 昇順</li>
+                </ul>
+                <p><strong>Joinノードの設定:</strong></p>
+                <ul>
+                    <li>モード: 自動（または配列形式）</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "ex4_inject",
+        "type": "inject",
+        "name": "実行",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 90,
+        "y": 100,
+        "wires": [["ex4_template"]]
+    },
+    {
+        "id": "ex4_template",
+        "type": "template",
+        "name": "都市リスト",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "text",
+        "syntax": "plain",
+        "template": "Tokyo\nOsaka\nKyoto\nNagoya",
+        "output": "str",
+        "x": 220,
+        "y": 100,
+        "wires": [["ex4_split"]]
+    },
+    {
+        "id": "ex4_split",
+        "type": "split",
+        "name": "分割",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "x": 350,
+        "y": 100,
+        "wires": [["ex4_sort"]]
+    },
+    {
+        "id": "ex4_sort",
+        "type": "sort",
+        "name": "ソート",
+        "order": "ascending",
+        "as_num": false,
+        "target": "",
+        "targetType": "seq",
+        "msgKey": "",
+        "msgKeyType": "elem",
+        "seqKey": "payload",
+        "seqKeyType": "msg",
+        "x": 470,
+        "y": 100,
+        "wires": [["ex4_join"]]
+    },
+    {
+        "id": "ex4_join",
+        "type": "join",
+        "name": "結合",
+        "mode": "auto",
+        "build": "array",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "accumulate": false,
+        "timeout": "",
+        "count": "",
+        "reduceRight": false,
+        "x": 590,
+        "y": 100,
+        "wires": [["ex4_debug"]]
+    },
+    {
+        "id": "ex4_debug",
+        "type": "debug",
+        "name": "結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 710,
+        "y": 100,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+        
+        <h2>🎓 5. まとめ</h2>
+        
+        <div class="important">
+            <h3>Sortノードの重要ポイント</h3>
+            <ul>
+                <li>✅ <strong>2つのモード</strong>: 配列ソートとメッセージシーケンスソート</li>
+                <li>✅ <strong>ソート順</strong>: 昇順（ascending）と降順（descending）</li>
+                <li>✅ <strong>数値モード</strong>: 数値として比較するか文字列として比較するか選択可能</li>
+                <li>✅ <strong>JSONata式</strong>: オブジェクト配列のプロパティでソート可能</li>
+                <li>✅ <strong>Split/Joinとの連携</strong>: メッセージシーケンスのソートはSplit/Joinと組み合わせて使用</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <h3>⚠️ よくある間違い</h3>
+            <ul>
+                <li><strong>文字列数値の混同</strong>: "9" が "100" より大きいと判定される（文字列順）</li>
+                <li><strong>JSONata式の指定ミス</strong>: 配列要素のプロパティ名を正確に指定する</li>
+                <li><strong>シーケンスモードの選択忘れ</strong>: Splitからのメッセージは「メッセージシーケンス」を選択</li>
+                <li><strong>msg.partsの欠落</strong>: シーケンスソートにはmsg.partsが必要</li>
+            </ul>
+        </div>
+        
+        <div class="tip">
+            <h3>📚 次のステップ</h3>
+            <p>Sortノードをマスターしたら、以下のノードも学んでみましょう:</p>
+            <ul>
+                <li><strong>Splitノード</strong>: 配列やテキストを分割</li>
+                <li><strong>Joinノード</strong>: メッセージを結合</li>
+                <li><strong>Batchノード</strong>: メッセージをグループ化</li>
+            </ul>
+        </div>
+        
+        <h2>🔧 6. トラブルシューティング</h2>
+        
+        <h3>よくある問題と解決方法</h3>
+        
+        <table>
+            <tr>
+                <th>問題</th>
+                <th>原因</th>
+                <th>解決方法</th>
+            </tr>
+            <tr>
+                <td>ソートされない</td>
+                <td>配列でない値が入力されている</td>
+                <td>入力データが配列であることを確認</td>
+            </tr>
+            <tr>
+                <td>数値順にならない</td>
+                <td>「数値として」がOFF</td>
+                <td>「数値として」をONに設定</td>
+            </tr>
+            <tr>
+                <td>シーケンスソートが動かない</td>
+                <td>msg.partsがない</td>
+                <td>Splitノードを経由させる</td>
+            </tr>
+            <tr>
+                <td>JSONata式でエラー</td>
+                <td>プロパティ名のスペルミス</td>
+                <td>オブジェクトのプロパティ名を確認</td>
+            </tr>
+            <tr>
+                <td>結果が配列でなくバラバラ</td>
+                <td>シーケンスモードで使用</td>
+                <td>Joinノードで再結合する</td>
+            </tr>
+            <tr>
+                <td>順序が安定しない</td>
+                <td>同じ値の要素の順序</td>
+                <td>複合キーで第2ソート条件を追加</td>
+            </tr>
+        </table>
+        
+        <h2>💡 7. 実務での活用例</h2>
+        
+        <h3>ケース1: IoTセンサーデータのランキング</h3>
+        <div class="code-block">複数センサーから温度データ受信
+↓
+Sortノード（数値降順）
+↓
+最も高温のセンサーが先頭
+↓
+アラート判定・通知</div>
+        
+        <h3>ケース2: APIレスポンスの整理</h3>
+        <div class="code-block">REST APIから商品一覧取得
+↓
+Sortノード（価格昇順、JSONata: price）
+↓
+安い順に並び替え
+↓
+フロントエンドに返却</div>
+        
+        <h3>ケース3: ログデータの時系列整理</h3>
+        <div class="code-block">複数ソースからログ収集
+↓
+Sortノード（timestamp昇順）
+↓
+時系列順に整列
+↓
+データベース保存</div>
+        
+        <h3>ケース4: 在庫管理の優先順位付け</h3>
+        <div class="code-block">倉庫の在庫データ
+↓
+Sortノード（数量昇順）
+↓
+在庫が少ない順にソート
+↓
+発注アラート生成</div>
+        
+        <h2>🔗 8. 追加リソース</h2>
+        
+        <ul>
+            <li><a href="https://nodered.org/docs/user-guide/messages" target="_blank">Node-RED公式ドキュメント: メッセージの操作</a></li>
+            <li><a href="https://nodered.org/docs/user-guide/nodes#sort" target="_blank">Node-RED公式ドキュメント: Sortノード</a></li>
+            <li><a href="https://docs.jsonata.org/" target="_blank">JSONataドキュメント</a></li>
+            <li><a href="https://cookbook.nodered.org/" target="_blank">Node-RED Cookbook</a></li>
+        </ul>
+        
+        <hr>
+        
+        <p style="text-align: center; color: #999; margin-top: 40px;">
+            <small>このガイドが役に立ちましたら、実際のプロジェクトで練習してみてください!<br>
+            Sortノードはデータ整理・ランキング作成の強力なツールです。</small><br>
+            <small>参照元：NodeREDエディター内サンプルフロー</small>
+        </p>
+    </div>
+    
+    <script>
+        // ページ読み込み時にコピーボタンを追加
+        document.addEventListener('DOMContentLoaded', function() {
+            // .flow-jsonにコピーボタンを追加
+            var codeBlocks = document.querySelectorAll('.flow-json');
+            
+            codeBlocks.forEach(function(block) {
+                // コピーボタンを作成
+                var button = document.createElement('button');
+                button.className = 'copy-button';
+                button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                
+                // クリックイベントを追加
+                button.addEventListener('click', function() {
+                    // コードブロックのテキストを取得（ボタンテキストを除外）
+                    var code = block.textContent.replace(/コピー(しました!)?$/, '').trim();
+                    
+                    // クリップボードにコピー
+                    navigator.clipboard.writeText(code).then(function() {
+                        // 成功時の視覚的フィードバック
+                        button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>コピーしました!';
+                        button.classList.add('copied');
+                        
+                        // 2秒後に元に戻す
+                        setTimeout(function() {
+                            button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                            button.classList.remove('copied');
+                        }, 2000);
+                    }).catch(function(err) {
+                        console.error('コピーに失敗しました:', err);
+                        button.textContent = 'エラー';
+                        setTimeout(function() {
+                            button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                        }, 2000);
+                    });
+                });
+                
+                // ボタンをコードブロックに追加
+                block.style.position = 'relative';
+                block.appendChild(button);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1685 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED Batchノード 完全ガイド</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        h1 {
+            color: #8f0000;
+            border-bottom: 3px solid #8f0000;
+            padding-bottom: 10px;
+        }
+        
+        h2 {
+            color: #c00000;
+            margin-top: 30px;
+            border-left: 5px solid #c00000;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #555;
+            margin-top: 25px;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .node-example {
+            background-color: #2d3133;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            color: white;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .node {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 4px;
+            margin: 5px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .node-inject {
+            background-color: #3fadb5;
+            color: white;
+        }
+        
+        .node-split {
+            background-color: #e2d96e;
+            color: #333;
+        }
+        
+        .node-batch {
+            background-color: #e2d96e;
+            color: #333;
+        }
+        
+        .node-join {
+            background-color: #e2d96e;
+            color: #333;
+        }
+        
+        .node-debug {
+            background-color: #87a48d;
+            color: white;
+        }
+        
+        .node-template {
+            background-color: #d4b8a0;
+            color: #333;
+        }
+        
+        .node-function {
+            background-color: #e8a658;
+            color: white;
+        }
+        
+        .node-change {
+            background-color: #e7a070;
+            color: white;
+        }
+        
+        .node-switch {
+            background-color: #e2d96e;
+            color: #333;
+        }
+        
+        .node-delay {
+            background-color: #e6bcbe;
+            color: #333;
+        }
+        
+        .arrow {
+            color: #999;
+            font-size: 20px;
+            margin: 0 10px;
+        }
+        
+        .important {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .tip {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .warning {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .code-block {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            position: relative;
+            white-space: pre-wrap;
+        }
+        
+        .copy-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 6px 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: 'Segoe UI', sans-serif;
+            transition: background-color 0.2s;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .copy-button:hover {
+            background-color: #0056b3;
+        }
+        
+        .copy-button.copied {
+            background-color: #28a745;
+        }
+        
+        .copy-button svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+        }
+        
+        .exercise {
+            background-color: #e8f5e9;
+            border: 2px solid #4caf50;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        
+        .exercise h3 {
+            color: #2e7d32;
+            margin-top: 0;
+        }
+        
+        .difficulty {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .difficulty-easy {
+            background-color: #4caf50;
+            color: white;
+        }
+        
+        .difficulty-medium {
+            background-color: #ff9800;
+            color: white;
+        }
+        
+        .difficulty-hard {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        ul, ol {
+            padding-left: 25px;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #e2d96e;
+            color: #333;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .flow-json {
+            background-color: #263238;
+            color: #aed581;
+            padding: 15px;
+            padding-top: 40px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        details {
+            margin: 15px 0;
+        }
+        
+        summary {
+            cursor: pointer;
+            padding: 10px;
+            background-color: #6c757d;
+            color: white;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        summary:hover {
+            background-color: #5a6268;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .feature-card {
+            background-color: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .feature-card h4 {
+            color: #b8a830;
+            margin-top: 0;
+        }
+        
+        .mode-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        
+        .badge-count {
+            background-color: #17a2b8;
+            color: white;
+        }
+        
+        .badge-interval {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .badge-concat {
+            background-color: #6f42c1;
+            color: white;
+        }
+        
+        .data-flow {
+            background-color: #f0f0f0;
+            border: 2px dashed #999;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+        }
+        
+        .data-flow .before {
+            background-color: #ffcccc;
+            padding: 10px;
+            border-radius: 4px;
+            display: inline-block;
+            margin: 5px;
+        }
+        
+        .data-flow .after {
+            background-color: #ccffcc;
+            padding: 10px;
+            border-radius: 4px;
+            display: inline-block;
+            margin: 5px;
+        }
+        
+        .data-flow .arrow-down {
+            display: block;
+            font-size: 24px;
+            color: #666;
+            margin: 10px 0;
+        }
+        
+        .batch-visual {
+            background-color: #e8e8e8;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .batch-visual .msg {
+            display: inline-block;
+            padding: 5px 10px;
+            margin: 2px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        
+        .batch-visual .group1 {
+            background-color: #ffcccb;
+        }
+        
+        .batch-visual .group2 {
+            background-color: #90EE90;
+        }
+        
+        .batch-visual .group3 {
+            background-color: #87CEEB;
+        }
+        
+        .batch-visual .overlap {
+            background: linear-gradient(135deg, #ffcccb 50%, #90EE90 50%);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📦 Node-RED Batchノード 完全ガイド</h1>
+        
+        <p>このガイドでは、Node-REDの<strong>Batchノード</strong>について、初心者の方でも理解できるように詳しく説明します。</p>
+        
+        <h2>📚 1. Batchノードとは?</h2>
+        
+        <h3>🤔 「Batch」って何?</h3>
+        <p>
+            Batchノードは、<strong>連続するメッセージをグループ化して新しいメッセージシーケンスを作成する</strong>ノードです。
+            日常生活で例えると、<strong>工場のベルトコンベアで製品を箱詰めする作業</strong>のようなものです。
+        </p>
+        
+        <div class="important">
+            <p><strong>📦 工場の箱詰めラインに例えると:</strong></p>
+            <ul>
+                <li>🏭 <strong>製品が1つずつ流れてくる</strong> = 個別のメッセージが到着</li>
+                <li>📦 <strong>5個ずつ箱に詰める</strong> = 数量ベースのグループ化（countモード）</li>
+                <li>⏱️ <strong>10秒間に届いた分を1箱に</strong> = 時間ベースのグループ化（intervalモード）</li>
+                <li>🔗 <strong>複数ラインの製品を順番に1箱に</strong> = 連結モード（concatモード）</li>
+            </ul>
+        </div>
+        
+        <h3>📦 基本的な動作</h3>
+        <div class="node-example">
+            <span class="node node-function">Function<br><small>(送信)</small></span>
+            <span class="arrow">→→→</span>
+            <span class="node node-batch">Batch</span>
+            <span class="arrow">→→→</span>
+            <span class="node node-join">Join</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <p>
+            Batchノードは、連続するメッセージを受け取り、指定した条件で<strong>グループ化したメッセージシーケンス</strong>を出力します。
+            出力されるのはmsg.partsを持つメッセージシーケンスなので、Joinノードと組み合わせて配列にまとめることができます。
+        </p>
+        
+        <div class="data-flow">
+            <div class="before">
+                <strong>入力（30個のメッセージ）</strong><br>
+                0 → 1 → 2 → 3 → 4 → 5 → 6 → ... → 29
+            </div>
+            <span class="arrow-down">↓ Batch（5個ずつ） ↓</span>
+            <div class="after">
+                <strong>出力（6つのグループ）</strong><br>
+                [0,1,2,3,4] → [5,6,7,8,9] → ... → [25,26,27,28,29]
+            </div>
+        </div>
+        
+        <h2>⚙️ 2. Batchノードの3つのモード</h2>
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h4><span class="mode-badge badge-count">数量</span> 数量ベースモード</h4>
+                <p>指定した数のメッセージをグループ化</p>
+                <div class="code-block">N個ずつまとめて
+シーケンス作成
+オーバーラップ可能</div>
+            </div>
+            
+            <div class="feature-card">
+                <h4><span class="mode-badge badge-interval">時間</span> 時間ベースモード</h4>
+                <p>指定時間内のメッセージをグループ化</p>
+                <div class="code-block">N秒間に届いた
+メッセージを1グループに</div>
+            </div>
+            
+            <div class="feature-card">
+                <h4><span class="mode-badge badge-concat">連結</span> 連結モード</h4>
+                <p>複数のシーケンスを結合</p>
+                <div class="code-block">トピック別の
+シーケンスを順番に連結</div>
+            </div>
+        </div>
+        
+        <h3>📋 設定項目一覧</h3>
+        
+        <table>
+            <tr>
+                <th>設定項目</th>
+                <th>説明</th>
+                <th>使用モード</th>
+            </tr>
+            <tr>
+                <td><strong>モード</strong></td>
+                <td>数量/時間/連結から選択</td>
+                <td>全モード共通</td>
+            </tr>
+            <tr>
+                <td><strong>メッセージ数</strong></td>
+                <td>1グループにまとめるメッセージ数</td>
+                <td>数量ベース</td>
+            </tr>
+            <tr>
+                <td><strong>オーバーラップ</strong></td>
+                <td>隣接グループ間で共有するメッセージ数</td>
+                <td>数量ベース</td>
+            </tr>
+            <tr>
+                <td><strong>間隔（秒）</strong></td>
+                <td>グループ化する時間間隔</td>
+                <td>時間ベース</td>
+            </tr>
+            <tr>
+                <td><strong>空シーケンスを許可</strong></td>
+                <td>メッセージがない場合も空シーケンスを出力</td>
+                <td>時間ベース</td>
+            </tr>
+            <tr>
+                <td><strong>トピック</strong></td>
+                <td>連結するシーケンスのトピック順序</td>
+                <td>連結モード</td>
+            </tr>
+        </table>
+        
+        <h3>🎯 オーバーラップの動作</h3>
+        
+        <p>数量ベースモードでは、グループ間でメッセージを共有（オーバーラップ）できます。</p>
+        
+        <div class="batch-visual">
+            <p><strong>オーバーラップなし（overlap=0）:</strong></p>
+            <span class="msg group1">0</span>
+            <span class="msg group1">1</span>
+            <span class="msg group1">2</span>
+            <span class="msg group1">3</span>
+            <span class="msg group1">4</span>
+            |
+            <span class="msg group2">5</span>
+            <span class="msg group2">6</span>
+            <span class="msg group2">7</span>
+            <span class="msg group2">8</span>
+            <span class="msg group2">9</span>
+            |
+            <span class="msg group3">10</span>...
+            <br><br>
+            <p><strong>オーバーラップあり（overlap=1）:</strong></p>
+            <span class="msg group1">0</span>
+            <span class="msg group1">1</span>
+            <span class="msg group1">2</span>
+            <span class="msg group1">3</span>
+            <span class="msg overlap">4</span>
+            <span class="msg group2">5</span>
+            <span class="msg group2">6</span>
+            <span class="msg group2">7</span>
+            <span class="msg overlap">8</span>
+            <span class="msg group3">9</span>...
+            <br>
+            <small>グループ1: [0,1,2,3,4] → グループ2: [4,5,6,7,8] → グループ3: [8,9,10,11,12]...</small>
+        </div>
+        
+        <div class="tip">
+            <p><strong>📌 オーバーラップの活用例:</strong></p>
+            <ul>
+                <li><strong>移動平均の計算</strong>: 直近5件のデータで平均を取り、1件ずつスライド</li>
+                <li><strong>パターン検出</strong>: 前後の文脈を含めたデータ分析</li>
+                <li><strong>異常検知</strong>: 連続したデータの変化点を検出</li>
+            </ul>
+        </div>
+        
+        <h2>🎯 3. 実用的な使用パターン</h2>
+        
+        <div class="important">
+            <p><strong>📥 サンプルフローのインポート方法:</strong></p>
+            <ol>
+                <li>下のサンプルフローJSONをコピー</li>
+                <li>Node-REDエディタで <strong>メニュー → 読み込み</strong> を選択</li>
+                <li>JSONをペーストして「読み込み」をクリック</li>
+            </ol>
+            <p>このサンプルフローには、以下で説明する全パターンの実例が含まれています。</p>
+        </div>
+        
+        <details>
+            <summary>📋 サンプルフロー（クリックで展開）</summary>
+            <p style="margin: 10px 0; color: #666;"><small>参照元：NodeREDエディター内サンプルフロー</small></p>
+            <div class="flow-json">[
+    {
+        "id": "batch_sample_tab",
+        "type": "tab",
+        "label": "Batch Sample",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "batch_count_inject",
+        "type": "inject",
+        "z": "batch_sample_tab",
+        "name": "実行",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 110,
+        "y": 100,
+        "wires": [["batch_count_func"]]
+    },
+    {
+        "id": "batch_count_func",
+        "type": "function",
+        "z": "batch_sample_tab",
+        "name": "send: 0-29",
+        "func": "for(var x = 0; x < 30; x++) {\n    node.send({payload: x});\n}",
+        "outputs": 1,
+        "x": 250,
+        "y": 100,
+        "wires": [["batch_count_node"]]
+    },
+    {
+        "id": "batch_count_node",
+        "type": "batch",
+        "z": "batch_sample_tab",
+        "name": "5個ずつ",
+        "mode": "count",
+        "count": "5",
+        "overlap": 0,
+        "interval": "5",
+        "allowEmptySequence": false,
+        "topics": [],
+        "x": 400,
+        "y": 100,
+        "wires": [["batch_count_join"]]
+    },
+    {
+        "id": "batch_count_join",
+        "type": "join",
+        "z": "batch_sample_tab",
+        "name": "配列化",
+        "mode": "auto",
+        "build": "array",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "accumulate": false,
+        "timeout": "",
+        "count": "",
+        "x": 550,
+        "y": 100,
+        "wires": [["batch_count_debug"]]
+    },
+    {
+        "id": "batch_count_debug",
+        "type": "debug",
+        "z": "batch_sample_tab",
+        "name": "結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 690,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "batch_overlap_inject",
+        "type": "inject",
+        "z": "batch_sample_tab",
+        "name": "実行",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 110,
+        "y": 200,
+        "wires": [["batch_overlap_func"]]
+    },
+    {
+        "id": "batch_overlap_func",
+        "type": "function",
+        "z": "batch_sample_tab",
+        "name": "send: 0-14",
+        "func": "for(var x = 0; x < 15; x++) {\n    node.send({payload: x});\n}",
+        "outputs": 1,
+        "x": 250,
+        "y": 200,
+        "wires": [["batch_overlap_node"]]
+    },
+    {
+        "id": "batch_overlap_node",
+        "type": "batch",
+        "z": "batch_sample_tab",
+        "name": "5個(overlap=2)",
+        "mode": "count",
+        "count": "5",
+        "overlap": "2",
+        "interval": "5",
+        "allowEmptySequence": false,
+        "topics": [],
+        "x": 420,
+        "y": 200,
+        "wires": [["batch_overlap_join"]]
+    },
+    {
+        "id": "batch_overlap_join",
+        "type": "join",
+        "z": "batch_sample_tab",
+        "name": "配列化",
+        "mode": "auto",
+        "build": "array",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "accumulate": false,
+        "timeout": "",
+        "count": "",
+        "x": 570,
+        "y": 200,
+        "wires": [["batch_overlap_debug"]]
+    },
+    {
+        "id": "batch_overlap_debug",
+        "type": "debug",
+        "z": "batch_sample_tab",
+        "name": "結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 710,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "batch_interval_inject",
+        "type": "inject",
+        "z": "batch_sample_tab",
+        "name": "実行",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 110,
+        "y": 320,
+        "wires": [["batch_interval_func"]]
+    },
+    {
+        "id": "batch_interval_func",
+        "type": "function",
+        "z": "batch_sample_tab",
+        "name": "send: 0-9",
+        "func": "for(var x = 0; x < 10; x++) {\n    node.send({payload: x});\n}",
+        "outputs": 1,
+        "x": 250,
+        "y": 320,
+        "wires": [["batch_interval_delay"]]
+    },
+    {
+        "id": "batch_interval_delay",
+        "type": "delay",
+        "z": "batch_sample_tab",
+        "name": "1msg/sec",
+        "pauseType": "rate",
+        "timeout": "1",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 400,
+        "y": 320,
+        "wires": [["batch_interval_node"]]
+    },
+    {
+        "id": "batch_interval_node",
+        "type": "batch",
+        "z": "batch_sample_tab",
+        "name": "3秒間隔",
+        "mode": "interval",
+        "count": 10,
+        "overlap": 0,
+        "interval": "3",
+        "allowEmptySequence": false,
+        "topics": [],
+        "x": 540,
+        "y": 320,
+        "wires": [["batch_interval_join"]]
+    },
+    {
+        "id": "batch_interval_join",
+        "type": "join",
+        "z": "batch_sample_tab",
+        "name": "配列化",
+        "mode": "auto",
+        "build": "array",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "accumulate": false,
+        "timeout": "",
+        "count": "",
+        "x": 670,
+        "y": 320,
+        "wires": [["batch_interval_debug"]]
+    },
+    {
+        "id": "batch_interval_debug",
+        "type": "debug",
+        "z": "batch_sample_tab",
+        "name": "結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 810,
+        "y": 320,
+        "wires": []
+    }
+]</div>
+        </details>
+        
+        <h3>パターン1: 数量ベースのグループ化</h3>
+        <p><strong>用途:</strong> 連続メッセージを指定数ずつグループ化</p>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">Function<br><small>(0-29送信)</small></span>
+            <span class="arrow">→→→</span>
+            <span class="node node-batch">Batch<br><small>(count=5)</small></span>
+            <span class="arrow">→→→</span>
+            <span class="node node-join">Join</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <div class="tip">
+            <p><strong>📌 動作の流れ:</strong></p>
+            <ol>
+                <li>Functionノードで0〜29の30メッセージを連続送信</li>
+                <li>Batchノードが5メッセージずつグループ化</li>
+                <li>6つのメッセージシーケンスを出力（各5メッセージ）</li>
+                <li>JoinノードでそれぞれをJSON配列に変換</li>
+            </ol>
+        </div>
+        
+        <p><strong>設定例:</strong></p>
+        <div class="code-block">モード: 数量ベース
+メッセージ数: 5
+オーバーラップ: 0
+
+入力: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ... , 29 (30メッセージ)
+出力: [0,1,2,3,4], [5,6,7,8,9], ... , [25,26,27,28,29] (6グループ)</div>
+        
+        <h3>パターン2: オーバーラップ付きグループ化</h3>
+        <p><strong>用途:</strong> 隣接グループでメッセージを共有（移動平均など）</p>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">Function<br><small>(0-29送信)</small></span>
+            <span class="arrow">→→→</span>
+            <span class="node node-batch">Batch<br><small>(count=5, overlap=1)</small></span>
+            <span class="arrow">→→→</span>
+            <span class="node node-join">Join</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <div class="tip">
+            <p><strong>📌 オーバーラップの効果:</strong></p>
+            <ul>
+                <li>overlap=1の場合、各グループの最後の1メッセージが次のグループにも含まれる</li>
+                <li>30メッセージ → 7グループ（オーバーラップなしなら6グループ）</li>
+            </ul>
+        </div>
+        
+        <p><strong>設定例:</strong></p>
+        <div class="code-block">モード: 数量ベース
+メッセージ数: 5
+オーバーラップ: 1
+
+入力: 0, 1, 2, ..., 29 (30メッセージ)
+出力: 
+  グループ1: [0,1,2,3,4]
+  グループ2: [4,5,6,7,8]    ← 4が共有
+  グループ3: [8,9,10,11,12] ← 8が共有
+  ...</div>
+        
+        <h3>パターン3: 時間ベースのグループ化</h3>
+        <p><strong>用途:</strong> 一定時間内に届いたメッセージをまとめる</p>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">Function</span>
+            <span class="arrow">→</span>
+            <span class="node node-delay">Delay<br><small>(1msg/sec)</small></span>
+            <span class="arrow">→→→</span>
+            <span class="node node-batch">Batch<br><small>(5秒間隔)</small></span>
+            <span class="arrow">→→→</span>
+            <span class="node node-join">Join</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <div class="tip">
+            <p><strong>📌 時間ベースのポイント:</strong></p>
+            <ul>
+                <li>Delayノードで1秒に1メッセージずつ送信</li>
+                <li>Batchノードが5秒ごとにグループを出力</li>
+                <li>メッセージ数は可変（5秒間に届いた数だけ）</li>
+            </ul>
+        </div>
+        
+        <p><strong>設定例:</strong></p>
+        <div class="code-block">モード: 時間ベース
+間隔: 5秒
+空シーケンスを許可: OFF
+
+入力: 1秒間隔で 0, 1, 2, 3, ... , 29
+出力: 5秒ごとに
+  [0,1,2,3,4] → [5,6,7,8,9] → ...</div>
+        
+        <h3>パターン4: シーケンスの連結</h3>
+        <p><strong>用途:</strong> 異なるトピックのシーケンスを順番に結合</p>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject<br><small>(topic:SEQ)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-split">Split</span>
+            <span class="arrow">→→→</span>
+            <span class="node node-batch">Batch<br><small>(concat)</small></span>
+            <span class="arrow">→→→</span>
+            <span class="node node-join">Join</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <p><strong>設定例:</strong></p>
+        <div class="code-block">モード: 連結
+トピック: SEQ, SEQ（同じトピックを2回指定）
+
+入力: [1,2,3,4,5] を Split で分割
+出力: [1,2,3,4,5,1,2,3,4,5]（2回連結）</div>
+        
+        <h3>パターン5: フィルタリング後の連結</h3>
+        <p><strong>用途:</strong> 条件でフィルタした結果を順番に結合</p>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-split">Split</span>
+            <span class="arrow">→</span>
+            <span class="node node-switch">Switch<br><small>(正負判定)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-change">Change<br><small>(topic設定)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-batch">Batch<br><small>(concat)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <div class="tip">
+            <p><strong>📌 連結モードの活用:</strong></p>
+            <ul>
+                <li>正の数と負の数を分離してそれぞれグループ化</li>
+                <li>トピック順を指定して結合（NEG → POS の順など）</li>
+                <li>データの分類と再構成に便利</li>
+            </ul>
+        </div>
+        
+        <p><strong>設定例:</strong></p>
+        <div class="code-block">モード: 連結
+トピック: NEG, POS（負の数を先、正の数を後に）
+
+入力: [1, -6, -8, 7, 2, -3]
+処理: 正の数にtopic=POS、負の数にtopic=NEG
+出力: [-6, -8, -3, 1, 7, 2]（負→正の順）</div>
+        
+        <h2>🏋️ 4. 実践演習</h2>
+        
+        <div class="exercise">
+            <h3>演習1: 基本的なグループ化<span class="difficulty difficulty-easy">初級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>1〜12の数値を3つずつグループ化してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Inject、Function、Batch、Join、Debugノードを使用</li>
+                <li>入力: 1, 2, 3, ..., 12（12メッセージ）</li>
+                <li>出力: [1,2,3], [4,5,6], [7,8,9], [10,11,12]（4グループ）</li>
+            </ul>
+            
+            <p><strong>📊 期待される動作:</strong></p>
+            <ul>
+                <li>Injectボタンをクリック → 4つの配列がDebugに表示</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Functionノードの設定:</strong></p>
+                <ul>
+                    <li>コード例:<br>
+                    <code>for(var i = 1; i <= 12; i++) {</code><br>
+                    <code>    node.send({payload: i});</code><br>
+                    <code>}</code></li>
+                </ul>
+                <p><strong>Batchノードの設定:</strong></p>
+                <ul>
+                    <li>モード: 数量ベース</li>
+                    <li>メッセージ数: 3</li>
+                    <li>オーバーラップ: 0</li>
+                </ul>
+                <p><strong>Joinノードの設定:</strong></p>
+                <ul>
+                    <li>モード: 自動</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "ex1_inject",
+        "type": "inject",
+        "name": "実行",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 110,
+        "y": 100,
+        "wires": [["ex1_function"]]
+    },
+    {
+        "id": "ex1_function",
+        "type": "function",
+        "name": "1-12送信",
+        "func": "for(var i = 1; i <= 12; i++) {\n    node.send({payload: i});\n}",
+        "outputs": 1,
+        "x": 260,
+        "y": 100,
+        "wires": [["ex1_batch"]]
+    },
+    {
+        "id": "ex1_batch",
+        "type": "batch",
+        "name": "3個ずつ",
+        "mode": "count",
+        "count": "3",
+        "overlap": "0",
+        "interval": "5",
+        "allowEmptySequence": false,
+        "topics": [],
+        "x": 400,
+        "y": 100,
+        "wires": [["ex1_join"]]
+    },
+    {
+        "id": "ex1_join",
+        "type": "join",
+        "name": "配列化",
+        "mode": "auto",
+        "build": "array",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "accumulate": false,
+        "timeout": "",
+        "count": "",
+        "x": 550,
+        "y": 100,
+        "wires": [["ex1_debug"]]
+    },
+    {
+        "id": "ex1_debug",
+        "type": "debug",
+        "name": "結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 690,
+        "y": 100,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習2: 移動ウィンドウの実装<span class="difficulty difficulty-medium">中級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>オーバーラップを使って3要素の移動ウィンドウを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Inject、Function、Batch、Join、Debugノードを使用</li>
+                <li>入力: 1, 2, 3, 4, 5, 6（6メッセージ）</li>
+                <li>出力: [1,2,3], [2,3,4], [3,4,5], [4,5,6]（4グループ）</li>
+            </ul>
+            
+            <p><strong>📊 期待される動作:</strong></p>
+            <ul>
+                <li>各グループが2要素ずつオーバーラップする</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Functionノードの設定:</strong></p>
+                <ul>
+                    <li>1〜6の6メッセージを送信</li>
+                </ul>
+                <p><strong>Batchノードの設定:</strong></p>
+                <ul>
+                    <li>モード: 数量ベース</li>
+                    <li>メッセージ数: 3</li>
+                    <li>オーバーラップ: 2（3-1=2で1要素ずつスライド）</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "ex2_inject",
+        "type": "inject",
+        "name": "実行",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 110,
+        "y": 100,
+        "wires": [["ex2_function"]]
+    },
+    {
+        "id": "ex2_function",
+        "type": "function",
+        "name": "1-6送信",
+        "func": "for(var i = 1; i <= 6; i++) {\n    node.send({payload: i});\n}",
+        "outputs": 1,
+        "x": 260,
+        "y": 100,
+        "wires": [["ex2_batch"]]
+    },
+    {
+        "id": "ex2_batch",
+        "type": "batch",
+        "name": "3個(overlap=2)",
+        "mode": "count",
+        "count": "3",
+        "overlap": "2",
+        "interval": "5",
+        "allowEmptySequence": false,
+        "topics": [],
+        "x": 420,
+        "y": 100,
+        "wires": [["ex2_join"]]
+    },
+    {
+        "id": "ex2_join",
+        "type": "join",
+        "name": "配列化",
+        "mode": "auto",
+        "build": "array",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "accumulate": false,
+        "timeout": "",
+        "count": "",
+        "x": 570,
+        "y": 100,
+        "wires": [["ex2_debug"]]
+    },
+    {
+        "id": "ex2_debug",
+        "type": "debug",
+        "name": "結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 710,
+        "y": 100,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習3: 時間ベースの集約<span class="difficulty difficulty-medium">中級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>2秒ごとにメッセージをまとめてください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Inject、Function、Delay、Batch、Join、Debugノードを使用</li>
+                <li>入力: 0.5秒間隔で10メッセージ</li>
+                <li>出力: 2秒間に届いたメッセージを配列化</li>
+            </ul>
+            
+            <p><strong>📊 期待される動作:</strong></p>
+            <ul>
+                <li>約4メッセージずつのグループが複数出力される</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Functionノードの設定:</strong></p>
+                <ul>
+                    <li>0〜9の10メッセージを送信</li>
+                </ul>
+                <p><strong>Delayノードの設定:</strong></p>
+                <ul>
+                    <li>レート制限モード</li>
+                    <li>2メッセージ/秒（0.5秒間隔）</li>
+                </ul>
+                <p><strong>Batchノードの設定:</strong></p>
+                <ul>
+                    <li>モード: 時間ベース</li>
+                    <li>間隔: 2秒</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "ex3_inject",
+        "type": "inject",
+        "name": "実行",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 90,
+        "y": 100,
+        "wires": [["ex3_function"]]
+    },
+    {
+        "id": "ex3_function",
+        "type": "function",
+        "name": "0-9送信",
+        "func": "for(var i = 0; i < 10; i++) {\n    node.send({payload: i});\n}",
+        "outputs": 1,
+        "x": 220,
+        "y": 100,
+        "wires": [["ex3_delay"]]
+    },
+    {
+        "id": "ex3_delay",
+        "type": "delay",
+        "name": "2msg/sec",
+        "pauseType": "rate",
+        "timeout": "1",
+        "timeoutUnits": "seconds",
+        "rate": "2",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 360,
+        "y": 100,
+        "wires": [["ex3_batch"]]
+    },
+    {
+        "id": "ex3_batch",
+        "type": "batch",
+        "name": "2秒間隔",
+        "mode": "interval",
+        "count": 10,
+        "overlap": 0,
+        "interval": "2",
+        "allowEmptySequence": false,
+        "topics": [],
+        "x": 500,
+        "y": 100,
+        "wires": [["ex3_join"]]
+    },
+    {
+        "id": "ex3_join",
+        "type": "join",
+        "name": "配列化",
+        "mode": "auto",
+        "build": "array",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "accumulate": false,
+        "timeout": "",
+        "count": "",
+        "x": 630,
+        "y": 100,
+        "wires": [["ex3_debug"]]
+    },
+    {
+        "id": "ex3_debug",
+        "type": "debug",
+        "name": "結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 770,
+        "y": 100,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習4: センサーデータの移動平均<span class="difficulty difficulty-hard">上級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>センサー値の3点移動平均を計算してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Inject、Template、Split、Batch、Join、Function、Debugノードを使用</li>
+                <li>入力: [10, 20, 30, 40, 50]</li>
+                <li>出力: 各3点の平均値（20, 30, 40）</li>
+            </ul>
+            
+            <p><strong>📊 期待される動作:</strong></p>
+            <ul>
+                <li>3点ずつのウィンドウで平均を計算</li>
+                <li>(10+20+30)/3=20, (20+30+40)/3=30, (30+40+50)/3=40</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Templateノードの設定:</strong></p>
+                <ul>
+                    <li>形式: JSON</li>
+                    <li>テンプレート: [10, 20, 30, 40, 50]</li>
+                </ul>
+                <p><strong>Splitノードの設定:</strong></p>
+                <ul>
+                    <li>配列を個別メッセージに分割</li>
+                </ul>
+                <p><strong>Batchノードの設定:</strong></p>
+                <ul>
+                    <li>モード: 数量ベース</li>
+                    <li>メッセージ数: 3</li>
+                    <li>オーバーラップ: 2</li>
+                </ul>
+                <p><strong>Joinノードの設定:</strong></p>
+                <ul>
+                    <li>モード: 自動（配列に結合）</li>
+                </ul>
+                <p><strong>Functionノード（平均計算）の設定:</strong></p>
+                <ul>
+                    <li>配列の平均を計算してmsg.payloadに設定</li>
+                    <li>コード例: <code>msg.payload = msg.payload.reduce((a,b)=>a+b) / msg.payload.length;</code></li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "ex4_inject",
+        "type": "inject",
+        "name": "実行",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 90,
+        "y": 100,
+        "wires": [["ex4_template"]]
+    },
+    {
+        "id": "ex4_template",
+        "type": "template",
+        "name": "センサー値",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "json",
+        "syntax": "plain",
+        "template": "[10, 20, 30, 40, 50]",
+        "output": "json",
+        "x": 220,
+        "y": 100,
+        "wires": [["ex4_split"]]
+    },
+    {
+        "id": "ex4_split",
+        "type": "split",
+        "name": "分割",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "x": 350,
+        "y": 100,
+        "wires": [["ex4_batch"]]
+    },
+    {
+        "id": "ex4_batch",
+        "type": "batch",
+        "name": "3点ウィンドウ",
+        "mode": "count",
+        "count": "3",
+        "overlap": "2",
+        "interval": "5",
+        "allowEmptySequence": false,
+        "topics": [],
+        "x": 480,
+        "y": 100,
+        "wires": [["ex4_join"]]
+    },
+    {
+        "id": "ex4_join",
+        "type": "join",
+        "name": "配列化",
+        "mode": "auto",
+        "build": "array",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "accumulate": false,
+        "timeout": "",
+        "count": "",
+        "x": 610,
+        "y": 100,
+        "wires": [["ex4_avg"]]
+    },
+    {
+        "id": "ex4_avg",
+        "type": "function",
+        "name": "平均計算",
+        "func": "msg.payload = msg.payload.reduce((a,b) => a+b) / msg.payload.length;\nreturn msg;",
+        "outputs": 1,
+        "x": 740,
+        "y": 100,
+        "wires": [["ex4_debug"]]
+    },
+    {
+        "id": "ex4_debug",
+        "type": "debug",
+        "name": "結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 870,
+        "y": 100,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+        
+        <h2>🎓 5. まとめ</h2>
+        
+        <div class="important">
+            <h3>Batchノードの重要ポイント</h3>
+            <ul>
+                <li>✅ <strong>3つのモード</strong>: 数量ベース、時間ベース、連結モード</li>
+                <li>✅ <strong>数量ベース</strong>: N個ずつグループ化、オーバーラップ設定可能</li>
+                <li>✅ <strong>時間ベース</strong>: 指定秒数ごとにグループを出力</li>
+                <li>✅ <strong>連結モード</strong>: トピック別シーケンスを順番に結合</li>
+                <li>✅ <strong>Joinとの連携</strong>: 出力シーケンスをJoinで配列化するのが一般的</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <h3>⚠️ よくある間違い</h3>
+            <ul>
+                <li><strong>Joinノードの忘れ</strong>: Batchの出力はシーケンス、配列にするにはJoinが必要</li>
+                <li><strong>オーバーラップの計算ミス</strong>: overlap = count - スライド幅</li>
+                <li><strong>時間モードでのタイミング</strong>: 最初の出力は指定秒数後</li>
+                <li><strong>連結モードのトピック未設定</strong>: msg.topicが設定されていないと動作しない</li>
+                <li><strong>空シーケンスの扱い</strong>: 時間モードでメッセージがない場合の動作を確認</li>
+            </ul>
+        </div>
+        
+        <div class="tip">
+            <h3>📚 次のステップ</h3>
+            <p>Batchノードをマスターしたら、以下のノードも学んでみましょう:</p>
+            <ul>
+                <li><strong>Splitノード</strong>: 配列を個別メッセージに分割</li>
+                <li><strong>Joinノード</strong>: メッセージシーケンスを結合</li>
+                <li><strong>Sortノード</strong>: メッセージシーケンスを並べ替え</li>
+            </ul>
+        </div>
+        
+        <h2>🔧 6. トラブルシューティング</h2>
+        
+        <h3>よくある問題と解決方法</h3>
+        
+        <table>
+            <tr>
+                <th>問題</th>
+                <th>原因</th>
+                <th>解決方法</th>
+            </tr>
+            <tr>
+                <td>グループが出力されない</td>
+                <td>メッセージ数が足りない</td>
+                <td>count数以上のメッセージを送信するか、時間モードを使用</td>
+            </tr>
+            <tr>
+                <td>配列にならない</td>
+                <td>Joinノードがない</td>
+                <td>Batchの後にJoinノードを追加</td>
+            </tr>
+            <tr>
+                <td>オーバーラップが想定と違う</td>
+                <td>オーバーラップ値の理解ミス</td>
+                <td>overlap = count - 移動幅 で計算</td>
+            </tr>
+            <tr>
+                <td>連結モードが動かない</td>
+                <td>msg.topicが未設定</td>
+                <td>Changeノードでtopicを設定</td>
+            </tr>
+            <tr>
+                <td>時間モードで空グループ</td>
+                <td>空シーケンスを許可がON</td>
+                <td>必要に応じて設定を変更</td>
+            </tr>
+            <tr>
+                <td>グループサイズが不均一</td>
+                <td>時間モード使用中</td>
+                <td>数量モードに変更するか、想定内として対応</td>
+            </tr>
+        </table>
+        
+        <h2>💡 7. 実務での活用例</h2>
+        
+        <h3>ケース1: センサーデータの移動平均</h3>
+        <div class="code-block">温度センサーから1秒ごとにデータ受信
+↓
+Batch（count=5, overlap=4）
+↓
+5点移動平均ウィンドウ
+↓
+Join → Function（平均計算）
+↓
+ノイズを除去した温度値</div>
+        
+        <h3>ケース2: ログの定期バッチ処理</h3>
+        <div class="code-block">アプリケーションログが随時到着
+↓
+Batch（interval=60秒）
+↓
+1分間のログをまとめる
+↓
+Join → データベースに一括保存</div>
+        
+        <h3>ケース3: APIレート制限対策</h3>
+        <div class="code-block">大量のAPIリクエスト
+↓
+Batch（count=10）
+↓
+10件ずつまとめる
+↓
+バルクAPIで一括送信
+↓
+API呼び出し回数を1/10に削減</div>
+        
+        <h3>ケース4: IoTデバイスからのデータ集約</h3>
+        <div class="code-block">複数センサーからのデータ（異なるtopic）
+↓
+Batch（concat mode: temp, humidity, pressure）
+↓
+センサー種別ごとに順序付けて結合
+↓
+統合レポート生成</div>
+        
+        <h2>🔗 8. 追加リソース</h2>
+        
+        <ul>
+            <li><a href="https://nodered.org/docs/user-guide/messages" target="_blank">Node-RED公式ドキュメント: メッセージの操作</a></li>
+            <li><a href="https://nodered.org/docs/user-guide/nodes#batch" target="_blank">Node-RED公式ドキュメント: Batchノード</a></li>
+            <li><a href="https://cookbook.nodered.org/" target="_blank">Node-RED Cookbook</a></li>
+        </ul>
+        
+        <hr>
+        
+        <p style="text-align: center; color: #999; margin-top: 40px;">
+            <small>このガイドが役に立ちましたら、実際のプロジェクトで練習してみてください!<br>
+            Batchノードはデータ集約・移動平均計算の強力なツールです。</small><br>
+            <small>参照元：NodeREDエディター内サンプルフロー</small>
+        </p>
+    </div>
+    
+    <script>
+        // ページ読み込み時にコピーボタンを追加
+        document.addEventListener('DOMContentLoaded', function() {
+            // .flow-jsonにコピーボタンを追加
+            var codeBlocks = document.querySelectorAll('.flow-json');
+            
+            codeBlocks.forEach(function(block) {
+                // コピーボタンを作成
+                var button = document.createElement('button');
+                button.className = 'copy-button';
+                button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                
+                // クリックイベントを追加
+                button.addEventListener('click', function() {
+                    // コードブロックのテキストを取得（ボタンテキストを除外）
+                    var code = block.textContent.replace(/コピー(しました!)?$/, '').trim();
+                    
+                    // クリップボードにコピー
+                    navigator.clipboard.writeText(code).then(function() {
+                        // 成功時の視覚的フィードバック
+                        button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>コピーしました!';
+                        button.classList.add('copied');
+                        
+                        // 2秒後に元に戻す
+                        setTimeout(function() {
+                            button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                            button.classList.remove('copied');
+                        }, 2000);
+                    }).catch(function(err) {
+                        console.error('コピーに失敗しました:', err);
+                        button.textContent = 'エラー';
+                        setTimeout(function() {
+                            button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                        }, 2000);
+                    });
+                });
+                
+                // ボタンをコードブロックに追加
+                block.style.position = 'relative';
+                block.appendChild(button);
+            });
+        });
+    </script>
+</body>
+</html>
