@@ -1,0 +1,1801 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED Joinノード 完全ガイド</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        h1 {
+            color: #8f0000;
+            border-bottom: 3px solid #8f0000;
+            padding-bottom: 10px;
+        }
+        
+        h2 {
+            color: #c00000;
+            margin-top: 30px;
+            border-left: 5px solid #c00000;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #555;
+            margin-top: 25px;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .node-example {
+            background-color: #2d3133;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            color: white;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .node {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 4px;
+            margin: 5px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .node-inject {
+            background-color: #3fadb5;
+            color: white;
+        }
+        
+        .node-split {
+            background-color: #e2d96e;
+            color: #333;
+        }
+        
+        .node-join {
+            background-color: #e2d96e;
+            color: #333;
+        }
+        
+        .node-debug {
+            background-color: #87a48d;
+            color: white;
+        }
+        
+        .node-template {
+            background-color: #d4b8a0;
+            color: #333;
+        }
+        
+        .node-function {
+            background-color: #e8a658;
+            color: white;
+        }
+        
+        .node-change {
+            background-color: #e7a070;
+            color: white;
+        }
+        
+        .node-switch {
+            background-color: #e2d96e;
+            color: #333;
+        }
+        
+        .node-csv {
+            background-color: #c9e7d4;
+            color: #333;
+        }
+        
+        .node-delay {
+            background-color: #e6bcbe;
+            color: #333;
+        }
+        
+        .arrow {
+            color: #999;
+            font-size: 20px;
+            margin: 0 10px;
+        }
+        
+        .important {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .tip {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .warning {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .code-block {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            position: relative;
+            white-space: pre-wrap;
+        }
+        
+        .js-code {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            border: none;
+            padding: 15px;
+            padding-top: 40px;
+            border-radius: 5px;
+            position: relative;
+            white-space: pre;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+        }
+        
+        .copy-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 6px 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: 'Segoe UI', sans-serif;
+            transition: background-color 0.2s;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .copy-button:hover {
+            background-color: #0056b3;
+        }
+        
+        .copy-button.copied {
+            background-color: #28a745;
+        }
+        
+        .copy-button svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+        }
+        
+        .exercise {
+            background-color: #e8f5e9;
+            border: 2px solid #4caf50;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        
+        .exercise h3 {
+            color: #2e7d32;
+            margin-top: 0;
+        }
+        
+        .difficulty {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .difficulty-easy {
+            background-color: #4caf50;
+            color: white;
+        }
+        
+        .difficulty-medium {
+            background-color: #ff9800;
+            color: white;
+        }
+        
+        .difficulty-hard {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        ul, ol {
+            padding-left: 25px;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #e2d96e;
+            color: #333;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .flow-json {
+            background-color: #263238;
+            color: #aed581;
+            padding: 15px;
+            padding-top: 40px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        details {
+            margin: 15px 0;
+        }
+        
+        summary {
+            cursor: pointer;
+            padding: 10px;
+            background-color: #6c757d;
+            color: white;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        summary:hover {
+            background-color: #5a6268;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .feature-card {
+            background-color: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .feature-card h4 {
+            color: #b8a830;
+            margin-top: 0;
+        }
+        
+        .mode-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        
+        .badge-auto {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .badge-manual {
+            background-color: #17a2b8;
+            color: white;
+        }
+        
+        .badge-reduce {
+            background-color: #6f42c1;
+            color: white;
+        }
+        
+        .badge-string {
+            background-color: #e2d96e;
+            color: #333;
+        }
+        
+        .badge-array {
+            background-color: #17a2b8;
+            color: white;
+        }
+        
+        .badge-object {
+            background-color: #6f42c1;
+            color: white;
+        }
+        
+        .badge-merged {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .data-flow {
+            background-color: #f0f0f0;
+            border: 2px dashed #999;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+        }
+        
+        .data-flow .before {
+            background-color: #ffcccc;
+            padding: 10px;
+            border-radius: 4px;
+            display: inline-block;
+            margin: 5px;
+        }
+        
+        .data-flow .after {
+            background-color: #ccffcc;
+            padding: 10px;
+            border-radius: 4px;
+            display: inline-block;
+            margin: 5px;
+        }
+        
+        .data-flow .arrow-down {
+            display: block;
+            font-size: 24px;
+            color: #666;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 Node-RED Joinノード 完全ガイド</h1>
+        
+        <p>このガイドでは、Node-REDの<strong>Joinノード</strong>について、初心者の方でも理解できるように詳しく説明します。</p>
+        
+        <h2>📚 1. Joinノードとは?</h2>
+        
+        <h3>🤔 「Join」って何?</h3>
+        <p>
+            Joinノードは、<strong>複数のメッセージを1つのメッセージに結合する</strong>ノードです。
+            日常生活で例えると、<strong>パズルのピースを組み合わせて1枚の絵を完成させる</strong>ようなものです。
+        </p>
+        
+        <div class="important">
+            <p><strong>🧩 パズルの組み立てに例えると:</strong></p>
+            <ul>
+                <li>🧩 <strong>バラバラのピースを受け取る</strong> = 複数のメッセージが順番に届く</li>
+                <li>🔍 <strong>ピースの番号を確認</strong> = msg.partsで順序や総数を確認</li>
+                <li>🖼️ <strong>ピースを並べて組み合わせる</strong> = Joinノードで結合</li>
+                <li>✨ <strong>1枚の絵が完成</strong> = 1つの結合されたメッセージを出力</li>
+            </ul>
+        </div>
+        
+        <h3>📦 基本的な動作</h3>
+        <div class="node-example">
+            <span class="node node-split">Split</span>
+            <span class="arrow">→→→</span>
+            <span class="node node-function">処理</span>
+            <span class="arrow">→→→</span>
+            <span class="node node-join">Join</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <p>
+            Joinノードは、複数のメッセージを受け取り、それらを<strong>1つのメッセージにまとめて出力</strong>します。
+            <strong>Splitノード</strong>で分割したメッセージを再結合したり、異なるソースからのデータを統合したりできます。
+        </p>
+        
+        <div class="data-flow">
+            <div class="before">
+                <strong>入力(3メッセージ)</strong><br>
+                "Apple" → "Orange" → "Banana"
+            </div>
+            <span class="arrow-down">↓ Join ↓</span>
+            <div class="after">
+                <strong>出力(1メッセージ)</strong><br>
+                ["Apple", "Orange", "Banana"]
+            </div>
+        </div>
+        
+        <h2>⚙️ 2. Joinノードの3つのモード</h2>
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h4><span class="mode-badge badge-auto">自動</span> Automatic</h4>
+                <p>Splitノードと連携して自動的に再結合</p>
+                <div class="code-block">msg.partsを使用して
+元の形式に復元</div>
+            </div>
+            
+            <div class="feature-card">
+                <h4><span class="mode-badge badge-manual">手動</span> Manual</h4>
+                <p>メッセージ数やタイムアウトを指定して結合</p>
+                <div class="code-block">文字列/配列/オブジェクト
+形式を選択可能</div>
+            </div>
+            
+            <div class="feature-card">
+                <h4><span class="mode-badge badge-reduce">Reduce</span> Reduce</h4>
+                <p>JSONata式でメッセージを集計・変換</p>
+                <div class="code-block">合計、平均、配列変換
+など柔軟な処理</div>
+            </div>
+        </div>
+        
+        <h3>📋 設定項目一覧</h3>
+        
+        <table>
+            <tr>
+                <th>設定項目</th>
+                <th>説明</th>
+                <th>使用モード</th>
+            </tr>
+            <tr>
+                <td><strong>モード</strong></td>
+                <td>自動/手動/Reduceから選択</td>
+                <td>全モード共通</td>
+            </tr>
+            <tr>
+                <td><strong>結合形式</strong></td>
+                <td>文字列/配列/オブジェクト/マージ</td>
+                <td>手動モード</td>
+            </tr>
+            <tr>
+                <td><strong>結合文字</strong></td>
+                <td>文字列結合時の区切り文字</td>
+                <td>手動(文字列)</td>
+            </tr>
+            <tr>
+                <td><strong>メッセージ数</strong></td>
+                <td>結合するメッセージの数</td>
+                <td>手動/Reduce</td>
+            </tr>
+            <tr>
+                <td><strong>タイムアウト</strong></td>
+                <td>指定秒数後に強制結合</td>
+                <td>手動/Reduce</td>
+            </tr>
+            <tr>
+                <td><strong>Reduce式</strong></td>
+                <td>JSONata式で集計処理を定義</td>
+                <td>Reduceモード</td>
+            </tr>
+            <tr>
+                <td><strong>初期値</strong></td>
+                <td>Reduce処理の初期値</td>
+                <td>Reduceモード</td>
+            </tr>
+            <tr>
+                <td><strong>最終処理</strong></td>
+                <td>結合完了後の変換式</td>
+                <td>Reduceモード</td>
+            </tr>
+        </table>
+        
+        <h3>🎯 msg.partsオブジェクト</h3>
+        
+        <p>Splitノードが付与する<code>msg.parts</code>情報を使って、Joinノードは自動的にメッセージを再結合します。</p>
+        
+        <div class="code-block">msg.parts = {
+    id: "abc123",      // 分割グループの識別子
+    index: 0,          // このメッセージの順番(0から)
+    count: 3,          // 総分割数
+    type: "array",     // 元のデータ型
+    key: "Apple"       // オブジェクト分割時のキー名
+}</div>
+        
+        <h2>🎯 3. 実用的な使用パターン</h2>
+        
+        <div class="important">
+            <p><strong>📥 サンプルフローのインポート方法:</strong></p>
+            <ol>
+                <li>下のサンプルフローJSONをコピー</li>
+                <li>Node-REDエディタで <strong>メニュー → 読み込み</strong> を選択</li>
+                <li>JSONをペーストして「読み込み」をクリック</li>
+            </ol>
+            <p>このサンプルフローには、以下で説明する全パターンの実例が含まれています。</p>
+        </div>
+        
+        <details>
+            <summary>📋 サンプルフロー（クリックで展開）</summary>
+            <p style="margin: 10px 0; color: #666;"><small>参照元：NodeREDエディター内サンプルフロー</small></p>
+            <div class="flow-json">
+[
+    {
+        "id": "4775a535c935964a",
+        "type": "tab",
+        "label": "join",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "afe74de5.58488",
+        "type": "comment",
+        "z": "4775a535c935964a",
+        "name": "Example: Automatic Mode",
+        "info": "Join node can be used to join payload of messages into single message payload. In automatic mode, it uses `parts` property to decide sequence of messages to join.",
+        "x": 230,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "d0c8c78e.1281e8",
+        "type": "inject",
+        "z": "4775a535c935964a",
+        "name": "",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 280,
+        "y": 240,
+        "wires": [["c59ac70d.bb9c58"]]
+    },
+    {
+        "id": "c59ac70d.bb9c58",
+        "type": "template",
+        "z": "4775a535c935964a",
+        "name": "data",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "text",
+        "syntax": "plain",
+        "template": "Apple\nOrange\nBanana\nKiwi",
+        "output": "str",
+        "x": 430,
+        "y": 240,
+        "wires": [["21829618.af5b0a"]]
+    },
+    {
+        "id": "d6c9fe0.d34ad",
+        "type": "join",
+        "z": "4775a535c935964a",
+        "name": "",
+        "mode": "auto",
+        "build": "string",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "accumulate": "false",
+        "timeout": "",
+        "count": "",
+        "reduceRight": false,
+        "x": 710,
+        "y": 240,
+        "wires": [["8defdbb8.aa9c08"]]
+    },
+    {
+        "id": "21829618.af5b0a",
+        "type": "split",
+        "z": "4775a535c935964a",
+        "name": "",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "x": 570,
+        "y": 240,
+        "wires": [["d6c9fe0.d34ad"]]
+    },
+    {
+        "id": "8defdbb8.aa9c08",
+        "type": "debug",
+        "z": "4775a535c935964a",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "x": 870,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "7bf47d74.b233b4",
+        "type": "comment",
+        "z": "4775a535c935964a",
+        "name": "Example: Manual Mode",
+        "info": "",
+        "x": 260,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "7f104f68.aecff",
+        "type": "inject",
+        "z": "4775a535c935964a",
+        "name": "",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 280,
+        "y": 480,
+        "wires": [["ed0381d3.e25fc"]]
+    },
+    {
+        "id": "ed0381d3.e25fc",
+        "type": "template",
+        "z": "4775a535c935964a",
+        "name": "data",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "text",
+        "syntax": "plain",
+        "template": "Apple\nOrange\nBanana\nKiwi",
+        "output": "str",
+        "x": 430,
+        "y": 480,
+        "wires": [["12b322b7.78f48d"]]
+    },
+    {
+        "id": "a4f5546e.28b268",
+        "type": "join",
+        "z": "4775a535c935964a",
+        "name": "",
+        "mode": "custom",
+        "build": "string",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": ",",
+        "joinerType": "str",
+        "accumulate": false,
+        "timeout": "",
+        "count": "2",
+        "reduceRight": false,
+        "x": 710,
+        "y": 480,
+        "wires": [["e3e636ab.5c5068"]]
+    },
+    {
+        "id": "12b322b7.78f48d",
+        "type": "split",
+        "z": "4775a535c935964a",
+        "name": "",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "x": 570,
+        "y": 480,
+        "wires": [["a4f5546e.28b268"]]
+    },
+    {
+        "id": "e3e636ab.5c5068",
+        "type": "debug",
+        "z": "4775a535c935964a",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "x": 870,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "6a104137.204b3",
+        "type": "comment",
+        "z": "4775a535c935964a",
+        "name": "Join two consecutive messages (count=2)",
+        "info": "",
+        "x": 350,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "9279b993.ba7ed8",
+        "type": "comment",
+        "z": "4775a535c935964a",
+        "name": "Example: Reduce Mode",
+        "info": "",
+        "x": 260,
+        "y": 600,
+        "wires": []
+    },
+    {
+        "id": "e415861b.d82e38",
+        "type": "inject",
+        "z": "4775a535c935964a",
+        "name": "",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 280,
+        "y": 720,
+        "wires": [["7c8a4816.500ed8"]]
+    },
+    {
+        "id": "7c8a4816.500ed8",
+        "type": "template",
+        "z": "4775a535c935964a",
+        "name": "data",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "json",
+        "syntax": "plain",
+        "template": "[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]",
+        "output": "json",
+        "x": 430,
+        "y": 720,
+        "wires": [["7f64da1f.611014"]]
+    },
+    {
+        "id": "5fde318f.23897",
+        "type": "join",
+        "z": "4775a535c935964a",
+        "name": "",
+        "mode": "reduce",
+        "build": "string",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": ",",
+        "joinerType": "str",
+        "accumulate": false,
+        "timeout": "",
+        "count": "",
+        "reduceRight": false,
+        "reduceExp": "$A+payload",
+        "reduceInit": "0",
+        "reduceInitType": "num",
+        "reduceFixup": "$A/$N",
+        "x": 710,
+        "y": 720,
+        "wires": [["50977eaf.0490b"]]
+    },
+    {
+        "id": "50977eaf.0490b",
+        "type": "debug",
+        "z": "4775a535c935964a",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "x": 870,
+        "y": 720,
+        "wires": []
+    },
+    {
+        "id": "57bce4bf.38d02c",
+        "type": "comment",
+        "z": "4775a535c935964a",
+        "name": "Calculate average using Reduce",
+        "info": "",
+        "x": 320,
+        "y": 660,
+        "wires": []
+    },
+    {
+        "id": "7f64da1f.611014",
+        "type": "split",
+        "z": "4775a535c935964a",
+        "name": "",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "x": 570,
+        "y": 720,
+        "wires": [["5fde318f.23897"]]
+    }
+]
+            </div>
+        </details>
+        
+        <h3>パターン1: 自動モード（Splitと連携）</h3>
+        <p><strong>用途:</strong> Splitノードで分割したメッセージを元の形式に再結合</p>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-template">Template</span>
+            <span class="arrow">→</span>
+            <span class="node node-split">Split</span>
+            <span class="arrow">→→→</span>
+            <span class="node node-join">Join<br><small>(自動)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <div class="tip">
+            <p><strong>📌 動作の流れ:</strong></p>
+            <ol>
+                <li>"Apple\nOrange\nBanana\nKiwi" をSplitで分割</li>
+                <li>4つの個別メッセージが順番に送信される</li>
+                <li>JoinがSplitが付与したmsg.partsを使って自動再結合</li>
+                <li>元の形式に戻る</li>
+            </ol>
+        </div>
+        
+        <p><strong>設定例:</strong></p>
+        <div class="code-block">モード: 自動
+
+入力: "Apple" → "Orange" → "Banana" → "Kiwi" (4メッセージ)
+出力: "Apple\nOrange\nBanana\nKiwi" (1メッセージ)</div>
+        
+        <h3>パターン2: 手動モード（メッセージ数指定）</h3>
+        <p><strong>用途:</strong> 指定した数のメッセージを結合</p>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-split">Split</span>
+            <span class="arrow">→→→</span>
+            <span class="node node-join">Join<br><small>(count=2)</small></span>
+            <span class="arrow">→→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <div class="tip">
+            <p><strong>📌 動作の流れ:</strong></p>
+            <ol>
+                <li>4つのメッセージ "Apple", "Orange", "Banana", "Kiwi" を受信</li>
+                <li>2つずつ結合して出力</li>
+                <li>"Apple,Orange" → "Banana,Kiwi" の2つのメッセージが出力</li>
+            </ol>
+        </div>
+        
+        <p><strong>設定例:</strong></p>
+        <div class="code-block">モード: 手動
+結合形式: 文字列
+結合文字: ,
+メッセージ数: 2
+
+入力: "Apple" → "Orange" → "Banana" → "Kiwi"
+出力: "Apple,Orange" → "Banana,Kiwi"</div>
+        
+        <h3>パターン3: 手動モード（タイムアウト指定）</h3>
+        <p><strong>用途:</strong> 指定時間内のメッセージを結合</p>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-split">Split</span>
+            <span class="arrow">→→→</span>
+            <span class="node node-delay">Delay<br><small>(1秒/msg)</small></span>
+            <span class="arrow">→→→</span>
+            <span class="node node-join">Join<br><small>(2秒)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <div class="tip">
+            <p><strong>📌 動作の流れ:</strong></p>
+            <ol>
+                <li>メッセージを1秒間隔で受信</li>
+                <li>2秒のタイムアウトで結合</li>
+                <li>2秒以内に届いたメッセージをまとめて出力</li>
+            </ol>
+        </div>
+        
+        <p><strong>設定例:</strong></p>
+        <div class="code-block">モード: 手動
+結合形式: 文字列
+結合文字: ,
+タイムアウト: 2秒
+
+入力: 1秒間隔で "Apple" → "Orange" → "Banana" → "Kiwi"
+出力: "Apple,Orange" → "Banana,Kiwi" (約2秒ごとに出力)</div>
+        
+        <h3>パターン4: 配列形式での結合</h3>
+        <p><strong>用途:</strong> 複数のメッセージを配列にまとめる</p>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-split">Split</span>
+            <span class="arrow">→→→</span>
+            <span class="node node-join">Join<br><small>(配列)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <p><strong>設定例:</strong></p>
+        <div class="code-block">モード: 手動
+結合形式: 配列
+メッセージ数: 2
+
+入力: "Apple" → "Orange" → "Banana" → "Kiwi"
+出力: ["Apple", "Orange"] → ["Banana", "Kiwi"]</div>
+        
+        <h3>パターン5: オブジェクト形式での結合</h3>
+        <p><strong>用途:</strong> msg.topicをキーとしたオブジェクトを作成</p>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-csv">CSV</span>
+            <span class="arrow">→→→</span>
+            <span class="node node-change">Change<br><small>(topic設定)</small></span>
+            <span class="arrow">→→→</span>
+            <span class="node node-join">Join<br><small>(オブジェクト)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <div class="tip">
+            <p><strong>📌 動作の流れ:</strong></p>
+            <ol>
+                <li>CSVデータを行ごとに分割</li>
+                <li>Changeノードでmsg.topicに商品名、msg.payloadに価格を設定</li>
+                <li>Joinでtopicをキー、payloadを値としたオブジェクトに結合</li>
+            </ol>
+        </div>
+        
+        <p><strong>設定例:</strong></p>
+        <div class="code-block">モード: 手動
+結合形式: キー/値 オブジェクト
+メッセージ数: 2
+
+入力: {topic: "Apple", payload: 100} → {topic: "Orange", payload: 80}
+出力: {"Apple": 100, "Orange": 80}</div>
+        
+        <h3>パターン6: Reduceモード（平均値計算）</h3>
+        <p><strong>用途:</strong> メッセージシーケンスを集計して単一の値に</p>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-template">Template<br><small>([1-10])</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-split">Split</span>
+            <span class="arrow">→→→</span>
+            <span class="node node-join">Join<br><small>(Reduce)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <div class="tip">
+            <p><strong>📌 Reduceの特殊変数:</strong></p>
+            <ul>
+                <li><strong>$A</strong>: 累積値（アキュムレータ）</li>
+                <li><strong>$I</strong>: 現在のメッセージのインデックス（0から）</li>
+                <li><strong>$N</strong>: メッセージの総数</li>
+            </ul>
+        </div>
+        
+        <p><strong>設定例:</strong></p>
+        <div class="code-block">モード: Reduce
+Reduce式: $A + payload
+初期値: 0
+最終処理: $A / $N
+
+入力: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+処理: (1+2+3+4+5+6+7+8+9+10) / 10
+出力: 5.5 (平均値)</div>
+        
+        <h2>🏋️ 4. 実践演習</h2>
+        
+        <div class="exercise">
+            <h3>演習1: 文字列の結合<span class="difficulty difficulty-easy">初級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>カンマ区切りの都市名を分割し、「/」で再結合してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Inject、Split、Join、Debugノードを使用</li>
+                <li>入力: "東京,大阪,名古屋,福岡"</li>
+                <li>出力: "東京/大阪/名古屋/福岡"</li>
+            </ul>
+            
+            <p><strong>📊 期待される動作:</strong></p>
+            <ul>
+                <li>Injectボタンをクリック → Debugに結合された文字列が表示</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Injectノードの設定:</strong></p>
+                <ul>
+                    <li>payload: 文字列型で "東京,大阪,名古屋,福岡"</li>
+                </ul>
+                <p><strong>Splitノードの設定:</strong></p>
+                <ul>
+                    <li>分割方法: 文字列</li>
+                    <li>区切り文字: <code>,</code></li>
+                </ul>
+                <p><strong>Joinノードの設定:</strong></p>
+                <ul>
+                    <li>モード: 手動</li>
+                    <li>結合形式: 文字列</li>
+                    <li>結合文字: <code>/</code></li>
+                    <li>メッセージ数: 4（またはmsg.parts.countを使う自動モードでも可）</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">
+[
+    {
+        "id": "ex1_inject",
+        "type": "inject",
+        "name": "都市名入力",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "東京,大阪,名古屋,福岡",
+        "payloadType": "str",
+        "x": 130,
+        "y": 100,
+        "wires": [["ex1_split"]]
+    },
+    {
+        "id": "ex1_split",
+        "type": "split",
+        "name": "カンマ分割",
+        "splt": ",",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "x": 300,
+        "y": 100,
+        "wires": [["ex1_join"]]
+    },
+    {
+        "id": "ex1_join",
+        "type": "join",
+        "name": "スラッシュ結合",
+        "mode": "custom",
+        "build": "string",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": "/",
+        "joinerType": "str",
+        "accumulate": false,
+        "timeout": "",
+        "count": "4",
+        "reduceRight": false,
+        "x": 480,
+        "y": 100,
+        "wires": [["ex1_debug"]]
+    },
+    {
+        "id": "ex1_debug",
+        "type": "debug",
+        "name": "結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 650,
+        "y": 100,
+        "wires": []
+    }
+]
+                </div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習2: 配列への変換<span class="difficulty difficulty-medium">中級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>改行区切りのテキストを分割し、配列に変換してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Inject、Template、Split、Join、Debugノードを使用</li>
+                <li>入力テキスト: "りんご\nみかん\nバナナ"</li>
+                <li>出力: ["りんご", "みかん", "バナナ"]</li>
+            </ul>
+            
+            <p><strong>📊 期待される動作:</strong></p>
+            <ul>
+                <li>Injectボタンをクリック → Debugに配列が表示</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Templateノードの設定:</strong></p>
+                <ul>
+                    <li>テンプレート: りんご、みかん、バナナを改行で区切って入力</li>
+                    <li>出力: 文字列</li>
+                </ul>
+                <p><strong>Splitノードの設定:</strong></p>
+                <ul>
+                    <li>分割方法: 文字列</li>
+                    <li>区切り文字: <code>\n</code>（改行）</li>
+                </ul>
+                <p><strong>Joinノードの設定:</strong></p>
+                <ul>
+                    <li>モード: 手動</li>
+                    <li>結合形式: 配列</li>
+                    <li>メッセージ数: 3</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">
+[
+    {
+        "id": "ex2_inject",
+        "type": "inject",
+        "name": "実行",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 110,
+        "y": 100,
+        "wires": [["ex2_template"]]
+    },
+    {
+        "id": "ex2_template",
+        "type": "template",
+        "name": "フルーツリスト",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "text",
+        "syntax": "plain",
+        "template": "りんご\nみかん\nバナナ",
+        "output": "str",
+        "x": 260,
+        "y": 100,
+        "wires": [["ex2_split"]]
+    },
+    {
+        "id": "ex2_split",
+        "type": "split",
+        "name": "改行分割",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "x": 420,
+        "y": 100,
+        "wires": [["ex2_join"]]
+    },
+    {
+        "id": "ex2_join",
+        "type": "join",
+        "name": "配列に結合",
+        "mode": "custom",
+        "build": "array",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "accumulate": false,
+        "timeout": "",
+        "count": "3",
+        "reduceRight": false,
+        "x": 580,
+        "y": 100,
+        "wires": [["ex2_debug"]]
+    },
+    {
+        "id": "ex2_debug",
+        "type": "debug",
+        "name": "結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 730,
+        "y": 100,
+        "wires": []
+    }
+]
+                </div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習3: オブジェクトの作成<span class="difficulty difficulty-medium">中級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>商品と価格のペアからオブジェクトを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Inject、Template、Split、Change、Join、Debugノードを使用</li>
+                <li>入力: {"name": "Apple", "price": 150}, {"name": "Orange", "price": 80}</li>
+                <li>出力: {"Apple": 150, "Orange": 80}</li>
+            </ul>
+            
+            <p><strong>📊 期待される動作:</strong></p>
+            <ul>
+                <li>商品名をキー、価格を値としたオブジェクトが出力される</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Templateノードの設定:</strong></p>
+                <ul>
+                    <li>形式: JSON</li>
+                    <li>テンプレート: 配列でオブジェクトを複数定義</li>
+                </ul>
+                <p><strong>Splitノードの設定:</strong></p>
+                <ul>
+                    <li>配列は自動認識されるのでデフォルト設定でOK</li>
+                </ul>
+                <p><strong>Changeノードの設定:</strong></p>
+                <ul>
+                    <li>msg.topic を msg.payload.name に設定</li>
+                    <li>msg.payload を msg.payload.price に設定</li>
+                </ul>
+                <p><strong>Joinノードの設定:</strong></p>
+                <ul>
+                    <li>モード: 手動</li>
+                    <li>結合形式: キー/値 オブジェクト</li>
+                    <li>メッセージ数: 2</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">
+[
+    {
+        "id": "ex3_inject",
+        "type": "inject",
+        "name": "実行",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 110,
+        "y": 100,
+        "wires": [["ex3_template"]]
+    },
+    {
+        "id": "ex3_template",
+        "type": "template",
+        "name": "商品データ",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "json",
+        "syntax": "plain",
+        "template": "[{\"name\": \"Apple\", \"price\": 150}, {\"name\": \"Orange\", \"price\": 80}]",
+        "output": "json",
+        "x": 260,
+        "y": 100,
+        "wires": [["ex3_split"]]
+    },
+    {
+        "id": "ex3_split",
+        "type": "split",
+        "name": "分割",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "x": 390,
+        "y": 100,
+        "wires": [["ex3_change"]]
+    },
+    {
+        "id": "ex3_change",
+        "type": "change",
+        "name": "topic/payload設定",
+        "rules": [
+            {
+                "t": "set",
+                "p": "topic",
+                "pt": "msg",
+                "to": "payload.name",
+                "tot": "msg"
+            },
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "payload.price",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 530,
+        "y": 100,
+        "wires": [["ex3_join"]]
+    },
+    {
+        "id": "ex3_join",
+        "type": "join",
+        "name": "オブジェクト結合",
+        "mode": "custom",
+        "build": "object",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": ",",
+        "joinerType": "str",
+        "accumulate": false,
+        "timeout": "",
+        "count": "2",
+        "reduceRight": false,
+        "x": 700,
+        "y": 100,
+        "wires": [["ex3_debug"]]
+    },
+    {
+        "id": "ex3_debug",
+        "type": "debug",
+        "name": "結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 850,
+        "y": 100,
+        "wires": []
+    }
+]
+                </div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習4: Reduceで合計値を計算<span class="difficulty difficulty-hard">上級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>センサーデータの合計値を計算してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Inject、Template、Split、Join（Reduce）、Debugノードを使用</li>
+                <li>入力: [10, 25, 30, 15, 20]</li>
+                <li>出力: 100（合計値）</li>
+            </ul>
+            
+            <p><strong>📊 期待される動作:</strong></p>
+            <ul>
+                <li>5つの数値の合計値が出力される</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Templateノードの設定:</strong></p>
+                <ul>
+                    <li>形式: JSON</li>
+                    <li>テンプレート: [10, 25, 30, 15, 20]</li>
+                    <li>出力: JSONオブジェクト</li>
+                </ul>
+                <p><strong>Splitノードの設定:</strong></p>
+                <ul>
+                    <li>配列は自動認識されるのでデフォルト設定でOK</li>
+                </ul>
+                <p><strong>Joinノードの設定:</strong></p>
+                <ul>
+                    <li>モード: Reduce</li>
+                    <li>Reduce式: <code>$A + payload</code></li>
+                    <li>初期値: 0（数値型）</li>
+                    <li>最終処理: 空（合計のみなので不要）</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">
+[
+    {
+        "id": "ex4_inject",
+        "type": "inject",
+        "name": "実行",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 110,
+        "y": 100,
+        "wires": [["ex4_template"]]
+    },
+    {
+        "id": "ex4_template",
+        "type": "template",
+        "name": "センサーデータ",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "json",
+        "syntax": "plain",
+        "template": "[10, 25, 30, 15, 20]",
+        "output": "json",
+        "x": 270,
+        "y": 100,
+        "wires": [["ex4_split"]]
+    },
+    {
+        "id": "ex4_split",
+        "type": "split",
+        "name": "分割",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "x": 410,
+        "y": 100,
+        "wires": [["ex4_join"]]
+    },
+    {
+        "id": "ex4_join",
+        "type": "join",
+        "name": "合計計算",
+        "mode": "reduce",
+        "build": "string",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": ",",
+        "joinerType": "str",
+        "accumulate": false,
+        "timeout": "",
+        "count": "",
+        "reduceRight": false,
+        "reduceExp": "$A + payload",
+        "reduceInit": "0",
+        "reduceInitType": "num",
+        "reduceFixup": "",
+        "x": 550,
+        "y": 100,
+        "wires": [["ex4_debug"]]
+    },
+    {
+        "id": "ex4_debug",
+        "type": "debug",
+        "name": "結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 690,
+        "y": 100,
+        "wires": []
+    }
+]
+                </div>
+            </details>
+        </div>
+        
+        <h2>🎓 5. まとめ</h2>
+        
+        <div class="important">
+            <h3>Joinノードの重要ポイント</h3>
+            <ul>
+                <li>✅ <strong>自動モード</strong>: Splitノードと連携してmsg.partsを使用して再結合</li>
+                <li>✅ <strong>手動モード</strong>: メッセージ数、タイムアウト、msg.completeで結合タイミングを制御</li>
+                <li>✅ <strong>結合形式</strong>: 文字列、配列、オブジェクト、マージから選択可能</li>
+                <li>✅ <strong>Reduceモード</strong>: JSONata式で柔軟な集計処理（$A, $I, $Nを活用）</li>
+                <li>✅ <strong>msg.complete</strong>: trueを設定すると即座に結合を完了</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <h3>⚠️ よくある間違い</h3>
+            <ul>
+                <li><strong>msg.partsの消失</strong>: 途中のノードでmsg.partsを削除すると自動モードが機能しない</li>
+                <li><strong>メッセージ数の不一致</strong>: 指定したcount数に達しないとタイムアウトまで待機</li>
+                <li><strong>異なるidのメッセージ</strong>: msg.parts.idが異なるメッセージは別グループとして扱われる</li>
+                <li><strong>Reduce式のエラー</strong>: JSONata式の構文エラーに注意</li>
+                <li><strong>タイムアウト未設定</strong>: メッセージが揃わない場合、永久に待機してしまう</li>
+            </ul>
+        </div>
+        
+        <div class="tip">
+            <h3>📚 次のステップ</h3>
+            <p>Joinノードをマスターしたら、以下のノードも学んでみましょう:</p>
+            <ul>
+                <li><strong>Splitノード</strong>: メッセージを分割（Joinと対になるノード）</li>
+                <li><strong>Sortノード</strong>: メッセージシーケンスを並べ替え</li>
+                <li><strong>Batchノード</strong>: メッセージをグループ化</li>
+                <li><strong>Aggregateノード</strong>: より高度な集計処理</li>
+            </ul>
+        </div>
+        
+        <h2>🔧 6. トラブルシューティング</h2>
+        
+        <h3>よくある問題と解決方法</h3>
+        
+        <table>
+            <tr>
+                <th>問題</th>
+                <th>原因</th>
+                <th>解決方法</th>
+            </tr>
+            <tr>
+                <td>結合されない</td>
+                <td>メッセージ数が不足</td>
+                <td>count数の確認、またはタイムアウトを設定</td>
+            </tr>
+            <tr>
+                <td>自動モードが動作しない</td>
+                <td>msg.partsが欠落</td>
+                <td>途中のノードでmsg.partsを保持する設定を確認</td>
+            </tr>
+            <tr>
+                <td>順序がバラバラ</td>
+                <td>非同期処理による順序変更</td>
+                <td>msg.parts.indexを使用、またはSortノードで並べ替え</td>
+            </tr>
+            <tr>
+                <td>Reduce結果が期待と違う</td>
+                <td>JSONata式のエラー</td>
+                <td>式を単純化して動作確認、$A/$I/$Nの使い方を確認</td>
+            </tr>
+            <tr>
+                <td>タイムアウトで途中出力</td>
+                <td>メッセージ到着が遅い</td>
+                <td>タイムアウト値を調整、またはcount指定に変更</td>
+            </tr>
+            <tr>
+                <td>異なるグループが混在</td>
+                <td>msg.parts.idが異なる</td>
+                <td>Splitノードの設定を確認、または手動モードを使用</td>
+            </tr>
+        </table>
+        
+        <h2>💡 7. 実務での活用例</h2>
+        
+        <h3>ケース1: 複数センサーデータの統合</h3>
+        <div class="code-block">温度センサー + 湿度センサー + 気圧センサー
+↓
+Joinノード（オブジェクト形式）
+↓
+{
+  "temperature": 25.5,
+  "humidity": 60,
+  "pressure": 1013
+}
+↓
+データベース保存 or ダッシュボード表示</div>
+        
+        <h3>ケース2: API並列呼び出しの結果統合</h3>
+        <div class="code-block">ユーザー情報API → 
+注文履歴API    →  Join（マージ）→ 統合レスポンス
+在庫情報API    →
+
+出力: {
+  "user": {...},
+  "orders": [...],
+  "inventory": {...}
+}</div>
+        
+        <h3>ケース3: バッチ処理の集計</h3>
+        <div class="code-block">1時間分のログデータ（100件）
+↓
+Split（行ごとに分割）
+↓
+フィルタリング（エラーログのみ）
+↓
+Join（Reduce: $A + 1, 初期値: 0）
+↓
+エラー件数: 15</div>
+        
+        <h3>ケース4: IoTデバイスからのデータ集約</h3>
+        <div class="code-block">工場の10台のデバイス
+↓
+各デバイスから生産数を受信（タイムアウト: 5秒）
+↓
+Join（配列形式）
+↓
+[120, 115, 130, 125, 110, 128, 122, 118, 132, 126]
+↓
+合計・平均計算 → レポート生成</div>
+        
+        <h2>📗 8. Reduceモード詳細</h2>
+        
+        <h3>JSONata特殊変数</h3>
+        <table>
+            <tr>
+                <th>変数</th>
+                <th>説明</th>
+                <th>使用例</th>
+            </tr>
+            <tr>
+                <td><strong>$A</strong></td>
+                <td>累積値（アキュムレータ）</td>
+                <td>$A + payload（合計）</td>
+            </tr>
+            <tr>
+                <td><strong>$I</strong></td>
+                <td>現在のインデックス（0から）</td>
+                <td>インデックス付きオブジェクト作成</td>
+            </tr>
+            <tr>
+                <td><strong>$N</strong></td>
+                <td>メッセージ総数</td>
+                <td>$A / $N（平均）</td>
+            </tr>
+            <tr>
+                <td><strong>payload</strong></td>
+                <td>現在のメッセージのpayload</td>
+                <td>各メッセージの値を参照</td>
+            </tr>
+        </table>
+        
+        <h3>Reduce式の例</h3>
+        <div class="code-block">// 合計
+$A + payload
+
+// 最大値
+payload > $A ? payload : $A
+
+// 配列に追加
+$append($A, [payload])
+
+// オブジェクト配列に変換
+$append($A, [{"value": payload, "index": $I}])
+
+// 条件付き加算
+payload > 10 ? $A + payload : $A</div>
+        
+        <h2>🔗 9. 追加リソース</h2>
+        
+        <ul>
+            <li><a href="https://nodered.org/docs/user-guide/messages#joining-messages" target="_blank">Node-RED公式ドキュメント: メッセージの結合</a></li>
+            <li><a href="https://nodered.org/docs/user-guide/nodes#join" target="_blank">Node-RED公式ドキュメント: Joinノード</a></li>
+            <li><a href="https://docs.jsonata.org/" target="_blank">JSONataドキュメント</a></li>
+            <li><a href="https://cookbook.nodered.org/" target="_blank">Node-RED Cookbook</a></li>
+        </ul>
+        
+        <hr>
+        
+        <p style="text-align: center; color: #999; margin-top: 40px;">
+            <small>このガイドが役に立ちましたら、実際のプロジェクトで練習してみてください!<br>
+            Joinノードはデータ統合・集計の強力なツールです。</small><br>
+            <small>参照元：NodeREDエディター内サンプルフロー</small>
+        </p>
+    </div>
+    
+    <script>
+        // ページ読み込み時にコピーボタンを追加
+        document.addEventListener('DOMContentLoaded', function() {
+            // .flow-jsonと.js-code[data-copy="true"]にコピーボタンを追加
+            var codeBlocks = document.querySelectorAll('.flow-json, .js-code[data-copy="true"]');
+            
+            codeBlocks.forEach(function(block) {
+                // コピーボタンを作成
+                var button = document.createElement('button');
+                button.className = 'copy-button';
+                button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                
+                // クリックイベントを追加
+                button.addEventListener('click', function() {
+                    // コードブロックのテキストを取得（ボタンテキストを除外）
+                    var code = block.textContent.replace(/コピー(しました!)?$/, '').trim();
+                    
+                    // 改行を適切に処理（Node-REDにペースト時に見やすくする）
+                    if (block.classList.contains('js-code')) {
+                        // JavaScriptコードの場合、行ごとに改行を維持
+                        code = block.innerText.replace(/コピー(しました!)?$/, '').trim();
+                    }
+                    
+                    // クリップボードにコピー
+                    navigator.clipboard.writeText(code).then(function() {
+                        // 成功時の視覚的フィードバック
+                        button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>コピーしました!';
+                        button.classList.add('copied');
+                        
+                        // 2秒後に元に戻す
+                        setTimeout(function() {
+                            button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                            button.classList.remove('copied');
+                        }, 2000);
+                    }).catch(function(err) {
+                        console.error('コピーに失敗しました:', err);
+                        button.textContent = 'エラー';
+                        setTimeout(function() {
+                            button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                        }, 2000);
+                    });
+                });
+                
+                // ボタンをコードブロックに追加
+                block.style.position = 'relative';
+                block.appendChild(button);
+            });
+        });
+    </script>
+</body>
+</html>
