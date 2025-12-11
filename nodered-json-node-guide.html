@@ -1,0 +1,1668 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED JSONノード 完全ガイド</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        h1 {
+            color: #8f0000;
+            border-bottom: 3px solid #8f0000;
+            padding-bottom: 10px;
+        }
+        
+        h2 {
+            color: #c00000;
+            margin-top: 30px;
+            border-left: 5px solid #c00000;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #555;
+            margin-top: 25px;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .node-example {
+            background-color: #2d3133;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            color: white;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .node {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 4px;
+            margin: 5px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .node-inject {
+            background-color: #3fadb5;
+            color: white;
+        }
+        
+        .node-json {
+            background-color: #b8d4e3;
+            color: #333;
+        }
+        
+        .node-debug {
+            background-color: #87a48d;
+            color: white;
+        }
+        
+        .node-template {
+            background-color: #d4b8a0;
+            color: #333;
+        }
+        
+        .node-function {
+            background-color: #e8a658;
+            color: white;
+        }
+        
+        .node-change {
+            background-color: #e7a070;
+            color: white;
+        }
+        
+        .node-switch {
+            background-color: #e2d96e;
+            color: #333;
+        }
+        
+        .node-catch {
+            background-color: #e8967a;
+            color: white;
+        }
+        
+        .node-http {
+            background-color: #e3d176;
+            color: #333;
+        }
+        
+        .arrow {
+            color: #999;
+            font-size: 20px;
+            margin: 0 10px;
+        }
+        
+        .important {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .tip {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .warning {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .code-block {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            position: relative;
+            white-space: pre-wrap;
+        }
+        
+        .js-code {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            border: none;
+            padding: 15px;
+            padding-top: 40px;
+            border-radius: 5px;
+            position: relative;
+            white-space: pre;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+        }
+        
+        .copy-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 6px 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: 'Segoe UI', sans-serif;
+            transition: background-color 0.2s;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .copy-button:hover {
+            background-color: #0056b3;
+        }
+        
+        .copy-button.copied {
+            background-color: #28a745;
+        }
+        
+        .copy-button svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+        }
+        
+        .exercise {
+            background-color: #e8f5e9;
+            border: 2px solid #4caf50;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        
+        .exercise h3 {
+            color: #2e7d32;
+            margin-top: 0;
+        }
+        
+        .difficulty {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .difficulty-easy {
+            background-color: #4caf50;
+            color: white;
+        }
+        
+        .difficulty-medium {
+            background-color: #ff9800;
+            color: white;
+        }
+        
+        .difficulty-hard {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        ul, ol {
+            padding-left: 25px;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #b8d4e3;
+            color: #333;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .flow-json {
+            background-color: #263238;
+            color: #aed581;
+            padding: 15px;
+            padding-top: 40px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        details {
+            margin: 15px 0;
+        }
+        
+        summary {
+            cursor: pointer;
+            padding: 10px;
+            background-color: #6c757d;
+            color: white;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        summary:hover {
+            background-color: #5a6268;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .feature-card {
+            background-color: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .feature-card h4 {
+            color: #5a8ca8;
+            margin-top: 0;
+        }
+        
+        .mode-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        
+        .badge-parse {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .badge-stringify {
+            background-color: #17a2b8;
+            color: white;
+        }
+        
+        .badge-auto {
+            background-color: #6f42c1;
+            color: white;
+        }
+        
+        .badge-schema {
+            background-color: #fd7e14;
+            color: white;
+        }
+        
+        .data-flow {
+            background-color: #f0f0f0;
+            border: 2px dashed #999;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+        }
+        
+        .data-flow .before {
+            background-color: #ffcccc;
+            padding: 10px;
+            border-radius: 4px;
+            display: inline-block;
+            margin: 5px;
+            text-align: left;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+        
+        .data-flow .after {
+            background-color: #ccffcc;
+            padding: 10px;
+            border-radius: 4px;
+            display: inline-block;
+            margin: 5px;
+            text-align: left;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+        
+        .data-flow .arrow-down {
+            display: block;
+            font-size: 24px;
+            color: #666;
+            margin: 10px 0;
+        }
+        
+        .direction-box {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .direction-item {
+            flex: 1;
+            min-width: 200px;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .direction-parse {
+            background-color: #e8f5e9;
+            border: 2px solid #4caf50;
+        }
+        
+        .direction-stringify {
+            background-color: #e3f2fd;
+            border: 2px solid #2196f3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📋 Node-RED JSONノード 完全ガイド</h1>
+        
+        <p>このガイドでは、Node-REDの<strong>JSONノード</strong>について、初心者の方でも理解できるように詳しく説明します。</p>
+        
+        <h2>📚 1. JSONノードとは?</h2>
+        
+        <h3>🤔 「JSON」って何?</h3>
+        <p>
+            JSON（JavaScript Object Notation）とは、<strong>データを「キー:値」のペアで表現するテキスト形式</strong>で、Web APIやデータ交換で広く使われています。
+            JSONノードは、このJSON形式の文字列とJavaScriptオブジェクトを相互変換するノードです。
+            日常生活で例えると、<strong>荷物に貼る伝票と中身のリストを相互変換する作業</strong>のようなものです。
+        </p>
+        
+        <div class="important">
+            <p><strong>📦 荷物の伝票と中身の例え:</strong></p>
+            <ul>
+                <li>📄 <strong>伝票（JSON文字列）</strong> = テキストで書かれた内容物リスト</li>
+                <li>📦 <strong>中身（オブジェクト）</strong> = 実際に取り出して使えるデータ</li>
+                <li>🔄 <strong>開封</strong> = JSON文字列をオブジェクトに変換（パース）</li>
+                <li>📝 <strong>梱包</strong> = オブジェクトをJSON文字列に変換（文字列化）</li>
+            </ul>
+        </div>
+        
+        <h3>↔️ 2つの変換方向</h3>
+        <div class="direction-box">
+            <div class="direction-item direction-parse">
+                <h4><span class="mode-badge badge-parse">パース</span></h4>
+                <p><strong>JSON文字列 → オブジェクト</strong></p>
+                <p>テキストデータを<br>プログラムで扱える形に変換</p>
+            </div>
+            <div class="direction-item direction-stringify">
+                <h4><span class="mode-badge badge-stringify">文字列化</span></h4>
+                <p><strong>オブジェクト → JSON文字列</strong></p>
+                <p>データを<br>送信・保存用テキストに変換</p>
+            </div>
+        </div>
+        
+        <h3>📦 基本的な動作</h3>
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-template">Template<br><small>(JSON文字列)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-json">JSON</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <p>
+            JSONノードは入力データの型を<strong>自動判定</strong>します。文字列が入力されればパース、オブジェクトが入力されれば文字列化を行います。
+        </p>
+        
+        <h3>📊 JSON文字列 → オブジェクト変換の例</h3>
+        <div class="data-flow">
+            <div class="before">
+                <strong>入力(JSON文字列)</strong><br>
+'{"kind":"Apple","price":100}'
+            </div>
+            <span class="arrow-down">↓ JSONノード（パース）↓</span>
+            <div class="after">
+                <strong>出力(オブジェクト)</strong><br>
+{kind: "Apple", price: 100}
+            </div>
+        </div>
+        
+        <h3>📊 オブジェクト → JSON文字列変換の例</h3>
+        <div class="data-flow">
+            <div class="before">
+                <strong>入力(オブジェクト)</strong><br>
+{kind: "Apple", price: 100}
+            </div>
+            <span class="arrow-down">↓ JSONノード（文字列化）↓</span>
+            <div class="after">
+                <strong>出力(JSON文字列)</strong><br>
+'{"kind":"Apple","price":100}'
+            </div>
+        </div>
+        
+        <h2>⚙️ 2. JSONノードの設定詳細</h2>
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h4><span class="mode-badge badge-auto">自動</span> 動作モード</h4>
+                <p>入力データの型を自動判定して変換方向を決定</p>
+                <div class="code-block">文字列 → オブジェクト
+オブジェクト → 文字列</div>
+            </div>
+            
+            <div class="feature-card">
+                <h4><span class="mode-badge badge-schema">検証</span> JSONスキーマ</h4>
+                <p>入力データの構造をJSONスキーマで検証</p>
+                <div class="code-block">型チェック
+必須項目チェック
+値の範囲チェック</div>
+            </div>
+        </div>
+        
+        <h3>📋 設定項目一覧</h3>
+        
+        <table>
+            <tr>
+                <th>設定項目</th>
+                <th>説明</th>
+                <th>例</th>
+            </tr>
+            <tr>
+                <td><strong>動作</strong></td>
+                <td>変換方向を指定（自動/常にJSON変換/常に文字列化）</td>
+                <td>自動判定がデフォルト</td>
+            </tr>
+            <tr>
+                <td><strong>プロパティ</strong></td>
+                <td>変換対象のプロパティ</td>
+                <td>msg.payload</td>
+            </tr>
+            <tr>
+                <td><strong>整形出力</strong></td>
+                <td>文字列化時にインデントを付けて見やすく整形</td>
+                <td>チェックON/OFF</td>
+            </tr>
+        </table>
+        
+        <h3>🎯 入力メッセージで制御できるプロパティ</h3>
+        
+        <table>
+            <tr>
+                <th>プロパティ</th>
+                <th>説明</th>
+                <th>例</th>
+            </tr>
+            <tr>
+                <td><strong>msg.payload</strong></td>
+                <td>変換対象のデータ（デフォルト）</td>
+                <td>JSON文字列 または オブジェクト</td>
+            </tr>
+            <tr>
+                <td><strong>msg.schema</strong></td>
+                <td>検証用のJSONスキーマ</td>
+                <td>{"type":"object", "properties":{...}}</td>
+            </tr>
+        </table>
+        
+        <h3>🔍 JSONスキーマによる検証</h3>
+        
+        <p>JSONノードは<strong>JSONスキーマ</strong>を使って入力データの検証ができます。スキーマに合致しない場合はエラーが発生します。</p>
+        
+        <div class="code-block">// JSONスキーマの例
+{
+    "type": "object",
+    "properties": {
+        "kind": { "type": "string" },
+        "price": { "type": "number" },
+        "origin": { "type": "string" }
+    },
+    "required": ["kind", "price"]
+}</div>
+        
+        <div class="tip">
+            <p><strong>📌 スキーマ検証のポイント:</strong></p>
+            <ul>
+                <li><code>msg.schema</code> にスキーマオブジェクトを設定</li>
+                <li>検証はJSON文字列 → オブジェクト変換時のみ有効</li>
+                <li>検証エラー時はCatchノードでエラーを捕捉可能</li>
+            </ul>
+        </div>
+        
+        <h2>🎯 3. 実用的な使用パターン</h2>
+        
+        <div class="important">
+            <p><strong>📥 サンプルフローのインポート方法:</strong></p>
+            <ol>
+                <li>下のサンプルフローJSONをコピー</li>
+                <li>Node-REDエディタで <strong>メニュー → 読み込み</strong> を選択</li>
+                <li>JSONをペーストして「読み込み」をクリック</li>
+            </ol>
+            <p>このサンプルフローには、以下で説明する全パターンの実例が含まれています。</p>
+        </div>
+        
+        <details>
+            <summary>📋 サンプルフロー（クリックで展開）</summary>
+            <p style="margin: 10px 0; color: #666;"><small>参照元：Node-REDエディター内サンプルフロー</small></p>
+            <div class="flow-json">[
+    {
+        "id": "e95345f3e4e33dbe",
+        "type": "tab",
+        "label": "json",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "9976e95d.2f8398",
+        "type": "inject",
+        "z": "e95345f3e4e33dbe",
+        "name": "",
+        "props": [{"p": "payload"}, {"p": "topic", "vt": "str"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 260,
+        "y": 160,
+        "wires": [["d94fc083.49d87"]]
+    },
+    {
+        "id": "6684abb1.8eb454",
+        "type": "comment",
+        "z": "e95345f3e4e33dbe",
+        "name": "Example 1: Convert JSON string to JS object",
+        "info": "",
+        "x": 320,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "d94fc083.49d87",
+        "type": "template",
+        "z": "e95345f3e4e33dbe",
+        "name": "JSON string",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "json",
+        "syntax": "plain",
+        "template": "{\n    \"kind\": \"Apple\",\n    \"price\": 100,\n    \"origin\": \"Canada\"\n}",
+        "output": "str",
+        "x": 430,
+        "y": 160,
+        "wires": [["1a3dc54a.78598b"]]
+    },
+    {
+        "id": "8950a55d.023988",
+        "type": "debug",
+        "z": "e95345f3e4e33dbe",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 750,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "1a3dc54a.78598b",
+        "type": "json",
+        "z": "e95345f3e4e33dbe",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 590,
+        "y": 160,
+        "wires": [["8950a55d.023988"]]
+    },
+    {
+        "id": "cb13761f.56c328",
+        "type": "inject",
+        "z": "e95345f3e4e33dbe",
+        "name": "",
+        "props": [{"p": "payload"}, {"p": "topic", "vt": "str"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 260,
+        "y": 320,
+        "wires": [["c607642a.78c3c8"]]
+    },
+    {
+        "id": "180b1e22.0074e2",
+        "type": "comment",
+        "z": "e95345f3e4e33dbe",
+        "name": "Example 2: Convert JS object to JSON string",
+        "info": "",
+        "x": 320,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "c607642a.78c3c8",
+        "type": "template",
+        "z": "e95345f3e4e33dbe",
+        "name": "JS object",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "json",
+        "syntax": "plain",
+        "template": "{\n    \"kind\": \"Apple\",\n    \"price\": 100,\n    \"origin\": \"Canada\"\n}",
+        "output": "json",
+        "x": 420,
+        "y": 320,
+        "wires": [["bf309844.fa12e8"]]
+    },
+    {
+        "id": "5b6b130b.72a14c",
+        "type": "debug",
+        "z": "e95345f3e4e33dbe",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 750,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "bf309844.fa12e8",
+        "type": "json",
+        "z": "e95345f3e4e33dbe",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 590,
+        "y": 320,
+        "wires": [["5b6b130b.72a14c"]]
+    },
+    {
+        "id": "2b18621b.e2670e",
+        "type": "inject",
+        "z": "e95345f3e4e33dbe",
+        "name": "OK",
+        "props": [{"p": "payload"}, {"p": "topic", "vt": "str"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 250,
+        "y": 540,
+        "wires": [["5986faee.aef954"]]
+    },
+    {
+        "id": "59acf99.9a92308",
+        "type": "comment",
+        "z": "e95345f3e4e33dbe",
+        "name": "Example 3: Validate input JSON string with schema",
+        "info": "",
+        "x": 350,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "5986faee.aef954",
+        "type": "template",
+        "z": "e95345f3e4e33dbe",
+        "name": "JSON string",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "json",
+        "syntax": "plain",
+        "template": "{\n    \"kind\": \"Apple\",\n    \"price\": 100,\n    \"origin\": \"Canada\"\n}",
+        "output": "str",
+        "x": 430,
+        "y": 540,
+        "wires": [["f8a67c6d.4f1f1"]]
+    },
+    {
+        "id": "ca27c92c.ad7cb8",
+        "type": "debug",
+        "z": "e95345f3e4e33dbe",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 930,
+        "y": 540,
+        "wires": []
+    },
+    {
+        "id": "2fad9978.ea1916",
+        "type": "json",
+        "z": "e95345f3e4e33dbe",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 770,
+        "y": 540,
+        "wires": [["ca27c92c.ad7cb8"]]
+    },
+    {
+        "id": "f8a67c6d.4f1f1",
+        "type": "template",
+        "z": "e95345f3e4e33dbe",
+        "name": "Schema",
+        "field": "schema",
+        "fieldType": "msg",
+        "format": "json",
+        "syntax": "plain",
+        "template": "{\n    \"type\": \"object\",\n    \"properties\": {\n        \"kind\": { \"type\": \"string\" },\n        \"price\": { \"type\": \"number\" },\n        \"origin\": { \"type\": \"string\" }\n    }\n}",
+        "output": "json",
+        "x": 610,
+        "y": 540,
+        "wires": [["2fad9978.ea1916"]]
+    },
+    {
+        "id": "8337e847.ac18d8",
+        "type": "inject",
+        "z": "e95345f3e4e33dbe",
+        "name": "NG",
+        "props": [{"p": "payload"}, {"p": "topic", "vt": "str"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 250,
+        "y": 620,
+        "wires": [["fa14d8bf.1ac938"]]
+    },
+    {
+        "id": "fa14d8bf.1ac938",
+        "type": "template",
+        "z": "e95345f3e4e33dbe",
+        "name": "JSON string (invalid)",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "json",
+        "syntax": "plain",
+        "template": "{\n    \"kind\": \"Apple\",\n    \"price\": \"100\",\n    \"origin\": \"Canada\"\n}",
+        "output": "str",
+        "x": 460,
+        "y": 620,
+        "wires": [["f8a67c6d.4f1f1"]]
+    }
+]</div>
+        </details>
+        
+        <h3>パターン1: JSON文字列 → オブジェクト変換</h3>
+        <p><strong>用途:</strong> APIレスポンスやファイルから読み込んだJSON文字列をオブジェクトに変換</p>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-template">Template<br><small>(JSON文字列)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-json">JSON</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <div class="tip">
+            <p><strong>📌 動作の流れ:</strong></p>
+            <ol>
+                <li>Templateノードで JSON文字列 '{"kind":"Apple","price":100}' を作成</li>
+                <li>JSONノードが文字列を検出して自動的にパース</li>
+                <li>オブジェクト {kind: "Apple", price: 100} が出力される</li>
+            </ol>
+        </div>
+        
+        <p><strong>設定例:</strong></p>
+        <div class="code-block">動作: JSON文字列とオブジェクトの相互変換（自動）
+プロパティ: msg.payload
+
+入力: '{"kind":"Apple","price":100,"origin":"Canada"}'  ← 文字列（引用符付き）
+出力: {kind: "Apple", price: 100, origin: "Canada"}     ← オブジェクト</div>
+        
+        <h3>パターン2: オブジェクト → JSON文字列変換</h3>
+        <p><strong>用途:</strong> オブジェクトをAPI送信やファイル保存用の文字列に変換</p>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-template">Template<br><small>(オブジェクト)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-json">JSON</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <p><strong>設定例:</strong></p>
+        <div class="code-block">動作: JSON文字列とオブジェクトの相互変換（自動）
+プロパティ: msg.payload
+
+入力: {kind: "Apple", price: 100, origin: "Canada"}     ← オブジェクト
+出力: '{"kind":"Apple","price":100,"origin":"Canada"}'  ← 文字列</div>
+        
+        <h3>パターン3: JSONスキーマによる検証</h3>
+        <p><strong>用途:</strong> 入力データが期待する形式かどうかを検証</p>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject<br><small>(OK/NG)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-template">Template<br><small>(JSON)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-template">Template<br><small>(Schema)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-json">JSON</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <div class="tip">
+            <p><strong>📌 動作の流れ:</strong></p>
+            <ol>
+                <li>JSON文字列とスキーマを準備</li>
+                <li>JSONノードがスキーマに基づいて検証</li>
+                <li>OK: オブジェクトが出力される</li>
+                <li>NG: エラーが発生（Catchノードで捕捉可能）</li>
+            </ol>
+        </div>
+        
+        <p><strong>設定例:</strong></p>
+        <div class="code-block">// スキーマ: priceは数値型を期待
+{
+    "type": "object",
+    "properties": {
+        "kind": { "type": "string" },
+        "price": { "type": "number" }
+    }
+}
+
+// OK: price が数値
+{"kind": "Apple", "price": 100}  → 検証成功
+
+// NG: price が文字列
+{"kind": "Apple", "price": "100"}  → 検証エラー</div>
+        
+        <h3>パターン4: 整形出力（Pretty Print）</h3>
+        <p><strong>用途:</strong> デバッグやログ出力用に見やすく整形</p>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-template">Template<br><small>(オブジェクト)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-json">JSON<br><small>(整形ON)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <p><strong>設定例:</strong></p>
+        <div class="code-block">整形出力: ON
+
+入力: {kind: "Apple", price: 100, origin: "Canada"}
+
+出力:
+'{
+    "kind": "Apple",
+    "price": 100,
+    "origin": "Canada"
+}'</div>
+        
+        <h3>パターン5: HTTP通信との組み合わせ</h3>
+        <p><strong>用途:</strong> Web APIとのJSON形式でのデータ交換</p>
+        
+        <div class="node-example">
+            <span class="node node-http">HTTP Request</span>
+            <span class="arrow">→</span>
+            <span class="node node-json">JSON</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">Function<br><small>(データ処理)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <p><strong>設定例:</strong></p>
+        <div class="code-block">// HTTP Requestノードからの応答がJSON文字列の場合
+// JSONノードでオブジェクトに変換してから処理
+
+// HTTP Response例:
+'{"status":"success","data":{"temperature":25.5}}'
+
+// JSONノード出力:
+{status: "success", data: {temperature: 25.5}}
+
+// Functionノードでデータを取り出す:
+msg.payload = msg.payload.data.temperature;  // 25.5</div>
+        
+        <h2>🏋️ 4. 実践演習</h2>
+        
+        <div class="exercise">
+            <h3>演習1: 基本的なJSONパース<span class="difficulty difficulty-easy">初級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>センサーデータのJSON文字列をオブジェクトに変換し、温度値だけを取り出してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Inject、Template、JSON、Change、Debugノードを使用</li>
+                <li>入力JSON: '{"sensor":"A","temperature":25.5,"humidity":60}'</li>
+                <li>出力: 25.5（温度値のみ）</li>
+            </ul>
+            
+            <p><strong>📊 期待される動作:</strong></p>
+            <ul>
+                <li>Injectボタンをクリック → Debugに温度値 25.5 が表示</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Injectノードの設定:</strong></p>
+                <ul>
+                    <li>payload: タイムスタンプ（デフォルト）でOK</li>
+                </ul>
+                <p><strong>Templateノードの設定:</strong></p>
+                <ul>
+                    <li>テンプレート: {"sensor":"A","temperature":25.5,"humidity":60}</li>
+                    <li>出力形式: 文字列（重要！JSONオブジェクトではなく文字列）</li>
+                </ul>
+                <p><strong>JSONノードの設定:</strong></p>
+                <ul>
+                    <li>動作: 自動（デフォルト）</li>
+                    <li>プロパティ: msg.payload</li>
+                </ul>
+                <p><strong>Changeノードの設定:</strong></p>
+                <ul>
+                    <li>msg.payload を msg.payload.temperature に設定</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "ex1_inject",
+        "type": "inject",
+        "name": "実行",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 110,
+        "y": 100,
+        "wires": [["ex1_template"]]
+    },
+    {
+        "id": "ex1_template",
+        "type": "template",
+        "name": "センサーJSON",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "json",
+        "syntax": "plain",
+        "template": "{\"sensor\":\"A\",\"temperature\":25.5,\"humidity\":60}",
+        "output": "str",
+        "x": 270,
+        "y": 100,
+        "wires": [["ex1_json"]]
+    },
+    {
+        "id": "ex1_json",
+        "type": "json",
+        "name": "JSONパース",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 430,
+        "y": 100,
+        "wires": [["ex1_change"]]
+    },
+    {
+        "id": "ex1_change",
+        "type": "change",
+        "name": "温度を抽出",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "payload.temperature",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 590,
+        "y": 100,
+        "wires": [["ex1_debug"]]
+    },
+    {
+        "id": "ex1_debug",
+        "type": "debug",
+        "name": "結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 730,
+        "y": 100,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習2: オブジェクトのJSON文字列化<span class="difficulty difficulty-easy">初級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>オブジェクトを整形されたJSON文字列に変換してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Inject、Template、JSON、Debugノードを使用</li>
+                <li>入力: {name: "田中", age: 30, city: "東京"}</li>
+                <li>整形出力（インデント付き）で出力</li>
+            </ul>
+            
+            <p><strong>📊 期待される動作:</strong></p>
+            <ul>
+                <li>Injectボタンをクリック → インデント付きのJSON文字列が表示</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Templateノードの設定:</strong></p>
+                <ul>
+                    <li>テンプレート: {"name":"田中","age":30,"city":"東京"}</li>
+                    <li>出力形式: JSONオブジェクト（文字列ではなく）</li>
+                </ul>
+                <p><strong>JSONノードの設定:</strong></p>
+                <ul>
+                    <li>動作: 自動</li>
+                    <li>整形出力: チェックON</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "ex2_inject",
+        "type": "inject",
+        "name": "実行",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 110,
+        "y": 100,
+        "wires": [["ex2_template"]]
+    },
+    {
+        "id": "ex2_template",
+        "type": "template",
+        "name": "ユーザーデータ",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "json",
+        "syntax": "plain",
+        "template": "{\"name\":\"田中\",\"age\":30,\"city\":\"東京\"}",
+        "output": "json",
+        "x": 280,
+        "y": 100,
+        "wires": [["ex2_json"]]
+    },
+    {
+        "id": "ex2_json",
+        "type": "json",
+        "name": "JSON文字列化",
+        "property": "payload",
+        "action": "",
+        "pretty": true,
+        "x": 460,
+        "y": 100,
+        "wires": [["ex2_debug"]]
+    },
+    {
+        "id": "ex2_debug",
+        "type": "debug",
+        "name": "結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 610,
+        "y": 100,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習3: JSONスキーマによる検証<span class="difficulty difficulty-medium">中級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>注文データをJSONスキーマで検証し、エラー時にはCatchノードで捕捉してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Inject、Template（2つ）、JSON、Debug、Catchノードを使用</li>
+                <li>スキーマ: productは文字列、quantityは数値、priceは数値</li>
+                <li>正常データとエラーデータの両方でテスト</li>
+            </ul>
+            
+            <p><strong>📊 期待される動作:</strong></p>
+            <ul>
+                <li>正常データ: Debugに変換されたオブジェクトが表示</li>
+                <li>エラーデータ: Catchノードでエラーを捕捉</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Template（スキーマ）ノードの設定:</strong></p>
+                <ul>
+                    <li>プロパティ: msg.schema</li>
+                    <li>出力形式: JSONオブジェクト</li>
+                    <li>テンプレート: {"type":"object","properties":{"product":{"type":"string"},"quantity":{"type":"number"},"price":{"type":"number"}}}</li>
+                </ul>
+                <p><strong>Catchノードの設定:</strong></p>
+                <ul>
+                    <li>対象: JSONノードを選択、または全てのノード</li>
+                </ul>
+                <p><strong>テストデータ:</strong></p>
+                <ul>
+                    <li>正常: {"product":"りんご","quantity":5,"price":150}</li>
+                    <li>エラー: {"product":"りんご","quantity":"5個","price":150}（quantityが文字列）</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "ex3_inject_ok",
+        "type": "inject",
+        "name": "正常データ",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"product\":\"りんご\",\"quantity\":5,\"price\":150}",
+        "payloadType": "str",
+        "x": 130,
+        "y": 80,
+        "wires": [["ex3_schema"]]
+    },
+    {
+        "id": "ex3_inject_ng",
+        "type": "inject",
+        "name": "エラーデータ",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"product\":\"りんご\",\"quantity\":\"5個\",\"price\":150}",
+        "payloadType": "str",
+        "x": 130,
+        "y": 140,
+        "wires": [["ex3_schema"]]
+    },
+    {
+        "id": "ex3_schema",
+        "type": "template",
+        "name": "スキーマ設定",
+        "field": "schema",
+        "fieldType": "msg",
+        "format": "json",
+        "syntax": "plain",
+        "template": "{\n    \"type\": \"object\",\n    \"properties\": {\n        \"product\": {\"type\": \"string\"},\n        \"quantity\": {\"type\": \"number\"},\n        \"price\": {\"type\": \"number\"}\n    }\n}",
+        "output": "json",
+        "x": 320,
+        "y": 100,
+        "wires": [["ex3_json"]]
+    },
+    {
+        "id": "ex3_json",
+        "type": "json",
+        "name": "JSON検証",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 480,
+        "y": 100,
+        "wires": [["ex3_debug_ok"]]
+    },
+    {
+        "id": "ex3_debug_ok",
+        "type": "debug",
+        "name": "成功",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 630,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "ex3_catch",
+        "type": "catch",
+        "name": "エラー捕捉",
+        "scope": ["ex3_json"],
+        "uncaught": false,
+        "x": 490,
+        "y": 160,
+        "wires": [["ex3_debug_ng"]]
+    },
+    {
+        "id": "ex3_debug_ng",
+        "type": "debug",
+        "name": "エラー",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "x": 630,
+        "y": 160,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習4: APIレスポンス処理<span class="difficulty difficulty-hard">上級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>ネストしたJSONデータをパースし、特定の値を抽出・加工してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Inject、Template、JSON、Function、Debugノードを使用</li>
+                <li>入力: APIレスポンス形式のネストしたJSON</li>
+                <li>出力: データ配列の各要素から名前とスコアを抽出した新しい配列</li>
+            </ul>
+            
+            <p><strong>📊 期待される動作:</strong></p>
+            <ul>
+                <li>入力: {"status":"ok","data":[{"name":"A","score":80},{"name":"B","score":90}]}</li>
+                <li>出力: [{name:"A",score:80},{name:"B",score:90}]</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Templateノードの設定:</strong></p>
+                <ul>
+                    <li>ネストしたJSONオブジェクトを文字列として設定</li>
+                    <li>出力形式: 文字列</li>
+                </ul>
+                <p><strong>Functionノードのコード:</strong></p>
+                <ul>
+                    <li>msg.payload.data でデータ配列にアクセス</li>
+                    <li>必要に応じてmapで加工</li>
+                </ul>
+                <div class="code-block">// Functionノードの例
+msg.payload = msg.payload.data;
+return msg;</div>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "ex4_inject",
+        "type": "inject",
+        "name": "実行",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 110,
+        "y": 100,
+        "wires": [["ex4_template"]]
+    },
+    {
+        "id": "ex4_template",
+        "type": "template",
+        "name": "APIレスポンス",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "json",
+        "syntax": "plain",
+        "template": "{\n    \"status\": \"ok\",\n    \"timestamp\": \"2024-01-15T10:30:00Z\",\n    \"data\": [\n        {\"name\": \"センサーA\", \"score\": 80, \"detail\": \"正常\"},\n        {\"name\": \"センサーB\", \"score\": 90, \"detail\": \"良好\"},\n        {\"name\": \"センサーC\", \"score\": 75, \"detail\": \"注意\"}\n    ]\n}",
+        "output": "str",
+        "x": 280,
+        "y": 100,
+        "wires": [["ex4_json"]]
+    },
+    {
+        "id": "ex4_json",
+        "type": "json",
+        "name": "JSONパース",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 440,
+        "y": 100,
+        "wires": [["ex4_function"]]
+    },
+    {
+        "id": "ex4_function",
+        "type": "function",
+        "name": "データ抽出",
+        "func": "// data配列から名前とスコアのみ抽出\nmsg.payload = msg.payload.data.map(item => ({\n    name: item.name,\n    score: item.score\n}));\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 600,
+        "y": 100,
+        "wires": [["ex4_debug"]]
+    },
+    {
+        "id": "ex4_debug",
+        "type": "debug",
+        "name": "結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 750,
+        "y": 100,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+        
+        <h2>🎓 5. まとめ</h2>
+        
+        <div class="important">
+            <h3>JSONノードの重要ポイント</h3>
+            <ul>
+                <li>✅ <strong>双方向変換</strong>: JSON文字列 ↔ JavaScriptオブジェクトの相互変換</li>
+                <li>✅ <strong>自動判定</strong>: 入力データ型で変換方向を自動判定</li>
+                <li>✅ <strong>スキーマ検証</strong>: msg.schemaでJSONスキーマによる検証が可能</li>
+                <li>✅ <strong>整形出力</strong>: Pretty Print オプションで見やすく整形</li>
+                <li>✅ <strong>エラー処理</strong>: 不正なJSONやスキーマ違反はCatchノードで捕捉</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <h3>⚠️ よくある間違い</h3>
+            <ul>
+                <li><strong>文字列とオブジェクトの混同</strong>: Templateの出力形式（文字列/JSON）を間違えると期待通りに動作しない</li>
+                <li><strong>不正なJSON構文</strong>: キー名の引用符忘れ、末尾カンマなどでパースエラー</li>
+                <li><strong>スキーマの型指定ミス</strong>: "number"と"string"の間違いなど</li>
+                <li><strong>ネストしたデータのアクセス</strong>: msg.payload.data.items のようにドット記法で辿る</li>
+                <li><strong>循環参照</strong>: オブジェクトに循環参照があると文字列化できない</li>
+            </ul>
+        </div>
+        
+        <div class="tip">
+            <h3>📚 次のステップ</h3>
+            <p>JSONノードをマスターしたら、以下のノードも学んでみましょう:</p>
+            <ul>
+                <li><strong>CSVノード</strong>: CSV形式との相互変換</li>
+                <li><strong>XMLノード</strong>: XML形式との相互変換</li>
+                <li><strong>HTTP Requestノード</strong>: Web APIとの通信</li>
+                <li><strong>Functionノード</strong>: JavaScriptでのデータ加工</li>
+            </ul>
+        </div>
+        
+        <h2>🔧 6. トラブルシューティング</h2>
+        
+        <h3>よくある問題と解決方法</h3>
+        
+        <table>
+            <tr>
+                <th>問題</th>
+                <th>原因</th>
+                <th>解決方法</th>
+            </tr>
+            <tr>
+                <td>パースエラー</td>
+                <td>不正なJSON構文</td>
+                <td>JSONバリデータで構文チェック</td>
+            </tr>
+            <tr>
+                <td>変換されない</td>
+                <td>既にオブジェクト/文字列</td>
+                <td>入力データの型を確認（typeof）</td>
+            </tr>
+            <tr>
+                <td>スキーマ検証エラー</td>
+                <td>データがスキーマに不一致</td>
+                <td>スキーマ定義とデータの型を確認</td>
+            </tr>
+            <tr>
+                <td>文字化け</td>
+                <td>文字コードの問題</td>
+                <td>UTF-8で統一</td>
+            </tr>
+            <tr>
+                <td>プロパティが見つからない</td>
+                <td>パス指定ミス</td>
+                <td>Debugノードで構造を確認</td>
+            </tr>
+            <tr>
+                <td>undefined が出力</td>
+                <td>存在しないプロパティへのアクセス</td>
+                <td>オプショナルチェーン（?.）を使用</td>
+            </tr>
+        </table>
+        
+        <h2>💡 7. 実務での活用例</h2>
+        
+        <h3>ケース1: REST APIとの通信</h3>
+        <div class="code-block">HTTP Requestノード（APIコール）
+↓
+JSONノード（レスポンスをパース）
+↓
+Changeノード（必要なデータを抽出）
+↓
+処理...
+
+用途: 外部サービスのAPIからデータを取得して処理</div>
+        
+        <h3>ケース2: MQTTメッセージの処理</h3>
+        <div class="code-block">MQTT Inノード（センサーデータ受信）
+↓
+JSONノード（JSON文字列をパース）
+↓
+Switchノード（条件分岐）
+↓
+各種処理...
+
+用途: IoTセンサーからのJSONメッセージを処理</div>
+        
+        <h3>ケース3: ファイル入出力</h3>
+        <div class="code-block">File Inノード（設定ファイル読み込み）
+↓
+JSONノード（パース）
+↓
+設定値を使用...
+↓
+JSONノード（文字列化、整形ON）
+↓
+File Outノード（保存）
+
+用途: JSON形式の設定ファイルの読み書き</div>
+        
+        <h3>ケース4: データ検証ゲートウェイ</h3>
+        <div class="code-block">HTTP Inノード（外部からのリクエスト）
+↓
+Templateノード（スキーマ設定）
+↓
+JSONノード（スキーマ検証付きパース）
+↓ ↘
+成功  Catchノード → エラーレスポンス
+↓
+ビジネスロジック処理
+
+用途: 入力データのバリデーション</div>
+        
+        <h2>🔗 8. 追加リソース</h2>
+        
+        <ul>
+            <li><a href="https://nodered.org/docs/user-guide/nodes#json" target="_blank">Node-RED公式ドキュメント: JSONノード</a></li>
+            <li><a href="https://json-schema.org/" target="_blank">JSON Schema 公式サイト</a></li>
+            <li><a href="https://jsonlint.com/" target="_blank">JSONLint - JSONバリデータ</a></li>
+            <li><a href="https://flows.nodered.org/search?term=json" target="_blank">Node-RED Flow Library: JSON関連フロー</a></li>
+        </ul>
+        
+        <hr>
+        
+        <p style="text-align: center; color: #999; margin-top: 40px;">
+            <small>このガイドが役に立ちましたら、実際のプロジェクトで練習してみてください!<br>
+            JSONノードはAPI連携の基本ツールです。</small><br>
+            <small>参照元：Node-REDエディター内サンプルフロー</small>
+        </p>
+    </div>
+    
+    <script>
+        // ページ読み込み時にコピーボタンを追加
+        document.addEventListener('DOMContentLoaded', function() {
+            // .flow-jsonと.js-code[data-copy="true"]にコピーボタンを追加
+            var codeBlocks = document.querySelectorAll('.flow-json, .js-code[data-copy="true"]');
+            
+            codeBlocks.forEach(function(block) {
+                // コピーボタンを作成
+                var button = document.createElement('button');
+                button.className = 'copy-button';
+                button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                
+                // クリックイベントを追加
+                button.addEventListener('click', function() {
+                    // コードブロックのテキストを取得（ボタンテキストを除外）
+                    var code = block.textContent.replace(/コピー(しました!)?$/, '').trim();
+                    
+                    // 改行を適切に処理（Node-REDにペースト時に見やすくする）
+                    if (block.classList.contains('js-code')) {
+                        // JavaScriptコードの場合、行ごとに改行を維持
+                        code = block.innerText.replace(/コピー(しました!)?$/, '').trim();
+                    }
+                    
+                    // クリップボードにコピー
+                    navigator.clipboard.writeText(code).then(function() {
+                        // 成功時の視覚的フィードバック
+                        button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>コピーしました!';
+                        button.classList.add('copied');
+                        
+                        // 2秒後に元に戻す
+                        setTimeout(function() {
+                            button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                            button.classList.remove('copied');
+                        }, 2000);
+                    }).catch(function(err) {
+                        console.error('コピーに失敗しました:', err);
+                        button.textContent = 'エラー';
+                        setTimeout(function() {
+                            button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                        }, 2000);
+                    });
+                });
+                
+                // ボタンをコードブロックに追加
+                block.style.position = 'relative';
+                block.appendChild(button);
+            });
+        });
+    </script>
+</body>
+</html>
