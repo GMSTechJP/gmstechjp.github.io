@@ -1,0 +1,1795 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED Execノード 完全ガイド</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        h1 {
+            color: #8f0000;
+            border-bottom: 3px solid #8f0000;
+            padding-bottom: 10px;
+        }
+        
+        h2 {
+            color: #c00000;
+            margin-top: 30px;
+            border-left: 5px solid #c00000;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #555;
+            margin-top: 25px;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .node-example {
+            background-color: #2d3133;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            color: white;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .node {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 4px;
+            margin: 5px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .node-inject {
+            background-color: #3fadb5;
+            color: white;
+        }
+        
+        .node-exec {
+            background-color: #d4b8a0;
+            color: #333;
+        }
+        
+        .node-debug {
+            background-color: #87a48d;
+            color: white;
+        }
+        
+        .node-template {
+            background-color: #d4b8a0;
+            color: #333;
+        }
+        
+        .node-function {
+            background-color: #e8a658;
+            color: white;
+        }
+        
+        .node-change {
+            background-color: #e7a070;
+            color: white;
+        }
+        
+        .node-switch {
+            background-color: #e2d96e;
+            color: #333;
+        }
+        
+        .node-catch {
+            background-color: #e8967a;
+            color: white;
+        }
+        
+        .node-trigger {
+            background-color: #c9b6d5;
+            color: #333;
+        }
+        
+        .arrow {
+            color: #999;
+            font-size: 20px;
+            margin: 0 10px;
+        }
+        
+        .important {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .tip {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .warning {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .code-block {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            position: relative;
+            white-space: pre-wrap;
+        }
+        
+        .js-code {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            border: none;
+            padding: 15px;
+            padding-top: 40px;
+            border-radius: 5px;
+            position: relative;
+            white-space: pre;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+        }
+        
+        .copy-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 6px 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: 'Segoe UI', sans-serif;
+            transition: background-color 0.2s;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .copy-button:hover {
+            background-color: #0056b3;
+        }
+        
+        .copy-button.copied {
+            background-color: #28a745;
+        }
+        
+        .copy-button svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+        }
+        
+        .exercise {
+            background-color: #e8f5e9;
+            border: 2px solid #4caf50;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        
+        .exercise h3 {
+            color: #2e7d32;
+            margin-top: 0;
+        }
+        
+        .difficulty {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .difficulty-easy {
+            background-color: #4caf50;
+            color: white;
+        }
+        
+        .difficulty-medium {
+            background-color: #ff9800;
+            color: white;
+        }
+        
+        .difficulty-hard {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        ul, ol {
+            padding-left: 25px;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #d4b8a0;
+            color: #333;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .flow-json {
+            background-color: #263238;
+            color: #aed581;
+            padding: 15px;
+            padding-top: 40px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        details {
+            margin: 15px 0;
+        }
+        
+        summary {
+            cursor: pointer;
+            padding: 10px;
+            background-color: #6c757d;
+            color: white;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        summary:hover {
+            background-color: #5a6268;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .feature-card {
+            background-color: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .feature-card h4 {
+            color: #8f6c53;
+            margin-top: 0;
+        }
+        
+        .mode-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        
+        .badge-exec {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .badge-spawn {
+            background-color: #17a2b8;
+            color: white;
+        }
+        
+        .badge-stdout {
+            background-color: #4caf50;
+            color: white;
+        }
+        
+        .badge-stderr {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        .badge-rc {
+            background-color: #9e9e9e;
+            color: white;
+        }
+        
+        .data-flow {
+            background-color: #f0f0f0;
+            border: 2px dashed #999;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+        }
+        
+        .data-flow .before {
+            background-color: #ffcccc;
+            padding: 10px;
+            border-radius: 4px;
+            display: inline-block;
+            margin: 5px;
+        }
+        
+        .data-flow .after {
+            background-color: #ccffcc;
+            padding: 10px;
+            border-radius: 4px;
+            display: inline-block;
+            margin: 5px;
+        }
+        
+        .data-flow .arrow-down {
+            display: block;
+            font-size: 24px;
+            color: #666;
+            margin: 10px 0;
+        }
+        
+        .output-ports {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .output-port {
+            flex: 1;
+            min-width: 150px;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .port-stdout {
+            background-color: #e8f5e9;
+            border: 2px solid #4caf50;
+        }
+        
+        .port-stderr {
+            background-color: #ffebee;
+            border: 2px solid #f44336;
+        }
+        
+        .port-rc {
+            background-color: #eceff1;
+            border: 2px solid #607d8b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚡ Node-RED Execノード 完全ガイド</h1>
+        
+        <p>このガイドでは、Node-REDの<strong>Execノード</strong>について、初心者の方でも理解できるように詳しく説明します。</p>
+        
+        <h2>📚 1. Execノードとは?</h2>
+        
+        <h3>🤔 「Exec」って何?</h3>
+        <p>
+            Execノードは、<strong>外部のコマンドやプログラムを実行する</strong>ノードです。
+            日常生活で例えると、<strong>秘書に電話で指示を出して、報告を受け取る</strong>ようなものです。
+        </p>
+        
+        <div class="important">
+            <p><strong>📞 秘書への電話指示に例えると:</strong></p>
+            <ul>
+                <li>📱 <strong>電話をかける</strong> = コマンドを実行</li>
+                <li>📝 <strong>指示を伝える</strong> = コマンド引数を渡す</li>
+                <li>👂 <strong>結果を聞く</strong> = 標準出力（stdout）を受け取る</li>
+                <li>⚠️ <strong>問題があれば報告</strong> = 標準エラー（stderr）を受け取る</li>
+                <li>📊 <strong>完了報告</strong> = 終了コード（return code）を確認</li>
+            </ul>
+        </div>
+        
+        <h3>📦 基本的な動作</h3>
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-exec">Exec</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug<br><small>(stdout)</small></span>
+            <br><br>
+            <span style="margin-left: 200px;"></span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug<br><small>(stderr)</small></span>
+            <br><br>
+            <span style="margin-left: 200px;"></span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug<br><small>(rc)</small></span>
+        </div>
+        
+        <p>
+            Execノードは外部コマンドを実行し、<strong>3つの出力ポート</strong>からそれぞれ結果を出力します。
+            LinuxやWindowsのターミナルコマンドをNode-REDから実行できます。
+        </p>
+        
+        <h3>🔌 3つの出力ポート</h3>
+        <div class="output-ports">
+            <div class="output-port port-stdout">
+                <strong><span class="mode-badge badge-stdout">1</span> 標準出力</strong>
+                <p>コマンドの実行結果<br>(stdout)</p>
+            </div>
+            <div class="output-port port-stderr">
+                <strong><span class="mode-badge badge-stderr">2</span> 標準エラー</strong>
+                <p>エラーメッセージ<br>(stderr)</p>
+            </div>
+            <div class="output-port port-rc">
+                <strong><span class="mode-badge badge-rc">3</span> 終了コード</strong>
+                <p>処理結果コード<br>(return code)</p>
+            </div>
+        </div>
+        
+        <div class="data-flow">
+            <div class="before">
+                <strong>入力</strong><br>
+                msg.payload = "Hello World!"
+            </div>
+            <span class="arrow-down">↓ echo コマンド実行 ↓</span>
+            <div class="after">
+                <strong>出力(stdout)</strong><br>
+                msg.payload = "Hello World!\n"
+            </div>
+        </div>
+        
+        <h2>⚙️ 2. Execノードの2つのモード</h2>
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h4><span class="mode-badge badge-exec">exec</span> Execモード</h4>
+                <p>コマンドが完了するまで待機し、全ての出力をまとめて返す</p>
+                <div class="code-block">完了後に一度だけ
+結果を出力</div>
+            </div>
+            
+            <div class="feature-card">
+                <h4><span class="mode-badge badge-spawn">spawn</span> Spawnモード</h4>
+                <p>コマンド実行中にリアルタイムで出力を返す</p>
+                <div class="code-block">出力があるたびに
+メッセージを送信</div>
+            </div>
+        </div>
+        
+        <h3>📋 設定項目一覧</h3>
+        
+        <table>
+            <tr>
+                <th>設定項目</th>
+                <th>説明</th>
+                <th>例</th>
+            </tr>
+            <tr>
+                <td><strong>コマンド</strong></td>
+                <td>実行するコマンドやプログラム</td>
+                <td>echo, ls, python</td>
+            </tr>
+            <tr>
+                <td><strong>引数の追加</strong></td>
+                <td>コマンドの後に追加する固定引数</td>
+                <td>-la, --version</td>
+            </tr>
+            <tr>
+                <td><strong>msg.payloadを追加</strong></td>
+                <td>入力メッセージのpayloadをコマンド引数に追加</td>
+                <td>チェックON/OFF</td>
+            </tr>
+            <tr>
+                <td><strong>出力形式</strong></td>
+                <td>exec（完了後）またはspawn（リアルタイム）</td>
+                <td>exec / spawn</td>
+            </tr>
+            <tr>
+                <td><strong>タイムアウト</strong></td>
+                <td>コマンド実行の最大待ち時間（秒）</td>
+                <td>30（秒）</td>
+            </tr>
+            <tr>
+                <td><strong>旧式の出力</strong></td>
+                <td>古い形式の終了コード出力を使用</td>
+                <td>チェックON/OFF</td>
+            </tr>
+        </table>
+        
+        <h3>🎯 入力メッセージで制御できるプロパティ</h3>
+        
+        <table>
+            <tr>
+                <th>プロパティ</th>
+                <th>説明</th>
+                <th>例</th>
+            </tr>
+            <tr>
+                <td><strong>msg.payload</strong></td>
+                <td>「msg.payloadを追加」がONの場合、コマンド引数に追加</td>
+                <td>"Hello World!"</td>
+            </tr>
+            <tr>
+                <td><strong>msg.kill</strong></td>
+                <td>実行中のプロセスを終了（spawnモードで有効）</td>
+                <td>任意の値</td>
+            </tr>
+            <tr>
+                <td><strong>msg.pid</strong></td>
+                <td>特定のプロセスIDを指定して終了</td>
+                <td>12345</td>
+            </tr>
+        </table>
+        
+        <h3>📤 出力メッセージの形式</h3>
+        
+        <div class="code-block">// 第1出力（stdout）
+msg.payload = "コマンドの標準出力"
+
+// 第2出力（stderr）
+msg.payload = "エラーメッセージ"
+
+// 第3出力（終了コード）
+msg.payload = {
+    code: 0,        // 終了コード（0=成功）
+    signal: null    // シグナル（あれば）
+}</div>
+        
+        <h2>🎯 3. 実用的な使用パターン</h2>
+        
+        <div class="important">
+            <p><strong>📥 サンプルフローのインポート方法:</strong></p>
+            <ol>
+                <li>下のサンプルフローJSONをコピー</li>
+                <li>Node-REDエディタで <strong>メニュー → 読み込み</strong> を選択</li>
+                <li>JSONをペーストして「読み込み」をクリック</li>
+            </ol>
+            <p>このサンプルフローには、以下で説明する全パターンの実例が含まれています。</p>
+        </div>
+        
+        <details>
+            <summary>📋 サンプルフロー（クリックで展開）</summary>
+            <p style="margin: 10px 0; color: #666;"><small>参照元：Node-REDエディター内サンプルフロー</small></p>
+            <div class="flow-json">[
+    {
+        "id": "fcde1833fb43f65c",
+        "type": "tab",
+        "label": "exec",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "6a5f26a9.0cc2d8",
+        "type": "inject",
+        "z": "fcde1833fb43f65c",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "Hello World!",
+        "payloadType": "str",
+        "x": 290,
+        "y": 200,
+        "wires": [
+            [
+                "fc2b343c.bbe2f8"
+            ]
+        ]
+    },
+    {
+        "id": "fc2b343c.bbe2f8",
+        "type": "exec",
+        "z": "fcde1833fb43f65c",
+        "command": "echo",
+        "addpay": true,
+        "append": "",
+        "useSpawn": "false",
+        "timer": "",
+        "oldrc": false,
+        "name": "",
+        "x": 430,
+        "y": 200,
+        "wires": [
+            [
+                "2f3bcd73.6fedf2"
+            ],
+            [],
+            [
+                "3280586e.4e3d28"
+            ]
+        ]
+    },
+    {
+        "id": "2f3bcd73.6fedf2",
+        "type": "debug",
+        "z": "fcde1833fb43f65c",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 610,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "2b7bc9f1.ab36a6",
+        "type": "comment",
+        "z": "fcde1833fb43f65c",
+        "name": "Example: Execute external command appending additional args",
+        "info": "",
+        "x": 380,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "3280586e.4e3d28",
+        "type": "debug",
+        "z": "fcde1833fb43f65c",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 610,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "feba83da.8f227",
+        "type": "comment",
+        "z": "fcde1833fb43f65c",
+        "name": "↓ execute echo command",
+        "info": "",
+        "x": 490,
+        "y": 155,
+        "wires": []
+    },
+    {
+        "id": "f507b27c.fff1",
+        "type": "inject",
+        "z": "fcde1833fb43f65c",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 260,
+        "y": 460,
+        "wires": [
+            [
+                "28b4f75a.eae548"
+            ]
+        ]
+    },
+    {
+        "id": "28b4f75a.eae548",
+        "type": "exec",
+        "z": "fcde1833fb43f65c",
+        "command": "/non/existing/command",
+        "addpay": false,
+        "append": "",
+        "useSpawn": "false",
+        "timer": "",
+        "oldrc": false,
+        "name": "",
+        "x": 470,
+        "y": 460,
+        "wires": [
+            [],
+            [
+                "27992c1f.a1c964"
+            ],
+            [
+                "6e7ff001.2412d"
+            ]
+        ]
+    },
+    {
+        "id": "6e7ff001.2412d",
+        "type": "debug",
+        "z": "fcde1833fb43f65c",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 690,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "27992c1f.a1c964",
+        "type": "debug",
+        "z": "fcde1833fb43f65c",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 690,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "77e85c7c.a560d4",
+        "type": "comment",
+        "z": "fcde1833fb43f65c",
+        "name": "Example: Execute external command and get error output",
+        "info": "",
+        "x": 360,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "c188c28c.f7d34",
+        "type": "comment",
+        "z": "fcde1833fb43f65c",
+        "name": "↓ try to execute non-existing command",
+        "info": "",
+        "x": 510,
+        "y": 414,
+        "wires": []
+    },
+    {
+        "id": "2e7be550.92ddfa",
+        "type": "inject",
+        "z": "fcde1833fb43f65c",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 280,
+        "y": 740,
+        "wires": [
+            [
+                "53a714a8.1214dc"
+            ]
+        ]
+    },
+    {
+        "id": "53a714a8.1214dc",
+        "type": "exec",
+        "z": "fcde1833fb43f65c",
+        "command": "/bin/sh -c \"while true; do echo Hello; sleep 2; done\"",
+        "addpay": false,
+        "append": "",
+        "useSpawn": "true",
+        "timer": "",
+        "oldrc": false,
+        "name": "Repeat message output",
+        "x": 510,
+        "y": 740,
+        "wires": [
+            [
+                "d1815f06.463f3"
+            ],
+            [
+                "322d9b72.fc9194"
+            ],
+            [
+                "2dbf8e03.2d6a52"
+            ]
+        ]
+    },
+    {
+        "id": "7f351806.547908",
+        "type": "comment",
+        "z": "fcde1833fb43f65c",
+        "name": "Example: Execute external command in spawn mode",
+        "info": "",
+        "x": 350,
+        "y": 640,
+        "wires": []
+    },
+    {
+        "id": "2dbf8e03.2d6a52",
+        "type": "debug",
+        "z": "fcde1833fb43f65c",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 790,
+        "y": 780,
+        "wires": []
+    },
+    {
+        "id": "d1815f06.463f3",
+        "type": "debug",
+        "z": "fcde1833fb43f65c",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 790,
+        "y": 700,
+        "wires": []
+    },
+    {
+        "id": "28467ba9.c96284",
+        "type": "comment",
+        "z": "fcde1833fb43f65c",
+        "name": "↓ spawn mode: repeat message output",
+        "info": "",
+        "x": 550,
+        "y": 694,
+        "wires": []
+    },
+    {
+        "id": "322d9b72.fc9194",
+        "type": "debug",
+        "z": "fcde1833fb43f65c",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 790,
+        "y": 740,
+        "wires": []
+    },
+    {
+        "id": "d5a990ce.c660b",
+        "type": "inject",
+        "z": "fcde1833fb43f65c",
+        "name": "Kill process",
+        "props": [
+            {
+                "p": "kill",
+                "v": "",
+                "vt": "date"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 290,
+        "y": 800,
+        "wires": [
+            [
+                "53a714a8.1214dc"
+            ]
+        ]
+    }
+]</div>
+        </details>
+        
+        <h3>パターン1: 基本的なコマンド実行</h3>
+        <p><strong>用途:</strong> シンプルなコマンドを実行して結果を取得</p>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject<br><small>("Hello World!")</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-exec">Exec<br><small>(echo)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug<br><small>(stdout)</small></span>
+        </div>
+        
+        <div class="tip">
+            <p><strong>📌 動作の流れ:</strong></p>
+            <ol>
+                <li>Injectノードから "Hello World!" を送信</li>
+                <li>Execノードが <code>echo Hello World!</code> を実行</li>
+                <li>標準出力から "Hello World!\n" を受け取る</li>
+                <li>終了コード 0（成功）が第3出力から出力</li>
+            </ol>
+        </div>
+        
+        <p><strong>設定例:</strong></p>
+        <div class="code-block">コマンド: echo
+msg.payloadを追加: チェックON
+出力形式: exec（待機）
+
+入力: msg.payload = "Hello World!"
+実行: echo Hello World!
+出力(stdout): "Hello World!\n"
+出力(rc): { code: 0 }</div>
+        
+        <h3>パターン2: エラー出力の取得</h3>
+        <p><strong>用途:</strong> コマンド実行時のエラーを検出・処理</p>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-exec">Exec<br><small>(存在しない<br>コマンド)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug<br><small>(stderr)</small></span>
+            <br><br>
+            <span style="margin-left: 320px;"></span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug<br><small>(rc)</small></span>
+        </div>
+        
+        <div class="tip">
+            <p><strong>📌 動作の流れ:</strong></p>
+            <ol>
+                <li>存在しないコマンドを実行しようとする</li>
+                <li>stderrにエラーメッセージが出力される</li>
+                <li>終了コードは 0 以外（エラー）になる</li>
+            </ol>
+        </div>
+        
+        <p><strong>設定例:</strong></p>
+        <div class="code-block">コマンド: /non/existing/command
+msg.payloadを追加: チェックOFF
+
+実行: /non/existing/command
+出力(stderr): "spawn /non/existing/command ENOENT"
+出力(rc): { code: null, signal: null } または エラーコード</div>
+        
+        <h3>パターン3: Spawnモード（リアルタイム出力）</h3>
+        <p><strong>用途:</strong> 長時間実行するコマンドの出力をリアルタイムで取得</p>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject<br><small>(開始)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-exec">Exec<br><small>(spawn)</small></span>
+            <span class="arrow">→→→</span>
+            <span class="node node-debug">Debug<br><small>(リアルタイム)</small></span>
+            <br><br>
+            <span class="node node-inject">Inject<br><small>(Kill)</small></span>
+            <span class="arrow">→</span>
+            <span style="margin-left: 50px;"></span>
+        </div>
+        
+        <div class="tip">
+            <p><strong>📌 動作の流れ:</strong></p>
+            <ol>
+                <li>Spawnモードでコマンドを開始</li>
+                <li>コマンドが出力するたびにメッセージを送信</li>
+                <li>msg.killを送信してプロセスを終了可能</li>
+            </ol>
+        </div>
+        
+        <p><strong>設定例:</strong></p>
+        <div class="code-block">コマンド: /bin/sh -c "while true; do echo Hello; sleep 2; done"
+出力形式: spawn（リアルタイム）
+
+動作:
+- 2秒ごとに "Hello\n" を出力
+- msg.kill を受信するとプロセス終了
+- 終了時に第3出力から終了コードを出力</div>
+        
+        <h3>パターン4: システム情報の取得</h3>
+        <p><strong>用途:</strong> ホスト名、日付、ディスク容量などのシステム情報を取得</p>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-exec">Exec<br><small>(hostname)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-change">Change<br><small>(trim)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <p><strong>設定例:</strong></p>
+        <div class="code-block">コマンド: hostname（または date, df -h, uname -a など）
+msg.payloadを追加: チェックOFF
+
+出力例(hostname): "raspberrypi\n"
+※ 末尾の改行を除去するにはChangeノードやFunctionノードでtrim()を使用</div>
+        
+        <h3>パターン5: Pythonスクリプトの実行</h3>
+        <p><strong>用途:</strong> Pythonスクリプトを実行してデータ処理</p>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject<br><small>(データ)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-exec">Exec<br><small>(python3)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-function">Function<br><small>(JSON解析)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <p><strong>設定例:</strong></p>
+        <div class="code-block">コマンド: python3 /home/pi/scripts/process.py
+msg.payloadを追加: チェックON（スクリプトへの引数として）
+
+// Pythonスクリプト側でsys.argvで引数を受け取り
+// 結果をprint()でJSON形式で出力
+// Node-RED側でJSON.parse()して利用</div>
+        
+        <h2>🏋️ 4. 実践演習</h2>
+        
+        <div class="exercise">
+            <h3>演習1: echoコマンドの実行<span class="difficulty difficulty-easy">初級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>echoコマンドを使って、任意のメッセージを出力してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Inject、Exec、DebugノードとDebugノードを使用</li>
+                <li>入力: "Node-REDからこんにちは！"</li>
+                <li>出力: 標準出力と終了コードの両方を確認</li>
+            </ul>
+            
+            <p><strong>📊 期待される動作:</strong></p>
+            <ul>
+                <li>Injectボタンをクリック → Debugに入力したメッセージが表示</li>
+                <li>終了コードが 0（成功）であることを確認</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Injectノードの設定:</strong></p>
+                <ul>
+                    <li>payload: 文字列型で "Node-REDからこんにちは！"</li>
+                </ul>
+                <p><strong>Execノードの設定:</strong></p>
+                <ul>
+                    <li>コマンド: <code>echo</code></li>
+                    <li>msg.payloadを追加: チェックON</li>
+                    <li>出力: exec（待機）</li>
+                </ul>
+                <p><strong>Debugノードの設定:</strong></p>
+                <ul>
+                    <li>1つ目: Execの第1出力（stdout）に接続</li>
+                    <li>2つ目: Execの第3出力（rc）に接続</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "ex1_inject",
+        "type": "inject",
+        "name": "メッセージ入力",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "Node-REDからこんにちは！",
+        "payloadType": "str",
+        "x": 140,
+        "y": 100,
+        "wires": [["ex1_exec"]]
+    },
+    {
+        "id": "ex1_exec",
+        "type": "exec",
+        "name": "echoコマンド",
+        "command": "echo",
+        "addpay": true,
+        "append": "",
+        "useSpawn": "false",
+        "timer": "",
+        "oldrc": false,
+        "x": 330,
+        "y": 100,
+        "wires": [["ex1_debug_stdout"], [], ["ex1_debug_rc"]]
+    },
+    {
+        "id": "ex1_debug_stdout",
+        "type": "debug",
+        "name": "標準出力",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 520,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "ex1_debug_rc",
+        "type": "debug",
+        "name": "終了コード",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 520,
+        "y": 140,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習2: システム日時の取得<span class="difficulty difficulty-medium">中級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>dateコマンドを使ってシステムの現在日時を取得し、末尾の改行を除去して表示してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Inject、Exec、Function、Debugノードを使用</li>
+                <li>dateコマンドを実行</li>
+                <li>出力の末尾の改行を除去</li>
+            </ul>
+            
+            <p><strong>📊 期待される動作:</strong></p>
+            <ul>
+                <li>Injectボタンをクリック → 現在日時が改行なしで表示</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Injectノードの設定:</strong></p>
+                <ul>
+                    <li>payload: タイムスタンプ（デフォルト）でOK</li>
+                </ul>
+                <p><strong>Execノードの設定:</strong></p>
+                <ul>
+                    <li>コマンド: <code>date</code></li>
+                    <li>msg.payloadを追加: チェックOFF</li>
+                </ul>
+                <p><strong>Functionノードの設定:</strong></p>
+                <ul>
+                    <li>末尾の改行を除去: <code>msg.payload = msg.payload.trim();</code></li>
+                    <li><code>return msg;</code></li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "ex2_inject",
+        "type": "inject",
+        "name": "実行",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 110,
+        "y": 100,
+        "wires": [["ex2_exec"]]
+    },
+    {
+        "id": "ex2_exec",
+        "type": "exec",
+        "name": "dateコマンド",
+        "command": "date",
+        "addpay": false,
+        "append": "",
+        "useSpawn": "false",
+        "timer": "",
+        "oldrc": false,
+        "x": 260,
+        "y": 100,
+        "wires": [["ex2_function"], [], []]
+    },
+    {
+        "id": "ex2_function",
+        "type": "function",
+        "name": "改行除去",
+        "func": "msg.payload = msg.payload.trim();\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 420,
+        "y": 100,
+        "wires": [["ex2_debug"]]
+    },
+    {
+        "id": "ex2_debug",
+        "type": "debug",
+        "name": "結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 570,
+        "y": 100,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習3: エラーハンドリング<span class="difficulty difficulty-medium">中級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>コマンド実行結果の成功/失敗を判定し、適切なメッセージを出力してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Inject、Exec、Switch、Debugノードを使用</li>
+                <li>終了コードが 0 なら「成功」、それ以外なら「失敗」と判定</li>
+                <li>成功時と失敗時で異なるDebugノードに出力</li>
+            </ul>
+            
+            <p><strong>📊 期待される動作:</strong></p>
+            <ul>
+                <li>正常なコマンド実行 → 「成功」側のDebugに出力</li>
+                <li>エラーになるコマンド実行 → 「失敗」側のDebugに出力</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Execノードの第3出力（終了コード）を使用</strong></p>
+                <p><strong>Switchノードの設定:</strong></p>
+                <ul>
+                    <li>プロパティ: <code>msg.payload.code</code></li>
+                    <li>条件1: <code>== 0</code> → 成功</li>
+                    <li>条件2: <code>その他</code> → 失敗</li>
+                </ul>
+                <p><strong>テスト用コマンド:</strong></p>
+                <ul>
+                    <li>成功: <code>echo test</code></li>
+                    <li>失敗: <code>/non/existing/command</code></li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "ex3_inject_ok",
+        "type": "inject",
+        "name": "成功テスト",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "test",
+        "payloadType": "str",
+        "x": 120,
+        "y": 80,
+        "wires": [["ex3_exec"]]
+    },
+    {
+        "id": "ex3_inject_ng",
+        "type": "inject",
+        "name": "失敗テスト",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 120,
+        "y": 140,
+        "wires": [["ex3_exec_ng"]]
+    },
+    {
+        "id": "ex3_exec",
+        "type": "exec",
+        "name": "echoコマンド",
+        "command": "echo",
+        "addpay": true,
+        "append": "",
+        "useSpawn": "false",
+        "timer": "",
+        "oldrc": false,
+        "x": 290,
+        "y": 80,
+        "wires": [[], [], ["ex3_switch"]]
+    },
+    {
+        "id": "ex3_exec_ng",
+        "type": "exec",
+        "name": "存在しないコマンド",
+        "command": "/non/existing/command",
+        "addpay": false,
+        "append": "",
+        "useSpawn": "false",
+        "timer": "",
+        "oldrc": false,
+        "x": 320,
+        "y": 140,
+        "wires": [[], [], ["ex3_switch"]]
+    },
+    {
+        "id": "ex3_switch",
+        "type": "switch",
+        "name": "成功/失敗判定",
+        "property": "payload.code",
+        "propertyType": "msg",
+        "rules": [
+            {"t": "eq", "v": "0", "vt": "num"},
+            {"t": "else"}
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 520,
+        "y": 100,
+        "wires": [["ex3_debug_ok"], ["ex3_debug_ng"]]
+    },
+    {
+        "id": "ex3_debug_ok",
+        "type": "debug",
+        "name": "成功",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 690,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "ex3_debug_ng",
+        "type": "debug",
+        "name": "失敗",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 690,
+        "y": 140,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習4: Spawnモードでログ監視<span class="difficulty difficulty-hard">上級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>Spawnモードを使って、定期的にメッセージを出力するプロセスを実行し、途中で停止できるようにしてください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Inject（開始用・停止用）、Exec、Debugノードを使用</li>
+                <li>2秒ごとに現在時刻を出力するコマンドを実行</li>
+                <li>停止用InjectノードでプロセスをKillできるようにする</li>
+            </ul>
+            
+            <p><strong>📊 期待される動作:</strong></p>
+            <ul>
+                <li>開始ボタンをクリック → 2秒ごとに時刻が出力される</li>
+                <li>停止ボタンをクリック → プロセスが終了する</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Execノードの設定:</strong></p>
+                <ul>
+                    <li>コマンド: <code>/bin/sh -c "while true; do date; sleep 2; done"</code></li>
+                    <li>出力: spawn（リアルタイム）にチェック</li>
+                </ul>
+                <p><strong>停止用Injectノードの設定:</strong></p>
+                <ul>
+                    <li>msg.payload ではなく、<code>msg.kill</code> プロパティを設定</li>
+                    <li>プロパティ追加: kill = タイムスタンプ（または任意の値）</li>
+                </ul>
+                <p><strong>注意:</strong></p>
+                <ul>
+                    <li>このフローはLinux/Mac環境で動作します</li>
+                    <li>Windowsの場合は別のコマンドが必要です</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "ex4_inject_start",
+        "type": "inject",
+        "name": "開始",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 110,
+        "y": 80,
+        "wires": [["ex4_exec"]]
+    },
+    {
+        "id": "ex4_inject_kill",
+        "type": "inject",
+        "name": "停止",
+        "props": [{"p": "kill", "v": "", "vt": "date"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 110,
+        "y": 140,
+        "wires": [["ex4_exec"]]
+    },
+    {
+        "id": "ex4_exec",
+        "type": "exec",
+        "name": "定期出力（spawn）",
+        "command": "/bin/sh -c \"while true; do date; sleep 2; done\"",
+        "addpay": false,
+        "append": "",
+        "useSpawn": "true",
+        "timer": "",
+        "oldrc": false,
+        "x": 320,
+        "y": 100,
+        "wires": [["ex4_debug_stdout"], ["ex4_debug_stderr"], ["ex4_debug_rc"]]
+    },
+    {
+        "id": "ex4_debug_stdout",
+        "type": "debug",
+        "name": "標準出力",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 540,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "ex4_debug_stderr",
+        "type": "debug",
+        "name": "標準エラー",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 550,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "ex4_debug_rc",
+        "type": "debug",
+        "name": "終了コード",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 550,
+        "y": 140,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+        
+        <h2>🎓 5. まとめ</h2>
+        
+        <div class="important">
+            <h3>Execノードの重要ポイント</h3>
+            <ul>
+                <li>✅ <strong>3つの出力ポート</strong>: stdout（標準出力）、stderr（標準エラー）、終了コード</li>
+                <li>✅ <strong>2つのモード</strong>: exec（完了後出力）とspawn（リアルタイム出力）</li>
+                <li>✅ <strong>msg.payloadを追加</strong>: コマンド引数として入力値を使用可能</li>
+                <li>✅ <strong>msg.kill</strong>: spawnモードで実行中のプロセスを終了</li>
+                <li>✅ <strong>タイムアウト</strong>: 長時間実行を防ぐための安全機構</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <h3>⚠️ よくある間違い</h3>
+            <ul>
+                <li><strong>出力の改行</strong>: コマンド出力には通常末尾に改行が含まれる（trim()で除去）</li>
+                <li><strong>パス指定</strong>: 絶対パスを使用しないとコマンドが見つからない場合がある</li>
+                <li><strong>権限エラー</strong>: Node-REDの実行ユーザーに実行権限があるか確認</li>
+                <li><strong>spawnモードの終了忘れ</strong>: 永続プロセスはmsg.killで明示的に終了が必要</li>
+                <li><strong>OS依存</strong>: Linux/Windows/Macでコマンドが異なる場合がある</li>
+            </ul>
+        </div>
+        
+        <div class="tip">
+            <h3>📚 次のステップ</h3>
+            <p>Execノードをマスターしたら、以下のノードも学んでみましょう:</p>
+            <ul>
+                <li><strong>Functionノード</strong>: JavaScriptでより柔軟なデータ処理</li>
+                <li><strong>Catchノード</strong>: エラーの一括ハンドリング</li>
+                <li><strong>File系ノード</strong>: ファイルの読み書き</li>
+                <li><strong>HTTP Requestノード</strong>: 外部APIとの連携</li>
+            </ul>
+        </div>
+        
+        <h2>🔧 6. トラブルシューティング</h2>
+        
+        <h3>よくある問題と解決方法</h3>
+        
+        <table>
+            <tr>
+                <th>問題</th>
+                <th>原因</th>
+                <th>解決方法</th>
+            </tr>
+            <tr>
+                <td>コマンドが見つからない</td>
+                <td>PATHが通っていない</td>
+                <td>絶対パスで指定（例: /usr/bin/python3）</td>
+            </tr>
+            <tr>
+                <td>Permission denied</td>
+                <td>実行権限がない</td>
+                <td>chmod +x でスクリプトに実行権限を付与</td>
+            </tr>
+            <tr>
+                <td>出力が空</td>
+                <td>標準エラーに出力されている</td>
+                <td>第2出力（stderr）を確認</td>
+            </tr>
+            <tr>
+                <td>文字化け</td>
+                <td>文字コードの不一致</td>
+                <td>LANGやLC_ALL環境変数を設定</td>
+            </tr>
+            <tr>
+                <td>タイムアウトする</td>
+                <td>処理時間が長すぎる</td>
+                <td>タイムアウト値を増やす or spawnモードを使用</td>
+            </tr>
+            <tr>
+                <td>プロセスが終了しない</td>
+                <td>spawnモードで永続プロセス</td>
+                <td>msg.killを送信してプロセスを終了</td>
+            </tr>
+        </table>
+        
+        <h2>💡 7. 実務での活用例</h2>
+        
+        <h3>ケース1: センサーデータの取得（Raspberry Pi）</h3>
+        <div class="code-block">Injectノード（定期実行: 1分ごと）
+↓
+Execノード: python3 /home/pi/read_sensor.py
+↓
+Functionノード: JSON.parse(msg.payload)
+↓
+MQTTノード or ダッシュボード表示
+
+用途: DHT22温湿度センサー、BME280気圧センサーなどからデータ取得</div>
+        
+        <h3>ケース2: システム監視</h3>
+        <div class="code-block">Injectノード（定期実行: 5分ごと）
+↓
+Execノード: df -h / free -m / uptime
+↓
+Functionノード: 出力をパース
+↓
+閾値チェック → アラート通知
+
+用途: ディスク使用率、メモリ使用量、システム稼働時間の監視</div>
+        
+        <h3>ケース3: バックアップの自動実行</h3>
+        <div class="code-block">Injectノード（定期実行: 毎日深夜2時）
+↓
+Execノード: /home/pi/backup.sh
+↓
+終了コード確認（Switchノード）
+↓
+成功: ログ記録
+失敗: Slack/メール通知
+
+用途: データベースバックアップ、ログローテーション</div>
+        
+        <h3>ケース4: GPIOピン制御（Raspberry Pi）</h3>
+        <div class="code-block">HTTPリクエスト（/led/on）
+↓
+Execノード: gpio write 0 1
+↓
+レスポンス返却
+
+用途: LED、リレー、モーターなどの制御
+※ wiringPiやpigpioコマンドを使用</div>
+        
+        <h2>🔗 8. セキュリティに関する注意</h2>
+        
+        <div class="warning">
+            <h3>⚠️ セキュリティ上の注意事項</h3>
+            <ul>
+                <li><strong>コマンドインジェクション</strong>: ユーザー入力を直接コマンドに渡さない</li>
+                <li><strong>権限の最小化</strong>: Node-REDは必要最小限の権限で実行</li>
+                <li><strong>機密情報</strong>: パスワードや認証情報をコマンド引数に含めない</li>
+                <li><strong>ログ出力</strong>: 機密情報がデバッグ出力に含まれないよう注意</li>
+            </ul>
+        </div>
+        
+        <p><strong>安全なコマンド実行の例:</strong></p>
+        <div class="code-block">// 危険な例（ユーザー入力を直接使用）
+コマンド: rm -rf
+msg.payloadを追加: ON  ← ユーザーが "/ --no-preserve-root" を入力したら...
+
+// 安全な例（ホワイトリスト方式）
+Functionノードで入力値を検証してからExecノードに渡す
+許可された値のみを使用する</div>
+        
+        <h2>🔗 9. 追加リソース</h2>
+        
+        <ul>
+            <li><a href="https://nodered.org/docs/user-guide/nodes#exec" target="_blank">Node-RED公式ドキュメント: Execノード</a></li>
+            <li><a href="https://flows.nodered.org/search?term=exec" target="_blank">Node-RED Flow Library: Execノード関連フロー</a></li>
+            <li><a href="https://cookbook.nodered.org/" target="_blank">Node-RED Cookbook</a></li>
+        </ul>
+        
+        <hr>
+        
+        <p style="text-align: center; color: #999; margin-top: 40px;">
+            <small>このガイドが役に立ちましたら、実際のプロジェクトで練習してみてください!<br>
+            Execノードはシステム連携の強力なツールです。</small><br>
+            <small>参照元：Node-REDエディター内サンプルフロー</small>
+        </p>
+    </div>
+    
+    <script>
+        // ページ読み込み時にコピーボタンを追加
+        document.addEventListener('DOMContentLoaded', function() {
+            // .flow-jsonと.js-code[data-copy="true"]にコピーボタンを追加
+            var codeBlocks = document.querySelectorAll('.flow-json, .js-code[data-copy="true"]');
+            
+            codeBlocks.forEach(function(block) {
+                // コピーボタンを作成
+                var button = document.createElement('button');
+                button.className = 'copy-button';
+                button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                
+                // クリックイベントを追加
+                button.addEventListener('click', function() {
+                    // コードブロックのテキストを取得（ボタンテキストを除外）
+                    var code = block.textContent.replace(/コピー(しました!)?$/, '').trim();
+                    
+                    // 改行を適切に処理（Node-REDにペースト時に見やすくする）
+                    if (block.classList.contains('js-code')) {
+                        // JavaScriptコードの場合、行ごとに改行を維持
+                        code = block.innerText.replace(/コピー(しました!)?$/, '').trim();
+                    }
+                    
+                    // クリップボードにコピー
+                    navigator.clipboard.writeText(code).then(function() {
+                        // 成功時の視覚的フィードバック
+                        button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>コピーしました!';
+                        button.classList.add('copied');
+                        
+                        // 2秒後に元に戻す
+                        setTimeout(function() {
+                            button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                            button.classList.remove('copied');
+                        }, 2000);
+                    }).catch(function(err) {
+                        console.error('コピーに失敗しました:', err);
+                        button.textContent = 'エラー';
+                        setTimeout(function() {
+                            button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                        }, 2000);
+                    });
+                });
+                
+                // ボタンをコードブロックに追加
+                block.style.position = 'relative';
+                block.appendChild(button);
+            });
+        });
+    </script>
+</body>
+</html>
