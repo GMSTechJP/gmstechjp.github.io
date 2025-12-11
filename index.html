@@ -3,1995 +3,914 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Node-RED CSVノード 完全ガイド</title>
+    <title>Node-RED 初心者向け図解ガイド</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.8;
-            max-width: 1000px;
-            margin: 0 auto;
+            font-family: 'Segoe UI', Meityo, 'ヒラギノ角ゴ ProN', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             padding: 20px;
-            background-color: #f5f5f5;
-            color: #333;
-        }
-        
-        h1 {
-            color: #8f0000;
-            border-bottom: 3px solid #8f0000;
-            padding-bottom: 10px;
-        }
-        
-        h2 {
-            color: #c00000;
-            margin-top: 30px;
-            border-left: 5px solid #c00000;
-            padding-left: 15px;
-        }
-        
-        h3 {
-            color: #555;
-            margin-top: 25px;
+            line-height: 1.6;
         }
         
         .container {
-            background-color: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
         }
         
-        .node-example {
-            background-color: #2d3133;
-            padding: 20px;
-            border-radius: 5px;
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 1.1em;
+        }
+        
+        .section {
+            margin-bottom: 50px;
+            padding: 30px;
+            background: #fafbfc;
+            border-radius: 10px;
+            border-left: 4px solid #2c3e50;
+        }
+        
+        h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .icon {
+            font-size: 1.5em;
+        }
+        
+        .diagram {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
             margin: 20px 0;
-            color: white;
-            font-family: 'Courier New', monospace;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .flow-example {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin: 20px 0;
         }
         
         .node {
-            display: inline-block;
-            padding: 8px 15px;
-            border-radius: 4px;
-            margin: 5px;
+            background: #7f8c8d;
+            color: white;
+            padding: 20px 30px;
+            border-radius: 10px;
             font-weight: bold;
-            font-size: 14px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+            min-width: 120px;
+            text-align: center;
+            transition: transform 0.3s;
         }
         
-        .node-inject {
-            background-color: #3fadb5;
-            color: white;
+        .node:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
         
-        .node-csv {
-            background-color: #c9e7d4;
-            color: #333;
+        .node.input {
+            background: #95a5a6;
         }
         
-        .node-debug {
-            background-color: #87a48d;
-            color: white;
+        .node.process {
+            background: #5d6d7e;
         }
         
-        .node-template {
-            background-color: #d4b8a0;
-            color: #333;
-        }
-        
-        .node-function {
-            background-color: #e8a658;
-            color: white;
-        }
-        
-        .node-change {
-            background-color: #e7a070;
-            color: white;
-        }
-        
-        .node-switch {
-            background-color: #e2d96e;
-            color: #333;
-        }
-        
-        .node-join {
-            background-color: #e2d96e;
-            color: #333;
-        }
-        
-        .node-split {
-            background-color: #e2d96e;
-            color: #333;
-        }
-        
-        .node-file {
-            background-color: #c7e9c0;
-            color: #333;
+        .node.output {
+            background: #566573;
         }
         
         .arrow {
-            color: #999;
-            font-size: 20px;
-            margin: 0 10px;
+            font-size: 2em;
+            color: #2c3e50;
         }
         
-        .important {
-            background-color: #fff3cd;
-            border-left: 4px solid #ffc107;
-            padding: 15px;
-            margin: 15px 0;
-            border-radius: 4px;
+        .editor-layout {
+            display: grid;
+            grid-template-columns: 180px 1fr 250px;
+            grid-template-rows: 50px 1fr;
+            gap: 0;
+            background: #222;
+            border-radius: 10px;
+            overflow: hidden;
+            min-height: 500px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
         
-        .tip {
-            background-color: #d1ecf1;
-            border-left: 4px solid #17a2b8;
-            padding: 15px;
-            margin: 15px 0;
-            border-radius: 4px;
+        .palette {
+            background: #3a3a3a;
+            padding: 0;
+            color: #ddd;
+            grid-row: 1 / 3;
+            border-right: 1px solid #222;
+            overflow-y: auto;
         }
         
-        .warning {
-            background-color: #f8d7da;
-            border-left: 4px solid #dc3545;
-            padding: 15px;
-            margin: 15px 0;
-            border-radius: 4px;
+        .palette-search {
+            background: #2a2a2a;
+            padding: 10px;
+            border-bottom: 1px solid #222;
         }
         
-        .code-block {
-            background-color: #f8f9fa;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 15px;
-            margin: 15px 0;
-            overflow-x: auto;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            position: relative;
-            white-space: pre-wrap;
+        .palette-search input {
+            width: 100%;
+            padding: 6px;
+            background: #222;
+            border: 1px solid #444;
+            border-radius: 3px;
+            color: #ddd;
+            font-size: 0.85em;
         }
         
-        .js-code {
-            background-color: #1e1e1e;
-            color: #d4d4d4;
-            border: none;
-            padding: 15px;
-            padding-top: 40px;
-            border-radius: 5px;
-            position: relative;
-            white-space: pre;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            overflow-x: auto;
+        .palette-category {
+            border-bottom: 1px solid #2a2a2a;
         }
         
-        .copy-button {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            padding: 6px 12px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
+        .palette-title {
+            font-weight: normal;
+            margin: 0;
+            padding: 8px 12px;
+            color: #aaa;
+            font-size: 0.85em;
+            background: #333;
             cursor: pointer;
-            font-size: 12px;
-            font-family: 'Segoe UI', sans-serif;
-            transition: background-color 0.2s;
-            z-index: 10;
+            border-bottom: 1px solid #2a2a2a;
+        }
+        
+        .palette-title:before {
+            content: '▼ ';
+            font-size: 0.7em;
+            margin-right: 5px;
+        }
+        
+        .palette-items {
+            padding: 5px;
+        }
+        
+        .palette-item {
+            background: #555;
+            padding: 6px 10px;
+            margin: 3px 0;
+            border-radius: 4px;
+            font-size: 0.8em;
+            cursor: grab;
+            color: #fff;
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 8px;
+            transition: background 0.2s;
         }
         
-        .copy-button:hover {
-            background-color: #0056b3;
+        .palette-item:hover {
+            background: #666;
         }
         
-        .copy-button.copied {
-            background-color: #28a745;
+        .palette-item.blue { background: #5a9fd4; }
+        .palette-item.green { background: #7fc7af; }
+        .palette-item.red { background: #c76a6a; }
+        .palette-item.gray { background: #999; }
+        .palette-item.orange { background: #e7a143; }
+        .palette-item.yellow { background: #dbd95a; }
+        .palette-item.purple { background: #b9a3db; }
+        
+        .toolbar {
+            background: #2a2a2a;
+            padding: 0 15px;
+            color: #ddd;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 1px solid #222;
+            grid-column: 2 / 4;
         }
         
-        .copy-button svg {
-            width: 14px;
-            height: 14px;
-            fill: currentColor;
-        }
-        
-        .exercise {
-            background-color: #e8f5e9;
-            border: 2px solid #4caf50;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 25px 0;
-        }
-        
-        .exercise h3 {
-            color: #2e7d32;
-            margin-top: 0;
-        }
-        
-        .difficulty {
-            display: inline-block;
-            padding: 5px 12px;
-            border-radius: 15px;
-            font-size: 12px;
+        .toolbar-logo {
+            font-size: 1.1em;
             font-weight: bold;
-            margin-left: 10px;
+            color: #2c3e50;
         }
         
-        .difficulty-easy {
-            background-color: #4caf50;
-            color: white;
+        .toolbar-tabs {
+            display: flex;
+            gap: 5px;
+            flex: 1;
         }
         
-        .difficulty-medium {
-            background-color: #ff9800;
-            color: white;
-        }
-        
-        .difficulty-hard {
-            background-color: #f44336;
-            color: white;
-        }
-        
-        ul, ol {
-            padding-left: 25px;
-        }
-        
-        li {
-            margin: 8px 0;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }
-        
-        th, td {
-            border: 1px solid #ddd;
-            padding: 12px;
-            text-align: left;
-        }
-        
-        th {
-            background-color: #c9e7d4;
-            color: #333;
-        }
-        
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-        
-        .flow-json {
-            background-color: #263238;
-            color: #aed581;
-            padding: 15px;
-            padding-top: 40px;
-            border-radius: 5px;
-            overflow-x: auto;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            max-height: 400px;
-            overflow-y: auto;
-            position: relative;
-        }
-        
-        details {
-            margin: 15px 0;
-        }
-        
-        summary {
+        .toolbar-tab {
+            background: #222;
+            padding: 8px 20px;
+            border-radius: 4px 4px 0 0;
+            font-size: 0.9em;
             cursor: pointer;
-            padding: 10px;
-            background-color: #6c757d;
-            color: white;
-            border-radius: 4px;
-            font-weight: bold;
+            border: 1px solid #444;
+            border-bottom: none;
         }
         
-        summary:hover {
-            background-color: #5a6268;
+        .toolbar-tab.active {
+            background: #3a3a3a;
+        }
+        
+        .deploy-btn {
+            background: #2c3e50;
+            color: white;
+            padding: 6px 20px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9em;
+            transition: background 0.2s;
+        }
+        
+        .deploy-btn:hover {
+            background: #34495e;
+        }
+        
+        .workspace {
+            background: #1a1a1a;
+            padding: 0;
+            position: relative;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        
+        .workspace-content {
+            text-align: center;
+            color: #666;
+            padding: 60px 40px;
+        }
+        
+        .debug-panel {
+            background: #2a2a2a;
+            grid-row: 2 / 3;
+            border-left: 1px solid #222;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .debug-header {
+            padding: 10px 15px;
+            background: #333;
+            border-bottom: 1px solid #222;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9em;
+            color: #ddd;
+        }
+        
+        .debug-content {
+            padding: 15px;
+            color: #999;
+            font-size: 0.85em;
+            flex: 1;
         }
         
         .feature-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-        }
-        
-        .feature-card {
-            background-color: #f8f9fa;
-            border: 2px solid #dee2e6;
-            border-radius: 8px;
-            padding: 15px;
-        }
-        
-        .feature-card h4 {
-            color: #5a9367;
-            margin-top: 0;
-        }
-        
-        .mode-badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: bold;
-            margin-right: 5px;
-        }
-        
-        .badge-parse {
-            background-color: #28a745;
-            color: white;
-        }
-        
-        .badge-generate {
-            background-color: #17a2b8;
-            color: white;
-        }
-        
-        .badge-one {
-            background-color: #ffc107;
-            color: #333;
-        }
-        
-        .badge-multi {
-            background-color: #6f42c1;
-            color: white;
-        }
-        
-        .data-flow {
-            background-color: #f0f0f0;
-            border: 2px dashed #999;
-            border-radius: 8px;
-            padding: 15px;
-            margin: 15px 0;
-            text-align: center;
-        }
-        
-        .data-flow .before {
-            background-color: #ffcccc;
-            padding: 10px;
-            border-radius: 4px;
-            display: inline-block;
-            margin: 5px;
-            text-align: left;
-            font-family: 'Courier New', monospace;
-            font-size: 13px;
-        }
-        
-        .data-flow .after {
-            background-color: #ccffcc;
-            padding: 10px;
-            border-radius: 4px;
-            display: inline-block;
-            margin: 5px;
-            text-align: left;
-            font-family: 'Courier New', monospace;
-            font-size: 13px;
-        }
-        
-        .data-flow .arrow-down {
-            display: block;
-            font-size: 24px;
-            color: #666;
-            margin: 10px 0;
-        }
-        
-        .direction-box {
-            display: flex;
-            justify-content: space-around;
-            flex-wrap: wrap;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
             margin: 20px 0;
         }
         
-        .direction-item {
-            flex: 1;
-            min-width: 200px;
+        .feature-card {
+            background: white;
             padding: 20px;
             border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: transform 0.3s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        }
+        
+        .feature-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .feature-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .step-flow {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin: 30px 0;
+        }
+        
+        .step {
             text-align: center;
+            flex: 1;
+            min-width: 150px;
+            padding: 10px;
         }
         
-        .direction-parse {
-            background-color: #e8f5e9;
-            border: 2px solid #4caf50;
+        .step-number {
+            background: #2c3e50;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin: 0 auto 15px;
         }
         
-        .direction-generate {
-            background-color: #e3f2fd;
-            border: 2px solid #2196f3;
+        .step-desc {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .message-flow {
+            background: #fff3cd;
+            border: 2px dashed #ffc107;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        
+        .iot-example {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .device-flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        
+        .device {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            text-align: center;
+            min-width: 100px;
+        }
+        
+        .device-icon {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+        
+        .next-page-btn {
+            position: fixed;
+            background: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 15px 25px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 3px 12px rgba(44, 62, 80, 0.2);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 1000;
+        }
+        
+        .next-page-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(44, 62, 80, 0.3);
+            background: #34495e;
+        }
+        
+        .next-page-btn.top-right {
+            top: 20px;
+            right: 20px;
+        }
+        
+        .next-page-btn.bottom-right {
+            bottom: 20px;
+            right: 20px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📊 Node-RED CSVノード 完全ガイド</h1>
+        <h1>🎯 Node-RED 初心者向け図解ガイド</h1>
+        <p class="subtitle">ビジュアルプログラミングで始めるIoT開発</p>
         
-        <p>このガイドでは、Node-REDの<strong>CSVノード</strong>について、初心者の方でも理解できるように詳しく説明します。</p>
-        
-        <h2>📚 1. CSVノードとは?</h2>
-        
-        <h3>🤔 「CSV」って何?</h3>
-        <p>
-            CSV（Comma-Separated Values）とは、<strong>データをカンマで区切って並べたテキスト形式</strong>で、Excelなどの表計算ソフトでよく使われます。
-            CSVノードは、このCSV形式のテキストとJavaScriptオブジェクトを相互変換するノードです。
-            日常生活で例えると、<strong>Excelの表データと個別のカードを相互変換するオフィス作業</strong>のようなものです。
-        </p>
-        
-        <div class="important">
-            <p><strong>📋 オフィスでのデータ変換作業に例えると:</strong></p>
-            <ul>
-                <li>📄 <strong>Excelの表を受け取る</strong> = CSV形式のテキストデータを受け取る</li>
-                <li>🔍 <strong>列ごとに分ける</strong> = カンマで区切りを識別する</li>
-                <li>📝 <strong>1行ずつカードに書き出す</strong> = JavaScriptオブジェクトに変換</li>
-                <li>🔄 <strong>逆方向も可能</strong> = カードの情報をExcel形式に戻せる</li>
-            </ul>
-        </div>
-        
-        <h3>↔️ 2つの変換方向</h3>
-        <div class="direction-box">
-            <div class="direction-item direction-parse">
-                <h4><span class="mode-badge badge-parse">パース</span></h4>
-                <p><strong>CSV → オブジェクト</strong></p>
-                <p>CSV文字列を<br>JavaScriptオブジェクトに変換</p>
-            </div>
-            <div class="direction-item direction-generate">
-                <h4><span class="mode-badge badge-generate">生成</span></h4>
-                <p><strong>オブジェクト → CSV</strong></p>
-                <p>JavaScriptオブジェクトを<br>CSV文字列に変換</p>
+        <!-- Section 1: Node-REDとは -->
+        <div class="section">
+            <h2><span class="icon">💡</span> Node-REDとは？</h2>
+            <p style="font-size: 1.1em; margin-bottom: 20px;">
+                Node-REDは、<span class="highlight">ブラウザ上で動作するビジュアルプログラミングツール</span>です。
+                「ノード」と呼ばれる部品を線でつなぐだけで、複雑なプログラムを簡単に作成できます。
+            </p>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🖱️</div>
+                    <div class="feature-title">ドラッグ&ドロップ</div>
+                    <p>マウス操作だけでプログラミング。コードを書く必要はほとんどありません。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔌</div>
+                    <div class="feature-title">IoTに最適</div>
+                    <p>センサーやデバイスとの連携が簡単。Raspberry Piとの相性も抜群です。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🌐</div>
+                    <div class="feature-title">API連携</div>
+                    <p>WebサービスやクラウドAPIとの接続も簡単に実現できます。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <div class="feature-title">リアルタイム</div>
+                    <p>変更したらすぐにデプロイ。動作確認がスピーディーに行えます。</p>
+                </div>
             </div>
         </div>
         
-        <h3>📦 基本的な動作</h3>
-        <div class="node-example">
-            <span class="node node-inject">Inject</span>
-            <span class="arrow">→</span>
-            <span class="node node-template">Template<br><small>(CSV)</small></span>
-            <span class="arrow">→</span>
-            <span class="node node-csv">CSV</span>
-            <span class="arrow">→</span>
-            <span class="node node-debug">Debug</span>
-        </div>
-        
-        <p>
-            CSVノードは入力データの型を自動判定します。<strong>文字列が入力されればパース</strong>、<strong>オブジェクトが入力されれば生成</strong>を行います。
-        </p>
-        
-        <h3>📊 CSV → オブジェクト変換の例</h3>
-        <div class="data-flow">
-            <div class="before">
-                <strong>入力(CSV文字列)</strong><br>
-Apple,100,Canada<br>
-Orange,120,USA<br>
-Banana,80,Philippines
-            </div>
-            <span class="arrow-down">↓ CSVノード（パース）↓</span>
-            <div class="after">
-                <strong>出力(オブジェクト)</strong><br>
-{col1:"Apple", col2:"100", col3:"Canada"}<br>
-{col1:"Orange", col2:"120", col3:"USA"}<br>
-{col1:"Banana", col2:"80", col3:"Philippines"}
-            </div>
-        </div>
-        
-        <h3>📊 オブジェクト → CSV変換の例</h3>
-        <div class="data-flow">
-            <div class="before">
-                <strong>入力(オブジェクト)</strong><br>
-{kind:"Apple", price:100, origin:"Canada"}
-            </div>
-            <span class="arrow-down">↓ CSVノード（生成）↓</span>
-            <div class="after">
-                <strong>出力(CSV文字列)</strong><br>
-Apple,100
-            </div>
-        </div>
-        
-        <h2>⚙️ 2. CSVノードの設定詳細</h2>
-        
-        <div class="feature-grid">
-            <div class="feature-card">
-                <h4><span class="mode-badge badge-one">1行ずつ</span> メッセージ出力</h4>
-                <p>CSVの各行を個別のメッセージとして順番に送信</p>
-                <div class="code-block">msg.parts付きで
-Split的に出力</div>
-            </div>
+        <!-- Section 2: エディタ画面の構成 -->
+        <div class="section">
+            <h2><span class="icon">🖥️</span> エディタ画面の構成</h2>
+            <p style="margin-bottom: 20px;">Node-REDのエディタは主に4つのエリアで構成されています。実際の画面を見てみましょう。</p>
             
-            <div class="feature-card">
-                <h4><span class="mode-badge badge-multi">配列</span> 一括出力</h4>
-                <p>全行をオブジェクト配列として1つのメッセージで送信</p>
-                <div class="code-block">全データを配列で
-まとめて出力</div>
-            </div>
-        </div>
-        
-        <h3>📋 設定項目一覧（パース時）</h3>
-        
-        <table>
-            <tr>
-                <th>設定項目</th>
-                <th>説明</th>
-                <th>例</th>
-            </tr>
-            <tr>
-                <td><strong>区切り文字</strong></td>
-                <td>列を区切る文字</td>
-                <td>, (カンマ)、\t (タブ)、; (セミコロン)</td>
-            </tr>
-            <tr>
-                <td><strong>カラム名</strong></td>
-                <td>出力オブジェクトのキー名</td>
-                <td>kind,price,origin</td>
-            </tr>
-            <tr>
-                <td><strong>1行目をカラム名に</strong></td>
-                <td>CSVの先頭行をカラム名として使用</td>
-                <td>チェックON/OFF</td>
-            </tr>
-            <tr>
-                <td><strong>出力形式</strong></td>
-                <td>1行ずつメッセージ or 配列で一括</td>
-                <td>メッセージ列 / 配列</td>
-            </tr>
-            <tr>
-                <td><strong>スキップ行数</strong></td>
-                <td>先頭から無視する行数</td>
-                <td>0, 1, 2...</td>
-            </tr>
-            <tr>
-                <td><strong>数値を変換</strong></td>
-                <td>数値文字列を数値型に変換</td>
-                <td>チェックON/OFF</td>
-            </tr>
-            <tr>
-                <td><strong>空文字を含める</strong></td>
-                <td>空のフィールドを含めるか</td>
-                <td>チェックON/OFF</td>
-            </tr>
-            <tr>
-                <td><strong>null値を含める</strong></td>
-                <td>null値を含めるか</td>
-                <td>チェックON/OFF</td>
-            </tr>
-        </table>
-        
-        <h3>📋 設定項目一覧（生成時）</h3>
-        
-        <table>
-            <tr>
-                <th>設定項目</th>
-                <th>説明</th>
-                <th>例</th>
-            </tr>
-            <tr>
-                <td><strong>カラム名</strong></td>
-                <td>出力するプロパティとその順序</td>
-                <td>kind,price（originは除外）</td>
-            </tr>
-            <tr>
-                <td><strong>ヘッダー行</strong></td>
-                <td>カラム名を先頭行に出力するか</td>
-                <td>なし / 常に / 最初だけ</td>
-            </tr>
-            <tr>
-                <td><strong>改行コード</strong></td>
-                <td>行末の改行文字</td>
-                <td>\n (LF) / \r\n (CRLF)</td>
-            </tr>
-        </table>
-        
-        <h3>🎯 入力メッセージで制御できるプロパティ</h3>
-        
-        <table>
-            <tr>
-                <th>プロパティ</th>
-                <th>説明</th>
-                <th>例</th>
-            </tr>
-            <tr>
-                <td><strong>msg.payload</strong></td>
-                <td>CSV文字列（パース）またはオブジェクト（生成）</td>
-                <td>"a,b,c" / {a:1, b:2}</td>
-            </tr>
-            <tr>
-                <td><strong>msg.columns</strong></td>
-                <td>動的にカラム名を指定</td>
-                <td>"kind,price,origin"</td>
-            </tr>
-            <tr>
-                <td><strong>msg.reset</strong></td>
-                <td>ヘッダー出力をリセット（生成時）</td>
-                <td>true</td>
-            </tr>
-        </table>
-        
-        <h2>🎯 3. 実用的な使用パターン</h2>
-        
-        <div class="important">
-            <p><strong>📥 サンプルフローのインポート方法:</strong></p>
-            <ol>
-                <li>下のサンプルフローJSONをコピー</li>
-                <li>Node-REDエディタで <strong>メニュー → 読み込み</strong> を選択</li>
-                <li>JSONをペーストして「読み込み」をクリック</li>
-            </ol>
-            <p>このサンプルフローには、以下で説明する全パターンの実例が含まれています。</p>
-        </div>
-        
-        <details>
-            <summary>📋 サンプルフロー（クリックで展開）</summary>
-            <p style="margin: 10px 0; color: #666;"><small>参照元：Node-REDエディター内サンプルフロー</small></p>
-            <div class="flow-json">[
-    {
-        "id": "60e740b9c7fe662f",
-        "type": "tab",
-        "label": "csv",
-        "disabled": false,
-        "info": "",
-        "env": []
-    },
-    {
-        "id": "330f4888.cccb28",
-        "type": "inject",
-        "z": "60e740b9c7fe662f",
-        "name": "",
-        "props": [{"p": "payload"}, {"p": "topic", "vt": "str"}],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "",
-        "payloadType": "date",
-        "x": 270,
-        "y": 160,
-        "wires": [["ed11f8d6.5e3c88"]]
-    },
-    {
-        "id": "a0288b44.71d488",
-        "type": "csv",
-        "z": "60e740b9c7fe662f",
-        "name": "",
-        "sep": ",",
-        "hdrin": "",
-        "hdrout": "none",
-        "multi": "one",
-        "ret": "\\n",
-        "temp": "",
-        "skip": "0",
-        "strings": true,
-        "include_empty_strings": "",
-        "include_null_values": "",
-        "x": 610,
-        "y": 160,
-        "wires": [["369cbe42.4af9f2"]]
-    },
-    {
-        "id": "ed11f8d6.5e3c88",
-        "type": "template",
-        "z": "60e740b9c7fe662f",
-        "name": "CSV data",
-        "field": "payload",
-        "fieldType": "msg",
-        "format": "text",
-        "syntax": "mustache",
-        "template": "Apple,100,Canada\nOrange,120,USA\nBanana,80,Philippines",
-        "output": "str",
-        "x": 440,
-        "y": 160,
-        "wires": [["a0288b44.71d488"]]
-    },
-    {
-        "id": "369cbe42.4af9f2",
-        "type": "debug",
-        "z": "60e740b9c7fe662f",
-        "name": "",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "false",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 790,
-        "y": 160,
-        "wires": []
-    },
-    {
-        "id": "783cfaa6.52fbe4",
-        "type": "comment",
-        "z": "60e740b9c7fe662f",
-        "name": "Example 1: Parse CSV (default column names, messages)",
-        "info": "",
-        "x": 380,
-        "y": 100,
-        "wires": []
-    },
-    {
-        "id": "98c9d44d.4457b8",
-        "type": "inject",
-        "z": "60e740b9c7fe662f",
-        "name": "",
-        "props": [{"p": "payload"}, {"p": "topic", "vt": "str"}],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "",
-        "payloadType": "date",
-        "x": 270,
-        "y": 360,
-        "wires": [["65476517.3d760c"]]
-    },
-    {
-        "id": "76df98f7.0dcd08",
-        "type": "csv",
-        "z": "60e740b9c7fe662f",
-        "name": "",
-        "sep": ",",
-        "hdrin": "",
-        "hdrout": "none",
-        "multi": "mult",
-        "ret": "\\n",
-        "temp": "",
-        "skip": "0",
-        "strings": true,
-        "include_empty_strings": "",
-        "include_null_values": "",
-        "x": 610,
-        "y": 360,
-        "wires": [["557979e0.e6b588"]]
-    },
-    {
-        "id": "65476517.3d760c",
-        "type": "template",
-        "z": "60e740b9c7fe662f",
-        "name": "CSV data",
-        "field": "payload",
-        "fieldType": "msg",
-        "format": "text",
-        "syntax": "mustache",
-        "template": "Apple,100,Canada\nOrange,120,USA\nBanana,80,Philippines",
-        "output": "str",
-        "x": 440,
-        "y": 360,
-        "wires": [["76df98f7.0dcd08"]]
-    },
-    {
-        "id": "557979e0.e6b588",
-        "type": "debug",
-        "z": "60e740b9c7fe662f",
-        "name": "",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "false",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 790,
-        "y": 360,
-        "wires": []
-    },
-    {
-        "id": "187f4ab3.4c9ab5",
-        "type": "comment",
-        "z": "60e740b9c7fe662f",
-        "name": "Example 2: Parse CSV (default column names, array)",
-        "info": "",
-        "x": 360,
-        "y": 300,
-        "wires": []
-    },
-    {
-        "id": "1216e95b.1b1e87",
-        "type": "inject",
-        "z": "60e740b9c7fe662f",
-        "name": "",
-        "props": [{"p": "payload"}, {"p": "topic", "vt": "str"}],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "",
-        "payloadType": "date",
-        "x": 280,
-        "y": 540,
-        "wires": [["e41ffbbc.de2ed8"]]
-    },
-    {
-        "id": "286828bc.9233c8",
-        "type": "csv",
-        "z": "60e740b9c7fe662f",
-        "name": "",
-        "sep": ",",
-        "hdrin": "",
-        "hdrout": "none",
-        "multi": "one",
-        "ret": "\\n",
-        "temp": "kind,price,origin",
-        "skip": "0",
-        "strings": true,
-        "include_empty_strings": "",
-        "include_null_values": "",
-        "x": 620,
-        "y": 540,
-        "wires": [["9d8218c.5550ee8"]]
-    },
-    {
-        "id": "e41ffbbc.de2ed8",
-        "type": "template",
-        "z": "60e740b9c7fe662f",
-        "name": "CSV data",
-        "field": "payload",
-        "fieldType": "msg",
-        "format": "text",
-        "syntax": "mustache",
-        "template": "Apple,100,Canada\nOrange,120,USA\nBanana,80,Philippines",
-        "output": "str",
-        "x": 450,
-        "y": 540,
-        "wires": [["286828bc.9233c8"]]
-    },
-    {
-        "id": "9d8218c.5550ee8",
-        "type": "debug",
-        "z": "60e740b9c7fe662f",
-        "name": "",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "false",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 800,
-        "y": 540,
-        "wires": []
-    },
-    {
-        "id": "aaa1ee8f.21e2c",
-        "type": "comment",
-        "z": "60e740b9c7fe662f",
-        "name": "Example 3: Parse CSV (specified column names)",
-        "info": "",
-        "x": 350,
-        "y": 480,
-        "wires": []
-    },
-    {
-        "id": "24093558.0315aa",
-        "type": "inject",
-        "z": "60e740b9c7fe662f",
-        "name": "",
-        "props": [{"p": "payload"}, {"p": "topic", "vt": "str"}],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "",
-        "payloadType": "date",
-        "x": 280,
-        "y": 720,
-        "wires": [["80abaee1.5fa7f"]]
-    },
-    {
-        "id": "d4d2ca3f.1d9488",
-        "type": "csv",
-        "z": "60e740b9c7fe662f",
-        "name": "",
-        "sep": ",",
-        "hdrin": true,
-        "hdrout": "none",
-        "multi": "one",
-        "ret": "\\n",
-        "temp": "",
-        "skip": "0",
-        "strings": true,
-        "include_empty_strings": "",
-        "include_null_values": "",
-        "x": 620,
-        "y": 720,
-        "wires": [["b52791c3.08967"]]
-    },
-    {
-        "id": "80abaee1.5fa7f",
-        "type": "template",
-        "z": "60e740b9c7fe662f",
-        "name": "CSV data",
-        "field": "payload",
-        "fieldType": "msg",
-        "format": "text",
-        "syntax": "mustache",
-        "template": "kind,price,origin\nApple,100,Canada\nOrange,120,USA\nBanana,80,Philippines",
-        "output": "str",
-        "x": 450,
-        "y": 720,
-        "wires": [["d4d2ca3f.1d9488"]]
-    },
-    {
-        "id": "b52791c3.08967",
-        "type": "debug",
-        "z": "60e740b9c7fe662f",
-        "name": "",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "false",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 800,
-        "y": 720,
-        "wires": []
-    },
-    {
-        "id": "85091361.85644",
-        "type": "comment",
-        "z": "60e740b9c7fe662f",
-        "name": "Example 4: Parse CSV (first row as column names)",
-        "info": "",
-        "x": 360,
-        "y": 660,
-        "wires": []
-    },
-    {
-        "id": "8ca41fee.3303d",
-        "type": "inject",
-        "z": "60e740b9c7fe662f",
-        "name": "",
-        "props": [{"p": "payload"}, {"p": "topic", "vt": "str"}],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "",
-        "payloadType": "date",
-        "x": 290,
-        "y": 900,
-        "wires": [["c466905b.e8c61"]]
-    },
-    {
-        "id": "65146d20.d78204",
-        "type": "csv",
-        "z": "60e740b9c7fe662f",
-        "name": "",
-        "sep": ",",
-        "hdrin": false,
-        "hdrout": "none",
-        "multi": "one",
-        "ret": "\\n",
-        "temp": "kind,price",
-        "skip": "0",
-        "strings": true,
-        "include_empty_strings": "",
-        "include_null_values": "",
-        "x": 630,
-        "y": 900,
-        "wires": [["92e99e67.a37d8"]]
-    },
-    {
-        "id": "c466905b.e8c61",
-        "type": "template",
-        "z": "60e740b9c7fe662f",
-        "name": "JS object",
-        "field": "payload",
-        "fieldType": "msg",
-        "format": "json",
-        "syntax": "plain",
-        "template": "{\n    \"kind\": \"Apple\",\n    \"price\": 100,\n    \"origin\": \"Canada\"\n}",
-        "output": "json",
-        "x": 460,
-        "y": 900,
-        "wires": [["65146d20.d78204"]]
-    },
-    {
-        "id": "92e99e67.a37d8",
-        "type": "debug",
-        "z": "60e740b9c7fe662f",
-        "name": "",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "false",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 810,
-        "y": 900,
-        "wires": []
-    },
-    {
-        "id": "9e93169c.b763a8",
-        "type": "comment",
-        "z": "60e740b9c7fe662f",
-        "name": "Example 5: Convert object to CSV",
-        "info": "",
-        "x": 310,
-        "y": 840,
-        "wires": []
-    },
-    {
-        "id": "bd0d82ed.7b28",
-        "type": "inject",
-        "z": "60e740b9c7fe662f",
-        "name": "",
-        "props": [{"p": "payload"}, {"p": "topic", "vt": "str"}],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "",
-        "payloadType": "date",
-        "x": 280,
-        "y": 1060,
-        "wires": [["1d857b8d.3a4014"]]
-    },
-    {
-        "id": "66a37667.16ebd8",
-        "type": "csv",
-        "z": "60e740b9c7fe662f",
-        "name": "",
-        "sep": ",",
-        "hdrin": false,
-        "hdrout": "none",
-        "multi": "one",
-        "ret": "\\n",
-        "temp": "kind,price",
-        "skip": "0",
-        "strings": true,
-        "include_empty_strings": "",
-        "include_null_values": "",
-        "x": 620,
-        "y": 1060,
-        "wires": [["859725fd.dc93d8"]]
-    },
-    {
-        "id": "1d857b8d.3a4014",
-        "type": "template",
-        "z": "60e740b9c7fe662f",
-        "name": "JS array",
-        "field": "payload",
-        "fieldType": "msg",
-        "format": "json",
-        "syntax": "plain",
-        "template": "[\n    {\"kind\": \"Apple\", \"price\": 100, \"origin\": \"Canada\"},\n    {\"kind\": \"Orange\", \"price\": 120, \"origin\": \"USA\"},\n    {\"kind\": \"Banana\", \"price\": 80, \"origin\": \"Philippines\"}\n]",
-        "output": "json",
-        "x": 450,
-        "y": 1060,
-        "wires": [["66a37667.16ebd8"]]
-    },
-    {
-        "id": "859725fd.dc93d8",
-        "type": "debug",
-        "z": "60e740b9c7fe662f",
-        "name": "",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "false",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 800,
-        "y": 1060,
-        "wires": []
-    },
-    {
-        "id": "e89019c5.70ae78",
-        "type": "comment",
-        "z": "60e740b9c7fe662f",
-        "name": "Example 6: Convert array to CSV",
-        "info": "",
-        "x": 310,
-        "y": 1000,
-        "wires": []
-    },
-    {
-        "id": "2b4d538d.ada07c",
-        "type": "inject",
-        "z": "60e740b9c7fe662f",
-        "name": "",
-        "props": [{"p": "payload"}, {"p": "topic", "vt": "str"}],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "",
-        "payloadType": "date",
-        "x": 280,
-        "y": 1220,
-        "wires": [["3e5c9e8.5065b62"]]
-    },
-    {
-        "id": "db02c7be.0984e8",
-        "type": "csv",
-        "z": "60e740b9c7fe662f",
-        "name": "",
-        "sep": ",",
-        "hdrin": false,
-        "hdrout": "all",
-        "multi": "one",
-        "ret": "\\n",
-        "temp": "kind,price",
-        "skip": "0",
-        "strings": true,
-        "include_empty_strings": "",
-        "include_null_values": "",
-        "x": 620,
-        "y": 1220,
-        "wires": [["61f8b772.ddb1f8"]]
-    },
-    {
-        "id": "3e5c9e8.5065b62",
-        "type": "template",
-        "z": "60e740b9c7fe662f",
-        "name": "JS array",
-        "field": "payload",
-        "fieldType": "msg",
-        "format": "json",
-        "syntax": "plain",
-        "template": "[\n    {\"kind\": \"Apple\", \"price\": 100, \"origin\": \"Canada\"},\n    {\"kind\": \"Orange\", \"price\": 120, \"origin\": \"USA\"},\n    {\"kind\": \"Banana\", \"price\": 80, \"origin\": \"Philippines\"}\n]",
-        "output": "json",
-        "x": 450,
-        "y": 1220,
-        "wires": [["db02c7be.0984e8"]]
-    },
-    {
-        "id": "61f8b772.ddb1f8",
-        "type": "debug",
-        "z": "60e740b9c7fe662f",
-        "name": "",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "false",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 800,
-        "y": 1220,
-        "wires": []
-    },
-    {
-        "id": "2ebdd51e.c5d17a",
-        "type": "comment",
-        "z": "60e740b9c7fe662f",
-        "name": "Example 7: Convert array to CSV with header",
-        "info": "",
-        "x": 350,
-        "y": 1160,
-        "wires": []
-    }
-]</div>
-        </details>
-        
-        <h3>パターン1: CSVパース（デフォルトカラム名、1行ずつ出力）</h3>
-        <p><strong>用途:</strong> CSVをオブジェクトに変換し、1行ずつメッセージとして送信</p>
-        
-        <div class="node-example">
-            <span class="node node-inject">Inject</span>
-            <span class="arrow">→</span>
-            <span class="node node-template">Template<br><small>(CSV)</small></span>
-            <span class="arrow">→</span>
-            <span class="node node-csv">CSV<br><small>(1行ずつ)</small></span>
-            <span class="arrow">→→→</span>
-            <span class="node node-debug">Debug</span>
-        </div>
-        
-        <div class="tip">
-            <p><strong>📌 動作の流れ:</strong></p>
-            <ol>
-                <li>CSVテキスト "Apple,100,Canada\nOrange,120,USA\nBanana,80,Philippines" を入力</li>
-                <li>CSVノードがカンマと改行で分割</li>
-                <li>3つのメッセージが順番に出力される（msg.parts付き）</li>
-                <li>カラム名はcol1, col2, col3がデフォルト</li>
-            </ol>
-        </div>
-        
-        <p><strong>設定例:</strong></p>
-        <div class="code-block">区切り文字: ,
-カラム名: （空白 = col1, col2, col3...を自動生成）
-1行目をカラム名に: OFF
-出力形式: 1行毎にメッセージを送信
-
-入力: "Apple,100,Canada\nOrange,120,USA\nBanana,80,Philippines"
-出力1: {col1: "Apple", col2: "100", col3: "Canada"}
-出力2: {col1: "Orange", col2: "120", col3: "USA"}
-出力3: {col1: "Banana", col2: "80", col3: "Philippines"}</div>
-        
-        <h3>パターン2: CSVパース（配列で一括出力）</h3>
-        <p><strong>用途:</strong> CSVをオブジェクト配列として1つのメッセージで取得</p>
-        
-        <div class="node-example">
-            <span class="node node-inject">Inject</span>
-            <span class="arrow">→</span>
-            <span class="node node-template">Template<br><small>(CSV)</small></span>
-            <span class="arrow">→</span>
-            <span class="node node-csv">CSV<br><small>(配列)</small></span>
-            <span class="arrow">→</span>
-            <span class="node node-debug">Debug</span>
-        </div>
-        
-        <p><strong>設定例:</strong></p>
-        <div class="code-block">区切り文字: ,
-出力形式: 単一の配列メッセージとして出力
-
-入力: "Apple,100,Canada\nOrange,120,USA\nBanana,80,Philippines"
-出力: [
-    {col1: "Apple", col2: "100", col3: "Canada"},
-    {col1: "Orange", col2: "120", col3: "USA"},
-    {col1: "Banana", col2: "80", col3: "Philippines"}
-]</div>
-        
-        <h3>パターン3: CSVパース（カラム名指定）</h3>
-        <p><strong>用途:</strong> 意味のあるプロパティ名でオブジェクトを作成</p>
-        
-        <div class="node-example">
-            <span class="node node-inject">Inject</span>
-            <span class="arrow">→</span>
-            <span class="node node-template">Template<br><small>(CSV)</small></span>
-            <span class="arrow">→</span>
-            <span class="node node-csv">CSV<br><small>(kind,price,origin)</small></span>
-            <span class="arrow">→</span>
-            <span class="node node-debug">Debug</span>
-        </div>
-        
-        <div class="tip">
-            <p><strong>📌 ポイント:</strong></p>
-            <ul>
-                <li>CSVノードの「カラム」設定で <code>kind,price,origin</code> を指定</li>
-                <li>col1, col2... ではなく、意味のある名前になる</li>
-            </ul>
-        </div>
-        
-        <p><strong>設定例:</strong></p>
-        <div class="code-block">区切り文字: ,
-カラム名: kind,price,origin
-1行目をカラム名に: OFF
-
-入力: "Apple,100,Canada\nOrange,120,USA"
-出力1: {kind: "Apple", price: "100", origin: "Canada"}
-出力2: {kind: "Orange", price: "120", origin: "USA"}</div>
-        
-        <h3>パターン4: CSVパース（先頭行をカラム名として使用）</h3>
-        <p><strong>用途:</strong> ヘッダー行を含むCSVファイルを処理</p>
-        
-        <div class="node-example">
-            <span class="node node-inject">Inject</span>
-            <span class="arrow">→</span>
-            <span class="node node-template">Template<br><small>(ヘッダー付CSV)</small></span>
-            <span class="arrow">→</span>
-            <span class="node node-csv">CSV<br><small>(1行目=カラム名)</small></span>
-            <span class="arrow">→</span>
-            <span class="node node-debug">Debug</span>
-        </div>
-        
-        <p><strong>設定例:</strong></p>
-        <div class="code-block">区切り文字: ,
-1行目をカラム名に: ON
-
-入力: "kind,price,origin\nApple,100,Canada\nOrange,120,USA"
-出力1: {kind: "Apple", price: "100", origin: "Canada"}  ← 先頭行はスキップ
-出力2: {kind: "Orange", price: "120", origin: "USA"}</div>
-        
-        <h3>パターン5: オブジェクトからCSV生成</h3>
-        <p><strong>用途:</strong> JavaScriptオブジェクトをCSV文字列に変換</p>
-        
-        <div class="node-example">
-            <span class="node node-inject">Inject</span>
-            <span class="arrow">→</span>
-            <span class="node node-template">Template<br><small>(オブジェクト)</small></span>
-            <span class="arrow">→</span>
-            <span class="node node-csv">CSV<br><small>(kind,price)</small></span>
-            <span class="arrow">→</span>
-            <span class="node node-debug">Debug</span>
-        </div>
-        
-        <div class="tip">
-            <p><strong>📌 ポイント:</strong></p>
-            <ul>
-                <li>カラム名で出力するプロパティを選択できる</li>
-                <li><code>kind,price</code> を指定すると <code>origin</code> は出力されない</li>
-            </ul>
-        </div>
-        
-        <p><strong>設定例:</strong></p>
-        <div class="code-block">カラム名: kind,price  ← originは除外
-ヘッダー行: なし
-
-入力: {kind: "Apple", price: 100, origin: "Canada"}
-出力: "Apple,100\n"</div>
-        
-        <h3>パターン6: 配列からCSV生成（ヘッダー付き）</h3>
-        <p><strong>用途:</strong> 配列データをヘッダー行付きのCSVに変換</p>
-        
-        <div class="node-example">
-            <span class="node node-inject">Inject</span>
-            <span class="arrow">→</span>
-            <span class="node node-template">Template<br><small>(配列)</small></span>
-            <span class="arrow">→</span>
-            <span class="node node-csv">CSV<br><small>(ヘッダー:常に)</small></span>
-            <span class="arrow">→</span>
-            <span class="node node-debug">Debug</span>
-        </div>
-        
-        <p><strong>設定例:</strong></p>
-        <div class="code-block">カラム名: kind,price
-ヘッダー行: 常に出力
-
-入力: [
-    {kind: "Apple", price: 100},
-    {kind: "Orange", price: 120}
-]
-出力: "kind,price\nApple,100\nOrange,120\n"</div>
-        
-        <h2>🏋️ 4. 実践演習</h2>
-        
-        <div class="exercise">
-            <h3>演習1: 基本的なCSVパース<span class="difficulty difficulty-easy">初級</span></h3>
-            
-            <p><strong>📝 課題:</strong></p>
-            <p>商品リストのCSVをパースして、商品名と価格を持つオブジェクトに変換してください。</p>
-            
-            <p><strong>🎯 要求仕様:</strong></p>
-            <ul>
-                <li>Inject、Template、CSV、Debugノードを使用</li>
-                <li>入力CSV: "りんご,150\nみかん,100\nバナナ,80"</li>
-                <li>カラム名: name, price</li>
-                <li>1行ずつメッセージとして出力</li>
-            </ul>
-            
-            <p><strong>📊 期待される動作:</strong></p>
-            <ul>
-                <li>Injectボタンをクリック → 3つのメッセージがDebugに表示</li>
-                <li>各メッセージが {name: "商品名", price: "価格"} の形式</li>
-            </ul>
-            
-            <details>
-                <summary>💡 ヒント</summary>
-                <p><strong>Injectノードの設定:</strong></p>
-                <ul>
-                    <li>payload: タイムスタンプ（デフォルト）でOK</li>
-                </ul>
-                <p><strong>Templateノードの設定:</strong></p>
-                <ul>
-                    <li>テンプレート: りんご,150（改行）みかん,100（改行）バナナ,80</li>
-                    <li>出力形式: 文字列</li>
-                </ul>
-                <p><strong>CSVノードの設定:</strong></p>
-                <ul>
-                    <li>区切り文字: <code>,</code></li>
-                    <li>カラム: <code>name,price</code></li>
-                    <li>出力: 1行毎にメッセージを送信</li>
-                </ul>
-            </details>
-            
-            <details>
-                <summary>✅ 解答例フロー</summary>
-                <div class="flow-json">[
-    {
-        "id": "ex1_inject",
-        "type": "inject",
-        "name": "実行",
-        "props": [{"p": "payload"}],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "",
-        "payloadType": "date",
-        "x": 110,
-        "y": 100,
-        "wires": [["ex1_template"]]
-    },
-    {
-        "id": "ex1_template",
-        "type": "template",
-        "name": "商品CSV",
-        "field": "payload",
-        "fieldType": "msg",
-        "format": "text",
-        "syntax": "plain",
-        "template": "りんご,150\nみかん,100\nバナナ,80",
-        "output": "str",
-        "x": 260,
-        "y": 100,
-        "wires": [["ex1_csv"]]
-    },
-    {
-        "id": "ex1_csv",
-        "type": "csv",
-        "name": "CSVパース",
-        "sep": ",",
-        "hdrin": "",
-        "hdrout": "none",
-        "multi": "one",
-        "ret": "\\n",
-        "temp": "name,price",
-        "skip": "0",
-        "strings": true,
-        "include_empty_strings": "",
-        "include_null_values": "",
-        "x": 420,
-        "y": 100,
-        "wires": [["ex1_debug"]]
-    },
-    {
-        "id": "ex1_debug",
-        "type": "debug",
-        "name": "結果",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "x": 570,
-        "y": 100,
-        "wires": []
-    }
-]</div>
-            </details>
-        </div>
-        
-        <div class="exercise">
-            <h3>演習2: ヘッダー付きCSVのパース<span class="difficulty difficulty-medium">中級</span></h3>
-            
-            <p><strong>📝 課題:</strong></p>
-            <p>ヘッダー行を含むCSVをパースし、配列として一括取得してください。</p>
-            
-            <p><strong>🎯 要求仕様:</strong></p>
-            <ul>
-                <li>Inject、Template、CSV、Debugノードを使用</li>
-                <li>入力CSV（ヘッダー付き）: "id,name,score\n1,田中,85\n2,鈴木,92\n3,佐藤,78"</li>
-                <li>先頭行をカラム名として使用</li>
-                <li>配列として一括出力</li>
-            </ul>
-            
-            <p><strong>📊 期待される動作:</strong></p>
-            <ul>
-                <li>Injectボタンをクリック → 1つのメッセージで3要素の配列が出力</li>
-            </ul>
-            
-            <details>
-                <summary>💡 ヒント</summary>
-                <p><strong>Templateノードの設定:</strong></p>
-                <ul>
-                    <li>テンプレートの1行目がヘッダー（id,name,score）</li>
-                    <li>2行目以降がデータ</li>
-                </ul>
-                <p><strong>CSVノードの設定:</strong></p>
-                <ul>
-                    <li>区切り文字: <code>,</code></li>
-                    <li>1行目をカラム名に: チェックON</li>
-                    <li>出力: 単一の配列メッセージとして出力</li>
-                </ul>
-            </details>
-            
-            <details>
-                <summary>✅ 解答例フロー</summary>
-                <div class="flow-json">[
-    {
-        "id": "ex2_inject",
-        "type": "inject",
-        "name": "実行",
-        "props": [{"p": "payload"}],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "",
-        "payloadType": "date",
-        "x": 110,
-        "y": 100,
-        "wires": [["ex2_template"]]
-    },
-    {
-        "id": "ex2_template",
-        "type": "template",
-        "name": "成績CSV",
-        "field": "payload",
-        "fieldType": "msg",
-        "format": "text",
-        "syntax": "plain",
-        "template": "id,name,score\n1,田中,85\n2,鈴木,92\n3,佐藤,78",
-        "output": "str",
-        "x": 260,
-        "y": 100,
-        "wires": [["ex2_csv"]]
-    },
-    {
-        "id": "ex2_csv",
-        "type": "csv",
-        "name": "CSVパース",
-        "sep": ",",
-        "hdrin": true,
-        "hdrout": "none",
-        "multi": "mult",
-        "ret": "\\n",
-        "temp": "",
-        "skip": "0",
-        "strings": true,
-        "include_empty_strings": "",
-        "include_null_values": "",
-        "x": 420,
-        "y": 100,
-        "wires": [["ex2_debug"]]
-    },
-    {
-        "id": "ex2_debug",
-        "type": "debug",
-        "name": "結果",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "x": 570,
-        "y": 100,
-        "wires": []
-    }
-]</div>
-            </details>
-        </div>
-        
-        <div class="exercise">
-            <h3>演習3: オブジェクト配列からCSV生成<span class="difficulty difficulty-medium">中級</span></h3>
-            
-            <p><strong>📝 課題:</strong></p>
-            <p>センサーデータのオブジェクト配列をヘッダー付きCSVに変換してください。</p>
-            
-            <p><strong>🎯 要求仕様:</strong></p>
-            <ul>
-                <li>Inject、Template、CSV、Debugノードを使用</li>
-                <li>入力: [{sensor:"A", temp:25.5, humidity:60}, {sensor:"B", temp:24.2, humidity:55}]</li>
-                <li>出力カラム: sensor, temp のみ（humidityは除外）</li>
-                <li>ヘッダー行を出力</li>
-            </ul>
-            
-            <p><strong>📊 期待される動作:</strong></p>
-            <ul>
-                <li>ヘッダー行 + 2行のCSVが出力される</li>
-            </ul>
-            
-            <details>
-                <summary>💡 ヒント</summary>
-                <p><strong>Templateノードの設定:</strong></p>
-                <ul>
-                    <li>形式: JSON</li>
-                    <li>出力: JSONオブジェクト</li>
-                    <li>テンプレート: センサーデータの配列</li>
-                </ul>
-                <p><strong>CSVノードの設定:</strong></p>
-                <ul>
-                    <li>カラム: <code>sensor,temp</code>（humidityを除外）</li>
-                    <li>ヘッダー行を出力: 常に出力</li>
-                </ul>
-            </details>
-            
-            <details>
-                <summary>✅ 解答例フロー</summary>
-                <div class="flow-json">[
-    {
-        "id": "ex3_inject",
-        "type": "inject",
-        "name": "実行",
-        "props": [{"p": "payload"}],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "",
-        "payloadType": "date",
-        "x": 110,
-        "y": 100,
-        "wires": [["ex3_template"]]
-    },
-    {
-        "id": "ex3_template",
-        "type": "template",
-        "name": "センサーデータ",
-        "field": "payload",
-        "fieldType": "msg",
-        "format": "json",
-        "syntax": "plain",
-        "template": "[\n    {\"sensor\": \"A\", \"temp\": 25.5, \"humidity\": 60},\n    {\"sensor\": \"B\", \"temp\": 24.2, \"humidity\": 55}\n]",
-        "output": "json",
-        "x": 280,
-        "y": 100,
-        "wires": [["ex3_csv"]]
-    },
-    {
-        "id": "ex3_csv",
-        "type": "csv",
-        "name": "CSV生成",
-        "sep": ",",
-        "hdrin": false,
-        "hdrout": "all",
-        "multi": "one",
-        "ret": "\\n",
-        "temp": "sensor,temp",
-        "skip": "0",
-        "strings": true,
-        "include_empty_strings": "",
-        "include_null_values": "",
-        "x": 450,
-        "y": 100,
-        "wires": [["ex3_debug"]]
-    },
-    {
-        "id": "ex3_debug",
-        "type": "debug",
-        "name": "結果",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "x": 590,
-        "y": 100,
-        "wires": []
-    }
-]</div>
-            </details>
-        </div>
-        
-        <div class="exercise">
-            <h3>演習4: CSV処理パイプライン<span class="difficulty difficulty-hard">上級</span></h3>
-            
-            <p><strong>📝 課題:</strong></p>
-            <p>CSVをパースし、Joinノードで結合後、別の形式のCSVに再変換してください。</p>
-            
-            <p><strong>🎯 要求仕様:</strong></p>
-            <ul>
-                <li>Inject、Template、CSV（パース）、Join、CSV（生成）、Debugノードを使用</li>
-                <li>入力CSV（ヘッダー付き）: "kind,price,origin\nApple,100,Canada\nOrange,120,USA"</li>
-                <li>CSVをパース → Joinで配列に結合 → 別カラム（kind,priceのみ）でCSV再生成</li>
-            </ul>
-            
-            <p><strong>📊 期待される動作:</strong></p>
-            <ul>
-                <li>originカラムが除外された新しいCSVが出力される</li>
-            </ul>
-            
-            <details>
-                <summary>💡 ヒント</summary>
-                <p><strong>フローの構成:</strong></p>
-                <ol>
-                    <li>Template: ヘッダー付きCSVを作成</li>
-                    <li>CSV（パース）: 1行目をカラム名として使用、1行ずつ出力</li>
-                    <li>Join: 自動モードで配列に結合</li>
-                    <li>CSV（生成）: kind,priceカラムのみでCSV生成</li>
-                </ol>
-                <p><strong>CSVノード（パース）の設定:</strong></p>
-                <ul>
-                    <li>1行目をカラム名に: チェックON</li>
-                    <li>出力: 1行毎にメッセージを送信（msg.parts付き）</li>
-                </ul>
-                <p><strong>Joinノードの設定:</strong></p>
-                <ul>
-                    <li>モード: 自動</li>
-                </ul>
-                <p><strong>CSVノード（生成）の設定:</strong></p>
-                <ul>
-                    <li>カラム: <code>kind,price</code></li>
-                </ul>
-            </details>
-            
-            <details>
-                <summary>✅ 解答例フロー</summary>
-                <div class="flow-json">[
-    {
-        "id": "ex4_inject",
-        "type": "inject",
-        "name": "実行",
-        "props": [{"p": "payload"}],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "",
-        "payloadType": "date",
-        "x": 110,
-        "y": 100,
-        "wires": [["ex4_template"]]
-    },
-    {
-        "id": "ex4_template",
-        "type": "template",
-        "name": "元CSV",
-        "field": "payload",
-        "fieldType": "msg",
-        "format": "text",
-        "syntax": "plain",
-        "template": "kind,price,origin\nApple,100,Canada\nOrange,120,USA\nBanana,80,Philippines",
-        "output": "str",
-        "x": 250,
-        "y": 100,
-        "wires": [["ex4_csv_parse"]]
-    },
-    {
-        "id": "ex4_csv_parse",
-        "type": "csv",
-        "name": "CSVパース",
-        "sep": ",",
-        "hdrin": true,
-        "hdrout": "none",
-        "multi": "one",
-        "ret": "\\n",
-        "temp": "",
-        "skip": "0",
-        "strings": true,
-        "include_empty_strings": "",
-        "include_null_values": "",
-        "x": 400,
-        "y": 100,
-        "wires": [["ex4_join"]]
-    },
-    {
-        "id": "ex4_join",
-        "type": "join",
-        "name": "配列に結合",
-        "mode": "auto",
-        "build": "array",
-        "property": "payload",
-        "propertyType": "msg",
-        "key": "topic",
-        "joiner": "\\n",
-        "joinerType": "str",
-        "accumulate": false,
-        "timeout": "",
-        "count": "",
-        "reduceRight": false,
-        "x": 560,
-        "y": 100,
-        "wires": [["ex4_csv_gen"]]
-    },
-    {
-        "id": "ex4_csv_gen",
-        "type": "csv",
-        "name": "CSV生成",
-        "sep": ",",
-        "hdrin": false,
-        "hdrout": "all",
-        "multi": "one",
-        "ret": "\\n",
-        "temp": "kind,price",
-        "skip": "0",
-        "strings": true,
-        "include_empty_strings": "",
-        "include_null_values": "",
-        "x": 710,
-        "y": 100,
-        "wires": [["ex4_debug"]]
-    },
-    {
-        "id": "ex4_debug",
-        "type": "debug",
-        "name": "結果",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "x": 850,
-        "y": 100,
-        "wires": []
-    }
-]</div>
-            </details>
-        </div>
-        
-        <h2>🎓 5. まとめ</h2>
-        
-        <div class="important">
-            <h3>CSVノードの重要ポイント</h3>
-            <ul>
-                <li>✅ <strong>双方向変換</strong>: CSV文字列 ↔ JavaScriptオブジェクトの相互変換</li>
-                <li>✅ <strong>自動判定</strong>: 入力データ型で変換方向を自動判定</li>
-                <li>✅ <strong>カラム名</strong>: 設定、先頭行、msg.columnsの3つの方法で指定可能</li>
-                <li>✅ <strong>出力形式</strong>: 1行ずつメッセージ or 配列で一括（パース時）</li>
-                <li>✅ <strong>ヘッダー制御</strong>: なし/常に/最初だけの3パターン（生成時）</li>
-                <li>✅ <strong>msg.parts</strong>: 1行ずつ出力時はSplitと同様のparts情報付き</li>
-            </ul>
-        </div>
-        
-        <div class="warning">
-            <h3>⚠️ よくある間違い</h3>
-            <ul>
-                <li><strong>数値が文字列になる</strong>: 「数値を変換」オプションをOFFにしていると文字列のまま</li>
-                <li><strong>カラム数の不一致</strong>: CSVの列数とカラム名の数が合わないとエラー</li>
-                <li><strong>改行コードの違い</strong>: Windows(\r\n)とLinux(\n)で改行コードが異なる</li>
-                <li><strong>特殊文字の扱い</strong>: カンマや改行を含むデータは引用符で囲む必要がある</li>
-                <li><strong>空のフィールド</strong>: 空フィールドの扱いを設定で制御する必要がある</li>
-            </ul>
-        </div>
-        
-        <div class="tip">
-            <h3>📚 次のステップ</h3>
-            <p>CSVノードをマスターしたら、以下のノードも学んでみましょう:</p>
-            <ul>
-                <li><strong>Splitノード</strong>: CSVを1行ずつ処理後の再結合に使用</li>
-                <li><strong>Joinノード</strong>: 分割したメッセージを再結合</li>
-                <li><strong>File系ノード</strong>: CSVファイルの読み書き</li>
-                <li><strong>JSONノード</strong>: JSON形式との相互変換</li>
-            </ul>
-        </div>
-        
-        <h2>🔧 6. トラブルシューティング</h2>
-        
-        <h3>よくある問題と解決方法</h3>
-        
-        <table>
-            <tr>
-                <th>問題</th>
-                <th>原因</th>
-                <th>解決方法</th>
-            </tr>
-            <tr>
-                <td>数値が文字列になる</td>
-                <td>数値変換がOFF</td>
-                <td>「数値を変換」オプションをONに</td>
-            </tr>
-            <tr>
-                <td>カラム名がcol1,col2...</td>
-                <td>カラム名未指定</td>
-                <td>カラム設定または1行目をカラム名として使用</td>
-            </tr>
-            <tr>
-                <td>出力プロパティが不足</td>
-                <td>カラム名でフィルタリング</td>
-                <td>必要なプロパティをすべてカラムに指定</td>
-            </tr>
-            <tr>
-                <td>文字化け</td>
-                <td>文字コードの不一致</td>
-                <td>UTF-8で統一、BOM付きの場合は除去</td>
-            </tr>
-            <tr>
-                <td>行が結合される</td>
-                <td>改行コードの違い</td>
-                <td>区切り文字設定を確認（\n or \r\n）</td>
-            </tr>
-            <tr>
-                <td>引用符が残る</td>
-                <td>CSVの引用符処理</td>
-                <td>標準的なCSV形式に修正</td>
-            </tr>
-        </table>
-        
-        <h2>💡 7. 実務での活用例</h2>
-        
-        <h3>ケース1: センサーデータのログ記録</h3>
-        <div class="code-block">MQTTノード（センサーデータ受信）
-↓
-Functionノード（データ整形）
-↓
-CSVノード（CSV形式に変換）
-↓
-File Appendノード（ファイルに追記）
-
-用途: IoTセンサーからのデータをCSVファイルに記録</div>
-        
-        <h3>ケース2: 設定ファイルの読み込み</h3>
-        <div class="code-block">File Inノード（config.csv読み込み）
-↓
-CSVノード（パース、配列出力）
-↓
-Changeノード（フロー変数に保存）
-
-用途: 外部CSVファイルから設定値を読み込み</div>
-        
-        <h3>ケース3: レポート生成</h3>
-        <div class="code-block">HTTPリクエスト or DB照会
-↓
-Functionノード（データ集計）
-↓
-CSVノード（ヘッダー付きCSV生成）
-↓
-Emailノード or HTTP Responseノード
-
-用途: 日次レポートをCSV形式で生成・送信</div>
-        
-        <h3>ケース4: データ変換パイプライン</h3>
-        <div class="code-block">File Inノード（外部CSVファイル）
-↓
-CSVノード（パース）
-↓
-Switchノード（フィルタリング）
-↓
-Joinノード（再結合）
-↓
-CSVノード（新形式で生成）
-↓
-File Outノード（変換後ファイル出力）
-
-用途: CSVファイルの形式変換、フィルタリング、加工</div>
-        
-        <h2>🔗 8. 追加リソース</h2>
-        
-        <ul>
-            <li><a href="https://nodered.org/docs/user-guide/nodes#csv" target="_blank">Node-RED公式ドキュメント: CSVノード</a></li>
-            <li><a href="https://flows.nodered.org/search?term=csv" target="_blank">Node-RED Flow Library: CSV関連フロー</a></li>
-            <li><a href="https://cookbook.nodered.org/" target="_blank">Node-RED Cookbook</a></li>
-        </ul>
-        
-        <hr>
-        
-        <p style="text-align: center; color: #999; margin-top: 40px;">
-            <small>このガイドが役に立ちましたら、実際のプロジェクトで練習してみてください!<br>
-            CSVノードはデータ連携の基本ツールです。</small><br>
-            <small>参照元：Node-REDエディター内サンプルフロー</small>
-        </p>
-    </div>
-    
-    <script>
-        // ページ読み込み時にコピーボタンを追加
-        document.addEventListener('DOMContentLoaded', function() {
-            // .flow-jsonと.js-code[data-copy="true"]にコピーボタンを追加
-            var codeBlocks = document.querySelectorAll('.flow-json, .js-code[data-copy="true"]');
-            
-            codeBlocks.forEach(function(block) {
-                // コピーボタンを作成
-                var button = document.createElement('button');
-                button.className = 'copy-button';
-                button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+            <div class="diagram">
+                <div style="border: 3px solid #8f0000; border-radius: 10px; overflow: hidden; margin-bottom: 25px;">
+                    <img src="img/node-red-editor-screenshot.png" 
+                         alt="Node-REDエディタ画面" 
+                         style="width: 100%; display: block;">
+                </div>
                 
-                // クリックイベントを追加
-                button.addEventListener('click', function() {
-                    // コードブロックのテキストを取得（ボタンテキストを除外）
-                    var code = block.textContent.replace(/コピー(しました!)?$/, '').trim();
+                <div style="margin-top: 30px;">
+                    <h3 style="color: #333; margin-bottom: 20px; text-align: center;">画面構成の詳細説明</h3>
                     
-                    // 改行を適切に処理（Node-REDにペースト時に見やすくする）
-                    if (block.classList.contains('js-code')) {
-                        // JavaScriptコードの場合、行ごとに改行を維持
-                        code = block.innerText.replace(/コピー(しました!)?$/, '').trim();
-                    }
-                    
-                    // クリップボードにコピー
-                    navigator.clipboard.writeText(code).then(function() {
-                        // 成功時の視覚的フィードバック
-                        button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>コピーしました!';
-                        button.classList.add('copied');
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 25px;">
+                        <div style="background: linear-gradient(135deg, #e8f4f8 0%, #d4e9f5 100%); padding: 20px; border-radius: 10px; border-left: 5px solid #5a9fd4;">
+                            <h4 style="color: #2c5aa0; margin-bottom: 12px;">① パレット（左側）</h4>
+                            <p style="margin-bottom: 10px; line-height: 1.6;">
+                                使用可能なノードが一覧表示されます。
+                            </p>
+                            <ul style="margin-left: 20px; line-height: 1.8;">
+                                <li><strong>検索バー：</strong> ノードを名前で検索</li>
+                                <li><strong>共通カテゴリ：</strong> inject（入力）、debug（デバッグ）など</li>
+                                <li><strong>機能カテゴリ：</strong> function（関数）、switch（分岐）など</li>
+                                <li><strong>色分け：</strong> ノードの種類ごとに色が違う</li>
+                            </ul>
+                        </div>
                         
-                        // 2秒後に元に戻す
-                        setTimeout(function() {
-                            button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
-                            button.classList.remove('copied');
-                        }, 2000);
-                    }).catch(function(err) {
-                        console.error('コピーに失敗しました:', err);
-                        button.textContent = 'エラー';
-                        setTimeout(function() {
-                            button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
-                        }, 2000);
-                    });
-                });
+                        <div style="background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%); padding: 20px; border-radius: 10px; border-left: 5px solid #666;">
+                            <h4 style="color: #444; margin-bottom: 12px;">② ワークスペース（中央）</h4>
+                            <p style="margin-bottom: 10px; line-height: 1.6;">
+                                フローを作成するメインの作業エリアです。
+                            </p>
+                            <ul style="margin-left: 20px; line-height: 1.8;">
+                                <li><strong>グリッド背景：</strong> ノードを整列しやすい</li>
+                                <li><strong>タブ表示：</strong> 複数のフローを切り替え可能</li>
+                                <li><strong>ドラッグ&ドロップ：</strong> パレットからノードを配置</li>
+                                <li><strong>接続：</strong> ノード間を線でつなぐ</li>
+                            </ul>
+                        </div>
+                        
+                        <div style="background: linear-gradient(135deg, #e8f8e8 0%, #d4efe4 100%); padding: 20px; border-radius: 10px; border-left: 5px solid #7fc7af;">
+                            <h4 style="color: #2d8659; margin-bottom: 12px;">③ デバッグパネル（右側）</h4>
+                            <p style="margin-bottom: 10px; line-height: 1.6;">
+                                debugノードの出力を表示するエリアです。
+                            </p>
+                            <ul style="margin-left: 20px; line-height: 1.8;">
+                                <li><strong>リアルタイム表示：</strong> データの流れを確認</li>
+                                <li><strong>フィルター機能：</strong> 特定のフローのみ表示</li>
+                                <li><strong>メッセージ詳細：</strong> JSONデータの構造を確認</li>
+                                <li><strong>デバッグ支援：</strong> 問題箇所を特定しやすい</li>
+                            </ul>
+                        </div>
+                        
+                        <div style="background: linear-gradient(135deg, #ffe8e8 0%, #ffd4d4 100%); padding: 20px; border-radius: 10px; border-left: 5px solid #8f0000;">
+                            <h4 style="color: #8f0000; margin-bottom: 12px;">④ ツールバー（上部）</h4>
+                            <p style="margin-bottom: 10px; line-height: 1.6;">
+                                操作ボタンとフロー管理エリアです。
+                            </p>
+                            <ul style="margin-left: 20px; line-height: 1.8;">
+                                <li><strong>デプロイボタン：</strong> 変更を反映（最重要！）</li>
+                                <li><strong>メニュー：</strong> 設定、インポート/エクスポート</li>
+                                <li><strong>フロー名：</strong> 現在編集中のフロー</li>
+                                <li><strong>情報パネル：</strong> ノードの説明を表示</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="background: #fff9e6; border: 2px solid #ffd700; border-radius: 10px; padding: 20px; margin-top: 25px;">
+                <h4 style="color: #333; margin-bottom: 15px;">💡 基本操作ガイド</h4>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; font-size: 0.95em;">
+                    <div style="background: white; padding: 12px; border-radius: 6px;">
+                        <strong>🖱️ ノードの配置：</strong><br>
+                        パレットのノードをワークスペースにドラッグ&ドロップ
+                    </div>
+                    <div style="background: white; padding: 12px; border-radius: 6px;">
+                        <strong>🔗 ノードの接続：</strong><br>
+                        ノードの出力ポート（右）から入力ポート（左）へドラッグ
+                    </div>
+                    <div style="background: white; padding: 12px; border-radius: 6px;">
+                        <strong>⚙️ 設定の編集：</strong><br>
+                        ノードをダブルクリックして設定画面を開く
+                    </div>
+                    <div style="background: white; padding: 12px; border-radius: 6px;">
+                        <strong>🗑️ 削除：</strong><br>
+                        ノードまたは接続線を選択してDeleteキーを押す
+                    </div>
+                    <div style="background: white; padding: 12px; border-radius: 6px;">
+                        <strong>🚀 デプロイ：</strong><br>
+                        右上の「デプロイ」ボタンをクリック（変更を反映）
+                    </div>
+                    <div style="background: white; padding: 12px; border-radius: 6px;">
+                        <strong>🐛 デバッグ：</strong><br>
+                        debugノードを接続して右パネルで出力を確認
+                    </div>
+                </div>
+            </div>
+            
+            <div class="info-box" style="margin-top: 20px;">
+                <strong>⚠️ 重要なポイント：</strong> フローを編集したら必ず「デプロイ」ボタンを押してください。
+                デプロイしないと変更が反映されません。デプロイボタンが赤く表示されている時は未保存の変更があります。
+            </div>
+            
+            </div>
+        </div>
+        
+        <!-- Section 3: ノードとフローの基本 -->
+        <div class="section">
+            <h2><span class="icon">🔗</span> ノードとフローの基本</h2>
+            <p style="margin-bottom: 20px;">
+                <strong>ノード</strong>は処理の最小単位で、<strong>フロー</strong>はノードをつないだ処理の流れです。
+            </p>
+            
+            <div class="diagram">
+                <h3 style="text-align: center; margin-bottom: 20px; color: #333;">基本的なフローの例</h3>
+                <div class="flow-example">
+                    <div class="node input">
+                        📥<br>Inject<br>
+                        <small style="font-size: 0.8em;">入力ノード</small>
+                    </div>
+                    <span class="arrow">→</span>
+                    <div class="node process">
+                        🔧<br>Function<br>
+                        <small style="font-size: 0.8em;">処理ノード</small>
+                    </div>
+                    <span class="arrow">→</span>
+                    <div class="node output">
+                        🐛<br>Debug<br>
+                        <small style="font-size: 0.8em;">出力ノード</small>
+                    </div>
+                </div>
                 
-                // ボタンをコードブロックに追加
-                block.style.position = 'relative';
-                block.appendChild(button);
-            });
-        });
-    </script>
+                <div style="margin-top: 30px;">
+                    <h4 style="color: #333; margin-bottom: 15px;">ノードの種類</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div style="background: #ffe6e6; padding: 15px; border-radius: 8px;">
+                            <strong>入力ノード（Input）</strong><br>
+                            データを取得・受信します<br>
+                            <small>例: inject, mqtt in, http in</small>
+                        </div>
+                        <div style="background: #e6f3ff; padding: 15px; border-radius: 8px;">
+                            <strong>処理ノード（Processing）</strong><br>
+                            データを加工・変換します<br>
+                            <small>例: function, change, switch</small>
+                        </div>
+                        <div style="background: #e6ffe6; padding: 15px; border-radius: 8px;">
+                            <strong>出力ノード（Output）</strong><br>
+                            データを送信・保存します<br>
+                            <small>例: debug, mqtt out, http response</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Section 4: データの流れ（メッセージング） -->
+        <div class="section">
+            <h2><span class="icon">💬</span> データの流れ（メッセージング）</h2>
+            <p style="margin-bottom: 20px;">
+                Node-REDでは、ノード間で<span class="highlight">msgオブジェクト</span>としてデータを受け渡します。
+            </p>
+            
+            <div class="message-flow">
+                <h4 style="margin-bottom: 15px; color: #333;">メッセージオブジェクトの構造</h4>
+                <div class="code-block">
+{<br>
+&nbsp;&nbsp;"payload": "こんにちは",  <span style="color: #6a9955;">// メインのデータ</span><br>
+&nbsp;&nbsp;"topic": "greeting",       <span style="color: #6a9955;">// トピック</span><br>
+&nbsp;&nbsp;"timestamp": 1234567890    <span style="color: #6a9955;">// タイムスタンプ</span><br>
+}
+                </div>
+                <p style="margin-top: 15px;">
+                    <strong>payload</strong>: 一番重要なデータが入る場所<br>
+                    <strong>topic</strong>: データの種類や分類<br>
+                    <strong>その他</strong>: 自由にプロパティを追加できます
+                </p>
+            </div>
+            
+            <div class="diagram">
+                <h4 style="text-align: center; margin-bottom: 20px; color: #333;">
+                    メッセージは「バケツリレー」のように次々と渡されます
+                </h4>
+                <div class="flow-example">
+                    <div style="text-align: center;">
+                        <div class="node input" style="display: inline-block;">
+                            Inject
+                        </div>
+                        <div style="margin-top: 10px; font-size: 0.9em;">
+                            msg.payload = 25
+                        </div>
+                    </div>
+                    
+                    <span class="arrow">→</span>
+                    
+                    <div style="text-align: center;">
+                        <div class="node process" style="display: inline-block;">
+                            Function
+                        </div>
+                        <div style="margin-top: 10px; font-size: 0.9em;">
+                            msg.payload × 2
+                        </div>
+                    </div>
+                    
+                    <span class="arrow">→</span>
+                    
+                    <div style="text-align: center;">
+                        <div class="node output" style="display: inline-block;">
+                            Debug
+                        </div>
+                        <div style="margin-top: 10px; font-size: 0.9em;">
+                            表示: 50
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Section 5: 開発の流れ -->
+        <div class="section">
+            <h2><span class="icon">🔄</span> 開発の流れ</h2>
+            <p style="margin-bottom: 30px;">Node-REDでの開発は、以下の4ステップで進めます。</p>
+            
+            <div class="step-flow">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-desc">ノードを配置</div>
+                    <p style="font-size: 0.9em; margin-top: 10px; color: #666;">
+                        パレットからワークスペースへドラッグ
+                    </p>
+                </div>
+                
+                <span class="arrow">→</span>
+                
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-desc">ノードを接続</div>
+                    <p style="font-size: 0.9em; margin-top: 10px; color: #666;">
+                        ノード間を線でつなぐ
+                    </p>
+                </div>
+                
+                <span class="arrow">→</span>
+                
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-desc">設定を編集</div>
+                    <p style="font-size: 0.9em; margin-top: 10px; color: #666;">
+                        各ノードの動作を設定
+                    </p>
+                </div>
+                
+                <span class="arrow">→</span>
+                
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-desc">デプロイ</div>
+                    <p style="font-size: 0.9em; margin-top: 10px; color: #666;">
+                        右上のボタンで実行
+                    </p>
+                </div>
+            </div>
+            
+            <div class="info-box">
+                <strong>💡 デバッグのコツ：</strong> debugノードを使うと、データの流れをリアルタイムで確認できます。
+                問題が起きたら、各処理の間にdebugノードを挟んで確認しましょう。
+            </div>
+        </div>
+        
+        <!-- Section 6: IoT/Raspberry Piでの活用例 -->
+        <div class="section">
+            <h2><span class="icon">🍓</span> Raspberry PiでのIoT活用例</h2>
+            <p style="margin-bottom: 20px;">
+                Raspberry PiとNode-REDを組み合わせることで、簡単にIoTシステムを構築できます。
+            </p>
+            
+            <div class="iot-example">
+                <h4 style="text-align: center; margin-bottom: 25px; color: #333;">
+                    センサーデータをクラウドへ送信する例
+                </h4>
+                
+                <div class="device-flow">
+                    <div class="device">
+                        <div class="device-icon">🌡️</div>
+                        <strong>温度センサー</strong><br>
+                        <small>データ取得</small>
+                    </div>
+                    
+                    <span class="arrow">→</span>
+                    
+                    <div class="device">
+                        <div class="device-icon">🍓</div>
+                        <strong>Raspberry Pi</strong><br>
+                        <small>Node-RED</small>
+                    </div>
+                    
+                    <span class="arrow">→</span>
+                    
+                    <div class="device">
+                        <div class="device-icon">☁️</div>
+                        <strong>AWS</strong><br>
+                        <small>クラウド保存</small>
+                    </div>
+                    
+                    <span class="arrow">→</span>
+                    
+                    <div class="device">
+                        <div class="device-icon">📊</div>
+                        <strong>ダッシュボード</strong><br>
+                        <small>可視化</small>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 25px; background: white; padding: 20px; border-radius: 10px;">
+                    <h4 style="color: #333; margin-bottom: 15px;">実現できること</h4>
+                    <ul style="list-style-position: inside; color: #333;">
+                        <li>📡 MQTTプロトコルでセンサーデータを収集</li>
+                        <li>🔄 JavaScriptで簡単なデータ加工・フィルタリング</li>
+                        <li>☁️ AWS IoT Core や HTTP API への送信</li>
+                        <li>📈 リアルタイムダッシュボード表示</li>
+                        <li>🔔 しきい値を超えたら通知（LINE、Slackなど）</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Section 7: まとめ -->
+        <div class="section" style="background: linear-gradient(135deg, #667eea20 0%, #764ba220 100%);">
+            <h2><span class="icon">✅</span> まとめ</h2>
+            <div style="font-size: 1.1em; line-height: 1.8;">
+                <p><strong>Node-REDの3つの強み：</strong></p>
+                <ul style="margin: 15px 0 15px 30px;">
+                    <li>✨ <strong>視覚的で直感的</strong> - コードを書かずに開発できる</li>
+                    <li>🚀 <strong>すぐに試せる</strong> - デプロイが瞬時、デバッグも簡単</li>
+                    <li>🔌 <strong>豊富な連携</strong> - IoTデバイスからクラウドまで幅広く対応</li>
+                </ul>
+                
+
+            </div>
+        </div>
+        </div>
+        <!-- Section 8: ガイドページ一覧 -->
+        <div class="section">
+            <h2><span class="icon">📖</span> ガイドページ一覧</h2>
+            <p style="margin-bottom: 20px;">各ノードの詳しい使い方は、以下のガイドページをご覧ください。</p>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px;">
+                <a href="nodered-variable-types-guide.html" style="background: #e6f3ff; padding: 15px; border-radius: 8px; text-decoration: none; color: #333; font-weight: bold; text-align: center; transition: transform 0.3s, box-shadow 0.3s; display: block;">
+                     Variable（変数）ガイド
+                </a>
+                <a href="nodered-inject-node-guide.html" style="background: #e6f3ff; padding: 15px; border-radius: 8px; text-decoration: none; color: #333; font-weight: bold; text-align: center; transition: transform 0.3s, box-shadow 0.3s; display: block;">
+                     Inject（入力）ガイド
+                </a>
+                <a href="nodered-debug-node-guide.html" style="background: #e6f3ff; padding: 15px; border-radius: 8px; text-decoration: none; color: #333; font-weight: bold; text-align: center; transition: transform 0.3s, box-shadow 0.3s; display: block;">
+                     Debug（デバッグ）ガイド
+                </a>
+                <a href="nodered-change-node-guide.html" style="background: #e6f3ff; padding: 15px; border-radius: 8px; text-decoration: none; color: #333; font-weight: bold; text-align: center; transition: transform 0.3s, box-shadow 0.3s; display: block;">
+                     Change（変更）ガイド
+                </a>
+                <a href="nodered-switch-node-guide.html" style="background: #e6f3ff; padding: 15px; border-radius: 8px; text-decoration: none; color: #333; font-weight: bold; text-align: center; transition: transform 0.3s, box-shadow 0.3s; display: block;">
+                     Switch（分岐）ガイド
+                </a>
+                <a href="nodered-delay-node-guide.html" style="background: #e6f3ff; padding: 15px; border-radius: 8px; text-decoration: none; color: #333; font-weight: bold; text-align: center; transition: transform 0.3s, box-shadow 0.3s; display: block;">
+                     Delay（遅延）ガイド
+                </a>
+                <a href="nodered-function-node-guide.html" style="background: #e6f3ff; padding: 15px; border-radius: 8px; text-decoration: none; color: #333; font-weight: bold; text-align: center; transition: transform 0.3s, box-shadow 0.3s; display: block;">
+                     Function（関数）ガイド
+                </a>
+                <a href="nodered-catch-node-guide.html" style="background: #e6f3ff; padding: 15px; border-radius: 8px; text-decoration: none; color: #333; font-weight: bold; text-align: center; transition: transform 0.3s, box-shadow 0.3s; display: block;">
+                     Catch（エラー処理）ガイド
+                </a>
+                <a href="nodered-trigger-node-guide.html" style="background: #e6f3ff; padding: 15px; border-radius: 8px; text-decoration: none; color: #333; font-weight: bold; text-align: center; transition: transform 0.3s, box-shadow 0.3s; display: block;">
+                     Trigger（トリガー）ガイド
+                </a>
+                <a href="nodered-filter-node-guide.html" style="background: #e6f3ff; padding: 15px; border-radius: 8px; text-decoration: none; color: #333; font-weight: bold; text-align: center; transition: transform 0.3s, box-shadow 0.3s; display: block;">
+                     Filter（フィルター）ガイド
+                </a>
+                <a href="nodered-template-node-guide.html" style="background: #e6f3ff; padding: 15px; border-radius: 8px; text-decoration: none; color: #333; font-weight: bold; text-align: center; transition: transform 0.3s, box-shadow 0.3s; display: block;">
+                     Template（テンプレート）ガイド
+                </a>
+                <a href="nodered-split-node-guide.html" style="background: #e6f3ff; padding: 15px; border-radius: 8px; text-decoration: none; color: #333; font-weight: bold; text-align: center; transition: all 0.3s;">
+                     Split（分割）ガイド
+                </a>
+                <a href="nodered-join-node-guide.html" style="background: #e6f3ff; padding: 15px; border-radius: 8px; text-decoration: none; color: #333; font-weight: bold; text-align: center; transition: all 0.3s;">
+                     Join（結合）ガイド
+                </a>
+                <a href="nodered-sort-node-guide.html" style="background: #e6f3ff; padding: 15px; border-radius: 8px; text-decoration: none; color: #333; font-weight: bold; text-align: center; transition: all 0. 3s;">
+                     Sort（ソート）ガイド
+                </a>
+                <a href="nodered-batch-node-guide.html" style="background: #e6f3ff; padding: 15px; border-radius: 8px; text-decoration: none; color: #333; font-weight: bold; text-align: center; transition: all 0.3s;">
+                     Batch（バッチ）ガイド
+                </a>
+                <a href="nodered-exec-node-guide.html" style="background: #e6f3ff; padding: 15px; border-radius: 8px; text-decoration: none; color: #333; font-weight: bold; text-align: center; transition: all 0.3s;">
+                     Exec（外部実行）ガイド
+                </a>
+                <a href="nodered-csv-node-guide.html" style="background: #e6f3ff; padding: 15px; border-radius: 8px; text-decoration: none; color: #333; font-weight: bold; text-align: center; transition: all 0.3s;">
+                     Csv（CSV変換）ガイド
+                </a>
+            </div>
+        </div>
+        
+        <style>
+        .section a[href*="-guide.html"]:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        </style>
+    
+        <div style="text-align: center; margin-top: 40px; color: #666;">
+            <p>📚 参考リンク：</p>
+            <p style="font-size: 0.9em; margin-top: 10px;">
+                <a href="https://nodered.jp/" target="_blank" style="color: #8f0000;">Node-RED日本ユーザ会</a>
+            </p>
+        </div>
 </body>
 </html>
