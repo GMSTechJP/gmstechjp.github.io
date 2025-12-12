@@ -1,0 +1,1789 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript関数・メソッド 基礎ガイド - Node-RED Functionノードで使う</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        h1 {
+            color: #8f0000;
+            border-bottom: 3px solid #8f0000;
+            padding-bottom: 10px;
+        }
+        
+        h2 {
+            color: #c00000;
+            margin-top: 30px;
+            border-left: 5px solid #c00000;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #555;
+            margin-top: 25px;
+        }
+        
+        h4 {
+            color: #666;
+            margin-top: 20px;
+            padding-left: 10px;
+            border-left: 3px solid #ddd;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .node-example {
+            background-color: #2d3133;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            color: white;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .node {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 4px;
+            margin: 5px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .node-inject {
+            background-color: #3fadb5;
+            color: white;
+        }
+        
+        .node-function {
+            background-color: #e8a658;
+            color: white;
+        }
+        
+        .node-debug {
+            background-color: #87a48d;
+            color: white;
+        }
+        
+        .arrow {
+            color: #999;
+            font-size: 20px;
+            margin: 0 10px;
+        }
+        
+        .important {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .tip {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .warning {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .code-block {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            position: relative;
+            white-space: pre-wrap;
+        }
+        
+        .js-code {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            border: none;
+            padding: 15px;
+            padding-top: 40px;
+            border-radius: 5px;
+            position: relative;
+            white-space: pre;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+        }
+        
+        .copy-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 6px 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: 'Segoe UI', sans-serif;
+            transition: background-color 0.2s;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .copy-button:hover {
+            background-color: #0056b3;
+        }
+        
+        .copy-button.copied {
+            background-color: #28a745;
+        }
+        
+        .copy-button svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+        }
+        
+        .exercise {
+            background-color: #e8f5e9;
+            border: 2px solid #4caf50;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        
+        .exercise h3 {
+            color: #2e7d32;
+            margin-top: 0;
+        }
+        
+        .difficulty {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .difficulty-easy {
+            background-color: #4caf50;
+            color: white;
+        }
+        
+        .difficulty-medium {
+            background-color: #ff9800;
+            color: white;
+        }
+        
+        .difficulty-hard {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        ul, ol {
+            padding-left: 25px;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #e8a658;
+            color: white;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .flow-json {
+            background-color: #263238;
+            color: #aed581;
+            padding: 15px;
+            padding-top: 40px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        details {
+            margin: 15px 0;
+        }
+        
+        summary {
+            cursor: pointer;
+            padding: 10px;
+            background-color: #6c757d;
+            color: white;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        summary:hover {
+            background-color: #5a6268;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .feature-card {
+            background-color: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .feature-card h4 {
+            color: #d48c2e;
+            margin-top: 0;
+            border-left: none;
+            padding-left: 0;
+        }
+        
+        .method-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            margin-right: 5px;
+        }
+        
+        .badge-array {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .badge-string {
+            background-color: #17a2b8;
+            color: white;
+        }
+        
+        .badge-object {
+            background-color: #6f42c1;
+            color: white;
+        }
+        
+        .badge-number {
+            background-color: #fd7e14;
+            color: white;
+        }
+        
+        .badge-date {
+            background-color: #e83e8c;
+            color: white;
+        }
+        
+        .badge-var {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .result-box {
+            display: inline-block;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #155724;
+        }
+        
+        .category-header {
+            background-color: #343a40;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px 5px 0 0;
+            margin-bottom: 0;
+            font-weight: bold;
+        }
+        
+        .category-content {
+            border: 2px solid #343a40;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+            padding: 15px;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+        
+        .syntax-box {
+            background-color: #e9ecef;
+            border-left: 4px solid #6c757d;
+            padding: 10px 15px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .comparison-table td:first-child {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            background-color: #f8f9fa;
+        }
+        
+        .use-case {
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        
+        .use-case-title {
+            font-weight: bold;
+            color: #495057;
+            margin-bottom: 10px;
+        }
+        
+        .inline-code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛠️ JavaScript関数・メソッド 基礎ガイド</h1>
+        <p><strong>Node-RED Functionノードで使う必須テクニック</strong></p>
+        
+        <p>このガイドでは、Node-REDの基本ノードでは表現しにくく、<strong>Functionノード</strong>で記述することの多いJavaScriptの関数・メソッドを紹介します。</p>
+        
+        <div class="important">
+            <p><strong>📌 このガイドで学べること:</strong></p>
+            <ul>
+                <li>変数の定義方法（let, const, var）</li>
+                <li>配列操作メソッド（map, filter, find, reduce など）</li>
+                <li>文字列操作メソッド（split, replace, trim など）</li>
+                <li>オブジェクト操作（Object.keys, スプレッド構文など）</li>
+                <li>数値・日付の処理</li>
+                <li>便利な構文（テンプレートリテラル、三項演算子など）</li>
+            </ul>
+        </div>
+        
+        <h2>📦 1. 変数定義（let, const, var）</h2>
+        
+        <p>Functionノードでコードを書く際、最初に覚えるべきは<strong>変数の定義方法</strong>です。</p>
+        
+        <h3>🤔 なぜ変数が必要なの?</h3>
+        
+        <p>変数とは、<strong>データに名前を付けて一時的に保管しておく箱</strong>のようなものです。
+        料理に例えると、<strong>材料を入れておく「ラベル付きのボウル」</strong>と同じ役割を果たします。</p>
+        
+        <div class="important">
+            <p><strong>🍳 料理の下ごしらえに例えると:</strong></p>
+            <ul>
+                <li>🥕 <strong>材料を切る</strong> = データを受け取る（msg.payload）</li>
+                <li>🥣 <strong>ボウルに入れて名前を付ける</strong> = 変数に代入する（const temperature = 25）</li>
+                <li>📝 <strong>「人参のボウル」「玉ねぎのボウル」</strong> = 変数名で区別できる</li>
+                <li>👨‍🍳 <strong>レシピ通りに使う</strong> = 変数名で呼び出して計算や処理に使う</li>
+            </ul>
+            <p>もしボウル（変数）がなかったら、切った材料がバラバラになって「どれが何だっけ？」と混乱してしまいます。
+            変数を使うことで、<strong>データを整理して、後から名前で呼び出せる</strong>ようになります。</p>
+        </div>
+        
+        <div class="code-block">// 変数がないと...
+msg.payload.sensors[0].temperature * 9 / 5 + 32  // 何を計算してるか分かりにくい
+
+// 変数を使うと...
+const celsius = msg.payload.sensors[0].temperature;  // 摂氏温度を取り出す
+const fahrenheit = celsius * 9 / 5 + 32;             // 華氏に変換
+// 処理の意図が明確になる！</div>
+        
+        <div class="tip">
+            <p><strong>📌 変数を使うメリット:</strong></p>
+            <ul>
+                <li><strong>可読性</strong>: コードが読みやすくなる（何のデータか名前で分かる）</li>
+                <li><strong>再利用</strong>: 同じデータを何度も使える（毎回 msg.payload.xxx と書かなくて済む）</li>
+                <li><strong>デバッグ</strong>: 途中の値を確認しやすい</li>
+                <li><strong>保守性</strong>: 後から修正しやすい</li>
+            </ul>
+        </div>
+        
+        <h3>📝 変数定義の3つのキーワード</h3>
+        
+        <div class="category-header">📝 変数定義キーワード</div>
+        <div class="category-content">
+            <table class="comparison-table">
+                <tr>
+                    <th>キーワード</th>
+                    <th>再代入</th>
+                    <th>再宣言</th>
+                    <th>スコープ</th>
+                    <th>推奨度</th>
+                </tr>
+                <tr>
+                    <td>const</td>
+                    <td>❌ 不可</td>
+                    <td>❌ 不可</td>
+                    <td>ブロック</td>
+                    <td>⭐⭐⭐ 最推奨</td>
+                </tr>
+                <tr>
+                    <td>let</td>
+                    <td>✅ 可能</td>
+                    <td>❌ 不可</td>
+                    <td>ブロック</td>
+                    <td>⭐⭐ 推奨</td>
+                </tr>
+                <tr>
+                    <td>var</td>
+                    <td>✅ 可能</td>
+                    <td>✅ 可能</td>
+                    <td>関数</td>
+                    <td>⭐ 非推奨</td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="js-code" data-copy="true">// ===== const: 再代入不可（最も推奨）=====
+const PI = 3.14159;           // 定数
+const sensorId = "sensor_A";  // 変更しない値
+const config = { timeout: 5000, retry: 3 };  // オブジェクト
+
+// PI = 3.14;  // エラー！再代入できない
+
+// ただし、オブジェクトの中身は変更可能
+config.timeout = 10000;  // OK
+
+
+// ===== let: 再代入可能（値が変わる場合）=====
+let count = 0;
+count++;              // OK: 1になる
+
+let temperature = 25.5;
+temperature = 26.0;   // OK: 再代入可能
+
+let message;          // 後で代入することも可能
+message = "Hello";
+
+
+// ===== var: 古い書き方（使わない）=====
+// var は予期しない動作を引き起こすことがあるため非推奨
+var oldStyle = "避けるべき";</div>
+        
+        <div class="tip">
+            <p><strong>📌 実践的なルール:</strong></p>
+            <ul>
+                <li><strong>基本は const</strong> を使う（変更しない値がほとんど）</li>
+                <li><strong>値が変わる場合だけ let</strong> を使う（カウンター、ループ変数など）</li>
+                <li><strong>var は使わない</strong>（レガシーコードの読解時のみ理解が必要）</li>
+            </ul>
+        </div>
+        
+        <h3>🔧 Node-REDでの変数定義例</h3>
+        
+        <div class="js-code" data-copy="true">// Functionノードでの典型的な変数定義
+
+// 入力データの取得（const推奨：通常変更しない）
+const payload = msg.payload;
+const topic = msg.topic;
+const sensors = msg.payload.sensors;  // 配列
+
+// 設定値（const推奨）
+const THRESHOLD = 30;
+const MAX_RETRY = 3;
+
+// 計算結果を格納（let：値が変わる場合）
+let total = 0;
+let status = "unknown";
+
+// ループ処理
+for (let i = 0; i < sensors.length; i++) {
+    total += sensors[i].value;
+}
+
+// 条件分岐で値が変わる
+if (total > THRESHOLD) {
+    status = "warning";
+} else {
+    status = "normal";
+}
+
+msg.payload = { total, status };
+return msg;</div>
+        
+        <h2>📚 2. 配列操作メソッド</h2>
+        
+        <p>IoTデータ処理では、センサーデータの配列を操作することが非常に多いです。
+        Node-REDの基本ノードでは難しい、柔軟な配列処理をFunctionノードで実現できます。</p>
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h4><span class="method-badge badge-array">map()</span></h4>
+                <p>各要素を変換して新しい配列を作成</p>
+                <div class="code-block">[1,2,3].map(x => x * 2)
+→ [2, 4, 6]</div>
+            </div>
+            
+            <div class="feature-card">
+                <h4><span class="method-badge badge-array">filter()</span></h4>
+                <p>条件に合う要素だけを抽出</p>
+                <div class="code-block">[1,2,3,4].filter(x => x > 2)
+→ [3, 4]</div>
+            </div>
+            
+            <div class="feature-card">
+                <h4><span class="method-badge badge-array">find()</span></h4>
+                <p>条件に合う最初の要素を取得</p>
+                <div class="code-block">[1,2,3].find(x => x > 1)
+→ 2</div>
+            </div>
+            
+            <div class="feature-card">
+                <h4><span class="method-badge badge-array">reduce()</span></h4>
+                <p>配列を1つの値に集約</p>
+                <div class="code-block">[1,2,3].reduce((a,b) => a+b, 0)
+→ 6</div>
+            </div>
+        </div>
+        
+        <h3>🎯 map() - 配列の各要素を変換</h3>
+        
+        <div class="syntax-box">
+            配列.map(要素 => 変換処理)
+        </div>
+        
+        <div class="js-code" data-copy="true">// map(): 各要素を変換した新しい配列を作成
+
+// 例1: 数値を2倍にする
+const numbers = [1, 2, 3, 4, 5];
+const doubled = numbers.map(n => n * 2);
+// 結果: [2, 4, 6, 8, 10]
+
+
+// 例2: センサーデータから温度だけを抽出
+const sensors = [
+    { id: "A", temperature: 25, humidity: 60 },
+    { id: "B", temperature: 28, humidity: 55 },
+    { id: "C", temperature: 22, humidity: 70 }
+];
+
+const temperatures = sensors.map(s => s.temperature);
+// 結果: [25, 28, 22]
+
+
+// 例3: データ形式を変換
+const converted = sensors.map(s => ({
+    name: s.id,
+    temp: s.temperature,
+    status: s.temperature > 25 ? "高温" : "正常"
+}));
+// 結果: [{name:"A", temp:25, status:"正常"}, ...]
+
+
+// 例4: インデックスも使用
+const withIndex = sensors.map((s, index) => ({
+    ...s,
+    order: index + 1
+}));
+// 結果: [{id:"A", temperature:25, humidity:60, order:1}, ...]</div>
+        
+        <h3>🎯 filter() - 条件に合う要素を抽出</h3>
+        
+        <div class="syntax-box">
+            配列.filter(要素 => 条件)
+        </div>
+        
+        <div class="js-code" data-copy="true">// filter(): 条件を満たす要素だけの配列を作成
+
+// 例1: 偶数だけを抽出
+const numbers = [1, 2, 3, 4, 5, 6];
+const evens = numbers.filter(n => n % 2 === 0);
+// 結果: [2, 4, 6]
+
+
+// 例2: 高温センサーだけを抽出
+const sensors = [
+    { id: "A", temperature: 25 },
+    { id: "B", temperature: 35 },
+    { id: "C", temperature: 28 },
+    { id: "D", temperature: 32 }
+];
+
+const hotSensors = sensors.filter(s => s.temperature > 30);
+// 結果: [{id:"B", temperature:35}, {id:"D", temperature:32}]
+
+
+// 例3: 有効なデータだけを抽出（null, undefinedを除外）
+const data = [10, null, 25, undefined, 30, 0];
+const validData = data.filter(d => d !== null && d !== undefined);
+// 結果: [10, 25, 30, 0]
+
+// より簡潔に（ただし0も除外されるので注意）
+const nonEmpty = data.filter(d => d);
+// 結果: [10, 25, 30]  ※0も除外される
+
+
+// 例4: 複数条件
+const alerts = sensors.filter(s => 
+    s.temperature > 25 && s.temperature < 35
+);
+// 結果: [{id:"C", temperature:28}, {id:"D", temperature:32}]</div>
+        
+        <h3>🎯 find() / findIndex() - 要素を検索</h3>
+        
+        <div class="syntax-box">
+            配列.find(要素 => 条件)　　　// 要素を返す
+            配列.findIndex(要素 => 条件)  // インデックスを返す
+        </div>
+        
+        <div class="js-code" data-copy="true">// find(): 条件に合う最初の要素を取得（1つだけ）
+
+const sensors = [
+    { id: "A", temperature: 25 },
+    { id: "B", temperature: 35 },
+    { id: "C", temperature: 28 }
+];
+
+// 例1: IDで検索
+const sensorB = sensors.find(s => s.id === "B");
+// 結果: {id: "B", temperature: 35}
+
+// 例2: 条件で検索（最初にマッチしたもの）
+const hotSensor = sensors.find(s => s.temperature > 30);
+// 結果: {id: "B", temperature: 35}
+
+// 例3: 見つからない場合
+const notFound = sensors.find(s => s.id === "Z");
+// 結果: undefined
+
+
+// findIndex(): インデックス（位置）を取得
+const index = sensors.findIndex(s => s.id === "B");
+// 結果: 1
+
+const notFoundIndex = sensors.findIndex(s => s.id === "Z");
+// 結果: -1（見つからない場合）</div>
+        
+        <h3>🎯 reduce() - 配列を集約</h3>
+        
+        <div class="syntax-box">
+            配列.reduce((累積値, 現在値) => 処理, 初期値)
+        </div>
+        
+        <div class="js-code" data-copy="true">// reduce(): 配列を1つの値にまとめる
+
+// 例1: 合計を計算
+const numbers = [10, 20, 30, 40];
+const sum = numbers.reduce((total, n) => total + n, 0);
+// 結果: 100
+
+// 処理の流れ:
+// total=0,  n=10 → 0+10=10
+// total=10, n=20 → 10+20=30
+// total=30, n=30 → 30+30=60
+// total=60, n=40 → 60+40=100
+
+
+// 例2: 最大値を求める
+const max = numbers.reduce((a, b) => a > b ? a : b);
+// 結果: 40
+
+
+// 例3: センサーデータの平均温度
+const sensors = [
+    { id: "A", temperature: 25 },
+    { id: "B", temperature: 30 },
+    { id: "C", temperature: 28 }
+];
+
+const avgTemp = sensors.reduce((sum, s) => sum + s.temperature, 0) 
+                / sensors.length;
+// 結果: 27.666...
+
+
+// 例4: オブジェクトに変換（IDをキーにした辞書）
+const sensorMap = sensors.reduce((obj, s) => {
+    obj[s.id] = s.temperature;
+    return obj;
+}, {});
+// 結果: { A: 25, B: 30, C: 28 }
+
+
+// 例5: グループ化
+const data = [
+    { type: "温度", value: 25 },
+    { type: "湿度", value: 60 },
+    { type: "温度", value: 28 },
+    { type: "湿度", value: 55 }
+];
+
+const grouped = data.reduce((groups, item) => {
+    const key = item.type;
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(item.value);
+    return groups;
+}, {});
+// 結果: { "温度": [25, 28], "湿度": [60, 55] }</div>
+        
+        <h3>🎯 その他の配列メソッド</h3>
+        
+        <div class="js-code" data-copy="true">// ===== some() / every(): 条件チェック =====
+const numbers = [1, 2, 3, 4, 5];
+
+// some(): 1つでも条件を満たせばtrue
+const hasLarge = numbers.some(n => n > 4);   // true
+const hasNeg = numbers.some(n => n < 0);     // false
+
+// every(): 全て条件を満たせばtrue
+const allPositive = numbers.every(n => n > 0);  // true
+const allLarge = numbers.every(n => n > 3);     // false
+
+
+// ===== includes(): 要素の存在確認 =====
+const fruits = ["apple", "orange", "banana"];
+fruits.includes("orange");  // true
+fruits.includes("grape");   // false
+
+
+// ===== indexOf(): インデックス取得 =====
+fruits.indexOf("orange");   // 1
+fruits.indexOf("grape");    // -1（見つからない）
+
+
+// ===== sort(): 並び替え =====
+const nums = [3, 1, 4, 1, 5];
+
+// 昇順（数値の場合は比較関数が必要）
+const asc = [...nums].sort((a, b) => a - b);  // [1, 1, 3, 4, 5]
+
+// 降順
+const desc = [...nums].sort((a, b) => b - a); // [5, 4, 3, 1, 1]
+
+// オブジェクト配列のソート
+const sensors = [
+    { id: "B", temp: 30 },
+    { id: "A", temp: 25 },
+    { id: "C", temp: 28 }
+];
+const sorted = [...sensors].sort((a, b) => a.temp - b.temp);
+// 温度の昇順: [{id:"A",...}, {id:"C",...}, {id:"B",...}]
+
+
+// ===== slice(): 部分配列を取得（元配列は変更しない）=====
+const arr = [0, 1, 2, 3, 4];
+arr.slice(1, 3);    // [1, 2]  インデックス1から3の手前まで
+arr.slice(2);       // [2, 3, 4]  インデックス2から最後まで
+arr.slice(-2);      // [3, 4]  最後から2つ
+
+
+// ===== forEach(): 各要素に処理（戻り値なし）=====
+const values = [1, 2, 3];
+values.forEach((v, i) => {
+    node.warn(`インデックス${i}: ${v}`);
+});
+
+
+// ===== join(): 配列を文字列に結合 =====
+const words = ["Hello", "World"];
+words.join(" ");    // "Hello World"
+words.join(", ");   // "Hello, World"
+words.join("");     // "HelloWorld"</div>
+        
+        <div class="warning">
+            <p><strong>⚠️ sort() の注意点:</strong></p>
+            <p><code>sort()</code> は<strong>元の配列を変更</strong>します。元の配列を残したい場合は、先にコピー（<code>[...配列]</code> や <code>slice()</code>）してからソートしてください。</p>
+        </div>
+        
+        <h2>📝 3. 文字列操作メソッド</h2>
+        
+        <p>センサーID、ログメッセージ、ファイル名など、文字列処理もよく使います。</p>
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h4><span class="method-badge badge-string">split()</span></h4>
+                <p>文字列を分割して配列に</p>
+                <div class="code-block">"a,b,c".split(",")
+→ ["a", "b", "c"]</div>
+            </div>
+            
+            <div class="feature-card">
+                <h4><span class="method-badge badge-string">replace()</span></h4>
+                <p>文字列を置換</p>
+                <div class="code-block">"Hello".replace("l","L")
+→ "HeLlo"</div>
+            </div>
+            
+            <div class="feature-card">
+                <h4><span class="method-badge badge-string">trim()</span></h4>
+                <p>前後の空白を除去</p>
+                <div class="code-block">"  abc  ".trim()
+→ "abc"</div>
+            </div>
+            
+            <div class="feature-card">
+                <h4><span class="method-badge badge-string">substring()</span></h4>
+                <p>部分文字列を取得</p>
+                <div class="code-block">"Hello".substring(0,2)
+→ "He"</div>
+            </div>
+        </div>
+        
+        <div class="js-code" data-copy="true">// ===== split(): 文字列を配列に分割 =====
+const csv = "apple,orange,banana";
+const fruits = csv.split(",");
+// 結果: ["apple", "orange", "banana"]
+
+const path = "/home/user/data/sensor.json";
+const parts = path.split("/");
+// 結果: ["", "home", "user", "data", "sensor.json"]
+
+const filename = parts[parts.length - 1];  // "sensor.json"
+
+
+// ===== replace() / replaceAll(): 置換 =====
+const text = "Hello World";
+
+// 最初の一致だけ置換
+text.replace("o", "0");       // "Hell0 World"
+
+// 全て置換（正規表現を使用）
+text.replace(/o/g, "0");      // "Hell0 W0rld"
+
+// replaceAll（ES2021）
+text.replaceAll("o", "0");    // "Hell0 W0rld"
+
+// 正規表現でパターン置換
+const log = "Error: 404 Not Found";
+log.replace(/\d+/, "XXX");    // "Error: XXX Not Found"
+
+
+// ===== trim() / trimStart() / trimEnd(): 空白除去 =====
+const padded = "  Hello World  ";
+padded.trim();        // "Hello World"
+padded.trimStart();   // "Hello World  "
+padded.trimEnd();     // "  Hello World"
+
+
+// ===== substring() / slice(): 部分文字列 =====
+const str = "Hello World";
+
+str.substring(0, 5);  // "Hello"
+str.substring(6);     // "World"
+
+str.slice(0, 5);      // "Hello"
+str.slice(-5);        // "World"（後ろから5文字）
+
+
+// ===== toLowerCase() / toUpperCase(): 大文字小文字 =====
+"Hello".toLowerCase();  // "hello"
+"Hello".toUpperCase();  // "HELLO"
+
+
+// ===== includes() / startsWith() / endsWith(): 検索 =====
+const message = "Error: Connection failed";
+
+message.includes("Error");      // true
+message.startsWith("Error");    // true
+message.endsWith("failed");     // true
+message.startsWith("Warning");  // false
+
+
+// ===== padStart() / padEnd(): パディング =====
+const num = "7";
+num.padStart(3, "0");   // "007"
+num.padEnd(3, "0");     // "700"
+
+// 日時のフォーマットに便利
+const hour = 9;
+String(hour).padStart(2, "0");  // "09"
+
+
+// ===== repeat(): 繰り返し =====
+"ab".repeat(3);  // "ababab"
+"-".repeat(20);  // "--------------------"</div>
+        
+        <h2>🗂️ 4. オブジェクト操作</h2>
+        
+        <p>Node-REDでは <code>msg</code> オブジェクトを頻繁に操作します。オブジェクトの操作方法を覚えましょう。</p>
+        
+        <div class="js-code" data-copy="true">// ===== Object.keys() / values() / entries() =====
+const sensor = {
+    id: "A",
+    temperature: 25,
+    humidity: 60
+};
+
+// キー一覧
+Object.keys(sensor);     // ["id", "temperature", "humidity"]
+
+// 値一覧
+Object.values(sensor);   // ["A", 25, 60]
+
+// キーと値のペア
+Object.entries(sensor);  // [["id","A"], ["temperature",25], ["humidity",60]]
+
+// 活用例: オブジェクトをループ処理
+Object.entries(sensor).forEach(([key, value]) => {
+    node.warn(`${key}: ${value}`);
+});
+
+
+// ===== スプレッド構文 {...obj}: オブジェクトのコピー・マージ =====
+
+// シャローコピー（浅いコピー）
+const copy = { ...sensor };
+
+// プロパティを追加
+const extended = { ...sensor, status: "active" };
+// {id:"A", temperature:25, humidity:60, status:"active"}
+
+// プロパティを上書き
+const updated = { ...sensor, temperature: 30 };
+// {id:"A", temperature:30, humidity:60}
+
+// 複数オブジェクトをマージ
+const defaults = { timeout: 5000, retry: 3 };
+const custom = { timeout: 10000 };
+const config = { ...defaults, ...custom };
+// {timeout: 10000, retry: 3}  ← 後から書いた方が優先
+
+
+// ===== 分割代入: オブジェクトから値を取り出す =====
+const data = { name: "センサーA", value: 25, unit: "℃" };
+
+// 従来の書き方
+const name1 = data.name;
+const value1 = data.value;
+
+// 分割代入（簡潔）
+const { name, value, unit } = data;
+// name="センサーA", value=25, unit="℃"
+
+// 別名を付ける
+const { name: sensorName, value: temp } = data;
+// sensorName="センサーA", temp=25
+
+// デフォルト値
+const { name: n, status = "unknown" } = data;
+// n="センサーA", status="unknown"（dataにstatusがないため）
+
+
+// ===== msg オブジェクトでの活用例 =====
+// 入力
+// msg = { payload: { temp: 25, humid: 60 }, topic: "sensor" }
+
+// 分割代入で取り出し
+const { payload, topic } = msg;
+const { temp, humid } = payload;
+
+// 新しいmsgを作成（元のプロパティを維持しつつ更新）
+msg = {
+    ...msg,
+    payload: {
+        ...msg.payload,
+        status: temp > 30 ? "alert" : "normal"
+    }
+};
+
+
+// ===== オプショナルチェーン (?.) : 安全なアクセス =====
+const response = {
+    data: {
+        sensors: [{ id: "A", value: 25 }]
+    }
+};
+
+// 従来（エラーになる可能性）
+// const val = response.data.sensors[0].value;
+
+// 安全なアクセス
+const val = response?.data?.sensors?.[0]?.value;  // 25
+
+// 途中がundefinedでもエラーにならない
+const missing = response?.unknown?.property;  // undefined
+
+
+// ===== Null合体演算子 (??) : デフォルト値 =====
+const input = null;
+const value2 = input ?? "デフォルト";  // "デフォルト"
+
+// || との違い
+const zero = 0;
+zero || 10;    // 10（0はfalsyなので）
+zero ?? 10;    // 0（nullとundefinedのみ置換）
+
+// 実用例
+const timeout = msg.payload.timeout ?? 5000;
+const name2 = msg.payload.name ?? "名称未設定";</div>
+        
+        <h2>🔢 5. 数値操作</h2>
+        
+        <div class="js-code" data-copy="true">// ===== Math オブジェクト =====
+
+// 丸め処理
+Math.round(4.5);    // 5（四捨五入）
+Math.floor(4.9);    // 4（切り捨て）
+Math.ceil(4.1);     // 5（切り上げ）
+Math.trunc(4.9);    // 4（小数部を除去）
+
+// 最大・最小
+Math.max(1, 5, 3);          // 5
+Math.min(1, 5, 3);          // 1
+Math.max(...[1, 5, 3]);     // 配列から最大値
+
+// 絶対値
+Math.abs(-5);       // 5
+
+// べき乗・平方根
+Math.pow(2, 3);     // 8（2の3乗）
+Math.sqrt(16);      // 4（平方根）
+
+// 乱数
+Math.random();              // 0以上1未満の乱数
+Math.floor(Math.random() * 100);  // 0〜99の整数
+
+
+// ===== 数値変換 =====
+Number("123");       // 123
+Number("123.45");    // 123.45
+Number("abc");       // NaN
+
+parseInt("123");     // 123
+parseInt("123.45");  // 123（整数部分のみ）
+parseInt("123abc");  // 123（数値部分まで）
+
+parseFloat("123.45");  // 123.45
+
+
+// ===== 小数点以下の桁数制御 =====
+const num = 3.14159;
+
+num.toFixed(2);      // "3.14"（文字列を返す）
+Number(num.toFixed(2));  // 3.14（数値に変換）
+
+// 注意: toFixedは四捨五入する
+(2.345).toFixed(2);  // "2.35"
+(2.344).toFixed(2);  // "2.34"
+
+
+// ===== NaN / Infinity のチェック =====
+isNaN(NaN);          // true
+isNaN("abc");        // true（数値に変換できない）
+isNaN(123);          // false
+
+Number.isNaN(NaN);   // true（より厳密）
+Number.isNaN("abc"); // false
+
+isFinite(100);       // true
+isFinite(Infinity);  // false
+isFinite(NaN);       // false</div>
+        
+        <h2>📅 6. 日付操作</h2>
+        
+        <div class="js-code" data-copy="true">// ===== Date オブジェクト =====
+
+// 現在日時
+const now = new Date();
+
+// 特定の日時を作成
+const date1 = new Date("2024-01-15");
+const date2 = new Date("2024-01-15T10:30:00");
+const date3 = new Date(2024, 0, 15, 10, 30, 0);  // 月は0始まり
+
+
+// ===== 日時の取得 =====
+now.getFullYear();   // 2024
+now.getMonth();      // 0〜11（0=1月）
+now.getDate();       // 1〜31（日）
+now.getDay();        // 0〜6（0=日曜）
+now.getHours();      // 0〜23
+now.getMinutes();    // 0〜59
+now.getSeconds();    // 0〜59
+now.getMilliseconds(); // 0〜999
+now.getTime();       // UNIXタイムスタンプ（ミリ秒）
+
+
+// ===== 日時のフォーマット =====
+
+// ISO形式
+now.toISOString();   // "2024-01-15T01:30:00.000Z"
+
+// ローカル形式
+now.toLocaleString("ja-JP");  // "2024/1/15 10:30:00"
+now.toLocaleDateString("ja-JP");  // "2024/1/15"
+now.toLocaleTimeString("ja-JP");  // "10:30:00"
+
+// カスタムフォーマット
+const year = now.getFullYear();
+const month = String(now.getMonth() + 1).padStart(2, "0");
+const day = String(now.getDate()).padStart(2, "0");
+const hours = String(now.getHours()).padStart(2, "0");
+const minutes = String(now.getMinutes()).padStart(2, "0");
+
+const formatted = `${year}-${month}-${day} ${hours}:${minutes}`;
+// "2024-01-15 10:30"
+
+
+// ===== タイムスタンプ =====
+
+// 現在のタイムスタンプ（ミリ秒）
+Date.now();  // 1705285800000
+
+// 秒に変換
+Math.floor(Date.now() / 1000);
+
+// タイムスタンプから日時を作成
+const fromTimestamp = new Date(1705285800000);
+
+
+// ===== 日時の計算 =====
+
+// 1時間後
+const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
+
+// 1日後
+const oneDayLater = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+
+// 2つの日時の差（ミリ秒）
+const diff = date2.getTime() - date1.getTime();
+const diffHours = diff / (1000 * 60 * 60);  // 時間に変換
+const diffDays = diff / (1000 * 60 * 60 * 24);  // 日数に変換</div>
+        
+        <h2>✨ 7. 便利な構文</h2>
+        
+        <h3>🔤 テンプレートリテラル</h3>
+        
+        <div class="js-code" data-copy="true">// テンプレートリテラル: バッククォート(`)で囲む
+
+const name = "センサーA";
+const temp = 25.5;
+
+// 従来の文字列連結
+const msg1 = "温度: " + name + " = " + temp + "℃";
+
+// テンプレートリテラル（推奨）
+const msg2 = `温度: ${name} = ${temp}℃`;
+
+// 式も埋め込める
+const status = `状態: ${temp > 30 ? "高温" : "正常"}`;
+
+// 複数行も簡単
+const html = `
+<div>
+    <h1>${name}</h1>
+    <p>温度: ${temp}℃</p>
+</div>
+`;
+
+
+// Node-REDでの活用例
+msg.payload = `
+センサーID: ${msg.topic}
+測定値: ${msg.payload.value}
+時刻: ${new Date().toLocaleString("ja-JP")}
+`.trim();</div>
+        
+        <h3>❓ 三項演算子</h3>
+        
+        <div class="js-code" data-copy="true">// 三項演算子: 条件 ? 真の値 : 偽の値
+
+const temp = 32;
+
+// if文で書く場合
+let status1;
+if (temp > 30) {
+    status1 = "高温";
+} else {
+    status1 = "正常";
+}
+
+// 三項演算子で書く場合（1行で済む）
+const status2 = temp > 30 ? "高温" : "正常";
+
+
+// ネスト（入れ子）も可能（やりすぎ注意）
+const level = temp > 35 ? "危険" 
+            : temp > 30 ? "警告" 
+            : temp > 20 ? "正常" 
+            : "低温";
+
+
+// 実用例: デフォルト値
+const timeout = msg.payload.timeout ? msg.payload.timeout : 5000;
+
+// より簡潔に（Null合体演算子）
+const timeout2 = msg.payload.timeout ?? 5000;</div>
+        
+        <h3>🔀 条件分岐の短縮形</h3>
+        
+        <div class="js-code" data-copy="true">// 短絡評価（ショートサーキット）
+
+// && : 左がtrueなら右を返す
+const isActive = true;
+isActive && console.log("アクティブです");  // 実行される
+
+// || : 左がfalsyなら右を返す（デフォルト値に使える）
+const name = msg.payload.name || "名称未設定";
+
+// ?? : 左がnull/undefinedなら右を返す（より安全）
+const count = msg.payload.count ?? 0;  // 0もそのまま使われる
+
+
+// 早期リターン
+function processData(data) {
+    // データがなければ早期終了
+    if (!data) return null;
+    
+    // データがあれば処理を続行
+    return data.map(d => d * 2);
+}
+
+
+// Node-REDでの早期リターン
+if (!msg.payload) {
+    return null;  // 処理を中断（次のノードに送らない）
+}
+
+// ここから通常処理
+msg.payload = msg.payload.toUpperCase();
+return msg;</div>
+        
+        <h3>🛡️ エラーハンドリング（try-catch）</h3>
+        
+        <div class="js-code" data-copy="true">// try-catch: エラーを捕捉して処理
+
+try {
+    // エラーが発生する可能性のある処理
+    const data = JSON.parse(msg.payload);
+    msg.payload = data;
+} catch (error) {
+    // エラー発生時の処理
+    node.error("JSONパースエラー: " + error.message, msg);
+    msg.payload = { error: error.message };
+}
+
+return msg;
+
+
+// 実用例: 安全なプロパティアクセス
+let value;
+try {
+    value = msg.payload.data.sensors[0].value;
+} catch (e) {
+    value = null;  // アクセスできなければnull
+}
+
+// または、オプショナルチェーンを使う（よりシンプル）
+const value2 = msg?.payload?.data?.sensors?.[0]?.value ?? null;</div>
+        
+        <h2>🎯 8. Node-RED実践例</h2>
+        
+        <h3>📊 センサーデータの集計</h3>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">Function</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <div class="js-code" data-copy="true">// センサーデータの集計処理
+
+const sensors = msg.payload;
+// 入力例: [
+//   { id: "A", temperature: 25, humidity: 60 },
+//   { id: "B", temperature: 32, humidity: 55 },
+//   { id: "C", temperature: 28, humidity: 70 }
+// ]
+
+// 温度の統計を計算
+const temps = sensors.map(s => s.temperature);
+const avgTemp = temps.reduce((a, b) => a + b, 0) / temps.length;
+const maxTemp = Math.max(...temps);
+const minTemp = Math.min(...temps);
+
+// 高温センサーを抽出
+const hotSensors = sensors
+    .filter(s => s.temperature > 30)
+    .map(s => s.id);
+
+// 結果を整形
+msg.payload = {
+    timestamp: new Date().toISOString(),
+    statistics: {
+        average: Number(avgTemp.toFixed(1)),
+        max: maxTemp,
+        min: minTemp
+    },
+    alerts: hotSensors,
+    alertCount: hotSensors.length
+};
+
+return msg;</div>
+        
+        <h3>📝 ログメッセージの整形</h3>
+        
+        <div class="js-code" data-copy="true">// ログメッセージの整形
+
+const { topic, payload } = msg;
+const timestamp = new Date().toLocaleString("ja-JP");
+
+// センサーIDを抽出（例: "sensors/floor1/temp" → "floor1"）
+const parts = topic.split("/");
+const location = parts[1] || "unknown";
+
+// ステータスを判定
+const status = payload > 30 ? "ALERT" : "OK";
+
+// 整形されたログメッセージを作成
+msg.payload = `[${timestamp}] [${status}] ${location}: ${payload}℃`;
+
+// または構造化ログ
+msg.payload = {
+    timestamp,
+    level: status === "ALERT" ? "warn" : "info",
+    location,
+    value: payload,
+    message: `${location}の温度は${payload}℃です`
+};
+
+return msg;</div>
+        
+        <h2>🏋️ 9. 実践演習</h2>
+        
+        <div class="exercise">
+            <h3>演習1: 配列のフィルタリングと変換<span class="difficulty difficulty-easy">初級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>センサーデータ配列から、温度30度以上のセンサーIDだけを抽出してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>入力: [{id:"A",temp:25}, {id:"B",temp:35}, {id:"C",temp:32}, {id:"D",temp:28}]</li>
+                <li>出力: ["B", "C"]</li>
+                <li>filter() と map() を使用</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>メソッドチェーンで書くと簡潔です:</p>
+                <div class="code-block">配列
+    .filter(条件)
+    .map(変換)</div>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "ex1_inject",
+        "type": "inject",
+        "name": "センサーデータ",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "topic": "",
+        "payload": "[{\"id\":\"A\",\"temp\":25},{\"id\":\"B\",\"temp\":35},{\"id\":\"C\",\"temp\":32},{\"id\":\"D\",\"temp\":28}]",
+        "payloadType": "json",
+        "x": 150,
+        "y": 100,
+        "wires": [["ex1_function"]]
+    },
+    {
+        "id": "ex1_function",
+        "type": "function",
+        "name": "高温センサー抽出",
+        "func": "const sensors = msg.payload;\n\n// filter: 30度以上を抽出\n// map: IDだけを取り出す\nconst hotSensorIds = sensors\n    .filter(s => s.temp >= 30)\n    .map(s => s.id);\n\nmsg.payload = hotSensorIds;\nreturn msg;",
+        "outputs": 1,
+        "x": 380,
+        "y": 100,
+        "wires": [["ex1_debug"]]
+    },
+    {
+        "id": "ex1_debug",
+        "type": "debug",
+        "name": "結果",
+        "active": true,
+        "tosidebar": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 570,
+        "y": 100,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習2: 文字列の解析<span class="difficulty difficulty-medium">中級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>MQTTトピック文字列を解析して、構造化データに変換してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>入力トピック: "factory/floor2/machine_A/temperature"</li>
+                <li>出力: {factory: "factory", floor: "floor2", machine: "machine_A", sensor: "temperature"}</li>
+                <li>split() と 分割代入を使用</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>配列の分割代入を使います:</p>
+                <div class="code-block">const [a, b, c, d] = "a/b/c/d".split("/");</div>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "ex2_inject",
+        "type": "inject",
+        "name": "MQTTトピック",
+        "props": [{"p": "topic"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "topic": "factory/floor2/machine_A/temperature",
+        "x": 150,
+        "y": 100,
+        "wires": [["ex2_function"]]
+    },
+    {
+        "id": "ex2_function",
+        "type": "function",
+        "name": "トピック解析",
+        "func": "const topic = msg.topic;\n\n// スラッシュで分割\nconst parts = topic.split(\"/\");\n\n// 分割代入で各部分を取得\nconst [factory, floor, machine, sensor] = parts;\n\nmsg.payload = {\n    factory,\n    floor,\n    machine,\n    sensor\n};\n\nreturn msg;",
+        "outputs": 1,
+        "x": 360,
+        "y": 100,
+        "wires": [["ex2_debug"]]
+    },
+    {
+        "id": "ex2_debug",
+        "type": "debug",
+        "name": "結果",
+        "active": true,
+        "tosidebar": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 530,
+        "y": 100,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習3: データの集約<span class="difficulty difficulty-medium">中級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>センサーデータの配列から、平均・最大・最小値を計算してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>入力: [23, 28, 31, 25, 29, 27]</li>
+                <li>出力: {average: 27.2, max: 31, min: 23, count: 6}</li>
+                <li>reduce(), Math.max(), Math.min() を使用</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <div class="code-block">// 合計
+const sum = arr.reduce((a, b) => a + b, 0);
+
+// 配列から最大値
+Math.max(...arr);</div>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "ex3_inject",
+        "type": "inject",
+        "name": "温度データ",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "topic": "",
+        "payload": "[23, 28, 31, 25, 29, 27]",
+        "payloadType": "json",
+        "x": 140,
+        "y": 100,
+        "wires": [["ex3_function"]]
+    },
+    {
+        "id": "ex3_function",
+        "type": "function",
+        "name": "統計計算",
+        "func": "const values = msg.payload;\n\n// 合計を計算\nconst sum = values.reduce((a, b) => a + b, 0);\n\n// 統計値を計算\nconst stats = {\n    average: Number((sum / values.length).toFixed(1)),\n    max: Math.max(...values),\n    min: Math.min(...values),\n    count: values.length\n};\n\nmsg.payload = stats;\nreturn msg;",
+        "outputs": 1,
+        "x": 340,
+        "y": 100,
+        "wires": [["ex3_debug"]]
+    },
+    {
+        "id": "ex3_debug",
+        "type": "debug",
+        "name": "結果",
+        "active": true,
+        "tosidebar": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 510,
+        "y": 100,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習4: データのグループ化<span class="difficulty difficulty-hard">上級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>センサーデータをタイプ別にグループ化し、各タイプの平均値を計算してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>入力: [{type:"温度",value:25}, {type:"湿度",value:60}, {type:"温度",value:28}, {type:"湿度",value:55}]</li>
+                <li>出力: {温度: {values:[25,28], average:26.5}, 湿度: {values:[60,55], average:57.5}}</li>
+                <li>reduce() を使用してグループ化</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <div class="code-block">// reduce でグループ化
+const grouped = data.reduce((acc, item) => {
+    const key = item.type;
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(item.value);
+    return acc;
+}, {});</div>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "ex4_inject",
+        "type": "inject",
+        "name": "センサーデータ",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "topic": "",
+        "payload": "[{\"type\":\"温度\",\"value\":25},{\"type\":\"湿度\",\"value\":60},{\"type\":\"温度\",\"value\":28},{\"type\":\"湿度\",\"value\":55}]",
+        "payloadType": "json",
+        "x": 150,
+        "y": 100,
+        "wires": [["ex4_function"]]
+    },
+    {
+        "id": "ex4_function",
+        "type": "function",
+        "name": "グループ化と集計",
+        "func": "const data = msg.payload;\n\n// タイプ別にグループ化\nconst grouped = data.reduce((acc, item) => {\n    const key = item.type;\n    if (!acc[key]) {\n        acc[key] = { values: [] };\n    }\n    acc[key].values.push(item.value);\n    return acc;\n}, {});\n\n// 各グループの平均を計算\nObject.keys(grouped).forEach(key => {\n    const values = grouped[key].values;\n    const sum = values.reduce((a, b) => a + b, 0);\n    grouped[key].average = sum / values.length;\n});\n\nmsg.payload = grouped;\nreturn msg;",
+        "outputs": 1,
+        "x": 380,
+        "y": 100,
+        "wires": [["ex4_debug"]]
+    },
+    {
+        "id": "ex4_debug",
+        "type": "debug",
+        "name": "結果",
+        "active": true,
+        "tosidebar": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 570,
+        "y": 100,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+        
+        <h2>🎓 10. まとめ</h2>
+        
+        <div class="important">
+            <h3>重要ポイント</h3>
+            <ul>
+                <li>✅ <strong>変数定義</strong>: 基本は <code>const</code>、変更する場合のみ <code>let</code></li>
+                <li>✅ <strong>配列操作</strong>: <code>map</code>, <code>filter</code>, <code>find</code>, <code>reduce</code> を使いこなす</li>
+                <li>✅ <strong>文字列操作</strong>: <code>split</code>, <code>replace</code>, <code>trim</code> で文字列を加工</li>
+                <li>✅ <strong>オブジェクト</strong>: スプレッド構文 <code>{...obj}</code> と分割代入で効率的に操作</li>
+                <li>✅ <strong>安全なアクセス</strong>: <code>?.</code>（オプショナルチェーン）と <code>??</code>（Null合体）</li>
+                <li>✅ <strong>テンプレートリテラル</strong>: バッククォートで文字列を簡潔に組み立て</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <h3>⚠️ よくある間違い</h3>
+            <ul>
+                <li><strong>sort()で元配列を壊す</strong>: <code>[...arr].sort()</code> でコピーしてからソート</li>
+                <li><strong>map()の戻り値を忘れる</strong>: アロー関数で <code>{}</code> を使う場合は <code>return</code> が必要</li>
+                <li><strong>getMonth()が0始まり</strong>: 1月は0、12月は11</li>
+                <li><strong>toFixed()は文字列を返す</strong>: 数値が必要なら <code>Number()</code> で変換</li>
+                <li><strong>||でデフォルト値</strong>: 0や空文字もfalsyなので <code>??</code> を使う</li>
+            </ul>
+        </div>
+        
+        <div class="tip">
+            <h3>📚 次のステップ</h3>
+            <p>これらの基礎をマスターしたら、以下も学んでみましょう:</p>
+            <ul>
+                <li><strong>非同期処理</strong>: Promise, async/await</li>
+                <li><strong>正規表現</strong>: 複雑なパターンマッチング</li>
+                <li><strong>クラス</strong>: オブジェクト指向プログラミング</li>
+                <li><strong>モジュール</strong>: コードの分割と再利用</li>
+            </ul>
+        </div>
+        
+        <h2>🔧 11. トラブルシューティング</h2>
+        
+        <table>
+            <tr>
+                <th>問題</th>
+                <th>原因</th>
+                <th>解決方法</th>
+            </tr>
+            <tr>
+                <td>Cannot read property of undefined</td>
+                <td>存在しないプロパティへのアクセス</td>
+                <td>オプショナルチェーン <code>?.</code> を使用</td>
+            </tr>
+            <tr>
+                <td>map is not a function</td>
+                <td>配列でない値にmap()を使用</td>
+                <td><code>Array.isArray()</code> でチェック</td>
+            </tr>
+            <tr>
+                <td>配列が変わってしまった</td>
+                <td>sort()などが元配列を変更</td>
+                <td><code>[...arr]</code> でコピーしてから操作</td>
+            </tr>
+            <tr>
+                <td>NaN が出る</td>
+                <td>数値変換の失敗</td>
+                <td><code>Number()</code> の結果を <code>isNaN()</code> でチェック</td>
+            </tr>
+            <tr>
+                <td>日付がずれる</td>
+                <td>タイムゾーンの問題</td>
+                <td><code>toISOString()</code> でUTC、<code>toLocaleString()</code> でローカル</td>
+            </tr>
+            <tr>
+                <td>0がデフォルト値になる</td>
+                <td><code>||</code> で0がfalsyとして扱われる</td>
+                <td><code>??</code>（Null合体演算子）を使用</td>
+            </tr>
+        </table>
+        
+        <h2>🔗 12. 追加リソース</h2>
+        
+        <ul>
+            <li><a href="https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/Array" target="_blank">MDN: 配列メソッド一覧</a></li>
+            <li><a href="https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/String" target="_blank">MDN: 文字列メソッド一覧</a></li>
+            <li><a href="https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/Object" target="_blank">MDN: Objectメソッド一覧</a></li>
+            <li><a href="https://nodered.org/docs/user-guide/writing-functions" target="_blank">Node-RED: Functionノードの書き方</a></li>
+            <li><a href="https://jsprimer.net/" target="_blank">JavaScript Primer（日本語）</a></li>
+        </ul>
+        
+        <hr>
+        
+        <p style="text-align: center; color: #999; margin-top: 40px;">
+            <small>このガイドが役に立ちましたら、実際のプロジェクトで練習してみてください!<br>
+            これらのメソッドを使いこなせば、Functionノードでの処理が格段に楽になります。</small>
+        </p>
+    </div>
+    
+    <script>
+        // ページ読み込み時にコピーボタンを追加
+        document.addEventListener('DOMContentLoaded', function() {
+            var codeBlocks = document.querySelectorAll('.flow-json, .js-code[data-copy="true"]');
+            
+            codeBlocks.forEach(function(block) {
+                var button = document.createElement('button');
+                button.className = 'copy-button';
+                button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                
+                button.addEventListener('click', function() {
+                    var code = block.textContent.replace(/コピー(しました!)?$/, '').trim();
+                    
+                    if (block.classList.contains('js-code')) {
+                        code = block.innerText.replace(/コピー(しました!)?$/, '').trim();
+                    }
+                    
+                    navigator.clipboard.writeText(code).then(function() {
+                        button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>コピーしました!';
+                        button.classList.add('copied');
+                        
+                        setTimeout(function() {
+                            button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                            button.classList.remove('copied');
+                        }, 2000);
+                    }).catch(function(err) {
+                        console.error('コピーに失敗しました:', err);
+                    });
+                });
+                
+                block.style.position = 'relative';
+                block.appendChild(button);
+            });
+        });
+    </script>
+</body>
+</html>

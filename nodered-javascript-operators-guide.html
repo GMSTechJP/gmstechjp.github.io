@@ -1,0 +1,1637 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript演算子 基礎ガイド - Node-RED で使う演算子</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        h1 {
+            color: #8f0000;
+            border-bottom: 3px solid #8f0000;
+            padding-bottom: 10px;
+        }
+        
+        h2 {
+            color: #c00000;
+            margin-top: 30px;
+            border-left: 5px solid #c00000;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #555;
+            margin-top: 25px;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .node-example {
+            background-color: #2d3133;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            color: white;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .node {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 4px;
+            margin: 5px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .node-inject {
+            background-color: #3fadb5;
+            color: white;
+        }
+        
+        .node-function {
+            background-color: #e8a658;
+            color: white;
+        }
+        
+        .node-change {
+            background-color: #e7a070;
+            color: white;
+        }
+        
+        .node-switch {
+            background-color: #e2d96e;
+            color: #333;
+        }
+        
+        .node-debug {
+            background-color: #87a48d;
+            color: white;
+        }
+        
+        .node-template {
+            background-color: #d4b8a0;
+            color: #333;
+        }
+        
+        .arrow {
+            color: #999;
+            font-size: 20px;
+            margin: 0 10px;
+        }
+        
+        .important {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .tip {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .warning {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .code-block {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            position: relative;
+            white-space: pre-wrap;
+        }
+        
+        .js-code {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            border: none;
+            padding: 15px;
+            padding-top: 40px;
+            border-radius: 5px;
+            position: relative;
+            white-space: pre;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+        }
+        
+        .copy-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 6px 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: 'Segoe UI', sans-serif;
+            transition: background-color 0.2s;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .copy-button:hover {
+            background-color: #0056b3;
+        }
+        
+        .copy-button.copied {
+            background-color: #28a745;
+        }
+        
+        .copy-button svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+        }
+        
+        .exercise {
+            background-color: #e8f5e9;
+            border: 2px solid #4caf50;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        
+        .exercise h3 {
+            color: #2e7d32;
+            margin-top: 0;
+        }
+        
+        .difficulty {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .difficulty-easy {
+            background-color: #4caf50;
+            color: white;
+        }
+        
+        .difficulty-medium {
+            background-color: #ff9800;
+            color: white;
+        }
+        
+        .difficulty-hard {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        ul, ol {
+            padding-left: 25px;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #e8a658;
+            color: white;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .flow-json {
+            background-color: #263238;
+            color: #aed581;
+            padding: 15px;
+            padding-top: 40px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        details {
+            margin: 15px 0;
+        }
+        
+        summary {
+            cursor: pointer;
+            padding: 10px;
+            background-color: #6c757d;
+            color: white;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        summary:hover {
+            background-color: #5a6268;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .feature-card {
+            background-color: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .feature-card h4 {
+            color: #d48c2e;
+            margin-top: 0;
+        }
+        
+        .operator-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            margin-right: 5px;
+        }
+        
+        .badge-arithmetic {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .badge-comparison {
+            background-color: #17a2b8;
+            color: white;
+        }
+        
+        .badge-logical {
+            background-color: #6f42c1;
+            color: white;
+        }
+        
+        .badge-assignment {
+            background-color: #fd7e14;
+            color: white;
+        }
+        
+        .result-box {
+            display: inline-block;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #155724;
+        }
+        
+        .result-false {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        
+        .operator-table {
+            font-size: 14px;
+        }
+        
+        .operator-table td:first-child {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            text-align: center;
+            background-color: #f8f9fa;
+        }
+        
+        .operator-table td:nth-child(3) {
+            font-family: 'Courier New', monospace;
+        }
+        
+        .category-header {
+            background-color: #343a40;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px 5px 0 0;
+            margin-bottom: 0;
+            font-weight: bold;
+        }
+        
+        .category-content {
+            border: 2px solid #343a40;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+            padding: 15px;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+        
+        .comparison-visual {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .comparison-item {
+            background-color: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px 25px;
+            text-align: center;
+        }
+        
+        .comparison-item .expr {
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .comparison-item .result-true {
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .comparison-item .result-false {
+            color: #dc3545;
+            font-weight: bold;
+            background-color: transparent;
+            border: none;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔢 JavaScript演算子 基礎ガイド</h1>
+        <p><strong>Node-RED / Node.js / JavaScript で使う演算子</strong></p>
+        
+        <p>このガイドでは、Node-REDのFunctionノードやSwitchノードで使う<strong>JavaScript演算子</strong>について、初心者の方でも理解できるように詳しく説明します。</p>
+        
+        <h2>📚 1. 演算子とは?</h2>
+        
+        <h3>🤔 「演算子」って何?</h3>
+        <p>
+            演算子（オペレータ）とは、<strong>計算や比較を行うための記号</strong>です。
+            日常生活で例えると、<strong>電卓のボタン</strong>のようなものです。
+            「+」を押せば足し算、「-」を押せば引き算ができるように、プログラムでも記号を使って様々な処理を行います。
+        </p>
+        
+        <div class="important">
+            <p><strong>🧮 電卓に例えると:</strong></p>
+            <ul>
+                <li>➕ <strong>足し算ボタン</strong> = <code>+</code> 演算子</li>
+                <li>➖ <strong>引き算ボタン</strong> = <code>-</code> 演算子</li>
+                <li>✖️ <strong>掛け算ボタン</strong> = <code>*</code> 演算子</li>
+                <li>➗ <strong>割り算ボタン</strong> = <code>/</code> 演算子</li>
+                <li>⚖️ <strong>比較（大小判定）</strong> = <code>&lt;</code> <code>&gt;</code> <code>===</code> 演算子</li>
+            </ul>
+        </div>
+        
+        <h3>📋 演算子の種類</h3>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h4><span class="operator-badge badge-arithmetic">+ - * /</span> 算術演算子</h4>
+                <p>数値の計算を行う</p>
+                <div class="code-block">足し算、引き算、
+掛け算、割り算など</div>
+            </div>
+            
+            <div class="feature-card">
+                <h4><span class="operator-badge badge-comparison">== != &lt; &gt;</span> 比較演算子</h4>
+                <p>値を比較してtrue/falseを返す</p>
+                <div class="code-block">等しい、大きい、
+小さい、以上、以下</div>
+            </div>
+            
+            <div class="feature-card">
+                <h4><span class="operator-badge badge-logical">&amp;&amp; || !</span> 論理演算子</h4>
+                <p>複数の条件を組み合わせる</p>
+                <div class="code-block">かつ(AND)、
+または(OR)、否定(NOT)</div>
+            </div>
+            
+            <div class="feature-card">
+                <h4><span class="operator-badge badge-assignment">= += -=</span> 代入演算子</h4>
+                <p>変数に値を設定する</p>
+                <div class="code-block">代入、加算代入、
+減算代入など</div>
+            </div>
+        </div>
+        
+        <h2>➕ 2. 算術演算子（四則演算）</h2>
+        
+        <p>数値の計算を行う演算子です。小学校で習った算数と同じ概念ですが、記号が少し異なります。</p>
+        
+        <div class="category-header">🔢 算術演算子一覧</div>
+        <div class="category-content">
+            <table class="operator-table">
+                <tr>
+                    <th>演算子</th>
+                    <th>名前</th>
+                    <th>例</th>
+                    <th>結果</th>
+                    <th>説明</th>
+                </tr>
+                <tr>
+                    <td>+</td>
+                    <td>加算（足し算）</td>
+                    <td>10 + 3</td>
+                    <td><span class="result-box">13</span></td>
+                    <td>左右の値を足す</td>
+                </tr>
+                <tr>
+                    <td>-</td>
+                    <td>減算（引き算）</td>
+                    <td>10 - 3</td>
+                    <td><span class="result-box">7</span></td>
+                    <td>左から右を引く</td>
+                </tr>
+                <tr>
+                    <td>*</td>
+                    <td>乗算（掛け算）</td>
+                    <td>10 * 3</td>
+                    <td><span class="result-box">30</span></td>
+                    <td>左右の値を掛ける（×ではなく*）</td>
+                </tr>
+                <tr>
+                    <td>/</td>
+                    <td>除算（割り算）</td>
+                    <td>10 / 3</td>
+                    <td><span class="result-box">3.333...</span></td>
+                    <td>左を右で割る（÷ではなく/）</td>
+                </tr>
+                <tr>
+                    <td>%</td>
+                    <td>剰余（余り）</td>
+                    <td>10 % 3</td>
+                    <td><span class="result-box">1</span></td>
+                    <td>割り算の余りを求める</td>
+                </tr>
+                <tr>
+                    <td>**</td>
+                    <td>べき乗</td>
+                    <td>2 ** 3</td>
+                    <td><span class="result-box">8</span></td>
+                    <td>2の3乗 = 2×2×2</td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="tip">
+            <p><strong>📌 よく使う剰余演算子（%）の使い道:</strong></p>
+            <ul>
+                <li><strong>偶数/奇数の判定</strong>: <code>n % 2 === 0</code> なら偶数</li>
+                <li><strong>N回に1回の処理</strong>: <code>count % 5 === 0</code> なら5回に1回</li>
+                <li><strong>循環処理</strong>: <code>index % 配列の長さ</code> で配列をループ</li>
+            </ul>
+        </div>
+        
+        <h3>🔧 Node-REDでの使用例（Functionノード）</h3>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject<br><small>(数値)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-function">Function<br><small>(計算)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <div class="js-code" data-copy="true">// Functionノードでの算術演算の例
+
+// センサーデータを受け取って計算
+let temperature = msg.payload.temperature;  // 25.5
+let humidity = msg.payload.humidity;        // 60
+
+// 足し算
+let sum = temperature + humidity;           // 85.5
+
+// 平均値の計算
+let average = (temperature + humidity) / 2; // 42.75
+
+// 温度をファーレンハイトに変換
+let fahrenheit = temperature * 9 / 5 + 32;  // 77.9
+
+// 10件ごとに処理（剰余の活用）
+let count = msg.payload.count;
+if (count % 10 === 0) {
+    // 10件目、20件目、30件目...で実行
+    node.warn("10件処理しました: " + count);
+}
+
+msg.payload = {
+    sum: sum,
+    average: average,
+    fahrenheit: fahrenheit
+};
+return msg;</div>
+        
+        <div class="warning">
+            <p><strong>⚠️ 文字列の「+」に注意!</strong></p>
+            <p><code>+</code> は文字列を連結する機能もあります。数値と文字列を足すと予期しない結果になります。</p>
+            <div class="code-block">"10" + 3     → "103"   // 文字列連結になってしまう
+10 + 3       → 13      // 数値の足し算
+Number("10") + 3 → 13  // 数値に変換してから計算</div>
+        </div>
+        
+        <h2>⚖️ 3. 比較演算子</h2>
+        
+        <p>2つの値を比較して、<strong>true（真）</strong>または<strong>false（偽）</strong>を返す演算子です。
+        条件分岐（if文やSwitchノード）で必須の知識です。</p>
+        
+        <div class="category-header">🔍 比較演算子一覧</div>
+        <div class="category-content">
+            <table class="operator-table">
+                <tr>
+                    <th>演算子</th>
+                    <th>名前</th>
+                    <th>例</th>
+                    <th>結果</th>
+                    <th>説明</th>
+                </tr>
+                <tr>
+                    <td>===</td>
+                    <td>厳密等価</td>
+                    <td>5 === 5</td>
+                    <td><span class="result-box">true</span></td>
+                    <td>値と型が両方同じ（推奨）</td>
+                </tr>
+                <tr>
+                    <td>!==</td>
+                    <td>厳密不等価</td>
+                    <td>5 !== "5"</td>
+                    <td><span class="result-box">true</span></td>
+                    <td>値または型が異なる（推奨）</td>
+                </tr>
+                <tr>
+                    <td>==</td>
+                    <td>等価</td>
+                    <td>5 == "5"</td>
+                    <td><span class="result-box">true</span></td>
+                    <td>型変換後に値が同じ（非推奨）</td>
+                </tr>
+                <tr>
+                    <td>!=</td>
+                    <td>不等価</td>
+                    <td>5 != "5"</td>
+                    <td><span class="result-box result-false">false</span></td>
+                    <td>型変換後に値が異なる（非推奨）</td>
+                </tr>
+                <tr>
+                    <td>&lt;</td>
+                    <td>小なり</td>
+                    <td>3 &lt; 5</td>
+                    <td><span class="result-box">true</span></td>
+                    <td>左が右より小さい</td>
+                </tr>
+                <tr>
+                    <td>&gt;</td>
+                    <td>大なり</td>
+                    <td>3 &gt; 5</td>
+                    <td><span class="result-box result-false">false</span></td>
+                    <td>左が右より大きい</td>
+                </tr>
+                <tr>
+                    <td>&lt;=</td>
+                    <td>以下</td>
+                    <td>5 &lt;= 5</td>
+                    <td><span class="result-box">true</span></td>
+                    <td>左が右以下</td>
+                </tr>
+                <tr>
+                    <td>&gt;=</td>
+                    <td>以上</td>
+                    <td>3 &gt;= 5</td>
+                    <td><span class="result-box result-false">false</span></td>
+                    <td>左が右以上</td>
+                </tr>
+            </table>
+        </div>
+        
+        <h3>🎯 === と == の違い（重要!）</h3>
+        
+        <div class="comparison-visual">
+            <div class="comparison-item">
+                <div class="expr">5 === 5</div>
+                <div class="result-true">✓ true</div>
+                <small>数値と数値、値も型も同じ</small>
+            </div>
+            <div class="comparison-item">
+                <div class="expr">5 === "5"</div>
+                <div class="result-false">✗ false</div>
+                <small>数値と文字列、型が違う</small>
+            </div>
+            <div class="comparison-item">
+                <div class="expr">5 == "5"</div>
+                <div class="result-true">✓ true</div>
+                <small>型変換後に比較（危険）</small>
+            </div>
+        </div>
+        
+        <div class="important">
+            <p><strong>💡 === を使うべき理由:</strong></p>
+            <p><code>==</code> は型変換を行うため、予期しない結果を招くことがあります。
+            バグの原因になりやすいため、<strong>常に <code>===</code>（厳密等価）を使う</strong>ことを推奨します。</p>
+            <div class="code-block">// 危険な例（==を使用）
+0 == ""       // true（両方falsy値として扱われる）
+0 == false    // true
+"" == false   // true
+null == undefined // true
+
+// 安全な例（===を使用）
+0 === ""      // false
+0 === false   // false
+"" === false  // false
+null === undefined // false</div>
+        </div>
+        
+        <h3>🔧 Node-REDでの使用例（Switchノード）</h3>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject<br><small>(温度)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-switch">Switch<br><small>(条件分岐)</small></span>
+            <span class="arrow">→→→</span>
+            <span class="node node-debug">Debug<br><small>(高温/正常/低温)</small></span>
+        </div>
+        
+        <p>Switchノードでは比較演算子を視覚的に設定できます:</p>
+        
+        <div class="code-block">// Switchノードの条件設定例
+条件1: msg.payload > 30   → 出力1（高温アラート）
+条件2: msg.payload >= 20  → 出力2（正常）
+条件3: msg.payload < 20   → 出力3（低温アラート）</div>
+        
+        <h3>🔧 Functionノードでの使用例</h3>
+        
+        <div class="js-code" data-copy="true">// Functionノードでの比較演算の例
+
+let temperature = msg.payload;
+
+// 単純な比較
+if (temperature > 30) {
+    msg.payload = "高温警報";
+    msg.level = "danger";
+} else if (temperature >= 20) {
+    msg.payload = "正常";
+    msg.level = "normal";
+} else {
+    msg.payload = "低温警報";
+    msg.level = "warning";
+}
+
+// 厳密等価での比較
+if (msg.topic === "sensor_A") {
+    // センサーAからのデータのみ処理
+}
+
+// 範囲チェック（20以上30以下）
+if (temperature >= 20 && temperature <= 30) {
+    msg.payload = "適正範囲内";
+}
+
+return msg;</div>
+        
+        <h2>🔗 4. 論理演算子</h2>
+        
+        <p>複数の条件を組み合わせたり、条件を反転させる演算子です。</p>
+        
+        <div class="category-header">🧠 論理演算子一覧</div>
+        <div class="category-content">
+            <table class="operator-table">
+                <tr>
+                    <th>演算子</th>
+                    <th>名前</th>
+                    <th>例</th>
+                    <th>結果</th>
+                    <th>説明</th>
+                </tr>
+                <tr>
+                    <td>&amp;&amp;</td>
+                    <td>AND（かつ）</td>
+                    <td>true && true</td>
+                    <td><span class="result-box">true</span></td>
+                    <td>両方trueの場合のみtrue</td>
+                </tr>
+                <tr>
+                    <td>||</td>
+                    <td>OR（または）</td>
+                    <td>true || false</td>
+                    <td><span class="result-box">true</span></td>
+                    <td>どちらかがtrueならtrue</td>
+                </tr>
+                <tr>
+                    <td>!</td>
+                    <td>NOT（否定）</td>
+                    <td>!true</td>
+                    <td><span class="result-box result-false">false</span></td>
+                    <td>true/falseを反転</td>
+                </tr>
+            </table>
+            
+            <h4>論理演算の真理値表</h4>
+            <table>
+                <tr>
+                    <th>A</th>
+                    <th>B</th>
+                    <th>A && B</th>
+                    <th>A || B</th>
+                    <th>!A</th>
+                </tr>
+                <tr>
+                    <td>true</td>
+                    <td>true</td>
+                    <td><span class="result-box">true</span></td>
+                    <td><span class="result-box">true</span></td>
+                    <td><span class="result-box result-false">false</span></td>
+                </tr>
+                <tr>
+                    <td>true</td>
+                    <td>false</td>
+                    <td><span class="result-box result-false">false</span></td>
+                    <td><span class="result-box">true</span></td>
+                    <td><span class="result-box result-false">false</span></td>
+                </tr>
+                <tr>
+                    <td>false</td>
+                    <td>true</td>
+                    <td><span class="result-box result-false">false</span></td>
+                    <td><span class="result-box">true</span></td>
+                    <td><span class="result-box">true</span></td>
+                </tr>
+                <tr>
+                    <td>false</td>
+                    <td>false</td>
+                    <td><span class="result-box result-false">false</span></td>
+                    <td><span class="result-box result-false">false</span></td>
+                    <td><span class="result-box">true</span></td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="tip">
+            <p><strong>📌 日常生活での例え:</strong></p>
+            <ul>
+                <li><strong>AND（&&）</strong>: 「雨が降っている」<strong>かつ</strong>「傘がない」→ 外出しない</li>
+                <li><strong>OR（||）</strong>: 「土曜日」<strong>または</strong>「日曜日」→ 休日</li>
+                <li><strong>NOT（!）</strong>: 「営業中」の<strong>否定</strong> → 閉店中</li>
+            </ul>
+        </div>
+        
+        <h3>🔧 Node-REDでの使用例</h3>
+        
+        <div class="js-code" data-copy="true">// Functionノードでの論理演算の例
+
+let temperature = msg.payload.temperature;  // 温度
+let humidity = msg.payload.humidity;        // 湿度
+let isActive = msg.payload.isActive;        // センサー稼働中
+
+// AND: 両方の条件を満たす場合
+if (temperature > 30 && humidity > 80) {
+    msg.payload = "熱中症警報: 高温多湿";
+}
+
+// OR: どちらかの条件を満たす場合
+if (temperature > 35 || humidity > 90) {
+    msg.payload = "危険警報";
+}
+
+// NOT: 条件の反転
+if (!isActive) {
+    msg.payload = "センサー停止中";
+    return msg;  // 処理を中断
+}
+
+// 複合条件
+// 稼働中 かつ (高温 または 高湿度)
+if (isActive && (temperature > 30 || humidity > 80)) {
+    msg.alert = true;
+}
+
+return msg;</div>
+        
+        <h2>📝 5. 代入演算子</h2>
+        
+        <p>変数に値を設定したり、計算結果を代入する演算子です。</p>
+        
+        <div class="category-header">✏️ 代入演算子一覧</div>
+        <div class="category-content">
+            <table class="operator-table">
+                <tr>
+                    <th>演算子</th>
+                    <th>名前</th>
+                    <th>例</th>
+                    <th>同等の処理</th>
+                    <th>説明</th>
+                </tr>
+                <tr>
+                    <td>=</td>
+                    <td>代入</td>
+                    <td>x = 5</td>
+                    <td>-</td>
+                    <td>値を変数に設定</td>
+                </tr>
+                <tr>
+                    <td>+=</td>
+                    <td>加算代入</td>
+                    <td>x += 3</td>
+                    <td>x = x + 3</td>
+                    <td>足して代入</td>
+                </tr>
+                <tr>
+                    <td>-=</td>
+                    <td>減算代入</td>
+                    <td>x -= 3</td>
+                    <td>x = x - 3</td>
+                    <td>引いて代入</td>
+                </tr>
+                <tr>
+                    <td>*=</td>
+                    <td>乗算代入</td>
+                    <td>x *= 3</td>
+                    <td>x = x * 3</td>
+                    <td>掛けて代入</td>
+                </tr>
+                <tr>
+                    <td>/=</td>
+                    <td>除算代入</td>
+                    <td>x /= 3</td>
+                    <td>x = x / 3</td>
+                    <td>割って代入</td>
+                </tr>
+                <tr>
+                    <td>++</td>
+                    <td>インクリメント</td>
+                    <td>x++</td>
+                    <td>x = x + 1</td>
+                    <td>1を足す</td>
+                </tr>
+                <tr>
+                    <td>--</td>
+                    <td>デクリメント</td>
+                    <td>x--</td>
+                    <td>x = x - 1</td>
+                    <td>1を引く</td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="js-code" data-copy="true">// 代入演算子の使用例
+
+let count = 0;
+
+// 基本の代入
+count = 10;           // count は 10
+
+// 加算代入（カウンターでよく使用）
+count += 1;           // count は 11
+count++;              // count は 12（同じ意味）
+
+// 減算代入
+count -= 5;           // count は 7
+
+// 乗算代入
+count *= 2;           // count は 14
+
+// 文字列の連結にも使える
+let message = "Hello";
+message += " World";  // message は "Hello World"</div>
+        
+        <h2>⚡ 6. 演算子の優先順位</h2>
+        
+        <p>複数の演算子を使う場合、計算される順序があります。数学の四則演算と同じく、掛け算・割り算が先に計算されます。</p>
+        
+        <div class="category-header">📊 優先順位（高い順）</div>
+        <div class="category-content">
+            <table>
+                <tr>
+                    <th>優先度</th>
+                    <th>演算子</th>
+                    <th>説明</th>
+                </tr>
+                <tr>
+                    <td>1（最高）</td>
+                    <td><code>()</code></td>
+                    <td>括弧（グループ化）</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td><code>!</code> <code>++</code> <code>--</code></td>
+                    <td>否定、インクリメント</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td><code>**</code></td>
+                    <td>べき乗</td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td><code>*</code> <code>/</code> <code>%</code></td>
+                    <td>乗算、除算、剰余</td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td><code>+</code> <code>-</code></td>
+                    <td>加算、減算</td>
+                </tr>
+                <tr>
+                    <td>6</td>
+                    <td><code>&lt;</code> <code>&lt;=</code> <code>&gt;</code> <code>&gt;=</code></td>
+                    <td>比較（大小）</td>
+                </tr>
+                <tr>
+                    <td>7</td>
+                    <td><code>===</code> <code>!==</code> <code>==</code> <code>!=</code></td>
+                    <td>等価比較</td>
+                </tr>
+                <tr>
+                    <td>8</td>
+                    <td><code>&amp;&amp;</code></td>
+                    <td>論理AND</td>
+                </tr>
+                <tr>
+                    <td>9</td>
+                    <td><code>||</code></td>
+                    <td>論理OR</td>
+                </tr>
+                <tr>
+                    <td>10（最低）</td>
+                    <td><code>=</code> <code>+=</code> <code>-=</code> など</td>
+                    <td>代入</td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="tip">
+            <p><strong>📌 迷ったら括弧を使う!</strong></p>
+            <p>優先順位を覚えるより、<strong>括弧 <code>()</code> を使って明示的に</strong>計算順序を指定するのが安全です。</p>
+            <div class="code-block">// わかりにくい
+let result = a + b * c > d && e || f;
+
+// わかりやすい（括弧で明示）
+let result = ((a + (b * c)) > d) && e) || f;</div>
+        </div>
+        
+        <h2>🎯 7. Node-REDでの活用場所</h2>
+        
+        <h3>📍 Functionノード</h3>
+        <p>JavaScriptコードを直接書くため、すべての演算子が使用可能です。</p>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">Function</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <h3>📍 Switchノード</h3>
+        <p>比較演算子をGUIで設定できます。</p>
+        
+        <div class="code-block">// Switchノードで設定できる条件
+== (等しい)
+!= (等しくない)
+<  (より小さい)
+<= (以下)
+>  (より大きい)
+>= (以上)
+is true / is false
+is null
+is not null
+など</div>
+        
+        <h3>📍 Changeノード</h3>
+        <p>JSONata式を使って演算が可能です。</p>
+        
+        <div class="code-block">// Changeノードでの JSONata式 例
+$sum(payload.values)              // 配列の合計
+payload.price * payload.quantity  // 掛け算
+payload.temperature > 30          // 比較（true/false）</div>
+        
+        <h3>📍 Templateノード</h3>
+        <p>Mustache記法では演算子は使えませんが、JavaScript処理を挟めば可能です。</p>
+        
+        <h2>🏋️ 8. 実践演習</h2>
+        
+        <div class="exercise">
+            <h3>演習1: 基本的な計算<span class="difficulty difficulty-easy">初級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>2つの数値を受け取り、四則演算の結果をすべて出力してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Inject、Function、Debugノードを使用</li>
+                <li>入力: {a: 10, b: 3}</li>
+                <li>出力: {sum: 13, diff: 7, product: 30, quotient: 3.33..., remainder: 1}</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Injectノードの設定:</strong></p>
+                <ul>
+                    <li>payload: JSON型で {"a": 10, "b": 3}</li>
+                </ul>
+                <p><strong>Functionノードのコード:</strong></p>
+                <ul>
+                    <li>msg.payload.a と msg.payload.b で値を取得</li>
+                    <li>各演算結果を新しいオブジェクトにまとめる</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "ex1_inject",
+        "type": "inject",
+        "name": "数値入力",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"a\":10,\"b\":3}",
+        "payloadType": "json",
+        "x": 120,
+        "y": 100,
+        "wires": [["ex1_function"]]
+    },
+    {
+        "id": "ex1_function",
+        "type": "function",
+        "name": "四則演算",
+        "func": "let a = msg.payload.a;\nlet b = msg.payload.b;\n\nmsg.payload = {\n    sum: a + b,\n    diff: a - b,\n    product: a * b,\n    quotient: a / b,\n    remainder: a % b\n};\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 300,
+        "y": 100,
+        "wires": [["ex1_debug"]]
+    },
+    {
+        "id": "ex1_debug",
+        "type": "debug",
+        "name": "結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 470,
+        "y": 100,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習2: 温度判定<span class="difficulty difficulty-easy">初級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>温度に応じて3段階の判定結果を出力してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Inject、Switchノード、3つのDebugノードを使用</li>
+                <li>30より大きい → 「高温」</li>
+                <li>20以上30以下 → 「適温」</li>
+                <li>20未満 → 「低温」</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Switchノードの設定:</strong></p>
+                <ul>
+                    <li>プロパティ: msg.payload</li>
+                    <li>条件1: &gt; 30</li>
+                    <li>条件2: &gt;= 20（条件1で30超は除外されている）</li>
+                    <li>条件3: その他（otherwise）</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "ex2_inject_high",
+        "type": "inject",
+        "name": "35度",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "topic": "",
+        "payload": "35",
+        "payloadType": "num",
+        "x": 110,
+        "y": 80,
+        "wires": [["ex2_switch"]]
+    },
+    {
+        "id": "ex2_inject_normal",
+        "type": "inject",
+        "name": "25度",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "topic": "",
+        "payload": "25",
+        "payloadType": "num",
+        "x": 110,
+        "y": 140,
+        "wires": [["ex2_switch"]]
+    },
+    {
+        "id": "ex2_inject_low",
+        "type": "inject",
+        "name": "15度",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "topic": "",
+        "payload": "15",
+        "payloadType": "num",
+        "x": 110,
+        "y": 200,
+        "wires": [["ex2_switch"]]
+    },
+    {
+        "id": "ex2_switch",
+        "type": "switch",
+        "name": "温度判定",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {"t": "gt", "v": "30", "vt": "num"},
+            {"t": "gte", "v": "20", "vt": "num"},
+            {"t": "else"}
+        ],
+        "checkall": "false",
+        "repair": false,
+        "outputs": 3,
+        "x": 280,
+        "y": 140,
+        "wires": [["ex2_debug_high"], ["ex2_debug_normal"], ["ex2_debug_low"]]
+    },
+    {
+        "id": "ex2_debug_high",
+        "type": "debug",
+        "name": "高温",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "'高温: ' & payload & '度'",
+        "targetType": "jsonata",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 450,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "ex2_debug_normal",
+        "type": "debug",
+        "name": "適温",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "'適温: ' & payload & '度'",
+        "targetType": "jsonata",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 450,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "ex2_debug_low",
+        "type": "debug",
+        "name": "低温",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "'低温: ' & payload & '度'",
+        "targetType": "jsonata",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 450,
+        "y": 200,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習3: 複合条件判定<span class="difficulty difficulty-medium">中級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>温度と湿度の複合条件でアラートを判定してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Inject、Function、Debugノードを使用</li>
+                <li>入力: {temperature: 32, humidity: 85}</li>
+                <li>高温(>30) かつ 高湿度(>80) → "熱中症警報"</li>
+                <li>高温(>30) または 高湿度(>80) → "注意報"</li>
+                <li>それ以外 → "正常"</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Functionノードのポイント:</strong></p>
+                <ul>
+                    <li>&& (AND) と || (OR) を使い分ける</li>
+                    <li>条件の順序に注意（厳しい条件から判定）</li>
+                </ul>
+                <div class="code-block">// 判定順序
+if (条件A && 条件B) {
+    // 両方満たす場合（最も厳しい）
+} else if (条件A || 条件B) {
+    // どちらか満たす場合
+} else {
+    // どちらも満たさない場合
+}</div>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "ex3_inject_danger",
+        "type": "inject",
+        "name": "危険(32度,85%)",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "topic": "",
+        "payload": "{\"temperature\":32,\"humidity\":85}",
+        "payloadType": "json",
+        "x": 150,
+        "y": 80,
+        "wires": [["ex3_function"]]
+    },
+    {
+        "id": "ex3_inject_warn",
+        "type": "inject",
+        "name": "注意(32度,60%)",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "topic": "",
+        "payload": "{\"temperature\":32,\"humidity\":60}",
+        "payloadType": "json",
+        "x": 150,
+        "y": 140,
+        "wires": [["ex3_function"]]
+    },
+    {
+        "id": "ex3_inject_normal",
+        "type": "inject",
+        "name": "正常(25度,60%)",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "topic": "",
+        "payload": "{\"temperature\":25,\"humidity\":60}",
+        "payloadType": "json",
+        "x": 150,
+        "y": 200,
+        "wires": [["ex3_function"]]
+    },
+    {
+        "id": "ex3_function",
+        "type": "function",
+        "name": "複合条件判定",
+        "func": "let temp = msg.payload.temperature;\nlet humid = msg.payload.humidity;\n\nlet isHighTemp = temp > 30;\nlet isHighHumid = humid > 80;\n\nlet result;\n\nif (isHighTemp && isHighHumid) {\n    result = \"熱中症警報\";\n} else if (isHighTemp || isHighHumid) {\n    result = \"注意報\";\n} else {\n    result = \"正常\";\n}\n\nmsg.payload = {\n    temperature: temp,\n    humidity: humid,\n    status: result\n};\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 380,
+        "y": 140,
+        "wires": [["ex3_debug"]]
+    },
+    {
+        "id": "ex3_debug",
+        "type": "debug",
+        "name": "結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 550,
+        "y": 140,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習4: カウンターとN回処理<span class="difficulty difficulty-hard">上級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>メッセージをカウントし、5回ごとに集計結果を出力してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Inject、Function（コンテキスト使用）、Debugノードを使用</li>
+                <li>メッセージを受け取るたびにカウントアップ</li>
+                <li>5の倍数のときだけ、カウント値を出力</li>
+                <li>剰余演算子（%）を使用</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>フローコンテキストの使用:</strong></p>
+                <ul>
+                    <li><code>flow.get("count")</code> で値を取得</li>
+                    <li><code>flow.set("count", value)</code> で値を保存</li>
+                    <li><code>count % 5 === 0</code> で5の倍数を判定</li>
+                </ul>
+                <div class="code-block">// コンテキスト使用例
+let count = flow.get("count") || 0;
+count++;
+flow.set("count", count);
+
+if (count % 5 === 0) {
+    // 5の倍数のときの処理
+}</div>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "ex4_inject",
+        "type": "inject",
+        "name": "カウント+1",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 130,
+        "y": 100,
+        "wires": [["ex4_function"]]
+    },
+    {
+        "id": "ex4_reset",
+        "type": "inject",
+        "name": "リセット",
+        "props": [{"p": "reset", "v": "true", "vt": "bool"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "topic": "",
+        "x": 120,
+        "y": 160,
+        "wires": [["ex4_function"]]
+    },
+    {
+        "id": "ex4_function",
+        "type": "function",
+        "name": "5回ごとに出力",
+        "func": "// リセット処理\nif (msg.reset) {\n    flow.set(\"count\", 0);\n    msg.payload = \"カウンターをリセットしました\";\n    return msg;\n}\n\n// カウント取得・更新\nlet count = flow.get(\"count\") || 0;\ncount++;\nflow.set(\"count\", count);\n\n// 5の倍数かどうか判定（剰余演算子を使用）\nif (count % 5 === 0) {\n    msg.payload = {\n        message: \"5件処理完了\",\n        totalCount: count\n    };\n    return msg;\n}\n\n// 5の倍数でない場合は出力しない\nreturn null;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 330,
+        "y": 120,
+        "wires": [["ex4_debug"]]
+    },
+    {
+        "id": "ex4_debug",
+        "type": "debug",
+        "name": "5件ごとの結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 540,
+        "y": 120,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+        
+        <h2>🎓 9. まとめ</h2>
+        
+        <div class="important">
+            <h3>演算子の重要ポイント</h3>
+            <ul>
+                <li>✅ <strong>算術演算子</strong>: <code>+</code> <code>-</code> <code>*</code> <code>/</code> <code>%</code> で数値計算</li>
+                <li>✅ <strong>比較演算子</strong>: <code>===</code> <code>!==</code> <code>&lt;</code> <code>&gt;</code> <code>&lt;=</code> <code>&gt;=</code> で値を比較（true/false）</li>
+                <li>✅ <strong>論理演算子</strong>: <code>&&</code>（AND）<code>||</code>（OR）<code>!</code>（NOT）で条件を組み合わせ</li>
+                <li>✅ <strong>代入演算子</strong>: <code>=</code> <code>+=</code> <code>++</code> で変数に値を設定</li>
+                <li>✅ <strong>優先順位</strong>: 迷ったら括弧 <code>()</code> で明示</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <h3>⚠️ よくある間違い</h3>
+            <ul>
+                <li><strong>== と === の混同</strong>: 常に <code>===</code>（厳密等価）を使う</li>
+                <li><strong>= と == の混同</strong>: <code>=</code> は代入、<code>==</code> は比較</li>
+                <li><strong>文字列 + 数値</strong>: 文字列連結になってしまう（Number()で変換）</li>
+                <li><strong>0での割り算</strong>: Infinity になる（事前にチェック）</li>
+                <li><strong>&&と||の優先順位</strong>: <code>&&</code> が <code>||</code> より先に評価される</li>
+            </ul>
+        </div>
+        
+        <div class="tip">
+            <h3>📚 次のステップ</h3>
+            <p>演算子の基礎をマスターしたら、以下も学んでみましょう:</p>
+            <ul>
+                <li><strong>三項演算子</strong>: <code>条件 ? 真の値 : 偽の値</code></li>
+                <li><strong>Null合体演算子</strong>: <code>値 ?? デフォルト値</code></li>
+                <li><strong>オプショナルチェーン</strong>: <code>obj?.prop?.nested</code></li>
+                <li><strong>ビット演算子</strong>: <code>&</code> <code>|</code> <code>^</code> <code>~</code>（IoTでフラグ処理に使用）</li>
+            </ul>
+        </div>
+        
+        <h2>🔧 10. トラブルシューティング</h2>
+        
+        <h3>よくある問題と解決方法</h3>
+        
+        <table>
+            <tr>
+                <th>問題</th>
+                <th>原因</th>
+                <th>解決方法</th>
+            </tr>
+            <tr>
+                <td>"103" になる</td>
+                <td>"10" + 3 で文字列連結</td>
+                <td>Number("10") + 3 で数値に変換</td>
+            </tr>
+            <tr>
+                <td>常にtrue/falseになる</td>
+                <td>= と == を間違えている</td>
+                <td>比較は === を使用</td>
+            </tr>
+            <tr>
+                <td>NaN が出る</td>
+                <td>数値でない値で計算</td>
+                <td>isNaN() でチェック、Number()で変換</td>
+            </tr>
+            <tr>
+                <td>Infinity が出る</td>
+                <td>0で割り算</td>
+                <td>割る前に 0 でないかチェック</td>
+            </tr>
+            <tr>
+                <td>条件が期待通りにならない</td>
+                <td>演算子の優先順位</td>
+                <td>括弧 () で順序を明示</td>
+            </tr>
+            <tr>
+                <td>undefined との比較</td>
+                <td>変数が未定義</td>
+                <td>typeof で型チェック、?? 演算子でデフォルト値</td>
+            </tr>
+        </table>
+        
+        <h2>🔗 11. 追加リソース</h2>
+        
+        <ul>
+            <li><a href="https://developer.mozilla.org/ja/docs/Web/JavaScript/Guide/Expressions_and_Operators" target="_blank">MDN: 式と演算子</a></li>
+            <li><a href="https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Operators/Operator_Precedence" target="_blank">MDN: 演算子の優先順位</a></li>
+            <li><a href="https://nodered.org/docs/user-guide/writing-functions" target="_blank">Node-RED: Functionノードの書き方</a></li>
+            <li><a href="https://docs.jsonata.org/comparison-operators" target="_blank">JSONata: 比較演算子</a></li>
+        </ul>
+        
+        <hr>
+        
+        <p style="text-align: center; color: #999; margin-top: 40px;">
+            <small>このガイドが役に立ちましたら、実際のプロジェクトで練習してみてください!<br>
+            演算子はプログラミングの基礎中の基礎です。</small>
+        </p>
+    </div>
+    
+    <script>
+        // ページ読み込み時にコピーボタンを追加
+        document.addEventListener('DOMContentLoaded', function() {
+            // .flow-jsonと.js-code[data-copy="true"]にコピーボタンを追加
+            var codeBlocks = document.querySelectorAll('.flow-json, .js-code[data-copy="true"]');
+            
+            codeBlocks.forEach(function(block) {
+                // コピーボタンを作成
+                var button = document.createElement('button');
+                button.className = 'copy-button';
+                button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                
+                // クリックイベントを追加
+                button.addEventListener('click', function() {
+                    // コードブロックのテキストを取得（ボタンテキストを除外）
+                    var code = block.textContent.replace(/コピー(しました!)?$/, '').trim();
+                    
+                    // 改行を適切に処理
+                    if (block.classList.contains('js-code')) {
+                        code = block.innerText.replace(/コピー(しました!)?$/, '').trim();
+                    }
+                    
+                    // クリップボードにコピー
+                    navigator.clipboard.writeText(code).then(function() {
+                        // 成功時の視覚的フィードバック
+                        button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>コピーしました!';
+                        button.classList.add('copied');
+                        
+                        // 2秒後に元に戻す
+                        setTimeout(function() {
+                            button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                            button.classList.remove('copied');
+                        }, 2000);
+                    }).catch(function(err) {
+                        console.error('コピーに失敗しました:', err);
+                        button.textContent = 'エラー';
+                        setTimeout(function() {
+                            button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                        }, 2000);
+                    });
+                });
+                
+                // ボタンをコードブロックに追加
+                block.style.position = 'relative';
+                block.appendChild(button);
+            });
+        });
+    </script>
+</body>
+</html>
