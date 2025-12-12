@@ -3,106 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Node-RED Splitノード 完全ガイド</title>
+    <title>Node-RED Split/Joinノード完全ガイド</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.8;
-            max-width: 1000px;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
             background-color: #f5f5f5;
-            color: #333;
         }
-        
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
         h1 {
             color: #8f0000;
             border-bottom: 3px solid #8f0000;
             padding-bottom: 10px;
         }
-        
         h2 {
-            color: #c00000;
+            color: #8f0000;
             margin-top: 30px;
-            border-left: 5px solid #c00000;
-            padding-left: 15px;
+            border-left: 5px solid #8f0000;
+            padding-left: 10px;
         }
-        
         h3 {
-            color: #555;
-            margin-top: 25px;
+            color: #c62828;
+            margin-top: 20px;
         }
-        
-        .container {
-            background-color: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-        
-        .node-example {
-            background-color: #2d3133;
-            padding: 20px;
-            border-radius: 5px;
-            margin: 20px 0;
-            color: white;
-            font-family: 'Courier New', monospace;
-        }
-        
-        .node {
-            display: inline-block;
-            padding: 8px 15px;
+        .code-block {
+            background-color: #f4f4f4;
+            border: 1px solid #ddd;
+            border-left: 4px solid #8f0000;
+            padding: 15px;
+            margin: 15px 0;
             border-radius: 4px;
-            margin: 5px;
-            font-weight: bold;
-            font-size: 14px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
         }
-        
-        .node-inject {
-            background-color: #3fadb5;
-            color: white;
-        }
-        
-        .node-split {
-            background-color: #e2d96e;
-            color: #333;
-        }
-        
-        .node-join {
-            background-color: #e2d96e;
-            color: #333;
-        }
-        
-        .node-debug {
-            background-color: #87a48d;
-            color: white;
-        }
-        
-        .node-template {
-            background-color: #d4b8a0;
-            color: #333;
-        }
-        
-        .node-function {
-            background-color: #e8a658;
-            color: white;
-        }
-        
-        .arrow {
-            color: #999;
-            font-size: 20px;
-            margin: 0 10px;
-        }
-        
-        .important {
+        .note {
             background-color: #fff3cd;
             border-left: 4px solid #ffc107;
             padding: 15px;
             margin: 15px 0;
             border-radius: 4px;
         }
-        
+        .important {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
         .tip {
             background-color: #d1ecf1;
             border-left: 4px solid #17a2b8;
@@ -110,1533 +67,619 @@
             margin: 15px 0;
             border-radius: 4px;
         }
-        
-        .warning {
-            background-color: #f8d7da;
-            border-left: 4px solid #dc3545;
-            padding: 15px;
-            margin: 15px 0;
-            border-radius: 4px;
-        }
-        
-        .code-block {
-            background-color: #f8f9fa;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 15px;
-            margin: 15px 0;
-            overflow-x: auto;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            position: relative;
-            white-space: pre-wrap;
-        }
-        
-        .js-code {
-            background-color: #1e1e1e;
-            color: #d4d4d4;
-            border: none;
-            padding: 15px;
-            padding-top: 40px;
-            border-radius: 5px;
-            position: relative;
-            white-space: pre;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            overflow-x: auto;
-        }
-        
-        .copy-button {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            padding: 6px 12px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-            font-family: 'Segoe UI', sans-serif;
-            transition: background-color 0.2s;
-            z-index: 10;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-        
-        .copy-button:hover {
-            background-color: #0056b3;
-        }
-        
-        .copy-button.copied {
-            background-color: #28a745;
-        }
-        
-        .copy-button svg {
-            width: 14px;
-            height: 14px;
-            fill: currentColor;
-        }
-        
         .exercise {
-            background-color: #e8f5e9;
-            border: 2px solid #4caf50;
-            border-radius: 8px;
+            background-color: #e7f3ff;
+            border: 2px solid #2196F3;
             padding: 20px;
-            margin: 25px 0;
+            margin: 20px 0;
+            border-radius: 8px;
         }
-        
         .exercise h3 {
-            color: #2e7d32;
+            color: #1976D2;
             margin-top: 0;
         }
-        
-        .difficulty {
-            display: inline-block;
-            padding: 5px 12px;
-            border-radius: 15px;
-            font-size: 12px;
-            font-weight: bold;
-            margin-left: 10px;
-        }
-        
-        .difficulty-easy {
-            background-color: #4caf50;
-            color: white;
-        }
-        
-        .difficulty-medium {
-            background-color: #ff9800;
-            color: white;
-        }
-        
-        .difficulty-hard {
-            background-color: #f44336;
-            color: white;
-        }
-        
-        ul, ol {
-            padding-left: 25px;
-        }
-        
-        li {
-            margin: 8px 0;
-        }
-        
         table {
             width: 100%;
             border-collapse: collapse;
-            margin: 20px 0;
+            margin: 15px 0;
         }
-        
         th, td {
             border: 1px solid #ddd;
             padding: 12px;
             text-align: left;
         }
-        
         th {
-            background-color: #e2d96e;
-            color: #333;
+            background-color: #8f0000;
+            color: white;
         }
-        
         tr:nth-child(even) {
             background-color: #f9f9f9;
         }
-        
-        .flow-json {
-            background-color: #263238;
-            color: #aed581;
-            padding: 15px;
-            padding-top: 40px;
-            border-radius: 5px;
-            overflow-x: auto;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            max-height: 400px;
-            overflow-y: auto;
-            position: relative;
-        }
-        
-        details {
-            margin: 15px 0;
-        }
-        
-        summary {
-            cursor: pointer;
-            padding: 10px;
-            background-color: #6c757d;
-            color: white;
-            border-radius: 4px;
-            font-weight: bold;
-        }
-        
-        summary:hover {
-            background-color: #5a6268;
-        }
-        
-        .feature-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-        }
-        
-        .feature-card {
+        .flow-diagram {
             background-color: #f8f9fa;
             border: 2px solid #dee2e6;
+            padding: 20px;
+            margin: 20px 0;
             border-radius: 8px;
-            padding: 15px;
-        }
-        
-        .feature-card h4 {
-            color: #b8a830;
-            margin-top: 0;
-        }
-        
-        .mode-badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: bold;
-            margin-right: 5px;
-        }
-        
-        .badge-string {
-            background-color: #e2d96e;
-            color: #333;
-        }
-        
-        .badge-array {
-            background-color: #17a2b8;
-            color: white;
-        }
-        
-        .badge-object {
-            background-color: #6f42c1;
-            color: white;
-        }
-        
-        .badge-buffer {
-            background-color: #dc3545;
-            color: white;
-        }
-        
-        .data-flow {
-            background-color: #f0f0f0;
-            border: 2px dashed #999;
-            border-radius: 8px;
-            padding: 15px;
-            margin: 15px 0;
             text-align: center;
         }
-        
-        .data-flow .before {
-            background-color: #ffcccc;
-            padding: 10px;
-            border-radius: 4px;
-            display: inline-block;
-            margin: 5px;
-        }
-        
-        .data-flow .after {
-            background-color: #ccffcc;
-            padding: 10px;
-            border-radius: 4px;
-            display: inline-block;
-            margin: 5px;
-        }
-        
-        .data-flow .arrow-down {
-            display: block;
-            font-size: 24px;
-            color: #666;
+        ul, ol {
             margin: 10px 0;
+            padding-left: 30px;
+        }
+        li {
+            margin: 5px 0;
+        }
+        details {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        summary {
+            cursor: pointer;
+            font-weight: bold;
+            color: #8f0000;
+            padding: 5px;
+        }
+        summary:hover {
+            background-color: #e9ecef;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>✂️ Node-RED Splitノード 完全ガイド</h1>
+        <h1>🔀 Node-RED Split/Joinノード完全ガイド</h1>
         
-        <p>このガイドでは、Node-REDの<strong>Splitノード</strong>について、初心者の方でも理解できるように詳しく説明します。</p>
-        
-        <h2>📚 1. Splitノードとは?</h2>
-        
-        <h3>🤔 「Split」って何?</h3>
-        <p>
-            Splitノードは、<strong>1つのメッセージを複数のメッセージに分割する</strong>ノードです。
-            日常生活で例えると、<strong>ピザを切り分ける</strong>ようなものです。
-        </p>
-        
-        <div class="important">
-            <p><strong>🍕 ピザの切り分けに例えると:</strong></p>
-            <ul>
-                <li>🍕 <strong>ホールピザを受け取る</strong> = 1つのメッセージ(配列やテキスト)</li>
-                <li>🔪 <strong>ピザカッターで切る</strong> = Splitノードで分割</li>
-                <li>🍽️ <strong>1切れずつ配る</strong> = 個別のメッセージとして送信</li>
-                <li>📝 <strong>何切れ目かメモ</strong> = msg.partsに分割情報を記録</li>
-            </ul>
+        <div class="note">
+            <strong>📘 このガイドについて</strong><br>
+            このガイドでは、Node-REDのSplitノードとJoinノードの使い方を、基礎から応用まで段階的に学習します。
+            配列やオブジェクトの分割・結合処理をマスターしましょう！
         </div>
+
+        <h2>📚 目次</h2>
+        <ol>
+            <li><a href="#overview">Split/Joinノードとは</a></li>
+            <li><a href="#basic-concepts">基本概念</a></li>
+            <li><a href="#split-node">Splitノードの詳細</a></li>
+            <li><a href="#join-node">Joinノードの詳細</a></li>
+            <li><a href="#exercises">実践演習</a></li>
+            <li><a href="#advanced">応用パターン</a></li>
+        </ol>
+
+        <h2 id="overview">1️⃣ Split/Joinノードとは</h2>
         
-        <h3>📦 基本的な動作</h3>
-        <div class="node-example">
-            <span class="node node-inject">Inject</span>
-            <span class="arrow">→</span>
-            <span class="node node-split">Split</span>
-            <span class="arrow">→→→</span>
-            <span class="node node-debug">Debug</span>
-        </div>
-        
-        <p>
-            Splitノードは、配列、文字列、オブジェクトなどを受け取り、それぞれの要素を<strong>個別のメッセージとして順次送信</strong>します。
-            後で<strong>Joinノード</strong>と組み合わせて、分割したメッセージを再結合することもできます。
-        </p>
-        
-        <div class="data-flow">
-            <div class="before">
-                <strong>入力(1メッセージ)</strong><br>
-                ["Apple", "Orange", "Banana"]
-            </div>
-            <span class="arrow-down">↓ Split ↓</span>
-            <div class="after">
-                <strong>出力(3メッセージ)</strong><br>
-                "Apple" → "Orange" → "Banana"
-            </div>
-        </div>
-        
-        <h2>⚙️ 2. Splitノードの設定</h2>
-        
-        <h3>🔧 入力データ別の動作</h3>
-        
-        <div class="feature-grid">
-            <div class="feature-card">
-                <h4><span class="mode-badge badge-string">文字列</span> String</h4>
-                <p>指定した区切り文字で分割</p>
-                <div class="code-block">"Apple,Orange,Banana"
-↓ カンマで分割
-"Apple" → "Orange" → "Banana"</div>
-            </div>
-            
-            <div class="feature-card">
-                <h4><span class="mode-badge badge-array">配列</span> Array</h4>
-                <p>各要素を個別メッセージに</p>
-                <div class="code-block">["A", "B", "C"]
-↓ 分割
-"A" → "B" → "C"</div>
-            </div>
-            
-            <div class="feature-card">
-                <h4><span class="mode-badge badge-object">オブジェクト</span> Object</h4>
-                <p>各プロパティをキー/値ペアに</p>
-                <div class="code-block">{a: 1, b: 2}
-↓ 分割
-{payload: 1, topic: "a"}
-{payload: 2, topic: "b"}</div>
-            </div>
-            
-            <div class="feature-card">
-                <h4><span class="mode-badge badge-buffer">バッファ</span> Buffer</h4>
-                <p>固定長または区切りバイトで分割</p>
-                <div class="code-block">Buffer(12バイト)
-↓ 4バイトごと
-Buffer(4) → Buffer(4) → Buffer(4)</div>
-            </div>
-        </div>
-        
-        <h3>📋 設定項目</h3>
+        <h3>概要</h3>
+        <p>Split/Joinノードは、配列やオブジェクトを分割・結合するための強力なツールです。</p>
         
         <table>
             <tr>
-                <th>設定項目</th>
+                <th>ノード</th>
+                <th>主な機能</th>
+                <th>使用場面</th>
+            </tr>
+            <tr>
+                <td><strong>Split</strong></td>
+                <td>配列/オブジェクト/文字列を個別のメッセージに分割</td>
+                <td>データを1つずつ処理したい時</td>
+            </tr>
+            <tr>
+                <td><strong>Join</strong></td>
+                <td>複数のメッセージを1つの配列/オブジェクトに結合</td>
+                <td>分割したデータを再び集約したい時</td>
+            </tr>
+        </table>
+
+        <h3>基本的な処理フロー</h3>
+        <div class="flow-diagram">
+            <p><strong>典型的な使用パターン</strong></p>
+            <code>
+                [配列データ] → [Split] → [処理] → [Join] → [結合された結果]
+            </code>
+        </div>
+
+        <h2 id="basic-concepts">2️⃣ 基本概念</h2>
+
+        <h3>なぜ分割・結合が必要なのか？</h3>
+        
+        <div class="tip">
+            <strong>💡 実用例</strong><br>
+            <ul>
+                <li><strong>データ加工：</strong>配列内の各要素に対して個別に処理を適用</li>
+                <li><strong>API呼び出し：</strong>複数のIDに対して順次APIをコール</li>
+                <li><strong>フィルタリング：</strong>条件に合うデータのみを集約</li>
+                <li><strong>並列処理：</strong>データを分割して並列に処理後、結果を統合</li>
+            </ul>
+        </div>
+
+        <h3>メッセージのプロパティ</h3>
+        <p>Splitノードは、分割されたメッセージに以下の特別なプロパティを追加します：</p>
+        
+        <table>
+            <tr>
+                <th>プロパティ</th>
                 <th>説明</th>
                 <th>例</th>
             </tr>
             <tr>
-                <td><strong>分割方法</strong></td>
-                <td>文字列の場合の区切り文字</td>
-                <td>\n(改行), ,(カンマ), 任意の文字</td>
+                <td><code>msg.parts.index</code></td>
+                <td>現在のメッセージのインデックス（0始まり）</td>
+                <td>0, 1, 2, ...</td>
             </tr>
             <tr>
-                <td><strong>固定長</strong></td>
-                <td>指定した文字数/バイト数で分割</td>
-                <td>4文字ごと、100バイトごと</td>
+                <td><code>msg.parts.count</code></td>
+                <td>全体のメッセージ数</td>
+                <td>5</td>
             </tr>
             <tr>
-                <td><strong>配列分割数</strong></td>
-                <td>配列を指定個数ずつに分割</td>
-                <td>2個ずつ、10個ずつ</td>
+                <td><code>msg.parts.id</code></td>
+                <td>メッセージグループの一意なID</td>
+                <td>"a1b2c3d4"</td>
             </tr>
             <tr>
-                <td><strong>キー追加先</strong></td>
-                <td>オブジェクト分割時のキー格納先</td>
-                <td>msg.topic, msg.key</td>
-            </tr>
-            <tr>
-                <td><strong>ストリームモード</strong></td>
-                <td>メッセージの区切りをまたいで分割</td>
-                <td>大きなファイルの処理</td>
+                <td><code>msg.parts.type</code></td>
+                <td>元のデータ型</td>
+                <td>"array", "object", "string"</td>
             </tr>
         </table>
-        
-        <h3>🎯 msg.partsオブジェクト</h3>
-        
-        <p>Splitノードは分割情報を<code>msg.parts</code>に自動的に追加します。これはJoinノードで再結合する際に使用されます。</p>
-        
-        <div class="code-block">msg.parts = {
-    id: "abc123",      // 分割グループの識別子
-    index: 0,          // このメッセージの順番(0から)
-    count: 3,          // 総分割数
-    type: "array",     // 元のデータ型
-    key: "Apple"       // オブジェクト分割時のキー名
-}</div>
-        
-        <h2>🎯 3. 実用的な使用パターン</h2>
-        
+
         <div class="important">
-            <p><strong>📥 サンプルフローのインポート方法:</strong></p>
-            <ol>
-                <li>下のサンプルフローJSONをコピー</li>
-                <li>Node-REDエディタで <strong>メニュー → 読み込み</strong> を選択</li>
-                <li>JSONをペーストして「読み込み」をクリック</li>
-            </ol>
-            <p>このサンプルフローには、以下で説明する全パターンの実例が含まれています。</p>
+            <strong>⚠️ 重要：</strong><code>msg.parts</code>プロパティは、JoinノードがSplitで分割されたメッセージを正しく結合するために使用されます。
+            このプロパティを削除または変更すると、Joinノードが正常に動作しなくなる可能性があります。
         </div>
-        
-        <details>
-            <summary>📋 サンプルフロー（クリックで展開）</summary>
-            <p style="margin: 10px 0; color: #666;"><small>参照元：NodeREDエディター内サンプルフロー</small></p>
-            <div class="flow-json">
-[
-    {
-        "id": "0276807ceed12df2",
-        "type": "tab",
-        "label": "split",
-        "disabled": false,
-        "info": "",
-        "env": []
-    },
-    {
-        "id": "f94ffc33.76f83",
-        "type": "comment",
-        "z": "0276807ceed12df2",
-        "name": "Example: Split Message Payload",
-        "info": "Split node can be used to split message payload into multiple messages.",
-        "x": 330,
-        "y": 120,
-        "wires": []
-    },
-    {
-        "id": "657bb57c.a3f98c",
-        "type": "split",
-        "z": "0276807ceed12df2",
-        "name": "",
-        "splt": "\\n",
-        "spltType": "str",
-        "arraySplt": 1,
-        "arraySpltType": "len",
-        "stream": false,
-        "addname": "",
-        "x": 650,
-        "y": 220,
-        "wires": [
-            [
-                "14228ff.ae24f7"
-            ]
-        ]
-    },
-    {
-        "id": "2afece55.b87de2",
-        "type": "inject",
-        "z": "0276807ceed12df2",
-        "name": "",
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "",
-        "payloadType": "date",
-        "x": 360,
-        "y": 220,
-        "wires": [
-            [
-                "cfca3863.d961d8"
-            ]
-        ]
-    },
-    {
-        "id": "cfca3863.d961d8",
-        "type": "template",
-        "z": "0276807ceed12df2",
-        "name": "data",
-        "field": "payload",
-        "fieldType": "msg",
-        "format": "handlebars",
-        "syntax": "plain",
-        "template": "Apple\nOrange\nBanana",
-        "output": "str",
-        "x": 510,
-        "y": 220,
-        "wires": [
-            [
-                "657bb57c.a3f98c"
-            ]
-        ]
-    },
-    {
-        "id": "14228ff.ae24f7",
-        "type": "debug",
-        "z": "0276807ceed12df2",
-        "name": "",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "false",
-        "x": 800,
-        "y": 220,
-        "wires": []
-    },
-    {
-        "id": "9a3c9494.b5d178",
-        "type": "comment",
-        "z": "0276807ceed12df2",
-        "name": "Split input text by specified string",
-        "info": "",
-        "x": 370,
-        "y": 180,
-        "wires": []
-    },
-    {
-        "id": "38c873c.5ae718c",
-        "type": "comment",
-        "z": "0276807ceed12df2",
-        "name": "→ split by newline (\\n)",
-        "info": "",
-        "x": 700,
-        "y": 260,
-        "wires": []
-    },
-    {
-        "id": "bdfa12b9.3fbbc",
-        "type": "split",
-        "z": "0276807ceed12df2",
-        "name": "",
-        "splt": "4",
-        "spltType": "len",
-        "arraySplt": 1,
-        "arraySpltType": "len",
-        "stream": false,
-        "addname": "",
-        "x": 650,
-        "y": 340,
-        "wires": [
-            [
-                "debf23bb.c0245"
-            ]
-        ]
-    },
-    {
-        "id": "7c0948db.e35d38",
-        "type": "inject",
-        "z": "0276807ceed12df2",
-        "name": "",
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "",
-        "payloadType": "date",
-        "x": 360,
-        "y": 340,
-        "wires": [
-            [
-                "7f791b7d.94cad4"
-            ]
-        ]
-    },
-    {
-        "id": "7f791b7d.94cad4",
-        "type": "template",
-        "z": "0276807ceed12df2",
-        "name": "data",
-        "field": "payload",
-        "fieldType": "msg",
-        "format": "handlebars",
-        "syntax": "plain",
-        "template": "Apple\nOrange\nBanana",
-        "output": "str",
-        "x": 510,
-        "y": 340,
-        "wires": [
-            [
-                "bdfa12b9.3fbbc"
-            ]
-        ]
-    },
-    {
-        "id": "debf23bb.c0245",
-        "type": "debug",
-        "z": "0276807ceed12df2",
-        "name": "",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "false",
-        "x": 800,
-        "y": 340,
-        "wires": []
-    },
-    {
-        "id": "f05e98a3.4182c8",
-        "type": "comment",
-        "z": "0276807ceed12df2",
-        "name": "Split input text by specified number of characters",
-        "info": "",
-        "x": 420,
-        "y": 300,
-        "wires": []
-    },
-    {
-        "id": "86b52b51.2258d8",
-        "type": "comment",
-        "z": "0276807ceed12df2",
-        "name": "→ split by four characters",
-        "info": "",
-        "x": 710,
-        "y": 380,
-        "wires": []
-    },
-    {
-        "id": "71d7c0e0.c0316",
-        "type": "split",
-        "z": "0276807ceed12df2",
-        "name": "",
-        "splt": "\\n",
-        "spltType": "str",
-        "arraySplt": 1,
-        "arraySpltType": "len",
-        "stream": false,
-        "addname": "",
-        "x": 650,
-        "y": 480,
-        "wires": [
-            [
-                "bee5b6a2.a955a8"
-            ]
-        ]
-    },
-    {
-        "id": "1cdc2df9.bebdd2",
-        "type": "inject",
-        "z": "0276807ceed12df2",
-        "name": "",
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "",
-        "payloadType": "date",
-        "x": 360,
-        "y": 480,
-        "wires": [
-            [
-                "f30df13c.19475"
-            ]
-        ]
-    },
-    {
-        "id": "f30df13c.19475",
-        "type": "template",
-        "z": "0276807ceed12df2",
-        "name": "data",
-        "field": "payload",
-        "fieldType": "msg",
-        "format": "json",
-        "syntax": "plain",
-        "template": "[ \n    \"Apple\",\n    \"Orange\",\n    \"Banana\"\n]",
-        "output": "json",
-        "x": 510,
-        "y": 480,
-        "wires": [
-            [
-                "71d7c0e0.c0316"
-            ]
-        ]
-    },
-    {
-        "id": "bee5b6a2.a955a8",
-        "type": "debug",
-        "z": "0276807ceed12df2",
-        "name": "",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "false",
-        "x": 800,
-        "y": 480,
-        "wires": []
-    },
-    {
-        "id": "b2c731fe.abda4",
-        "type": "comment",
-        "z": "0276807ceed12df2",
-        "name": "Split input array",
-        "info": "",
-        "x": 320,
-        "y": 440,
-        "wires": []
-    },
-    {
-        "id": "1f557227.d0910e",
-        "type": "comment",
-        "z": "0276807ceed12df2",
-        "name": "→ split array",
-        "info": "",
-        "x": 670,
-        "y": 520,
-        "wires": []
-    },
-    {
-        "id": "c0d43ff4.291d8",
-        "type": "split",
-        "z": "0276807ceed12df2",
-        "name": "",
-        "splt": "\\n",
-        "spltType": "str",
-        "arraySplt": 1,
-        "arraySpltType": "len",
-        "stream": false,
-        "addname": "topic",
-        "x": 650,
-        "y": 600,
-        "wires": [
-            [
-                "fc9fe458.50fd18"
-            ]
-        ]
-    },
-    {
-        "id": "6d52ce8a.0c715",
-        "type": "inject",
-        "z": "0276807ceed12df2",
-        "name": "",
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "",
-        "payloadType": "date",
-        "x": 360,
-        "y": 600,
-        "wires": [
-            [
-                "bdeb8c21.1c6b7"
-            ]
-        ]
-    },
-    {
-        "id": "bdeb8c21.1c6b7",
-        "type": "template",
-        "z": "0276807ceed12df2",
-        "name": "data",
-        "field": "payload",
-        "fieldType": "msg",
-        "format": "json",
-        "syntax": "plain",
-        "template": "{ \n    \"Apple\": 80,\n    \"Orange\": 100,\n    \"Banana\": 50\n}",
-        "output": "json",
-        "x": 510,
-        "y": 600,
-        "wires": [
-            [
-                "c0d43ff4.291d8"
-            ]
-        ]
-    },
-    {
-        "id": "fc9fe458.50fd18",
-        "type": "debug",
-        "z": "0276807ceed12df2",
-        "name": "",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "true",
-        "targetType": "full",
-        "x": 780,
-        "y": 600,
-        "wires": []
-    },
-    {
-        "id": "48956e14.79b86",
-        "type": "comment",
-        "z": "0276807ceed12df2",
-        "name": "Split object to key/value pairs",
-        "info": "",
-        "x": 360,
-        "y": 560,
-        "wires": []
-    },
-    {
-        "id": "d528c2c2.6efc7",
-        "type": "comment",
-        "z": "0276807ceed12df2",
-        "name": "→ split object",
-        "info": "",
-        "x": 670,
-        "y": 640,
-        "wires": []
-    }
-]
-            </div>
-        </details>
-        
-        <h3>パターン1: 文字列を区切り文字で分割</h3>
-        <p><strong>用途:</strong> テキストデータを行ごと、カンマ区切りなどで分割</p>
-        
-        <div class="node-example">
-            <span class="node node-inject">Inject</span>
-            <span class="arrow">→</span>
-            <span class="node node-template">Template<br><small>(テキスト生成)</small></span>
-            <span class="arrow">→</span>
-            <span class="node node-split">Split<br><small>(\n)</small></span>
-            <span class="arrow">→→→</span>
-            <span class="node node-debug">Debug</span>
-        </div>
-        
-        <div class="tip">
-            <p><strong>📌 動作の流れ:</strong></p>
-            <ol>
-                <li>"Apple\nOrange\nBanana" を受信</li>
-                <li>改行文字(\n)で分割</li>
-                <li>"Apple" → "Orange" → "Banana" を順次送信</li>
-            </ol>
-        </div>
-        
-        <p><strong>設定例:</strong></p>
-        <div class="code-block">分割: 文字列 "\n"
 
-入力: "Apple\nOrange\nBanana"
-出力: 3つのメッセージ
-  1. msg.payload = "Apple"
-  2. msg.payload = "Orange"
-  3. msg.payload = "Banana"</div>
-        
-        <h3>パターン2: 文字列を固定長で分割</h3>
-        <p><strong>用途:</strong> 固定長レコードのデータを処理</p>
-        
-        <div class="node-example">
-            <span class="node node-inject">Inject</span>
-            <span class="arrow">→</span>
-            <span class="node node-template">Template</span>
-            <span class="arrow">→</span>
-            <span class="node node-split">Split<br><small>(4文字)</small></span>
-            <span class="arrow">→→→</span>
-            <span class="node node-debug">Debug</span>
-        </div>
-        
-        <div class="tip">
-            <p><strong>📌 動作の流れ:</strong></p>
-            <ol>
-                <li>"Apple\nOrange\nBanana" (19文字)を受信</li>
-                <li>4文字ずつ分割</li>
-                <li>"Appl" → "e\nOr" → "ange" → "\nBan" → "ana" を順次送信</li>
-            </ol>
-        </div>
-        
-        <p><strong>設定例:</strong></p>
-        <div class="code-block">分割: 固定長 4文字
+        <h2 id="split-node">3️⃣ Splitノードの詳細</h2>
 
-入力: "AAAABBBBCCCC"
-出力: 3つのメッセージ
-  1. msg.payload = "AAAA"
-  2. msg.payload = "BBBB"
-  3. msg.payload = "CCCC"</div>
+        <h3>配列の分割</h3>
+        <p>最も一般的な使用方法です。</p>
         
-        <h3>パターン3: 配列を要素ごとに分割</h3>
-        <p><strong>用途:</strong> 配列の各要素を個別に処理</p>
-        
-        <div class="node-example">
-            <span class="node node-inject">Inject</span>
-            <span class="arrow">→</span>
-            <span class="node node-template">Template<br><small>(JSON配列)</small></span>
-            <span class="arrow">→</span>
-            <span class="node node-split">Split</span>
-            <span class="arrow">→→→</span>
-            <span class="node node-debug">Debug</span>
-        </div>
-        
-        <div class="tip">
-            <p><strong>📌 動作の流れ:</strong></p>
-            <ol>
-                <li>["Apple", "Orange", "Banana"] を受信</li>
-                <li>配列を自動認識して分割</li>
-                <li>"Apple" → "Orange" → "Banana" を順次送信</li>
-            </ol>
-        </div>
-        
-        <p><strong>設定例:</strong></p>
-        <div class="code-block">分割: 配列 (自動認識)
+        <div class="code-block">// 入力例
+msg.payload = [10, 20, 30, 40, 50];
 
-入力: ["Apple", "Orange", "Banana"]
-出力: 3つのメッセージ
-  1. msg.payload = "Apple",   msg.parts.index = 0
-  2. msg.payload = "Orange",  msg.parts.index = 1
-  3. msg.payload = "Banana",  msg.parts.index = 2</div>
-        
-        <h3>パターン4: オブジェクトをキー/値ペアに分割</h3>
-        <p><strong>用途:</strong> オブジェクトの各プロパティを個別に処理</p>
-        
-        <div class="node-example">
-            <span class="node node-inject">Inject</span>
-            <span class="arrow">→</span>
-            <span class="node node-template">Template<br><small>(JSONオブジェクト)</small></span>
-            <span class="arrow">→</span>
-            <span class="node node-split">Split<br><small>(topic=key)</small></span>
-            <span class="arrow">→→→</span>
-            <span class="node node-debug">Debug</span>
-        </div>
-        
-        <div class="tip">
-            <p><strong>📌 動作の流れ:</strong></p>
-            <ol>
-                <li>{Apple: 80, Orange: 100, Banana: 50} を受信</li>
-                <li>オブジェクトを自動認識して分割</li>
-                <li>各プロパティを個別メッセージとして送信</li>
-                <li>キー名は msg.topic に格納</li>
-            </ol>
-        </div>
-        
-        <p><strong>設定例:</strong></p>
-        <div class="code-block">分割: オブジェクト
-キー追加先: msg.topic
+// Splitノード通過後、5つのメッセージに分割される：
+// メッセージ1: msg.payload = 10, msg.parts.index = 0
+// メッセージ2: msg.payload = 20, msg.parts.index = 1
+// メッセージ3: msg.payload = 30, msg.parts.index = 2
+// メッセージ4: msg.payload = 40, msg.parts.index = 3
+// メッセージ5: msg.payload = 50, msg.parts.index = 4</div>
 
-入力: {"Apple": 80, "Orange": 100, "Banana": 50}
-出力: 3つのメッセージ
-  1. msg.payload = 80,  msg.topic = "Apple"
-  2. msg.payload = 100, msg.topic = "Orange"
-  3. msg.payload = 50,  msg.topic = "Banana"</div>
+        <h3>オブジェクトの分割</h3>
+        <p>オブジェクトを分割すると、キーと値のペアがそれぞれメッセージになります。</p>
         
-        <h3>パターン5: Split + Joinの組み合わせ</h3>
-        <p><strong>用途:</strong> 配列の各要素を加工して再結合</p>
-        
-        <div class="node-example">
-            <span class="node node-inject">Inject</span>
-            <span class="arrow">→</span>
-            <span class="node node-split">Split</span>
-            <span class="arrow">→</span>
-            <span class="node node-function">Function<br><small>(加工)</small></span>
-            <span class="arrow">→</span>
-            <span class="node node-join">Join</span>
-            <span class="arrow">→</span>
-            <span class="node node-debug">Debug</span>
+        <div class="code-block">// 入力例
+msg.payload = {
+    "apple": 100,
+    "banana": 80,
+    "orange": 120
+};
+
+// Splitノード通過後、3つのメッセージに分割される：
+// メッセージ1: msg.payload = 100, msg.topic = "apple"
+// メッセージ2: msg.payload = 80, msg.topic = "banana"
+// メッセージ3: msg.payload = 120, msg.topic = "orange"</div>
+
+        <div class="note">
+            <strong>📝 注意：</strong>オブジェクトを分割すると、キー名は<code>msg.topic</code>に、値は<code>msg.payload</code>に格納されます。
         </div>
+
+        <h3>文字列の分割</h3>
+        <p>文字列を指定された区切り文字で分割できます。</p>
         
-        <div class="tip">
-            <p><strong>📌 動作の流れ:</strong></p>
-            <ol>
-                <li>[1, 2, 3] を受信してSplitで分割</li>
-                <li>Functionで各値を2倍に加工</li>
-                <li>Joinで再結合して [2, 4, 6] を出力</li>
-            </ol>
-            <p><em>※ msg.partsが保持されているので、Joinノードで自動的に再結合できます</em></p>
-        </div>
-        
-        <h2>🏋️ 4. 実践演習</h2>
-        
-        <div class="exercise">
-            <h3>演習1: CSVデータの分割<span class="difficulty difficulty-easy">初級</span></h3>
-            
-            <p><strong>📝 課題:</strong></p>
-            <p>カンマ区切りのテキストを個別のメッセージに分割してください。</p>
-            
-            <p><strong>🎯 要求仕様:</strong></p>
-            <ul>
-                <li>Inject、Split、Debugノードを使用</li>
-                <li>入力: "東京,大阪,名古屋,福岡"</li>
-                <li>カンマで分割して4つのメッセージを出力</li>
-            </ul>
-            
-            <p><strong>📊 期待される動作:</strong></p>
-            <ul>
-                <li>Injectボタンをクリック → Debugに4つのメッセージが表示</li>
-                <li>"東京" → "大阪" → "名古屋" → "福岡"</li>
-            </ul>
-            
-            <details>
-                <summary>💡 ヒント</summary>
-                <p><strong>Splitノードの設定:</strong></p>
-                <ul>
-                    <li>分割方法: 文字列</li>
-                    <li>区切り文字: <code>,</code> (カンマ)</li>
-                </ul>
-                <p><strong>Injectノードの設定:</strong></p>
-                <ul>
-                    <li>payload: 文字列型で "東京,大阪,名古屋,福岡"</li>
-                </ul>
-            </details>
-            
-            <details>
-                <summary>✅ 解答例フロー</summary>
-                <div class="flow-json">
-[
-    {
-        "id": "ex1_inject",
-        "type": "inject",
-        "name": "CSV入力",
-        "props": [{"p": "payload"}],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "東京,大阪,名古屋,福岡",
-        "payloadType": "str",
-        "x": 120,
-        "y": 100,
-        "wires": [["ex1_split"]]
-    },
-    {
-        "id": "ex1_split",
-        "type": "split",
-        "name": "カンマ分割",
-        "splt": ",",
-        "spltType": "str",
-        "arraySplt": 1,
-        "arraySpltType": "len",
-        "stream": false,
-        "addname": "",
-        "x": 290,
-        "y": 100,
-        "wires": [["ex1_debug"]]
-    },
-    {
-        "id": "ex1_debug",
-        "type": "debug",
-        "name": "結果",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "x": 450,
-        "y": 100,
-        "wires": []
-    }
-]
-                </div>
-            </details>
-        </div>
-        
-        <div class="exercise">
-            <h3>演習2: 配列の分割と加工<span class="difficulty difficulty-medium">中級</span></h3>
-            
-            <p><strong>📝 課題:</strong></p>
-            <p>数値の配列を分割し、各値を2倍にして出力してください。</p>
-            
-            <p><strong>🎯 要求仕様:</strong></p>
-            <ul>
-                <li>Inject、Split、Function、Debugノードを使用</li>
-                <li>入力: [10, 20, 30, 40, 50]</li>
-                <li>各値を2倍にして出力</li>
-            </ul>
-            
-            <p><strong>📊 期待される動作:</strong></p>
-            <ul>
-                <li>Injectボタンをクリック → Debugに5つのメッセージが表示</li>
-                <li>20 → 40 → 60 → 80 → 100</li>
-            </ul>
-            
-            <details>
-                <summary>💡 ヒント</summary>
-                <p><strong>Injectノードの設定:</strong></p>
-                <ul>
-                    <li>payload: JSON型で [10, 20, 30, 40, 50]</li>
-                </ul>
-                <p><strong>Splitノード:</strong></p>
-                <ul>
-                    <li>配列は自動認識されるのでデフォルト設定でOK</li>
-                </ul>
-                <p><strong>Functionノード:</strong></p>
-                <ul>
-                    <li><code>msg.payload = msg.payload * 2;</code></li>
-                </ul>
-            </details>
-            
-            <details>
-                <summary>✅ 解答例フロー</summary>
-                <div class="flow-json">
-[
-    {
-        "id": "ex2_inject",
-        "type": "inject",
-        "name": "数値配列",
-        "props": [{"p": "payload"}],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "[10,20,30,40,50]",
-        "payloadType": "json",
-        "x": 120,
-        "y": 100,
-        "wires": [["ex2_split"]]
-    },
-    {
-        "id": "ex2_split",
-        "type": "split",
-        "name": "分割",
-        "splt": "\\n",
-        "spltType": "str",
-        "arraySplt": 1,
-        "arraySpltType": "len",
-        "stream": false,
-        "addname": "",
-        "x": 270,
-        "y": 100,
-        "wires": [["ex2_function"]]
-    },
-    {
-        "id": "ex2_function",
-        "type": "function",
-        "name": "2倍にする",
-        "func": "// 値を2倍にする\n\nmsg.payload = msg.payload * 2;\n\nreturn msg;",
-        "outputs": 1,
-        "timeout": "",
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "x": 420,
-        "y": 100,
-        "wires": [["ex2_debug"]]
-    },
-    {
-        "id": "ex2_debug",
-        "type": "debug",
-        "name": "結果",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "x": 570,
-        "y": 100,
-        "wires": []
-    }
-]
-                </div>
-            </details>
-        </div>
-        
-        <div class="exercise">
-            <h3>演習3: オブジェクトの分割と集計<span class="difficulty difficulty-medium">中級</span></h3>
-            
-            <p><strong>📝 課題:</strong></p>
-            <p>商品と価格のオブジェクトを分割し、各商品の情報を整形して出力してください。</p>
-            
-            <p><strong>🎯 要求仕様:</strong></p>
-            <ul>
-                <li>Inject、Split、Function、Debugノードを使用</li>
-                <li>入力: {"りんご": 150, "みかん": 80, "バナナ": 120}</li>
-                <li>出力: "[商品名]: [価格]円" の形式</li>
-            </ul>
-            
-            <p><strong>📊 期待される動作:</strong></p>
-            <ul>
-                <li>"りんご: 150円" → "みかん: 80円" → "バナナ: 120円"</li>
-            </ul>
-            
-            <details>
-                <summary>💡 ヒント</summary>
-                <p><strong>Splitノードの設定:</strong></p>
-                <ul>
-                    <li>キー追加先: msg.topic</li>
-                </ul>
-                <p><strong>Functionノード:</strong></p>
-                <ul>
-                    <li>msg.topicにキー名(商品名)が入る</li>
-                    <li>msg.payloadに値(価格)が入る</li>
-                    <li>これらを組み合わせて文字列を作成</li>
-                </ul>
-            </details>
-            
-            <details>
-                <summary>✅ 解答例フロー</summary>
-                <div class="flow-json">
-[
-    {
-        "id": "ex3_inject",
-        "type": "inject",
-        "name": "商品データ",
-        "props": [{"p": "payload"}],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "{\"りんご\":150,\"みかん\":80,\"バナナ\":120}",
-        "payloadType": "json",
-        "x": 130,
-        "y": 100,
-        "wires": [["ex3_split"]]
-    },
-    {
-        "id": "ex3_split",
-        "type": "split",
-        "name": "分割",
-        "splt": "\\n",
-        "spltType": "str",
-        "arraySplt": 1,
-        "arraySpltType": "len",
-        "stream": false,
-        "addname": "topic",
-        "x": 290,
-        "y": 100,
-        "wires": [["ex3_function"]]
-    },
-    {
-        "id": "ex3_function",
-        "type": "function",
-        "name": "整形",
-        "func": "// 商品名と価格を整形する\n\nvar name = msg.topic;\nvar price = msg.payload;\n\nmsg.payload = name + \": \" + price + \"円\";\n\nreturn msg;",
-        "outputs": 1,
-        "timeout": "",
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "x": 430,
-        "y": 100,
-        "wires": [["ex3_debug"]]
-    },
-    {
-        "id": "ex3_debug",
-        "type": "debug",
-        "name": "結果",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "x": 570,
-        "y": 100,
-        "wires": []
-    }
-]
-                </div>
-            </details>
-        </div>
-        
-        <div class="exercise">
-            <h3>演習4: Split + Joinで配列を加工<span class="difficulty difficulty-hard">上級</span></h3>
-            
-            <p><strong>📝 課題:</strong></p>
-            <p>文字列の配列を分割し、各文字列を大文字に変換して、再度配列に結合してください。</p>
-            
-            <p><strong>🎯 要求仕様:</strong></p>
-            <ul>
-                <li>Inject、Split、Function、Join、Debugノードを使用</li>
-                <li>入力: ["apple", "orange", "banana"]</li>
-                <li>各要素を大文字に変換</li>
-                <li>Joinノードで再結合して配列に戻す</li>
-            </ul>
-            
-            <p><strong>📊 期待される動作:</strong></p>
-            <ul>
-                <li>入力: ["apple", "orange", "banana"]</li>
-                <li>出力: ["APPLE", "ORANGE", "BANANA"]</li>
-            </ul>
-            
-            <details>
-                <summary>💡 ヒント</summary>
-                <p><strong>Functionノード:</strong></p>
-                <ul>
-                    <li><code>msg.payload = msg.payload.toUpperCase();</code></li>
-                </ul>
-                <p><strong>Joinノード:</strong></p>
-                <ul>
-                    <li>モード: 自動 (msg.partsを使用)</li>
-                    <li>Splitが付与したmsg.partsを使って自動結合</li>
-                </ul>
-            </details>
-            
-            <details>
-                <summary>✅ 解答例フロー</summary>
-                <div class="flow-json">
-[
-    {
-        "id": "ex4_inject",
-        "type": "inject",
-        "name": "文字列配列",
-        "props": [{"p": "payload"}],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "[\"apple\",\"orange\",\"banana\"]",
-        "payloadType": "json",
-        "x": 130,
-        "y": 100,
-        "wires": [["ex4_split"]]
-    },
-    {
-        "id": "ex4_split",
-        "type": "split",
-        "name": "分割",
-        "splt": "\\n",
-        "spltType": "str",
-        "arraySplt": 1,
-        "arraySpltType": "len",
-        "stream": false,
-        "addname": "",
-        "x": 270,
-        "y": 100,
-        "wires": [["ex4_function"]]
-    },
-    {
-        "id": "ex4_function",
-        "type": "function",
-        "name": "大文字変換",
-        "func": "// 文字列を大文字に変換\n\nmsg.payload = msg.payload.toUpperCase();\n\nreturn msg;",
-        "outputs": 1,
-        "timeout": "",
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "x": 410,
-        "y": 100,
-        "wires": [["ex4_join"]]
-    },
-    {
-        "id": "ex4_join",
-        "type": "join",
-        "name": "結合",
-        "mode": "auto",
-        "build": "array",
-        "property": "payload",
-        "propertyType": "msg",
-        "key": "topic",
-        "joiner": "\\n",
-        "joinerType": "str",
-        "accumulate": false,
-        "timeout": "",
-        "count": "",
-        "reduceRight": false,
-        "reduceExp": "",
-        "reduceInit": "",
-        "reduceInitType": "",
-        "reduceFixup": "",
-        "x": 550,
-        "y": 100,
-        "wires": [["ex4_debug"]]
-    },
-    {
-        "id": "ex4_debug",
-        "type": "debug",
-        "name": "結果",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "x": 690,
-        "y": 100,
-        "wires": []
-    }
-]
-                </div>
-            </details>
-        </div>
-        
-        <h2>🎓 5. まとめ</h2>
-        
-        <div class="important">
-            <h3>Splitノードの重要ポイント</h3>
-            <ul>
-                <li>✅ <strong>文字列分割</strong>: 区切り文字または固定長で分割</li>
-                <li>✅ <strong>配列分割</strong>: 各要素を個別メッセージに</li>
-                <li>✅ <strong>オブジェクト分割</strong>: キー/値ペアに分割、キーはmsg.topicへ</li>
-                <li>✅ <strong>msg.parts</strong>: 分割情報を自動付与、Joinで再結合可能</li>
-                <li>✅ <strong>ストリームモード</strong>: 大きなデータを効率的に処理</li>
-            </ul>
-        </div>
-        
-        <div class="warning">
-            <h3>⚠️ よくある間違い</h3>
-            <ul>
-                <li><strong>区切り文字の指定ミス</strong>: \nは「改行」、\\nは「バックスラッシュとn」</li>
-                <li><strong>配列と文字列の混同</strong>: JSONの配列は自動認識されるが、文字列の"[1,2,3]"は配列ではない</li>
-                <li><strong>Joinで結合できない</strong>: msg.partsを保持していないと再結合不可</li>
-                <li><strong>順序の保証</strong>: 非同期処理を挟むと順序が変わる可能性あり</li>
-            </ul>
-        </div>
-        
-        <div class="tip">
-            <h3>📚 次のステップ</h3>
-            <p>Splitノードをマスターしたら、以下のノードも学んでみましょう:</p>
-            <ul>
-                <li><strong>Joinノード</strong>: 分割したメッセージを再結合</li>
-                <li><strong>Sortノード</strong>: メッセージを並べ替え</li>
-                <li><strong>Batchノード</strong>: メッセージをグループ化</li>
-                <li><strong>CSVノード</strong>: CSVデータの解析と生成</li>
-            </ul>
-        </div>
-        
-        <h2>🔧 6. トラブルシューティング</h2>
-        
-        <h3>よくある問題と解決方法</h3>
-        
+        <div class="code-block">// 入力例
+msg.payload = "赤,青,黄,緑";
+
+// Splitノード設定：区切り文字を ","（カンマ）に設定
+// 分割後：
+// メッセージ1: msg.payload = "赤"
+// メッセージ2: msg.payload = "青"
+// メッセージ3: msg.payload = "黄"
+// メッセージ4: msg.payload = "緑"</div>
+
+        <h3>Splitノードの設定オプション</h3>
         <table>
             <tr>
-                <th>問題</th>
-                <th>原因</th>
-                <th>解決方法</th>
+                <th>設定項目</th>
+                <th>説明</th>
             </tr>
             <tr>
-                <td>分割されない</td>
-                <td>区切り文字が存在しない</td>
-                <td>入力データと区切り文字を確認</td>
+                <td>msg.payload</td>
+                <td>分割するメッセージプロパティ（デフォルト）</td>
             </tr>
             <tr>
-                <td>1文字ずつ分割される</td>
-                <td>配列ではなく文字列として処理</td>
-                <td>JSONノードで配列に変換してから分割</td>
+                <td>Fixed Length</td>
+                <td>配列を指定した長さのチャンクに分割</td>
             </tr>
             <tr>
-                <td>Joinで結合できない</td>
-                <td>msg.partsが削除されている</td>
-                <td>途中の処理でmsg.partsを保持</td>
-            </tr>
-            <tr>
-                <td>順序がバラバラ</td>
-                <td>非同期処理による順序変更</td>
-                <td>msg.parts.indexで並べ替え</td>
-            </tr>
-            <tr>
-                <td>メモリ不足</td>
-                <td>巨大な配列を一度に分割</td>
-                <td>ストリームモードを使用</td>
+                <td>Copy key to</td>
+                <td>オブジェクトのキーをコピーするプロパティ名</td>
             </tr>
         </table>
+
+        <h2 id="join-node">4️⃣ Joinノードの詳細</h2>
+
+        <h3>自動モード（Automatic）</h3>
+        <p>最もシンプルなモード。Splitノードで分割されたメッセージを自動的に元の形式に結合します。</p>
         
-        <h2>💡 7. 実務での活用例</h2>
-        
-        <h3>ケース1: ログファイルの行ごと処理</h3>
-        <div class="code-block">ログファイル読み込み
-↓
-Split(改行で分割)
-↓
-各行を解析・フィルタリング
-↓
-アラート or DB保存</div>
-        
-        <h3>ケース2: センサーデータのバッチ処理</h3>
-        <div class="code-block">複数センサーからのデータ配列
-↓
-Split(配列を分割)
-↓
-各センサーデータを個別処理
-↓
-閾値チェック・アラート発報</div>
-        
-        <h3>ケース3: APIレスポンスの個別処理</h3>
-        <div class="code-block">API: ユーザー一覧取得
-↓
-Split(配列を分割)
-↓
-各ユーザーにメール送信
-↓
-Join(結果を集約)</div>
-        
-        <h3>ケース4: 設定ファイルの解析</h3>
-        <div class="code-block">JSON設定ファイル(オブジェクト)
-↓
-Split(キー/値に分割)
-↓
-各設定を個別に検証
-↓
-エラーがあれば通知</div>
-        
-        <h2>📗 8. 追加リソース</h2>
-        
+        <div class="code-block">// Splitで分割されたメッセージ（配列の場合）
+// メッセージ1: msg.payload = 10
+// メッセージ2: msg.payload = 20
+// メッセージ3: msg.payload = 30
+
+// Joinノード（自動モード）通過後
+msg.payload = [10, 20, 30];</div>
+
+        <div class="tip">
+            <strong>💡 ヒント：</strong>自動モードは<code>msg.parts</code>プロパティを使用して、
+            いつすべてのメッセージが揃ったかを判断します。
+        </div>
+
+        <h3>手動モード（Manual）</h3>
+        <p>結合のタイミングや条件を手動で制御できます。</p>
+
+        <h4>主な設定オプション：</h4>
         <ul>
-            <li><a href="https://nodered.org/docs/user-guide/messages#splitting-messages" target="_blank">Node-RED公式ドキュメント: メッセージの分割</a></li>
-            <li><a href="https://nodered.org/docs/user-guide/nodes#split" target="_blank">Node-RED公式ドキュメント: Splitノード</a></li>
-            <li><a href="https://cookbook.nodered.org/" target="_blank">Node-RED Cookbook</a></li>
+            <li><strong>配列に結合：</strong>メッセージを配列として結合</li>
+            <li><strong>文字列に結合：</strong>指定した区切り文字で文字列として結合</li>
+            <li><strong>オブジェクトに結合：</strong>キー値ペアのオブジェクトとして結合</li>
         </ul>
+
+        <h4>トリガー条件：</h4>
+        <table>
+            <tr>
+                <th>条件</th>
+                <th>説明</th>
+                <th>使用例</th>
+            </tr>
+            <tr>
+                <td>メッセージ数</td>
+                <td>指定した数のメッセージを受信後に結合</td>
+                <td>3つのメッセージごとに結合</td>
+            </tr>
+            <tr>
+                <td>タイムアウト</td>
+                <td>指定した時間内に受信したメッセージを結合</td>
+                <td>5秒間のメッセージをまとめる</td>
+            </tr>
+            <tr>
+                <td>特定メッセージ</td>
+                <td>特定のプロパティを持つメッセージで結合をトリガー</td>
+                <td>msg.complete = trueで結合</td>
+            </tr>
+        </table>
+
+        <h3>結合モードの例</h3>
         
+        <h4>文字列として結合：</h4>
+        <div class="code-block">// 入力メッセージ
+// メッセージ1: msg.payload = "Hello"
+// メッセージ2: msg.payload = "World"
+// メッセージ3: msg.payload = "Node-RED"
+
+// Joinノード設定：文字列として結合、区切り文字 " "（スペース）
+// 出力
+msg.payload = "Hello World Node-RED";</div>
+
+        <h4>オブジェクトとして結合：</h4>
+        <div class="code-block">// 入力メッセージ
+// メッセージ1: msg.payload = 25, msg.topic = "temperature"
+// メッセージ2: msg.payload = 60, msg.topic = "humidity"
+
+// Joinノード設定：オブジェクトとして結合、キーは msg.topic
+// 出力
+msg.payload = {
+    "temperature": 25,
+    "humidity": 60
+};</div>
+
+        <h2 id="exercises">5️⃣ 実践演習</h2>
+
+        <div class="exercise">
+            <h3>演習1: 配列要素の2倍化</h3>
+            <p><strong>目標：</strong>配列の各要素を2倍にして新しい配列を作成する</p>
+            
+            <p><strong>手順：</strong></p>
+            <ol>
+                <li>Injectノードで配列 <code>[1, 2, 3, 4, 5]</code> を作成</li>
+                <li>Splitノードで配列を分割</li>
+                <li>Functionノードで各値を2倍にする（<code>msg.payload = msg.payload * 2;</code>）</li>
+                <li>Joinノードで配列に結合（自動モード）</li>
+                <li>Debugノードで結果を確認</li>
+            </ol>
+
+            <p><strong>期待される出力：</strong></p>
+            <div class="code-block">[2, 4, 6, 8, 10]</div>
+
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>Splitノードの設定はデフォルトのままでOKです。Joinノードも「自動モード」を選択すれば、
+                    自動的に元の配列形式に戻してくれます。</p>
+            </details>
+
+            <details>
+                <summary>✅ 解答例</summary>
+                <div class="code-block">// Injectノード
+msg.payload = [1, 2, 3, 4, 5];
+return msg;
+
+// Functionノード（2倍にする）
+msg.payload = msg.payload * 2;
+return msg;</div>
+            </details>
+        </div>
+
+        <div class="exercise">
+            <h3>演習2: 条件に合うデータのフィルタリング</h3>
+            <p><strong>目標：</strong>配列から50以上の値だけを抽出する</p>
+            
+            <p><strong>手順：</strong></p>
+            <ol>
+                <li>Injectノードで配列 <code>[23, 67, 45, 89, 12, 56]</code> を作成</li>
+                <li>Splitノードで配列を分割</li>
+                <li>Switchノードで50以上の値だけを通過させる</li>
+                <li>Joinノードで配列に結合</li>
+                <li>Debugノードで結果を確認</li>
+            </ol>
+
+            <p><strong>期待される出力：</strong></p>
+            <div class="code-block">[67, 89, 56]</div>
+
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>Switchノードの条件設定：</p>
+                <ul>
+                    <li>プロパティ: <code>msg.payload</code></li>
+                    <li>条件: <code>&gt;=</code>（以上）</li>
+                    <li>値: <code>50</code></li>
+                </ul>
+                <p>Joinノードは「手動モード」で、「タイムアウト後に結合」を設定するか、
+                    Splitから来た<code>msg.parts</code>情報を利用して自動結合することもできます。</p>
+            </details>
+
+            <details>
+                <summary>✅ 解答例</summary>
+                <div class="code-block">// Injectノード
+msg.payload = [23, 67, 45, 89, 12, 56];
+return msg;
+
+// Switchノード設定
+// ルール1: msg.payload >= 50</div>
+                <p><strong>注意：</strong>Switchノードでフィルタリングすると、<code>msg.parts.count</code>が変わらないため、
+                    Joinノードの自動モードが正しく動作しない場合があります。その場合は、Changeノードで
+                    <code>msg.parts.count</code>を調整するか、Joinノードのタイムアウト機能を使用してください。</p>
+            </details>
+        </div>
+
+        <div class="exercise">
+            <h3>演習3: オブジェクトの分割と集計</h3>
+            <p><strong>目標：</strong>商品の価格オブジェクトから、各商品の情報を文字列で表示</p>
+            
+            <p><strong>手順：</strong></p>
+            <ol>
+                <li>Injectノードでオブジェクト <code>{"りんご": 100, "バナナ": 80, "オレンジ": 120}</code> を作成</li>
+                <li>Splitノードでオブジェクトを分割</li>
+                <li>Functionノードで「商品名: 価格円」の形式に整形</li>
+                <li>Joinノードで文字列として結合（改行で区切る）</li>
+                <li>Debugノードで結果を確認</li>
+            </ol>
+
+            <p><strong>期待される出力：</strong></p>
+            <div class="code-block">りんご: 100円
+バナナ: 80円
+オレンジ: 120円</div>
+
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>Splitノードでオブジェクトを分割すると：</p>
+                <ul>
+                    <li><code>msg.topic</code>にキー名（商品名）が入る</li>
+                    <li><code>msg.payload</code>に値（価格）が入る</li>
+                    <li>これらを組み合わせて文字列を作成</li>
+                </ul>
+                <p><strong>Functionノードのコード例:</strong></p>
+                <div class="code-block">// 商品名と価格を整形
+msg.payload = msg.topic + ": " + msg.payload + "円";
+return msg;</div>
+                <p>Joinノードは「手動モード」で「文字列として結合」を選択し、区切り文字を <code>\n</code>（改行）に設定します。</p>
+            </details>
+
+            <details>
+                <summary>✅ 解答例</summary>
+                <div class="code-block">// Injectノード
+msg.payload = {
+    "りんご": 100,
+    "バナナ": 80,
+    "オレンジ": 120
+};
+return msg;
+
+// Functionノード
+msg.payload = msg.topic + ": " + msg.payload + "円";
+return msg;
+
+// Joinノード設定
+// モード: 手動
+// 結合形式: 文字列
+// 区切り文字: \n</div>
+            </details>
+        </div>
+
+        <div class="exercise">
+            <h3>演習4: バッチ処理（固定長分割）</h3>
+            <p><strong>目標：</strong>10個のデータを3個ずつのグループに分けて処理</p>
+            
+            <p><strong>手順：</strong></p>
+            <ol>
+                <li>Injectノードで配列 <code>[1,2,3,4,5,6,7,8,9,10]</code> を作成</li>
+                <li>Splitノードで「Fixed Length」を3に設定</li>
+                <li>Debugノードで各バッチを確認</li>
+                <li>（オプション）Joinノードで元に戻す</li>
+            </ol>
+
+            <p><strong>期待される出力（Splitノード直後）：</strong></p>
+            <div class="code-block">// メッセージ1
+msg.payload = [1, 2, 3]
+
+// メッセージ2
+msg.payload = [4, 5, 6]
+
+// メッセージ3
+msg.payload = [7, 8, 9]
+
+// メッセージ4
+msg.payload = [10]</div>
+
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>Splitノードの設定で「arrayLength」または「Fixed Length」オプションを探してください。
+                    これにより、配列を指定したサイズのチャンクに分割できます。</p>
+            </details>
+        </div>
+
+        <h2 id="advanced">6️⃣ 応用パターン</h2>
+
+        <h3>パターン1: 並列API呼び出しの制御</h3>
+        <p>複数のIDに対してAPIを呼び出し、すべての結果を集約する例：</p>
+        
+        <div class="flow-diagram">
+            <code>
+                [ID配列] → [Split] → [Delay(レート制限)] → [HTTP Request] → [Join] → [結果配列]
+            </code>
+        </div>
+
+        <div class="code-block">// 入力
+msg.payload = [101, 102, 103, 104, 105];
+
+// Splitで分割 → 各IDでAPI呼び出し → Joinで結果を集約
+// 最終出力は各APIレスポンスの配列</div>
+
+        <div class="tip">
+            <strong>💡 実用的なヒント：</strong>
+            <ul>
+                <li>Delayノードで「Rate Limit」を設定し、API呼び出しの頻度を制限</li>
+                <li>HTTP Requestノードのタイムアウトを適切に設定</li>
+                <li>Joinノードのタイムアウトを設定し、一部のAPIが失敗しても処理を完了</li>
+            </ul>
+        </div>
+
+        <h3>パターン2: データ変換パイプライン</h3>
+        <p>複数の変換処理を順次適用する例：</p>
+        
+        <div class="flow-diagram">
+            <code>
+                [配列] → [Split] → [変換1] → [変換2] → [フィルタ] → [Join] → [結果]
+            </code>
+        </div>
+
+        <div class="code-block">// 例：ユーザーデータの加工
+// 入力
+[
+    {name: "田中", age: 25},
+    {name: "佐藤", age: 17},
+    {name: "鈴木", age: 30}
+]
+
+// 処理フロー
+// 1. Split で分割
+// 2. Function で敬称追加（name + "さん"）
+// 3. Switch で20歳以上をフィルタ
+// 4. Join で結合
+
+// 出力
+[
+    {name: "田中さん", age: 25},
+    {name: "鈴木さん", age: 30}
+]</div>
+
+        <h3>パターン3: リアルタイムストリーム処理</h3>
+        <p>センサーデータを時間窓でグループ化して統計処理：</p>
+        
+        <div class="flow-diagram">
+            <code>
+                [センサー] → [Join(5秒タイムアウト)] → [Function(平均計算)] → [Dashboard]
+            </code>
+        </div>
+
+        <div class="code-block">// Joinノード設定
+// モード: 手動
+// 結合: 配列に
+// タイムアウト: 5秒ごとに送信
+
+// Functionノード（平均値計算）
+let sum = 0;
+for (let i = 0; i < msg.payload.length; i++) {
+    sum += msg.payload[i];
+}
+msg.payload = sum / msg.payload.length;
+return msg;</div>
+
+        <h3>パターン4: エラーハンドリング付き処理</h3>
+        <p>分割処理中のエラーを適切に処理する例：</p>
+        
+        <div class="flow-diagram">
+            <code>
+                [配列] → [Split] → [Try-Catch処理] → [成功/失敗で分岐] → [Join] → [結果とエラーレポート]
+            </code>
+        </div>
+
+        <div class="code-block">// Functionノード（Try-Catch付き処理）
+try {
+    // 何らかの処理
+    msg.payload = someProcessing(msg.payload);
+    msg.success = true;
+} catch(e) {
+    msg.payload = {
+        error: e.message,
+        original: msg.payload
+    };
+    msg.success = false;
+}
+return msg;
+
+// Switchノードで成功/失敗を振り分け
+// 成功したものだけをJoinで結合するなど</div>
+
+        <h2>🎯 まとめ</h2>
+
+        <div class="tip">
+            <strong>🌟 Split/Joinノード活用のベストプラクティス：</strong>
+            <ol>
+                <li><strong>シンプルに始める：</strong>まずは基本的な配列の分割・結合から</li>
+                <li><strong>msg.partsを理解する：</strong>このプロパティが分割・結合の鍵</li>
+                <li><strong>適切なモードを選択：</strong>自動モード vs 手動モード</li>
+                <li><strong>エラーハンドリング：</strong>タイムアウトや例外処理を考慮</li>
+                <li><strong>パフォーマンス：</strong>大量データの場合はレート制限を検討</li>
+                <li><strong>デバッグ：</strong>各ステップにDebugノードを配置して動作確認</li>
+            </ol>
+        </div>
+
+        <div class="important">
+            <strong>⚠️ よくある落とし穴：</strong>
+            <ul>
+                <li><code>msg.parts</code>を誤って削除または変更してしまう</li>
+                <li>Joinノードのタイムアウトが短すぎて、すべてのメッセージが到着する前に結合してしまう</li>
+                <li>Switchノードでフィルタリング後、<code>msg.parts.count</code>が実際のメッセージ数と合わない</li>
+                <li>非同期処理（HTTP Requestなど）で順序が変わってしまう</li>
+            </ul>
+        </div>
+
+        <h2>📚 さらなる学習リソース</h2>
+        <ul>
+            <li><a href="https://nodered.org/docs/user-guide/messages#message-sequences" target="_blank">Node-RED公式ドキュメント: Message Sequences</a></li>
+            <li><a href="https://flows.nodered.org/" target="_blank">Node-REDフローライブラリ</a> - 実例を検索</li>
+            <li>コミュニティフォーラムでの質問と回答</li>
+        </ul>
+
+        <div class="note">
+            <strong>📝 このガイドの活用方法：</strong><br>
+            各演習を実際にNode-REDで試してみることをお勧めします。手を動かすことで、
+            Split/Joinノードの動作を深く理解できます。わからないことがあれば、ヒントや解答例を参考にしてください。
+        </div>
+
         <hr>
-        
-        <p style="text-align: center; color: #999; margin-top: 40px;">
-            <small>このガイドが役に立ちましたら、実際のプロジェクトで練習してみてください!<br>
-            Splitノードはデータ処理の強力なツールです。</small><br>
-            <small>参照元：NodeREDエディター内サンプルフロー</small>
+        <p style="text-align: center; color: #666; margin-top: 30px;">
+            <small>© 2024 Node-RED Split/Join完全ガイド | 学習用教材</small>
         </p>
     </div>
-    
-    <script>
-        // ページ読み込み時にコピーボタンを追加
-        document.addEventListener('DOMContentLoaded', function() {
-            // .flow-jsonと.js-code[data-copy="true"]にコピーボタンを追加
-            var codeBlocks = document.querySelectorAll('.flow-json, .js-code[data-copy="true"]');
-            
-            codeBlocks.forEach(function(block) {
-                // コピーボタンを作成
-                var button = document.createElement('button');
-                button.className = 'copy-button';
-                button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
-                
-                // クリックイベントを追加
-                button.addEventListener('click', function() {
-                    // コードブロックのテキストを取得（ボタンテキストを除外）
-                    var code = block.textContent.replace(/コピー(しました!)?$/, '').trim();
-                    
-                    // 改行を適切に処理（Node-REDにペースト時に見やすくする）
-                    if (block.classList.contains('js-code')) {
-                        // JavaScriptコードの場合、行ごとに改行を維持
-                        code = block.innerText.replace(/コピー(しました!)?$/, '').trim();
-                    }
-                    
-                    // クリップボードにコピー
-                    navigator.clipboard.writeText(code).then(function() {
-                        // 成功時の視覚的フィードバック
-                        button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>コピーしました!';
-                        button.classList.add('copied');
-                        
-                        // 2秒後に元に戻す
-                        setTimeout(function() {
-                            button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
-                            button.classList.remove('copied');
-                        }, 2000);
-                    }).catch(function(err) {
-                        console.error('コピーに失敗しました:', err);
-                        button.textContent = 'エラー';
-                        setTimeout(function() {
-                            button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
-                        }, 2000);
-                    });
-                });
-                
-                // ボタンをコードブロックに追加
-                block.style.position = 'relative';
-                block.appendChild(button);
-            });
-        });
-    </script>
 </body>
 </html>
