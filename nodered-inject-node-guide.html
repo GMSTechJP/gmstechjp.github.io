@@ -64,24 +64,39 @@
             color: white;
         }
         
-        .node-function {
-            background-color: #e6b0aa;
-            color: #333;
-        }
-        
-        .node-catch {
-            background-color: #f39c12;
+        .node-debug {
+            background-color: #87a48d;
             color: white;
         }
         
-        .node-debug {
-            background-color: #87a48d;
+        .node-function {
+            background-color: #e8a658;
             color: white;
         }
         
         .node-change {
             background-color: #e7a070;
             color: white;
+        }
+        
+        .node-switch {
+            background-color: #e2d96e;
+            color: #333;
+        }
+        
+        .node-http-request {
+            background-color: #e2d96e;
+            color: #333;
+        }
+        
+        .node-mqtt-out {
+            background-color: #d0a0c0;
+            color: #333;
+        }
+        
+        .node-template {
+            background-color: #d4b8a0;
+            color: #333;
         }
         
         .arrow {
@@ -106,6 +121,14 @@
             border-radius: 4px;
         }
         
+        .warning {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
         .code-block {
             background-color: #f8f9fa;
             border: 1px solid #ddd;
@@ -116,6 +139,21 @@
             font-family: 'Courier New', monospace;
             font-size: 14px;
             position: relative;
+            white-space: pre-wrap;
+        }
+        
+        .js-code {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            border: none;
+            padding: 15px;
+            padding-top: 40px;
+            border-radius: 5px;
+            position: relative;
+            white-space: pre;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
         }
         
         .copy-button {
@@ -132,6 +170,9 @@
             font-family: 'Segoe UI', sans-serif;
             transition: background-color 0.2s;
             z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
         
         .copy-button:hover {
@@ -140,6 +181,12 @@
         
         .copy-button.copied {
             background-color: #28a745;
+        }
+        
+        .copy-button svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
         }
         
         .exercise {
@@ -200,7 +247,7 @@
         }
         
         th {
-            background-color: #8f0000;
+            background-color: #3fadb5;
             color: white;
         }
         
@@ -212,6 +259,7 @@
             background-color: #263238;
             color: #aed581;
             padding: 15px;
+            padding-top: 40px;
             border-radius: 5px;
             overflow-x: auto;
             font-family: 'Courier New', monospace;
@@ -219,14 +267,6 @@
             max-height: 400px;
             overflow-y: auto;
             position: relative;
-        }
-        
-        .answer-section {
-            background-color: #fff9e6;
-            border: 2px dashed #ffc107;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 20px 0;
         }
         
         details {
@@ -248,7 +288,7 @@
         
         .feature-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 15px;
             margin: 20px 0;
         }
@@ -261,344 +301,436 @@
         }
         
         .feature-card h4 {
-            color: #3fadb5;
+            color: #2a8a92;
             margin-top: 0;
+        }
+        
+        .mode-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        
+        .badge-manual {
+            background-color: #3fadb5;
+            color: white;
+        }
+        
+        .badge-repeat {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .badge-cron {
+            background-color: #6f42c1;
+            color: white;
+        }
+        
+        .badge-startup {
+            background-color: #fd7e14;
+            color: white;
+        }
+        
+        .data-flow {
+            background-color: #f0f0f0;
+            border: 2px dashed #999;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+        }
+        
+        .inject-button {
+            display: inline-block;
+            background-color: #3fadb5;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .inject-button:hover {
+            background-color: #2a8a92;
+        }
+        
+        .inject-button .icon {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            background-color: #666;
+            border-radius: 2px;
+            margin-right: 8px;
+            vertical-align: middle;
         }
         
         .cron-table {
             font-size: 13px;
         }
         
-        .cron-table td:first-child {
-            font-family: 'Courier New', monospace;
+        .cron-table th {
+            background-color: #6f42c1;
+        }
+        
+        .payload-type {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            margin: 2px;
+        }
+        
+        .type-string {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .type-number {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        .type-boolean {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .type-json {
+            background-color: #6f42c1;
+            color: white;
+        }
+        
+        .type-date {
+            background-color: #fd7e14;
+            color: white;
+        }
+        
+        .type-env {
+            background-color: #20c997;
+            color: white;
+        }
+        
+        .type-flow {
+            background-color: #e83e8c;
+            color: white;
+        }
+        
+        .timeline {
             background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        
+        .timeline-row {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+        
+        .timeline-label {
+            width: 100px;
+            font-weight: bold;
+            color: #666;
+        }
+        
+        .timeline-bar {
+            flex: 1;
+            height: 30px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        
+        .timeline-event {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: #3fadb5;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 10px;
             font-weight: bold;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>⏰ Node-RED Injectノード 完全ガイド</h1>
+        <h1>💉 Node-RED Injectノード 完全ガイド</h1>
         
         <p>このガイドでは、Node-REDの<strong>Injectノード</strong>について、初心者の方でも理解できるように詳しく説明します。</p>
         
         <h2>📚 1. Injectノードとは?</h2>
         
-        <h3>🤔 「トリガー」って何?</h3>
-        <p>トリガーとは「きっかけ」という意味です。何かを動かすための「スイッチ」のようなものです。</p>
+        <h3>🤔 「Inject」って何?</h3>
+        <p>
+            Injectノードは、<strong>フローにメッセージを送り込む起点</strong>となるノードです。
+            日常生活で例えると、<strong>スタートボタンや目覚まし時計</strong>のようなものです。
+        </p>
         
         <div class="important">
-            <strong>💡 日常の例で考えてみましょう:</strong>
+            <p><strong>⏰ 目覚まし時計に例えると:</strong></p>
             <ul>
-                <li>目覚まし時計 → 毎朝7時に「起きる」というアクションをトリガー</li>
-                <li>電気のスイッチ → ボタンを押すと「電気をつける」というアクションをトリガー</li>
-                <li>タイマー → 3分後に「お知らせ」をトリガー</li>
+                <li>🖱️ <strong>手動でボタンを押す</strong> = クリックでメッセージ送信</li>
+                <li>🔁 <strong>一定間隔でアラーム</strong> = 繰り返し実行（5秒ごと、1分ごと等）</li>
+                <li>📅 <strong>毎朝7時にアラーム</strong> = スケジュール実行（cron式）</li>
+                <li>🚀 <strong>電源ON時に起動</strong> = Node-RED起動時に自動実行</li>
             </ul>
-            <p>Injectノードは、これらの「きっかけ」をプログラムで作るためのノードです。</p>
         </div>
         
-        <h3>🎯 Injectノードの役割</h3>
-        <p><strong>Injectノード</strong>は、フローを開始するための「入り口」となるノードです。メッセージを作成してフローに送り込みます。</p>
-        
-        <div class="tip">
-            <strong>🚰 水道の蛇口の例:</strong><br>
-            Injectノード = 水道の蛇口<br>
-            メッセージ = 水<br>
-            フロー = 水が流れる配管<br>
-            <br>
-            蛇口をひねる(Injectボタンをクリック)と、水(メッセージ)が流れ始めます。<br>
-            タイマーをセットすれば、自動的に蛇口が開くようにもできます!
-        </div>
-        
-        <h2>🔍 2. サンプルフローの詳しい解説</h2>
-        
-        <p>サンプルフローには、Injectノードの<strong>3つの主要な使い方</strong>が含まれています:</p>
-        
-        <h3>パターン1: Node-RED起動時にトリガー</h3>
+        <h3>📦 基本的な動作</h3>
         <div class="node-example">
-            <span class="node node-inject">inject<br>(起動時)</span>
+            <span class="node node-inject">Inject</span>
             <span class="arrow">→</span>
-            <span class="node node-debug">debug</span>
-            <br><br>
-            <span style="color: #aaa;">Node-RED起動 → 自動実行 → "Started!" を表示</span>
+            <span class="node node-function">処理</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
         </div>
         
-        <h3>パターン2: 定期的な間隔でトリガー</h3>
-        <div class="node-example">
-            <span class="node node-inject">inject<br>(5秒ごと)</span>
-            <span class="arrow">→</span>
-            <span class="node node-debug">debug</span>
-            <br><br>
-            <span style="color: #aaa;">5秒 → 実行 → 5秒 → 実行 → 5秒 → 実行...</span>
+        <p>
+            Injectノードは、Node-REDフローの<strong>出発点</strong>として使用されます。
+            ボタンをクリックするか、設定したスケジュールに従って自動的にメッセージを生成し、
+            後続のノードに送信します。
+        </p>
+        
+        <div class="data-flow">
+            <p><strong>Injectノードの操作方法:</strong></p>
+            <div class="inject-button">
+                <span class="icon"></span>
+                timestamp
+            </div>
+            <p style="color: #666; font-size: 14px;">↑ ノード左側のボタンをクリックすると実行</p>
         </div>
         
-        <h3>パターン3: 特定の時刻にトリガー</h3>
-        <div class="node-example">
-            <span class="node node-inject">inject<br>(平日16時)</span>
-            <span class="arrow">→</span>
-            <span class="node node-debug">debug</span>
-            <br><br>
-            <span style="color: #aaa;">平日の16:00になると自動実行</span>
-        </div>
-        
-        <h2>⚙️ 3. Injectノードの設定項目</h2>
-        
-        <h3>3つの主要な実行モード</h3>
+        <h2>⚙️ 2. Injectノードの4つのトリガー方式</h2>
         
         <div class="feature-grid">
             <div class="feature-card">
-                <h4>🚀 起動時トリガー</h4>
-                <p><strong>設定:</strong> "Inject once after" をチェック</p>
-                <p><strong>用途:</strong></p>
-                <ul>
-                    <li>システム初期化</li>
-                    <li>変数の初期値設定</li>
-                    <li>起動通知の送信</li>
-                </ul>
+                <h4><span class="mode-badge badge-manual">手動</span> クリック実行</h4>
+                <p>ノード左のボタンをクリックして実行</p>
+                <div class="code-block">テスト時やデバッグに最適
+好きなタイミングで実行可能</div>
             </div>
             
             <div class="feature-card">
-                <h4>🔄 定期実行</h4>
-                <p><strong>設定:</strong> "Repeat" → interval</p>
-                <p><strong>用途:</strong></p>
-                <ul>
-                    <li>センサーデータの定期取得</li>
-                    <li>ヘルスチェック</li>
-                    <li>定期的な状態監視</li>
-                </ul>
+                <h4><span class="mode-badge badge-repeat">繰り返し</span> 定期実行</h4>
+                <p>指定した間隔で自動実行</p>
+                <div class="code-block">例: 5秒ごと、1分ごと
+センサーポーリングに最適</div>
             </div>
             
             <div class="feature-card">
-                <h4>📅 スケジュール実行</h4>
-                <p><strong>設定:</strong> "Repeat" → at a specific time</p>
-                <p><strong>用途:</strong></p>
-                <ul>
-                    <li>日次レポート作成</li>
-                    <li>定時バックアップ</li>
-                    <li>時刻指定の自動化</li>
-                </ul>
+                <h4><span class="mode-badge badge-cron">スケジュール</span> 時刻指定</h4>
+                <p>cron式で特定の時刻に実行</p>
+                <div class="code-block">例: 毎日9時、平日16時
+定期レポートに最適</div>
+            </div>
+            
+            <div class="feature-card">
+                <h4><span class="mode-badge badge-startup">起動時</span> 自動実行</h4>
+                <p>Node-RED起動時に自動実行</p>
+                <div class="code-block">初期化処理に最適
+コンテキスト変数の設定など</div>
             </div>
         </div>
         
-        <h3>📋 設定の詳細解説</h3>
+        <h3>📋 設定項目一覧</h3>
         
-        <h4>1. Payload(ペイロード) - 送信するデータ</h4>
         <table>
             <tr>
-                <th>タイプ</th>
+                <th>設定項目</th>
+                <th>説明</th>
+                <th>備考</th>
+            </tr>
+            <tr>
+                <td><strong>msg.payload</strong></td>
+                <td>送信するデータの内容</td>
+                <td>様々な型を選択可能</td>
+            </tr>
+            <tr>
+                <td><strong>msg.topic</strong></td>
+                <td>メッセージのトピック（分類用）</td>
+                <td>任意の文字列</td>
+            </tr>
+            <tr>
+                <td><strong>追加プロパティ</strong></td>
+                <td>msg.payloadとtopic以外のプロパティ</td>
+                <td>複数追加可能</td>
+            </tr>
+            <tr>
+                <td><strong>繰り返し</strong></td>
+                <td>定期実行の間隔</td>
+                <td>秒/分/時間で指定</td>
+            </tr>
+            <tr>
+                <td><strong>指定した時刻</strong></td>
+                <td>cron式でスケジュール指定</td>
+                <td>曜日・時刻を細かく設定</td>
+            </tr>
+            <tr>
+                <td><strong>Node-RED起動時にも実行</strong></td>
+                <td>デプロイ時・再起動時に自動実行</td>
+                <td>遅延時間も設定可能</td>
+            </tr>
+            <tr>
+                <td><strong>名前</strong></td>
+                <td>ノードの表示名</td>
+                <td>用途がわかる名前を推奨</td>
+            </tr>
+        </table>
+        
+        <h3>🎯 送信できるデータ型</h3>
+        
+        <p>Injectノードでは、様々な型のデータを送信できます:</p>
+        
+        <div style="margin: 15px 0;">
+            <span class="payload-type type-date">タイムスタンプ</span>
+            <span class="payload-type type-string">文字列</span>
+            <span class="payload-type type-number">数値</span>
+            <span class="payload-type type-boolean">真偽値</span>
+            <span class="payload-type type-json">JSON</span>
+            <span class="payload-type type-env">環境変数</span>
+            <span class="payload-type type-flow">フロー/グローバル</span>
+        </div>
+        
+        <table>
+            <tr>
+                <th>データ型</th>
                 <th>説明</th>
                 <th>例</th>
             </tr>
             <tr>
-                <td>timestamp</td>
-                <td>現在の日時(ミリ秒)</td>
-                <td>1699123456789</td>
+                <td><span class="payload-type type-date">タイムスタンプ</span></td>
+                <td>現在時刻（ミリ秒）</td>
+                <td>1702700000000</td>
             </tr>
             <tr>
-                <td>string</td>
-                <td>文字列</td>
+                <td><span class="payload-type type-string">文字列</span></td>
+                <td>テキストデータ</td>
                 <td>"Hello, World!"</td>
             </tr>
             <tr>
-                <td>number</td>
-                <td>数値</td>
-                <td>42</td>
+                <td><span class="payload-type type-number">数値</span></td>
+                <td>整数・小数</td>
+                <td>42, 3.14</td>
             </tr>
             <tr>
-                <td>boolean</td>
-                <td>真偽値</td>
-                <td>true / false</td>
+                <td><span class="payload-type type-boolean">真偽値</span></td>
+                <td>true または false</td>
+                <td>true</td>
             </tr>
             <tr>
-                <td>JSON</td>
-                <td>JSONオブジェクト</td>
-                <td>{"temp": 25, "humid": 60}</td>
+                <td><span class="payload-type type-json">JSON</span></td>
+                <td>オブジェクト・配列</td>
+                <td>{"temp": 25, "humidity": 60}</td>
+            </tr>
+            <tr>
+                <td><span class="payload-type type-env">環境変数</span></td>
+                <td>環境変数の値</td>
+                <td>env.MY_API_KEY</td>
+            </tr>
+            <tr>
+                <td><span class="payload-type type-flow">フロー変数</span></td>
+                <td>フローコンテキストの値</td>
+                <td>flow.counter</td>
             </tr>
         </table>
         
-        <h4>2. Repeat(繰り返し) - 実行タイミング</h4>
+        <h2>🎯 3. 実用的な使用パターン</h2>
         
         <div class="important">
-            <strong>⏱️ 定期実行(Interval)の設定:</strong>
-            <ul>
-                <li><strong>秒単位</strong>: 1-59秒</li>
-                <li><strong>分単位</strong>: 1-59分</li>
-                <li><strong>時間単位</strong>: 1-23時間</li>
-            </ul>
-            <p>例: "5" 秒を選択 → 5秒ごとに実行</p>
-        </div>
-        
-        <h4>3. Crontab - スケジュール実行</h4>
-        
-        <p>Crontab形式は、Unix/Linuxで使われるスケジュール指定方法です。</p>
-        
-        <div class="code-block">
-フォーマット: 分 時 日 月 曜日
-
-例: 00 16 * * 1,2,3,4,5
-    │  │  │ │ └─ 曜日(1=月, 2=火, ..., 5=金)
-    │  │  │ └─── 月(1-12) * = 毎月
-    │  │  └───── 日(1-31) * = 毎日
-    │  └──────── 時(0-23) 16 = 午後4時
-    └─────────── 分(0-59) 00 = 0分
-
-意味: 平日の16:00に実行
-        </div>
-        
-        <table class="cron-table">
-            <tr>
-                <th>Crontab</th>
-                <th>意味</th>
-            </tr>
-            <tr>
-                <td>0 9 * * *</td>
-                <td>毎日9:00</td>
-            </tr>
-            <tr>
-                <td>0 */2 * * *</td>
-                <td>2時間ごと</td>
-            </tr>
-            <tr>
-                <td>0 0 * * 0</td>
-                <td>毎週日曜日の0:00</td>
-            </tr>
-            <tr>
-                <td>30 8 1 * *</td>
-                <td>毎月1日の8:30</td>
-            </tr>
-            <tr>
-                <td>0 12 * * 1-5</td>
-                <td>平日の12:00</td>
-            </tr>
-            <tr>
-                <td>*/15 * * * *</td>
-                <td>15分ごと</td>
-            </tr>
-        </table>
-        
-        <div class="tip">
-            <strong>🎓 Crontabのワイルドカード:</strong>
-            <ul>
-                <li><code>*</code> = すべて(どの値でもOK)</li>
-                <li><code>*/n</code> = n間隔で実行</li>
-                <li><code>1,3,5</code> = カンマ区切りで複数指定</li>
-                <li><code>1-5</code> = 範囲指定(1から5まで)</li>
-            </ul>
-        </div>
-        
-        <h4>4. Once(起動時実行) - 初期化処理</h4>
-        
-        <div class="important">
-            <strong>設定項目:</strong>
-            <ul>
-                <li><strong>"Inject once after"</strong> をチェック</li>
-                <li><strong>遅延時間</strong>: Node-RED起動後、何秒待ってから実行するか(デフォルト: 0.1秒)</li>
-            </ul>
-            
-            <p><strong>なぜ遅延が必要?</strong></p>
-            <p>Node-RED起動直後は、他のノードの準備がまだ完了していない可能性があります。0.1秒の遅延を入れることで、すべてのノードが準備完了してから実行できます。</p>
-        </div>
-        
-        <h2>💡 4. Injectノードの実用的な使い方</h2>
-        
-        <h3>実際のプロジェクトでの活用例</h3>
-        
-        <h4>例1: IoTセンサーデータの定期収集</h4>
-        <div class="node-example">
-            <span class="node node-inject">inject<br>(10秒ごと)</span>
-            <span class="arrow">→</span>
-            <span class="node node-function">温度センサー読取</span>
-            <span class="arrow">→</span>
-            <span class="node node-function">データ加工</span>
-            <span class="arrow">→</span>
-            <span class="node node-debug">クラウド送信</span>
-        </div>
-        <p>10秒間隔でセンサーデータを取得し、クラウドに送信します。</p>
-        
-        <h4>例2: 毎朝のレポート自動送信</h4>
-        <div class="node-example">
-            <span class="node node-inject">inject<br>(平日9:00)</span>
-            <span class="arrow">→</span>
-            <span class="node node-function">データ集計</span>
-            <span class="arrow">→</span>
-            <span class="node node-function">レポート作成</span>
-            <span class="arrow">→</span>
-            <span class="node node-debug">メール送信</span>
-        </div>
-        <p>平日の朝9時に、前日のデータをまとめたレポートを自動送信します。</p>
-        
-        <h4>例3: システム起動時の初期化</h4>
-        <div class="node-example">
-            <span class="node node-inject">inject<br>(起動時)</span>
-            <span class="arrow">→</span>
-            <span class="node node-change">変数初期化</span>
-            <span class="arrow">→</span>
-            <span class="node node-function">デバイス接続</span>
-            <span class="arrow">→</span>
-            <span class="node node-debug">通知送信</span>
-        </div>
-        <p>Node-RED起動時に、必要な変数を初期化し、デバイスに接続、起動完了を通知します。</p>
-        
-        <h2>📝 5. 練習問題</h2>
-        
-        <div class="exercise">
-            <h3>練習問題 1: カウンターを作ろう <span class="difficulty difficulty-easy">初級</span></h3>
-            
-            <h4>🎯 目標</h4>
-            <p>5秒ごとにカウンターが1ずつ増えるフローを作成する</p>
-            
-            <h4>📋 要件</h4>
+            <p><strong>📥 サンプルフローのインポート方法:</strong></p>
             <ol>
-                <li>Injectノードで5秒間隔でトリガー</li>
-                <li>Functionノードでカウンターを管理(flow変数を使用)</li>
-                <li>Debugノードで現在のカウント数を表示</li>
+                <li>下のサンプルフローJSONをコピー</li>
+                <li>Node-REDエディタで <strong>メニュー → 読み込み</strong> を選択</li>
+                <li>JSONをペーストして「読み込み」をクリック</li>
             </ol>
-            
-            <h4>💭 ヒント</h4>
-            
-            <p><strong>🎯 Injectノードの設定(自分で設定してみよう):</strong></p>
-            <ul>
-                <li>Repeat → ??? を選択</li>
-                <li>間隔は何秒に設定する?</li>
-            </ul>
-            
-            <p><strong>📝 Functionノードの完全なコード(そのままコピーしてOK):</strong></p>
-            <div class="code-block">
-// flow変数からカウントを取得(初回は0)
-let count = flow.get('counter') || 0;
-
-// カウントを1増やす
-count = count + 1;
-
-// flow変数に保存
-flow.set('counter', count);
-
-// メッセージに設定して返す
-msg.payload = count;
-return msg;
-            </div>
-            <p>このコードをFunctionノードにそのまま貼り付けてください。</p>
-            
-            <p><strong>🐛 Debugノードの設定:</strong></p>
-            <ul>
-                <li>Output: <code>msg.payload</code> (デフォルトのままでOK)</li>
-                <li>To: debug sidebar (デフォルトのままでOK)</li>
-            </ul>
-            
-            <details>
-                <summary>📦 解答フロー (クリックして表示)</summary>
-                <div class="flow-json">
+            <p>このサンプルフローには、以下で説明する全パターンの実例が含まれています。</p>
+        </div>
+        
+        <details>
+            <summary>📋 サンプルフロー（クリックで展開）</summary>
+            <p style="margin: 10px 0; color: #666;"><small>参照元：NodeREDエディター内サンプルフロー</small></p>
+            <div class="flow-json">
 [
     {
-        "id": "ex1_inject",
+        "id": "4b6969e842efe7d9",
+        "type": "tab",
+        "label": "inject",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "eca30de2.7f1b1",
+        "type": "comment",
+        "z": "4b6969e842efe7d9",
+        "name": "Trigger a flow whenever Node-RED starts",
+        "info": "Inject node can be used to trigger a flow whenever Node-RED starts.",
+        "x": 260,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "8189f250.ddfb2",
         "type": "inject",
-        "z": "exercise1",
-        "name": "5秒タイマー",
-        "props": [
-            {
-                "p": "payload"
-            }
-        ],
+        "z": "4b6969e842efe7d9",
+        "name": "起動時実行",
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "",
+        "topic": "",
+        "payload": "Started!",
+        "payloadType": "str",
+        "x": 250,
+        "y": 140,
+        "wires": [["9a0150e8.6d0b3"]]
+    },
+    {
+        "id": "9a0150e8.6d0b3",
+        "type": "debug",
+        "z": "4b6969e842efe7d9",
+        "name": "起動確認",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 500,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "64c1d7b3.a65b38",
+        "type": "comment",
+        "z": "4b6969e842efe7d9",
+        "name": "Trigger a flow at regular intervals",
+        "info": "Inject node can be used to trigger a flow at regular intervals.",
+        "x": 230,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "7c820e88.2db33",
+        "type": "inject",
+        "z": "4b6969e842efe7d9",
+        "name": "5秒ごと",
         "repeat": "5",
         "crontab": "",
         "once": false,
@@ -606,870 +738,570 @@ return msg;
         "topic": "",
         "payload": "",
         "payloadType": "date",
-        "x": 130,
-        "y": 100,
-        "wires": [
-            ["ex1_counter"]
-        ]
+        "x": 240,
+        "y": 300,
+        "wires": [["8f135212.6a9a9"]]
     },
     {
-        "id": "ex1_counter",
-        "type": "function",
-        "z": "exercise1",
-        "name": "カウンター",
-        "func": "// flow変数からカウントを取得(初回は0)\nlet count = flow.get('counter') || 0;\n\n// カウントを1増やす\ncount = count + 1;\n\n// flow変数に保存\nflow.set('counter', count);\n\n// メッセージに設定\nmsg.payload = \"カウント: \" + count;\nreturn msg;",
-        "outputs": 1,
-        "noerr": 0,
-        "x": 310,
+        "id": "8f135212.6a9a9",
+        "type": "debug",
+        "z": "4b6969e842efe7d9",
+        "name": "定期実行",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 500,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "a4060d5d.a3c92",
+        "type": "comment",
+        "z": "4b6969e842efe7d9",
+        "name": "Trigger a flow at a specific time",
+        "info": "Inject node can be used to trigger a flow at a specific time.",
+        "x": 230,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "468db06c.bafdd",
+        "type": "inject",
+        "z": "4b6969e842efe7d9",
+        "name": "平日16時",
+        "repeat": "",
+        "crontab": "00 16 * * 1,2,3,4,5",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "It is 4pm on a weekday!",
+        "payloadType": "str",
+        "x": 250,
+        "y": 480,
+        "wires": [["1ccc3174.cb926f"]]
+    },
+    {
+        "id": "1ccc3174.cb926f",
+        "type": "debug",
+        "z": "4b6969e842efe7d9",
+        "name": "スケジュール",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 510,
+        "y": 480,
+        "wires": []
+    }
+]
+            </div>
+        </details>
+        
+        <h3>パターン1: 起動時に自動実行</h3>
+        <p><strong>用途:</strong> Node-RED起動時に初期化処理を実行</p>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject<br><small>(起動時)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <div class="tip">
+            <p><strong>📌 起動時実行の使い道:</strong></p>
+            <ul>
+                <li>コンテキスト変数の初期化</li>
+                <li>「システムが起動しました」通知の送信</li>
+                <li>外部APIからの初期データ取得</li>
+                <li>デバイスの状態確認</li>
+            </ul>
+        </div>
+        
+        <p><strong>設定例:</strong></p>
+        <div class="code-block">msg.payload: "Started!" (文字列)
+繰り返し: なし
+Node-RED起動時にも実行: ✓
+遅延時間: 0.1秒（デフォルト）
+
+動作: Node-RED起動時（デプロイ時含む）に
+      "Started!" というメッセージを送信</div>
+        
+        <h3>パターン2: 定期実行（インターバル）</h3>
+        <p><strong>用途:</strong> 一定間隔でメッセージを送信</p>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject<br><small>(5秒ごと)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <div class="timeline">
+            <p><strong>⏱️ 5秒間隔の定期実行:</strong></p>
+            <div class="timeline-row">
+                <span class="timeline-label">時間軸</span>
+                <div class="timeline-bar">
+                    <div class="timeline-event" style="left: 5%;">1</div>
+                    <div class="timeline-event" style="left: 25%;">2</div>
+                    <div class="timeline-event" style="left: 45%;">3</div>
+                    <div class="timeline-event" style="left: 65%;">4</div>
+                    <div class="timeline-event" style="left: 85%;">5</div>
+                </div>
+            </div>
+            <p style="text-align: center; color: #666; font-size: 12px; margin-top: 10px;">
+                0秒 → 5秒 → 10秒 → 15秒 → 20秒...
+            </p>
+        </div>
+        
+        <p><strong>設定例:</strong></p>
+        <div class="code-block">msg.payload: タイムスタンプ
+繰り返し: 5秒ごと
+
+動作: 5秒ごとに現在のタイムスタンプ（ミリ秒）を送信
+      センサーのポーリングやヘルスチェックに最適</div>
+        
+        <h3>パターン3: スケジュール実行（cron式）</h3>
+        <p><strong>用途:</strong> 特定の時刻・曜日に実行</p>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject<br><small>(平日16時)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <div class="tip">
+            <p><strong>📌 cron式の書式:</strong></p>
+            <div class="code-block">分 時 日 月 曜日
+00 16 * * 1,2,3,4,5
+
+00    = 0分（00分ちょうど）
+16    = 16時
+*     = 毎日
+*     = 毎月
+1,2,3,4,5 = 月〜金曜日</div>
+        </div>
+        
+        <p><strong>設定例:</strong></p>
+        <div class="code-block">msg.payload: "It is 4pm on a weekday!" (文字列)
+指定した時刻: 16:00, 月〜金曜日
+
+動作: 平日の16:00に自動実行
+      日報送信やバックアップ処理に最適</div>
+        
+        <h3>📅 cron式クイックリファレンス</h3>
+        
+        <table class="cron-table">
+            <tr>
+                <th>スケジュール</th>
+                <th>cron式</th>
+                <th>説明</th>
+            </tr>
+            <tr>
+                <td>毎分</td>
+                <td>* * * * *</td>
+                <td>1分ごとに実行</td>
+            </tr>
+            <tr>
+                <td>毎時0分</td>
+                <td>0 * * * *</td>
+                <td>1時間ごとに実行</td>
+            </tr>
+            <tr>
+                <td>毎日9時</td>
+                <td>0 9 * * *</td>
+                <td>毎朝9:00に実行</td>
+            </tr>
+            <tr>
+                <td>平日9時</td>
+                <td>0 9 * * 1-5</td>
+                <td>月〜金の9:00に実行</td>
+            </tr>
+            <tr>
+                <td>毎週月曜9時</td>
+                <td>0 9 * * 1</td>
+                <td>月曜日の9:00に実行</td>
+            </tr>
+            <tr>
+                <td>毎月1日0時</td>
+                <td>0 0 1 * *</td>
+                <td>月初の0:00に実行</td>
+            </tr>
+            <tr>
+                <td>毎日9時と18時</td>
+                <td>0 9,18 * * *</td>
+                <td>1日2回実行</td>
+            </tr>
+            <tr>
+                <td>5分ごと</td>
+                <td>*/5 * * * *</td>
+                <td>0, 5, 10, 15...分に実行</td>
+            </tr>
+        </table>
+        
+        <h3>パターン4: JSONオブジェクトの送信</h3>
+        <p><strong>用途:</strong> 構造化されたデータを送信</p>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject<br><small>(JSON)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-function">処理</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <p><strong>設定例:</strong></p>
+        <div class="code-block">msg.payload: {"sensor": "temp", "value": 25.5, "unit": "℃"}
+データ型: JSON
+
+動作: オブジェクト形式のデータを送信
+      APIテストやデータ変換のテストに最適</div>
+        
+        <h3>パターン5: 複数プロパティの設定</h3>
+        <p><strong>用途:</strong> payload以外のプロパティも設定</p>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject<br><small>(複数プロパティ)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-mqtt-out">MQTT Out</span>
+        </div>
+        
+        <p><strong>設定例:</strong></p>
+        <div class="code-block">msg.payload: 25.5
+msg.topic: "sensors/temperature"
+msg.qos: 1
+msg.retain: true
+
+動作: MQTTパブリッシュに必要な全プロパティを
+      1つのInjectノードで設定</div>
+        
+        <h2>🏋️ 4. 実践演習</h2>
+        
+        <div class="exercise">
+            <h3>演習1: 手動トリガーの作成<span class="difficulty difficulty-easy">初級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>ボタンクリックで「こんにちは、Node-RED!」と表示するフローを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>InjectとDebugノードを使用</li>
+                <li>Injectノードのpayloadを文字列で設定</li>
+                <li>クリック時にデバッグパネルに表示</li>
+            </ul>
+            
+            <p><strong>📊 期待される動作:</strong></p>
+            <ul>
+                <li>Injectボタンをクリック → デバッグパネルに「こんにちは、Node-RED!」と表示</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Injectノードの設定:</strong></p>
+                <ul>
+                    <li>msg.payload: 文字列型を選択</li>
+                    <li>値: "こんにちは、Node-RED!"</li>
+                    <li>繰り返し: なし</li>
+                </ul>
+                <p><strong>Debugノードの設定:</strong></p>
+                <ul>
+                    <li>出力: msg.payload</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">
+[
+    {
+        "id": "ex1_inject",
+        "type": "inject",
+        "name": "挨拶",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "こんにちは、Node-RED!",
+        "payloadType": "str",
+        "x": 150,
         "y": 100,
-        "wires": [
-            ["ex1_debug"]
-        ]
+        "wires": [["ex1_debug"]]
     },
     {
         "id": "ex1_debug",
         "type": "debug",
-        "z": "exercise1",
-        "name": "カウント表示",
+        "name": "表示",
         "active": true,
         "tosidebar": true,
         "console": false,
-        "tostatus": false,
+        "tostatus": true,
         "complete": "payload",
         "targetType": "msg",
-        "x": 500,
+        "x": 330,
         "y": 100,
         "wires": []
     }
 ]
                 </div>
-                <p><strong>✅ 動作確認:</strong></p>
-                <ul>
-                    <li>フローをデプロイすると、5秒ごとに自動実行される</li>
-                    <li>Debugタブに「カウント: 1」「カウント: 2」...と表示される</li>
-                    <li>Node-REDを再起動すると、カウントは0にリセットされる</li>
-                </ul>
             </details>
         </div>
         
         <div class="exercise">
-            <h3>練習問題 2: 朝の挨拶メッセージ <span class="difficulty difficulty-medium">中級</span></h3>
+            <h3>演習2: 定期実行の設定<span class="difficulty difficulty-easy">初級</span></h3>
             
-            <h4>🎯 目標</h4>
-            <p>平日の朝9時に「おはようございます!」というメッセージを送信する</p>
+            <p><strong>📝 課題:</strong></p>
+            <p>10秒ごとに現在時刻を表示するフローを作成してください。</p>
             
-            <h4>📋 要件</h4>
-            <ol>
-                <li>Injectノードで平日(月-金)の9:00にトリガー</li>
-                <li>Changeノードで挨拶メッセージと現在時刻を設定</li>
-                <li>Debugノードでメッセージを表示</li>
-                <li>ボーナス: Functionノードで曜日に応じたメッセージを生成</li>
-            </ol>
-            
-            <h4>💭 ヒント</h4>
-            
-            <p><strong>🎯 Injectノードの設定(自分で設定してみよう):</strong></p>
+            <p><strong>🎯 要求仕様:</strong></p>
             <ul>
-                <li>Repeat → ??? を選択</li>
-                <li>Crontab形式で平日の9:00を指定するには?</li>
-                <li>ヒント: 曜日は 1,2,3,4,5 で指定できます</li>
+                <li>InjectとDebugノードを使用</li>
+                <li>タイムスタンプを送信</li>
+                <li>10秒間隔で自動実行</li>
             </ul>
             
-            <p><strong>📝 Functionノードの完全なコード(そのままコピーしてOK):</strong></p>
-            <div class="code-block">
-// 現在の日時を取得
-let now = new Date();
-
-// 曜日を取得(0=日, 1=月, ..., 6=土)
-let dayOfWeek = now.getDay();
-
-// 曜日名の配列
-let dayNames = ['日', '月', '火', '水', '木', '金', '土'];
-let dayName = dayNames[dayOfWeek];
-
-// 時刻を取得
-let hour = now.getHours();
-let minute = now.getMinutes();
-
-// メッセージを作成
-msg.payload = {
-    message: `おはようございます! 今日は${dayName}曜日です。`,
-    time: `${hour}:${minute < 10 ? '0' + minute : minute}`,
-    timestamp: now.toISOString()
-};
-
-return msg;
-            </div>
-            <p>このコードをFunctionノードにそのまま貼り付けてください。</p>
-            
-            <p><strong>🔧 テスト用のInjectノード:</strong></p>
+            <p><strong>📊 期待される動作:</strong></p>
             <ul>
-                <li>もう1つInjectノードを追加して、「テスト実行」ボタンとして使うと便利です</li>
-                <li>このノードは通常のボタンクリック実行にします(Repeatは設定なし)</li>
-                <li>同じFunctionノードに接続すれば、Crontabを待たずにテストできます</li>
+                <li>デプロイ後、10秒ごとにタイムスタンプがデバッグパネルに表示</li>
             </ul>
             
             <details>
-                <summary>📦 解答フロー (クリックして表示)</summary>
+                <summary>💡 ヒント</summary>
+                <p><strong>Injectノードの設定:</strong></p>
+                <ul>
+                    <li>msg.payload: タイムスタンプを選択</li>
+                    <li>繰り返し: 「一定の時間間隔」を選択</li>
+                    <li>間隔: 10秒</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">
 [
     {
         "id": "ex2_inject",
         "type": "inject",
-        "z": "exercise2",
-        "name": "平日9時",
-        "props": [
-            {
-                "p": "payload"
-            }
-        ],
-        "repeat": "",
-        "crontab": "0 9 * * 1,2,3,4,5",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "",
-        "payloadType": "date",
-        "x": 120,
-        "y": 100,
-        "wires": [
-            ["ex2_message"]
-        ]
-    },
-    {
-        "id": "ex2_message",
-        "type": "function",
-        "z": "exercise2",
-        "name": "挨拶メッセージ",
-        "func": "let now = new Date();\nlet dayOfWeek = now.getDay();\nlet dayNames = ['日', '月', '火', '水', '木', '金', '土'];\nlet dayName = dayNames[dayOfWeek];\n\nlet hour = now.getHours();\nlet minute = now.getMinutes();\n\nmsg.payload = {\n    message: `おはようございます! 今日は${dayName}曜日です。`,\n    time: `${hour}:${minute < 10 ? '0' + minute : minute}`,\n    timestamp: now.toISOString()\n};\n\nreturn msg;",
-        "outputs": 1,
-        "noerr": 0,
-        "x": 310,
-        "y": 100,
-        "wires": [
-            ["ex2_debug"]
-        ]
-    },
-    {
-        "id": "ex2_debug",
-        "type": "debug",
-        "z": "exercise2",
-        "name": "メッセージ表示",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "x": 520,
-        "y": 100,
-        "wires": []
-    },
-    {
-        "id": "ex2_inject_test",
-        "type": "inject",
-        "z": "exercise2",
-        "name": "テスト実行",
-        "props": [
-            {
-                "p": "payload"
-            }
-        ],
-        "repeat": "",
+        "name": "10秒ごと",
+        "props": [{"p": "payload"}],
+        "repeat": "10",
         "crontab": "",
         "once": false,
         "onceDelay": 0.1,
         "topic": "",
         "payload": "",
         "payloadType": "date",
-        "x": 130,
-        "y": 160,
-        "wires": [
-            ["ex2_message"]
-        ]
+        "x": 160,
+        "y": 100,
+        "wires": [["ex2_debug"]]
+    },
+    {
+        "id": "ex2_debug",
+        "type": "debug",
+        "name": "時刻表示",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 350,
+        "y": 100,
+        "wires": []
     }
 ]
                 </div>
-                <p><strong>✅ 動作確認:</strong></p>
-                <ul>
-                    <li>「テスト実行」ボタンで即座に動作確認ができる</li>
-                    <li>実際には平日の9:00に自動実行される</li>
-                    <li>Debugタブに挨拶メッセージと曜日、時刻が表示される</li>
-                </ul>
             </details>
         </div>
         
         <div class="exercise">
-            <h3>練習問題 3: システム起動時の初期化 <span class="difficulty difficulty-medium">中級</span></h3>
+            <h3>演習3: JSONデータの送信<span class="difficulty difficulty-medium">中級</span></h3>
             
-            <h4>🎯 目標</h4>
-            <p>Node-RED起動時に複数の変数を初期化し、起動完了を通知する</p>
+            <p><strong>📝 課題:</strong></p>
+            <p>センサーデータを模したJSONオブジェクトを送信するフローを作成してください。</p>
             
-            <h4>📋 要件</h4>
-            <ol>
-                <li>Injectノードで起動時にトリガー(0.5秒遅延)</li>
-                <li>Changeノードで複数のflow変数を初期化:
-                    <ul>
-                        <li>counter = 0</li>
-                        <li>systemStatus = "running"</li>
-                        <li>startTime = 現在時刻</li>
-                    </ul>
-                </li>
-                <li>Functionノードで初期化完了メッセージを作成</li>
-                <li>Debugノードで通知を表示</li>
-            </ol>
-            
-            <h4>💭 ヒント</h4>
-            
-            <p><strong>🎯 Injectノードの設定(自分で設定してみよう):</strong></p>
+            <p><strong>🎯 要求仕様:</strong></p>
             <ul>
-                <li>どのチェックボックスをONにすれば起動時に実行される?</li>
-                <li>遅延時間は何秒に設定する? (要件を確認しよう)</li>
+                <li>payload: {"device": "sensor01", "temperature": 25.5, "humidity": 60}</li>
+                <li>topic: "sensors/room1"</li>
+                <li>Debugで内容を確認</li>
             </ul>
             
-            <p><strong>🔧 Changeノードの詳細設定(設定画面で以下の通りに設定してください):</strong></p>
-            <div class="important">
-                <p>Changeノードで4つのルールを追加します:</p>
-                
-                <p><strong>ルール1:</strong></p>
-                <ul>
-                    <li>動作: Set(設定)</li>
-                    <li>対象: <code>flow.counter</code></li>
-                    <li>値: <code>0</code> (number型)</li>
-                </ul>
-                
-                <p><strong>ルール2:</strong></p>
-                <ul>
-                    <li>動作: Set(設定)</li>
-                    <li>対象: <code>flow.systemStatus</code></li>
-                    <li>値: <code>running</code> (string型)</li>
-                </ul>
-                
-                <p><strong>ルール3:</strong></p>
-                <ul>
-                    <li>動作: Set(設定)</li>
-                    <li>対象: <code>flow.startTime</code></li>
-                    <li>値: timestamp (現在時刻)</li>
-                </ul>
-                
-                <p><strong>ルール4:</strong></p>
-                <ul>
-                    <li>動作: Set(設定)</li>
-                    <li>対象: <code>flow.errorCount</code></li>
-                    <li>値: <code>0</code> (number型)</li>
-                </ul>
-                
-                <p>※ Changeノードでは「+ルールを追加」ボタンで複数のルールを設定できます</p>
-            </div>
-            
-            <p><strong>📝 Functionノードの完全なコード(そのままコピーしてOK):</strong></p>
-            <div class="code-block">
-// flow変数から起動時刻を取得
-let startTime = new Date(flow.get('startTime'));
-
-// 完了メッセージを作成
-msg.payload = {
-    status: "System Initialized",
-    counter: flow.get('counter'),
-    systemStatus: flow.get('systemStatus'),
-    startTime: startTime.toLocaleString('ja-JP'),
-    message: "すべての変数が初期化されました。システムは正常に起動しています。"
-};
-
-return msg;
-            </div>
-            <p>このコードをFunctionノードにそのまま貼り付けてください。</p>
+            <p><strong>📊 期待される動作:</strong></p>
+            <ul>
+                <li>JSONオブジェクトがデバッグパネルに展開表示される</li>
+            </ul>
             
             <details>
-                <summary>📦 解答フロー (クリックして表示)</summary>
+                <summary>💡 ヒント</summary>
+                <p><strong>Injectノードの設定:</strong></p>
+                <ul>
+                    <li>msg.payload: JSON型を選択</li>
+                    <li>値: {"device": "sensor01", "temperature": 25.5, "humidity": 60}</li>
+                    <li>msg.topic: 文字列 "sensors/room1"</li>
+                </ul>
+                <p><strong>Debugノードの設定:</strong></p>
+                <ul>
+                    <li>出力: msgオブジェクト全体（complete msg object）</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">
 [
     {
         "id": "ex3_inject",
         "type": "inject",
-        "z": "exercise3",
-        "name": "起動時実行",
+        "name": "センサーデータ",
         "props": [
-            {
-                "p": "payload"
-            }
+            {"p": "payload"},
+            {"p": "topic", "vt": "str"}
         ],
         "repeat": "",
         "crontab": "",
-        "once": true,
-        "onceDelay": "0.5",
-        "topic": "",
-        "payload": "System Initializing...",
-        "payloadType": "str",
-        "x": 130,
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "sensors/room1",
+        "payload": "{\"device\":\"sensor01\",\"temperature\":25.5,\"humidity\":60}",
+        "payloadType": "json",
+        "x": 170,
         "y": 100,
-        "wires": [
-            ["ex3_init"]
-        ]
-    },
-    {
-        "id": "ex3_init",
-        "type": "change",
-        "z": "exercise3",
-        "name": "変数初期化",
-        "rules": [
-            {
-                "t": "set",
-                "p": "counter",
-                "pt": "flow",
-                "to": "0",
-                "tot": "num"
-            },
-            {
-                "t": "set",
-                "p": "systemStatus",
-                "pt": "flow",
-                "to": "running",
-                "tot": "str"
-            },
-            {
-                "t": "set",
-                "p": "startTime",
-                "pt": "flow",
-                "to": "",
-                "tot": "date"
-            },
-            {
-                "t": "set",
-                "p": "errorCount",
-                "pt": "flow",
-                "to": "0",
-                "tot": "num"
-            }
-        ],
-        "action": "",
-        "property": "",
-        "from": "",
-        "to": "",
-        "reg": false,
-        "x": 310,
-        "y": 100,
-        "wires": [
-            ["ex3_message"]
-        ]
-    },
-    {
-        "id": "ex3_message",
-        "type": "function",
-        "z": "exercise3",
-        "name": "完了メッセージ",
-        "func": "let startTime = new Date(flow.get('startTime'));\n\nmsg.payload = {\n    status: \"System Initialized\",\n    counter: flow.get('counter'),\n    systemStatus: flow.get('systemStatus'),\n    startTime: startTime.toLocaleString('ja-JP'),\n    message: \"すべての変数が初期化されました。システムは正常に起動しています。\"\n};\n\nreturn msg;",
-        "outputs": 1,
-        "noerr": 0,
-        "x": 500,
-        "y": 100,
-        "wires": [
-            ["ex3_debug"]
-        ]
+        "wires": [["ex3_debug"]]
     },
     {
         "id": "ex3_debug",
         "type": "debug",
-        "z": "exercise3",
-        "name": "起動通知",
+        "name": "データ確認",
         "active": true,
         "tosidebar": true,
         "console": false,
         "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "x": 680,
+        "complete": "true",
+        "targetType": "full",
+        "x": 370,
         "y": 100,
         "wires": []
     }
 ]
                 </div>
-                <p><strong>✅ 動作確認:</strong></p>
-                <ul>
-                    <li>フローをデプロイすると、0.5秒後に自動実行される</li>
-                    <li>Debugタブに初期化完了メッセージが表示される</li>
-                    <li>flow変数が正しく設定されているか確認できる</li>
-                    <li>Node-REDを再起動すると、再度初期化が実行される</li>
-                </ul>
             </details>
         </div>
         
         <div class="exercise">
-            <h3>練習問題 4: スマート照明制御システム <span class="difficulty difficulty-hard">上級</span></h3>
+            <h3>演習4: 複合トリガーの実装<span class="difficulty difficulty-hard">上級</span></h3>
             
-            <h4>🎯 目標</h4>
-            <p>時刻に応じて照明を自動的にON/OFFするシステムを作成する</p>
+            <p><strong>📝 課題:</strong></p>
+            <p>起動時と1分ごとに「ヘルスチェック」を実行し、現在時刻を人間が読める形式で表示するフローを作成してください。</p>
             
-            <h4>📋 シナリオ</h4>
-            <p>オフィスの照明を以下のスケジュールで自動制御します:</p>
+            <p><strong>🎯 要求仕様:</strong></p>
             <ul>
-                <li>平日7:00 → 照明ON</li>
-                <li>平日12:00 → 照明を50%に調光(昼休み)</li>
-                <li>平日13:00 → 照明を100%に戻す</li>
-                <li>平日19:00 → 照明OFF</li>
-                <li>休日 → 照明は常にOFF</li>
+                <li>Node-RED起動時に即座に実行</li>
+                <li>その後1分ごとに繰り返し実行</li>
+                <li>Functionノードでタイムスタンプを日時文字列に変換</li>
+                <li>出力形式: "2024/01/15 09:30:00 - ヘルスチェックOK"</li>
             </ul>
             
-            <h4>📋 要件</h4>
-            <ol>
-                <li>4つのInjectノードで各時刻にトリガー</li>
-                <li>Switchノードで曜日を判定(休日は処理をスキップ)</li>
-                <li>Changeノードで照明の状態(ON/OFF/調光レベル)を設定</li>
-                <li>Functionノードで照明制御コマンドを生成</li>
-                <li>Debugノードで制御ログを表示</li>
-                <li>ボーナス: 現在の照明状態をflow変数で管理</li>
-            </ol>
-            
-            <h4>💭 ヒント</h4>
-            
-            <p><strong>🎯 Injectノードの設定(自分で考えてみよう):</strong></p>
+            <p><strong>📊 期待される動作:</strong></p>
             <ul>
-                <li>4つのInjectノードを作成します</li>
-                <li>それぞれのCrontab形式を考えてみましょう:
-                    <ul>
-                        <li>平日7:00 → ?</li>
-                        <li>平日12:00 → ?</li>
-                        <li>平日13:00 → ?</li>
-                        <li>平日19:00 → ?</li>
-                    </ul>
-                </li>
-                <li>各Injectノードには追加のプロパティも設定します(後述)</li>
-            </ul>
-            
-            <p><strong>📋 各Injectノードの追加プロパティ設定:</strong></p>
-            <div class="important">
-                <p>各Injectノードの設定画面で「プロパティ」セクションに以下を追加してください:</p>
-                
-                <p><strong>7:00 照明ON用:</strong></p>
-                <ul>
-                    <li>プロパティ1: <code>msg.action</code> = <code>"on"</code> (string)</li>
-                    <li>プロパティ2: <code>msg.brightness</code> = <code>100</code> (number)</li>
-                </ul>
-                
-                <p><strong>12:00 調光用:</strong></p>
-                <ul>
-                    <li>プロパティ1: <code>msg.action</code> = <code>"dim"</code> (string)</li>
-                    <li>プロパティ2: <code>msg.brightness</code> = <code>50</code> (number)</li>
-                </ul>
-                
-                <p><strong>13:00 復帰用:</strong></p>
-                <ul>
-                    <li>プロパティ1: <code>msg.action</code> = <code>"on"</code> (string)</li>
-                    <li>プロパティ2: <code>msg.brightness</code> = <code>100</code> (number)</li>
-                </ul>
-                
-                <p><strong>19:00 照明OFF用:</strong></p>
-                <ul>
-                    <li>プロパティ1: <code>msg.action</code> = <code>"off"</code> (string)</li>
-                    <li>プロパティ2: <code>msg.brightness</code> = <code>0</code> (number)</li>
-                </ul>
-            </div>
-            
-            <p><strong>🔀 Switchノードの設定(そのまま設定してください):</strong></p>
-            <div class="code-block">
-プロパティ: msg.payload (timestamp型が入っている)
-条件タイプ: "otherwise" (else) のみ
-※ 本来は曜日判定を入れますが、簡略化のため全て通します
-</div>
-            <p>より高度な実装では、Functionノードで曜日を判定する方法もあります。</p>
-            
-            <p><strong>📝 Functionノード(照明制御)の完全なコード(そのままコピーしてOK):</strong></p>
-            <div class="code-block">
-// 現在時刻を取得
-let now = new Date();
-
-// Injectノードから渡されたアクションと明るさを取得
-let action = msg.action;
-let brightness = msg.brightness;
-
-// 照明の状態をflow変数に保存
-flow.set('lightStatus', {
-    action: action,
-    brightness: brightness,
-    lastUpdate: now.toISOString()
-});
-
-// 照明制御コマンドを生成
-msg.payload = {
-    device: "office-light-001",
-    command: action,
-    brightness: brightness,
-    timestamp: now.toLocaleString('ja-JP'),
-    message: `照明を${action === 'on' ? 'ON' : action === 'off' ? 'OFF' : '調光'}しました (明るさ: ${brightness}%)`
-};
-
-return msg;
-            </div>
-            <p>このコードをFunctionノードにそのまま貼り付けてください。</p>
-            
-            <p><strong>🔧 Changeノード(状態更新)の設定:</strong></p>
-            <div class="important">
-                <p>Functionノードの後に配置するChangeノードの設定:</p>
-                <ul>
-                    <li>動作: Set(設定)</li>
-                    <li>対象: <code>msg.payload</code></li>
-                    <li>値: <code>flow.lightStatus</code> (flow変数)</li>
-                </ul>
-                <p>これにより、現在の照明状態を取得してDebugで表示できます。</p>
-            </div>
-            
-            <p><strong>🧪 テスト用のInjectノード:</strong></p>
-            <ul>
-                <li>本番用の4つとは別に、テスト用のInjectノードを3つ追加すると便利です</li>
-                <li>それぞれ「テスト: ON」「テスト: 調光」「テスト: OFF」として設定</li>
-                <li>Repeatは設定せず、手動クリック実行のみ</li>
-                <li>msg.actionとmsg.brightnessを本番用と同じように設定</li>
-                <li>Functionノードに直接接続すれば、Crontabを待たずにテストできます</li>
+                <li>デプロイ直後に1回実行</li>
+                <li>以降、1分ごとに自動実行</li>
             </ul>
             
             <details>
-                <summary>📦 解答フロー (クリックして表示)</summary>
+                <summary>💡 ヒント</summary>
+                <p><strong>Injectノードの設定:</strong></p>
+                <ul>
+                    <li>msg.payload: タイムスタンプ</li>
+                    <li>繰り返し: 60秒</li>
+                    <li>Node-RED起動時にも実行: ✓</li>
+                </ul>
+                <p><strong>Functionノードの設定:</strong></p>
+                <ul>
+                    <li>new Date(msg.payload) でDateオブジェクト作成</li>
+                    <li>toLocaleString() で日本語形式に変換</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">
 [
     {
-        "id": "ex4_inject_on",
+        "id": "ex4_inject",
         "type": "inject",
-        "z": "exercise4",
-        "name": "7:00 照明ON",
-        "props": [
-            {
-                "p": "payload"
-            },
-            {
-                "p": "action",
-                "v": "on",
-                "vt": "str"
-            },
-            {
-                "p": "brightness",
-                "v": "100",
-                "vt": "num"
-            }
-        ],
-        "repeat": "",
-        "crontab": "0 7 * * 1,2,3,4,5",
-        "once": false,
+        "name": "ヘルスチェック",
+        "props": [{"p": "payload"}],
+        "repeat": "60",
+        "crontab": "",
+        "once": true,
         "onceDelay": 0.1,
         "topic": "",
         "payload": "",
         "payloadType": "date",
-        "x": 130,
+        "x": 170,
         "y": 100,
-        "wires": [
-            ["ex4_switch"]
-        ]
+        "wires": [["ex4_function"]]
     },
     {
-        "id": "ex4_inject_dim",
-        "type": "inject",
-        "z": "exercise4",
-        "name": "12:00 50%調光",
-        "props": [
-            {
-                "p": "payload"
-            },
-            {
-                "p": "action",
-                "v": "dim",
-                "vt": "str"
-            },
-            {
-                "p": "brightness",
-                "v": "50",
-                "vt": "num"
-            }
-        ],
-        "repeat": "",
-        "crontab": "0 12 * * 1,2,3,4,5",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "",
-        "payloadType": "date",
-        "x": 140,
-        "y": 160,
-        "wires": [
-            ["ex4_switch"]
-        ]
-    },
-    {
-        "id": "ex4_inject_full",
-        "type": "inject",
-        "z": "exercise4",
-        "name": "13:00 100%復帰",
-        "props": [
-            {
-                "p": "payload"
-            },
-            {
-                "p": "action",
-                "v": "on",
-                "vt": "str"
-            },
-            {
-                "p": "brightness",
-                "v": "100",
-                "vt": "num"
-            }
-        ],
-        "repeat": "",
-        "crontab": "0 13 * * 1,2,3,4,5",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "",
-        "payloadType": "date",
-        "x": 140,
-        "y": 220,
-        "wires": [
-            ["ex4_switch"]
-        ]
-    },
-    {
-        "id": "ex4_inject_off",
-        "type": "inject",
-        "z": "exercise4",
-        "name": "19:00 照明OFF",
-        "props": [
-            {
-                "p": "payload"
-            },
-            {
-                "p": "action",
-                "v": "off",
-                "vt": "str"
-            },
-            {
-                "p": "brightness",
-                "v": "0",
-                "vt": "num"
-            }
-        ],
-        "repeat": "",
-        "crontab": "0 19 * * 1,2,3,4,5",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "",
-        "payloadType": "date",
-        "x": 140,
-        "y": 280,
-        "wires": [
-            ["ex4_switch"]
-        ]
-    },
-    {
-        "id": "ex4_switch",
-        "type": "switch",
-        "z": "exercise4",
-        "name": "平日チェック",
-        "property": "payload",
-        "propertyType": "msg",
-        "rules": [
-            {
-                "t": "else"
-            }
-        ],
-        "checkall": "true",
-        "repair": false,
-        "outputs": 1,
-        "x": 350,
-        "y": 180,
-        "wires": [
-            ["ex4_control"]
-        ]
-    },
-    {
-        "id": "ex4_control",
+        "id": "ex4_function",
         "type": "function",
-        "z": "exercise4",
-        "name": "照明制御",
-        "func": "let now = new Date();\nlet action = msg.action;\nlet brightness = msg.brightness;\n\n// 照明状態を保存\nflow.set('lightStatus', {\n    action: action,\n    brightness: brightness,\n    lastUpdate: now.toISOString()\n});\n\n// 制御コマンド生成\nmsg.payload = {\n    device: \"office-light-001\",\n    command: action,\n    brightness: brightness,\n    timestamp: now.toLocaleString('ja-JP'),\n    message: `照明を${action === 'on' ? 'ON' : action === 'off' ? 'OFF' : '調光'}しました (明るさ: ${brightness}%)`\n};\n\nreturn msg;",
+        "name": "日時フォーマット",
+        "func": "const date = new Date(msg.payload);\nconst options = {\n    year: 'numeric',\n    month: '2-digit',\n    day: '2-digit',\n    hour: '2-digit',\n    minute: '2-digit',\n    second: '2-digit',\n    hour12: false\n};\nconst formatted = date.toLocaleString('ja-JP', options);\nmsg.payload = formatted + \" - ヘルスチェックOK\";\nreturn msg;",
         "outputs": 1,
+        "timeout": 0,
         "noerr": 0,
-        "x": 510,
-        "y": 180,
-        "wires": [
-            ["ex4_debug", "ex4_status"]
-        ]
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 390,
+        "y": 100,
+        "wires": [["ex4_debug"]]
     },
     {
         "id": "ex4_debug",
         "type": "debug",
-        "z": "exercise4",
-        "name": "制御ログ",
+        "name": "結果",
         "active": true,
         "tosidebar": true,
         "console": false,
-        "tostatus": false,
+        "tostatus": true,
         "complete": "payload",
         "targetType": "msg",
-        "x": 680,
-        "y": 180,
+        "x": 570,
+        "y": 100,
         "wires": []
-    },
-    {
-        "id": "ex4_status",
-        "type": "change",
-        "z": "exercise4",
-        "name": "状態更新",
-        "rules": [
-            {
-                "t": "set",
-                "p": "payload",
-                "pt": "msg",
-                "to": "lightStatus",
-                "tot": "flow"
-            }
-        ],
-        "action": "",
-        "property": "",
-        "from": "",
-        "to": "",
-        "reg": false,
-        "x": 680,
-        "y": 240,
-        "wires": [
-            ["ex4_debug_status"]
-        ]
-    },
-    {
-        "id": "ex4_debug_status",
-        "type": "debug",
-        "z": "exercise4",
-        "name": "現在の状態",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "x": 850,
-        "y": 240,
-        "wires": []
-    },
-    {
-        "id": "ex4_test_on",
-        "type": "inject",
-        "z": "exercise4",
-        "name": "テスト: ON",
-        "props": [
-            {
-                "p": "payload"
-            },
-            {
-                "p": "action",
-                "v": "on",
-                "vt": "str"
-            },
-            {
-                "p": "brightness",
-                "v": "100",
-                "vt": "num"
-            }
-        ],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "",
-        "payloadType": "date",
-        "x": 130,
-        "y": 360,
-        "wires": [
-            ["ex4_control"]
-        ]
-    },
-    {
-        "id": "ex4_test_dim",
-        "type": "inject",
-        "z": "exercise4",
-        "name": "テスト: 調光",
-        "props": [
-            {
-                "p": "payload"
-            },
-            {
-                "p": "action",
-                "v": "dim",
-                "vt": "str"
-            },
-            {
-                "p": "brightness",
-                "v": "50",
-                "vt": "num"
-            }
-        ],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "",
-        "payloadType": "date",
-        "x": 130,
-        "y": 400,
-        "wires": [
-            ["ex4_control"]
-        ]
-    },
-    {
-        "id": "ex4_test_off",
-        "type": "inject",
-        "z": "exercise4",
-        "name": "テスト: OFF",
-        "props": [
-            {
-                "p": "payload"
-            },
-            {
-                "p": "action",
-                "v": "off",
-                "vt": "str"
-            },
-            {
-                "p": "brightness",
-                "v": "0",
-                "vt": "num"
-            }
-        ],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "",
-        "payloadType": "date",
-        "x": 130,
-        "y": 440,
-        "wires": [
-            ["ex4_control"]
-        ]
     }
 ]
                 </div>
-                <p><strong>✅ 動作確認:</strong></p>
-                <ul>
-                    <li>「テスト」ボタンで即座に各アクションを試せる</li>
-                    <li>実際には設定した時刻に自動実行される</li>
-                    <li>Debugタブで制御ログと現在の照明状態が確認できる</li>
-                    <li>flow変数 "lightStatus" で照明の状態が永続化される</li>
-                    <li>休日は自動的にスキップされる(Switchノードで判定)</li>
-                </ul>
             </details>
         </div>
         
-        <h2>🎓 6. まとめ</h2>
+        <h2>🎓 5. まとめ</h2>
         
         <div class="important">
             <h3>Injectノードの重要ポイント</h3>
             <ul>
-                <li>✅ <strong>フローの起点</strong>: すべてのフローはInjectノードから始まる</li>
-                <li>✅ <strong>3つの実行モード</strong>: 手動、定期実行、スケジュール実行</li>
-                <li>✅ <strong>起動時初期化</strong>: Node-RED起動時の自動処理に最適</li>
-                <li>✅ <strong>多様なデータ型</strong>: 文字列、数値、JSON、タイムスタンプなど</li>
-                <li>✅ <strong>Crontab形式</strong>: 柔軟なスケジュール設定が可能</li>
+                <li>✅ <strong>4つのトリガー方式</strong>: 手動/定期実行/スケジュール/起動時</li>
+                <li>✅ <strong>多様なデータ型</strong>: タイムスタンプ/文字列/数値/JSON/環境変数など</li>
+                <li>✅ <strong>複数プロパティ</strong>: payload以外にtopicや任意のプロパティを設定可能</li>
+                <li>✅ <strong>cron式</strong>: 柔軟なスケジュール設定が可能</li>
+                <li>✅ <strong>起動時実行</strong>: 初期化処理やシステム通知に活用</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <h3>⚠️ よくある間違い</h3>
+            <ul>
+                <li><strong>タイムスタンプの誤解</strong>: ミリ秒単位の数値であり、日時文字列ではない</li>
+                <li><strong>繰り返しの単位</strong>: 設定画面で秒/分/時間を確認する</li>
+                <li><strong>cron式の曜日</strong>: 0=日曜日、1=月曜日...6=土曜日</li>
+                <li><strong>起動時実行の遅延</strong>: デフォルト0.1秒だが、外部依存がある場合は延長が必要</li>
+                <li><strong>JSONの構文</strong>: ダブルクォートを使用、シングルクォートは不可</li>
+                <li><strong>定期実行の停止</strong>: フローを無効化またはノードを削除しないと継続</li>
             </ul>
         </div>
         
@@ -1477,14 +1309,14 @@ return msg;
             <h3>📚 次のステップ</h3>
             <p>Injectノードをマスターしたら、以下のノードも学んでみましょう:</p>
             <ul>
-                <li><strong>Delayノード</strong>: メッセージの遅延やレート制限</li>
-                <li><strong>Triggerノード</strong>: タイムアウトや自動リセット</li>
-                <li><strong>Switchノード</strong>: 条件分岐とルーティング</li>
-                <li><strong>Changeノード</strong>: メッセージの加工と変数操作</li>
+                <li><strong>Debugノード</strong>: メッセージの確認と表示</li>
+                <li><strong>Functionノード</strong>: データの加工と変換</li>
+                <li><strong>Changeノード</strong>: プロパティの変更</li>
+                <li><strong>HTTP Requestノード</strong>: 外部APIの呼び出し</li>
             </ul>
         </div>
         
-        <h2>🔧 7. トラブルシューティング</h2>
+        <h2>🔧 6. トラブルシューティング</h2>
         
         <h3>よくある問題と解決方法</h3>
         
@@ -1495,81 +1327,237 @@ return msg;
                 <th>解決方法</th>
             </tr>
             <tr>
+                <td>定期実行が動かない</td>
+                <td>デプロイしていない</td>
+                <td>デプロイボタンをクリック</td>
+            </tr>
+            <tr>
                 <td>起動時に実行されない</td>
-                <td>"Inject once after" がチェックされていない</td>
-                <td>Injectノードの設定で "Inject once after" をチェック</td>
+                <td>チェックが入っていない</td>
+                <td>「Node-RED起動時にも実行」を有効化</td>
             </tr>
             <tr>
-                <td>定期実行が止まる</td>
-                <td>Repeatが設定されていない、またはフローがデプロイされていない</td>
-                <td>Repeat設定を確認し、必ずデプロイする</td>
+                <td>cron式が動作しない</td>
+                <td>構文エラー</td>
+                <td>スペース区切りで5つの値を確認</td>
             </tr>
             <tr>
-                <td>Crontabが動かない</td>
-                <td>Crontab形式が間違っている</td>
-                <td>オンラインのCrontabジェネレーターで構文を確認</td>
+                <td>JSONがエラーになる</td>
+                <td>構文エラー</td>
+                <td>ダブルクォート使用、カンマ確認</td>
             </tr>
             <tr>
-                <td>時刻がずれている</td>
-                <td>システムのタイムゾーン設定</td>
-                <td>Raspberry Piやサーバーのタイムゾーンを確認</td>
+                <td>タイムスタンプが数字</td>
+                <td>仕様通り</td>
+                <td>Functionで日時形式に変換</td>
+            </tr>
+            <tr>
+                <td>繰り返しが止まらない</td>
+                <td>仕様通り</td>
+                <td>ノードを無効化またはフローを停止</td>
             </tr>
         </table>
         
-        <h2>🔗 8. 追加リソース</h2>
+        <h2>💡 7. 実務での活用例</h2>
+        
+        <h3>ケース1: システム起動通知</h3>
+        <div class="code-block">Node-RED起動
+↓
+Injectノード（起動時実行）
+↓
+"システムが起動しました" + タイムスタンプ
+↓
+Slack/Teams/メールで通知
+
+※ サーバー再起動の監視に活用</div>
+        
+        <h3>ケース2: センサーポーリング</h3>
+        <div class="code-block">Injectノード（30秒ごと）
+↓
+HTTP Request（センサーAPIを呼び出し）
+↓
+データ加工
+↓
+データベースに保存 / ダッシュボードに表示
+
+※ 定期的なデータ収集に活用</div>
+        
+        <h3>ケース3: 日次レポート</h3>
+        <div class="code-block">Injectノード（毎日18:00、cron: 0 18 * * *）
+↓
+データベースから集計
+↓
+レポート生成
+↓
+メール送信
+
+※ 自動レポート生成に活用</div>
+        
+        <h3>ケース4: IoTデバイスのテスト</h3>
+        <div class="code-block">Injectノード（JSONデータ）
+{
+  "device_id": "sensor01",
+  "temperature": 25.5,
+  "humidity": 60
+}
+↓
+MQTT Publish
+↓
+IoTデバイスをシミュレート
+
+※ 実機なしでのテストに活用</div>
+        
+        <h2>📖 8. 詳細設定リファレンス</h2>
+        
+        <h3>msg.payloadの型一覧</h3>
+        
+        <table>
+            <tr>
+                <th>型</th>
+                <th>設定画面での表示</th>
+                <th>内部値（payloadType）</th>
+            </tr>
+            <tr>
+                <td>タイムスタンプ</td>
+                <td>timestamp</td>
+                <td>date</td>
+            </tr>
+            <tr>
+                <td>文字列</td>
+                <td>string</td>
+                <td>str</td>
+            </tr>
+            <tr>
+                <td>数値</td>
+                <td>number</td>
+                <td>num</td>
+            </tr>
+            <tr>
+                <td>真偽値</td>
+                <td>boolean</td>
+                <td>bool</td>
+            </tr>
+            <tr>
+                <td>JSON</td>
+                <td>JSON</td>
+                <td>json</td>
+            </tr>
+            <tr>
+                <td>バッファ</td>
+                <td>buffer</td>
+                <td>bin</td>
+            </tr>
+            <tr>
+                <td>環境変数</td>
+                <td>env variable</td>
+                <td>env</td>
+            </tr>
+            <tr>
+                <td>フロー変数</td>
+                <td>flow.</td>
+                <td>flow</td>
+            </tr>
+            <tr>
+                <td>グローバル変数</td>
+                <td>global.</td>
+                <td>global</td>
+            </tr>
+        </table>
+        
+        <h3>cron式フィールド</h3>
+        
+        <table class="cron-table">
+            <tr>
+                <th>位置</th>
+                <th>フィールド</th>
+                <th>値の範囲</th>
+                <th>特殊文字</th>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>分</td>
+                <td>0-59</td>
+                <td>* , -</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>時</td>
+                <td>0-23</td>
+                <td>* , -</td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td>日</td>
+                <td>1-31</td>
+                <td>* , -</td>
+            </tr>
+            <tr>
+                <td>4</td>
+                <td>月</td>
+                <td>1-12</td>
+                <td>* , -</td>
+            </tr>
+            <tr>
+                <td>5</td>
+                <td>曜日</td>
+                <td>0-6（日-土）</td>
+                <td>* , -</td>
+            </tr>
+        </table>
+        
+        <h2>🔗 9. 追加リソース</h2>
         
         <ul>
             <li><a href="https://nodered.org/docs/user-guide/nodes#inject" target="_blank">Node-RED公式ドキュメント: Injectノード</a></li>
-            <li><a href="https://cookbook.nodered.org/basic/" target="_blank">Node-RED Cookbook: 基本パターン</a></li>
-            <li><a href="https://crontab.guru/" target="_blank">Crontab Guru: Crontab式のテストツール</a></li>
+            <li><a href="https://cookbook.nodered.org/basic/trigger-on-start" target="_blank">Node-RED Cookbook: 起動時トリガー</a></li>
+            <li><a href="https://cookbook.nodered.org/basic/trigger-at-interval" target="_blank">Node-RED Cookbook: 定期実行</a></li>
+            <li><a href="https://cookbook.nodered.org/basic/trigger-at-time" target="_blank">Node-RED Cookbook: 時刻指定実行</a></li>
+            <li><a href="https://crontab.guru/" target="_blank">Crontab.guru（cron式ジェネレーター）</a></li>
         </ul>
         
         <hr>
         
         <p style="text-align: center; color: #999; margin-top: 40px;">
             <small>このガイドが役に立ちましたら、実際のプロジェクトで練習してみてください!<br>
-            Injectノードは自動化とスケジュール実行の基礎となる重要なノードです。</small>
+            Injectノードは全てのフローの出発点です。</small><br>
+            <small>参照元：NodeREDエディター内サンプルフロー</small>
         </p>
     </div>
     
     <script>
         // ページ読み込み時にコピーボタンを追加
         document.addEventListener('DOMContentLoaded', function() {
-            // すべての.code-blockと.flow-jsonにコピーボタンを追加
-            const codeBlocks = document.querySelectorAll('.code-block, .flow-json');
+            var codeBlocks = document.querySelectorAll('.flow-json, .js-code[data-copy="true"]');
             
             codeBlocks.forEach(function(block) {
-                // コピーボタンを作成
-                const button = document.createElement('button');
+                var button = document.createElement('button');
                 button.className = 'copy-button';
-                button.textContent = 'コピー';
+                button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
                 
-                // クリックイベントを追加
                 button.addEventListener('click', function() {
-                    // コードブロックのテキストを取得
-                    const code = block.textContent.replace('コピー', '').trim();
+                    var code = block.textContent.replace(/コピー(しました!)?$/, '').trim();
                     
-                    // クリップボードにコピー
+                    if (block.classList.contains('js-code')) {
+                        code = block.innerText.replace(/コピー(しました!)?$/, '').trim();
+                    }
+                    
                     navigator.clipboard.writeText(code).then(function() {
-                        // 成功時の視覚的フィードバック
-                        button.textContent = 'コピーしました!';
+                        button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>コピーしました!';
                         button.classList.add('copied');
                         
-                        // 2秒後に元に戻す
                         setTimeout(function() {
-                            button.textContent = 'コピー';
+                            button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
                             button.classList.remove('copied');
                         }, 2000);
                     }).catch(function(err) {
                         console.error('コピーに失敗しました:', err);
                         button.textContent = 'エラー';
                         setTimeout(function() {
-                            button.textContent = 'コピー';
+                            button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
                         }, 2000);
                     });
                 });
                 
-                // ボタンをコードブロックに追加
                 block.style.position = 'relative';
                 block.appendChild(button);
             });
