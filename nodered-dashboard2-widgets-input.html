@@ -1,0 +1,3463 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED Dashboard 2.0 入力系ウィジェット 完全ガイド</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        h1 {
+            color: #b92d5d;
+            border-bottom: 3px solid #b92d5d;
+            padding-bottom: 10px;
+        }
+        
+        h2 {
+            color: #d33682;
+            margin-top: 40px;
+            border-left: 5px solid #d33682;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #555;
+            margin-top: 25px;
+        }
+        
+        h4 {
+            color: #666;
+            margin-top: 20px;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .node-example {
+            background-color: #2d3133;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            color: white;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        
+        .node {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 4px;
+            margin: 5px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .node-inject {
+            background-color: #3fadb5;
+            color: white;
+        }
+        
+        .node-debug {
+            background-color: #87a48d;
+            color: white;
+        }
+        
+        .node-function {
+            background-color: #e8a658;
+            color: white;
+        }
+        
+        .node-change {
+            background-color: #e7a070;
+            color: white;
+        }
+        
+        .node-switch {
+            background-color: #e2d96e;
+            color: #333;
+        }
+        
+        .node-template {
+            background-color: #d4b8a0;
+            color: #333;
+        }
+        
+        /* Dashboard 2.0 widgets */
+        .node-ui-button {
+            background-color: #b92d5d;
+            color: white;
+        }
+        
+        .node-ui-switch {
+            background-color: #b92d5d;
+            color: white;
+        }
+        
+        .node-ui-slider {
+            background-color: #b92d5d;
+            color: white;
+        }
+        
+        .node-ui-dropdown {
+            background-color: #b92d5d;
+            color: white;
+        }
+        
+        .node-ui-text-input {
+            background-color: #b92d5d;
+            color: white;
+        }
+        
+        .node-ui-form {
+            background-color: #b92d5d;
+            color: white;
+        }
+        
+        .node-ui-radio {
+            background-color: #b92d5d;
+            color: white;
+        }
+        
+        .node-ui-button-group {
+            background-color: #b92d5d;
+            color: white;
+        }
+        
+        .node-ui-file-input {
+            background-color: #b92d5d;
+            color: white;
+        }
+        
+        .node-ui-text {
+            background-color: #b92d5d;
+            color: white;
+        }
+        
+        .node-ui-notification {
+            background-color: #b92d5d;
+            color: white;
+        }
+        
+        .arrow {
+            color: #999;
+            font-size: 20px;
+            margin: 0 10px;
+        }
+        
+        .important {
+            background-color: #fce4ec;
+            border-left: 4px solid #b92d5d;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .tip {
+            background-color: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .warning {
+            background-color: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .code-block {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            position: relative;
+            white-space: pre-wrap;
+        }
+        
+        .js-code {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            border: none;
+            padding: 15px;
+            padding-top: 40px;
+            border-radius: 5px;
+            position: relative;
+            white-space: pre;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+        }
+        
+        .copy-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 6px 12px;
+            background-color: #b92d5d;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: 'Segoe UI', sans-serif;
+            transition: background-color 0.2s;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .copy-button:hover {
+            background-color: #9a2550;
+        }
+        
+        .copy-button.copied {
+            background-color: #28a745;
+        }
+        
+        .copy-button svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+        }
+        
+        .exercise {
+            background-color: #f3e5f5;
+            border: 2px solid #9c27b0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        
+        .exercise h3 {
+            color: #7b1fa2;
+            margin-top: 0;
+        }
+        
+        .difficulty {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .difficulty-easy {
+            background-color: #4caf50;
+            color: white;
+        }
+        
+        .difficulty-medium {
+            background-color: #ff9800;
+            color: white;
+        }
+        
+        .difficulty-hard {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        ul, ol {
+            padding-left: 25px;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #b92d5d;
+            color: white;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .flow-json {
+            background-color: #263238;
+            color: #aed581;
+            padding: 15px;
+            padding-top: 40px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        details {
+            margin: 15px 0;
+        }
+        
+        summary {
+            cursor: pointer;
+            padding: 10px;
+            background-color: #b92d5d;
+            color: white;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        summary:hover {
+            background-color: #9a2550;
+        }
+        
+        .widget-card {
+            background: linear-gradient(135deg, #fce4ec 0%, #f3e5f5 100%);
+            border: 2px solid #b92d5d;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .widget-card h3 {
+            color: #b92d5d;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .widget-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        
+        .badge-input {
+            background-color: #4caf50;
+            color: white;
+        }
+        
+        .badge-output {
+            background-color: #2196f3;
+            color: white;
+        }
+        
+        .badge-both {
+            background-color: #ff9800;
+            color: white;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .feature-card {
+            background-color: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .feature-card h4 {
+            color: #b92d5d;
+            margin-top: 0;
+        }
+        
+        .mode-section {
+            background-color: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .mode-section h4 {
+            color: #b92d5d;
+            margin-top: 0;
+            border-bottom: 2px solid #b92d5d;
+            padding-bottom: 8px;
+        }
+        
+        .dynamic-prop {
+            background-color: #e3f2fd;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+        
+        .comparison-table {
+            margin: 20px 0;
+        }
+        
+        .comparison-table th {
+            background-color: #d33682;
+        }
+        
+        .payload-table td:first-child {
+            font-family: 'Courier New', monospace;
+            background-color: #f8f9fa;
+        }
+    
+        .toc {
+            background-color: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .toc h3 {
+            color: #b92d5d;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        
+        .toc ol {
+            margin: 0;
+            padding-left: 25px;
+        }
+        
+        .toc li {
+            margin: 8px 0;
+        }
+        
+        .toc a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        
+        .toc a:hover {
+            text-decoration: underline;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 Node-RED Dashboard 2.0 入力系ウィジェット 完全ガイド</h1>
+        
+        <p>このガイドでは、Dashboard 2.0の<strong>入力系ウィジェット</strong>について詳しく解説します。これらのウィジェットは、ユーザーからの入力を受け付けてフローに送信するために使用します。</p>
+        
+        <div class="important">
+            <p><strong>📌 このガイドで学べること:</strong></p>
+            <ul>
+                <li>ui-button: ボタンによるアクション実行</li>
+                <li>ui-switch: ON/OFF切り替え</li>
+                <li>ui-slider: 数値のスライダー入力</li>
+                <li>ui-dropdown: 選択肢からの選択</li>
+                <li>ui-text-input: テキスト入力</li>
+                <li>ui-form: 複数フィールドのフォーム</li>
+                <li>ui-radio-group: ラジオボタン選択</li>
+                <li>ui-button-group: ボタングループ選択</li>
+            </ul>
+        </div>
+        
+        <div class="toc">
+            <h3>📑 目次</h3>
+            <ol>
+                <li><a href="#section1">入力系ウィジェットの概要</a></li>
+                <li><a href="#section2">サンプルフロー</a></li>
+                <li><a href="#section3">ui-button（ボタン）</a></li>
+                <li><a href="#section4">ui-switch（スイッチ）</a></li>
+                <li><a href="#section5">ui-slider（スライダー）</a></li>
+                <li><a href="#section6">ui-dropdown（ドロップダウン）</a></li>
+                <li><a href="#section7">ui-text-input（テキスト入力）</a></li>
+                <li><a href="#section8">ui-form（フォーム）</a></li>
+                <li><a href="#section9">ui-radio-group（ラジオボタン）</a></li>
+                <li><a href="#section10">ui-button-group（ボタングループ）</a></li>
+                <li><a href="#section11">実践演習</a></li>
+                <li><a href="#section12">まとめ</a></li>
+                <li><a href="#section13">トラブルシューティング</a></li>
+                <li><a href="#section14">実務での活用例</a></li>
+                <li><a href="#section15">追加リソース</a></li>
+            </ol>
+        </div>
+        
+        <h2 id="section1">🎯 1. 入力系ウィジェットの概要</h2>
+        
+        <h3>🤔 入力系ウィジェットとは？</h3>
+        <p>
+            入力系ウィジェットは、<strong>ユーザーからの入力を受け付けてNode-REDフローに送信する</strong>ためのウィジェットです。
+            日常生活で例えると、<strong>リモコンや操作パネル</strong>のようなものです。
+        </p>
+        
+        <div class="tip">
+            <p><strong>🎮 ゲームコントローラーに例えると:</strong></p>
+            <ul>
+                <li>🔘 <strong>ui-button</strong> = Aボタン・Bボタン（押すとアクション実行）</li>
+                <li>🔛 <strong>ui-switch</strong> = 電源スイッチ（ON/OFFの切り替え）</li>
+                <li>🎚️ <strong>ui-slider</strong> = 音量つまみ（連続値の調整）</li>
+                <li>📋 <strong>ui-dropdown</strong> = モード選択メニュー（リストから選択）</li>
+                <li>⌨️ <strong>ui-text-input</strong> = 名前入力欄（文字の入力）</li>
+                <li>📝 <strong>ui-form</strong> = 設定画面（複数項目の一括入力）</li>
+                <li>🔘 <strong>ui-radio-group</strong> = 難易度選択（排他的な選択）</li>
+                <li>🎛️ <strong>ui-button-group</strong> = アイテム選択ボタン群</li>
+            </ul>
+        </div>
+        
+        <h3>📊 入力系ウィジェット一覧</h3>
+        
+        <table>
+            <tr>
+                <th>ウィジェット</th>
+                <th>用途</th>
+                <th>出力値の型</th>
+                <th>入力受付</th>
+            </tr>
+            <tr>
+                <td><strong>ui-button</strong></td>
+                <td>クリックでアクション実行</td>
+                <td>設定値（任意）</td>
+                <td>状態更新可</td>
+            </tr>
+            <tr>
+                <td><strong>ui-switch</strong></td>
+                <td>ON/OFF切り替え</td>
+                <td>boolean / 設定値</td>
+                <td>✅</td>
+            </tr>
+            <tr>
+                <td><strong>ui-slider</strong></td>
+                <td>数値の範囲入力</td>
+                <td>number</td>
+                <td>✅</td>
+            </tr>
+            <tr>
+                <td><strong>ui-dropdown</strong></td>
+                <td>リストから選択</td>
+                <td>選択した値</td>
+                <td>✅</td>
+            </tr>
+            <tr>
+                <td><strong>ui-text-input</strong></td>
+                <td>テキスト入力</td>
+                <td>string / number</td>
+                <td>✅</td>
+            </tr>
+            <tr>
+                <td><strong>ui-form</strong></td>
+                <td>複数フィールド入力</td>
+                <td>object</td>
+                <td>✅</td>
+            </tr>
+            <tr>
+                <td><strong>ui-radio-group</strong></td>
+                <td>排他的選択</td>
+                <td>選択した値</td>
+                <td>✅</td>
+            </tr>
+            <tr>
+                <td><strong>ui-button-group</strong></td>
+                <td>ボタン群から選択</td>
+                <td>選択した値</td>
+                <td>✅</td>
+            </tr>
+        </table>
+        
+        <h2 id="section2">🔥 2. サンプルフロー</h2>
+        
+        <div class="important">
+            <p><strong>📥 まずサンプルフローをインポートしましょう！</strong></p>
+            <p>以下のサンプルフローには、このガイドで説明する<strong>全パターンの実例</strong>が含まれています。<br>
+            先にインポートして、実際に動作を確認しながら読み進めると理解が深まります。</p>
+            <ol>
+                <li>下のサンプルフローJSONをコピー</li>
+                <li>Node-REDエディタで <strong>メニュー → 読み込み</strong> を選択</li>
+                <li>JSONをペーストして「読み込み」をクリック</li>
+                <li>デプロイしてダッシュボードで動作確認</li>
+            </ol>
+        </div>
+        
+        <details>
+            <summary>📋 入力系ウィジェット サンプルフロー（クリックで展開）</summary>
+            <p style="margin: 10px 0; color: #666;"><small>このサンプルには ui-button, ui-switch, ui-slider, ui-dropdown, ui-text-input, ui-form, ui-radio-group, ui-button-group の全パターンが含まれています</small></p>
+            <div class="flow-json">[
+    {
+        "id": "dc9d5574040bffd4",
+        "type": "tab",
+        "label": "入力系ウィジェット",
+        "disabled": false,
+        "info": "Dashboard 2.0 入力系ウィジェットのサンプル"
+    },
+    {
+        "id": "be670a85ab841705",
+        "type": "comment",
+        "z": "dc9d5574040bffd4",
+        "name": "━━━ 🔘 ui-button サンプル ━━━",
+        "info": "",
+        "x": 160,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "ece91638e37ec853",
+        "type": "ui-button",
+        "z": "dc9d5574040bffd4",
+        "group": "input_ui_group_button",
+        "name": "シンプルボタン",
+        "label": "クリック",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "emulateClick": false,
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "iconPosition": "left",
+        "payload": "ボタンが押されました",
+        "payloadType": "str",
+        "topic": "button",
+        "topicType": "str",
+        "buttonColor": "",
+        "textColor": "",
+        "iconColor": "",
+        "x": 140,
+        "y": 100,
+        "wires": [
+            [
+                "a2ed2e2ca5aa8e31"
+            ]
+        ]
+    },
+    {
+        "id": "4225585b61928a55",
+        "type": "ui-button",
+        "z": "dc9d5574040bffd4",
+        "group": "input_ui_group_button",
+        "name": "アイコンボタン",
+        "label": "電源",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "emulateClick": false,
+        "tooltip": "電源をON/OFFします",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "mdi-power",
+        "iconPosition": "left",
+        "payload": "power_toggle",
+        "payloadType": "str",
+        "topic": "power",
+        "topicType": "str",
+        "buttonColor": "",
+        "textColor": "",
+        "iconColor": "",
+        "x": 140,
+        "y": 160,
+        "wires": [
+            [
+                "a2ed2e2ca5aa8e31"
+            ]
+        ]
+    },
+    {
+        "id": "d8874e2fef2314b7",
+        "type": "ui-button",
+        "z": "dc9d5574040bffd4",
+        "group": "input_ui_group_button",
+        "name": "スタイル付きボタン",
+        "label": "緊急停止",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "emulateClick": false,
+        "tooltip": "緊急停止ボタン",
+        "color": "#ffffff",
+        "bgcolor": "#f44336",
+        "className": "",
+        "icon": "mdi-alert-octagon",
+        "iconPosition": "left",
+        "payload": "emergency_stop",
+        "payloadType": "str",
+        "topic": "emergency",
+        "topicType": "str",
+        "buttonColor": "#f44336",
+        "textColor": "#ffffff",
+        "iconColor": "#ffffff",
+        "x": 150,
+        "y": 220,
+        "wires": [
+            [
+                "a2ed2e2ca5aa8e31"
+            ]
+        ]
+    },
+    {
+        "id": "a2ed2e2ca5aa8e31",
+        "type": "debug",
+        "z": "dc9d5574040bffd4",
+        "name": "ボタン出力",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 370,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "d1ca70d8bde0cc9d",
+        "type": "comment",
+        "z": "dc9d5574040bffd4",
+        "name": "━━━ 🔛 ui-switch サンプル ━━━",
+        "info": "",
+        "x": 160,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "00fcb50fa09dd2ac",
+        "type": "ui-switch",
+        "z": "dc9d5574040bffd4",
+        "name": "シンプルスイッチ",
+        "label": "LEDライト",
+        "group": "input_ui_group_switch",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "decouple": false,
+        "topic": "led",
+        "topicType": "str",
+        "className": "",
+        "onvalue": "true",
+        "onvalueType": "bool",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "false",
+        "offvalueType": "bool",
+        "officon": "",
+        "offcolor": "",
+        "x": 150,
+        "y": 360,
+        "wires": [
+            [
+                "238baaea30514539"
+            ]
+        ]
+    },
+    {
+        "id": "91c32f80c0b6e1c1",
+        "type": "ui-switch",
+        "z": "dc9d5574040bffd4",
+        "name": "カスタム値スイッチ",
+        "label": "モーター",
+        "group": "input_ui_group_switch",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "decouple": false,
+        "topic": "motor",
+        "topicType": "str",
+        "className": "",
+        "onvalue": "running",
+        "onvalueType": "str",
+        "onicon": "mdi-play",
+        "oncolor": "#4caf50",
+        "offvalue": "stopped",
+        "offvalueType": "str",
+        "officon": "mdi-stop",
+        "offcolor": "#f44336",
+        "x": 160,
+        "y": 420,
+        "wires": [
+            [
+                "238baaea30514539"
+            ]
+        ]
+    },
+    {
+        "id": "620f3ae577d53309",
+        "type": "inject",
+        "z": "dc9d5574040bffd4",
+        "name": "ON",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "true",
+        "payloadType": "bool",
+        "x": 110,
+        "y": 480,
+        "wires": [
+            [
+                "00fcb50fa09dd2ac"
+            ]
+        ]
+    },
+    {
+        "id": "37f962b4b904eddc",
+        "type": "inject",
+        "z": "dc9d5574040bffd4",
+        "name": "OFF",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "false",
+        "payloadType": "bool",
+        "x": 110,
+        "y": 520,
+        "wires": [
+            [
+                "00fcb50fa09dd2ac"
+            ]
+        ]
+    },
+    {
+        "id": "238baaea30514539",
+        "type": "debug",
+        "z": "dc9d5574040bffd4",
+        "name": "スイッチ出力",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 390,
+        "y": 390,
+        "wires": []
+    },
+    {
+        "id": "468c322b2e538d5a",
+        "type": "comment",
+        "z": "dc9d5574040bffd4",
+        "name": "━━━ 🎚️ ui-slider サンプル ━━━",
+        "info": "",
+        "x": 160,
+        "y": 600,
+        "wires": []
+    },
+    {
+        "id": "6a66ddbd42f6407b",
+        "type": "ui-slider",
+        "z": "dc9d5574040bffd4",
+        "group": "input_ui_group_slider",
+        "name": "音量スライダー",
+        "label": "音量",
+        "tooltip": "",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "outs": "all",
+        "topic": "volume",
+        "topicType": "str",
+        "showTicks": "always",
+        "min": 0,
+        "max": 100,
+        "step": 1,
+        "className": "",
+        "color": "",
+        "x": 160,
+        "y": 660,
+        "wires": [
+            [
+                "af3a4d9e66ee60b8"
+            ]
+        ]
+    },
+    {
+        "id": "93f40d44ae6feb64",
+        "type": "ui-slider",
+        "z": "dc9d5574040bffd4",
+        "group": "input_ui_group_slider",
+        "name": "温度設定",
+        "label": "設定温度",
+        "tooltip": "",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "outs": "end",
+        "topic": "temperature",
+        "topicType": "str",
+        "showTicks": "always",
+        "min": 16,
+        "max": 30,
+        "step": 0.5,
+        "className": "",
+        "color": "",
+        "x": 140,
+        "y": 720,
+        "wires": [
+            [
+                "af3a4d9e66ee60b8"
+            ]
+        ]
+    },
+    {
+        "id": "25b20ed45938fd90",
+        "type": "inject",
+        "z": "dc9d5574040bffd4",
+        "name": "50%",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "50",
+        "payloadType": "num",
+        "x": 110,
+        "y": 780,
+        "wires": [
+            [
+                "6a66ddbd42f6407b"
+            ]
+        ]
+    },
+    {
+        "id": "af3a4d9e66ee60b8",
+        "type": "debug",
+        "z": "dc9d5574040bffd4",
+        "name": "スライダー出力",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 400,
+        "y": 690,
+        "wires": []
+    },
+    {
+        "id": "5b6a7ff04b25578f",
+        "type": "comment",
+        "z": "dc9d5574040bffd4",
+        "name": "━━━ 📋 ui-dropdown サンプル ━━━",
+        "info": "",
+        "x": 170,
+        "y": 860,
+        "wires": []
+    },
+    {
+        "id": "12e94b91f71bbbcf",
+        "type": "ui-dropdown",
+        "z": "dc9d5574040bffd4",
+        "group": "input_ui_group_select",
+        "name": "複数選択",
+        "label": "通知先",
+        "tooltip": "複数選択可",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "multiple": true,
+        "chips": true,
+        "clearable": true,
+        "options": [
+            {
+                "label": "メール",
+                "value": "email",
+                "type": "str"
+            },
+            {
+                "label": "Slack",
+                "value": "slack",
+                "type": "str"
+            },
+            {
+                "label": "LINE",
+                "value": "line",
+                "type": "str"
+            },
+            {
+                "label": "SMS",
+                "value": "sms",
+                "type": "str"
+            }
+        ],
+        "topic": "notify",
+        "topicType": "str",
+        "className": "",
+        "x": 140,
+        "y": 980,
+        "wires": [
+            [
+                "0b4c0c9ed1f1d045"
+            ]
+        ]
+    },
+    {
+        "id": "0b4c0c9ed1f1d045",
+        "type": "debug",
+        "z": "dc9d5574040bffd4",
+        "name": "ドロップダウン出力",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 410,
+        "y": 950,
+        "wires": []
+    },
+    {
+        "id": "c193745151fcb0b4",
+        "type": "inject",
+        "z": "dc9d5574040bffd4",
+        "name": "地域オプション",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 160,
+        "y": 1080,
+        "wires": [
+            [
+                "d160c692c0ee4652"
+            ]
+        ]
+    },
+    {
+        "id": "d160c692c0ee4652",
+        "type": "function",
+        "z": "dc9d5574040bffd4",
+        "name": "options生成",
+        "func": "msg.options = [\n    {\"label\": \"東京\", \"value\": \"tokyo\"},\n    {\"label\": \"大阪\", \"value\": \"osaka\"},\n    {\"label\": \"福岡\", \"value\": \"fukuoka\"}\n];\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 330,
+        "y": 1080,
+        "wires": [
+            [
+                "f5c5e9da805c49a3"
+            ]
+        ]
+    },
+    {
+        "id": "ade09c3acb1fe939",
+        "type": "comment",
+        "z": "dc9d5574040bffd4",
+        "name": "━━━ ⌨️ ui-text-input サンプル ━━━",
+        "info": "",
+        "x": 180,
+        "y": 1200,
+        "wires": []
+    },
+    {
+        "id": "b2b1827a4fa85257",
+        "type": "ui-text-input",
+        "z": "dc9d5574040bffd4",
+        "group": "input_ui_group_text",
+        "name": "名前入力",
+        "label": "お名前",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "topic": "name",
+        "topicType": "str",
+        "mode": "text",
+        "tooltip": "",
+        "delay": 300,
+        "passthru": false,
+        "sendOnBlur": true,
+        "sendOnEnter": true,
+        "className": "",
+        "x": 160,
+        "y": 1240,
+        "wires": [
+            [
+                "b3dafd0ddf1ea511"
+            ]
+        ]
+    },
+    {
+        "id": "748bbaef47aee09f",
+        "type": "ui-text-input",
+        "z": "dc9d5574040bffd4",
+        "group": "input_ui_group_text",
+        "name": "数値入力",
+        "label": "数量",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "topic": "quantity",
+        "topicType": "str",
+        "mode": "number",
+        "tooltip": "",
+        "delay": 300,
+        "passthru": false,
+        "sendOnBlur": true,
+        "sendOnEnter": true,
+        "className": "",
+        "x": 160,
+        "y": 1300,
+        "wires": [
+            [
+                "b3dafd0ddf1ea511"
+            ]
+        ]
+    },
+    {
+        "id": "0616f421b8a4a8df",
+        "type": "ui-text-input",
+        "z": "dc9d5574040bffd4",
+        "group": "input_ui_group_text",
+        "name": "パスワード入力",
+        "label": "パスワード",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "topic": "password",
+        "topicType": "str",
+        "mode": "password",
+        "tooltip": "",
+        "delay": 300,
+        "passthru": false,
+        "sendOnBlur": true,
+        "sendOnEnter": true,
+        "className": "",
+        "x": 180,
+        "y": 1360,
+        "wires": [
+            [
+                "b3dafd0ddf1ea511"
+            ]
+        ]
+    },
+    {
+        "id": "b3dafd0ddf1ea511",
+        "type": "debug",
+        "z": "dc9d5574040bffd4",
+        "name": "テキスト入力出力",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 430,
+        "y": 1300,
+        "wires": []
+    },
+    {
+        "id": "47ba59b4af0b82be",
+        "type": "comment",
+        "z": "dc9d5574040bffd4",
+        "name": "━━━ 📝 ui-form サンプル ━━━",
+        "info": "",
+        "x": 160,
+        "y": 1440,
+        "wires": []
+    },
+    {
+        "id": "421878c92ed51ea6",
+        "type": "ui-form",
+        "z": "dc9d5574040bffd4",
+        "name": "ユーザー登録フォーム",
+        "group": "input_ui_group_form",
+        "label": "",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "options": [
+            {
+                "label": "名前",
+                "key": "name",
+                "type": "text",
+                "required": true,
+                "rows": null
+            },
+            {
+                "label": "メール",
+                "key": "email",
+                "type": "email",
+                "required": true,
+                "rows": null
+            },
+            {
+                "label": "年齢",
+                "key": "age",
+                "type": "number",
+                "required": false,
+                "rows": null
+            },
+            {
+                "label": "コメント",
+                "key": "comment",
+                "type": "multiline",
+                "required": false,
+                "rows": 3
+            }
+        ],
+        "resetOnSubmit": true,
+        "topic": "user_registration",
+        "topicType": "str",
+        "splitLayout": false,
+        "className": "",
+        "x": 200,
+        "y": 1500,
+        "wires": [
+            [
+                "596b1eee63dc8533"
+            ]
+        ]
+    },
+    {
+        "id": "596b1eee63dc8533",
+        "type": "debug",
+        "z": "dc9d5574040bffd4",
+        "name": "フォーム出力",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 430,
+        "y": 1500,
+        "wires": []
+    },
+    {
+        "id": "comment_radio_group",
+        "type": "comment",
+        "z": "dc9d5574040bffd4",
+        "name": "━━━ 🔘 ui-radio-group サンプル ━━━",
+        "info": "",
+        "x": 180,
+        "y": 1580,
+        "wires": []
+    },
+    {
+        "id": "ui_radio_priority",
+        "type": "ui-radio-group",
+        "z": "dc9d5574040bffd4",
+        "group": "input_ui_group_radio",
+        "name": "優先度選択",
+        "label": "優先度",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "topic": "priority",
+        "topicType": "str",
+        "passthru": false,
+        "options": [
+            {
+                "label": "🔴 高",
+                "value": "high"
+            },
+            {
+                "label": "🟡 中",
+                "value": "medium"
+            },
+            {
+                "label": "🟢 低",
+                "value": "low"
+            }
+        ],
+        "className": "",
+        "x": 160,
+        "y": 1640,
+        "wires": [
+            [
+                "debug_radio_group"
+            ]
+        ]
+    },
+    {
+        "id": "debug_radio_group",
+        "type": "debug",
+        "z": "dc9d5574040bffd4",
+        "name": "ラジオ出力",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 370,
+        "y": 1640,
+        "wires": []
+    },
+    {
+        "id": "comment_button_group",
+        "type": "comment",
+        "z": "dc9d5574040bffd4",
+        "name": "━━━ 🎛️ ui-button-group サンプル ━━━",
+        "info": "",
+        "x": 190,
+        "y": 1720,
+        "wires": []
+    },
+    {
+        "id": "ui_button_group_mode",
+        "type": "ui-button-group",
+        "z": "dc9d5574040bffd4",
+        "group": "input_ui_group_btngroup",
+        "name": "表示モード",
+        "label": "表示モード",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "topic": "display_mode",
+        "topicType": "str",
+        "passthru": false,
+        "options": [
+            {
+                "label": "リスト",
+                "value": "list",
+                "icon": "mdi-format-list-bulleted",
+                "color": ""
+            },
+            {
+                "label": "グリッド",
+                "value": "grid",
+                "icon": "mdi-grid",
+                "color": ""
+            },
+            {
+                "label": "カード",
+                "value": "card",
+                "icon": "mdi-card-outline",
+                "color": ""
+            }
+        ],
+        "className": "",
+        "x": 160,
+        "y": 1780,
+        "wires": [
+            [
+                "debug_button_group"
+            ]
+        ]
+    },
+    {
+        "id": "debug_button_group",
+        "type": "debug",
+        "z": "dc9d5574040bffd4",
+        "name": "ボタングループ出力",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 410,
+        "y": 1780,
+        "wires": []
+    },
+    {
+        "id": "f5c5e9da805c49a3",
+        "type": "ui-dropdown",
+        "z": "dc9d5574040bffd4",
+        "group": "input_ui_group_select",
+        "name": "動作モード（動的）",
+        "label": "動的オプション",
+        "tooltip": "",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "multiple": false,
+        "chips": false,
+        "clearable": false,
+        "options": [
+            {
+                "label": "自動",
+                "value": "auto",
+                "type": "str"
+            },
+            {
+                "label": "手動",
+                "value": "manual",
+                "type": "str"
+            },
+            {
+                "label": "停止",
+                "value": "stop",
+                "type": "str"
+            }
+        ],
+        "topic": "mode",
+        "topicType": "str",
+        "className": "",
+        "typeIsComboBox": true,
+        "msgTrigger": "onChange",
+        "x": 560,
+        "y": 1080,
+        "wires": [
+            [
+                "0b4c0c9ed1f1d045"
+            ]
+        ]
+    },
+    {
+        "id": "7084e3a37c4c1ea5",
+        "type": "ui-dropdown",
+        "z": "dc9d5574040bffd4",
+        "group": "input_ui_group_select",
+        "name": "動作モード",
+        "label": "動作モード",
+        "tooltip": "",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "multiple": false,
+        "chips": false,
+        "clearable": false,
+        "options": [
+            {
+                "label": "自動",
+                "value": "auto",
+                "type": "str"
+            },
+            {
+                "label": "手動",
+                "value": "manual",
+                "type": "str"
+            },
+            {
+                "label": "停止",
+                "value": "stop",
+                "type": "str"
+            }
+        ],
+        "payload": "",
+        "topic": "topic",
+        "topicType": "msg",
+        "className": "",
+        "typeIsComboBox": true,
+        "msgTrigger": "onChange",
+        "x": 150,
+        "y": 940,
+        "wires": [
+            [
+                "0b4c0c9ed1f1d045"
+            ]
+        ]
+    },
+    {
+        "id": "input_ui_group_radio",
+        "type": "ui-group",
+        "name": "🔘 ラジオボタン",
+        "page": "input_ui_page",
+        "width": "6",
+        "height": "-1",
+        "order": 7,
+        "showTitle": true,
+        "className": "",
+        "visible": true,
+        "disabled": false
+    },
+    {
+        "id": "input_ui_group_btngroup",
+        "type": "ui-group",
+        "name": "🎛️ ボタングループ",
+        "page": "input_ui_page",
+        "width": "6",
+        "height": "-1",
+        "order": 8,
+        "showTitle": true,
+        "className": "",
+        "visible": true,
+        "disabled": false
+    },
+    {
+        "id": "input_ui_group_button",
+        "type": "ui-group",
+        "name": "🔘 ボタン",
+        "page": "input_ui_page",
+        "width": "6",
+        "height": "-1",
+        "order": 1,
+        "showTitle": true,
+        "className": "",
+        "visible": true,
+        "disabled": false
+    },
+    {
+        "id": "input_ui_group_switch",
+        "type": "ui-group",
+        "name": "🔛 スイッチ",
+        "page": "input_ui_page",
+        "width": "6",
+        "height": "-1",
+        "order": 2,
+        "showTitle": true,
+        "className": "",
+        "visible": true,
+        "disabled": false
+    },
+    {
+        "id": "input_ui_group_slider",
+        "type": "ui-group",
+        "name": "🎚️ スライダー",
+        "page": "input_ui_page",
+        "width": "6",
+        "height": "-1",
+        "order": 3,
+        "showTitle": true,
+        "className": "",
+        "visible": true,
+        "disabled": false
+    },
+    {
+        "id": "input_ui_group_select",
+        "type": "ui-group",
+        "name": "📋 選択系",
+        "page": "input_ui_page",
+        "width": "6",
+        "height": "-1",
+        "order": 4,
+        "showTitle": true,
+        "className": "",
+        "visible": true,
+        "disabled": false
+    },
+    {
+        "id": "input_ui_group_text",
+        "type": "ui-group",
+        "name": "⌨️ テキスト入力",
+        "page": "input_ui_page",
+        "width": "6",
+        "height": "-1",
+        "order": 5,
+        "showTitle": true,
+        "className": "",
+        "visible": true,
+        "disabled": false
+    },
+    {
+        "id": "input_ui_group_form",
+        "type": "ui-group",
+        "name": "📝 フォーム",
+        "page": "input_ui_page",
+        "width": "6",
+        "height": "-1",
+        "order": 6,
+        "showTitle": true,
+        "className": "",
+        "visible": true,
+        "disabled": false
+    },
+    {
+        "id": "input_ui_page",
+        "type": "ui-page",
+        "name": "入力系サンプル",
+        "ui": "6692685697ac2af1",
+        "path": "/input-widgets",
+        "icon": "mdi-gamepad-variant",
+        "layout": "grid",
+        "theme": "input_ui_theme",
+        "breakpoints": [
+            {
+                "name": "Default",
+                "px": 0,
+                "cols": 3
+            },
+            {
+                "name": "Tablet",
+                "px": 576,
+                "cols": 6
+            },
+            {
+                "name": "Small Desktop",
+                "px": 768,
+                "cols": 9
+            },
+            {
+                "name": "Desktop",
+                "px": 1024,
+                "cols": 12
+            }
+        ],
+        "order": 2,
+        "className": "",
+        "visible": true,
+        "disabled": false
+    },
+    {
+        "id": "6692685697ac2af1",
+        "type": "ui-base",
+        "name": "My Dashboard",
+        "path": "/dashboard",
+        "appIcon": "",
+        "includeClientData": true,
+        "acceptsClientConfig": [
+            "ui-notification",
+            "ui-control"
+        ],
+        "showPathInSidebar": false,
+        "headerContent": "page",
+        "navigationStyle": "default",
+        "titleBarStyle": "default",
+        "showReconnectNotification": true,
+        "notificationDisplayTime": 1,
+        "showDisconnectNotification": true,
+        "allowInstall": false
+    },
+    {
+        "id": "input_ui_theme",
+        "type": "ui-theme",
+        "name": "Default Theme",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#b92d5d",
+            "bgPage": "#eeeeee",
+            "groupBg": "#ffffff",
+            "groupOutline": "#cccccc"
+        },
+        "sizes": {
+            "pagePadding": "12px",
+            "groupGap": "12px",
+            "groupBorderRadius": "4px",
+            "widgetGap": "12px"
+        }
+    },
+    {
+        "id": "012aac34447c496d",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "@flowfuse/node-red-dashboard": "1.29.0"
+        }
+    }
+]</div>
+        </details>
+        
+        <h2 id="section3">🔘 3. ui-button（ボタン）</h2>
+        
+        <div class="widget-card">
+            <h3>
+                <span class="widget-badge badge-input">入力</span>
+                ui-button ウィジェット
+            </h3>
+            <p>クリックすると設定した値を<code>msg.payload</code>として送信するボタンです。アイコン、色、ツールチップなどをカスタマイズできます。</p>
+        </div>
+        
+        <h4>📋 主要プロパティ</h4>
+        
+        <table>
+            <tr>
+                <th>プロパティ</th>
+                <th>説明</th>
+                <th>デフォルト</th>
+            </tr>
+            <tr>
+                <td><strong>Label</strong></td>
+                <td>ボタンに表示するテキスト</td>
+                <td>"Button"</td>
+            </tr>
+            <tr>
+                <td><strong>Icon</strong></td>
+                <td>Material Design Icons（mdi-xxx形式）</td>
+                <td>なし</td>
+            </tr>
+            <tr>
+                <td><strong>Icon Position</strong></td>
+                <td>アイコンの位置（left/right）</td>
+                <td>left</td>
+            </tr>
+            <tr>
+                <td><strong>Payload</strong></td>
+                <td>クリック時に送信する値</td>
+                <td>タイムスタンプ</td>
+            </tr>
+            <tr>
+                <td><strong>Topic</strong></td>
+                <td>msg.topicに設定する値</td>
+                <td>空</td>
+            </tr>
+            <tr>
+                <td><strong>Background Color</strong></td>
+                <td>ボタンの背景色</td>
+                <td>テーマ色</td>
+            </tr>
+            <tr>
+                <td><strong>Text Color</strong></td>
+                <td>ボタンのテキスト色</td>
+                <td>自動</td>
+            </tr>
+            <tr>
+                <td><strong>Tooltip</strong></td>
+                <td>ホバー時に表示するヒント</td>
+                <td>なし</td>
+            </tr>
+            <tr>
+                <td><strong>Emulate Click</strong></td>
+                <td>入力メッセージでクリックをエミュレート</td>
+                <td>false</td>
+            </tr>
+        </table>
+        
+        <h4>🎯 使用パターン</h4>
+        
+        <div class="mode-section">
+            <h4>パターン1: シンプルなボタン</h4>
+            <p>基本的なボタンで固定値を送信します。</p>
+            <div class="node-example">
+                <span class="node node-ui-button">ui-button</span>
+                <span class="arrow">→</span>
+                <span class="node node-debug">Debug</span>
+            </div>
+            <div class="code-block">// クリック時の出力
+msg.payload = "ボタンが押されました"
+msg.topic = "button"</div>
+        </div>
+        
+        <div class="mode-section">
+            <h4>パターン2: アイコン付きボタン</h4>
+            <p>アイコンを表示し、ツールチップで説明を追加したボタンです。アイコンは<a href="https://pictogrammers.com/library/mdi/" target="_blank">Material Design Icons</a>から選択でき、<code>mdi-</code>プレフィックスを付けて指定します。</p>
+            <div class="node-example">
+                <span class="node node-ui-button">ui-button<br><small>🔌 電源</small></span>
+                <span class="arrow">→</span>
+                <span class="node node-debug">Debug</span>
+            </div>
+            <div class="code-block">// アイコン: mdi-power
+// Payload: "power_toggle"
+
+// クリック時の出力
+msg.payload = "power_toggle"
+msg.topic = "power"</div>
+        </div>
+        
+        <div class="mode-section">
+            <h4>パターン3: スタイル付きボタン</h4>
+            <p>背景色・テキスト色をカスタマイズした目立つボタンです。</p>
+            <div class="node-example">
+                <span class="node node-ui-button" style="background-color: #f44336;">ui-button<br><small>⚠️ 緊急停止</small></span>
+                <span class="arrow">→</span>
+                <span class="node node-function">Function</span>
+                <span class="arrow">→</span>
+                <span class="node node-debug">Debug</span>
+            </div>
+            <div class="code-block">// 設定
+Background Color: #f44336 (赤)
+Text Color: #ffffff (白)
+Icon: mdi-alert-octagon</div>
+        </div>
+        
+        <div class="tip">
+            <p><strong>💡 動的プロパティ更新:</strong></p>
+            <p><code>msg.ui_update</code>でボタンの外観を動的に変更できます。</p>
+            <div class="dynamic-prop">msg.ui_update = { "label": "処理中...", "icon": "mdi-loading", "buttonColor": "#ff9800" }</div>
+        </div>
+        
+        <h2 id="section4">🔛 4. ui-switch（スイッチ）</h2>
+        
+        <div class="widget-card">
+            <h3>
+                <span class="widget-badge badge-both">入出力</span>
+                ui-switch ウィジェット
+            </h3>
+            <p>ON/OFFを切り替えるトグルスイッチです。状態を表示しつつ、ユーザーの操作で値を送信します。<code>msg.payload</code>で状態を設定することもできます。</p>
+        </div>
+        
+        <h4>📋 主要プロパティ</h4>
+        
+        <table>
+            <tr>
+                <th>プロパティ</th>
+                <th>説明</th>
+                <th>デフォルト</th>
+            </tr>
+            <tr>
+                <td><strong>Label</strong></td>
+                <td>スイッチの横に表示するラベル</td>
+                <td>空</td>
+            </tr>
+            <tr>
+                <td><strong>On Value</strong></td>
+                <td>ON状態で送信する値</td>
+                <td>true</td>
+            </tr>
+            <tr>
+                <td><strong>Off Value</strong></td>
+                <td>OFF状態で送信する値</td>
+                <td>false</td>
+            </tr>
+            <tr>
+                <td><strong>On Color</strong></td>
+                <td>ON状態の色</td>
+                <td>テーマ色</td>
+            </tr>
+            <tr>
+                <td><strong>Off Color</strong></td>
+                <td>OFF状態の色</td>
+                <td>グレー</td>
+            </tr>
+            <tr>
+                <td><strong>On Icon</strong></td>
+                <td>ON状態のアイコン</td>
+                <td>なし</td>
+            </tr>
+            <tr>
+                <td><strong>Off Icon</strong></td>
+                <td>OFF状態のアイコン</td>
+                <td>なし</td>
+            </tr>
+            <tr>
+                <td><strong>Pass Through</strong></td>
+                <td>入力メッセージをそのまま出力に流す</td>
+                <td>false</td>
+            </tr>
+            <tr>
+                <td><strong>Decouple</strong></td>
+                <td>入力と出力を分離（入力で状態変更時に出力しない）</td>
+                <td>false</td>
+            </tr>
+        </table>
+        
+        <h4>🎯 使用パターン</h4>
+        
+        <div class="mode-section">
+            <h4>パターン1: シンプルなON/OFFスイッチ</h4>
+            <p>boolean値（true/false）を送信する基本的なスイッチです。</p>
+            <div class="node-example">
+                <span class="node node-ui-switch">ui-switch<br><small>LEDライト</small></span>
+                <span class="arrow">→</span>
+                <span class="node node-debug">Debug</span>
+            </div>
+            <div class="code-block">// ON時: msg.payload = true
+// OFF時: msg.payload = false</div>
+        </div>
+        
+        <div class="mode-section">
+            <h4>パターン2: カスタム値スイッチ</h4>
+            <p>ON/OFFで異なる文字列を送信し、アイコン・色も変更します。アイコンは<a href="https://pictogrammers.com/library/mdi/" target="_blank">Material Design Icons</a>から選択できます。</p>
+            <div class="node-example">
+                <span class="node node-ui-switch">ui-switch<br><small>モーター</small></span>
+                <span class="arrow">→</span>
+                <span class="node node-switch">Switch</span>
+                <span class="arrow">→</span>
+                <span class="node node-function">Function</span>
+            </div>
+            <div class="code-block">// 設定
+On Value: "running" (文字列)
+Off Value: "stopped" (文字列)
+On Color: #4caf50 (緑)
+Off Color: #f44336 (赤)
+On Icon: mdi-play
+Off Icon: mdi-stop</div>
+        </div>
+        
+        <div class="mode-section">
+            <h4>パターン3: 外部からの状態制御</h4>
+            <p>Injectノードなどから状態を設定できます。</p>
+            <div class="node-example">
+                <span class="node node-inject">Inject<br><small>true</small></span>
+                <span class="arrow">→</span>
+                <span class="node node-ui-switch">ui-switch</span>
+                <span class="arrow">→</span>
+                <span class="node node-debug">Debug</span>
+            </div>
+            <div class="code-block">// スイッチをONにする
+msg.payload = true
+
+// スイッチをOFFにする
+msg.payload = false</div>
+        </div>
+        
+        <div class="warning">
+            <p><strong>⚠️ Pass ThroughとDecoupleの違い:</strong></p>
+            <ul>
+                <li><strong>Pass Through</strong>: 入力メッセージ全体を出力に流す（msg.payloadだけでなく全プロパティ）</li>
+                <li><strong>Decouple</strong>: 入力でスイッチ状態が変わっても出力しない（UIからの操作時のみ出力）</li>
+            </ul>
+        </div>
+        
+        <h2 id="section5">🎚️ 5. ui-slider（スライダー）</h2>
+        
+        <div class="widget-card">
+            <h3>
+                <span class="widget-badge badge-both">入出力</span>
+                ui-slider ウィジェット
+            </h3>
+            <p>スライダーをドラッグして数値を入力します。音量、明るさ、温度設定などに最適です。</p>
+        </div>
+        
+        <h4>📋 主要プロパティ</h4>
+        
+        <table>
+            <tr>
+                <th>プロパティ</th>
+                <th>説明</th>
+                <th>デフォルト</th>
+            </tr>
+            <tr>
+                <td><strong>Label</strong></td>
+                <td>スライダーの上に表示するラベル</td>
+                <td>空</td>
+            </tr>
+            <tr>
+                <td><strong>Min</strong></td>
+                <td>最小値</td>
+                <td>0</td>
+            </tr>
+            <tr>
+                <td><strong>Max</strong></td>
+                <td>最大値</td>
+                <td>100</td>
+            </tr>
+            <tr>
+                <td><strong>Step</strong></td>
+                <td>刻み幅</td>
+                <td>1</td>
+            </tr>
+            <tr>
+                <td><strong>Output</strong></td>
+                <td>出力タイミング（all: 操作中常時 / end: 操作完了時のみ）</td>
+                <td>all</td>
+            </tr>
+            <tr>
+                <td><strong>Show Value</strong></td>
+                <td>現在値を表示</td>
+                <td>true</td>
+            </tr>
+            <tr>
+                <td><strong>Show Ticks</strong></td>
+                <td>目盛りの表示（always/drag/never）</td>
+                <td>always</td>
+            </tr>
+            <tr>
+                <td><strong>Pass Through</strong></td>
+                <td>入力メッセージを出力にパススルー（値更新と同時に元のmsg全体を出力）</td>
+                <td>false</td>
+            </tr>
+        </table>
+        
+        <h4>🎯 使用パターン</h4>
+        
+        <div class="mode-section">
+            <h4>パターン1: 音量スライダー（0-100）</h4>
+            <p>操作中にリアルタイムで値を送信します。</p>
+            <div class="node-example">
+                <span class="node node-ui-slider">ui-slider<br><small>音量: 0-100</small></span>
+                <span class="arrow">→</span>
+                <span class="node node-debug">Debug</span>
+            </div>
+            <div class="code-block">// 設定
+Min: 0, Max: 100, Step: 1
+Output: all (操作中常時送信)
+
+// 出力: msg.payload = 75</div>
+        </div>
+        
+        <div class="mode-section">
+            <h4>パターン2: 温度設定スライダー（小数点対応）</h4>
+            <p>0.5度刻みで設定でき、操作完了時のみ送信します。</p>
+            <div class="node-example">
+                <span class="node node-ui-slider">ui-slider<br><small>温度: 16-30℃</small></span>
+                <span class="arrow">→</span>
+                <span class="node node-function">Function</span>
+                <span class="arrow">→</span>
+                <span class="node node-debug">Debug</span>
+            </div>
+            <div class="code-block">// 設定
+Min: 16, Max: 30, Step: 0.5
+Output: end (操作完了時のみ)
+
+// 出力: msg.payload = 25.5</div>
+        </div>
+        
+        <div class="mode-section">
+            <h4>パターン3: 外部からの値設定</h4>
+            <p>msg.payloadでスライダーの値を設定できます。</p>
+            <div class="node-example">
+                <span class="node node-inject">Inject<br><small>50</small></span>
+                <span class="arrow">→</span>
+                <span class="node node-ui-slider">ui-slider</span>
+            </div>
+            <div class="code-block">// スライダーを50%に設定
+msg.payload = 50</div>
+        </div>
+        
+        <div class="tip">
+            <p><strong>💡 Outputオプションの使い分け:</strong></p>
+            <ul>
+                <li><strong>all</strong>: リアルタイムプレビュー（LEDの明るさなど）</li>
+                <li><strong>end</strong>: 確定値のみ必要な場合（API呼び出しなど）</li>
+            </ul>
+            <p><strong>💡 Pass Through:</strong> 有効にすると、入力メッセージで値を更新した際に、元のメッセージ全体（msg.topicなど他のプロパティも含む）を出力に流します。</p>
+        </div>
+        
+        <h2 id="section6">📋 6. ui-dropdown（ドロップダウン）</h2>
+        
+        <div class="widget-card">
+            <h3>
+                <span class="widget-badge badge-both">入出力</span>
+                ui-dropdown ウィジェット
+            </h3>
+            <p>ドロップダウンリストから選択します。単一選択と複数選択に対応しています。</p>
+        </div>
+        
+        <h4>📋 主要プロパティ</h4>
+        
+        <table>
+            <tr>
+                <th>プロパティ</th>
+                <th>説明</th>
+                <th>デフォルト</th>
+            </tr>
+            <tr>
+                <td><strong>Label</strong></td>
+                <td>ドロップダウンのラベル</td>
+                <td>空</td>
+            </tr>
+            <tr>
+                <td><strong>Options</strong></td>
+                <td>選択肢のリスト（label/value/type）</td>
+                <td>[]</td>
+            </tr>
+            <tr>
+                <td><strong>Multiple</strong></td>
+                <td>複数選択を許可</td>
+                <td>false</td>
+            </tr>
+            <tr>
+                <td><strong>Chips</strong></td>
+                <td>選択項目をチップ形式で表示（複数選択時）</td>
+                <td>false</td>
+            </tr>
+            <tr>
+                <td><strong>Clearable</strong></td>
+                <td>選択解除ボタンを表示</td>
+                <td>false</td>
+            </tr>
+            <tr>
+                <td><strong>Pass Through</strong></td>
+                <td>入力メッセージを出力にパススルー（値更新と同時に元のmsg全体を出力）</td>
+                <td>false</td>
+            </tr>
+        </table>
+        
+        <h4>🎯 使用パターン</h4>
+        
+        <div class="mode-section">
+            <h4>パターン1: 単一選択ドロップダウン</h4>
+            <p>モード選択など、1つだけ選ぶ場合に使用します。</p>
+            <div class="node-example">
+                <span class="node node-ui-dropdown">ui-dropdown<br><small>動作モード</small></span>
+                <span class="arrow">→</span>
+                <span class="node node-switch">Switch</span>
+                <span class="arrow">→</span>
+                <span class="node node-function">Function</span>
+            </div>
+            <div class="code-block">// Options設定
+[
+    {"label": "自動", "value": "auto", "type": "str"},
+    {"label": "手動", "value": "manual", "type": "str"},
+    {"label": "停止", "value": "stop", "type": "str"}
+]
+
+// 出力: msg.payload = "auto"</div>
+        </div>
+        
+        <div class="mode-section">
+            <h4>パターン2: 複数選択ドロップダウン</h4>
+            <p>複数の項目を選択可能です。チップ表示で見やすくなります。</p>
+            <div class="node-example">
+                <span class="node node-ui-dropdown">ui-dropdown<br><small>通知先（複数可）</small></span>
+                <span class="arrow">→</span>
+                <span class="node node-function">Function</span>
+                <span class="arrow">→</span>
+                <span class="node node-debug">Debug</span>
+            </div>
+            <div class="code-block">// 設定
+Multiple: true
+Chips: true
+Clearable: true
+
+// 出力: msg.payload = ["email", "slack", "line"]</div>
+        </div>
+        
+        <div class="mode-section">
+            <h4>パターン3: 動的にオプションを変更</h4>
+            <p><code>msg.options</code>でドロップダウンの選択肢を動的に変更できます。</p>
+            <div class="node-example">
+                <span class="node node-inject">Inject</span>
+                <span class="arrow">→</span>
+                <span class="node node-function">Function<br><small>options生成</small></span>
+                <span class="arrow">→</span>
+                <span class="node node-ui-dropdown">ui-dropdown</span>
+            </div>
+            <div class="code-block">// Functionノードで動的オプション生成
+msg.options = [
+    {"label": "東京", "value": "tokyo"},
+    {"label": "大阪", "value": "osaka"},
+    {"label": "福岡", "value": "fukuoka"}
+];
+return msg;</div>
+        </div>
+        
+        <div class="tip">
+            <p><strong>💡 Pass Through:</strong> 有効にすると、入力メッセージで選択値を更新した際に、元のメッセージ全体を出力に流します。msg.optionsで選択肢を動的に変更する際に、他のプロパティを維持したい場合に便利です。</p>
+        </div>
+        
+        <h2 id="section7">⌨️ 7. ui-text-input（テキスト入力）</h2>
+        
+        <div class="widget-card">
+            <h3>
+                <span class="widget-badge badge-both">入出力</span>
+                ui-text-input ウィジェット
+            </h3>
+            <p>テキスト、数値、パスワードなど様々な形式の入力を受け付けます。</p>
+        </div>
+        
+        <h4>📋 主要プロパティ</h4>
+        
+        <table>
+            <tr>
+                <th>プロパティ</th>
+                <th>説明</th>
+                <th>デフォルト</th>
+            </tr>
+            <tr>
+                <td><strong>Label</strong></td>
+                <td>入力フィールドのラベル</td>
+                <td>空</td>
+            </tr>
+            <tr>
+                <td><strong>Mode</strong></td>
+                <td>入力モード（text/number/password/email/tel/color/date/time/week/month）</td>
+                <td>text</td>
+            </tr>
+            <tr>
+                <td><strong>Delay</strong></td>
+                <td>入力後の送信遅延（ms）</td>
+                <td>300</td>
+            </tr>
+            <tr>
+                <td><strong>Send On Blur</strong></td>
+                <td>フォーカスが外れた時に送信</td>
+                <td>true</td>
+            </tr>
+            <tr>
+                <td><strong>Send On Enter</strong></td>
+                <td>Enterキーで送信</td>
+                <td>true</td>
+            </tr>
+            <tr>
+                <td><strong>Clear On Submit</strong></td>
+                <td>送信後に入力をクリア</td>
+                <td>false</td>
+            </tr>
+            <tr>
+                <td><strong>Pass Through</strong></td>
+                <td>入力メッセージを出力にパススルー（値更新と同時に元のmsg全体を出力）</td>
+                <td>false</td>
+            </tr>
+        </table>
+        
+        <h4>🎯 入力モード一覧</h4>
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h4>text</h4>
+                <p>通常のテキスト入力</p>
+                <div class="code-block">msg.payload = "Hello"</div>
+            </div>
+            <div class="feature-card">
+                <h4>number</h4>
+                <p>数値入力（数値型で出力）</p>
+                <div class="code-block">msg.payload = 42</div>
+            </div>
+            <div class="feature-card">
+                <h4>password</h4>
+                <p>パスワード入力（マスク表示）</p>
+                <div class="code-block">msg.payload = "secret123"</div>
+            </div>
+            <div class="feature-card">
+                <h4>email</h4>
+                <p>メールアドレス入力</p>
+                <div class="code-block">msg.payload = "<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="2055534552604558414d504c450e434f4d">[email&#160;protected]</a>"</div>
+            </div>
+            <div class="feature-card">
+                <h4>date</h4>
+                <p>日付選択</p>
+                <div class="code-block">msg.payload = "2024-01-15"</div>
+            </div>
+            <div class="feature-card">
+                <h4>color</h4>
+                <p>カラーピッカー</p>
+                <div class="code-block">msg.payload = "#ff5722"</div>
+            </div>
+        </div>
+        
+        <h4>🎯 使用パターン</h4>
+        
+        <div class="mode-section">
+            <h4>パターン1: 名前入力フィールド</h4>
+            <div class="node-example">
+                <span class="node node-ui-text-input">ui-text-input<br><small>お名前</small></span>
+                <span class="arrow">→</span>
+                <span class="node node-debug">Debug</span>
+            </div>
+            <div class="code-block">// 設定
+Mode: text
+Send On Enter: true
+Send On Blur: true</div>
+        </div>
+        
+        <div class="mode-section">
+            <h4>パターン2: 数量入力フィールド</h4>
+            <div class="node-example">
+                <span class="node node-ui-text-input">ui-text-input<br><small>数量</small></span>
+                <span class="arrow">→</span>
+                <span class="node node-function">Function</span>
+                <span class="arrow">→</span>
+                <span class="node node-debug">Debug</span>
+            </div>
+            <div class="code-block">// 設定
+Mode: number
+
+// 出力は数値型
+msg.payload = 10 // typeof === "number"</div>
+        </div>
+        
+        <div class="mode-section">
+            <h4>パターン3: 入力値のクリア</h4>
+            <p><code>msg.payload = ""</code>を送ると入力フィールドをクリアできます。</p>
+            <div class="node-example">
+                <span class="node node-inject">Inject<br><small>""</small></span>
+                <span class="arrow">→</span>
+                <span class="node node-ui-text-input">ui-text-input</span>
+            </div>
+        </div>
+        
+        <div class="tip">
+            <p><strong>💡 Pass Through:</strong> 有効にすると、入力メッセージでテキスト値を更新した際に、元のメッセージ全体を出力に流します。</p>
+        </div>
+        
+        <h2 id="section8">📝 8. ui-form（フォーム）</h2>
+        
+        <div class="widget-card">
+            <h3>
+                <span class="widget-badge badge-input">入力</span>
+                ui-form ウィジェット
+            </h3>
+            <p>複数の入力フィールドをまとめたフォームです。送信ボタンをクリックすると、全フィールドの値がオブジェクトとして送信されます。</p>
+        </div>
+        
+        <h4>📋 フィールドタイプ</h4>
+        
+        <table>
+            <tr>
+                <th>タイプ</th>
+                <th>説明</th>
+                <th>出力値</th>
+            </tr>
+            <tr>
+                <td><strong>text</strong></td>
+                <td>テキスト入力</td>
+                <td>string</td>
+            </tr>
+            <tr>
+                <td><strong>number</strong></td>
+                <td>数値入力</td>
+                <td>number</td>
+            </tr>
+            <tr>
+                <td><strong>email</strong></td>
+                <td>メール入力</td>
+                <td>string</td>
+            </tr>
+            <tr>
+                <td><strong>password</strong></td>
+                <td>パスワード入力</td>
+                <td>string</td>
+            </tr>
+            <tr>
+                <td><strong>checkbox</strong></td>
+                <td>チェックボックス</td>
+                <td>boolean</td>
+            </tr>
+            <tr>
+                <td><strong>switch</strong></td>
+                <td>スイッチ</td>
+                <td>boolean</td>
+            </tr>
+            <tr>
+                <td><strong>date</strong></td>
+                <td>日付選択</td>
+                <td>string (YYYY-MM-DD)</td>
+            </tr>
+            <tr>
+                <td><strong>time</strong></td>
+                <td>時刻選択</td>
+                <td>string (HH:MM)</td>
+            </tr>
+            <tr>
+                <td><strong>multiline</strong></td>
+                <td>複数行テキスト</td>
+                <td>string</td>
+            </tr>
+        </table>
+        
+        <h4>🎯 使用パターン</h4>
+        
+        <div class="mode-section">
+            <h4>パターン1: ユーザー登録フォーム</h4>
+            <div class="node-example">
+                <span class="node node-ui-form">ui-form<br><small>ユーザー登録</small></span>
+                <span class="arrow">→</span>
+                <span class="node node-function">Function</span>
+                <span class="arrow">→</span>
+                <span class="node node-debug">Debug</span>
+            </div>
+            <div class="code-block">// フィールド設定
+[
+    {"label": "名前", "key": "name", "type": "text", "required": true},
+    {"label": "メール", "key": "email", "type": "email", "required": true},
+    {"label": "年齢", "key": "age", "type": "number", "required": false},
+    {"label": "コメント", "key": "comment", "type": "multiline", "rows": 3}
+]
+
+// 出力
+msg.payload = {
+    "name": "山田太郎",
+    "email": "<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="80f9e1ede1e4e1c0e5f8e1edf0ece5aee3efed">[email&#160;protected]</a>",
+    "age": 30,
+    "comment": "よろしくお願いします"
+}</div>
+        </div>
+        
+        <div class="mode-section">
+            <h4>パターン2: 設定フォーム</h4>
+            <div class="node-example">
+                <span class="node node-ui-form">ui-form<br><small>デバイス設定</small></span>
+                <span class="arrow">→</span>
+                <span class="node node-change">Change</span>
+                <span class="arrow">→</span>
+                <span class="node node-function">Function</span>
+            </div>
+            <div class="code-block">// フィールド設定
+[
+    {"label": "デバイス名", "key": "deviceName", "type": "text", "required": true},
+    {"label": "IPアドレス", "key": "ip", "type": "text", "required": true},
+    {"label": "ポート", "key": "port", "type": "number", "required": true},
+    {"label": "有効化", "key": "enabled", "type": "switch", "required": false}
+]
+
+// 出力
+msg.payload = {
+    "deviceName": "センサー1",
+    "ip": "192.168.1.100",
+    "port": 8080,
+    "enabled": true
+}</div>
+        </div>
+        
+        <div class="tip">
+            <p><strong>💡 フォームの初期値設定:</strong></p>
+            <p><code>msg.payload</code>にオブジェクトを送信すると、フォームの各フィールドに初期値を設定できます。</p>
+            <div class="code-block">// フォームに初期値を設定
+msg.payload = {
+    "name": "デフォルト名",
+    "email": "<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="ea8e8f8c8b9f869eaa8f928b879a868fc4898587">[email&#160;protected]</a>"
+};
+return msg;</div>
+        </div>
+        
+        <h2 id="section9">🔘 9. ui-radio-group（ラジオボタン）</h2>
+        
+        <div class="widget-card">
+            <h3>
+                <span class="widget-badge badge-both">入出力</span>
+                ui-radio-group ウィジェット
+            </h3>
+            <p>複数の選択肢から1つだけを選ぶラジオボタングループです。選択肢が少ない場合に視認性が高く便利です。</p>
+        </div>
+        
+        <h4>📋 主要プロパティ</h4>
+        
+        <table>
+            <tr>
+                <th>プロパティ</th>
+                <th>説明</th>
+                <th>デフォルト</th>
+            </tr>
+            <tr>
+                <td><strong>Label</strong></td>
+                <td>グループのラベル</td>
+                <td>空</td>
+            </tr>
+            <tr>
+                <td><strong>Options</strong></td>
+                <td>選択肢のリスト</td>
+                <td>[]</td>
+            </tr>
+            <tr>
+                <td><strong>Columns</strong></td>
+                <td>列数（横並び数）</td>
+                <td>1</td>
+            </tr>
+            <tr>
+                <td><strong>Pass Through</strong></td>
+                <td>入力メッセージを出力にパススルー</td>
+                <td>false</td>
+            </tr>
+        </table>
+        
+        <div class="mode-section">
+            <h4>使用例: 優先度選択</h4>
+            <div class="node-example">
+                <span class="node node-ui-radio">ui-radio-group<br><small>優先度</small></span>
+                <span class="arrow">→</span>
+                <span class="node node-debug">Debug</span>
+            </div>
+            <div class="code-block">// Options設定
+[
+    {"label": "🔴 高", "value": "high"},
+    {"label": "🟡 中", "value": "medium"},
+    {"label": "🟢 低", "value": "low"}
+]
+
+// 出力: msg.payload = "high"</div>
+        </div>
+        
+        <h2 id="section10">🎛️ 10. ui-button-group（ボタングループ）</h2>
+        
+        <div class="widget-card">
+            <h3>
+                <span class="widget-badge badge-both">入出力</span>
+                ui-button-group ウィジェット
+            </h3>
+            <p>複数のボタンを横に並べたグループです。セグメントコントロールのような選択UIを作れます。</p>
+        </div>
+        
+        <h4>📋 主要プロパティ</h4>
+        
+        <table>
+            <tr>
+                <th>プロパティ</th>
+                <th>説明</th>
+                <th>デフォルト</th>
+            </tr>
+            <tr>
+                <td><strong>Label</strong></td>
+                <td>グループのラベル</td>
+                <td>空</td>
+            </tr>
+            <tr>
+                <td><strong>Options</strong></td>
+                <td>ボタンのリスト（label/value/icon/color）</td>
+                <td>[]</td>
+            </tr>
+            <tr>
+                <td><strong>Appearance</strong></td>
+                <td>外観（default/outline/text）</td>
+                <td>default</td>
+            </tr>
+            <tr>
+                <td><strong>Selection</strong></td>
+                <td>選択状態を保持するか</td>
+                <td>false</td>
+            </tr>
+            <tr>
+                <td><strong>Pass Through</strong></td>
+                <td>入力メッセージを出力にパススルー</td>
+                <td>false</td>
+            </tr>
+        </table>
+        
+        <div class="mode-section">
+            <h4>使用例: 表示モード切替</h4>
+            <div class="node-example">
+                <span class="node node-ui-button-group">ui-button-group<br><small>表示モード</small></span>
+                <span class="arrow">→</span>
+                <span class="node node-switch">Switch</span>
+                <span class="arrow">→</span>
+                <span class="node node-function">Function</span>
+            </div>
+            <div class="code-block">// Options設定
+[
+    {"label": "リスト", "value": "list", "icon": "mdi-format-list-bulleted"},
+    {"label": "グリッド", "value": "grid", "icon": "mdi-view-grid"},
+    {"label": "テーブル", "value": "table", "icon": "mdi-table"}
+]
+
+// 出力: msg.payload = "grid"</div>
+        </div>
+        
+        <h2 id="section11">🏋️ 11. 実践演習</h2>
+        
+        <div class="exercise">
+            <h3>演習1: 照明コントロールパネル<span class="difficulty difficulty-easy">初級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>スイッチで照明のON/OFFを切り替え、スライダーで明るさを調整するパネルを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>ui-switch: 照明のON/OFF（true/false）</li>
+                <li>ui-slider: 明るさ（0-100%）</li>
+                <li>両方の値をDebugノードで確認</li>
+            </ul>
+            
+            <p><strong>📊 期待される出力:</strong></p>
+            <ul>
+                <li>スイッチ操作時: <code>msg.payload = true/false</code></li>
+                <li>スライダー操作時: <code>msg.payload = 0-100</code></li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>ui-switchの設定:</strong></p>
+                <ul>
+                    <li>Label: "照明"</li>
+                    <li>On Value: true (boolean)</li>
+                    <li>Off Value: false (boolean)</li>
+                </ul>
+                <p><strong>ui-sliderの設定:</strong></p>
+                <ul>
+                    <li>Label: "明るさ"</li>
+                    <li>Min: 0, Max: 100, Step: 1</li>
+                    <li>Show Value: true</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "ex1_tab",
+        "type": "tab",
+        "label": "演習1: 照明コントロール",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "ex1_ui_base",
+        "type": "ui-base",
+        "name": "My Dashboard",
+        "path": "/dashboard",
+        "appIcon": "",
+        "includeClientData": true,
+        "acceptsClientConfig": ["ui-notification", "ui-control"],
+        "showPathInSidebar": false,
+        "headerContent": "page",
+        "navigationStyle": "default",
+        "titleBarStyle": "default"
+    },
+    {
+        "id": "ex1_ui_page",
+        "type": "ui-page",
+        "name": "照明コントロール",
+        "ui": "ex1_ui_base",
+        "path": "/exercise1",
+        "icon": "mdi-lightbulb",
+        "layout": "grid",
+        "theme": "ex1_ui_theme",
+        "order": 1
+    },
+    {
+        "id": "ex1_ui_theme",
+        "type": "ui-theme",
+        "name": "Default Theme",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#b92d5d",
+            "bgPage": "#eeeeee",
+            "groupBg": "#ffffff",
+            "groupOutline": "#cccccc"
+        },
+        "sizes": {
+            "pagePadding": "12px",
+            "groupGap": "12px",
+            "groupBorderRadius": "4px",
+            "widgetGap": "12px"
+        }
+    },
+    {
+        "id": "ex1_ui_group",
+        "type": "ui-group",
+        "name": "💡 照明コントロール",
+        "page": "ex1_ui_page",
+        "width": "6",
+        "height": "-1",
+        "order": 1,
+        "showTitle": true
+    },
+    {
+        "id": "ex1_switch",
+        "type": "ui-switch",
+        "z": "ex1_tab",
+        "group": "ex1_ui_group",
+        "name": "照明スイッチ",
+        "label": "照明",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "decouple": false,
+        "onvalue": "true",
+        "onvalueType": "bool",
+        "offvalue": "false",
+        "offvalueType": "bool",
+        "onicon": "",
+        "officon": "",
+        "oncolor": "",
+        "offcolor": "",
+        "x": 150,
+        "y": 100,
+        "wires": [["ex1_debug"]]
+    },
+    {
+        "id": "ex1_slider",
+        "type": "ui-slider",
+        "z": "ex1_tab",
+        "group": "ex1_ui_group",
+        "name": "明るさ",
+        "label": "明るさ",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "outs": "end",
+        "min": 0,
+        "max": 100,
+        "step": 1,
+        "showValue": true,
+        "x": 130,
+        "y": 160,
+        "wires": [["ex1_debug"]]
+    },
+    {
+        "id": "ex1_debug",
+        "type": "debug",
+        "z": "ex1_tab",
+        "name": "出力確認",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 350,
+        "y": 130,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習2: デバイス設定フォーム<span class="difficulty difficulty-medium">中級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>IoTデバイスの設定を入力するフォームを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>ui-form: 4つのフィールドを持つフォーム</li>
+                <li>フィールド: デバイス名(text/必須)、IPアドレス(text/必須)、ポート(number/必須)、有効化(switch)</li>
+                <li>送信後にDebugで確認</li>
+            </ul>
+            
+            <p><strong>📊 期待される出力:</strong></p>
+            <div class="code-block">msg.payload = {
+    "deviceName": "センサー1",
+    "ip": "192.168.1.100",
+    "port": 8080,
+    "enabled": true
+}</div>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>ui-formの設定:</strong></p>
+                <ul>
+                    <li>Options: 4つのフィールドを定義</li>
+                    <li>各フィールドにkey, label, type, requiredを設定</li>
+                    <li>Submit Label: "保存"</li>
+                    <li>Cancel Label: "クリア"</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "ex2_tab",
+        "type": "tab",
+        "label": "演習2: デバイス設定",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "ex2_ui_base",
+        "type": "ui-base",
+        "name": "My Dashboard",
+        "path": "/dashboard",
+        "appIcon": "",
+        "includeClientData": true,
+        "acceptsClientConfig": ["ui-notification", "ui-control"],
+        "showPathInSidebar": false,
+        "headerContent": "page",
+        "navigationStyle": "default",
+        "titleBarStyle": "default"
+    },
+    {
+        "id": "ex2_ui_page",
+        "type": "ui-page",
+        "name": "デバイス設定",
+        "ui": "ex2_ui_base",
+        "path": "/exercise2",
+        "icon": "mdi-cog",
+        "layout": "grid",
+        "theme": "ex2_ui_theme",
+        "order": 1
+    },
+    {
+        "id": "ex2_ui_theme",
+        "type": "ui-theme",
+        "name": "Default Theme",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#b92d5d",
+            "bgPage": "#eeeeee",
+            "groupBg": "#ffffff",
+            "groupOutline": "#cccccc"
+        },
+        "sizes": {
+            "pagePadding": "12px",
+            "groupGap": "12px",
+            "groupBorderRadius": "4px",
+            "widgetGap": "12px"
+        }
+    },
+    {
+        "id": "ex2_ui_group",
+        "type": "ui-group",
+        "name": "⚙️ デバイス設定",
+        "page": "ex2_ui_page",
+        "width": "6",
+        "height": "-1",
+        "order": 1,
+        "showTitle": true
+    },
+    {
+        "id": "ex2_form",
+        "type": "ui-form",
+        "z": "ex2_tab",
+        "group": "ex2_ui_group",
+        "name": "デバイス設定フォーム",
+        "label": "",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "options": [
+            {"label": "デバイス名", "key": "deviceName", "type": "text", "required": true, "rows": null},
+            {"label": "IPアドレス", "key": "ip", "type": "text", "required": true, "rows": null},
+            {"label": "ポート", "key": "port", "type": "number", "required": true, "rows": null},
+            {"label": "有効化", "key": "enabled", "type": "switch", "required": false, "rows": null}
+        ],
+        "splitLayout": false,
+        "submitLabel": "保存",
+        "cancelLabel": "クリア",
+        "resetOnSubmit": false,
+        "topic": "device_config",
+        "topicType": "str",
+        "x": 200,
+        "y": 100,
+        "wires": [["ex2_debug"]]
+    },
+    {
+        "id": "ex2_debug",
+        "type": "debug",
+        "z": "ex2_tab",
+        "name": "設定内容",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 430,
+        "y": 100,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習3: モード切替コントローラー<span class="difficulty difficulty-medium">中級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>ドロップダウンでモードを選択し、選択されたモードに応じて異なる処理を行うフローを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>ui-dropdown: 3つのモード選択（自動/手動/停止）</li>
+                <li>Switchノード: モードに応じて分岐</li>
+                <li>各分岐でDebugメッセージを出力</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>ui-dropdownの設定:</strong></p>
+                <ul>
+                    <li>Label: "動作モード"</li>
+                    <li>Options: 自動(auto)、手動(manual)、停止(stop)</li>
+                </ul>
+                <p><strong>Switchノードの設定:</strong></p>
+                <ul>
+                    <li>プロパティ: msg.payload</li>
+                    <li>ルール1: == "auto"</li>
+                    <li>ルール2: == "manual"</li>
+                    <li>ルール3: == "stop"</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "ex3_tab",
+        "type": "tab",
+        "label": "演習3: モード切替",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "ex3_ui_base",
+        "type": "ui-base",
+        "name": "My Dashboard",
+        "path": "/dashboard",
+        "appIcon": "",
+        "includeClientData": true,
+        "acceptsClientConfig": ["ui-notification", "ui-control"],
+        "showPathInSidebar": false
+    },
+    {
+        "id": "ex3_ui_page",
+        "type": "ui-page",
+        "name": "モード切替",
+        "ui": "ex3_ui_base",
+        "path": "/exercise3",
+        "icon": "mdi-swap-horizontal",
+        "layout": "grid",
+        "theme": "ex3_ui_theme",
+        "order": 1
+    },
+    {
+        "id": "ex3_ui_theme",
+        "type": "ui-theme",
+        "name": "Default Theme",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#b92d5d",
+            "bgPage": "#eeeeee",
+            "groupBg": "#ffffff",
+            "groupOutline": "#cccccc"
+        },
+        "sizes": {
+            "pagePadding": "12px",
+            "groupGap": "12px",
+            "groupBorderRadius": "4px",
+            "widgetGap": "12px"
+        }
+    },
+    {
+        "id": "ex3_ui_group",
+        "type": "ui-group",
+        "name": "🔄 モード切替",
+        "page": "ex3_ui_page",
+        "width": "6",
+        "height": "-1",
+        "order": 1,
+        "showTitle": true
+    },
+    {
+        "id": "ex3_dropdown",
+        "type": "ui-dropdown",
+        "z": "ex3_tab",
+        "group": "ex3_ui_group",
+        "name": "モード選択",
+        "label": "動作モード",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "multiple": false,
+        "options": [
+            {"label": "🤖 自動", "value": "auto", "type": "str"},
+            {"label": "🔧 手動", "value": "manual", "type": "str"},
+            {"label": "⏹️ 停止", "value": "stop", "type": "str"}
+        ],
+        "topic": "mode",
+        "x": 150,
+        "y": 100,
+        "wires": [["ex3_switch"]]
+    },
+    {
+        "id": "ex3_switch",
+        "type": "switch",
+        "z": "ex3_tab",
+        "name": "モード分岐",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {"t": "eq", "v": "auto", "vt": "str"},
+            {"t": "eq", "v": "manual", "vt": "str"},
+            {"t": "eq", "v": "stop", "vt": "str"}
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 3,
+        "x": 330,
+        "y": 100,
+        "wires": [["ex3_debug_auto"], ["ex3_debug_manual"], ["ex3_debug_stop"]]
+    },
+    {
+        "id": "ex3_debug_auto",
+        "type": "debug",
+        "z": "ex3_tab",
+        "name": "自動モード",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "'自動モードが選択されました'",
+        "targetType": "jsonata",
+        "x": 530,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "ex3_debug_manual",
+        "type": "debug",
+        "z": "ex3_tab",
+        "name": "手動モード",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "'手動モードが選択されました'",
+        "targetType": "jsonata",
+        "x": 530,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "ex3_debug_stop",
+        "type": "debug",
+        "z": "ex3_tab",
+        "name": "停止モード",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "'停止モードが選択されました'",
+        "targetType": "jsonata",
+        "x": 530,
+        "y": 140,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習4: 総合ダッシュボード<span class="difficulty difficulty-hard">上級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>複数の入力ウィジェットを組み合わせて、センサー設定ダッシュボードを作成してください。設定を変更すると、確認通知を表示します。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>ui-button: 設定リセットボタン</li>
+                <li>ui-switch: センサー有効化</li>
+                <li>ui-slider: サンプリング間隔（1-60秒）</li>
+                <li>ui-dropdown: データ形式選択（JSON/CSV/XML）</li>
+                <li>ui-text-input: デバイス名</li>
+                <li>ui-notification: 設定変更時に通知表示</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>各ウィジェットの出力をJoinノードで結合するか、Functionノードでグローバル変数に保存して管理すると良いでしょう。</p>
+                <p>ui-notificationはui-baseへの参照（groupではなくui）が必要です。</p>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "ex4_tab",
+        "type": "tab",
+        "label": "演習4: 総合ダッシュボード",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "ex4_ui_base",
+        "type": "ui-base",
+        "name": "My Dashboard",
+        "path": "/dashboard",
+        "appIcon": "",
+        "includeClientData": true,
+        "acceptsClientConfig": ["ui-notification", "ui-control"],
+        "showPathInSidebar": false,
+        "headerContent": "page",
+        "navigationStyle": "default",
+        "titleBarStyle": "default"
+    },
+    {
+        "id": "ex4_ui_page",
+        "type": "ui-page",
+        "name": "センサー設定",
+        "ui": "ex4_ui_base",
+        "path": "/exercise4",
+        "icon": "mdi-tune",
+        "layout": "grid",
+        "theme": "ex4_ui_theme",
+        "order": 1
+    },
+    {
+        "id": "ex4_ui_theme",
+        "type": "ui-theme",
+        "name": "Default Theme",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#b92d5d",
+            "bgPage": "#eeeeee",
+            "groupBg": "#ffffff",
+            "groupOutline": "#cccccc"
+        },
+        "sizes": {
+            "pagePadding": "12px",
+            "groupGap": "12px",
+            "groupBorderRadius": "4px",
+            "widgetGap": "12px"
+        }
+    },
+    {
+        "id": "ex4_ui_group",
+        "type": "ui-group",
+        "name": "📊 センサー設定",
+        "page": "ex4_ui_page",
+        "width": "6",
+        "height": "-1",
+        "order": 1,
+        "showTitle": true
+    },
+    {
+        "id": "ex4_text_input",
+        "type": "ui-text-input",
+        "z": "ex4_tab",
+        "group": "ex4_ui_group",
+        "name": "デバイス名",
+        "label": "デバイス名",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "mode": "text",
+        "delay": 300,
+        "passthru": false,
+        "sendOnBlur": true,
+        "sendOnEnter": true,
+        "topic": "deviceName",
+        "topicType": "str",
+        "x": 150,
+        "y": 80,
+        "wires": [["ex4_notify_func"]]
+    },
+    {
+        "id": "ex4_switch",
+        "type": "ui-switch",
+        "z": "ex4_tab",
+        "group": "ex4_ui_group",
+        "name": "センサー有効化",
+        "label": "センサー",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "decouple": false,
+        "onvalue": "true",
+        "onvalueType": "bool",
+        "offvalue": "false",
+        "offvalueType": "bool",
+        "topic": "enabled",
+        "topicType": "str",
+        "x": 160,
+        "y": 140,
+        "wires": [["ex4_notify_func"]]
+    },
+    {
+        "id": "ex4_slider",
+        "type": "ui-slider",
+        "z": "ex4_tab",
+        "group": "ex4_ui_group",
+        "name": "サンプリング間隔",
+        "label": "間隔（秒）",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "outs": "end",
+        "min": 1,
+        "max": 60,
+        "step": 1,
+        "showValue": true,
+        "topic": "interval",
+        "topicType": "str",
+        "x": 170,
+        "y": 200,
+        "wires": [["ex4_notify_func"]]
+    },
+    {
+        "id": "ex4_dropdown",
+        "type": "ui-dropdown",
+        "z": "ex4_tab",
+        "group": "ex4_ui_group",
+        "name": "データ形式",
+        "label": "データ形式",
+        "order": 4,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "multiple": false,
+        "options": [
+            {"label": "JSON", "value": "json", "type": "str"},
+            {"label": "CSV", "value": "csv", "type": "str"},
+            {"label": "XML", "value": "xml", "type": "str"}
+        ],
+        "topic": "format",
+        "topicType": "str",
+        "x": 150,
+        "y": 260,
+        "wires": [["ex4_notify_func"]]
+    },
+    {
+        "id": "ex4_button",
+        "type": "ui-button",
+        "z": "ex4_tab",
+        "group": "ex4_ui_group",
+        "name": "リセットボタン",
+        "label": "設定リセット",
+        "order": 5,
+        "width": 0,
+        "height": 0,
+        "icon": "mdi-refresh",
+        "iconPosition": "left",
+        "tooltip": "設定を初期値にリセット",
+        "payload": "reset",
+        "payloadType": "str",
+        "topic": "action",
+        "topicType": "str",
+        "bgcolor": "#ff9800",
+        "x": 160,
+        "y": 320,
+        "wires": [["ex4_notify_func"]]
+    },
+    {
+        "id": "ex4_notify_func",
+        "type": "function",
+        "z": "ex4_tab",
+        "name": "通知メッセージ生成",
+        "func": "let topic = msg.topic || 'unknown';\nlet value = msg.payload;\nlet message = '';\n\nswitch(topic) {\n    case 'deviceName':\n        message = 'デバイス名を「' + String(value) + '」に設定しました';\n        break;\n    case 'enabled':\n        message = 'センサーを' + (value ? '有効' : '無効') + 'にしました';\n        break;\n    case 'interval':\n        message = 'サンプリング間隔を' + String(value) + '秒に設定しました';\n        break;\n    case 'format':\n        message = 'データ形式を' + String(value).toUpperCase() + 'に設定しました';\n        break;\n    case 'action':\n        message = '設定をリセットしました';\n        break;\n    default:\n        message = '設定が変更されました';\n}\n\nmsg.payload = message;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 410,
+        "y": 200,
+        "wires": [["ex4_notification", "ex4_debug"]]
+    },
+    {
+        "id": "ex4_notification",
+        "type": "ui-notification",
+        "z": "ex4_tab",
+        "ui": "ex4_ui_base",
+        "position": "top right",
+        "colorDefault": true,
+        "color": "#000000",
+        "displayTime": "3",
+        "showCountdown": true,
+        "outputs": 0,
+        "allowDismiss": true,
+        "dismissText": "OK",
+        "allowConfirm": false,
+        "raw": false,
+        "name": "設定変更通知",
+        "x": 630,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "ex4_debug",
+        "type": "debug",
+        "z": "ex4_tab",
+        "name": "設定変更ログ",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 630,
+        "y": 220,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+        
+        <h2 id="section12">🎓 12. まとめ</h2>
+        
+        <div class="important">
+            <h3>入力系ウィジェットの重要ポイント</h3>
+            <ul>
+                <li>✅ <strong>ui-button</strong>: クリックで任意の値を送信、アイコン・色のカスタマイズ可能</li>
+                <li>✅ <strong>ui-switch</strong>: ON/OFF切り替え、カスタム値・アイコン対応</li>
+                <li>✅ <strong>ui-slider</strong>: 範囲内の数値入力、操作中/完了時の出力選択可能</li>
+                <li>✅ <strong>ui-dropdown</strong>: 単一/複数選択対応、動的オプション変更可能</li>
+                <li>✅ <strong>ui-text-input</strong>: 様々な入力モード（text/number/password/email/date等）</li>
+                <li>✅ <strong>ui-form</strong>: 複数フィールドをまとめて送信</li>
+                <li>✅ <strong>msg.payload</strong>で外部から値を設定可能（双方向バインディング）</li>
+                <li>✅ <strong>msg.ui_update</strong>で動的にプロパティを変更可能</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <h3>⚠️ よくある間違い</h3>
+            <ul>
+                <li><strong>Pass Throughの誤解</strong>: 入力メッセージをそのまま出力に流す機能（状態更新とは別）</li>
+                <li><strong>Decoupleの誤解</strong>: UIからの操作時のみ出力する機能（入力での更新は出力しない）</li>
+                <li><strong>ui-notificationの参照</strong>: groupではなくuiプロパティでui-baseを参照</li>
+                <li><strong>ui-formの出力</strong>: 各フィールドのkeyがオブジェクトのキーになる</li>
+                <li><strong>スライダーのOutput設定</strong>: allは操作中常時、endは操作完了時のみ</li>
+            </ul>
+        </div>
+        
+        <h2 id="section13">🔧 13. トラブルシューティング</h2>
+        
+        <h3>よくある問題と解決方法</h3>
+        
+        <table>
+            <tr>
+                <th>問題</th>
+                <th>原因</th>
+                <th>解決方法</th>
+            </tr>
+            <tr>
+                <td>ウィジェットが表示されない</td>
+                <td>Groupが未設定</td>
+                <td>ウィジェットにGroupを設定する</td>
+            </tr>
+            <tr>
+                <td>値が送信されない</td>
+                <td>ワイヤー未接続</td>
+                <td>出力ポートにワイヤーを接続する</td>
+            </tr>
+            <tr>
+                <td>スイッチの状態が更新されない</td>
+                <td>送信値と設定値の型不一致</td>
+                <td>On/Off Valueの型を確認（bool/str/num）</td>
+            </tr>
+            <tr>
+                <td>ドロップダウンの選択肢が変わらない</td>
+                <td>msg.optionsの形式エラー</td>
+                <td>配列形式で{label, value}オブジェクトを送信</td>
+            </tr>
+            <tr>
+                <td>フォームの初期値が設定されない</td>
+                <td>keyの不一致</td>
+                <td>msg.payloadのキーとフィールドのkeyを一致させる</td>
+            </tr>
+            <tr>
+                <td>通知が表示されない</td>
+                <td>ui参照エラー</td>
+                <td>ui-notificationのuiプロパティでui-baseを参照</td>
+            </tr>
+        </table>
+        
+        <h2 id="section14">💡 14. 実務での活用例</h2>
+        
+        <h3>ケース1: 製造ライン制御パネル</h3>
+        <div class="code-block">ライン選択（ui-dropdown）
+    ↓
+運転モード（ui-radio-group: 自動/手動/メンテナンス）
+    ↓
+速度設定（ui-slider: 0-100%）
+    ↓
+緊急停止（ui-button: 赤色、大きめ）
+    ↓
+PLCへ送信 → 状態表示</div>
+        
+        <h3>ケース2: スマートホームコントローラー</h3>
+        <div class="code-block">部屋選択（ui-dropdown）
+    ↓
+照明ON/OFF（ui-switch）+ 明るさ（ui-slider）
+    ↓
+エアコン設定（ui-form: 運転モード、設定温度、風量）
+    ↓
+MQTT → IoTデバイス</div>
+        
+        <h3>ケース3: データ収集設定画面</h3>
+        <div class="code-block">センサー選択（ui-dropdown: 複数選択）
+    ↓
+サンプリング間隔（ui-slider: 1-60秒）
+    ↓
+データ形式（ui-button-group: JSON/CSV/XML）
+    ↓
+出力先設定（ui-form: ファイルパス、DB接続情報）
+    ↓
+設定保存 → 収集開始</div>
+        
+        <h3>ケース4: ユーザー認証フォーム</h3>
+        <div class="code-block">ログインフォーム（ui-form）
+  - ユーザー名（text, required）
+  - パスワード（password, required）
+  - ログイン状態を保持（checkbox）
+    ↓
+認証API呼び出し
+    ↓
+成功/失敗通知（ui-notification）</div>
+        
+        <h2 id="section15">📚 15. 追加リソース</h2>
+        
+        <ul>
+            <li><a href="https://dashboard.flowfuse.com/getting-started.html" target="_blank">Dashboard 2.0 公式ドキュメント</a></li>
+            <li><a href="https://dashboard.flowfuse.com/nodes/widgets.html" target="_blank">ウィジェットリファレンス</a></li>
+            <li><a href="https://pictogrammers.com/library/mdi/" target="_blank">Material Design Icons（アイコン検索）</a></li>
+            <li><a href="https://flows.nodered.org/?term=dashboard+2.0" target="_blank">Node-RED Flow Library（サンプル検索）</a></li>
+        </ul>
+        
+        <hr>
+        
+        <p style="text-align: center; color: #999; margin-top: 40px;">
+            <small>このガイドが役に立ちましたら、実際のプロジェクトで練習してみてください！<br>
+            入力系ウィジェットはユーザーインタラクションの基本です。</small>
+        </p>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var codeBlocks = document.querySelectorAll('.flow-json, .js-code[data-copy="true"]');
+            
+            codeBlocks.forEach(function(block) {
+                var button = document.createElement('button');
+                button.className = 'copy-button';
+                button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                
+                button.addEventListener('click', function() {
+                    var code = block.textContent.replace(/コピー(しました!)?$/, '').trim();
+                    
+                    if (block.classList.contains('js-code')) {
+                        code = block.innerText.replace(/コピー(しました!)?$/, '').trim();
+                    }
+                    
+                    navigator.clipboard.writeText(code).then(function() {
+                        button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>コピーしました!';
+                        button.classList.add('copied');
+                        
+                        setTimeout(function() {
+                            button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                            button.classList.remove('copied');
+                        }, 2000);
+                    }).catch(function(err) {
+                        console.error('コピーに失敗しました:', err);
+                        button.textContent = 'エラー';
+                        setTimeout(function() {
+                            button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                        }, 2000);
+                    });
+                });
+                
+                block.style.position = 'relative';
+                block.appendChild(button);
+            });
+        });
+    </script>
+</body>
+</html>

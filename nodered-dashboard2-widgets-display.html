@@ -1,0 +1,3019 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED Dashboard 2.0 表示系ウィジェット 完全ガイド</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        h1 {
+            color: #b92d5d;
+            border-bottom: 3px solid #b92d5d;
+            padding-bottom: 10px;
+        }
+        
+        h2 {
+            color: #d33682;
+            margin-top: 40px;
+            border-left: 5px solid #d33682;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #555;
+            margin-top: 25px;
+        }
+        
+        h4 {
+            color: #666;
+            margin-top: 20px;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .node-example {
+            background-color: #2d3133;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            color: white;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        
+        .node {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 4px;
+            margin: 5px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .node-inject {
+            background-color: #3fadb5;
+            color: white;
+        }
+        
+        .node-debug {
+            background-color: #87a48d;
+            color: white;
+        }
+        
+        .node-function {
+            background-color: #e8a658;
+            color: white;
+        }
+        
+        .node-change {
+            background-color: #e7a070;
+            color: white;
+        }
+        
+        .node-template {
+            background-color: #d4b8a0;
+            color: #333;
+        }
+        
+        .node-ui-text {
+            background-color: #b92d5d;
+            color: white;
+        }
+        
+        .node-ui-markdown {
+            background-color: #b92d5d;
+            color: white;
+        }
+        
+        .node-ui-notification {
+            background-color: #b92d5d;
+            color: white;
+        }
+        
+        .node-ui-audio {
+            background-color: #b92d5d;
+            color: white;
+        }
+        
+        .node-ui-button {
+            background-color: #b92d5d;
+            color: white;
+        }
+        
+        .node-ui-event {
+            background-color: #b92d5d;
+            color: white;
+        }
+        
+        .arrow {
+            color: #999;
+            font-size: 20px;
+            margin: 0 10px;
+        }
+        
+        .important {
+            background-color: #fce4ec;
+            border-left: 4px solid #b92d5d;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .tip {
+            background-color: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .warning {
+            background-color: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .code-block {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            position: relative;
+            white-space: pre-wrap;
+        }
+        
+        .js-code {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            border: none;
+            padding: 15px;
+            padding-top: 40px;
+            border-radius: 5px;
+            position: relative;
+            white-space: pre;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+        }
+        
+        .copy-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 6px 12px;
+            background-color: #b92d5d;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: 'Segoe UI', sans-serif;
+            transition: background-color 0.2s;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .copy-button:hover {
+            background-color: #9a2550;
+        }
+        
+        .copy-button.copied {
+            background-color: #28a745;
+        }
+        
+        .copy-button svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+        }
+        
+        .exercise {
+            background-color: #f3e5f5;
+            border: 2px solid #9c27b0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        
+        .exercise h3 {
+            color: #7b1fa2;
+            margin-top: 0;
+        }
+        
+        .difficulty {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .difficulty-easy {
+            background-color: #4caf50;
+            color: white;
+        }
+        
+        .difficulty-medium {
+            background-color: #ff9800;
+            color: white;
+        }
+        
+        .difficulty-hard {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        ul, ol {
+            padding-left: 25px;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #b92d5d;
+            color: white;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .flow-json {
+            background-color: #263238;
+            color: #aed581;
+            padding: 15px;
+            padding-top: 40px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        details {
+            margin: 15px 0;
+        }
+        
+        summary {
+            cursor: pointer;
+            padding: 10px;
+            background-color: #b92d5d;
+            color: white;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        summary:hover {
+            background-color: #9a2550;
+        }
+        
+        .widget-card {
+            background: linear-gradient(135deg, #fce4ec 0%, #f3e5f5 100%);
+            border: 2px solid #b92d5d;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .widget-card h3 {
+            color: #b92d5d;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .widget-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        
+        .badge-display {
+            background-color: #b92d5d;
+            color: white;
+        }
+        
+        .badge-dynamic {
+            background-color: #2196f3;
+            color: white;
+        }
+        
+        .badge-html {
+            background-color: #ff9800;
+            color: white;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .feature-card {
+            background-color: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .feature-card h4 {
+            color: #b92d5d;
+            margin-top: 0;
+        }
+        
+        .mode-section {
+            background-color: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .mode-section h4 {
+            color: #b92d5d;
+            margin-top: 0;
+            border-bottom: 2px solid #b92d5d;
+            padding-bottom: 8px;
+        }
+        
+        .dynamic-prop {
+            background-color: #e3f2fd;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+        
+        .comparison-table {
+            margin: 20px 0;
+        }
+        
+        .comparison-table th {
+            background-color: #d33682;
+        }
+        
+        .position-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+            max-width: 300px;
+        }
+        
+        .position-cell {
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+            font-size: 12px;
+            border-radius: 4px;
+        }
+        
+        .position-cell.active {
+            background-color: #b92d5d;
+            color: white;
+            border-color: #b92d5d;
+        }
+        
+        .toc {
+            background-color: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .toc h3 {
+            color: #b92d5d;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        
+        .toc ol {
+            margin: 0;
+            padding-left: 25px;
+        }
+        
+        .toc li {
+            margin: 8px 0;
+        }
+        
+        .toc a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        
+        .toc a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📺 Node-RED Dashboard 2.0 表示系ウィジェット 完全ガイド</h1>
+        
+        <p>このガイドでは、Dashboard 2.0の<strong>表示系ウィジェット</strong>について詳しく解説します。これらのウィジェットは、データや情報をユーザーに視覚的に伝えるために使用します。</p>
+        
+        <div class="important">
+            <p><strong>📌 このガイドで学べること:</strong></p>
+            <ul>
+                <li>ui-text: テキスト表示の基本と応用</li>
+                <li>ui-markdown: リッチテキストとMermaidチャート</li>
+                <li>ui-notification: トースト通知の活用</li>
+                <li>ui-audio: オーディオ再生とText-to-Speech</li>
+            </ul>
+        </div>
+        
+        <div class="toc">
+            <h3>📑 目次</h3>
+            <ol>
+                <li><a href="#section1">表示系ウィジェットの概要</a></li>
+                <li><a href="#section2">サンプルフロー</a></li>
+                <li><a href="#section3">ui-text（テキスト表示）</a></li>
+                <li><a href="#section4">ui-markdown（Markdownビューア）</a></li>
+                <li><a href="#section5">ui-notification（通知）</a></li>
+                <li><a href="#section6">ui-audio（オーディオ）</a></li>
+                <li><a href="#section7">実践演習</a></li>
+                <li><a href="#section8">まとめ</a></li>
+                <li><a href="#section9">トラブルシューティング</a></li>
+                <li><a href="#section10">実務での活用例</a></li>
+                <li><a href="#section11">追加リソース</a></li>
+            </ol>
+        </div>
+        
+        <h2 id="section1">🎯 1. 表示系ウィジェットの概要</h2>
+        
+        <h3>🤔 表示系ウィジェットとは？</h3>
+        <p>
+            表示系ウィジェットは、<strong>ユーザーに情報を見せる（出力する）ため</strong>のウィジェットです。
+            日常生活で例えると、<strong>掲示板や案内表示</strong>のようなものです。
+        </p>
+        
+        <div class="tip">
+            <p><strong>🏢 オフィスビルに例えると:</strong></p>
+            <ul>
+                <li>📝 <strong>ui-text</strong> = 部屋の表札・名札（シンプルな情報表示）</li>
+                <li>📰 <strong>ui-markdown</strong> = 掲示板（書式付きの詳細情報）</li>
+                <li>🔔 <strong>ui-notification</strong> = 館内放送・アラート（一時的な通知）</li>
+                <li>🔊 <strong>ui-audio</strong> = BGM・音声案内（音声による情報伝達）</li>
+            </ul>
+        </div>
+        
+        <h3>📊 表示系ウィジェット一覧</h3>
+        
+        <table>
+            <tr>
+                <th>ウィジェット</th>
+                <th>用途</th>
+                <th>HTML対応</th>
+                <th>動的更新</th>
+            </tr>
+            <tr>
+                <td><strong>ui-text</strong></td>
+                <td>シンプルなテキスト表示</td>
+                <td>✅</td>
+                <td>✅</td>
+            </tr>
+            <tr>
+                <td><strong>ui-markdown</strong></td>
+                <td>Markdown/Mermaid表示</td>
+                <td>✅（Markdown経由）</td>
+                <td>✅</td>
+            </tr>
+            <tr>
+                <td><strong>ui-notification</strong></td>
+                <td>ポップアップ通知</td>
+                <td>✅</td>
+                <td>✅</td>
+            </tr>
+            <tr>
+                <td><strong>ui-audio</strong></td>
+                <td>音声再生・TTS</td>
+                <td>-</td>
+                <td>✅</td>
+            </tr>
+        </table>
+        
+        <h2 id="section2">🔥 2. サンプルフロー</h2>
+        
+        <div class="important">
+            <p><strong>📥 まずサンプルフローをインポートしましょう！</strong></p>
+            <p>以下のサンプルフローには、このガイドで説明する<strong>全パターンの実例</strong>が含まれています。<br>
+            先にインポートして、実際に動作を確認しながら読み進めると理解が深まります。</p>
+            <ol>
+                <li>下のサンプルフローJSONをコピー</li>
+                <li>Node-REDエディタで <strong>メニュー → 読み込み</strong> を選択</li>
+                <li>JSONをペーストして「読み込み」をクリック</li>
+                <li>各ui-*ノードで<strong>Group</strong>を選択してデプロイ</li>
+            </ol>
+        </div>
+        
+        <details>
+            <summary>📋 表示系ウィジェット サンプルフロー（クリックで展開）</summary>
+            <p style="margin: 10px 0; color: #666;"><small>このサンプルには ui-text, ui-markdown, ui-notification, ui-audio の全パターンが含まれています</small></p>
+            <div class="flow-json">[
+    {
+        "id": "289c4fb42bfdacf9",
+        "type": "tab",
+        "label": "表示系ウィジェット",
+        "disabled": false,
+        "info": "Dashboard 2.0 表示系ウィジェットのサンプル"
+    },
+    {
+        "id": "8a360052a6ac4aa9",
+        "type": "comment",
+        "z": "289c4fb42bfdacf9",
+        "name": "━━━ 📝 ui-text サンプル ━━━",
+        "info": "",
+        "x": 160,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "491423b783369936",
+        "type": "comment",
+        "z": "289c4fb42bfdacf9",
+        "name": "パターン1: シンプルなテキスト表示",
+        "info": "",
+        "x": 180,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "cba24325da99bcbf",
+        "type": "inject",
+        "z": "289c4fb42bfdacf9",
+        "name": "センサー値",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "現在の温度: 25.5℃",
+        "payloadType": "str",
+        "x": 130,
+        "y": 120,
+        "wires": [
+            [
+                "ad4de93c829d850f"
+            ]
+        ]
+    },
+    {
+        "id": "ad4de93c829d850f",
+        "type": "ui-text",
+        "z": "289c4fb42bfdacf9",
+        "group": "sample_ui_group_text",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "シンプルテキスト",
+        "label": "ステータス:",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#000000",
+        "x": 340,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "5ab02164fa917931",
+        "type": "comment",
+        "z": "289c4fb42bfdacf9",
+        "name": "パターン2: HTML装飾付きテキスト（Template経由）",
+        "info": "",
+        "x": 220,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "b196d12c5d24f7bd",
+        "type": "inject",
+        "z": "289c4fb42bfdacf9",
+        "name": "データ送信",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "FlowFuse",
+        "payloadType": "str",
+        "x": 130,
+        "y": 220,
+        "wires": [
+            [
+                "567e1f367c19f46b"
+            ]
+        ]
+    },
+    {
+        "id": "567e1f367c19f46b",
+        "type": "template",
+        "z": "289c4fb42bfdacf9",
+        "name": "HTML生成",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "<a href=\"https://flowfuse.com\" target=\"_blank\">FlowFuse</a>へようこそ！\n<br>\n<strong>重要:</strong> <span style=\"color:red\">警告メッセージ</span>",
+        "output": "str",
+        "x": 300,
+        "y": 220,
+        "wires": [
+            [
+                "f4ba7b48dedccb2f"
+            ]
+        ]
+    },
+    {
+        "id": "f4ba7b48dedccb2f",
+        "type": "ui-text",
+        "z": "289c4fb42bfdacf9",
+        "group": "sample_ui_group_text",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "name": "HTMLテキスト",
+        "label": "",
+        "format": "{{msg.payload}}",
+        "layout": "row-left",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#000000",
+        "x": 480,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "c6aa3f00cb2154ce",
+        "type": "comment",
+        "z": "289c4fb42bfdacf9",
+        "name": "パターン3: JSONata式で値をフォーマット",
+        "info": "",
+        "x": 200,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "af07ce26dd544d63",
+        "type": "inject",
+        "z": "289c4fb42bfdacf9",
+        "name": "温度値",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "25.678",
+        "payloadType": "num",
+        "x": 120,
+        "y": 320,
+        "wires": [
+            [
+                "ca66755d1cc0bede"
+            ]
+        ]
+    },
+    {
+        "id": "ca66755d1cc0bede",
+        "type": "ui-text",
+        "z": "289c4fb42bfdacf9",
+        "group": "sample_ui_group_text",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "name": "JSONataフォーマット",
+        "label": "温度:",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#000000",
+        "wrapText": false,
+        "className": "",
+        "value": "$round(payload, 1)",
+        "valueType": "jsonata",
+        "x": 360,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "8939939a8777513a",
+        "type": "comment",
+        "z": "289c4fb42bfdacf9",
+        "name": "パターン4: プレフィックス/サフィックスの追加",
+        "info": "",
+        "x": 210,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "2b2ed53f581d2a99",
+        "type": "inject",
+        "z": "289c4fb42bfdacf9",
+        "name": "温度値",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "25.5",
+        "payloadType": "num",
+        "x": 120,
+        "y": 420,
+        "wires": [
+            [
+                "39d1630f4220d208"
+            ]
+        ]
+    },
+    {
+        "id": "39d1630f4220d208",
+        "type": "template",
+        "z": "289c4fb42bfdacf9",
+        "name": "単位追加",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "{{payload}} ℃",
+        "output": "str",
+        "x": 290,
+        "y": 420,
+        "wires": [
+            [
+                "3f23b4684076a184"
+            ]
+        ]
+    },
+    {
+        "id": "3f23b4684076a184",
+        "type": "ui-text",
+        "z": "289c4fb42bfdacf9",
+        "group": "sample_ui_group_text",
+        "order": 4,
+        "width": 0,
+        "height": 0,
+        "name": "単位付き表示",
+        "label": "温度:",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#000000",
+        "x": 480,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "09b1386036e9f9fd",
+        "type": "comment",
+        "z": "289c4fb42bfdacf9",
+        "name": "━━━ 📰 ui-markdown サンプル ━━━",
+        "info": "",
+        "x": 180,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "f644e84296d5bd65",
+        "type": "comment",
+        "z": "289c4fb42bfdacf9",
+        "name": "パターン1: 静的ドキュメント表示",
+        "info": "",
+        "x": 180,
+        "y": 540,
+        "wires": []
+    },
+    {
+        "id": "ebe7dc4c54c38776",
+        "type": "ui-markdown",
+        "z": "289c4fb42bfdacf9",
+        "group": "sample_ui_group_markdown",
+        "name": "操作説明",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "content": "## 📖 操作説明\n\n### 基本操作\n1. **開始ボタン**をクリックして処理を開始\n2. ステータスを確認\n3. 完了後、**停止ボタン**で終了\n\n### 注意事項\n- 処理中は画面を閉じないでください\n- エラー時は管理者に連絡\n\n---\n*詳細は[マニュアル](https://example.com)を参照*",
+        "x": 130,
+        "y": 580,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "dc8e3ab53f9fa6d5",
+        "type": "comment",
+        "z": "289c4fb42bfdacf9",
+        "name": "パターン2: 動的レポート生成",
+        "info": "",
+        "x": 170,
+        "y": 640,
+        "wires": []
+    },
+    {
+        "id": "3ddf9ce3aa2880c8",
+        "type": "inject",
+        "z": "289c4fb42bfdacf9",
+        "name": "センサーデータ",
+        "props": [
+            {
+                "p": "payload.temperature",
+                "v": "25.5",
+                "vt": "num"
+            },
+            {
+                "p": "payload.humidity",
+                "v": "60",
+                "vt": "num"
+            },
+            {
+                "p": "payload.timestamp",
+                "v": "",
+                "vt": "date"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 140,
+        "y": 680,
+        "wires": [
+            [
+                "d16f4b82d6161953"
+            ]
+        ]
+    },
+    {
+        "id": "d16f4b82d6161953",
+        "type": "ui-markdown",
+        "z": "289c4fb42bfdacf9",
+        "group": "sample_ui_group_markdown",
+        "name": "センサーレポート",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "content": "## 📊 センサーレポート\n\n| 項目 | 値 |\n|------|----|\n| 🌡️ 温度 | **{{ msg?.payload?.temperature || '--' }}** ℃ |\n| 💧 湿度 | **{{ msg?.payload?.humidity || '--' }}** % |\n\n---\n\n*最終更新: {{ msg?.payload?.timestamp || '取得中...' }}*",
+        "x": 380,
+        "y": 680,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "83cc66b8b8f069e7",
+        "type": "comment",
+        "z": "289c4fb42bfdacf9",
+        "name": "パターン3: Mermaidチャート表示",
+        "info": "",
+        "x": 180,
+        "y": 740,
+        "wires": []
+    },
+    {
+        "id": "86dc89394e7a12aa",
+        "type": "ui-markdown",
+        "z": "289c4fb42bfdacf9",
+        "group": "sample_ui_group_markdown",
+        "name": "システム構成図",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "content": "## 🔧 システム構成図\n\n```mermaid\ngraph TD;\n    A[センサー] --> B[Node-RED];\n    B --> C[Dashboard];\n    B --> D[データベース];\n    C --> E[ユーザー];\n```",
+        "x": 150,
+        "y": 780,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "3d78ef1f081d306c",
+        "type": "comment",
+        "z": "289c4fb42bfdacf9",
+        "name": "━━━ 🔔 ui-notification サンプル ━━━",
+        "info": "",
+        "x": 190,
+        "y": 860,
+        "wires": []
+    },
+    {
+        "id": "2d48715fd01e8025",
+        "type": "comment",
+        "z": "289c4fb42bfdacf9",
+        "name": "パターン1: シンプルな通知",
+        "info": "",
+        "x": 160,
+        "y": 900,
+        "wires": []
+    },
+    {
+        "id": "b8e4a95adb057146",
+        "type": "inject",
+        "z": "289c4fb42bfdacf9",
+        "name": "完了通知",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "処理が完了しました",
+        "payloadType": "str",
+        "x": 130,
+        "y": 940,
+        "wires": [
+            [
+                "e36825aeb356a81a"
+            ]
+        ]
+    },
+    {
+        "id": "e36825aeb356a81a",
+        "type": "ui-notification",
+        "z": "289c4fb42bfdacf9",
+        "ui": "6692685697ac2af1",
+        "position": "top right",
+        "colorDefault": true,
+        "color": "#000000",
+        "displayTime": "3",
+        "showCountdown": true,
+        "outputs": 1,
+        "allowDismiss": true,
+        "dismissText": "OK",
+        "allowConfirm": false,
+        "confirmText": "",
+        "raw": false,
+        "className": "",
+        "name": "シンプル通知",
+        "x": 350,
+        "y": 940,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c2bcf1928674b982",
+        "type": "comment",
+        "z": "289c4fb42bfdacf9",
+        "name": "パターン2: HTMLを含むリッチ通知",
+        "info": "",
+        "x": 180,
+        "y": 1000,
+        "wires": []
+    },
+    {
+        "id": "fb417647e0580698",
+        "type": "inject",
+        "z": "289c4fb42bfdacf9",
+        "name": "警告データ",
+        "props": [
+            {
+                "p": "payload",
+                "v": "85",
+                "vt": "num"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 130,
+        "y": 1040,
+        "wires": [
+            [
+                "a74fa659a6bdb19c"
+            ]
+        ]
+    },
+    {
+        "id": "a74fa659a6bdb19c",
+        "type": "function",
+        "z": "289c4fb42bfdacf9",
+        "name": "HTML生成",
+        "func": "msg.payload = `\n⚠️ 警告\nセンサー値が閾値を超えました\n現在値: ${msg.payload}℃\n`;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 290,
+        "y": 1040,
+        "wires": [
+            [
+                "313db1b819a9b152"
+            ]
+        ]
+    },
+    {
+        "id": "313db1b819a9b152",
+        "type": "ui-notification",
+        "z": "289c4fb42bfdacf9",
+        "ui": "6692685697ac2af1",
+        "position": "top center",
+        "colorDefault": false,
+        "color": "#ff9800",
+        "displayTime": "5",
+        "showCountdown": true,
+        "outputs": 1,
+        "allowDismiss": true,
+        "dismissText": "閉じる",
+        "allowConfirm": false,
+        "confirmText": "",
+        "raw": true,
+        "className": "",
+        "name": "リッチ通知",
+        "x": 470,
+        "y": 1040,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "3e84d02bf90fc690",
+        "type": "comment",
+        "z": "289c4fb42bfdacf9",
+        "name": "パターン3: 確認ダイアログ風通知",
+        "info": "",
+        "x": 180,
+        "y": 1100,
+        "wires": []
+    },
+    {
+        "id": "89633e5bf0977894",
+        "type": "inject",
+        "z": "289c4fb42bfdacf9",
+        "name": "確認要求",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "ui_update",
+                "v": "{\"allowConfirm\":true,\"confirmText\":\"実行\",\"allowDismiss\":true,\"dismissText\":\"キャンセル\",\"displayTime\":0,\"position\":\"center center\",\"color\":\"#2196f3\"}",
+                "vt": "json"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "この操作を実行しますか？",
+        "payloadType": "str",
+        "x": 130,
+        "y": 1140,
+        "wires": [
+            [
+                "4441429339a04176"
+            ]
+        ]
+    },
+    {
+        "id": "4441429339a04176",
+        "type": "ui-notification",
+        "z": "289c4fb42bfdacf9",
+        "ui": "6692685697ac2af1",
+        "position": "center center",
+        "colorDefault": false,
+        "color": "#2196f3",
+        "displayTime": "0",
+        "showCountdown": false,
+        "outputs": 1,
+        "allowDismiss": true,
+        "dismissText": "キャンセル",
+        "allowConfirm": true,
+        "confirmText": "実行",
+        "raw": false,
+        "className": "",
+        "name": "確認ダイアログ",
+        "x": 360,
+        "y": 1140,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "5f776d012acd26d3",
+        "type": "comment",
+        "z": "289c4fb42bfdacf9",
+        "name": "パターン4: 全クライアントへの一斉通知",
+        "info": "",
+        "x": 200,
+        "y": 1200,
+        "wires": []
+    },
+    {
+        "id": "faf9ea5cbf24b8b9",
+        "type": "inject",
+        "z": "289c4fb42bfdacf9",
+        "name": "緊急通知",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "🚨 システムメンテナンスを開始します",
+        "payloadType": "str",
+        "x": 130,
+        "y": 1240,
+        "wires": [
+            [
+                "220bb51fa0b8dd39"
+            ]
+        ]
+    },
+    {
+        "id": "220bb51fa0b8dd39",
+        "type": "change",
+        "z": "289c4fb42bfdacf9",
+        "name": "_client削除",
+        "rules": [
+            {
+                "t": "delete",
+                "p": "_client",
+                "pt": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 310,
+        "y": 1240,
+        "wires": [
+            [
+                "2929a71cada84ecd"
+            ]
+        ]
+    },
+    {
+        "id": "2929a71cada84ecd",
+        "type": "ui-notification",
+        "z": "289c4fb42bfdacf9",
+        "ui": "6692685697ac2af1",
+        "position": "top center",
+        "colorDefault": false,
+        "color": "#f44336",
+        "displayTime": "10",
+        "showCountdown": true,
+        "outputs": 1,
+        "allowDismiss": true,
+        "dismissText": "確認",
+        "allowConfirm": false,
+        "confirmText": "",
+        "raw": false,
+        "className": "",
+        "name": "全員通知",
+        "x": 490,
+        "y": 1240,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "3511b9fdece8deef",
+        "type": "comment",
+        "z": "289c4fb42bfdacf9",
+        "name": "━━━ 🔊 ui-audio サンプル ━━━",
+        "info": "",
+        "x": 170,
+        "y": 1320,
+        "wires": []
+    },
+    {
+        "id": "00e5d1548bef800c",
+        "type": "comment",
+        "z": "289c4fb42bfdacf9",
+        "name": "パターン1: BGM再生（Audio Player）",
+        "info": "",
+        "x": 190,
+        "y": 1360,
+        "wires": []
+    },
+    {
+        "id": "7330d4e44b92a815",
+        "type": "inject",
+        "z": "289c4fb42bfdacf9",
+        "name": "再生",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "ui_update",
+                "v": "{\"autoplay\":\"on\",\"loop\":\"on\"}",
+                "vt": "json"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+        "payloadType": "str",
+        "x": 110,
+        "y": 1400,
+        "wires": [
+            [
+                "e403d7f609744706"
+            ]
+        ]
+    },
+    {
+        "id": "a2e8b84c99e9f231",
+        "type": "inject",
+        "z": "289c4fb42bfdacf9",
+        "name": "停止",
+        "props": [
+            {
+                "p": "playback",
+                "v": "stop",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 110,
+        "y": 1440,
+        "wires": [
+            [
+                "e403d7f609744706"
+            ]
+        ]
+    },
+    {
+        "id": "e403d7f609744706",
+        "type": "ui-audio",
+        "z": "289c4fb42bfdacf9",
+        "group": "sample_ui_group_audio",
+        "name": "Audio Player",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "mode": "src",
+        "voice": "",
+        "src": "",
+        "autoplay": false,
+        "loop": false,
+        "muted": false,
+        "x": 290,
+        "y": 1420,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "da23772057ce8f26",
+        "type": "comment",
+        "z": "289c4fb42bfdacf9",
+        "name": "パターン2: アラート音声（TTS）",
+        "info": "",
+        "x": 170,
+        "y": 1500,
+        "wires": []
+    },
+    {
+        "id": "0a0e894c02267584",
+        "type": "inject",
+        "z": "289c4fb42bfdacf9",
+        "name": "温度データ",
+        "props": [
+            {
+                "p": "payload.temperature",
+                "v": "85",
+                "vt": "num"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 130,
+        "y": 1540,
+        "wires": [
+            [
+                "85188f3a9cd9d566"
+            ]
+        ]
+    },
+    {
+        "id": "85188f3a9cd9d566",
+        "type": "function",
+        "z": "289c4fb42bfdacf9",
+        "name": "閾値判定",
+        "func": "if (msg.payload.temperature > 80) {\n    msg.payload = {\n        text: \"警告！温度が80度を超えました\",\n        rate: 1.2,\n        volume: 100\n    };\n    return msg;\n}\nreturn null;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 300,
+        "y": 1540,
+        "wires": [
+            [
+                "935347c615c04902"
+            ]
+        ]
+    },
+    {
+        "id": "935347c615c04902",
+        "type": "ui-audio",
+        "z": "289c4fb42bfdacf9",
+        "group": "",
+        "ui": "6692685697ac2af1",
+        "name": "TTS",
+        "order": "",
+        "width": "",
+        "height": "",
+        "mode": "tts",
+        "voice": "urn:moz-tts:osx:com.apple.voice.compact.ja-JP.Kyoko",
+        "src": "",
+        "autoplay": false,
+        "loop": false,
+        "muted": false,
+        "x": 470,
+        "y": 1540,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e534c25ce7de35f9",
+        "type": "comment",
+        "z": "289c4fb42bfdacf9",
+        "name": "パターン3: 多言語音声案内",
+        "info": "",
+        "x": 160,
+        "y": 1600,
+        "wires": []
+    },
+    {
+        "id": "8101307a1fecb87c",
+        "type": "inject",
+        "z": "289c4fb42bfdacf9",
+        "name": "日本語",
+        "props": [
+            {
+                "p": "payload",
+                "v": "{\"text\":\"ようこそ、ダッシュボードへ\",\"lang\":\"ja-JP\"}",
+                "vt": "json"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 120,
+        "y": 1640,
+        "wires": [
+            [
+                "176c70581fe252da"
+            ]
+        ]
+    },
+    {
+        "id": "e7fbfe3e98ddb96b",
+        "type": "inject",
+        "z": "289c4fb42bfdacf9",
+        "name": "英語",
+        "props": [
+            {
+                "p": "payload",
+                "v": "{\"text\":\"Welcome to the dashboard\",\"lang\":\"en-US\"}",
+                "vt": "json"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 110,
+        "y": 1680,
+        "wires": [
+            [
+                "176c70581fe252da"
+            ]
+        ]
+    },
+    {
+        "id": "176c70581fe252da",
+        "type": "ui-audio",
+        "z": "289c4fb42bfdacf9",
+        "ui": "6692685697ac2af1",
+        "name": "多言語TTS",
+        "mode": "tts",
+        "voice": "",
+        "src": "",
+        "autoplay": false,
+        "loop": false,
+        "muted": false,
+        "x": 290,
+        "y": 1660,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "sample_ui_group_text",
+        "type": "ui-group",
+        "name": "📝 テキスト表示",
+        "page": "sample_ui_page",
+        "width": "6",
+        "height": "-1",
+        "order": 1,
+        "showTitle": true,
+        "className": "",
+        "visible": true,
+        "disabled": false
+    },
+    {
+        "id": "sample_ui_group_markdown",
+        "type": "ui-group",
+        "name": "📰 Markdown表示",
+        "page": "sample_ui_page",
+        "width": "6",
+        "height": "-1",
+        "order": 2,
+        "showTitle": true,
+        "className": "",
+        "visible": true,
+        "disabled": false
+    },
+    {
+        "id": "6692685697ac2af1",
+        "type": "ui-base",
+        "name": "My Dashboard",
+        "path": "/dashboard",
+        "appIcon": "",
+        "includeClientData": true,
+        "acceptsClientConfig": [
+            "ui-notification",
+            "ui-control"
+        ],
+        "showPathInSidebar": false,
+        "headerContent": "page",
+        "navigationStyle": "default",
+        "titleBarStyle": "default",
+        "showReconnectNotification": true,
+        "notificationDisplayTime": 1,
+        "showDisconnectNotification": true,
+        "allowInstall": false
+    },
+    {
+        "id": "sample_ui_group_audio",
+        "type": "ui-group",
+        "name": "🔊 オーディオ",
+        "page": "sample_ui_page",
+        "width": "6",
+        "height": "-1",
+        "order": 3,
+        "showTitle": true,
+        "className": "",
+        "visible": true,
+        "disabled": false
+    },
+    {
+        "id": "sample_ui_page",
+        "type": "ui-page",
+        "name": "表示系サンプル",
+        "ui": "6692685697ac2af1",
+        "path": "/display-widgets",
+        "icon": "mdi-monitor",
+        "layout": "grid",
+        "theme": "sample_ui_theme",
+        "breakpoints": [
+            {
+                "name": "Default",
+                "px": 0,
+                "cols": 3
+            },
+            {
+                "name": "Tablet",
+                "px": 576,
+                "cols": 6
+            },
+            {
+                "name": "Small Desktop",
+                "px": 768,
+                "cols": 9
+            },
+            {
+                "name": "Desktop",
+                "px": 1024,
+                "cols": 12
+            }
+        ],
+        "order": 1,
+        "className": "",
+        "visible": true,
+        "disabled": false
+    },
+    {
+        "id": "sample_ui_theme",
+        "type": "ui-theme",
+        "name": "Default Theme",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#b92d5d",
+            "bgPage": "#eeeeee",
+            "groupBg": "#ffffff",
+            "groupOutline": "#cccccc"
+        },
+        "sizes": {
+            "pagePadding": "12px",
+            "groupGap": "12px",
+            "groupBorderRadius": "4px",
+            "widgetGap": "12px"
+        }
+    },
+    {
+        "id": "b39caf71bb018d4b",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "@flowfuse/node-red-dashboard": "1.29.0"
+        }
+    }
+]</div>
+        </details>
+        
+        <h2 id="section3">📝 3. ui-text（テキスト表示）</h2>
+        
+        <div class="widget-card">
+            <h3>
+                <span class="widget-badge badge-display">表示</span>
+                ui-text ウィジェット
+            </h3>
+            <p>編集不可のテキストフィールドを表示します。<code>msg.payload</code>を受け取るたびに表示内容が更新されます。</p>
+        </div>
+        
+        <div class="tip">
+            <p><strong>📌 サンプルフロー参照:</strong> 上記サンプルフローの「📝 ui-text サンプル」セクションに、以下のパターン1〜4の実例が含まれています。</p>
+        </div>
+        
+        <h3>⚙️ 基本設定</h3>
+        
+        <table>
+            <tr>
+                <th>設定項目</th>
+                <th>説明</th>
+                <th>動的変更</th>
+            </tr>
+            <tr>
+                <td><strong>Group</strong></td>
+                <td>表示するグループを選択</td>
+                <td>-</td>
+            </tr>
+            <tr>
+                <td><strong>Size</strong></td>
+                <td>ウィジェットの幅（グループ幅が上限）</td>
+                <td>-</td>
+            </tr>
+            <tr>
+                <td><strong>Label</strong></td>
+                <td>ラベルテキスト（HTML可）</td>
+                <td>✅ msg.ui_update.label</td>
+            </tr>
+            <tr>
+                <td><strong>Layout</strong></td>
+                <td>ラベルと値の配置方法</td>
+                <td>✅ msg.ui_update.layout</td>
+            </tr>
+            <tr>
+                <td><strong>Style</strong></td>
+                <td>カスタムスタイルの有効/無効</td>
+                <td>-</td>
+            </tr>
+            <tr>
+                <td><strong>Font</strong></td>
+                <td>フォント指定（Style有効時）</td>
+                <td>✅ msg.ui_update.font</td>
+            </tr>
+            <tr>
+                <td><strong>Text Size</strong></td>
+                <td>文字サイズ（Style有効時）</td>
+                <td>✅ msg.ui_update.fontSize</td>
+            </tr>
+            <tr>
+                <td><strong>Text Color</strong></td>
+                <td>文字色（Style有効時）</td>
+                <td>✅ msg.ui_update.color</td>
+            </tr>
+            <tr>
+                <td><strong>Value</strong></td>
+                <td>表示する値（msg.payloadなど）</td>
+                <td>✅</td>
+            </tr>
+        </table>
+        
+        <h3>📐 Layout（配置）オプション</h3>
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h4>row-left</h4>
+                <p>ラベルと値を左寄せで横並び</p>
+                <div class="code-block">[Label] [Value        ]</div>
+            </div>
+            <div class="feature-card">
+                <h4>row-center</h4>
+                <p>ラベルと値を中央寄せで横並び</p>
+                <div class="code-block">    [Label] [Value]    </div>
+            </div>
+            <div class="feature-card">
+                <h4>row-right</h4>
+                <p>ラベルと値を右寄せで横並び</p>
+                <div class="code-block">[        Label] [Value]</div>
+            </div>
+            <div class="feature-card">
+                <h4>row-spread</h4>
+                <p>ラベルを左、値を右に配置</p>
+                <div class="code-block">[Label]         [Value]</div>
+            </div>
+            <div class="feature-card">
+                <h4>col-center</h4>
+                <p>ラベルと値を縦に中央配置</p>
+                <div class="code-block">    [Label]
+    [Value]</div>
+            </div>
+        </div>
+        
+        <h3>🎨 使用パターン</h3>
+        
+        <h4>パターン1: シンプルなテキスト表示</h4>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-ui-text">ui-text</span>
+        </div>
+        
+        <p><strong>用途:</strong> センサー値やステータスの表示</p>
+        
+        <div class="code-block">msg.payload = "現在の温度: 25.5℃"</div>
+        
+        <h4>パターン2: HTML装飾付きテキスト</h4>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-template">Template</span>
+            <span class="arrow">→</span>
+            <span class="node node-ui-text">ui-text</span>
+        </div>
+        
+        <p><strong>用途:</strong> リンクや強調表示を含むテキスト</p>
+        
+        <div class="code-block">// TemplateノードでHTML生成
+&lt;a href="https://flowfuse.com" target="_blank"&gt;FlowFuse&lt;/a&gt;へようこそ！
+&lt;br&gt;
+&lt;strong&gt;重要:&lt;/strong&gt; &lt;span style="color:red"&gt;警告メッセージ&lt;/span&gt;</div>
+        
+        <h4>パターン3: JSONata式で値をフォーマット</h4>
+        
+        <p>ui-textのValue設定で「JSONata」を選択すると、値を動的にフォーマットできます。</p>
+        
+        <div class="code-block">// 小数点1桁に丸める
+$round(payload, 1)
+
+// 単位を付ける
+payload & " ℃"
+
+// 条件分岐
+payload > 30 ? "高温注意" : "正常"</div>
+        
+        <h4>パターン4: プレフィックス/サフィックスの追加</h4>
+        
+        <div class="warning">
+            <p><strong>⚠️ Dashboard 1.0との違い:</strong></p>
+            <p>Dashboard 1.0の<code>valueFormat</code>オプションはセキュリティ上の理由から廃止されました。代わりにNode-REDの<strong>Templateノード</strong>を使用します。</p>
+        </div>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject<br><small>(温度値)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-template">Template<br><small>(単位追加)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-ui-text">ui-text</span>
+        </div>
+        
+        <div class="code-block">// Templateノードの内容
+{{payload}} ℃</div>
+        
+        <h3>🔄 動的プロパティ</h3>
+        
+        <p>msg.ui_updateオブジェクトを使用して、実行時にプロパティを変更できます。</p>
+        
+        <div class="dynamic-prop">
+msg.ui_update = {
+    label: "新しいラベル",
+    layout: "row-spread",
+    font: "monospace",
+    fontSize: "24px",
+    color: "#ff0000"
+};
+msg.class = "my-custom-class";
+        </div>
+        
+        <h2 id="section4">📰 4. ui-markdown（Markdownビューア）</h2>
+        
+        <div class="widget-card">
+            <h3>
+                <span class="widget-badge badge-display">表示</span>
+                <span class="widget-badge badge-html">リッチテキスト</span>
+                ui-markdown ウィジェット
+            </h3>
+            <p>Markdown記法で書式付きテキストを表示します。Mermaidチャートにも対応しています。</p>
+        </div>
+        
+        <div class="tip">
+            <p><strong>📌 サンプルフロー参照:</strong> 上記サンプルフローの「📰 ui-markdown サンプル」セクションに、以下のパターン1〜3の実例が含まれています。</p>
+        </div>
+        
+        <h3>⚙️ 基本設定</h3>
+        
+        <table>
+            <tr>
+                <th>設定項目</th>
+                <th>説明</th>
+                <th>動的変更</th>
+            </tr>
+            <tr>
+                <td><strong>Group</strong></td>
+                <td>表示するグループを選択</td>
+                <td>-</td>
+            </tr>
+            <tr>
+                <td><strong>Content</strong></td>
+                <td>Markdownコンテンツ</td>
+                <td>✅（mustache構文）</td>
+            </tr>
+            <tr>
+                <td><strong>Class</strong></td>
+                <td>CSSクラス</td>
+                <td>✅ msg.class</td>
+            </tr>
+        </table>
+        
+        <h3>📝 Markdown記法サポート</h3>
+        
+        <div class="code-block"># 見出し1
+## 見出し2
+### 見出し3
+
+**太字** と *斜体*
+
+`インラインコード` とコードブロック:
+```js
+function hello() {
+    console.log('Hello World');
+}
+```
+
+- リスト項目1
+- リスト項目2
+
+[リンク](https://flowfuse.com)
+
+> 引用文
+
+| ヘッダー1 | ヘッダー2 |
+|----------|----------|
+| セル1    | セル2    |</div>
+        
+        <h3>🔗 mustache構文でmsg値を埋め込み</h3>
+        
+        <p>二重中括弧 <code>{{ }}</code> を使用してmsgの値を埋め込めます。</p>
+        
+        <div class="code-block">## センサーデータ
+
+現在の温度: **{{ msg?.payload?.temperature || '取得中...' }}** ℃
+
+更新時刻: {{ msg?.payload?.timestamp || 'N/A' }}</div>
+        
+        <div class="tip">
+            <p><strong>💡 プレースホルダーの設定:</strong></p>
+            <p><code>{{ msg?.payload || 'プレースホルダー' }}</code> の形式で、メッセージ受信前のデフォルト値を設定できます。</p>
+        </div>
+        
+        <h3>📊 Mermaidチャート対応</h3>
+        
+        <p>Markdownのコードブロック内で<code>mermaid</code>タイプを指定すると、Mermaidチャートを描画できます。</p>
+        
+        <div class="code-block"># システム構成図
+
+```mermaid
+graph TD;
+    A[センサー] --> B[Node-RED];
+    B --> C[Dashboard];
+    B --> D[データベース];
+    C --> E[ユーザー];
+```</div>
+        
+        <h4>動的なMermaidチャート</h4>
+        
+        <div class="code-block"># 売上比率
+
+```mermaid
+pie title 売上構成
+    "製品A" : {{ msg?.payload?.productA || 30 }}
+    "製品B" : {{ msg?.payload?.productB || 25 }}
+    "製品C" : {{ msg?.payload?.productC || 45 }}
+```</div>
+        
+        <h3>🎨 使用パターン</h3>
+        
+        <h4>パターン1: ドキュメント表示</h4>
+        
+        <div class="node-example">
+            <span class="node node-ui-markdown">ui-markdown<br><small>(静的コンテンツ)</small></span>
+        </div>
+        
+        <p><strong>用途:</strong> ヘルプページ、操作説明、利用規約など</p>
+        
+        <h4>パターン2: 動的レポート生成</h4>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">Function<br><small>(データ整形)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-ui-markdown">ui-markdown</span>
+        </div>
+        
+        <p><strong>用途:</strong> センサーデータのレポート、システム状態表示</p>
+        
+        <h4>パターン3: フローチャート/図の表示</h4>
+        
+        <div class="node-example">
+            <span class="node node-ui-markdown">ui-markdown<br><small>(Mermaid)</small></span>
+        </div>
+        
+        <p><strong>用途:</strong> システム構成図、ステートマシン、シーケンス図</p>
+        
+        <h2 id="section5">🔔 5. ui-notification（通知）</h2>
+        
+        <div class="widget-card">
+            <h3>
+                <span class="widget-badge badge-display">表示</span>
+                <span class="widget-badge badge-dynamic">一時的</span>
+                ui-notification ウィジェット
+            </h3>
+            <p>Dashboard 1.0では「Toast」と呼ばれていた機能です。画面上に一時的なポップアップ通知を表示します。</p>
+        </div>
+        
+        <div class="tip">
+            <p><strong>📌 サンプルフロー参照:</strong> 上記サンプルフローの「🔔 ui-notification サンプル」セクションに、以下のパターン1〜4の実例が含まれています。</p>
+        </div>
+        
+        <h3>⚙️ 基本設定</h3>
+        
+        <table>
+            <tr>
+                <th>設定項目</th>
+                <th>説明</th>
+                <th>動的変更</th>
+            </tr>
+            <tr>
+                <td><strong>UI</strong></td>
+                <td>所属するUI（ui-base）</td>
+                <td>-</td>
+            </tr>
+            <tr>
+                <td><strong>Position</strong></td>
+                <td>画面上の表示位置</td>
+                <td>✅ msg.ui_update.position</td>
+            </tr>
+            <tr>
+                <td><strong>Color</strong></td>
+                <td>通知の枠線の色</td>
+                <td>✅ msg.ui_update.color</td>
+            </tr>
+            <tr>
+                <td><strong>Timeout</strong></td>
+                <td>自動で閉じるまでの秒数</td>
+                <td>✅ msg.ui_update.displayTime</td>
+            </tr>
+            <tr>
+                <td><strong>Show Countdown Bar</strong></td>
+                <td>残り時間のプログレスバー表示</td>
+                <td>✅ msg.ui_update.showCountdown</td>
+            </tr>
+            <tr>
+                <td><strong>Allow Manual Dismissal</strong></td>
+                <td>閉じるボタンを表示</td>
+                <td>✅ msg.ui_update.allowDismiss</td>
+            </tr>
+            <tr>
+                <td><strong>Allow Manual Confirmation</strong></td>
+                <td>確認ボタンを表示</td>
+                <td>✅ msg.ui_update.allowConfirm</td>
+            </tr>
+            <tr>
+                <td><strong>Accept Raw</strong></td>
+                <td>HTMLをそのまま処理</td>
+                <td>✅ msg.ui_update.raw</td>
+            </tr>
+        </table>
+        
+        <h3>📍 Position（表示位置）オプション</h3>
+        
+        <div class="position-grid">
+            <div class="position-cell">top left</div>
+            <div class="position-cell active">top center</div>
+            <div class="position-cell">top right</div>
+            <div class="position-cell">center left</div>
+            <div class="position-cell">center center</div>
+            <div class="position-cell">center right</div>
+            <div class="position-cell">bottom left</div>
+            <div class="position-cell">bottom center</div>
+            <div class="position-cell active">bottom right</div>
+        </div>
+        
+        <div class="tip">
+            <p><strong>💡 無期限表示:</strong></p>
+            <p>Timeoutを<code>0</code>に設定すると通知は自動で閉じません。この場合、<code>allowDismiss</code>または<code>allowConfirm</code>を有効にしないとユーザーが閉じられません。</p>
+        </div>
+        
+        <h3>🎨 使用パターン</h3>
+        
+        <h4>パターン1: シンプルな通知</h4>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-ui-notification">ui-notification</span>
+        </div>
+        
+        <div class="code-block">msg.payload = "処理が完了しました";</div>
+        
+        <h4>パターン2: HTMLを含むリッチ通知</h4>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">Function</span>
+            <span class="arrow">→</span>
+            <span class="node node-ui-notification">ui-notification</span>
+        </div>
+        
+        <div class="code-block">msg.payload = `
+&lt;h3&gt;⚠️ 警告&lt;/h3&gt;
+&lt;p&gt;センサー値が閾値を超えました&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;現在値:&lt;/strong&gt; 85℃&lt;/p&gt;
+`;
+return msg;</div>
+        
+        <h4>パターン3: 確認ダイアログ風通知</h4>
+        
+        <div class="code-block">// 確認ボタン付き通知
+msg.payload = "この操作を実行しますか？";
+msg.ui_update = {
+    allowConfirm: true,
+    confirmText: "実行",
+    allowDismiss: true,
+    dismissText: "キャンセル",
+    displayTime: 0,  // 手動で閉じるまで表示
+    position: "center center",
+    color: "orange"
+};
+return msg;</div>
+        
+        <h4>パターン4: 全クライアントへの一斉通知</h4>
+        
+        <div class="warning">
+            <p><strong>⚠️ 重要:</strong></p>
+            <p>通知はデフォルトで<strong>単一クライアント</strong>にのみ送信されます（msg._clientによる制約）。全クライアントに送信するには、Changeノードで<code>msg._client</code>を削除します。</p>
+        </div>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-change">Change<br><small>(delete _client)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-ui-notification">ui-notification</span>
+        </div>
+        
+        <h3>🔄 動的プロパティ</h3>
+        
+        <div class="dynamic-prop">
+msg.ui_update = {
+    position: "top right",
+    color: "#ff5722",
+    displayTime: 10,
+    showCountdown: true,
+    allowDismiss: true,
+    dismissText: "閉じる",
+    allowConfirm: false,
+    raw: true
+};
+msg.show = true;  // 表示/非表示の制御
+        </div>
+        
+        <h2 id="section6">🔊 6. ui-audio（オーディオ）</h2>
+        
+        <div class="widget-card">
+            <h3>
+                <span class="widget-badge badge-display">表示</span>
+                ui-audio ウィジェット
+            </h3>
+            <p>ダッシュボードにオーディオ機能を追加します。音声ファイルの再生とText-to-Speech（TTS）の2つのモードがあります。</p>
+        </div>
+        
+        <div class="tip">
+            <p><strong>📌 サンプルフロー参照:</strong> 上記サンプルフローの「🔊 ui-audio サンプル」セクションに、以下のパターン1〜3の実例が含まれています。</p>
+        </div>
+        
+        <h3>🎚️ モード選択</h3>
+        
+        <div class="feature-grid">
+            <div class="mode-section">
+                <h4>🎵 Audio Player モード</h4>
+                <p>URLから音声ファイルを再生するプレイヤーをダッシュボードに表示します。</p>
+                <ul>
+                    <li>Group設定が必要（画面に表示）</li>
+                    <li>再生コントロール付き</li>
+                    <li>自動再生、ループ、ミュート対応</li>
+                </ul>
+            </div>
+            <div class="mode-section">
+                <h4>🗣️ Text-to-Speech モード</h4>
+                <p>ブラウザ内蔵のTTS機能でテキストを音声で読み上げます。</p>
+                <ul>
+                    <li>UI設定が必要（画面には非表示）</li>
+                    <li>音声・速度・ピッチ指定可能</li>
+                    <li>⚠️ ユーザージェスチャー後のみ動作</li>
+                </ul>
+            </div>
+        </div>
+        
+        <h3>⚙️ 基本設定（Audio Player）</h3>
+        
+        <table>
+            <tr>
+                <th>設定項目</th>
+                <th>説明</th>
+                <th>動的変更</th>
+            </tr>
+            <tr>
+                <td><strong>Mode</strong></td>
+                <td>Audio Player / Text-to-Speech</td>
+                <td>-</td>
+            </tr>
+            <tr>
+                <td><strong>Group</strong></td>
+                <td>表示するグループ（Audio Playerのみ）</td>
+                <td>-</td>
+            </tr>
+            <tr>
+                <td><strong>Size</strong></td>
+                <td>プレイヤーの幅</td>
+                <td>-</td>
+            </tr>
+            <tr>
+                <td><strong>Source</strong></td>
+                <td>音声ファイルのURL</td>
+                <td>✅ msg.ui_update.source</td>
+            </tr>
+            <tr>
+                <td><strong>Autoplay</strong></td>
+                <td>自動再生の有効/無効</td>
+                <td>✅ msg.ui_update.autoplay</td>
+            </tr>
+            <tr>
+                <td><strong>Loop</strong></td>
+                <td>ループ再生の有効/無効</td>
+                <td>✅ msg.ui_update.loop</td>
+            </tr>
+            <tr>
+                <td><strong>Muted</strong></td>
+                <td>ミュートの有効/無効</td>
+                <td>✅ msg.ui_update.muted</td>
+            </tr>
+        </table>
+        
+        <h3>🎮 再生制御</h3>
+        
+        <p><code>msg.playback</code>を使用して再生を制御できます。</p>
+        
+        <div class="code-block">// 再生開始/再開
+msg.playback = "play";
+
+// 一時停止
+msg.playback = "pause";
+
+// 停止（最初に戻る）
+msg.playback = "stop";
+
+// resume は play のエイリアス
+msg.playback = "resume";</div>
+        
+        <h3>🗣️ Text-to-Speech の使い方</h3>
+        
+        <h4>シンプルな読み上げ</h4>
+        
+        <div class="code-block">msg.payload = "こんにちは、Node-REDダッシュボードへようこそ";</div>
+        
+        <h4>詳細設定付き読み上げ</h4>
+        
+        <div class="code-block">msg.payload = {
+    text: "Hello World",
+    voice: "Google US English",  // 音声名またはインデックス
+    rate: 1.1,    // 速度（0.1〜10）
+    pitch: 0.9,   // ピッチ（0〜2）
+    volume: 88    // 音量（0〜100）
+};</div>
+        
+        <div class="tip">
+            <p><strong>💡 利用可能な音声の確認:</strong></p>
+            <p>ブラウザのコンソールで <code>speechSynthesis.getVoices()</code> を実行すると、利用可能な音声のリストを確認できます。</p>
+        </div>
+        
+        <div class="warning">
+            <p><strong>⚠️ ブラウザのセキュリティ制限:</strong></p>
+            <p>TTSはブラウザのセキュリティ制限により、<strong>ユーザーが最初にダッシュボードをクリックした後</strong>でないと動作しません。これは自動音声再生を防ぐためのブラウザ仕様です。</p>
+        </div>
+        
+        <h3>🎨 使用パターン</h3>
+        
+        <h4>パターン1: BGM再生</h4>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-ui-audio">ui-audio<br><small>(Audio Player)</small></span>
+        </div>
+        
+        <div class="code-block">msg.payload = "https://example.com/bgm.mp3";
+msg.ui_update = {
+    autoplay: "on",
+    loop: "on"
+};</div>
+        
+        <h4>パターン2: アラート音声</h4>
+        
+        <div class="node-example">
+            <span class="node node-function">Function<br><small>(閾値判定)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-ui-audio">ui-audio<br><small>(TTS)</small></span>
+        </div>
+        
+        <div class="code-block">if (msg.payload.temperature > 80) {
+    msg.payload = {
+        text: "警告！温度が80度を超えました",
+        rate: 1.2,
+        volume: 100
+    };
+    return msg;
+}
+return null;</div>
+        
+        <h4>パターン3: 多言語音声案内</h4>
+        
+        <div class="code-block">// 日本語
+msg.payload = {
+    text: "ようこそ",
+    lang: "ja-JP"
+};
+
+// 英語
+msg.payload = {
+    text: "Welcome",
+    lang: "en-US"
+};</div>
+        
+        <h2 id="section7">🏋️ 7. 実践演習</h2>
+        
+        <div class="exercise">
+            <h3>演習1: センサー値の表示<span class="difficulty difficulty-easy">初級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>温度センサーの値を色付きで表示するフローを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Inject、ui-textノードを使用</li>
+                <li>温度が30℃以上なら赤色、それ以下なら緑色で表示</li>
+                <li>「温度:」というラベル付き</li>
+            </ul>
+            
+            <p><strong>📊 期待される動作:</strong></p>
+            <ul>
+                <li>Injectボタンをクリック → ui-textに温度値が色付きで表示</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Injectノードの設定:</strong></p>
+                <ul>
+                    <li>payload: 数値型で温度値（例: 32）</li>
+                </ul>
+                <p><strong>Functionノードで動的スタイル設定:</strong></p>
+                <div class="code-block">const temp = msg.payload;
+msg.ui_update = {
+    color: temp >= 30 ? "#ff0000" : "#4caf50",
+    fontSize: "20px"
+};
+msg.payload = temp + " ℃";
+return msg;</div>
+                <p><strong>ui-textノードの設定:</strong></p>
+                <ul>
+                    <li>Label: 温度:</li>
+                    <li>Layout: row-spread</li>
+                    <li>Style: チェックを入れる</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "ex1_ui_base",
+        "type": "ui-base",
+        "name": "Dashboard",
+        "path": "/dashboard",
+        "includeClientData": true,
+        "acceptsClientConfig": ["ui-notification", "ui-control"],
+        "showPathInSidebar": false,
+        "navigationStyle": "default"
+    },
+    {
+        "id": "ex1_ui_page",
+        "type": "ui-page",
+        "name": "演習1",
+        "ui": "ex1_ui_base",
+        "path": "/exercise1",
+        "icon": "mdi-thermometer",
+        "layout": "grid",
+        "theme": "ex1_ui_theme",
+        "order": 1,
+        "className": "",
+        "visible": true,
+        "disabled": false
+    },
+    {
+        "id": "ex1_ui_theme",
+        "type": "ui-theme",
+        "name": "Default Theme",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#b92d5d",
+            "bgPage": "#eeeeee",
+            "groupBg": "#ffffff",
+            "groupOutline": "#cccccc"
+        },
+        "sizes": {
+            "pagePadding": "12px",
+            "groupGap": "12px",
+            "groupBorderRadius": "4px",
+            "widgetGap": "12px"
+        }
+    },
+    {
+        "id": "ex1_ui_group",
+        "type": "ui-group",
+        "name": "センサー表示",
+        "page": "ex1_ui_page",
+        "width": "6",
+        "height": "-1",
+        "order": 1,
+        "showTitle": true,
+        "className": "",
+        "visible": true,
+        "disabled": false
+    },
+    {
+        "id": "ex1_inject_hot",
+        "type": "inject",
+        "name": "高温 (32℃)",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "32",
+        "payloadType": "num",
+        "x": 130,
+        "y": 100,
+        "wires": [["ex1_function"]]
+    },
+    {
+        "id": "ex1_inject_normal",
+        "type": "inject",
+        "name": "通常 (25℃)",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "25",
+        "payloadType": "num",
+        "x": 130,
+        "y": 160,
+        "wires": [["ex1_function"]]
+    },
+    {
+        "id": "ex1_function",
+        "type": "function",
+        "name": "色設定",
+        "func": "const temp = msg.payload;\nmsg.ui_update = {\n    color: temp >= 30 ? \"#ff0000\" : \"#4caf50\",\n    fontSize: \"20px\"\n};\nmsg.payload = temp + \" ℃\";\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 320,
+        "y": 130,
+        "wires": [["ex1_ui_text"]]
+    },
+    {
+        "id": "ex1_ui_text",
+        "type": "ui-text",
+        "group": "ex1_ui_group",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "温度表示",
+        "label": "温度:",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "style": true,
+        "font": "",
+        "fontSize": 16,
+        "color": "#000000",
+        "x": 490,
+        "y": 130,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習2: Markdownレポート生成<span class="difficulty difficulty-medium">中級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>複数のセンサーデータをMarkdown形式のレポートとして表示してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Inject、Function、ui-markdownノードを使用</li>
+                <li>温度、湿度、気圧のデータをテーブル形式で表示</li>
+                <li>更新時刻も表示</li>
+            </ul>
+            
+            <p><strong>📊 期待される動作:</strong></p>
+            <ul>
+                <li>Injectボタンをクリック → ui-markdownに整形されたレポートが表示</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Injectノードの設定:</strong></p>
+                <ul>
+                    <li>複数のプロパティを設定: temperature, humidity, pressure</li>
+                </ul>
+                <p><strong>ui-markdownノードのContent:</strong></p>
+                <div class="code-block">## 📊 環境モニタリングレポート
+
+| センサー | 値 | 単位 |
+|---------|-----|-----|
+| 🌡️ 温度 | {{ msg?.payload?.temperature || '--' }} | ℃ |
+| 💧 湿度 | {{ msg?.payload?.humidity || '--' }} | % |
+| 🌀 気圧 | {{ msg?.payload?.pressure || '--' }} | hPa |
+
+---
+*最終更新: {{ msg?.payload?.timestamp || '未取得' }}*</div>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "ex2_ui_base",
+        "type": "ui-base",
+        "name": "Dashboard",
+        "path": "/dashboard",
+        "includeClientData": true,
+        "acceptsClientConfig": ["ui-notification", "ui-control"],
+        "showPathInSidebar": false,
+        "navigationStyle": "default"
+    },
+    {
+        "id": "ex2_ui_page",
+        "type": "ui-page",
+        "name": "演習2",
+        "ui": "ex2_ui_base",
+        "path": "/exercise2",
+        "icon": "mdi-file-document",
+        "layout": "grid",
+        "theme": "ex2_ui_theme",
+        "order": 1,
+        "className": "",
+        "visible": true,
+        "disabled": false
+    },
+    {
+        "id": "ex2_ui_theme",
+        "type": "ui-theme",
+        "name": "Default Theme",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#b92d5d",
+            "bgPage": "#eeeeee",
+            "groupBg": "#ffffff",
+            "groupOutline": "#cccccc"
+        },
+        "sizes": {
+            "pagePadding": "12px",
+            "groupGap": "12px",
+            "groupBorderRadius": "4px",
+            "widgetGap": "12px"
+        }
+    },
+    {
+        "id": "ex2_ui_group",
+        "type": "ui-group",
+        "name": "環境レポート",
+        "page": "ex2_ui_page",
+        "width": "6",
+        "height": "-1",
+        "order": 1,
+        "showTitle": true,
+        "className": "",
+        "visible": true,
+        "disabled": false
+    },
+    {
+        "id": "ex2_inject",
+        "type": "inject",
+        "name": "センサーデータ",
+        "props": [
+            {"p": "payload.temperature", "v": "25.5", "vt": "num"},
+            {"p": "payload.humidity", "v": "60", "vt": "num"},
+            {"p": "payload.pressure", "v": "1013", "vt": "num"},
+            {"p": "payload.timestamp", "v": "", "vt": "date"}
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 140,
+        "y": 100,
+        "wires": [["ex2_markdown"]]
+    },
+    {
+        "id": "ex2_markdown",
+        "type": "ui-markdown",
+        "group": "ex2_ui_group",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "環境レポート",
+        "content": "## 📊 環境モニタリングレポート\n\n| センサー | 値 | 単位 |\n|---------|-----|-----|\n| 🌡️ 温度 | **{{ msg?.payload?.temperature || '--' }}** | ℃ |\n| 💧 湿度 | **{{ msg?.payload?.humidity || '--' }}** | % |\n| 🌀 気圧 | **{{ msg?.payload?.pressure || '--' }}** | hPa |\n\n---\n*最終更新: {{ msg?.payload?.timestamp || '未取得' }}*",
+        "x": 360,
+        "y": 100,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習3: 条件付き通知システム<span class="difficulty difficulty-medium">中級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>温度値に応じて異なる種類の通知を表示するシステムを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Inject、Switch、ui-notificationノードを使用</li>
+                <li>温度30℃以上: 赤い警告通知（top center）</li>
+                <li>温度20〜30℃: 緑の情報通知（top right）</li>
+                <li>温度20℃未満: 青い注意通知（bottom right）</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Switchノードの設定:</strong></p>
+                <ul>
+                    <li>プロパティ: msg.payload</li>
+                    <li>条件1: >= 30 → 出力1</li>
+                    <li>条件2: >= 20 → 出力2</li>
+                    <li>条件3: その他 → 出力3</li>
+                </ul>
+                <p><strong>各ui-notificationの設定を変える:</strong></p>
+                <ul>
+                    <li>Position、Color、表示メッセージを条件ごとに設定</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "ex3_ui_base",
+        "type": "ui-base",
+        "name": "Dashboard",
+        "path": "/dashboard",
+        "includeClientData": true,
+        "acceptsClientConfig": ["ui-notification", "ui-control"],
+        "showPathInSidebar": false,
+        "navigationStyle": "default"
+    },
+    {
+        "id": "ex3_inject_high",
+        "type": "inject",
+        "name": "高温 (35℃)",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "35",
+        "payloadType": "num",
+        "x": 130,
+        "y": 100,
+        "wires": [["ex3_switch"]]
+    },
+    {
+        "id": "ex3_inject_normal",
+        "type": "inject",
+        "name": "通常 (25℃)",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "25",
+        "payloadType": "num",
+        "x": 130,
+        "y": 160,
+        "wires": [["ex3_switch"]]
+    },
+    {
+        "id": "ex3_inject_low",
+        "type": "inject",
+        "name": "低温 (15℃)",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "15",
+        "payloadType": "num",
+        "x": 130,
+        "y": 220,
+        "wires": [["ex3_switch"]]
+    },
+    {
+        "id": "ex3_switch",
+        "type": "switch",
+        "name": "温度判定",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {"t": "gte", "v": "30", "vt": "num"},
+            {"t": "gte", "v": "20", "vt": "num"},
+            {"t": "else"}
+        ],
+        "checkall": "false",
+        "repair": false,
+        "outputs": 3,
+        "x": 320,
+        "y": 160,
+        "wires": [["ex3_func_high"], ["ex3_func_normal"], ["ex3_func_low"]]
+    },
+    {
+        "id": "ex3_func_high",
+        "type": "function",
+        "name": "高温警告",
+        "func": "msg.ui_update = {\n    color: \"#f44336\",\n    position: \"top center\"\n};\nmsg.payload = `⚠️ 高温警告: ${msg.payload}℃`;\nreturn msg;",
+        "outputs": 1,
+        "x": 490,
+        "y": 100,
+        "wires": [["ex3_notify"]]
+    },
+    {
+        "id": "ex3_func_normal",
+        "type": "function",
+        "name": "通常通知",
+        "func": "msg.ui_update = {\n    color: \"#4caf50\",\n    position: \"top right\"\n};\nmsg.payload = `✓ 正常: ${msg.payload}℃`;\nreturn msg;",
+        "outputs": 1,
+        "x": 490,
+        "y": 160,
+        "wires": [["ex3_notify"]]
+    },
+    {
+        "id": "ex3_func_low",
+        "type": "function",
+        "name": "低温注意",
+        "func": "msg.ui_update = {\n    color: \"#2196f3\",\n    position: \"bottom right\"\n};\nmsg.payload = `❄️ 低温注意: ${msg.payload}℃`;\nreturn msg;",
+        "outputs": 1,
+        "x": 490,
+        "y": 220,
+        "wires": [["ex3_notify"]]
+    },
+    {
+        "id": "ex3_notify",
+        "type": "ui-notification",
+        "ui": "ex3_ui_base",
+        "position": "top right",
+        "colorDefault": true,
+        "color": "#000000",
+        "displayTime": "3",
+        "showCountdown": true,
+        "allowDismiss": true,
+        "dismissText": "OK",
+        "allowConfirm": false,
+        "confirmText": "",
+        "raw": false,
+        "name": "通知",
+        "x": 670,
+        "y": 160,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習4: 音声アラートシステム<span class="difficulty difficulty-hard">上級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>異常検知時に音声と視覚の両方でアラートを出すシステムを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Inject、Function、ui-notification、ui-audio（TTS）を使用</li>
+                <li>異常検知時: 通知表示 + 音声読み上げを同時実行</li>
+                <li>音声は日本語で「警告、異常を検知しました」と読み上げ</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>並列処理の実現:</strong></p>
+                <p>Functionノードから複数の出力を使用するか、同じメッセージを両方のノードに接続します。</p>
+                <p><strong>ui-audio（TTS）の設定:</strong></p>
+                <ul>
+                    <li>Mode: Text-to-Speech</li>
+                    <li>UI: 適切なui-baseを選択</li>
+                </ul>
+                <p><strong>Functionノードの出力:</strong></p>
+                <div class="code-block">// 通知用と音声用の両方を出力
+const notifyMsg = {
+    payload: "&lt;h3&gt;⚠️ 異常検知&lt;/h3&gt;&lt;p&gt;システムに異常が発生しました&lt;/p&gt;",
+    ui_update: { color: "#f44336", position: "center center" }
+};
+
+const audioMsg = {
+    payload: {
+        text: "警告、異常を検知しました",
+        rate: 1.0,
+        volume: 100
+    }
+};
+
+return [notifyMsg, audioMsg];</div>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "ex4_ui_base",
+        "type": "ui-base",
+        "name": "Dashboard",
+        "path": "/dashboard",
+        "includeClientData": true,
+        "acceptsClientConfig": ["ui-notification", "ui-control"],
+        "showPathInSidebar": false,
+        "navigationStyle": "default"
+    },
+    {
+        "id": "ex4_inject",
+        "type": "inject",
+        "name": "異常検知",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "異常",
+        "payloadType": "str",
+        "x": 120,
+        "y": 100,
+        "wires": [["ex4_function"]]
+    },
+    {
+        "id": "ex4_function",
+        "type": "function",
+        "name": "アラート生成",
+        "func": "const notifyMsg = {\n    payload: \"<h3>⚠️ 異常検知</h3><p>システムに異常が発生しました</p>\",\n    ui_update: {\n        color: \"#f44336\",\n        position: \"center center\",\n        displayTime: 0,\n        allowDismiss: true,\n        dismissText: \"確認\",\n        raw: true\n    }\n};\n\nconst audioMsg = {\n    payload: {\n        text: \"警告、異常を検知しました\",\n        rate: 1.0,\n        volume: 100\n    }\n};\n\nreturn [notifyMsg, audioMsg];",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 310,
+        "y": 100,
+        "wires": [["ex4_notify"], ["ex4_audio"]]
+    },
+    {
+        "id": "ex4_notify",
+        "type": "ui-notification",
+        "ui": "ex4_ui_base",
+        "position": "center center",
+        "colorDefault": false,
+        "color": "#f44336",
+        "displayTime": "0",
+        "showCountdown": false,
+        "allowDismiss": true,
+        "dismissText": "確認",
+        "allowConfirm": false,
+        "confirmText": "",
+        "raw": true,
+        "name": "警告通知",
+        "x": 510,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "ex4_audio",
+        "type": "ui-audio",
+        "name": "警告音声",
+        "ui": "ex4_ui_base",
+        "mode": "tts",
+        "src": "",
+        "autoplay": false,
+        "loop": false,
+        "muted": false,
+        "voice": "",
+        "x": 510,
+        "y": 120,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+        
+        <h2 id="section8">🎓 8. まとめ</h2>
+        
+        <div class="important">
+            <h3>表示系ウィジェットの重要ポイント</h3>
+            <ul>
+                <li>✅ <strong>ui-text</strong>: シンプルなテキスト表示、HTML対応、動的スタイル変更可能</li>
+                <li>✅ <strong>ui-markdown</strong>: リッチテキスト、テーブル、Mermaidチャート対応</li>
+                <li>✅ <strong>ui-notification</strong>: 一時的なポップアップ通知、位置・色・タイムアウト制御</li>
+                <li>✅ <strong>ui-audio</strong>: 音声再生（Audio Player）とTTS（Text-to-Speech）の2モード</li>
+                <li>✅ <strong>動的プロパティ</strong>: msg.ui_updateで実行時にプロパティを変更可能</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <h3>⚠️ よくある間違い</h3>
+            <ul>
+                <li><strong>ui-textのvalueFormat廃止</strong>: Dashboard 1.0のvalueFormatは使えません。Templateノードを使用</li>
+                <li><strong>通知の宛先</strong>: デフォルトは単一クライアント。全員に送るにはmsg._clientを削除</li>
+                <li><strong>TTSのユーザージェスチャー</strong>: 自動再生は不可。ユーザーが最初にクリック操作を行う必要あり</li>
+                <li><strong>Markdownの構文</strong>: mustache構文は<code>{{ }}</code>、Mermaidは<code>```mermaid</code>コードブロック</li>
+            </ul>
+        </div>
+        
+        <h2 id="section9">🔧 9. トラブルシューティング</h2>
+        
+        <table>
+            <tr>
+                <th>問題</th>
+                <th>原因</th>
+                <th>解決方法</th>
+            </tr>
+            <tr>
+                <td>ui-textが更新されない</td>
+                <td>Groupが未選択</td>
+                <td>ui-textノードでGroupを選択</td>
+            </tr>
+            <tr>
+                <td>HTMLが表示されない</td>
+                <td>エスケープされている</td>
+                <td>ui-notificationの場合はAccept Rawを有効化</td>
+            </tr>
+            <tr>
+                <td>Mermaidが描画されない</td>
+                <td>コードブロックの指定ミス</td>
+                <td><code>```mermaid</code>で始めているか確認</td>
+            </tr>
+            <tr>
+                <td>通知が表示されない</td>
+                <td>UIが未選択</td>
+                <td>ui-notificationでUIを選択</td>
+            </tr>
+            <tr>
+                <td>TTSが動作しない</td>
+                <td>ユーザージェスチャーなし</td>
+                <td>ダッシュボードを一度クリックしてから再試行</td>
+            </tr>
+            <tr>
+                <td>動的スタイルが反映されない</td>
+                <td>Styleが無効</td>
+                <td>ui-textでStyleチェックボックスを有効化</td>
+            </tr>
+            <tr>
+                <td>全クライアントに通知されない</td>
+                <td>msg._clientが残っている</td>
+                <td>Changeノードでmsg._clientを削除</td>
+            </tr>
+        </table>
+        
+        <h2 id="section10">💡 10. 実務での活用例</h2>
+        
+        <h3>ケース1: IoTセンサーモニタリング</h3>
+        <div class="code-block">【フロー構成】
+MQTTセンサー → Function(データ整形) → ui-text(リアルタイム値)
+                                    ↘ ui-markdown(統計レポート)
+                                    ↘ Switch → ui-notification(閾値アラート)
+                                            ↘ ui-audio(音声警告)</div>
+        
+        <h3>ケース2: 工場ライン監視</h3>
+        <div class="code-block">【フロー構成】
+PLCデータ → ui-markdown(Mermaidでライン状態図)
+         → ui-text(各工程のステータス) × 複数
+         → 異常検知 → ui-notification + ui-audio(全クライアント通知)</div>
+        
+        <h3>ケース3: スマートホーム</h3>
+        <div class="code-block">【フロー構成】
+各種センサー → ui-markdown(家全体の状態サマリー)
+            → ui-notification(来客通知、異常通知)
+            → ui-audio(音声での状態報告)</div>
+        
+        <h3>ケース4: ヘルプ・ドキュメント表示</h3>
+        <div class="code-block">【フロー構成】
+ui-button(ヘルプ) → ui-notification(クイックヒント)
+ui-markdown(操作マニュアル、利用規約)
+ui-markdown(Mermaidでワークフロー図)</div>
+        
+        <h2 id="section11">📚 11. 追加リソース</h2>
+        
+        <ul>
+            <li><a href="https://dashboard.flowfuse.com/nodes/widgets/ui-text.html" target="_blank">ui-text 公式ドキュメント</a></li>
+            <li><a href="https://dashboard.flowfuse.com/nodes/widgets/ui-markdown.html" target="_blank">ui-markdown 公式ドキュメント</a></li>
+            <li><a href="https://dashboard.flowfuse.com/nodes/widgets/ui-notification.html" target="_blank">ui-notification 公式ドキュメント</a></li>
+            <li><a href="https://dashboard.flowfuse.com/nodes/widgets/ui-audio.html" target="_blank">ui-audio 公式ドキュメント</a></li>
+            <li><a href="https://mermaid.js.org/intro/" target="_blank">Mermaid チャート公式サイト</a></li>
+            <li><a href="https://docs.jsonata.org/" target="_blank">JSONata ドキュメント</a></li>
+            <li><a href="https://flowfuse.com/handbook/development/markdown-how-to/" target="_blank">FlowFuse Markdown ガイド</a></li>
+        </ul>
+        
+        <hr>
+        
+        <p style="text-align: center; color: #999; margin-top: 40px;">
+            <small>このガイドが役に立ちましたら、実際のプロジェクトで練習してみてください！<br>
+            表示系ウィジェットはダッシュボードの情報伝達の基盤となります。</small><br>
+            <small>参照元：FlowFuse Dashboard 2.0 公式ドキュメント</small>
+        </p>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var codeBlocks = document.querySelectorAll('.flow-json, .js-code[data-copy="true"]');
+            
+            codeBlocks.forEach(function(block) {
+                var button = document.createElement('button');
+                button.className = 'copy-button';
+                button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                
+                button.addEventListener('click', function() {
+                    var code = block.textContent.replace(/コピー(しました!)?$/, '').trim();
+                    
+                    if (block.classList.contains('js-code')) {
+                        code = block.innerText.replace(/コピー(しました!)?$/, '').trim();
+                    }
+                    
+                    navigator.clipboard.writeText(code).then(function() {
+                        button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>コピーしました!';
+                        button.classList.add('copied');
+                        
+                        setTimeout(function() {
+                            button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                            button.classList.remove('copied');
+                        }, 2000);
+                    }).catch(function(err) {
+                        console.error('コピーに失敗しました:', err);
+                        button.textContent = 'エラー';
+                        setTimeout(function() {
+                            button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                        }, 2000);
+                    });
+                });
+                
+                block.style.position = 'relative';
+                block.appendChild(button);
+            });
+        });
+    </script>
+</body>
+</html>
