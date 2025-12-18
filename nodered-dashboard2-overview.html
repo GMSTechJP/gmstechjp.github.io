@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED Dashboard 2.0 完全ガイド - 概要編</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        h1 {
+            color: #b92d5d;
+            border-bottom: 3px solid #b92d5d;
+            padding-bottom: 10px;
+        }
+        
+        h2 {
+            color: #d33682;
+            margin-top: 30px;
+            border-left: 5px solid #d33682;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #555;
+            margin-top: 25px;
+        }
+        
+        h4 {
+            color: #666;
+            margin-top: 20px;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .node-example {
+            background-color: #2d3133;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            color: white;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+        
+        .node {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 4px;
+            margin: 5px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        /* Dashboard 2.0 Config Node Colors */
+        .node-ui-base {
+            background-color: #b92d5d;
+            color: white;
+        }
+        
+        .node-ui-page {
+            background-color: #d33682;
+            color: white;
+        }
+        
+        .node-ui-group {
+            background-color: #cb4b16;
+            color: white;
+        }
+        
+        .node-ui-theme {
+            background-color: #6c71c4;
+            color: white;
+        }
+        
+        .node-ui-link {
+            background-color: #2aa198;
+            color: white;
+        }
+        
+        /* Dashboard 2.0 Widget Node Colors */
+        .node-ui-button {
+            background-color: #1976d2;
+            color: white;
+        }
+        
+        .node-ui-chart {
+            background-color: #e91e63;
+            color: white;
+        }
+        
+        .node-ui-gauge {
+            background-color: #9c27b0;
+            color: white;
+        }
+        
+        .node-ui-slider {
+            background-color: #4caf50;
+            color: white;
+        }
+        
+        .node-ui-text {
+            background-color: #607d8b;
+            color: white;
+        }
+        
+        .node-ui-switch {
+            background-color: #ff9800;
+            color: white;
+        }
+        
+        /* Standard Node-RED Colors */
+        .node-inject {
+            background-color: #3fadb5;
+            color: white;
+        }
+        
+        .node-debug {
+            background-color: #87a48d;
+            color: white;
+        }
+        
+        .node-function {
+            background-color: #e8a658;
+            color: white;
+        }
+        
+        .arrow {
+            color: #999;
+            font-size: 20px;
+            margin: 0 10px;
+        }
+        
+        .important {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .tip {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .warning {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .success {
+            background-color: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .code-block {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            position: relative;
+            white-space: pre-wrap;
+        }
+        
+        .copy-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 6px 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: 'Segoe UI', sans-serif;
+            transition: background-color 0.2s;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .copy-button:hover {
+            background-color: #0056b3;
+        }
+        
+        .copy-button.copied {
+            background-color: #28a745;
+        }
+        
+        .copy-button svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+        }
+        
+        .exercise {
+            background-color: #e8f5e9;
+            border: 2px solid #4caf50;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        
+        .exercise h3 {
+            color: #2e7d32;
+            margin-top: 0;
+        }
+        
+        .difficulty {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .difficulty-easy {
+            background-color: #4caf50;
+            color: white;
+        }
+        
+        .difficulty-medium {
+            background-color: #ff9800;
+            color: white;
+        }
+        
+        .difficulty-hard {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        ul, ol {
+            padding-left: 25px;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #b92d5d;
+            color: white;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .flow-json {
+            background-color: #263238;
+            color: #aed581;
+            padding: 15px;
+            padding-top: 40px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        details {
+            margin: 15px 0;
+        }
+        
+        summary {
+            cursor: pointer;
+            padding: 10px;
+            background-color: #6c757d;
+            color: white;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        summary:hover {
+            background-color: #5a6268;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .feature-card {
+            background-color: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .feature-card h4 {
+            color: #b92d5d;
+            margin-top: 0;
+        }
+        
+        .hierarchy-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            color: white;
+        }
+        
+        .hierarchy-level {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            padding: 12px 20px;
+            background-color: rgba(255,255,255,0.15);
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .hierarchy-level .icon {
+            font-size: 24px;
+            margin-right: 15px;
+            min-width: 35px;
+        }
+        
+        .hierarchy-level .content {
+            flex: 1;
+        }
+        
+        .hierarchy-level .name {
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        .hierarchy-level .desc {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+        
+        .hierarchy-arrow {
+            text-align: center;
+            font-size: 20px;
+            margin: 5px 0;
+            opacity: 0.7;
+        }
+        
+        .comparison-table {
+            margin: 20px 0;
+        }
+        
+        .comparison-table th {
+            background-color: #6c757d;
+        }
+        
+        .comparison-table .old {
+            background-color: #ffebee;
+        }
+        
+        .comparison-table .new {
+            background-color: #e8f5e9;
+        }
+        
+        .config-section {
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .config-header {
+            padding: 15px 20px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .config-header.ui-base { background-color: #b92d5d; }
+        .config-header.ui-page { background-color: #d33682; }
+        .config-header.ui-group { background-color: #cb4b16; }
+        .config-header.ui-theme { background-color: #6c71c4; }
+        .config-header.ui-link { background-color: #2aa198; }
+        
+        .config-body {
+            padding: 20px;
+            background-color: white;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+        
+        .badge-required {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .badge-optional {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .widget-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .widget-item {
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+            color: white;
+            font-size: 13px;
+            font-weight: bold;
+        }
+        
+        a {
+            color: #b92d5d;
+        }
+        
+        a:hover {
+            color: #8b1d45;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Node-RED Dashboard 2.0 完全ガイド - 概要編</h1>
+        
+        <p>このガイドでは、<strong>FlowFuse Dashboard（Node-RED Dashboard 2.0）</strong>の全体像と基本概念について、初心者の方でも理解できるように詳しく説明します。</p>
+        
+        <h2>📚 1. Dashboard 2.0とは？</h2>
+        
+        <h3>🤔 「Dashboard」って何？</h3>
+        <p>
+            Dashboardとは、<strong>Node-REDで収集・処理したデータを視覚的に表示するWebアプリケーション</strong>を簡単に作成できる機能です。
+            日常生活で例えると、<strong>自動車のダッシュボード</strong>のようなもの - 速度計、燃料計、警告灯など、必要な情報が一目で分かるように配置されています。
+        </p>
+        
+        <div class="important">
+            <p><strong>🚗 自動車のダッシュボードに例えると:</strong></p>
+            <ul>
+                <li>🏎️ <strong>速度計</strong> = リアルタイムセンサー値の表示（ui-gauge）</li>
+                <li>📊 <strong>トリップメーター</strong> = 履歴データのグラフ表示（ui-chart）</li>
+                <li>🔘 <strong>エアコンボタン</strong> = 機器を操作するボタン（ui-button）</li>
+                <li>🎚️ <strong>音量調整</strong> = 値を調整するスライダー（ui-slider）</li>
+                <li>⚠️ <strong>警告灯</strong> = アラート通知（ui-notification）</li>
+            </ul>
+        </div>
+        
+        <h3>🔄 Dashboard 1.0との違い</h3>
+        <p>Dashboard 2.0（FlowFuse Dashboard）は、従来のDashboard 1.0の後継として開発されました。</p>
+        
+        <table class="comparison-table">
+            <tr>
+                <th>項目</th>
+                <th class="old">Dashboard 1.0（旧）</th>
+                <th class="new">Dashboard 2.0（新）</th>
+            </tr>
+            <tr>
+                <td><strong>フレームワーク</strong></td>
+                <td class="old">Angular v1（非推奨）</td>
+                <td class="new">Vue.js 3（最新）</td>
+            </tr>
+            <tr>
+                <td><strong>UIライブラリ</strong></td>
+                <td class="old">Angular Material</td>
+                <td class="new">Vuetify 3</td>
+            </tr>
+            <tr>
+                <td><strong>レイアウト</strong></td>
+                <td class="old">Gridのみ</td>
+                <td class="new">Grid, Fixed, Notebook, Tabs</td>
+            </tr>
+            <tr>
+                <td><strong>マルチユーザー</strong></td>
+                <td class="old">限定的</td>
+                <td class="new">本格対応（msg._client）</td>
+            </tr>
+            <tr>
+                <td><strong>テーマ</strong></td>
+                <td class="old">単一テーマ</td>
+                <td class="new">ページごとに異なるテーマ</td>
+            </tr>
+            <tr>
+                <td><strong>開発元</strong></td>
+                <td class="old">コミュニティ</td>
+                <td class="new">FlowFuse社（積極開発中）</td>
+            </tr>
+            <tr>
+                <td><strong>パッケージ名</strong></td>
+                <td class="old">node-red-dashboard</td>
+                <td class="new">@flowfuse/node-red-dashboard</td>
+            </tr>
+        </table>
+        
+        <div class="warning">
+            <p><strong>⚠️ 重要な注意点:</strong></p>
+            <ul>
+                <li>Dashboard 1.0は<strong>非推奨</strong>となり、今後の機能追加は予定されていません</li>
+                <li>新規プロジェクトでは<strong>Dashboard 2.0の使用を推奨</strong>します</li>
+                <li>1.0と2.0は<strong>併用可能</strong>ですが、将来的には2.0への移行を検討してください</li>
+            </ul>
+        </div>
+        
+        <h2>🏗️ 2. Dashboard 2.0の階層構造</h2>
+        
+        <p>Dashboard 2.0を理解する上で最も重要なのが、<strong>Config Nodes（設定ノード）の階層構造</strong>です。</p>
+        
+        <div class="hierarchy-box">
+            <div class="hierarchy-level">
+                <span class="icon">🏠</span>
+                <div class="content">
+                    <div class="name">ui-base（ダッシュボード基盤）</div>
+                    <div class="desc">ダッシュボード全体のURL、ナビゲーション、アプリアイコンを設定</div>
+                </div>
+            </div>
+            <div class="hierarchy-arrow">↓ 含む</div>
+            <div class="hierarchy-level">
+                <span class="icon">📄</span>
+                <div class="content">
+                    <div class="name">ui-page（ページ）</div>
+                    <div class="desc">個別のページ。URL、レイアウト、テーマを設定</div>
+                </div>
+            </div>
+            <div class="hierarchy-arrow">↓ 含む</div>
+            <div class="hierarchy-level">
+                <span class="icon">📦</span>
+                <div class="content">
+                    <div class="name">ui-group（グループ）</div>
+                    <div class="desc">ウィジェットをまとめる箱。サイズと位置を設定</div>
+                </div>
+            </div>
+            <div class="hierarchy-arrow">↓ 含む</div>
+            <div class="hierarchy-level">
+                <span class="icon">🔧</span>
+                <div class="content">
+                    <div class="name">Widget（ウィジェット）</div>
+                    <div class="desc">実際のUI部品（ボタン、グラフ、スライダーなど）</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tip">
+            <p><strong>💡 建物に例えると:</strong></p>
+            <ul>
+                <li><strong>ui-base</strong> = 建物全体（住所、入口の設定）</li>
+                <li><strong>ui-page</strong> = 各フロア（1階、2階...）</li>
+                <li><strong>ui-group</strong> = 各部屋（リビング、キッチン...）</li>
+                <li><strong>Widget</strong> = 家具・設備（テレビ、冷蔵庫...）</li>
+            </ul>
+        </div>
+        
+        <h3>📊 階層の関係図</h3>
+        <div class="code-block">Dashboard 2.0 階層構造
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ui-base (/dashboard)
+├── ui-theme (Default Theme)
+│
+├── ui-page (Home) ─────────────────┐
+│   ├── ui-group (センサー)          │
+│   │   ├── ui-gauge (温度)         │
+│   │   └── ui-gauge (湿度)         │
+│   │                               │
+│   └── ui-group (コントロール)      │
+│       ├── ui-button (ON)          │
+│       └── ui-slider (明るさ)       │
+│                                   │
+├── ui-page (Charts) ───────────────┤
+│   └── ui-group (履歴データ)        │
+│       └── ui-chart (温度推移)      │
+│                                   │
+└── ui-link (外部リンク) ────────────┘</div>
+        
+        <h2>⚙️ 3. Config Nodes（設定ノード）詳細</h2>
+        
+        <p>Dashboard 2.0の5つの設定ノードについて詳しく説明します。これらは<strong>パレットには表示されない</strong>「設定専用」のノードです。</p>
+        
+        <!-- ui-base -->
+        <div class="config-section">
+            <div class="config-header ui-base">
+                <span style="font-size: 24px;">🏠</span>
+                <div>
+                    <strong style="font-size: 18px;">ui-base</strong>
+                    <span class="badge badge-required">必須</span>
+                    <div style="font-size: 13px; opacity: 0.9;">ダッシュボード全体の基盤設定</div>
+                </div>
+            </div>
+            <div class="config-body">
+                <p><strong>役割:</strong> ダッシュボード全体のURL、ナビゲーションスタイル、ヘッダー表示を制御します。</p>
+                
+                <h4>主要プロパティ</h4>
+                <table>
+                    <tr>
+                        <th>プロパティ</th>
+                        <th>説明</th>
+                        <th>デフォルト</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Path</strong></td>
+                        <td>ダッシュボードのベースURL</td>
+                        <td>/dashboard</td>
+                    </tr>
+                    <tr>
+                        <td><strong>App Icon</strong></td>
+                        <td>ブラウザタブやPWA用のアイコンURL</td>
+                        <td>なし</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Side Navigation Style</strong></td>
+                        <td>サイドバーの表示方法</td>
+                        <td>Collapsing</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Title Bar Style</strong></td>
+                        <td>ヘッダーの表示方法</td>
+                        <td>Default</td>
+                    </tr>
+                </table>
+                
+                <h4>サイドナビゲーションオプション</h4>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>Collapsing（デフォルト）</h4>
+                        <p>開閉可能。閉じると完全に非表示</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Fixed</h4>
+                        <p>常に表示。モバイルでは自動調整</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Collapse to Icons</h4>
+                        <p>閉じてもアイコンは表示</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Appear over Content</h4>
+                        <p>コンテンツの上にオーバーレイ</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Always Hide</h4>
+                        <p>常に非表示（ui-controlで制御）</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ui-page -->
+        <div class="config-section">
+            <div class="config-header ui-page">
+                <span style="font-size: 24px;">📄</span>
+                <div>
+                    <strong style="font-size: 18px;">ui-page</strong>
+                    <span class="badge badge-required">必須</span>
+                    <div style="font-size: 13px; opacity: 0.9;">個別ページの設定</div>
+                </div>
+            </div>
+            <div class="config-body">
+                <p><strong>役割:</strong> ダッシュボード内の個別ページを定義します。各ページは固有のURL、レイアウト、テーマを持てます。</p>
+                
+                <h4>主要プロパティ</h4>
+                <table>
+                    <tr>
+                        <th>プロパティ</th>
+                        <th>説明</th>
+                        <th>デフォルト</th>
+                    </tr>
+                    <tr>
+                        <td><strong>UI</strong></td>
+                        <td>所属するui-base</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Name</strong></td>
+                        <td>ページ名（ナビゲーションに表示）</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Path</strong></td>
+                        <td>ページのURL（/dashboard/xxx）</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Icon</strong></td>
+                        <td>Material Design Icons名</td>
+                        <td>home</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Theme</strong></td>
+                        <td>適用するui-theme</td>
+                        <td>Default</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Layout</strong></td>
+                        <td>レイアウトタイプ</td>
+                        <td>Grid</td>
+                    </tr>
+                </table>
+                
+                <h4>レイアウトオプション</h4>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>Grid（デフォルト）</h4>
+                        <p>12カラムグリッド。レスポンシブ対応</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Fixed</h4>
+                        <p>固定幅。画面サイズに関係なく一定</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Notebook</h4>
+                        <p>最大1024px幅で中央配置。記事向け</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Tabs</h4>
+                        <p>タブ切り替えでコンテンツ整理</p>
+                    </div>
+                </div>
+                
+                <h4>ブレークポイント設定</h4>
+                <table>
+                    <tr>
+                        <th>サイズ</th>
+                        <th>ブレークポイント</th>
+                        <th>カラム数</th>
+                    </tr>
+                    <tr>
+                        <td>Mobile</td>
+                        <td>&lt; 576px</td>
+                        <td>3</td>
+                    </tr>
+                    <tr>
+                        <td>Medium</td>
+                        <td>≥ 576px</td>
+                        <td>6</td>
+                    </tr>
+                    <tr>
+                        <td>Tablet</td>
+                        <td>≥ 768px</td>
+                        <td>9</td>
+                    </tr>
+                    <tr>
+                        <td>Desktop</td>
+                        <td>≥ 1024px</td>
+                        <td>12</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        
+        <!-- ui-group -->
+        <div class="config-section">
+            <div class="config-header ui-group">
+                <span style="font-size: 24px;">📦</span>
+                <div>
+                    <strong style="font-size: 18px;">ui-group</strong>
+                    <span class="badge badge-required">必須</span>
+                    <div style="font-size: 13px; opacity: 0.9;">ウィジェットをまとめるグループ</div>
+                </div>
+            </div>
+            <div class="config-body">
+                <p><strong>役割:</strong> 複数のウィジェットをまとめる「箱」。視覚的にも機能的にも関連するウィジェットをグループ化します。</p>
+                
+                <h4>主要プロパティ</h4>
+                <table>
+                    <tr>
+                        <th>プロパティ</th>
+                        <th>説明</th>
+                        <th>デフォルト</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Page</strong></td>
+                        <td>所属するui-page</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Name</strong></td>
+                        <td>グループ名（ヘッダーに表示）</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Type</strong></td>
+                        <td>Default / Dialog</td>
+                        <td>Default</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Width</strong></td>
+                        <td>グループの幅（カラム数）</td>
+                        <td>6</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Height</strong></td>
+                        <td>グループの高さ（最小値）</td>
+                        <td>1</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Class</strong></td>
+                        <td>カスタムCSSクラス</td>
+                        <td>なし</td>
+                    </tr>
+                </table>
+                
+                <h4>グループタイプ</h4>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>Default</h4>
+                        <p>通常表示。ページ読み込み時から表示</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Dialog</h4>
+                        <p>ダイアログ形式。ui-controlで表示を制御</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ui-theme -->
+        <div class="config-section">
+            <div class="config-header ui-theme">
+                <span style="font-size: 24px;">🎨</span>
+                <div>
+                    <strong style="font-size: 18px;">ui-theme</strong>
+                    <span class="badge badge-optional">オプション</span>
+                    <div style="font-size: 13px; opacity: 0.9;">カラー・スタイル設定</div>
+                </div>
+            </div>
+            <div class="config-body">
+                <p><strong>役割:</strong> ダッシュボードの見た目（カラースキーム、間隔、サイズ）を定義します。ページごとに異なるテーマを適用可能です。</p>
+                
+                <h4>カラープロパティ</h4>
+                <table>
+                    <tr>
+                        <th>プロパティ</th>
+                        <th>説明</th>
+                        <th>適用箇所</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Surface</strong></td>
+                        <td>サーフェスカラー</td>
+                        <td>ヘッダー、サイドメニュー</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Primary</strong></td>
+                        <td>プライマリカラー</td>
+                        <td>ボタン、スライダー、フォーカス状態</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Pages Background</strong></td>
+                        <td>ページ背景色</td>
+                        <td>ページ全体の背景</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Groups Background</strong></td>
+                        <td>グループ背景色</td>
+                        <td>各グループの背景</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Groups Outline</strong></td>
+                        <td>グループ枠線色</td>
+                        <td>グループの境界線</td>
+                    </tr>
+                </table>
+                
+                <h4>サイズプロパティ</h4>
+                <table>
+                    <tr>
+                        <th>プロパティ</th>
+                        <th>説明</th>
+                        <th>デフォルト</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Row Height</strong></td>
+                        <td>1行の高さ</td>
+                        <td>Default (48px)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Page Padding</strong></td>
+                        <td>ページ周囲の余白</td>
+                        <td>12px</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Group Gap</strong></td>
+                        <td>グループ間の間隔</td>
+                        <td>12px</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Widget Gap</strong></td>
+                        <td>ウィジェット間の間隔</td>
+                        <td>12px</td>
+                    </tr>
+                </table>
+                
+                <div class="tip">
+                    <p><strong>💡 Row Heightオプション:</strong></p>
+                    <ul>
+                        <li><strong>Default</strong>: 48px（通常使用）</li>
+                        <li><strong>Comfortable</strong>: 36px（やや狭め）</li>
+                        <li><strong>Compact</strong>: 32px（コンパクト表示）</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ui-link -->
+        <div class="config-section">
+            <div class="config-header ui-link">
+                <span style="font-size: 24px;">🔗</span>
+                <div>
+                    <strong style="font-size: 18px;">ui-link</strong>
+                    <span class="badge badge-optional">オプション</span>
+                    <div style="font-size: 13px; opacity: 0.9;">外部リンク設定</div>
+                </div>
+            </div>
+            <div class="config-body">
+                <p><strong>役割:</strong> サイドナビゲーションに外部リンクを追加します。ページと同様にナビゲーションに表示されますが、クリックすると指定したURLに遷移します。</p>
+                
+                <h4>主要プロパティ</h4>
+                <table>
+                    <tr>
+                        <th>プロパティ</th>
+                        <th>説明</th>
+                        <th>例</th>
+                    </tr>
+                    <tr>
+                        <td><strong>UI</strong></td>
+                        <td>所属するui-base</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Name</strong></td>
+                        <td>リンク名（ナビゲーションに表示）</td>
+                        <td>ドキュメント</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Path</strong></td>
+                        <td>リンク先URL</td>
+                        <td>https://nodered.org</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Icon</strong></td>
+                        <td>Material Design Icons名</td>
+                        <td>open-in-new</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        
+        <h2>📦 4. インストール方法</h2>
+        
+        <h3>パレットマネージャーからインストール（推奨）</h3>
+        <ol>
+            <li>Node-REDエディタの右上メニューから<strong>「パレットの管理」</strong>を選択</li>
+            <li><strong>「ノードを追加」</strong>タブに切り替え</li>
+            <li>検索欄に <code>@flowfuse/node-red-dashboard</code> と入力</li>
+            <li><strong>「ノードを追加」</strong>ボタンをクリック</li>
+        </ol>
+        
+        <div class="warning">
+            <p><strong>⚠️ 注意:</strong> <code>node-red-dashboard</code>（1.0）と間違えないでください！<br>
+            必ず <code>@flowfuse/node-red-dashboard</code> を選択してください。</p>
+        </div>
+        
+        <h3>npmからインストール</h3>
+        <div class="code-block">cd ~/.node-red
+npm install @flowfuse/node-red-dashboard</div>
+        
+        <h2>🚀 5. 最初のダッシュボードを作成</h2>
+        
+        <div class="exercise">
+            <h3>演習: Hello Dashboardを作成<span class="difficulty difficulty-easy">初級</span></h3>
+            
+            <p><strong>📝 目標:</strong></p>
+            <p>ボタンをクリックすると「Hello Dashboard!」と表示される最初のダッシュボードを作成します。</p>
+            
+            <p><strong>🎯 完成イメージ:</strong></p>
+            <div class="node-example">
+                <span class="node node-ui-button">ui-button</span>
+                <span class="arrow">→</span>
+                <span class="node node-ui-text">ui-text</span>
+            </div>
+            
+            <p><strong>📋 手順:</strong></p>
+            <ol>
+                <li><strong>ui-buttonノードを配置</strong>
+                    <ul>
+                        <li>パレットの「dashboard」カテゴリから「button」をキャンバスにドラッグ</li>
+                        <li>ダブルクリックして設定を開く</li>
+                        <li>Groupで「Add new ui-group」を選択 → ペンアイコンをクリック</li>
+                        <li>ui-group設定で、Pageの「Add new ui-page」を選択 → ペンアイコンをクリック</li>
+                        <li>ui-page設定で、UIの「Add new ui-base」を選択 → ペンアイコンをクリック</li>
+                        <li>ui-base設定はデフォルトのまま「追加」</li>
+                        <li>ui-page設定もデフォルトのまま「追加」</li>
+                        <li>ui-group設定もデフォルトのまま「追加」</li>
+                        <li>ui-button設定でLabelを「クリック」に変更して「完了」</li>
+                    </ul>
+                </li>
+                <li><strong>ui-textノードを配置</strong>
+                    <ul>
+                        <li>パレットから「text」をキャンバスにドラッグ</li>
+                        <li>ダブルクリックして設定を開く</li>
+                        <li>Groupは先ほど作成したグループを選択</li>
+                        <li>Labelを「メッセージ」に変更</li>
+                        <li>「完了」をクリック</li>
+                    </ul>
+                </li>
+                <li><strong>ノードを接続</strong>
+                    <ul>
+                        <li>ui-buttonの出力をui-textの入力に接続</li>
+                    </ul>
+                </li>
+                <li><strong>ボタンの出力を設定</strong>
+                    <ul>
+                        <li>ui-buttonをダブルクリック</li>
+                        <li>Payloadを「String」に変更</li>
+                        <li>値に「Hello Dashboard!」と入力</li>
+                        <li>「完了」をクリック</li>
+                    </ul>
+                </li>
+                <li><strong>デプロイして確認</strong>
+                    <ul>
+                        <li>「デプロイ」ボタンをクリック</li>
+                        <li>ブラウザで <code>http://localhost:1880/dashboard</code> にアクセス</li>
+                        <li>ボタンをクリックして動作確認</li>
+                    </ul>
+                </li>
+            </ol>
+            
+            <details>
+                <summary>📋 サンプルフロー（クリックで展開）</summary>
+                <p style="margin: 10px 0; color: #666;"><small>参照元：FlowFuse Dashboard Getting Started</small></p>
+                <div class="flow-json">[
+    {
+        "id": "hello-flow",
+        "type": "tab",
+        "label": "Hello Dashboard",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "hello-button",
+        "type": "ui-button",
+        "z": "hello-flow",
+        "group": "hello-group",
+        "name": "クリックボタン",
+        "label": "クリック",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "Hello Dashboard!",
+        "payloadType": "str",
+        "topic": "",
+        "topicType": "str",
+        "x": 200,
+        "y": 100,
+        "wires": [["hello-text"]]
+    },
+    {
+        "id": "hello-text",
+        "type": "ui-text",
+        "z": "hello-flow",
+        "group": "hello-group",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "name": "表示テキスト",
+        "label": "メッセージ",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "x": 400,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "hello-group",
+        "type": "ui-group",
+        "name": "Welcome",
+        "page": "hello-page",
+        "width": 6,
+        "height": 1,
+        "order": 1,
+        "showTitle": true,
+        "className": ""
+    },
+    {
+        "id": "hello-page",
+        "type": "ui-page",
+        "name": "Home",
+        "ui": "hello-base",
+        "path": "/home",
+        "icon": "home",
+        "layout": "grid",
+        "theme": "hello-theme",
+        "order": 1,
+        "className": ""
+    },
+    {
+        "id": "hello-base",
+        "type": "ui-base",
+        "name": "My Dashboard",
+        "path": "/dashboard",
+        "includeClientData": true,
+        "acceptsClientConfig": ["ui-notification", "ui-control"]
+    },
+    {
+        "id": "hello-theme",
+        "type": "ui-theme",
+        "name": "Default Theme",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#0094ce",
+            "bgPage": "#eeeeee",
+            "groupBg": "#ffffff",
+            "groupOutline": "#cccccc"
+        }
+    }
+]</div>
+            </details>
+        </div>
+        
+        <h2>📱 6. Dashboard 2.0サイドバー</h2>
+        
+        <p>Node-REDエディタには、Dashboard 2.0専用の<strong>サイドバー</strong>が追加されます。</p>
+        
+        <div class="tip">
+            <p><strong>💡 サイドバーの開き方:</strong></p>
+            <ul>
+                <li>Node-REDエディタ右側の「Dashboard 2.0」タブをクリック</li>
+                <li>または、メニュー → 表示 → サイドバー → Dashboard 2.0</li>
+            </ul>
+        </div>
+        
+        <h3>サイドバーの機能</h3>
+        <table>
+            <tr>
+                <th>タブ</th>
+                <th>機能</th>
+            </tr>
+            <tr>
+                <td><strong>Layout</strong></td>
+                <td>ページ、グループ、ウィジェットの構造を確認・並べ替え</td>
+            </tr>
+            <tr>
+                <td><strong>Theme</strong></td>
+                <td>テーマの一覧と編集</td>
+            </tr>
+            <tr>
+                <td><strong>Client Data</strong></td>
+                <td>マルチユーザー対応の設定（msg._clientを受け入れるノードの選択）</td>
+            </tr>
+        </table>
+        
+        <h2>🎨 7. 利用可能なWidget一覧</h2>
+        
+        <p>Dashboard 2.0には以下のウィジェットが含まれています：</p>
+        
+        <h3>表示系Widget</h3>
+        <div class="widget-grid">
+            <div class="widget-item" style="background-color: #607d8b;">ui-text</div>
+            <div class="widget-item" style="background-color: #795548;">ui-markdown</div>
+            <div class="widget-item" style="background-color: #ff5722;">ui-notification</div>
+            <div class="widget-item" style="background-color: #00bcd4;">ui-audio</div>
+        </div>
+        
+        <h3>入力系Widget</h3>
+        <div class="widget-grid">
+            <div class="widget-item" style="background-color: #1976d2;">ui-button</div>
+            <div class="widget-item" style="background-color: #2196f3;">ui-button-group</div>
+            <div class="widget-item" style="background-color: #ff9800;">ui-switch</div>
+            <div class="widget-item" style="background-color: #4caf50;">ui-slider</div>
+            <div class="widget-item" style="background-color: #9c27b0;">ui-dropdown</div>
+            <div class="widget-item" style="background-color: #673ab7;">ui-radio-group</div>
+            <div class="widget-item" style="background-color: #3f51b5;">ui-text-input</div>
+            <div class="widget-item" style="background-color: #009688;">ui-number-input</div>
+            <div class="widget-item" style="background-color: #e91e63;">ui-form</div>
+            <div class="widget-item" style="background-color: #607d8b;">ui-file-input</div>
+        </div>
+        
+        <h3>データ可視化Widget</h3>
+        <div class="widget-grid">
+            <div class="widget-item" style="background-color: #e91e63;">ui-chart</div>
+            <div class="widget-item" style="background-color: #9c27b0;">ui-gauge</div>
+            <div class="widget-item" style="background-color: #00bcd4;">ui-progress</div>
+            <div class="widget-item" style="background-color: #4caf50;">ui-table</div>
+        </div>
+        
+        <h3>上級Widget</h3>
+        <div class="widget-grid">
+            <div class="widget-item" style="background-color: #ff5722;">ui-template</div>
+            <div class="widget-item" style="background-color: #795548;">ui-control</div>
+            <div class="widget-item" style="background-color: #9e9e9e;">ui-spacer</div>
+        </div>
+        
+        <h2>🎓 8. まとめ</h2>
+        
+        <div class="success">
+            <h3>Dashboard 2.0の重要ポイント</h3>
+            <ul>
+                <li>✅ <strong>階層構造</strong>: ui-base → ui-page → ui-group → Widget の順で設定</li>
+                <li>✅ <strong>自動作成</strong>: 最初のWidgetを配置すると、Config Nodesが自動生成される</li>
+                <li>✅ <strong>サイドバー</strong>: Dashboard 2.0サイドバーでレイアウトを視覚的に管理</li>
+                <li>✅ <strong>テーマ</strong>: ページごとに異なるテーマを適用可能</li>
+                <li>✅ <strong>レイアウト</strong>: Grid, Fixed, Notebook, Tabsの4種類から選択</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <h3>⚠️ よくある間違い</h3>
+            <ul>
+                <li><strong>パッケージの間違い</strong>: <code>@flowfuse/node-red-dashboard</code>（2.0）と <code>node-red-dashboard</code>（1.0）を混同</li>
+                <li><strong>Config Nodeの削除</strong>: ui-base, ui-page, ui-groupを削除するとWidgetが動作しなくなる</li>
+                <li><strong>グループ未選択</strong>: Widgetを配置する際、Groupを選択し忘れるとデプロイエラー</li>
+                <li><strong>URLの確認</strong>: デフォルトは <code>/dashboard</code>（ui-baseのPath設定で変更可能）</li>
+            </ul>
+        </div>
+        
+        <h2>📚 9. 次のステップ</h2>
+        
+        <div class="tip">
+            <h3>📖 関連ガイド</h3>
+            <p>各Widgetの詳細な使い方は、以下のガイドを参照してください：</p>
+            <ul>
+                <li><strong>Widget詳細ガイド（表示系）</strong> - ui-text, ui-markdown, ui-notification, ui-audio</li>
+                <li><strong>Widget詳細ガイド（入力系）</strong> - ui-button, ui-switch, ui-slider, ui-dropdown など</li>
+                <li><strong>Widget詳細ガイド（データ系）</strong> - ui-chart, ui-gauge, ui-progress, ui-table</li>
+                <li><strong>Widget詳細ガイド（上級）</strong> - ui-template, ui-control, ui-spacer</li>
+                <li><strong>Layout詳細ガイド</strong> - Grid, Fixed, Notebook, Tabsの詳細設定</li>
+            </ul>
+        </div>
+        
+        <h2>🔗 10. 追加リソース</h2>
+        
+        <ul>
+            <li><a href="https://dashboard.flowfuse.com/" target="_blank">FlowFuse Dashboard 公式ドキュメント</a></li>
+            <li><a href="https://dashboard.flowfuse.com/getting-started.html" target="_blank">Getting Started Guide</a></li>
+            <li><a href="https://dashboard.flowfuse.com/user/migration.html" target="_blank">Dashboard 1.0からの移行ガイド</a></li>
+            <li><a href="https://github.com/FlowFuse/node-red-dashboard" target="_blank">GitHub リポジトリ</a></li>
+            <li><a href="https://pictogrammers.com/library/mdi/" target="_blank">Material Design Icons（アイコン一覧）</a></li>
+        </ul>
+        
+        <hr>
+        
+        <p style="text-align: center; color: #999; margin-top: 40px;">
+            <small>このガイドが役に立ちましたら、実際のプロジェクトで練習してみてください！<br>
+            Dashboard 2.0は、IoTダッシュボード開発の強力なツールです。</small><br>
+            <small>参照元：FlowFuse Dashboard 公式ドキュメント</small>
+        </p>
+    </div>
+    
+    <script>
+        // ページ読み込み時にコピーボタンを追加
+        document.addEventListener('DOMContentLoaded', function() {
+            var codeBlocks = document.querySelectorAll('.flow-json');
+            
+            codeBlocks.forEach(function(block) {
+                var button = document.createElement('button');
+                button.className = 'copy-button';
+                button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                
+                button.addEventListener('click', function() {
+                    var code = block.textContent.replace(/コピー(しました!)?$/, '').trim();
+                    
+                    navigator.clipboard.writeText(code).then(function() {
+                        button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>コピーしました!';
+                        button.classList.add('copied');
+                        
+                        setTimeout(function() {
+                            button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                            button.classList.remove('copied');
+                        }, 2000);
+                    }).catch(function(err) {
+                        console.error('コピーに失敗しました:', err);
+                    });
+                });
+                
+                block.style.position = 'relative';
+                block.appendChild(button);
+            });
+        });
+    </script>
+</body>
+</html>
