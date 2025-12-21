@@ -1,0 +1,1556 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED Dashboard 2.0 実践ガイド【応用編】第2部 ui-control & ui-spacer</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        h1 {
+            color: #8f0000;
+            border-bottom: 3px solid #8f0000;
+            padding-bottom: 10px;
+        }
+        
+        h2 {
+            color: #c00000;
+            margin-top: 40px;
+            border-left: 5px solid #c00000;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #555;
+            margin-top: 25px;
+        }
+        
+        h4 {
+            color: #666;
+            margin-top: 20px;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .important {
+            background-color: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .tip {
+            background-color: #d1ecf1;
+            border: 1px solid #17a2b8;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .warning {
+            background-color: #f8d7da;
+            border: 1px solid #dc3545;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .code-block {
+            background-color: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            margin: 10px 0;
+        }
+        
+        textarea.flow-json {
+            width: 100%;
+            height: 400px;
+            background-color: #263238;
+            color: #aed581;
+            padding: 15px;
+            padding-top: 45px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            border: none;
+            resize: vertical;
+        }
+        
+        .flow-json {
+            background-color: #263238;
+            color: #aed581;
+            padding: 15px;
+            padding-top: 40px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        details {
+            margin: 15px 0;
+        }
+        
+        summary {
+            background-color: #b92d5d;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        summary:hover {
+            background-color: #9a2550;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #b92d5d;
+            color: white;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .node {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 5px;
+            margin: 5px;
+            font-size: 12px;
+        }
+        
+        .node-ui-control {
+            background-color: #e3f2fd;
+            border: 2px solid #2196f3;
+            color: #1565c0;
+        }
+        
+        .node-ui-spacer {
+            background-color: #f3e5f5;
+            border: 2px solid #9c27b0;
+            color: #7b1fa2;
+        }
+        
+        .node-inject {
+            background-color: #e8f5e9;
+            border: 2px solid #4caf50;
+            color: #2e7d32;
+        }
+        
+        .node-debug {
+            background-color: #fff8e1;
+            border: 2px solid #ff9800;
+            color: #ef6c00;
+        }
+        
+        .node-function {
+            background-color: #fce4ec;
+            border: 2px solid #e91e63;
+            color: #c2185b;
+        }
+        
+        .flow-diagram {
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 15px 0;
+            text-align: center;
+        }
+        
+        .arrow {
+            color: #666;
+            margin: 0 10px;
+        }
+        
+        .copy-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 6px 12px;
+            background-color: #b92d5d;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: 'Segoe UI', sans-serif;
+            transition: background-color 0.2s;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .copy-button:hover {
+            background-color: #9a2550;
+        }
+        
+        .copy-button.copied {
+            background-color: #28a745;
+        }
+        
+        .copy-button svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+        }
+        
+        .property-table {
+            font-size: 14px;
+        }
+        
+        .property-table code {
+            background-color: #e8e8e8;
+        }
+        
+        .msg-example {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            margin: 10px 0;
+        }
+        
+        .msg-example .key {
+            color: #9cdcfe;
+        }
+        
+        .msg-example .string {
+            color: #ce9178;
+        }
+        
+        .msg-example .boolean {
+            color: #569cd6;
+        }
+        
+        .use-case {
+            background-color: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .use-case h4 {
+            margin-top: 0;
+            color: #2e7d32;
+        }
+        
+        .sample-contents {
+            background-color: #e3f2fd;
+            border: 1px solid #2196f3;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .sample-contents h4 {
+            margin-top: 0;
+            color: #1565c0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎛️ Node-RED Dashboard 2.0 実践ガイド【応用編】<br>第2部 ui-control & ui-spacer</h1>
+        
+        <p>この資料では、Dashboard 2.0の<strong>プログラムによるダッシュボード制御</strong>と<strong>レイアウト調整</strong>を学びます。</p>
+        
+        <div class="important">
+            <strong>📚 この資料で学べること</strong>
+            <ul>
+                <li><strong>ui-control</strong>: ページ遷移、グループの表示/非表示、接続監視</li>
+                <li><strong>ui-spacer</strong>: グリッドレイアウトでの空白制御</li>
+                <li>ユーザー権限に基づく動的UI制御</li>
+                <li>レスポンシブレイアウトの実現</li>
+            </ul>
+        </div>
+        
+        <div class="tip">
+            <strong>💡 前提条件</strong>
+            <ul>
+                <li>第1部（ui-template）を完了していること</li>
+                <li>Dashboard 2.0の基本的なウィジェット（button, text等）を理解していること</li>
+            </ul>
+        </div>
+    </div>
+    
+    <!-- サンプルフロー（最初に配置） -->
+    <div class="container">
+        <h2>🚀 まずサンプルフローをインポートしましょう！</h2>
+        
+        <p>以下のサンプルフローには、<strong>ui-control と ui-spacer の実例</strong>が含まれています。<br>
+        先にインポートして動作を確認しながら、以降の説明を読むと理解が深まります。</p>
+        
+        <ol>
+            <li>下のサンプルフローJSONをコピー</li>
+            <li>Node-REDエディタで <strong>メニュー → 読み込み</strong> を選択</li>
+            <li>JSONをペーストして「読み込み」をクリック</li>
+            <li>デプロイしてダッシュボードで動作確認</li>
+        </ol>
+        
+        <div class="sample-contents">
+            <h4>📦 サンプルフローの内容</h4>
+            <ul>
+                <li><strong>🧭 ナビゲーション</strong>: Part2 デモ⇔Part2 設定ページ間のボタン遷移</li>
+                <li><strong>👁️ 表示制御</strong>: 管理者モードON/OFFでパネル切替（青→赤に色が変わる）</li>
+                <li><strong>🔒 有効/無効制御</strong>: メンテナンスモードで設定項目を無効化（グレーアウト）</li>
+                <li><strong>📐 レイアウト</strong>: ui-spacerで左右にボタンを分離配置</li>
+                <li><strong>📡 接続監視</strong>: 接続クライアント数を表示（テストinjectノードあり）</li>
+            </ul>
+            <p style="margin-top: 10px; color: #666;"><strong>💡 接続監視のテスト:</strong> エディタの「接続テスト」injectノードをクリックすると、ダッシュボードに接続数が表示されます。実際の接続イベントは、ブラウザでダッシュボードを開く/閉じる/リロード時に発生します。</p>
+        </div>
+        
+        <details open>
+            <summary>📁 ui-control & ui-spacer サンプルフロー（クリックで展開）</summary>
+            <p style="margin: 10px 0; color: #666;"><small>参照元：FlowFuse Dashboard 2.0 公式ドキュメント</small></p>
+            <textarea class="flow-json" readonly>[
+  {
+    "id": "control_sample_tab",
+    "type": "tab",
+    "label": "ui-control & ui-spacer サンプル",
+    "disabled": false,
+    "info": "Dashboard 2.0 ui-controlとui-spacerのサンプル"
+  },
+  {
+    "id": "comment_navigation",
+    "type": "comment",
+    "z": "control_sample_tab",
+    "name": "━━━ 🧭 ページナビゲーション ━━━",
+    "info": "",
+    "x": 200,
+    "y": 40,
+    "wires": []
+  },
+  {
+    "id": "btn_go_settings",
+    "type": "ui-button",
+    "z": "control_sample_tab",
+    "group": "control_group_nav",
+    "name": "設定ページへ",
+    "label": "⚙️ 設定ページへ",
+    "order": 1,
+    "width": 0,
+    "height": 0,
+    "passthru": false,
+    "tooltip": "",
+    "color": "",
+    "bgcolor": "",
+    "className": "",
+    "icon": "",
+    "payload": "{\"page\":\"Part2 設定\"}",
+    "payloadType": "json",
+    "topic": "navigation",
+    "x": 160,
+    "y": 100,
+    "wires": [
+      [
+        "ui_control_main"
+      ]
+    ]
+  },
+  {
+    "id": "btn_go_home",
+    "type": "ui-button",
+    "z": "control_sample_tab",
+    "group": "control_group_settings_nav",
+    "name": "ホームへ",
+    "label": "🏠 デモページへ戻る",
+    "order": 1,
+    "width": 0,
+    "height": 0,
+    "passthru": false,
+    "tooltip": "",
+    "color": "",
+    "bgcolor": "",
+    "className": "",
+    "icon": "",
+    "payload": "{\"page\":\"Part2 デモ\"}",
+    "payloadType": "json",
+    "topic": "navigation",
+    "x": 150,
+    "y": 160,
+    "wires": [
+      [
+        "ui_control_main"
+      ]
+    ]
+  },
+  {
+    "id": "ui_control_main",
+    "type": "ui-control",
+    "z": "control_sample_tab",
+    "name": "メインコントロール",
+    "ui": "control_ui_base",
+    "x": 400,
+    "y": 130,
+    "wires": [
+      [
+        "func_log_connection"
+      ]
+    ]
+  },
+  {
+    "id": "comment_visibility",
+    "type": "comment",
+    "z": "control_sample_tab",
+    "name": "━━━ 👁️ グループ表示/非表示 ━━━",
+    "info": "",
+    "x": 210,
+    "y": 240,
+    "wires": []
+  },
+  {
+    "id": "switch_admin_mode",
+    "type": "ui-switch",
+    "z": "control_sample_tab",
+    "group": "control_group_visibility",
+    "name": "管理者モード",
+    "label": "🔐 管理者モード",
+    "order": 1,
+    "width": 0,
+    "height": 0,
+    "passthru": true,
+    "decouple": false,
+    "tooltip": "",
+    "color": "",
+    "onvalue": "true",
+    "onvalueType": "bool",
+    "onicon": "",
+    "oncolor": "",
+    "offvalue": "false",
+    "offvalueType": "bool",
+    "officon": "",
+    "offcolor": "",
+    "className": "",
+    "x": 160,
+    "y": 300,
+    "wires": [
+      [
+        "func_toggle_admin"
+      ]
+    ]
+  },
+  {
+    "id": "func_toggle_admin",
+    "type": "function",
+    "z": "control_sample_tab",
+    "name": "表示切替メッセージ作成",
+    "func": "if (msg.payload === true) {\n    msg.payload = {\n        \"groups\": {\n            \"show\": [\"Part2 デモ:管理者パネル\"],\n            \"hide\": [\"Part2 デモ:ゲストパネル\"]\n        }\n    };\n} else {\n    msg.payload = {\n        \"groups\": {\n            \"show\": [\"Part2 デモ:ゲストパネル\"],\n            \"hide\": [\"Part2 デモ:管理者パネル\"]\n        }\n    };\n}\nreturn msg;",
+    "outputs": 1,
+    "timeout": "",
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 390,
+    "y": 300,
+    "wires": [
+      [
+        "ui_control_visibility",
+        "debug_visibility"
+      ]
+    ]
+  },
+  {
+    "id": "debug_visibility",
+    "type": "debug",
+    "z": "control_sample_tab",
+    "name": "表示制御メッセージ",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "x": 630,
+    "y": 260,
+    "wires": []
+  },
+  {
+    "id": "ui_control_visibility",
+    "type": "ui-control",
+    "z": "control_sample_tab",
+    "name": "表示制御",
+    "ui": "control_ui_base",
+    "x": 600,
+    "y": 300,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "comment_enable",
+    "type": "comment",
+    "z": "control_sample_tab",
+    "name": "━━━ 🔒 グループ有効/無効 ━━━",
+    "info": "",
+    "x": 200,
+    "y": 400,
+    "wires": []
+  },
+  {
+    "id": "switch_maintenance",
+    "type": "ui-switch",
+    "z": "control_sample_tab",
+    "group": "control_group_visibility",
+    "name": "メンテナンスモード",
+    "label": "🔧 メンテナンスモード",
+    "order": 2,
+    "width": 0,
+    "height": 0,
+    "passthru": true,
+    "decouple": false,
+    "tooltip": "",
+    "color": "",
+    "onvalue": "true",
+    "onvalueType": "bool",
+    "onicon": "",
+    "oncolor": "",
+    "offvalue": "false",
+    "offvalueType": "bool",
+    "officon": "",
+    "offcolor": "",
+    "className": "",
+    "x": 170,
+    "y": 460,
+    "wires": [
+      [
+        "func_toggle_maintenance"
+      ]
+    ]
+  },
+  {
+    "id": "func_toggle_maintenance",
+    "type": "function",
+    "z": "control_sample_tab",
+    "name": "有効/無効メッセージ作成",
+    "func": "if (msg.payload === true) {\n    msg.payload = {\n        \"groups\": {\n            \"disable\": [\"Part2 設定:システム設定\"]\n        }\n    };\n} else {\n    msg.payload = {\n        \"groups\": {\n            \"enable\": [\"Part2 設定:システム設定\"]\n        }\n    };\n}\nreturn msg;",
+    "outputs": 1,
+    "timeout": "",
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 390,
+    "y": 460,
+    "wires": [
+      [
+        "ui_control_enable",
+        "debug_enable"
+      ]
+    ]
+  },
+  {
+    "id": "debug_enable",
+    "type": "debug",
+    "z": "control_sample_tab",
+    "name": "有効/無効メッセージ",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "x": 630,
+    "y": 420,
+    "wires": []
+  },
+  {
+    "id": "ui_control_enable",
+    "type": "ui-control",
+    "z": "control_sample_tab",
+    "name": "有効/無効制御",
+    "ui": "control_ui_base",
+    "x": 610,
+    "y": 460,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "comment_spacer",
+    "type": "comment",
+    "z": "control_sample_tab",
+    "name": "━━━ 📐 ui-spacer レイアウト ━━━",
+    "info": "",
+    "x": 200,
+    "y": 560,
+    "wires": []
+  },
+  {
+    "id": "btn_left",
+    "type": "ui-button",
+    "z": "control_sample_tab",
+    "group": "control_group_spacer",
+    "name": "左ボタン",
+    "label": "⬅️ 左",
+    "order": 1,
+    "width": 2,
+    "height": 0,
+    "passthru": false,
+    "tooltip": "",
+    "color": "",
+    "bgcolor": "",
+    "className": "",
+    "icon": "",
+    "payload": "left",
+    "payloadType": "str",
+    "topic": "",
+    "x": 150,
+    "y": 620,
+    "wires": [
+      [
+        "debug_spacer"
+      ]
+    ]
+  },
+  {
+    "id": "spacer_middle",
+    "type": "ui-spacer",
+    "z": "control_sample_tab",
+    "group": "control_group_spacer",
+    "name": "中央スペース",
+    "order": 2,
+    "width": 2,
+    "height": 1
+  },
+  {
+    "id": "btn_right",
+    "type": "ui-button",
+    "z": "control_sample_tab",
+    "group": "control_group_spacer",
+    "name": "右ボタン",
+    "label": "➡️ 右",
+    "order": 3,
+    "width": 2,
+    "height": 0,
+    "passthru": false,
+    "tooltip": "",
+    "color": "",
+    "bgcolor": "",
+    "className": "",
+    "icon": "",
+    "payload": "right",
+    "payloadType": "str",
+    "topic": "",
+    "x": 150,
+    "y": 680,
+    "wires": [
+      [
+        "debug_spacer"
+      ]
+    ]
+  },
+  {
+    "id": "debug_spacer",
+    "type": "debug",
+    "z": "control_sample_tab",
+    "name": "ボタン出力",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "x": 350,
+    "y": 650,
+    "wires": []
+  },
+  {
+    "id": "comment_connection",
+    "type": "comment",
+    "z": "control_sample_tab",
+    "name": "━━━ 📡 接続監視 ━━━",
+    "info": "",
+    "x": 180,
+    "y": 760,
+    "wires": []
+  },
+  {
+    "id": "func_log_connection",
+    "type": "function",
+    "z": "control_sample_tab",
+    "name": "接続ログ作成",
+    "func": "if (msg.payload && msg.payload.connections) {\n    const count = msg.payload.connections.length;\n    node.status({fill: \"green\", shape: \"dot\", text: `接続数: ${count}`});\n    \n    msg.payload = {\n        timestamp: new Date().toLocaleString('ja-JP'),\n        event: \"connection_update\",\n        connections: count,\n        clients: msg.payload.connections\n    };\n    return msg;\n}\nreturn null;",
+    "outputs": 1,
+    "timeout": "",
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 620,
+    "y": 130,
+    "wires": [
+      [
+        "debug_connection",
+        "template_connection_status"
+      ]
+    ]
+  },
+  {
+    "id": "debug_connection",
+    "type": "debug",
+    "z": "control_sample_tab",
+    "name": "接続ログ",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "x": 820,
+    "y": 100,
+    "wires": []
+  },
+  {
+    "id": "template_connection_status",
+    "type": "ui-template",
+    "z": "control_sample_tab",
+    "group": "control_group_connection",
+    "page": "",
+    "ui": "",
+    "name": "接続状態表示",
+    "order": 1,
+    "width": 0,
+    "height": 0,
+    "head": "",
+    "format": "<template>\n    <v-card color=\"blue-lighten-4\" class=\"pa-3\">\n        <div class=\"text-h6 mb-2\">\n            <v-icon color=\"blue\">mdi-lan-connect</v-icon>\n            接続状態\n        </div>\n        <div class=\"text-h4 text-center my-3\">\n            {{ connectionCount }} クライアント\n        </div>\n        <div class=\"text-caption text-center\">\n            最終更新: {{ lastUpdate }}\n        </div>\n    </v-card>\n</template>\n\n<script>\nexport default {\n    data() {\n        return {\n            connectionCount: 0,\n            lastUpdate: '---'\n        };\n    },\n    watch: {\n        msg(newMsg) {\n            if (newMsg && newMsg.payload) {\n                this.connectionCount = newMsg.payload.connections || 0;\n                this.lastUpdate = newMsg.payload.timestamp || new Date().toLocaleString('ja-JP');\n            }\n        }\n    }\n}\n</script>",
+    "storeOutMessages": true,
+    "passthru": true,
+    "resendOnRefresh": true,
+    "templateScope": "local",
+    "className": "",
+    "x": 850,
+    "y": 160,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "inject_test_connection",
+    "type": "inject",
+    "z": "control_sample_tab",
+    "name": "接続テスト",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "{\"connections\":[{\"socketId\":\"test123\",\"socketIp\":\"192.168.1.100\"}]}",
+    "payloadType": "json",
+    "x": 170,
+    "y": 820,
+    "wires": [
+      [
+        "func_log_connection"
+      ]
+    ]
+  },
+  {
+    "id": "control_group_nav",
+    "type": "ui-group",
+    "name": "ナビゲーション",
+    "page": "control_page_home",
+    "width": "6",
+    "height": "-1",
+    "order": 1,
+    "showTitle": true,
+    "className": "",
+    "visible": true,
+    "disabled": false
+  },
+  {
+    "id": "control_group_visibility",
+    "type": "ui-group",
+    "name": "表示制御",
+    "page": "control_page_home",
+    "width": "6",
+    "height": "-1",
+    "order": 2,
+    "showTitle": true,
+    "className": "",
+    "visible": true,
+    "disabled": false
+  },
+  {
+    "id": "control_group_admin",
+    "type": "ui-group",
+    "name": "管理者パネル",
+    "page": "control_page_home",
+    "width": "6",
+    "height": "-1",
+    "order": 3,
+    "showTitle": true,
+    "className": "",
+    "visible": false,
+    "disabled": false
+  },
+  {
+    "id": "control_group_guest",
+    "type": "ui-group",
+    "name": "ゲストパネル",
+    "page": "control_page_home",
+    "width": "6",
+    "height": "-1",
+    "order": 4,
+    "showTitle": true,
+    "className": "",
+    "visible": true,
+    "disabled": false
+  },
+  {
+    "id": "control_group_spacer",
+    "type": "ui-group",
+    "name": "レイアウトサンプル",
+    "page": "control_page_home",
+    "width": "6",
+    "height": "-1",
+    "order": 5,
+    "showTitle": true,
+    "className": "",
+    "visible": true,
+    "disabled": false
+  },
+  {
+    "id": "control_group_connection",
+    "type": "ui-group",
+    "name": "接続状態",
+    "page": "control_page_home",
+    "width": "6",
+    "height": "-1",
+    "order": 6,
+    "showTitle": true,
+    "className": "",
+    "visible": true,
+    "disabled": false
+  },
+  {
+    "id": "control_group_settings_nav",
+    "type": "ui-group",
+    "name": "ナビゲーション",
+    "page": "control_page_settings",
+    "width": "6",
+    "height": "-1",
+    "order": 1,
+    "showTitle": true,
+    "className": "",
+    "visible": true,
+    "disabled": false
+  },
+  {
+    "id": "control_group_settings",
+    "type": "ui-group",
+    "name": "システム設定",
+    "page": "control_page_settings",
+    "width": "6",
+    "height": "-1",
+    "order": 2,
+    "showTitle": true,
+    "className": "",
+    "visible": true,
+    "disabled": false
+  },
+  {
+    "id": "template_admin_panel",
+    "type": "ui-template",
+    "z": "control_sample_tab",
+    "group": "control_group_admin",
+    "page": "",
+    "ui": "",
+    "name": "管理者パネル内容",
+    "order": 1,
+    "width": 0,
+    "height": 0,
+    "head": "",
+    "format": "<template>\n    <v-card color=\"red-lighten-4\" class=\"pa-4\">\n        <v-card-title class=\"text-h6\">\n            <v-icon color=\"red\" class=\"mr-2\">mdi-shield-account</v-icon>\n            管理者専用エリア\n        </v-card-title>\n        <v-card-text>\n            <v-alert type=\"warning\" variant=\"tonal\" class=\"mb-3\">\n                このエリアは管理者のみ表示されます\n            </v-alert>\n            <v-list density=\"compact\">\n                <v-list-item prepend-icon=\"mdi-database\">データベース管理</v-list-item>\n                <v-list-item prepend-icon=\"mdi-account-group\">ユーザー管理</v-list-item>\n                <v-list-item prepend-icon=\"mdi-cog\">システム設定</v-list-item>\n            </v-list>\n        </v-card-text>\n    </v-card>\n</template>\n\n<script>\nexport default {\n    data() {\n        return {};\n    }\n}\n</script>",
+    "storeOutMessages": true,
+    "passthru": true,
+    "resendOnRefresh": true,
+    "templateScope": "local",
+    "className": "",
+    "x": 180,
+    "y": 880,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "template_guest_panel",
+    "type": "ui-template",
+    "z": "control_sample_tab",
+    "group": "control_group_guest",
+    "page": "",
+    "ui": "",
+    "name": "ゲストパネル内容",
+    "order": 1,
+    "width": 0,
+    "height": 0,
+    "head": "",
+    "format": "<template>\n    <v-card color=\"blue-lighten-4\" class=\"pa-4\">\n        <v-card-title class=\"text-h6\">\n            <v-icon color=\"blue\" class=\"mr-2\">mdi-account</v-icon>\n            ゲストエリア\n        </v-card-title>\n        <v-card-text>\n            <v-alert type=\"info\" variant=\"tonal\" class=\"mb-3\">\n                ようこそ！管理者モードをONにすると追加機能が使えます\n            </v-alert>\n            <p>現在、閲覧モードです。</p>\n            <v-chip color=\"blue\" class=\"mt-2\">\n                <v-icon start>mdi-eye</v-icon>\n                閲覧のみ\n            </v-chip>\n        </v-card-text>\n    </v-card>\n</template>\n\n<script>\nexport default {\n    data() {\n        return {};\n    }\n}\n</script>",
+    "storeOutMessages": true,
+    "passthru": true,
+    "resendOnRefresh": true,
+    "templateScope": "local",
+    "className": "",
+    "x": 180,
+    "y": 940,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "slider_brightness",
+    "type": "ui-slider",
+    "z": "control_sample_tab",
+    "group": "control_group_settings",
+    "name": "明るさ",
+    "label": "🔆 明るさ",
+    "tooltip": "",
+    "order": 1,
+    "width": 0,
+    "height": 0,
+    "passthru": true,
+    "outs": "all",
+    "topic": "brightness",
+    "min": 0,
+    "max": 100,
+    "step": 1,
+    "className": "",
+    "x": 160,
+    "y": 1000,
+    "wires": [
+      [
+        "debug_settings"
+      ]
+    ]
+  },
+  {
+    "id": "slider_volume",
+    "type": "ui-slider",
+    "z": "control_sample_tab",
+    "group": "control_group_settings",
+    "name": "音量",
+    "label": "🔊 音量",
+    "tooltip": "",
+    "order": 2,
+    "width": 0,
+    "height": 0,
+    "passthru": true,
+    "outs": "all",
+    "topic": "volume",
+    "min": 0,
+    "max": 100,
+    "step": 1,
+    "className": "",
+    "x": 150,
+    "y": 1060,
+    "wires": [
+      [
+        "debug_settings"
+      ]
+    ]
+  },
+  {
+    "id": "dropdown_language",
+    "type": "ui-dropdown",
+    "z": "control_sample_tab",
+    "group": "control_group_settings",
+    "name": "言語選択",
+    "label": "🌐 言語",
+    "tooltip": "",
+    "order": 3,
+    "width": 0,
+    "height": 0,
+    "passthru": true,
+    "multiple": false,
+    "options": [
+      {
+        "label": "日本語",
+        "value": "ja"
+      },
+      {
+        "label": "English",
+        "value": "en"
+      },
+      {
+        "label": "中文",
+        "value": "zh"
+      }
+    ],
+    "topic": "language",
+    "className": "",
+    "x": 160,
+    "y": 1120,
+    "wires": [
+      [
+        "debug_settings"
+      ]
+    ]
+  },
+  {
+    "id": "switch_notifications",
+    "type": "ui-switch",
+    "z": "control_sample_tab",
+    "group": "control_group_settings",
+    "name": "通知設定",
+    "label": "🔔 通知を有効にする",
+    "order": 4,
+    "width": 0,
+    "height": 0,
+    "passthru": true,
+    "decouple": false,
+    "tooltip": "",
+    "color": "",
+    "onvalue": "true",
+    "onvalueType": "bool",
+    "onicon": "",
+    "oncolor": "",
+    "offvalue": "false",
+    "offvalueType": "bool",
+    "officon": "",
+    "offcolor": "",
+    "className": "",
+    "x": 170,
+    "y": 1180,
+    "wires": [
+      [
+        "debug_settings"
+      ]
+    ]
+  },
+  {
+    "id": "btn_save_settings",
+    "type": "ui-button",
+    "z": "control_sample_tab",
+    "group": "control_group_settings",
+    "name": "保存ボタン",
+    "label": "💾 設定を保存",
+    "order": 5,
+    "width": 0,
+    "height": 0,
+    "passthru": false,
+    "tooltip": "",
+    "color": "",
+    "bgcolor": "#4caf50",
+    "className": "",
+    "icon": "",
+    "payload": "settings_saved",
+    "payloadType": "str",
+    "topic": "save",
+    "x": 170,
+    "y": 1240,
+    "wires": [
+      [
+        "debug_settings"
+      ]
+    ]
+  },
+  {
+    "id": "debug_settings",
+    "type": "debug",
+    "z": "control_sample_tab",
+    "name": "設定出力",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "x": 370,
+    "y": 1120,
+    "wires": []
+  },
+  {
+    "id": "control_page_home",
+    "type": "ui-page",
+    "name": "Part2 デモ",
+    "ui": "control_ui_base",
+    "path": "/control-home",
+    "icon": "home",
+    "layout": "grid",
+    "theme": "control_ui_theme",
+    "breakpoints": [
+      {
+        "name": "Default",
+        "px": 0,
+        "cols": 3
+      },
+      {
+        "name": "Tablet",
+        "px": 576,
+        "cols": 6
+      },
+      {
+        "name": "Desktop",
+        "px": 1024,
+        "cols": 12
+      }
+    ],
+    "order": 1,
+    "className": "",
+    "visible": true,
+    "disabled": false
+  },
+  {
+    "id": "control_page_settings",
+    "type": "ui-page",
+    "name": "Part2 設定",
+    "ui": "control_ui_base",
+    "path": "/control-settings",
+    "icon": "cog",
+    "layout": "grid",
+    "theme": "control_ui_theme",
+    "breakpoints": [
+      {
+        "name": "Default",
+        "px": 0,
+        "cols": 3
+      },
+      {
+        "name": "Tablet",
+        "px": 576,
+        "cols": 6
+      },
+      {
+        "name": "Desktop",
+        "px": 1024,
+        "cols": 12
+      }
+    ],
+    "order": 2,
+    "className": "",
+    "visible": true,
+    "disabled": false
+  },
+  {
+    "id": "control_ui_base",
+    "type": "ui-base",
+    "name": "Part2 ui-control デモ",
+    "path": "/dashboard",
+    "appIcon": "",
+    "includeClientData": true,
+    "acceptsClientConfig": [
+      "ui-notification",
+      "ui-control"
+    ],
+    "showPathInSidebar": false,
+    "headerContent": "page",
+    "navigationStyle": "default",
+    "titleBarStyle": "default"
+  },
+  {
+    "id": "control_ui_theme",
+    "type": "ui-theme",
+    "name": "Control Theme",
+    "colors": {
+      "surface": "#ffffff",
+      "primary": "#2196f3",
+      "bgPage": "#f5f5f5",
+      "groupBg": "#ffffff",
+      "groupOutline": "#e0e0e0"
+    },
+    "sizes": {
+      "pagePadding": "12px",
+      "groupGap": "12px",
+      "groupBorderRadius": "8px",
+      "widgetGap": "12px"
+    }
+  }
+]</textarea>
+        </details>
+    </div>
+    
+    <!-- ui-control セクション -->
+    <div class="container">
+        <h2>🎮 ui-control ノード</h2>
+        
+        <h3>概要</h3>
+        <p><code>ui-control</code>は、<strong>プログラムからダッシュボードを制御</strong>するためのノードです。ページ遷移、グループの表示/非表示、クライアント接続の監視などが可能です。</p>
+        
+        <div class="flow-diagram">
+            <span class="node node-inject">inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">function<br><small>制御メッセージ作成</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-ui-control">ui-control</span>
+        </div>
+        
+        <h3>主な機能</h3>
+        <table>
+            <tr>
+                <th>機能</th>
+                <th>説明</th>
+                <th>msg.payload</th>
+            </tr>
+            <tr>
+                <td>ページ遷移</td>
+                <td>指定したページに移動</td>
+                <td><code>{ "page": "ページ名" }</code></td>
+            </tr>
+            <tr>
+                <td>グループ表示/非表示</td>
+                <td>特定グループの可視性を制御</td>
+                <td><code>{ "groups": { "show": [...], "hide": [...] } }</code></td>
+            </tr>
+            <tr>
+                <td>グループ有効/無効</td>
+                <td>グループ内ウィジェットの操作可否</td>
+                <td><code>{ "groups": { "enable": [...], "disable": [...] } }</code></td>
+            </tr>
+            <tr>
+                <td>接続監視</td>
+                <td>クライアントの接続/切断を検知</td>
+                <td>出力: <code>{ "connections": [...] }</code></td>
+            </tr>
+        </table>
+        
+        <h3>グループ指定の形式</h3>
+        <p>グループを指定する際は、以下の形式を使用します：</p>
+        
+        <div class="code-block">"ページ名:グループ名"
+
+// 例
+"ホーム:設定パネル"
+"Dashboard:Control Panel"</div>
+        
+        <div class="warning">
+            <strong>⚠️ 重要</strong>
+            <p>グループ名は<strong>完全一致</strong>が必要です。絵文字を含む場合は絵文字も含めて指定してください。<br>
+            例: <code>"ホーム:🔐 管理者パネル"</code></p>
+        </div>
+        
+        <h3>パターン1: ページ遷移</h3>
+        <p><strong>用途:</strong> ボタンクリックや条件に応じて別のページに移動</p>
+        <p><strong>サンプルフロー:</strong> 「🧭 ナビゲーション」グループのボタンで確認できます</p>
+        
+        <div class="msg-example">
+{
+    <span class="key">"payload"</span>: {
+        <span class="key">"page"</span>: <span class="string">"設定"</span>
+    }
+}</div>
+        
+        <h3>パターン2: グループの表示/非表示</h3>
+        <p><strong>用途:</strong> ユーザー権限や状態に応じてUIを動的に変更</p>
+        <p><strong>サンプルフロー:</strong> 「👁️ 表示制御」の管理者モードスイッチで確認できます</p>
+        
+        <div class="msg-example">
+{
+    <span class="key">"payload"</span>: {
+        <span class="key">"groups"</span>: {
+            <span class="key">"show"</span>: [<span class="string">"ホーム:🔐 管理者パネル"</span>],
+            <span class="key">"hide"</span>: [<span class="string">"ホーム:👋 ゲストパネル"</span>]
+        }
+    }
+}</div>
+        
+        <div class="use-case">
+            <h4>💼 ユースケース: ログイン状態による表示制御</h4>
+            <p>ログインユーザーには「管理パネル」を表示し、ゲストには「ログインフォーム」のみを表示する</p>
+        </div>
+        
+        <h3>パターン3: グループの有効/無効</h3>
+        <p><strong>用途:</strong> 特定の条件下でウィジェットの操作を禁止</p>
+        <p><strong>サンプルフロー:</strong> 「🔧 メンテナンスモード」スイッチで確認できます（設定ページの項目が無効化）</p>
+        
+        <div class="msg-example">
+{
+    <span class="key">"payload"</span>: {
+        <span class="key">"groups"</span>: {
+            <span class="key">"disable"</span>: [<span class="string">"設定:⚙️ システム設定"</span>]
+        }
+    }
+}</div>
+        
+        <div class="use-case">
+            <h4>💼 ユースケース: メンテナンスモード</h4>
+            <p>システムメンテナンス中は設定変更を無効化し、誤操作を防止</p>
+        </div>
+        
+        <h3>パターン4: 接続監視（出力）</h3>
+        <p><code>ui-control</code>の<strong>出力</strong>からは、クライアントの接続情報が取得できます。</p>
+        <p><strong>サンプルフロー:</strong> 「📡 接続状態」グループにリアルタイムで接続数が表示されます</p>
+        
+        <div class="msg-example">
+// ui-controlノードの出力
+{
+    <span class="key">"payload"</span>: {
+        <span class="key">"connections"</span>: [
+            {
+                <span class="key">"socketId"</span>: <span class="string">"abc123"</span>,
+                <span class="key">"socketIp"</span>: <span class="string">"192.168.1.100"</span>
+            }
+        ]
+    },
+    <span class="key">"_client"</span>: {
+        <span class="key">"socketId"</span>: <span class="string">"abc123"</span>
+    }
+}</div>
+        
+        <div class="use-case">
+            <h4>💼 ユースケース: アクセスログ</h4>
+            <p>ダッシュボードへのアクセスをログに記録し、誰がいつアクセスしたかを追跡</p>
+        </div>
+        
+        <h3>パターン5: 特定クライアントへの送信</h3>
+        <p><code>msg._client</code>を使用して、特定のクライアントにのみメッセージを送信できます。</p>
+        
+        <div class="msg-example">
+{
+    <span class="key">"payload"</span>: {
+        <span class="key">"page"</span>: <span class="string">"アラート"</span>
+    },
+    <span class="key">"_client"</span>: {
+        <span class="key">"socketId"</span>: <span class="string">"abc123"</span>
+    }
+}</div>
+        
+        <div class="tip">
+            <strong>💡 ヒント</strong>
+            <p><code>msg._client</code>を省略すると、すべての接続クライアントに対して制御が適用されます。</p>
+        </div>
+    </div>
+    
+    <!-- ui-spacer セクション -->
+    <div class="container">
+        <h2>📐 ui-spacer ノード</h2>
+        
+        <h3>概要</h3>
+        <p><code>ui-spacer</code>は、ダッシュボードのグリッドレイアウトで<strong>空白スペースを確保</strong>するためのノードです。ウィジェットの配置を調整し、見やすいレイアウトを実現します。</p>
+        
+        <p><strong>サンプルフロー:</strong> 「📐 レイアウトサンプル」グループで、左右に分かれたボタン配置を確認できます</p>
+        
+        <div class="important">
+            <strong>🎯 ui-spacerの役割</strong>
+            <ul>
+                <li>ウィジェット間の余白を確保</li>
+                <li>グリッド上での位置調整</li>
+                <li>レスポンシブデザインでの空間制御</li>
+                <li>視覚的なグループ分けの補助</li>
+            </ul>
+        </div>
+        
+        <h3>設定プロパティ</h3>
+        <table class="property-table">
+            <tr>
+                <th>プロパティ</th>
+                <th>説明</th>
+                <th>値の例</th>
+            </tr>
+            <tr>
+                <td>Group</td>
+                <td>配置するグループ</td>
+                <td>-</td>
+            </tr>
+            <tr>
+                <td>Width</td>
+                <td>幅（グリッド単位）</td>
+                <td>1, 2, 3, 6...</td>
+            </tr>
+            <tr>
+                <td>Height</td>
+                <td>高さ（グリッド単位）</td>
+                <td>1, 2, 3...</td>
+            </tr>
+        </table>
+        
+        <h3>使用例1: 水平方向の余白</h3>
+        <p>ボタンとボタンの間にスペースを入れる</p>
+        
+        <div class="flow-diagram">
+            <span class="node node-inject">ボタンA<br><small>width: 2</small></span>
+            <span class="node node-ui-spacer">spacer<br><small>width: 2</small></span>
+            <span class="node node-inject">ボタンB<br><small>width: 2</small></span>
+        </div>
+        
+        <h3>使用例2: グリッド位置調整</h3>
+        <p>6カラムグリッドでウィジェットを右寄せ</p>
+        
+        <div class="code-block">グリッドレイアウト（6カラム）:
+┌──────┬──────┬──────┬──────┬──────┬──────┐
+│spacer│spacer│spacer│spacer│ボタン│ボタン│
+│  1   │  2   │  3   │  4   │  5   │  6   │
+└──────┴──────┴──────┴──────┴──────┴──────┘
+         spacer width: 4        buttons width: 2</div>
+        
+        <div class="tip">
+            <strong>💡 レイアウトのコツ</strong>
+            <ul>
+                <li>グループのカラム数を把握してから配置を計画する</li>
+                <li>レスポンシブ対応を考慮し、相対的な幅を使う</li>
+                <li>spacerを使いすぎると管理が複雑になるので注意</li>
+            </ul>
+        </div>
+    </div>
+    
+    <!-- 実践演習 -->
+    <div class="container">
+        <h2>📝 実践演習</h2>
+        
+        <h3>演習1: ページ遷移ボタンの作成</h3>
+        <p><strong>目標:</strong> 新しいページを作成し、ナビゲーションボタンを追加する</p>
+        
+        <ol>
+            <li>新しいページ「レポート」を作成</li>
+            <li>ホームに「レポートへ」ボタンを追加</li>
+            <li>functionノードで <code>{"page": "レポート"}</code> を設定</li>
+            <li>ui-controlに接続</li>
+        </ol>
+        
+        <h3>演習2: 条件付き表示制御</h3>
+        <p><strong>目標:</strong> センサー値に応じてアラートパネルを表示/非表示</p>
+        
+        <ol>
+            <li>「アラートパネル」グループを作成（初期は非表示）</li>
+            <li>functionノードで閾値判定を実装</li>
+            <li>値が閾値を超えたらshow、下回ったらhide</li>
+        </ol>
+        
+        <h3>演習3: レイアウト調整</h3>
+        <p><strong>目標:</strong> 3つのボタンを等間隔に配置</p>
+        
+        <div class="code-block">目標レイアウト（6カラム）:
+┌────────┬────────┬────────┬────────┬────────┬────────┐
+│ボタン1 │ spacer │ボタン2 │ spacer │ボタン3 │ spacer │
+│   1    │   1    │   1    │   1    │   1    │   1    │
+└────────┴────────┴────────┴────────┴────────┴────────┘</div>
+    </div>
+    
+    <!-- Tips & ベストプラクティス -->
+    <div class="container">
+        <h2>💡 Tips & ベストプラクティス</h2>
+        
+        <h3>ui-control</h3>
+        <ul>
+            <li>✅ ページ名・グループ名は<strong>正確に一致</strong>させる（絵文字も含む）</li>
+            <li>✅ 接続監視を使ってアクセスログを取得</li>
+            <li>✅ <code>msg._client</code>で特定ユーザーのみに制御を適用</li>
+            <li>⚠️ 頻繁なページ遷移はUXを損なう可能性あり</li>
+        </ul>
+        
+        <h3>ui-spacer</h3>
+        <ul>
+            <li>✅ グリッドの総カラム数を意識して配置</li>
+            <li>✅ 視覚的なグループ分けに活用</li>
+            <li>✅ レスポンシブを考慮した相対幅を使用</li>
+            <li>⚠️ 過度な使用は管理の複雑化を招く</li>
+        </ul>
+        
+        <h3>デバッグのコツ</h3>
+        <ul>
+            <li>🔍 ui-controlの入力に<strong>debugノード</strong>を接続して送信メッセージを確認</li>
+            <li>🔍 ui-controlの出力で接続状態を監視</li>
+            <li>🔍 ページ名・グループ名が正しいかダッシュボード設定を確認</li>
+        </ul>
+    </div>
+    
+    <!-- 参考リンク -->
+    <div class="container">
+        <h2>🔗 参考リンク</h2>
+        <ul>
+            <li><a href="https://dashboard.flowfuse.com/nodes/widgets/ui-control.html" target="_blank">ui-control 公式ドキュメント</a></li>
+            <li><a href="https://dashboard.flowfuse.com/nodes/widgets/ui-spacer.html" target="_blank">ui-spacer 公式ドキュメント</a></li>
+            <li><a href="https://dashboard.flowfuse.com/getting-started.html" target="_blank">Dashboard 2.0 Getting Started</a></li>
+        </ul>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var codeBlocks = document.querySelectorAll('.flow-json');
+            
+            codeBlocks.forEach(function(block) {
+                var button = document.createElement('button');
+                button.className = 'copy-button';
+                button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                
+                button.addEventListener('click', function() {
+                    var code;
+                    if (block.tagName === 'TEXTAREA') {
+                        code = block.value;
+                    } else {
+                        code = block.textContent.replace(/コピー(しました!)?$/, '').trim();
+                    }
+                    
+                    if (block.tagName !== 'TEXTAREA') {
+                        code = code.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+                    }
+                    
+                    navigator.clipboard.writeText(code).then(function() {
+                        button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>コピーしました!';
+                        button.classList.add('copied');
+                        
+                        setTimeout(function() {
+                            button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                            button.classList.remove('copied');
+                        }, 2000);
+                    }).catch(function(err) {
+                        console.error('コピーに失敗しました:', err);
+                    });
+                });
+                
+                if (block.tagName === 'TEXTAREA') {
+                    var wrapper = document.createElement('div');
+                    wrapper.style.position = 'relative';
+                    block.parentNode.insertBefore(wrapper, block);
+                    wrapper.appendChild(block);
+                    wrapper.appendChild(button);
+                } else {
+                    block.style.position = 'relative';
+                    block.appendChild(button);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
