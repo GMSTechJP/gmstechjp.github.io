@@ -1,0 +1,2343 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED Dashboard 2.0 実践ガイド【応用編】第1部 ui-template</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        h1 {
+            color: #8f0000;
+            border-bottom: 3px solid #8f0000;
+            padding-bottom: 10px;
+        }
+        
+        h2 {
+            color: #c00000;
+            margin-top: 40px;
+            border-left: 5px solid #c00000;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #555;
+            margin-top: 25px;
+        }
+        
+        h4 {
+            color: #666;
+            margin-top: 20px;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .node-example {
+            background-color: #2d3133;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            color: white;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        
+        .node {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 4px;
+            margin: 5px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .node-inject {
+            background-color: #3fadb5;
+            color: white;
+        }
+        
+        .node-debug {
+            background-color: #87a48d;
+            color: white;
+        }
+        
+        .node-function {
+            background-color: #e8a658;
+            color: white;
+        }
+        
+        .node-change {
+            background-color: #e7a070;
+            color: white;
+        }
+        
+        .node-switch {
+            background-color: #e2d96e;
+            color: #333;
+        }
+        
+        .node-template {
+            background-color: #d4b8a0;
+            color: #333;
+        }
+        
+        /* Dashboard 2.0 widgets */
+        .node-ui-template {
+            background-color: #b92d5d;
+            color: white;
+        }
+        
+        .node-ui-control {
+            background-color: #b92d5d;
+            color: white;
+        }
+        
+        .node-ui-button {
+            background-color: #b92d5d;
+            color: white;
+        }
+        
+        .node-ui-text {
+            background-color: #b92d5d;
+            color: white;
+        }
+        
+        .arrow {
+            color: #999;
+            font-size: 20px;
+            margin: 0 10px;
+        }
+        
+        .important {
+            background-color: #fce4ec;
+            border-left: 4px solid #b92d5d;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .tip {
+            background-color: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .warning {
+            background-color: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .code-block {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            position: relative;
+            white-space: pre-wrap;
+        }
+        
+        .js-code {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            border: none;
+            padding: 15px;
+            padding-top: 40px;
+            border-radius: 5px;
+            position: relative;
+            white-space: pre;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+        }
+        
+        .copy-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 6px 12px;
+            background-color: #b92d5d;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: 'Segoe UI', sans-serif;
+            transition: background-color 0.2s;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .copy-button:hover {
+            background-color: #9a2550;
+        }
+        
+        .copy-button.copied {
+            background-color: #28a745;
+        }
+        
+        .copy-button svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+        }
+        
+        .exercise {
+            background-color: #f3e5f5;
+            border: 2px solid #9c27b0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        
+        .exercise h3 {
+            color: #7b1fa2;
+            margin-top: 0;
+        }
+        
+        .difficulty {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .difficulty-easy {
+            background-color: #4caf50;
+            color: white;
+        }
+        
+        .difficulty-medium {
+            background-color: #ff9800;
+            color: white;
+        }
+        
+        .difficulty-hard {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        ul, ol {
+            padding-left: 25px;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #b92d5d;
+            color: white;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        textarea.flow-json {
+            width: 100%;
+            height: 400px;
+            background-color: #263238;
+            color: #aed581;
+            padding: 15px;
+            padding-top: 45px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            border: none;
+            resize: vertical;
+            position: relative;
+        }
+        
+        .flow-json {
+            background-color: #263238;
+            color: #aed581;
+            padding: 15px;
+            padding-top: 40px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        details {
+            margin: 15px 0;
+        }
+        
+        summary {
+            cursor: pointer;
+            padding: 10px;
+            background-color: #b92d5d;
+            color: white;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        summary:hover {
+            background-color: #9a2550;
+        }
+        
+        .widget-card {
+            background: linear-gradient(135deg, #fce4ec 0%, #f3e5f5 100%);
+            border: 2px solid #b92d5d;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .widget-card h3 {
+            color: #b92d5d;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .widget-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        
+        .badge-input {
+            background-color: #4caf50;
+            color: white;
+        }
+        
+        .badge-output {
+            background-color: #2196f3;
+            color: white;
+        }
+        
+        .badge-both {
+            background-color: #ff9800;
+            color: white;
+        }
+        
+        .badge-advanced {
+            background-color: #9c27b0;
+            color: white;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .feature-card {
+            background-color: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .feature-card h4 {
+            color: #b92d5d;
+            margin-top: 0;
+        }
+        
+        .mode-section {
+            background-color: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .mode-section h4 {
+            color: #b92d5d;
+            margin-top: 0;
+            border-bottom: 2px solid #b92d5d;
+            padding-bottom: 8px;
+        }
+        
+        .type-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        
+        .badge-widget {
+            background-color: #4caf50;
+            color: white;
+        }
+        
+        .badge-css {
+            background-color: #2196f3;
+            color: white;
+        }
+        
+        .badge-page {
+            background-color: #ff9800;
+            color: white;
+        }
+        
+        .badge-site {
+            background-color: #9c27b0;
+            color: white;
+        }
+    
+        .toc {
+            background-color: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .toc h3 {
+            color: #b92d5d;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        
+        .toc ol {
+            margin: 0;
+            padding-left: 25px;
+        }
+        
+        .toc li {
+            margin: 8px 0;
+        }
+        
+        .toc a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        
+        .toc a:hover {
+            text-decoration: underline;
+        }
+        
+        .vue-highlight {
+            background-color: #42b883;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Node-RED Dashboard 2.0 実践ガイド【応用編】<br>第1部 ui-template</h1>
+        
+        <p>このガイドでは、Dashboard 2.0の最も強力なウィジェットである<strong>ui-template</strong>について詳しく解説します。ui-templateを使えば、<strong>Vue.js</strong>と<strong>Vuetify</strong>を活用してカスタムウィジェットを自由に作成できます。</p>
+        
+        <div class="important">
+            <p><strong>📌 このガイドで学べること:</strong></p>
+            <ul>
+                <li>ui-templateの4つのテンプレートタイプの使い分け</li>
+                <li>Vue.js Options APIによるカスタムウィジェット開発</li>
+                <li>Vuetifyコンポーネントライブラリの活用</li>
+                <li>Node-REDとの双方向通信（send/msg）</li>
+                <li>カスタムCSS・サイト全体スタイリング</li>
+                <li>実践的なサンプルと演習問題</li>
+            </ul>
+        </div>
+        
+        <div class="toc">
+            <h3>📑 目次</h3>
+            <ol>
+                <li><a href="#section1">ui-templateとは？</a></li>
+                <li><a href="#section2">4つのテンプレートタイプ</a></li>
+                <li><a href="#section3">Vue.js Options API</a></li>
+                <li><a href="#section4">組み込み変数とメソッド</a></li>
+                <li><a href="#section5">Vuetifyコンポーネント</a></li>
+                <li><a href="#section6">サンプルフロー</a></li>
+                <li><a href="#section7">実用的な使用パターン</a></li>
+                <li><a href="#section8">実践演習</a></li>
+                <li><a href="#section9">まとめ</a></li>
+                <li><a href="#section10">トラブルシューティング</a></li>
+                <li><a href="#section11">実務での活用例</a></li>
+                <li><a href="#section12">追加リソース</a></li>
+            </ol>
+        </div>
+        
+        <h2 id="section1">🎯 1. ui-templateとは？</h2>
+        
+        <h3>🤔 「ui-template」って何？</h3>
+        <p>
+            ui-templateは、Dashboard 2.0で<strong>完全にカスタマイズされたウィジェットを作成できる</strong>最も強力なノードです。
+            日常生活で例えると、<strong>「DIY工房」</strong>のようなものです。他のウィジェットが「既製品の家具」だとすれば、ui-templateは「自分で設計図を描いて、好きな材料で好きな家具を作れる工房」です。
+        </p>
+        
+        <div class="tip">
+            <p><strong>🔧 DIY工房に例えると:</strong></p>
+            <ul>
+                <li>🎨 <strong>Vue.js</strong> = 設計図を描くための言語</li>
+                <li>🧱 <strong>Vuetify</strong> = 高品質な部品（ボタン、フォーム、アイコンなど）が揃った部品棚</li>
+                <li>📬 <strong>send()</strong> = 完成品をNode-REDフローに送る配送サービス</li>
+                <li>📩 <strong>msg</strong> = Node-REDフローから届く材料・指示書</li>
+                <li>🎭 <strong>CSS</strong> = 仕上げの塗装・装飾</li>
+            </ul>
+        </div>
+        
+        <div class="widget-card">
+            <h3>
+                <span class="widget-badge badge-advanced">高度</span>
+                ui-template ウィジェット
+            </h3>
+            <p>Vue.jsとVuetifyを使って、完全にカスタマイズされたダッシュボードコンポーネントを作成できます。HTML、CSS、JavaScriptを組み合わせて、標準ウィジェットでは実現できない機能を実装できます。</p>
+        </div>
+        
+        <h3>📊 ui-templateでできること</h3>
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h4>🎨 カスタムウィジェット</h4>
+                <p>標準ウィジェットにない独自のUIコンポーネントを作成</p>
+                <div class="code-block">例: 星評価、カラーピッカー、
+ドラッグ&ドロップなど</div>
+            </div>
+            
+            <div class="feature-card">
+                <h4>🎭 カスタムCSS</h4>
+                <p>ダッシュボード全体や特定ページのスタイルをカスタマイズ</p>
+                <div class="code-block">例: テーマカラー変更、
+フォント変更、レイアウト調整</div>
+            </div>
+            
+            <div class="feature-card">
+                <h4>📊 高度なデータ表示</h4>
+                <p>Chart.jsやD3.jsを使った高度なグラフ・可視化</p>
+                <div class="code-block">例: カスタムチャート、
+ヒートマップ、3Dグラフ</div>
+            </div>
+            
+            <div class="feature-card">
+                <h4>🔗 外部ライブラリ連携</h4>
+                <p>外部JavaScriptライブラリを読み込んで活用</p>
+                <div class="code-block">例: Leaflet地図、
+Three.js 3D表示など</div>
+            </div>
+        </div>
+        
+        <h2 id="section2">📋 2. 4つのテンプレートタイプ</h2>
+        
+        <p>ui-templateには4つの異なるタイプがあり、それぞれ用途が異なります。</p>
+        
+        <table>
+            <tr>
+                <th>タイプ</th>
+                <th>スコープ</th>
+                <th>用途</th>
+                <th>Group設定</th>
+            </tr>
+            <tr>
+                <td><span class="type-badge badge-widget">Widget</span> ウィジェット (UI)</td>
+                <td>グループ内</td>
+                <td>カスタムウィジェットの作成</td>
+                <td>必須</td>
+            </tr>
+            <tr>
+                <td><span class="type-badge badge-css">CSS</span> スコープCSS</td>
+                <td>グループ内</td>
+                <td>特定グループのスタイル変更</td>
+                <td>必須</td>
+            </tr>
+            <tr>
+                <td><span class="type-badge badge-page">Page</span> ページ (UI)</td>
+                <td>ページ全体</td>
+                <td>ページ全体に表示するUI要素</td>
+                <td>ページ選択</td>
+            </tr>
+            <tr>
+                <td><span class="type-badge badge-site">Site</span> サイト全体CSS</td>
+                <td>全ページ</td>
+                <td>ダッシュボード全体のスタイル</td>
+                <td>ui-base選択</td>
+            </tr>
+        </table>
+        
+        <div class="mode-section">
+            <h4><span class="type-badge badge-widget">Widget</span> ウィジェット (UI) タイプ</h4>
+            <p>最も一般的なタイプで、カスタムウィジェットを作成します。指定したグループ内に表示されます。</p>
+            <div class="code-block">&lt;template&gt;
+    &lt;v-btn @click="onClick"&gt;カスタムボタン&lt;/v-btn&gt;
+&lt;/template&gt;
+&lt;script&gt;
+export default {
+    methods: {
+        onClick() {
+            this.send({ payload: "クリックされました" });
+        }
+    }
+}
+&lt;/script&gt;</div>
+        </div>
+        
+        <div class="mode-section">
+            <h4><span class="type-badge badge-css">CSS</span> スコープCSSタイプ</h4>
+            <p>特定のグループやウィジェットのスタイルをカスタマイズします。<code>&lt;style&gt;</code>タグのみを記述します。</p>
+            <div class="code-block">&lt;style&gt;
+/* グループ内のボタンの色を変更 */
+.v-btn {
+    background-color: #ff5722 !important;
+}
+
+/* 特定のクラスにスタイル適用 */
+.my-custom-class {
+    font-size: 18px;
+    font-weight: bold;
+}
+&lt;/style&gt;</div>
+        </div>
+        
+        <div class="mode-section">
+            <h4><span class="type-badge badge-page">Page</span> ページ (UI) タイプ</h4>
+            <p>ページ全体に表示されるUI要素を作成します。フッターやページ共通の要素に最適です。</p>
+            <div class="code-block">&lt;template&gt;
+    &lt;div class="page-footer"&gt;
+        &lt;p&gt;© 2024 My Dashboard - ページ共通フッター&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/template&gt;
+&lt;style scoped&gt;
+.page-footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background: #333;
+    color: white;
+    text-align: center;
+    padding: 10px;
+}
+&lt;/style&gt;</div>
+        </div>
+        
+        <div class="mode-section">
+            <h4><span class="type-badge badge-site">Site</span> サイト全体CSSタイプ</h4>
+            <p>ダッシュボード全体に適用されるCSSを定義します。テーマのカスタマイズに使用します。</p>
+            <div class="code-block">&lt;style&gt;
+/* サイト全体のフォント変更 */
+body {
+    font-family: 'Noto Sans JP', sans-serif !important;
+}
+
+/* プライマリカラーの変更 */
+:root {
+    --v-primary-base: #b92d5d !important;
+}
+
+/* ナビゲーションバーのスタイル */
+.v-app-bar {
+    background: linear-gradient(90deg, #b92d5d, #c00000) !important;
+}
+&lt;/style&gt;</div>
+        </div>
+        
+        <h2 id="section3">⚡ 3. Vue.js Options API</h2>
+        
+        <p>ui-templateでは、Vue.jsの<strong>Options API</strong>を使用してコンポーネントを構築します。以下のプロパティがサポートされています。</p>
+        
+        <table>
+            <tr>
+                <th>プロパティ</th>
+                <th>説明</th>
+                <th>使用例</th>
+            </tr>
+            <tr>
+                <td><strong>data</strong></td>
+                <td>コンポーネント内で使用するデータを定義する関数</td>
+                <td>カウンター、状態管理</td>
+            </tr>
+            <tr>
+                <td><strong>methods</strong></td>
+                <td>テンプレートやスクリプトから呼び出せる関数を定義</td>
+                <td>ボタンクリック処理</td>
+            </tr>
+            <tr>
+                <td><strong>computed</strong></td>
+                <td>他の変数から計算される値を定義</td>
+                <td>合計値、フォーマット済み文字列</td>
+            </tr>
+            <tr>
+                <td><strong>watch</strong></td>
+                <td>変数の変更を監視して処理を実行</td>
+                <td>msgの変更検知</td>
+            </tr>
+            <tr>
+                <td><strong>mounted</strong></td>
+                <td>コンポーネントがロードされた時に実行</td>
+                <td>初期化処理</td>
+            </tr>
+            <tr>
+                <td><strong>unmounted</strong></td>
+                <td>コンポーネントが削除される時に実行</td>
+                <td>クリーンアップ処理</td>
+            </tr>
+        </table>
+        
+        <div class="tip">
+            <p><strong>💡 Vue.js Options APIの基本構造:</strong></p>
+            <div class="code-block">&lt;template&gt;
+    &lt;!-- HTMLテンプレート（Vue.jsディレクティブ使用可能）--&gt;
+    &lt;div&gt;{{ message }}&lt;/div&gt;
+&lt;/template&gt;
+
+&lt;script&gt;
+export default {
+    data() {
+        return {
+            message: "Hello World",
+            count: 0
+        };
+    },
+    computed: {
+        doubleCount() {
+            return this.count * 2;
+        }
+    },
+    methods: {
+        increment() {
+            this.count++;
+            this.send({ payload: this.count });
+        }
+    },
+    watch: {
+        msg(newMsg) {
+            // msgが変更された時の処理
+            this.message = newMsg.payload;
+        }
+    },
+    mounted() {
+        // コンポーネントロード時の初期化
+        console.log("コンポーネントがマウントされました");
+    }
+}
+&lt;/script&gt;</div>
+        </div>
+        
+        <h2 id="section4">🔧 4. 組み込み変数とメソッド</h2>
+        
+        <h3>📦 組み込み変数</h3>
+        
+        <table>
+            <tr>
+                <th>変数</th>
+                <th>説明</th>
+                <th>使用例</th>
+            </tr>
+            <tr>
+                <td><code>msg</code></td>
+                <td>Node-REDから受信した最新のメッセージ</td>
+                <td><code>{{ msg.payload }}</code></td>
+            </tr>
+            <tr>
+                <td><code>this.$socket</code></td>
+                <td>Socket.IO接続オブジェクト</td>
+                <td>カスタムイベントリスナー</td>
+            </tr>
+            <tr>
+                <td><code>this.$route</code></td>
+                <td>現在のルート情報（URLパラメータなど）</td>
+                <td><code>this.$route.query.param</code></td>
+            </tr>
+            <tr>
+                <td><code>this.id</code></td>
+                <td>ウィジェットのユニークID</td>
+                <td>ソケットイベント識別</td>
+            </tr>
+        </table>
+        
+        <h3>📤 組み込みメソッド</h3>
+        
+        <table>
+            <tr>
+                <th>メソッド</th>
+                <th>説明</th>
+                <th>使用例</th>
+            </tr>
+            <tr>
+                <td><code>this.send(msg)</code></td>
+                <td>Node-REDフローにメッセージを送信</td>
+                <td><code>this.send({ payload: "データ" })</code></td>
+            </tr>
+            <tr>
+                <td><code>this.submit()</code></td>
+                <td>フォームデータをNode-REDに送信</td>
+                <td>フォーム送信処理</td>
+            </tr>
+        </table>
+        
+        <div class="mode-section">
+            <h4>📬 メッセージ受信の2つの方法</h4>
+            
+            <p><strong>方法1: watchでmsgを監視</strong></p>
+            <div class="code-block">watch: {
+    msg(newMsg) {
+        // 新しいメッセージを受信した時
+        // 注意: 初回ロード時も呼び出される
+        this.data = newMsg.payload;
+    }
+}</div>
+            
+            <p><strong>方法2: Socket.IOイベントリスナー</strong></p>
+            <div class="code-block">mounted() {
+    // 新しいメッセージ受信時のみ実行（初回ロード時は実行されない）
+    this.$socket.on('msg-input:' + this.id, (msg) =&gt; {
+        this.data = msg.payload;
+    });
+},
+unmounted() {
+    // クリーンアップ
+    this.$socket.off('msg-input:' + this.id);
+}</div>
+        </div>
+        
+        <div class="warning">
+            <p><strong>⚠️ watchとSocket.IOの違い:</strong></p>
+            <ul>
+                <li><strong>watch</strong>: ウィジェット初回ロード時と新メッセージ受信時の両方で実行</li>
+                <li><strong>Socket.IO</strong>: 新メッセージ受信時のみ実行（初回ロードでは実行されない）</li>
+            </ul>
+            <p>用途に応じて使い分けましょう。</p>
+        </div>
+        
+        <h2 id="section5">🎨 5. Vuetifyコンポーネント</h2>
+        
+        <p>ui-templateでは、<strong>Vuetify</strong>コンポーネントライブラリが標準で利用可能です。豊富な既製コンポーネントを使って、プロフェッショナルなUIを簡単に構築できます。</p>
+        
+        <h3>🔧 よく使うVuetifyコンポーネント</h3>
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h4>v-btn（ボタン）</h4>
+                <div class="code-block">&lt;v-btn color="primary" @click="onClick"&gt;
+    クリック
+&lt;/v-btn&gt;</div>
+            </div>
+            
+            <div class="feature-card">
+                <h4>v-text-field（テキスト入力）</h4>
+                <div class="code-block">&lt;v-text-field
+    v-model="inputText"
+    label="入力してください"
+/&gt;</div>
+            </div>
+            
+            <div class="feature-card">
+                <h4>v-select（セレクトボックス）</h4>
+                <div class="code-block">&lt;v-select
+    v-model="selected"
+    :items="options"
+    label="選択"
+/&gt;</div>
+            </div>
+            
+            <div class="feature-card">
+                <h4>v-slider（スライダー）</h4>
+                <div class="code-block">&lt;v-slider
+    v-model="value"
+    :min="0" :max="100"
+    label="値"
+/&gt;</div>
+            </div>
+            
+            <div class="feature-card">
+                <h4>v-card（カード）</h4>
+                <div class="code-block">&lt;v-card&gt;
+    &lt;v-card-title&gt;タイトル&lt;/v-card-title&gt;
+    &lt;v-card-text&gt;内容&lt;/v-card-text&gt;
+&lt;/v-card&gt;</div>
+            </div>
+            
+            <div class="feature-card">
+                <h4>v-file-input（ファイル入力）</h4>
+                <div class="code-block">&lt;v-file-input
+    v-model="file"
+    label="ファイル選択"
+    @change="onFileChange"
+/&gt;</div>
+            </div>
+        </div>
+        
+        <div class="tip">
+            <p><strong>💡 Vuetifyコンポーネント一覧:</strong></p>
+            <p>全コンポーネントは <a href="https://vuetifyjs.com/en/components/all/" target="_blank">Vuetify公式ドキュメント</a> で確認できます。</p>
+        </div>
+        
+        <h2 id="section6">📥 6. サンプルフロー</h2>
+        
+        <div class="important">
+            <p><strong>📥 まずサンプルフローをインポートしましょう！</strong></p>
+            <p>以下のサンプルフローには、このガイドで説明する<strong>全パターンの実例</strong>が含まれています。<br>
+            先にインポートして、実際に動作を確認しながら読み進めると理解が深まります。</p>
+            <ol>
+                <li>下のサンプルフローJSONをコピー</li>
+                <li>Node-REDエディタで <strong>メニュー → 読み込み</strong> を選択</li>
+                <li>JSONをペーストして「読み込み」をクリック</li>
+                <li>デプロイしてダッシュボードで動作確認</li>
+            </ol>
+        </div>
+        
+        <details>
+            <summary>📋 ui-template サンプルフロー（クリックで展開）</summary>
+            <p style="margin: 10px 0; color: #666;"><small>参照元：FlowFuse Dashboard 2.0 公式ドキュメント</small></p>
+            <textarea class="flow-json" readonly>[
+  {
+    "id": "template_sample_tab",
+    "type": "tab",
+    "label": "ui-template サンプル",
+    "disabled": false,
+    "info": "Dashboard 2.0 ui-templateの各種サンプル"
+  },
+  {
+    "id": "comment_basic",
+    "type": "comment",
+    "z": "template_sample_tab",
+    "name": "━━━ 📌 基本的なカスタムウィジェット ━━━",
+    "info": "",
+    "x": 200,
+    "y": 40,
+    "wires": []
+  },
+  {
+    "id": "template_counter",
+    "type": "ui-template",
+    "z": "template_sample_tab",
+    "group": "template_group_basic",
+    "page": "",
+    "ui": "",
+    "name": "カウンター",
+    "order": 1,
+    "width": 0,
+    "height": 0,
+    "head": "",
+    "format": "<template>\n    <div class=\"counter-widget\">\n        <h3>カウンター</h3>\n        <div class=\"count-display\">{{ count }}</div>\n        <div class=\"button-group\">\n            <v-btn color=\"error\" @click=\"decrement\">-</v-btn>\n            <v-btn color=\"primary\" @click=\"increment\">+</v-btn>\n            <v-btn color=\"secondary\" @click=\"reset\">リセット</v-btn>\n        </div>\n        <p class=\"info\">合計: {{ formattedCount }}</p>\n    </div>\n</template>\n\n<script>\nexport default {\n    data() {\n        return {\n            count: 0\n        };\n    },\n    computed: {\n        formattedCount() {\n            return this.count.toLocaleString() + ' 回';\n        }\n    },\n    methods: {\n        increment() {\n            this.count++;\n            this.sendCount();\n        },\n        decrement() {\n            if (this.count > 0) this.count--;\n            this.sendCount();\n        },\n        reset() {\n            this.count = 0;\n            this.sendCount();\n        },\n        sendCount() {\n            this.send({ payload: this.count, topic: 'counter' });\n        }\n    },\n    watch: {\n        msg(newMsg) {\n            if (typeof newMsg.payload === 'number') {\n                this.count = newMsg.payload;\n            }\n        }\n    }\n}\n</script>\n\n<style scoped>\n.counter-widget {\n    text-align: center;\n    padding: 20px;\n}\n.count-display {\n    font-size: 48px;\n    font-weight: bold;\n    color: #b92d5d;\n    margin: 20px 0;\n}\n.button-group {\n    display: flex;\n    gap: 10px;\n    justify-content: center;\n}\n.info {\n    margin-top: 15px;\n    color: #666;\n}\n</style>",
+    "storeOutMessages": true,
+    "passthru": true,
+    "resendOnRefresh": true,
+    "templateScope": "local",
+    "className": "",
+    "x": 140,
+    "y": 100,
+    "wires": [
+      [
+        "debug_counter"
+      ]
+    ]
+  },
+  {
+    "id": "debug_counter",
+    "type": "debug",
+    "z": "template_sample_tab",
+    "name": "カウンター出力",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": true,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "payload",
+    "statusType": "auto",
+    "x": 340,
+    "y": 100,
+    "wires": []
+  },
+  {
+    "id": "inject_counter_set",
+    "type": "inject",
+    "z": "template_sample_tab",
+    "name": "50に設定",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "50",
+    "payloadType": "num",
+    "x": 140,
+    "y": 160,
+    "wires": [
+      [
+        "template_counter"
+      ]
+    ]
+  },
+  {
+    "id": "comment_msg_display",
+    "type": "comment",
+    "z": "template_sample_tab",
+    "name": "━━━ 📨 メッセージ受信・表示 ━━━",
+    "info": "",
+    "x": 180,
+    "y": 240,
+    "wires": []
+  },
+  {
+    "id": "template_msg_display",
+    "type": "ui-template",
+    "z": "template_sample_tab",
+    "group": "template_group_basic",
+    "page": "",
+    "ui": "",
+    "name": "メッセージ表示",
+    "order": 2,
+    "width": 0,
+    "height": 0,
+    "head": "",
+    "format": "<template>\n    <v-card class=\"msg-card\">\n        <v-card-title>📨 受信メッセージ</v-card-title>\n        <v-card-text>\n            <div v-if=\"lastMsg\">\n                <p><strong>Payload:</strong> {{ lastMsg.payload }}</p>\n                <p><strong>Topic:</strong> {{ lastMsg.topic || '(なし)' }}</p>\n                <p><strong>受信時刻:</strong> {{ receivedTime }}</p>\n            </div>\n            <div v-else class=\"no-msg\">\n                メッセージを待機中...\n            </div>\n        </v-card-text>\n    </v-card>\n</template>\n\n<script>\nexport default {\n    data() {\n        return {\n            lastMsg: null,\n            receivedTime: ''\n        };\n    },\n    watch: {\n        msg(newMsg) {\n            this.lastMsg = newMsg;\n            this.receivedTime = new Date().toLocaleTimeString('ja-JP');\n        }\n    }\n}\n</script>\n\n<style scoped>\n.msg-card {\n    margin: 10px;\n}\n.no-msg {\n    color: #999;\n    font-style: italic;\n}\n</style>",
+    "storeOutMessages": true,
+    "passthru": true,
+    "resendOnRefresh": true,
+    "templateScope": "local",
+    "className": "",
+    "x": 160,
+    "y": 300,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "inject_msg_hello",
+    "type": "inject",
+    "z": "template_sample_tab",
+    "name": "Hello",
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "greeting",
+    "payload": "Hello, Dashboard!",
+    "payloadType": "str",
+    "x": 130,
+    "y": 360,
+    "wires": [
+      [
+        "template_msg_display"
+      ]
+    ]
+  },
+  {
+    "id": "inject_msg_data",
+    "type": "inject",
+    "z": "template_sample_tab",
+    "name": "センサーデータ",
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "sensor",
+    "payload": "{\"temperature\":25.5,\"humidity\":60}",
+    "payloadType": "json",
+    "x": 160,
+    "y": 400,
+    "wires": [
+      [
+        "template_msg_display"
+      ]
+    ]
+  },
+  {
+    "id": "comment_file_upload",
+    "type": "comment",
+    "z": "template_sample_tab",
+    "name": "━━━ 📁 ファイルアップロード ━━━",
+    "info": "",
+    "x": 180,
+    "y": 480,
+    "wires": []
+  },
+  {
+    "id": "template_file_upload",
+    "type": "ui-template",
+    "z": "template_sample_tab",
+    "group": "template_group_advanced",
+    "page": "",
+    "ui": "",
+    "name": "ファイルアップロード",
+    "order": 1,
+    "width": 0,
+    "height": 0,
+    "head": "",
+    "format": "<template>\n    <v-card class=\"upload-card\">\n        <v-card-title>📁 ファイルアップロード</v-card-title>\n        <v-card-text>\n            <div>\n                <v-file-input\n                    v-model=\"selectedFile\"\n                    label=\"ファイルを選択\"\n                    prepend-icon=\"mdi-paperclip\"\n                    show-size\n                    @change=\"onFileSelect\"\n                />\n            </div>\n            <div v-if=\"uploading\" class=\"my-3\">\n                <v-progress-linear\n                    :model-value=\"progress\"\n                    color=\"primary\"\n                    height=\"20\"\n                >\n                    {{ progress }}%\n                </v-progress-linear>\n            </div>\n            <div class=\"mt-3\">\n                <v-btn\n                    color=\"primary\"\n                    :disabled=\"!selectedFile || uploading\"\n                    @click=\"uploadFile\"\n                    block\n                >\n                    アップロード\n                </v-btn>\n            </div>\n        </v-card-text>\n    </v-card>\n</template>\n\n<script>\nexport default {\n    data() {\n        return {\n            selectedFile: null,\n            uploading: false,\n            progress: 0\n        };\n    },\n    methods: {\n        onFileSelect(e) {\n            this.progress = 0;\n        },\n        uploadFile() {\n            if (!this.selectedFile) return;\n            \n            this.uploading = true;\n            const reader = new FileReader();\n            \n            reader.onprogress = (e) => {\n                if (e.lengthComputable) {\n                    this.progress = Math.round((e.loaded / e.total) * 100);\n                }\n            };\n            \n            reader.onload = (e) => {\n                this.send({\n                    payload: e.target.result,\n                    filename: this.selectedFile.name,\n                    size: this.selectedFile.size,\n                    type: this.selectedFile.type\n                });\n                this.uploading = false;\n                this.progress = 100;\n            };\n            \n            reader.readAsArrayBuffer(this.selectedFile);\n        }\n    }\n}\n</script>\n\n<style scoped>\n.upload-card {\n    margin: 10px;\n}\n</style>",
+    "storeOutMessages": true,
+    "passthru": true,
+    "resendOnRefresh": true,
+    "templateScope": "local",
+    "className": "",
+    "x": 180,
+    "y": 540,
+    "wires": [
+      [
+        "debug_file"
+      ]
+    ]
+  },
+  {
+    "id": "debug_file",
+    "type": "debug",
+    "z": "template_sample_tab",
+    "name": "ファイル情報",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": true,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "filename",
+    "statusType": "auto",
+    "x": 390,
+    "y": 540,
+    "wires": []
+  },
+  {
+    "id": "comment_star_rating",
+    "type": "comment",
+    "z": "template_sample_tab",
+    "name": "━━━ ⭐ 星評価ウィジェット ━━━",
+    "info": "",
+    "x": 180,
+    "y": 620,
+    "wires": []
+  },
+  {
+    "id": "template_star_rating",
+    "type": "ui-template",
+    "z": "template_sample_tab",
+    "group": "template_group_advanced",
+    "page": "",
+    "ui": "",
+    "name": "星評価",
+    "order": 2,
+    "width": 0,
+    "height": 0,
+    "head": "",
+    "format": "<template>\n    <div class=\"rating-widget\">\n        <h3>⭐ 評価してください</h3>\n        <v-rating\n            v-model=\"rating\"\n            color=\"amber\"\n            hover\n            length=\"5\"\n            size=\"x-large\"\n            @update:model-value=\"onRatingChange\"\n        />\n        <p class=\"rating-text\">{{ ratingText }}</p>\n    </div>\n</template>\n\n<script>\nexport default {\n    data() {\n        return {\n            rating: 0\n        };\n    },\n    computed: {\n        ratingText() {\n            const texts = ['未評価', '不満', 'やや不満', '普通', '満足', '大満足'];\n            return texts[this.rating] || '未評価';\n        }\n    },\n    methods: {\n        onRatingChange(value) {\n            this.send({ \n                payload: value, \n                topic: 'rating',\n                text: this.ratingText\n            });\n        }\n    },\n    watch: {\n        msg(newMsg) {\n            if (typeof newMsg.payload === 'number') {\n                this.rating = Math.min(5, Math.max(0, newMsg.payload));\n            }\n        }\n    }\n}\n</script>\n\n<style scoped>\n.rating-widget {\n    text-align: center;\n    padding: 20px;\n}\n.rating-text {\n    margin-top: 10px;\n    font-size: 18px;\n    color: #666;\n}\n</style>",
+    "storeOutMessages": true,
+    "passthru": true,
+    "resendOnRefresh": true,
+    "templateScope": "local",
+    "className": "",
+    "x": 130,
+    "y": 680,
+    "wires": [
+      [
+        "debug_rating"
+      ]
+    ]
+  },
+  {
+    "id": "debug_rating",
+    "type": "debug",
+    "z": "template_sample_tab",
+    "name": "評価出力",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": true,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "payload",
+    "statusType": "auto",
+    "x": 300,
+    "y": 680,
+    "wires": []
+  },
+  {
+    "id": "inject_rating_3",
+    "type": "inject",
+    "z": "template_sample_tab",
+    "name": "3つ星に設定",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "3",
+    "payloadType": "num",
+    "x": 150,
+    "y": 740,
+    "wires": [
+      [
+        "template_star_rating"
+      ]
+    ]
+  },
+  {
+    "id": "comment_chartjs",
+    "type": "comment",
+    "z": "template_sample_tab",
+    "name": "━━━ 📊 外部ライブラリ（Chart.js） ━━━",
+    "info": "",
+    "x": 200,
+    "y": 820,
+    "wires": []
+  },
+  {
+    "id": "template_chartjs",
+    "type": "ui-template",
+    "z": "template_sample_tab",
+    "group": "template_group_advanced",
+    "page": "",
+    "ui": "",
+    "name": "Chart.jsグラフ",
+    "order": 3,
+    "width": 6,
+    "height": 6,
+    "head": "",
+    "format": "<template>\n    <v-card class=\"chart-card\">\n        <v-card-title>📊 センサーデータ</v-card-title>\n        <v-card-text>\n            <div class=\"chart-wrapper\">\n                <canvas ref=\"chartCanvas\"></canvas>\n            </div>\n        </v-card-text>\n    </v-card>\n</template>\n\n<script>\nexport default {\n    data() {\n        return {\n            chart: null,\n            chartData: [12, 19, 8, 15, 12, 8, 14]\n        };\n    },\n    mounted() {\n        this.loadChartJS();\n    },\n    methods: {\n        loadChartJS() {\n            if (window.Chart) {\n                this.initChart();\n                return;\n            }\n            const script = document.createElement('script');\n            script.src = 'https://cdn.jsdelivr.net/npm/chart.js';\n            script.onload = () => {\n                this.initChart();\n            };\n            document.head.appendChild(script);\n        },\n        initChart() {\n            const ctx = this.$refs.chartCanvas;\n            if (!ctx) return;\n            \n            this.chart = new Chart(ctx, {\n                type: 'line',\n                data: {\n                    labels: ['月', '火', '水', '木', '金', '土', '日'],\n                    datasets: [{\n                        label: 'センサー値',\n                        data: this.chartData,\n                        borderColor: '#b92d5d',\n                        backgroundColor: 'rgba(185, 45, 93, 0.1)',\n                        fill: true,\n                        tension: 0.4\n                    }]\n                },\n                options: {\n                    responsive: true,\n                    maintainAspectRatio: false,\n                    plugins: {\n                        legend: { position: 'top' }\n                    },\n                    scales: {\n                        y: { beginAtZero: true }\n                    }\n                }\n            });\n        },\n        updateChart(newData) {\n            if (this.chart && Array.isArray(newData)) {\n                this.chart.data.datasets[0].data = newData;\n                this.chart.update();\n            }\n        }\n    },\n    watch: {\n        msg(newMsg) {\n            if (Array.isArray(newMsg.payload)) {\n                this.updateChart(newMsg.payload);\n            }\n        }\n    },\n    beforeUnmount() {\n        if (this.chart) {\n            this.chart.destroy();\n        }\n    }\n}\n</script>\n\n<style scoped>\n.chart-card {\n    margin: 10px;\n}\n.chart-wrapper {\n    height: 280px;\n    position: relative;\n}\n</style>",
+    "storeOutMessages": true,
+    "passthru": true,
+    "resendOnRefresh": true,
+    "templateScope": "local",
+    "className": "",
+    "x": 160,
+    "y": 880,
+    "wires": [
+      [
+        "debug_chartjs"
+      ]
+    ]
+  },
+  {
+    "id": "debug_chartjs",
+    "type": "debug",
+    "z": "template_sample_tab",
+    "name": "Chart出力",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "x": 350,
+    "y": 880,
+    "wires": []
+  },
+  {
+    "id": "inject_chartjs",
+    "type": "inject",
+    "z": "template_sample_tab",
+    "name": "サンプルデータ",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "[25, 18, 22, 30, 28, 20, 15]",
+    "payloadType": "json",
+    "x": 160,
+    "y": 940,
+    "wires": [
+      [
+        "template_chartjs"
+      ]
+    ]
+  },
+  {
+    "id": "comment_css",
+    "type": "comment",
+    "z": "template_sample_tab",
+    "name": "━━━ 🎨 カスタムCSS ━━━",
+    "info": "",
+    "x": 160,
+    "y": 1020,
+    "wires": []
+  },
+  {
+    "id": "template_custom_css",
+    "type": "ui-template",
+    "z": "template_sample_tab",
+    "group": "",
+    "page": "",
+    "ui": "template_ui_base",
+    "name": "サイト全体CSS",
+    "order": 0,
+    "width": 0,
+    "height": 0,
+    "head": "",
+    "format": "<style>\n/* カスタムフォント */\n@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');\n\n/* サイト全体のスタイル */\nbody {\n    font-family: 'Noto Sans JP', sans-serif !important;\n}\n\n/* ナビゲーションバーのグラデーション */\n.v-toolbar {\n    background: linear-gradient(90deg, #b92d5d 0%, #c00000 100%) !important;\n}\n\n/* カード影の強化 */\n.v-card {\n    box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;\n}\n\n/* プライマリボタンのホバー効果 */\n.v-btn--variant-elevated:hover {\n    transform: translateY(-2px);\n    transition: transform 0.2s;\n}\n</style>",
+    "storeOutMessages": true,
+    "passthru": true,
+    "resendOnRefresh": true,
+    "templateScope": "site:style",
+    "className": "",
+    "x": 160,
+    "y": 1080,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "template_group_basic",
+    "type": "ui-group",
+    "name": "📌 基本サンプル",
+    "page": "template_page",
+    "width": "6",
+    "height": "-1",
+    "order": 1,
+    "showTitle": true,
+    "className": "",
+    "visible": true,
+    "disabled": false
+  },
+  {
+    "id": "template_group_advanced",
+    "type": "ui-group",
+    "name": "🚀 高度なサンプル",
+    "page": "template_page",
+    "width": "6",
+    "height": "-1",
+    "order": 2,
+    "showTitle": true,
+    "className": "",
+    "visible": true,
+    "disabled": false
+  },
+  {
+    "id": "template_page",
+    "type": "ui-page",
+    "name": "ui-templateサンプル",
+    "ui": "template_ui_base",
+    "path": "/template-samples",
+    "icon": "mdi-code-tags",
+    "layout": "grid",
+    "theme": "template_ui_theme",
+    "breakpoints": [
+      {
+        "name": "Default",
+        "px": 0,
+        "cols": 3
+      },
+      {
+        "name": "Tablet",
+        "px": 576,
+        "cols": 6
+      },
+      {
+        "name": "Desktop",
+        "px": 1024,
+        "cols": 12
+      }
+    ],
+    "order": 1,
+    "className": "",
+    "visible": true,
+    "disabled": false
+  },
+  {
+    "id": "template_ui_base",
+    "type": "ui-base",
+    "name": "My Dashboard",
+    "path": "/dashboard",
+    "appIcon": "",
+    "includeClientData": true,
+    "acceptsClientConfig": [
+      "ui-notification",
+      "ui-control"
+    ],
+    "showPathInSidebar": false,
+    "headerContent": "page",
+    "navigationStyle": "default",
+    "titleBarStyle": "default"
+  },
+  {
+    "id": "template_ui_theme",
+    "type": "ui-theme",
+    "name": "Custom Theme",
+    "colors": {
+      "surface": "#ffffff",
+      "primary": "#b92d5d",
+      "bgPage": "#f5f5f5",
+      "groupBg": "#ffffff",
+      "groupOutline": "#e0e0e0"
+    },
+    "sizes": {
+      "pagePadding": "12px",
+      "groupGap": "12px",
+      "groupBorderRadius": "8px",
+      "widgetGap": "12px"
+    }
+  }
+]</textarea>
+        </details>
+        
+        <h2 id="section7">🎯 7. 実用的な使用パターン</h2>
+        
+        <h3>パターン1: 基本的なカスタムボタン</h3>
+        <p><strong>用途:</strong> シンプルなカスタムボタンでNode-REDにメッセージを送信</p>
+        
+        <div class="node-example">
+            <span class="node node-ui-template">ui-template<br><small>カスタムボタン</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <div class="code-block">&lt;template&gt;
+    &lt;v-btn color="primary" size="large" @click="onClick"&gt;
+        送信
+    &lt;/v-btn&gt;
+&lt;/template&gt;
+
+&lt;script&gt;
+export default {
+    methods: {
+        onClick() {
+            this.send({ payload: "ボタンがクリックされました" });
+        }
+    }
+}
+&lt;/script&gt;</div>
+        
+        <h3>パターン2: データ受信・表示ウィジェット</h3>
+        <p><strong>用途:</strong> Node-REDからのメッセージを受信して表示</p>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-ui-template">ui-template<br><small>データ表示</small></span>
+        </div>
+        
+        <div class="code-block">&lt;template&gt;
+    &lt;v-card&gt;
+        &lt;v-card-title&gt;受信データ&lt;/v-card-title&gt;
+        &lt;v-card-text&gt;
+            &lt;p v-if="msg"&gt;{{ msg.payload }}&lt;/p&gt;
+            &lt;p v-else&gt;データ待機中...&lt;/p&gt;
+        &lt;/v-card-text&gt;
+    &lt;/v-card&gt;
+&lt;/template&gt;</div>
+        
+        <h3>パターン3: 双方向バインディング（入力フォーム）</h3>
+        <p><strong>用途:</strong> ユーザー入力を受け取り、Node-REDに送信</p>
+        
+        <div class="node-example">
+            <span class="node node-ui-template">ui-template<br><small>入力フォーム</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-function">Function</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <div class="code-block">&lt;template&gt;
+    &lt;div&gt;
+        &lt;v-text-field v-model="name" label="お名前" /&gt;
+        &lt;v-text-field v-model="email" label="メールアドレス" type="email" /&gt;
+        &lt;v-btn color="primary" @click="submit"&gt;送信&lt;/v-btn&gt;
+    &lt;/div&gt;
+&lt;/template&gt;
+
+&lt;script&gt;
+export default {
+    data() {
+        return {
+            name: '',
+            email: ''
+        };
+    },
+    methods: {
+        submit() {
+            this.send({
+                payload: {
+                    name: this.name,
+                    email: this.email
+                }
+            });
+        }
+    }
+}
+&lt;/script&gt;</div>
+        
+        <h3>パターン4: 条件付きレンダリング（v-if/v-for）</h3>
+        <p><strong>用途:</strong> 状態に応じた動的な表示切り替え</p>
+        
+        <div class="code-block">&lt;template&gt;
+    &lt;div&gt;
+        &lt;!-- 条件分岐 --&gt;
+        &lt;v-alert v-if="status === 'success'" type="success"&gt;成功しました&lt;/v-alert&gt;
+        &lt;v-alert v-else-if="status === 'error'" type="error"&gt;エラーが発生しました&lt;/v-alert&gt;
+        &lt;v-alert v-else type="info"&gt;処理中...&lt;/v-alert&gt;
+        
+        &lt;!-- ループ表示 --&gt;
+        &lt;v-list&gt;
+            &lt;v-list-item v-for="(item, index) in items" :key="index"&gt;
+                {{ item.name }}: {{ item.value }}
+            &lt;/v-list-item&gt;
+        &lt;/v-list&gt;
+    &lt;/div&gt;
+&lt;/template&gt;
+
+&lt;script&gt;
+export default {
+    data() {
+        return {
+            status: 'pending',
+            items: []
+        };
+    },
+    watch: {
+        msg(newMsg) {
+            this.status = newMsg.status;
+            this.items = newMsg.payload || [];
+        }
+    }
+}
+&lt;/script&gt;</div>
+        
+        <h3>パターン5: 外部ライブラリ（Chart.js）の使用</h3>
+        <p><strong>用途:</strong> Chart.jsを使ったカスタムグラフ</p>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject<br><small>データ</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-ui-template">ui-template<br><small>Chart.js</small></span>
+        </div>
+        
+        <div class="code-block">&lt;template&gt;
+    &lt;canvas ref="chart"&gt;&lt;/canvas&gt;
+&lt;/template&gt;
+
+&lt;script src="https://cdn.jsdelivr.net/npm/chart.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+export default {
+    data() {
+        return {
+            chart: null
+        };
+    },
+    mounted() {
+        this.initChart();
+    },
+    methods: {
+        initChart() {
+            const ctx = this.$refs.chart.getContext('2d');
+            this.chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['1月', '2月', '3月', '4月', '5月'],
+                    datasets: [{
+                        label: 'データ',
+                        data: [12, 19, 3, 5, 2],
+                        borderColor: '#b92d5d'
+                    }]
+                }
+            });
+        }
+    },
+    watch: {
+        msg(newMsg) {
+            if (this.chart && newMsg.payload) {
+                this.chart.data.datasets[0].data = newMsg.payload;
+                this.chart.update();
+            }
+        }
+    }
+}
+&lt;/script&gt;</div>
+        
+        <h2 id="section8">🏋️ 8. 実践演習</h2>
+        
+        <div class="exercise">
+            <h3>演習1: シンプルなトグルスイッチ<span class="difficulty difficulty-easy">初級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>Vuetifyのv-switchを使って、ON/OFFを切り替えるカスタムウィジェットを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>ui-template、Debugノードを使用</li>
+                <li>v-switchコンポーネントでトグル</li>
+                <li>切り替え時にtrue/falseをNode-REDに送信</li>
+                <li>ラベルで現在の状態を表示</li>
+            </ul>
+            
+            <p><strong>📊 期待される出力:</strong></p>
+            <ul>
+                <li>ONにした時: <code>msg.payload = true</code></li>
+                <li>OFFにした時: <code>msg.payload = false</code></li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>ui-templateの設定:</strong></p>
+                <ul>
+                    <li>タイプ: ウィジェット (UI)</li>
+                    <li>グループ: 任意のグループを選択または作成</li>
+                </ul>
+                <p><strong>Vue.jsのポイント:</strong></p>
+                <ul>
+                    <li><code>v-model</code>でスイッチの状態をデータにバインド</li>
+                    <li><code>@change</code>または<code>watch</code>で状態変更を検知</li>
+                    <li><code>this.send()</code>でメッセージ送信</li>
+                </ul>
+                <p><strong>コード例:</strong></p>
+                <div class="code-block">&lt;v-switch v-model="isOn" label="電源" @change="onChange" /&gt;</div>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "ex1_tab",
+        "type": "tab",
+        "label": "演習1: トグルスイッチ",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "ex1_template",
+        "type": "ui-template",
+        "z": "ex1_tab",
+        "group": "ex1_group",
+        "page": "",
+        "ui": "",
+        "name": "トグルスイッチ",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "head": "",
+        "format": "&lt;template&gt;\n    <div class=\"toggle-widget\">\n        <v-switch\n            v-model=\"isOn\"\n            :label=\"isOn ? 'ON' : 'OFF'\"\n            color=\"primary\"\n            @change=\"onChange\"\n        />\n        <p>現在の状態: <strong>{{ isOn ? '動作中' : '停止中' }}</strong></p>\n    </div>\n&lt;/template&gt;\n\n&lt;script&gt;\nexport default {\n    data() {\n        return {\n            isOn: false\n        };\n    },\n    methods: {\n        onChange() {\n            this.send({ payload: this.isOn });\n        }\n    },\n    watch: {\n        msg(newMsg) {\n            if (typeof newMsg.payload === 'boolean') {\n                this.isOn = newMsg.payload;\n            }\n        }\n    }\n}\n&lt;/script&gt;\n\n&lt;style scoped&gt;\n.toggle-widget {\n    padding: 20px;\n    text-align: center;\n}\n&lt;/style&gt;",
+        "storeOutMessages": true,
+        "passthru": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 200,
+        "y": 100,
+        "wires": [
+            [
+                "ex1_debug"
+            ]
+        ]
+    },
+    {
+        "id": "ex1_debug",
+        "type": "debug",
+        "z": "ex1_tab",
+        "name": "出力確認",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 410,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "ex1_group",
+        "type": "ui-group",
+        "name": "演習1",
+        "page": "ex1_page",
+        "width": "6",
+        "height": "-1",
+        "order": 1,
+        "showTitle": true,
+        "className": "",
+        "visible": true,
+        "disabled": false
+    },
+    {
+        "id": "ex1_page",
+        "type": "ui-page",
+        "name": "演習ページ",
+        "ui": "ex1_base",
+        "path": "/exercise",
+        "icon": "mdi-school",
+        "layout": "grid",
+        "theme": "ex1_theme",
+        "order": 1
+    },
+    {
+        "id": "ex1_base",
+        "type": "ui-base",
+        "name": "Dashboard",
+        "path": "/dashboard"
+    },
+    {
+        "id": "ex1_theme",
+        "type": "ui-theme",
+        "name": "Theme",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#b92d5d",
+            "bgPage": "#eeeeee"
+        }
+    }
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習2: リアルタイムセンサー表示<span class="difficulty difficulty-medium">中級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>センサーデータ（温度・湿度）を受信して、カード形式でリアルタイム表示するウィジェットを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Inject、ui-template、Debugノードを使用</li>
+                <li>温度と湿度を別々のカードで表示</li>
+                <li>値に応じてアイコンの色を変更（温度: 高温=赤、低温=青）</li>
+                <li>最終更新時刻を表示</li>
+            </ul>
+            
+            <p><strong>📊 入力データ形式:</strong></p>
+            <div class="code-block">msg.payload = {
+    "temperature": 25.5,
+    "humidity": 60
+}</div>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Injectノードの設定:</strong></p>
+                <ul>
+                    <li>msg.payload: JSON形式で温度・湿度を設定</li>
+                    <li>繰り返し: 5秒ごとに自動送信（テスト用）</li>
+                </ul>
+                <p><strong>Vue.jsのポイント:</strong></p>
+                <ul>
+                    <li><code>computed</code>で温度に応じた色を計算</li>
+                    <li>v-cardとv-iconでカード表示</li>
+                    <li><code>watch</code>でmsg変更を監視</li>
+                </ul>
+                <p><strong>Vuetifyアイコン例:</strong></p>
+                <div class="code-block">温度: mdi-thermometer
+湿度: mdi-water-percent</div>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "ex2_tab",
+        "type": "tab",
+        "label": "演習2: センサー表示",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "ex2_inject",
+        "type": "inject",
+        "z": "ex2_tab",
+        "name": "センサーデータ",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "5",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"temperature\": 25.5, \"humidity\": 60}",
+        "payloadType": "json",
+        "x": 170,
+        "y": 100,
+        "wires": [
+            [
+                "ex2_random",
+                "ex2_template"
+            ]
+        ]
+    },
+    {
+        "id": "ex2_random",
+        "type": "function",
+        "z": "ex2_tab",
+        "name": "ランダム値生成",
+        "func": "msg.payload = {\n    temperature: Math.round((15 + Math.random() * 20) * 10) / 10,\n    humidity: Math.round(40 + Math.random() * 40)\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 360,
+        "y": 100,
+        "wires": [
+            [
+                "ex2_template"
+            ]
+        ]
+    },
+    {
+        "id": "ex2_template",
+        "type": "ui-template",
+        "z": "ex2_tab",
+        "group": "ex2_group",
+        "page": "",
+        "ui": "",
+        "name": "センサー表示",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "head": "",
+        "format": "&lt;template&gt;\n    <div class=\"sensor-dashboard\">\n        <v-row>\n            <v-col cols=\"6\">\n                <v-card :color=\"tempColor\" dark>\n                    <v-card-title>\n                        <v-icon large left>mdi-thermometer</v-icon>\n                        温度\n                    </v-card-title>\n                    <v-card-text class=\"sensor-value\">\n                        {{ temperature }}°C\n                    </v-card-text>\n                </v-card>\n            </v-col>\n            <v-col cols=\"6\">\n                <v-card color=\"blue\" dark>\n                    <v-card-title>\n                        <v-icon large left>mdi-water-percent</v-icon>\n                        湿度\n                    </v-card-title>\n                    <v-card-text class=\"sensor-value\">\n                        {{ humidity }}%\n                    </v-card-text>\n                </v-card>\n            </v-col>\n        </v-row>\n        <p class=\"update-time\">最終更新: {{ lastUpdate }}</p>\n    </div>\n&lt;/template&gt;\n\n&lt;script&gt;\nexport default {\n    data() {\n        return {\n            temperature: '--',\n            humidity: '--',\n            lastUpdate: '--'\n        };\n    },\n    computed: {\n        tempColor() {\n            if (this.temperature === '--') return 'grey';\n            if (this.temperature >= 30) return 'red';\n            if (this.temperature <= 15) return 'blue';\n            return 'green';\n        }\n    },\n    watch: {\n        msg(newMsg) {\n            if (newMsg.payload) {\n                this.temperature = newMsg.payload.temperature || '--';\n                this.humidity = newMsg.payload.humidity || '--';\n                this.lastUpdate = new Date().toLocaleTimeString('ja-JP');\n            }\n        }\n    }\n}\n&lt;/script&gt;\n\n&lt;style scoped&gt;\n.sensor-dashboard {\n    padding: 10px;\n}\n.sensor-value {\n    font-size: 36px;\n    font-weight: bold;\n    text-align: center;\n}\n.update-time {\n    text-align: center;\n    color: #666;\n    margin-top: 15px;\n}\n&lt;/style&gt;",
+        "storeOutMessages": true,
+        "passthru": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 540,
+        "y": 160,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "ex2_group",
+        "type": "ui-group",
+        "name": "センサーモニター",
+        "page": "ex2_page",
+        "width": "6",
+        "height": "-1",
+        "order": 1,
+        "showTitle": true
+    },
+    {
+        "id": "ex2_page",
+        "type": "ui-page",
+        "name": "センサー",
+        "ui": "ex2_base",
+        "path": "/sensor",
+        "icon": "mdi-gauge",
+        "layout": "grid",
+        "theme": "ex2_theme",
+        "order": 1
+    },
+    {
+        "id": "ex2_base",
+        "type": "ui-base",
+        "name": "Dashboard",
+        "path": "/dashboard"
+    },
+    {
+        "id": "ex2_theme",
+        "type": "ui-theme",
+        "name": "Theme",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#b92d5d",
+            "bgPage": "#eeeeee"
+        }
+    }
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習3: ToDoリスト<span class="difficulty difficulty-medium">中級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>タスクの追加・削除・完了切り替えができるToDoリストウィジェットを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>ui-template、Debugノードを使用</li>
+                <li>テキスト入力でタスク追加</li>
+                <li>チェックボックスで完了/未完了を切り替え</li>
+                <li>削除ボタンでタスク削除</li>
+                <li>タスク変更時にNode-REDにリスト全体を送信</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>データ構造:</strong></p>
+                <div class="code-block">todos: [
+    { id: 1, text: "タスク1", done: false },
+    { id: 2, text: "タスク2", done: true }
+]</div>
+                <p><strong>Vue.jsのポイント:</strong></p>
+                <ul>
+                    <li><code>v-for</code>でリスト表示</li>
+                    <li><code>v-checkbox</code>で完了状態管理</li>
+                    <li>配列操作: push（追加）、filter（削除）</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "ex3_tab",
+        "type": "tab",
+        "label": "演習3: ToDoリスト",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "ex3_template",
+        "type": "ui-template",
+        "z": "ex3_tab",
+        "group": "ex3_group",
+        "page": "",
+        "ui": "",
+        "name": "ToDoリスト",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "head": "",
+        "format": "&lt;template&gt;\n    <v-card class=\"todo-card\">\n        <v-card-title>📝 ToDoリスト</v-card-title>\n        <v-card-text>\n            <v-text-field\n                v-model=\"newTask\"\n                label=\"新しいタスク\"\n                append-icon=\"mdi-plus\"\n                @click:append=\"addTask\"\n                @keyup.enter=\"addTask\"\n            />\n            <v-list>\n                <v-list-item v-for=\"todo in todos\" :key=\"todo.id\">\n                    &lt;template v-slot:prepend&gt;\n                        <v-checkbox\n                            v-model=\"todo.done\"\n                            @change=\"updateTodos\"\n                            hide-details\n                        />\n                    &lt;/template&gt;\n                    <v-list-item-title :class=\"{ 'done': todo.done }\">\n                        {{ todo.text }}\n                    </v-list-item-title>\n                    &lt;template v-slot:append&gt;\n                        <v-btn icon=\"mdi-delete\" size=\"small\" @click=\"removeTask(todo.id)\" />\n                    &lt;/template&gt;\n                </v-list-item>\n            </v-list>\n            <p class=\"summary\">完了: {{ completedCount }} / {{ todos.length }}</p>\n        </v-card-text>\n    </v-card>\n&lt;/template&gt;\n\n&lt;script&gt;\nexport default {\n    data() {\n        return {\n            newTask: '',\n            todos: [],\n            nextId: 1\n        };\n    },\n    computed: {\n        completedCount() {\n            return this.todos.filter(t => t.done).length;\n        }\n    },\n    methods: {\n        addTask() {\n            if (this.newTask.trim()) {\n                this.todos.push({\n                    id: this.nextId++,\n                    text: this.newTask,\n                    done: false\n                });\n                this.newTask = '';\n                this.updateTodos();\n            }\n        },\n        removeTask(id) {\n            this.todos = this.todos.filter(t => t.id !== id);\n            this.updateTodos();\n        },\n        updateTodos() {\n            this.send({ payload: this.todos });\n        }\n    },\n    watch: {\n        msg(newMsg) {\n            if (Array.isArray(newMsg.payload)) {\n                this.todos = newMsg.payload;\n                this.nextId = Math.max(...this.todos.map(t => t.id), 0) + 1;\n            }\n        }\n    }\n}\n&lt;/script&gt;\n\n&lt;style scoped&gt;\n.todo-card {\n    margin: 10px;\n}\n.done {\n    text-decoration: line-through;\n    color: #999;\n}\n.summary {\n    text-align: center;\n    margin-top: 15px;\n    color: #666;\n}\n&lt;/style&gt;",
+        "storeOutMessages": true,
+        "passthru": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 200,
+        "y": 100,
+        "wires": [
+            [
+                "ex3_debug"
+            ]
+        ]
+    },
+    {
+        "id": "ex3_debug",
+        "type": "debug",
+        "z": "ex3_tab",
+        "name": "ToDo出力",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 400,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "ex3_group",
+        "type": "ui-group",
+        "name": "ToDo",
+        "page": "ex3_page",
+        "width": "6",
+        "height": "-1",
+        "order": 1,
+        "showTitle": true
+    },
+    {
+        "id": "ex3_page",
+        "type": "ui-page",
+        "name": "ToDo",
+        "ui": "ex3_base",
+        "path": "/todo",
+        "icon": "mdi-checkbox-marked",
+        "layout": "grid",
+        "theme": "ex3_theme",
+        "order": 1
+    },
+    {
+        "id": "ex3_base",
+        "type": "ui-base",
+        "name": "Dashboard",
+        "path": "/dashboard"
+    },
+    {
+        "id": "ex3_theme",
+        "type": "ui-theme",
+        "name": "Theme",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#b92d5d",
+            "bgPage": "#eeeeee"
+        }
+    }
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習4: インタラクティブダッシュボード<span class="difficulty difficulty-hard">上級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>複数のデバイスの状態を表示し、各デバイスの制御ができるダッシュボードを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>ui-template、Function、Debugノードを使用</li>
+                <li>3つのデバイス（照明、エアコン、換気扇）を表示</li>
+                <li>各デバイスのON/OFF切り替えボタン</li>
+                <li>デバイス状態に応じたアイコン・色の変化</li>
+                <li>制御コマンドをNode-REDに送信（デバイス名と状態）</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>データ構造:</strong></p>
+                <div class="code-block">devices: [
+    { id: 'light', name: '照明', icon: 'mdi-lightbulb', on: false },
+    { id: 'aircon', name: 'エアコン', icon: 'mdi-air-conditioner', on: false },
+    { id: 'fan', name: '換気扇', icon: 'mdi-fan', on: false }
+]</div>
+                <p><strong>送信データ形式:</strong></p>
+                <div class="code-block">msg.payload = {
+    device: 'light',
+    command: 'on' // または 'off'
+}</div>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "ex4_tab",
+        "type": "tab",
+        "label": "演習4: デバイス制御",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "ex4_template",
+        "type": "ui-template",
+        "z": "ex4_tab",
+        "group": "ex4_group",
+        "page": "",
+        "ui": "",
+        "name": "デバイス制御パネル",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "head": "",
+        "format": "&lt;template&gt;\n    <div class=\"device-panel\">\n        <h2>🏠 スマートホーム制御</h2>\n        <v-row>\n            <v-col v-for=\"device in devices\" :key=\"device.id\" cols=\"4\">\n                <v-card \n                    :color=\"device.on ? 'primary' : 'grey-lighten-2'\"\n                    :dark=\"device.on\"\n                    class=\"device-card\"\n                    @click=\"toggleDevice(device)\"\n                >\n                    <v-card-text class=\"text-center\">\n                        <v-icon size=\"64\" :class=\"{ 'rotating': device.id === 'fan' && device.on }\">\n                            {{ device.icon }}\n                        </v-icon>\n                        <h3>{{ device.name }}</h3>\n                        <v-chip :color=\"device.on ? 'green' : 'red'\" small>\n                            {{ device.on ? 'ON' : 'OFF' }}\n                        </v-chip>\n                    </v-card-text>\n                </v-card>\n            </v-col>\n        </v-row>\n        <v-divider class=\"my-4\" />\n        <div class=\"action-buttons\">\n            <v-btn color=\"success\" @click=\"allOn\">全てON</v-btn>\n            <v-btn color=\"error\" @click=\"allOff\">全てOFF</v-btn>\n        </div>\n    </div>\n&lt;/template&gt;\n\n&lt;script&gt;\nexport default {\n    data() {\n        return {\n            devices: [\n                { id: 'light', name: '照明', icon: 'mdi-lightbulb', on: false },\n                { id: 'aircon', name: 'エアコン', icon: 'mdi-air-conditioner', on: false },\n                { id: 'fan', name: '換気扇', icon: 'mdi-fan', on: false }\n            ]\n        };\n    },\n    methods: {\n        toggleDevice(device) {\n            device.on = !device.on;\n            this.sendCommand(device.id, device.on ? 'on' : 'off');\n        },\n        allOn() {\n            this.devices.forEach(d => {\n                d.on = true;\n                this.sendCommand(d.id, 'on');\n            });\n        },\n        allOff() {\n            this.devices.forEach(d => {\n                d.on = false;\n                this.sendCommand(d.id, 'off');\n            });\n        },\n        sendCommand(deviceId, command) {\n            this.send({\n                payload: {\n                    device: deviceId,\n                    command: command\n                },\n                topic: 'device_control'\n            });\n        }\n    },\n    watch: {\n        msg(newMsg) {\n            if (newMsg.payload && newMsg.payload.device) {\n                const device = this.devices.find(d => d.id === newMsg.payload.device);\n                if (device) {\n                    device.on = newMsg.payload.command === 'on';\n                }\n            }\n        }\n    }\n}\n&lt;/script&gt;\n\n&lt;style scoped&gt;\n.device-panel {\n    padding: 20px;\n}\n.device-card {\n    cursor: pointer;\n    transition: transform 0.2s;\n}\n.device-card:hover {\n    transform: scale(1.05);\n}\n.rotating {\n    animation: spin 2s linear infinite;\n}\n@keyframes spin {\n    from { transform: rotate(0deg); }\n    to { transform: rotate(360deg); }\n}\n.action-buttons {\n    display: flex;\n    gap: 10px;\n    justify-content: center;\n}\n&lt;/style&gt;",
+        "storeOutMessages": true,
+        "passthru": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 220,
+        "y": 100,
+        "wires": [
+            [
+                "ex4_debug"
+            ]
+        ]
+    },
+    {
+        "id": "ex4_debug",
+        "type": "debug",
+        "z": "ex4_tab",
+        "name": "制御コマンド",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload.device",
+        "statusType": "auto",
+        "x": 450,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "ex4_group",
+        "type": "ui-group",
+        "name": "デバイス制御",
+        "page": "ex4_page",
+        "width": "6",
+        "height": "-1",
+        "order": 1,
+        "showTitle": true
+    },
+    {
+        "id": "ex4_page",
+        "type": "ui-page",
+        "name": "スマートホーム",
+        "ui": "ex4_base",
+        "path": "/smart-home",
+        "icon": "mdi-home-automation",
+        "layout": "grid",
+        "theme": "ex4_theme",
+        "order": 1
+    },
+    {
+        "id": "ex4_base",
+        "type": "ui-base",
+        "name": "Dashboard",
+        "path": "/dashboard"
+    },
+    {
+        "id": "ex4_theme",
+        "type": "ui-theme",
+        "name": "Theme",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#b92d5d",
+            "bgPage": "#eeeeee"
+        }
+    }
+]</div>
+            </details>
+        </div>
+        
+        <h2 id="section9">🎓 9. まとめ</h2>
+        
+        <div class="important">
+            <h3>ui-templateの重要ポイント</h3>
+            <ul>
+                <li>✅ <strong>4つのテンプレートタイプ</strong>: Widget(UI)、CSS、Page(UI)、Site-wide CSSを用途に応じて選択</li>
+                <li>✅ <strong>Vue.js Options API</strong>: data、methods、computed、watch、mounted、unmountedで柔軟なコンポーネント構築</li>
+                <li>✅ <strong>Vuetifyコンポーネント</strong>: 豊富な既製UIコンポーネントを活用</li>
+                <li>✅ <strong>双方向通信</strong>: this.send()でNode-REDへ送信、msgでメッセージ受信</li>
+                <li>✅ <strong>メッセージ監視</strong>: watchまたはSocket.IOリスナーで受信を検知</li>
+                <li>✅ <strong>外部ライブラリ</strong>: Chart.js、Leafletなどを&lt;script src&gt;で読み込み可能</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <h3>⚠️ よくある間違い</h3>
+            <ul>
+                <li><strong>テンプレートタイプの選択ミス</strong>: ウィジェット作成時にCSS用タイプを選択している</li>
+                <li><strong>Group/Page設定忘れ</strong>: ウィジェットタイプはGroup必須、ページタイプはPage必須</li>
+                <li><strong>this.sendの引数</strong>: オブジェクトでない値を送ると自動的にmsg.payloadにラップされる</li>
+                <li><strong>watchとSocket.IOの混同</strong>: 初回ロード時の動作が異なることに注意</li>
+                <li><strong>スコープ付きCSSの影響範囲</strong>: &lt;style scoped&gt;はそのコンポーネント内のみに適用</li>
+                <li><strong>Socket.IOのクリーンアップ忘れ</strong>: unmountedでリスナーを解除しないとメモリリーク</li>
+            </ul>
+        </div>
+        
+        <h2 id="section10">🔧 10. トラブルシューティング</h2>
+        
+        <h3>よくある問題と解決方法</h3>
+        
+        <table>
+            <tr>
+                <th>問題</th>
+                <th>原因</th>
+                <th>解決方法</th>
+            </tr>
+            <tr>
+                <td>ウィジェットが表示されない</td>
+                <td>Group未設定またはエラー</td>
+                <td>Groupを設定し、ブラウザのコンソールでエラー確認</td>
+            </tr>
+            <tr>
+                <td>メッセージが受信できない</td>
+                <td>watch設定ミスまたはプロパティ名誤り</td>
+                <td>watch: { msg(newMsg) {...} }の形式を確認</td>
+            </tr>
+            <tr>
+                <td>send()が動作しない</td>
+                <td>thisの参照が失われている</td>
+                <td>アロー関数を使用するか、外側でconst self = thisを保存</td>
+            </tr>
+            <tr>
+                <td>CSSが適用されない</td>
+                <td>scopedの影響または優先度不足</td>
+                <td>!importantを追加またはscopedを外す</td>
+            </tr>
+            <tr>
+                <td>Vuetifyコンポーネントが動かない</td>
+                <td>v-model設定ミスまたはデータ未定義</td>
+                <td>data()でv-modelに対応する変数を定義</td>
+            </tr>
+            <tr>
+                <td>ページリロードで状態がリセット</td>
+                <td>状態がブラウザ内のみ</td>
+                <td>resendOnRefresh: trueを設定しNode-REDから再送信</td>
+            </tr>
+        </table>
+        
+        <h2 id="section11">💡 11. 実務での活用例</h2>
+        
+        <h3>ケース1: カスタムセンサーダッシュボード</h3>
+        <div class="code-block">複数センサーからのデータ受信
+    ↓
+ui-template（グラフ表示）
+  - Chart.jsでリアルタイムグラフ
+  - 閾値超過時に色変更
+  - 履歴データの表示切替
+    ↓
+アラート表示 + データベース保存</div>
+        
+        <h3>ケース2: 設備制御パネル</h3>
+        <div class="code-block">ui-template（制御パネル）
+  - 設備一覧をカード形式で表示
+  - 状態に応じたアイコン・色
+  - 制御ボタン（起動/停止/緊急停止）
+    ↓
+MQTT送信 → PLC/デバイス制御</div>
+        
+        <h3>ケース3: ファイルアップロードシステム</h3>
+        <div class="code-block">ui-template（ファイルアップロード）
+  - v-file-inputでファイル選択
+  - プログレスバーで進捗表示
+  - ファイル情報のプレビュー
+    ↓
+Function（バッファ変換）
+    ↓
+Write File → ストレージ保存</div>
+        
+        <h3>ケース4: カスタムレポート画面</h3>
+        <div class="code-block">データベースクエリ
+    ↓
+ui-template（レポート表示）
+  - v-data-tableで高度なテーブル
+  - ソート・フィルター・ページネーション
+  - CSVエクスポートボタン
+    ↓
+PDF生成 or メール送信</div>
+        
+        <h2 id="section12">📚 12. 追加リソース</h2>
+        
+        <ul>
+            <li><a href="https://dashboard.flowfuse.com/nodes/widgets/ui-template.html" target="_blank">Dashboard 2.0 ui-template 公式ドキュメント</a></li>
+            <li><a href="https://dashboard.flowfuse.com/user/template-examples.html" target="_blank">ui-template 実例集</a></li>
+            <li><a href="https://vuejs.org/guide/introduction.html" target="_blank">Vue.js 公式ガイド</a></li>
+            <li><a href="https://vuetifyjs.com/en/components/all/" target="_blank">Vuetify コンポーネント一覧</a></li>
+            <li><a href="https://pictogrammers.com/library/mdi/" target="_blank">Material Design Icons</a></li>
+            <li><a href="https://www.chartjs.org/docs/latest/" target="_blank">Chart.js ドキュメント</a></li>
+        </ul>
+        
+        <hr>
+        
+        <p style="text-align: center; color: #999; margin-top: 40px;">
+            <small>このガイドが役に立ちましたら、実際のプロジェクトで練習してみてください！<br>
+            ui-templateはDashboard 2.0の最も強力なウィジェットです。</small><br>
+            <small>参照元：FlowFuse Dashboard 2.0 公式ドキュメント</small>
+        </p>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var codeBlocks = document.querySelectorAll('.flow-json, .js-code[data-copy="true"]');
+            
+            codeBlocks.forEach(function(block) {
+                var button = document.createElement('button');
+                button.className = 'copy-button';
+                button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                
+                button.addEventListener('click', function() {
+                    var code;
+                    if (block.tagName === 'TEXTAREA') {
+                        code = block.value;
+                    } else {
+                        code = block.textContent.replace(/コピー(しました!)?$/, '').trim();
+                    }
+                    
+                    if (block.classList.contains('js-code')) {
+                        code = block.innerText.replace(/コピー(しました!)?$/, '').trim();
+                    }
+                    
+                    // HTMLエンティティをデコード（JSONフロー内の<script>タグ等を復元）
+                    if (block.tagName !== 'TEXTAREA') {
+                        code = code.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+                    }
+                    
+                    navigator.clipboard.writeText(code).then(function() {
+                        button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>コピーしました!';
+                        button.classList.add('copied');
+                        
+                        setTimeout(function() {
+                            button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                            button.classList.remove('copied');
+                        }, 2000);
+                    }).catch(function(err) {
+                        console.error('コピーに失敗しました:', err);
+                        button.textContent = 'エラー';
+                        setTimeout(function() {
+                            button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                        }, 2000);
+                    });
+                });
+                
+                if (block.tagName === 'TEXTAREA') {
+                    // textareaの場合は親要素にボタンを追加
+                    var wrapper = document.createElement('div');
+                    wrapper.style.position = 'relative';
+                    block.parentNode.insertBefore(wrapper, block);
+                    wrapper.appendChild(block);
+                    wrapper.appendChild(button);
+                } else {
+                    block.style.position = 'relative';
+                    block.appendChild(button);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
