@@ -1,0 +1,2597 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED Dashboard 2.0 データ可視化ウィジェット 完全ガイド</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        h1 {
+            color: #b92d5d;
+            border-bottom: 3px solid #b92d5d;
+            padding-bottom: 10px;
+        }
+        
+        h2 {
+            color: #d33682;
+            margin-top: 40px;
+            border-left: 5px solid #d33682;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #555;
+            margin-top: 25px;
+        }
+        
+        h4 {
+            color: #666;
+            margin-top: 20px;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .node-example {
+            background-color: #2d3133;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            color: white;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        
+        .node {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 4px;
+            margin: 5px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .node-inject {
+            background-color: #3fadb5;
+            color: white;
+        }
+        
+        .node-debug {
+            background-color: #87a48d;
+            color: white;
+        }
+        
+        .node-function {
+            background-color: #e8a658;
+            color: white;
+        }
+        
+        .node-change {
+            background-color: #e7a070;
+            color: white;
+        }
+        
+        .node-switch {
+            background-color: #e2d96e;
+            color: #333;
+        }
+        
+        .node-template {
+            background-color: #d4b8a0;
+            color: #333;
+        }
+        
+        /* Dashboard 2.0 widgets */
+        .node-ui-chart {
+            background-color: #b92d5d;
+            color: white;
+        }
+        
+        .node-ui-gauge {
+            background-color: #b92d5d;
+            color: white;
+        }
+        
+        .node-ui-table {
+            background-color: #b92d5d;
+            color: white;
+        }
+        
+        .node-ui-progress {
+            background-color: #b92d5d;
+            color: white;
+        }
+        
+        .node-ui-markdown {
+            background-color: #b92d5d;
+            color: white;
+        }
+        
+        .node-ui-slider {
+            background-color: #b92d5d;
+            color: white;
+        }
+        
+        .node-ui-button {
+            background-color: #b92d5d;
+            color: white;
+        }
+        
+        .node-ui-event {
+            background-color: #b92d5d;
+            color: white;
+        }
+        
+        .arrow {
+            color: #999;
+            font-size: 20px;
+            margin: 0 10px;
+        }
+        
+        .important {
+            background-color: #fce4ec;
+            border-left: 4px solid #b92d5d;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .tip {
+            background-color: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .warning {
+            background-color: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .code-block {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            position: relative;
+            white-space: pre-wrap;
+        }
+        
+        .js-code {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            border: none;
+            padding: 15px;
+            padding-top: 40px;
+            border-radius: 5px;
+            position: relative;
+            white-space: pre;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+        }
+        
+        .copy-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 6px 12px;
+            background-color: #b92d5d;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: 'Segoe UI', sans-serif;
+            transition: background-color 0.2s;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .copy-button:hover {
+            background-color: #9a2550;
+        }
+        
+        .copy-button.copied {
+            background-color: #28a745;
+        }
+        
+        .copy-button svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+        }
+        
+        .exercise {
+            background-color: #f3e5f5;
+            border: 2px solid #9c27b0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        
+        .exercise h3 {
+            color: #7b1fa2;
+            margin-top: 0;
+        }
+        
+        .difficulty {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .difficulty-easy {
+            background-color: #4caf50;
+            color: white;
+        }
+        
+        .difficulty-medium {
+            background-color: #ff9800;
+            color: white;
+        }
+        
+        .difficulty-hard {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        ul, ol {
+            padding-left: 25px;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #b92d5d;
+            color: white;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .flow-json {
+            background-color: #263238;
+            color: #aed581;
+            padding: 15px;
+            padding-top: 40px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        details {
+            margin: 15px 0;
+        }
+        
+        summary {
+            cursor: pointer;
+            padding: 10px;
+            background-color: #b92d5d;
+            color: white;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        summary:hover {
+            background-color: #9a2550;
+        }
+        
+        .widget-card {
+            background: linear-gradient(135deg, #fce4ec 0%, #f3e5f5 100%);
+            border: 2px solid #b92d5d;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .widget-card h3 {
+            color: #b92d5d;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .widget-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        
+        .badge-output {
+            background-color: #2196f3;
+            color: white;
+        }
+        
+        .badge-both {
+            background-color: #ff9800;
+            color: white;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .feature-card {
+            background-color: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .feature-card h4 {
+            color: #b92d5d;
+            margin-top: 0;
+        }
+        
+        .chart-type-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .chart-type-card {
+            background-color: #fff;
+            border: 2px solid #b92d5d;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .chart-type-card .icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .chart-type-card h4 {
+            color: #b92d5d;
+            margin: 10px 0 5px 0;
+        }
+        
+        .gauge-type-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .gauge-type-card {
+            background-color: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .gauge-type-card .icon {
+            font-size: 2em;
+            margin-bottom: 8px;
+        }
+        
+        .toc {
+            background-color: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .toc h3 {
+            color: #b92d5d;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        
+        .toc ol {
+            margin: 0;
+            padding-left: 25px;
+        }
+        
+        .toc li {
+            margin: 8px 0;
+        }
+        
+        .toc a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        
+        .toc a:hover {
+            text-decoration: underline;
+        }
+        
+        .comparison-table th {
+            background-color: #d33682;
+        }
+        
+        .data-format {
+            background-color: #e8f5e9;
+            border: 1px solid #4caf50;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        
+        .data-format h5 {
+            color: #2e7d32;
+            margin: 0 0 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Node-RED Dashboard 2.0 データ可視化ウィジェット 完全ガイド</h1>
+        
+        <p>このガイドでは、Dashboard 2.0の<strong>データ可視化系ウィジェット</strong>について詳しく解説します。センサーデータのグラフ表示、ゲージによるリアルタイム監視、テーブルでのデータ一覧表示など、IoTダッシュボードに欠かせない機能を学びましょう。</p>
+        
+        <div class="toc">
+            <h3>📑 目次</h3>
+            <ol>
+                <li><a href="#section1">データ可視化ウィジェット概要</a></li>
+                <li><a href="#section2">サンプルフロー</a></li>
+                <li><a href="#section3">ui-chart（チャート）</a></li>
+                <li><a href="#section4">ui-gauge（ゲージ）</a></li>
+                <li><a href="#section5">ui-table（テーブル）</a></li>
+                <li><a href="#section6">ui-progress（プログレスバー）</a></li>
+                <li><a href="#section7">演習問題</a></li>
+                <li><a href="#section8">まとめ</a></li>
+                <li><a href="#section9">トラブルシューティング</a></li>
+                <li><a href="#section10">実務活用例</a></li>
+                <li><a href="#section11">追加リソース</a></li>
+            </ol>
+        </div>
+        
+        <h2 id="section1">📈 1. データ可視化ウィジェット概要</h2>
+        
+        <h3>🎨 日常のアナロジー：車のダッシュボード</h3>
+        <p>車を運転するとき、ダッシュボードを見ると様々な情報が視覚的に表示されています：</p>
+        <ul>
+            <li><strong>スピードメーター（ゲージ）</strong> - 現在の速度を針や数値で表示</li>
+            <li><strong>燃料計（ゲージ）</strong> - 残量をバーやセグメントで表示</li>
+            <li><strong>走行距離計（テキスト）</strong> - 累計距離を数値で表示</li>
+            <li><strong>燃費グラフ（チャート）</strong> - 時系列での変化を折れ線で表示</li>
+        </ul>
+        <p>Dashboard 2.0のデータ可視化ウィジェットも同様に、IoTセンサーやシステムの状態を直感的に把握できる形で表示します。</p>
+        
+        <h3>📋 データ可視化ウィジェット一覧</h3>
+        
+        <div class="chart-type-grid">
+            <div class="chart-type-card">
+                <div class="icon">📈</div>
+                <h4>ui-chart</h4>
+                <p>折れ線・棒・円グラフなど多彩なチャート</p>
+            </div>
+            <div class="chart-type-card">
+                <div class="icon">🎯</div>
+                <h4>ui-gauge</h4>
+                <p>メーター形式の値表示</p>
+            </div>
+            <div class="chart-type-card">
+                <div class="icon">📋</div>
+                <h4>ui-table</h4>
+                <p>データの一覧表示</p>
+            </div>
+            <div class="chart-type-card">
+                <div class="icon">📊</div>
+                <h4>ui-progress</h4>
+                <p>進捗状況の表示</p>
+            </div>
+        </div>
+        
+        <h2 id="section2">🔧 2. サンプルフロー</h2>
+        
+        <p>以下のサンプルフローをインポートして、各ウィジェットの動作を確認できます。</p>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">データ生成</span>
+            <span class="arrow">→</span>
+            <span class="node node-ui-chart">ui-chart</span>
+        </div>
+        
+        <div class="node-example">
+            <span class="node node-ui-slider">ui-slider</span>
+            <span class="arrow">→</span>
+            <span class="node node-ui-gauge">ui-gauge</span>
+        </div>
+        
+        <details>
+            <summary>📥 サンプルフローJSON（クリックで展開）</summary>
+            <div class="flow-json">[
+    {
+        "id": "viz_tab",
+        "type": "tab",
+        "label": "データ可視化サンプル",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "viz_ui_base",
+        "type": "ui-base",
+        "name": "My Dashboard",
+        "path": "/dashboard",
+        "appIcon": "",
+        "includeClientData": true,
+        "acceptsClientConfig": ["ui-notification", "ui-control"],
+        "showPathInSidebar": false,
+        "headerContent": "page",
+        "navigationStyle": "default",
+        "titleBarStyle": "default",
+        "showReconnectNotification": true,
+        "notificationDisplayTime": 5,
+        "showDisconnectNotification": true,
+        "allowInstall": true
+    },
+    {
+        "id": "viz_ui_page",
+        "type": "ui-page",
+        "name": "データ可視化",
+        "ui": "viz_ui_base",
+        "path": "/visualization",
+        "icon": "mdi-chart-line",
+        "layout": "grid",
+        "theme": "viz_ui_theme",
+        "breakpoints": [
+            {"name": "Default", "px": 0, "cols": 3},
+            {"name": "Tablet", "px": 576, "cols": 6},
+            {"name": "Small Desktop", "px": 768, "cols": 9},
+            {"name": "Desktop", "px": 1024, "cols": 12}
+        ],
+        "order": 1,
+        "visible": true,
+        "disabled": false
+    },
+    {
+        "id": "viz_ui_theme",
+        "type": "ui-theme",
+        "name": "Default Theme",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#b92d5d",
+            "bgPage": "#eeeeee",
+            "groupBg": "#ffffff",
+            "groupOutline": "#cccccc"
+        },
+        "sizes": {
+            "pagePadding": "12px",
+            "groupGap": "12px",
+            "groupBorderRadius": "4px",
+            "widgetGap": "12px"
+        }
+    },
+    {
+        "id": "viz_group_chart",
+        "type": "ui-group",
+        "name": "📈 チャート",
+        "page": "viz_ui_page",
+        "width": "6",
+        "height": "10",
+        "order": 1,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "viz_group_gauge",
+        "type": "ui-group",
+        "name": "🎯 ゲージ",
+        "page": "viz_ui_page",
+        "width": "6",
+        "height": "10",
+        "order": 2,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "viz_group_table",
+        "type": "ui-group",
+        "name": "📋 テーブル",
+        "page": "viz_ui_page",
+        "width": "6",
+        "height": "6",
+        "order": 3,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "viz_group_progress",
+        "type": "ui-group",
+        "name": "📊 プログレス",
+        "page": "viz_ui_page",
+        "width": "6",
+        "height": "4",
+        "order": 4,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "viz_inject_chart",
+        "type": "inject",
+        "z": "viz_tab",
+        "name": "5秒毎にデータ送信",
+        "props": [
+            {"p": "payload"},
+            {"p": "topic", "vt": "str"}
+        ],
+        "repeat": "5",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "0.1",
+        "topic": "センサーA",
+        "payload": "",
+        "payloadType": "date",
+        "x": 150,
+        "y": 80,
+        "wires": [["viz_func_random"]]
+    },
+    {
+        "id": "viz_func_random",
+        "type": "function",
+        "z": "viz_tab",
+        "name": "ランダム値生成",
+        "func": "msg.payload = Math.floor(Math.random() * 100);\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 360,
+        "y": 80,
+        "wires": [["viz_chart_line", "viz_gauge_34"]]
+    },
+    {
+        "id": "viz_chart_line",
+        "type": "ui-chart",
+        "z": "viz_tab",
+        "group": "viz_group_chart",
+        "name": "温度チャート",
+        "label": "温度推移",
+        "order": 1,
+        "chartType": "line",
+        "category": "topic",
+        "categoryType": "msg",
+        "xAxisLabel": "",
+        "xAxisProperty": "",
+        "xAxisPropertyType": "property",
+        "xAxisType": "time",
+        "xAxisFormat": "",
+        "xAxisFormatType": "auto",
+        "xmin": "",
+        "xmax": "",
+        "yAxisLabel": "",
+        "yAxisProperty": "payload",
+        "yAxisPropertyType": "msg",
+        "ymin": "",
+        "ymax": "",
+        "bins": "",
+        "action": "append",
+        "stackSeries": false,
+        "pointShape": "circle",
+        "pointRadius": 4,
+        "showLegend": true,
+        "removeOlder": 1,
+        "removeOlderUnit": "60",
+        "removeOlderPoints": "",
+        "colors": ["#b92d5d", "#2196f3", "#4caf50", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000"],
+        "textColor": ["#666666"],
+        "textColorDefault": true,
+        "gridColor": ["#e5e5e5"],
+        "gridColorDefault": true,
+        "width": "6",
+        "height": "4",
+        "className": "",
+        "interpolation": "linear",
+        "x": 560,
+        "y": 60,
+        "wires": [[]]
+    },
+    {
+        "id": "viz_gauge_34",
+        "type": "ui-gauge",
+        "z": "viz_tab",
+        "name": "温度ゲージ",
+        "group": "viz_group_gauge",
+        "order": 1,
+        "value": "payload",
+        "valueType": "msg",
+        "width": "6",
+        "height": "4",
+        "gtype": "gauge-half",
+        "gstyle": "rounded",
+        "title": "現在温度",
+        "alwaysShowTitle": false,
+        "units": "°C",
+        "icon": "mdi-thermometer",
+        "prefix": "",
+        "suffix": "",
+        "segments": [
+            {"from": "0", "color": "#2196f3", "text": "", "textType": "label"},
+            {"from": "30", "color": "#4caf50", "text": "", "textType": "label"},
+            {"from": "60", "color": "#ff9800", "text": "", "textType": "label"},
+            {"from": "80", "color": "#f44336", "text": "", "textType": "label"}
+        ],
+        "min": 0,
+        "max": 100,
+        "sizeThickness": 16,
+        "sizeGap": 4,
+        "sizeKeyThickness": 8,
+        "styleRounded": true,
+        "styleGlow": false,
+        "className": "",
+        "x": 550,
+        "y": 100,
+        "wires": [[]]
+    },
+    {
+        "id": "viz_inject_table",
+        "type": "inject",
+        "z": "viz_tab",
+        "name": "テーブルデータ",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "1",
+        "topic": "",
+        "payload": "[{\"id\":1,\"name\":\"センサーA\",\"value\":25.5,\"status\":\"正常\"},{\"id\":2,\"name\":\"センサーB\",\"value\":30.2,\"status\":\"正常\"},{\"id\":3,\"name\":\"センサーC\",\"value\":45.8,\"status\":\"警告\"},{\"id\":4,\"name\":\"センサーD\",\"value\":18.3,\"status\":\"正常\"}]",
+        "payloadType": "json",
+        "x": 140,
+        "y": 200,
+        "wires": [["viz_table"]]
+    },
+    {
+        "id": "viz_table",
+        "type": "ui-table",
+        "z": "viz_tab",
+        "group": "viz_group_table",
+        "name": "センサー一覧",
+        "label": "センサーデータ",
+        "order": 1,
+        "width": "0",
+        "height": "0",
+        "maxrows": 10,
+        "autocols": true,
+        "showSearch": true,
+        "deselect": true,
+        "selectionType": "none",
+        "columns": [],
+        "mobileBreakpoint": "sm",
+        "mobileBreakpointType": "defaults",
+        "action": "replace",
+        "x": 350,
+        "y": 200,
+        "wires": [[]]
+    },
+    {
+        "id": "viz_slider_progress",
+        "type": "ui-slider",
+        "z": "viz_tab",
+        "group": "viz_group_progress",
+        "name": "進捗スライダー",
+        "label": "進捗率",
+        "tooltip": "",
+        "order": 1,
+        "width": "0",
+        "height": "0",
+        "passthru": true,
+        "outs": "all",
+        "topic": "",
+        "topicType": "str",
+        "min": 0,
+        "max": 100,
+        "step": 1,
+        "className": "",
+        "x": 140,
+        "y": 280,
+        "wires": [["viz_progress"]]
+    },
+    {
+        "id": "viz_progress",
+        "type": "ui-progress",
+        "z": "viz_tab",
+        "group": "viz_group_progress",
+        "name": "処理進捗",
+        "order": 2,
+        "width": "0",
+        "height": "0",
+        "color": "#b92d5d",
+        "x": 340,
+        "y": 280,
+        "wires": []
+    }
+]</div>
+        </details>
+        
+        <h2 id="section3">📈 3. ui-chart（チャート）</h2>
+        
+        <div class="widget-card">
+            <h3>
+                <span class="widget-badge badge-output">表示</span>
+                ui-chart ウィジェット
+            </h3>
+            <p>時系列データや比較データを視覚的に表示するチャートウィジェットです。eChartsライブラリをベースに、折れ線グラフ、棒グラフ、散布図、円グラフ、ヒストグラムなど多彩な表現が可能です。</p>
+        </div>
+        
+        <h3>🔹 対応チャートタイプ</h3>
+        
+        <div class="chart-type-grid">
+            <div class="chart-type-card">
+                <div class="icon">📈</div>
+                <h4>Line（折れ線）</h4>
+                <p>時系列データの推移表示に最適</p>
+            </div>
+            <div class="chart-type-card">
+                <div class="icon">📊</div>
+                <h4>Bar（棒グラフ）</h4>
+                <p>カテゴリ別の比較に最適</p>
+            </div>
+            <div class="chart-type-card">
+                <div class="icon">⚬</div>
+                <h4>Scatter（散布図）</h4>
+                <p>2変数の相関分析に最適</p>
+            </div>
+            <div class="chart-type-card">
+                <div class="icon">🥧</div>
+                <h4>Pie/Doughnut（円）</h4>
+                <p>構成比の表示に最適</p>
+            </div>
+            <div class="chart-type-card">
+                <div class="icon">📶</div>
+                <h4>Histogram</h4>
+                <p>度数分布の表示に最適</p>
+            </div>
+        </div>
+        
+        <h3>🔹 主要プロパティ</h3>
+        
+        <table>
+            <tr>
+                <th>プロパティ</th>
+                <th>動的</th>
+                <th>説明</th>
+            </tr>
+            <tr>
+                <td>Chart Type</td>
+                <td>-</td>
+                <td>Line / Bar / Scatter / Pie / Doughnut / Histogram</td>
+            </tr>
+            <tr>
+                <td>X-Axis Type</td>
+                <td>-</td>
+                <td>Timescale（時系列）/ Linear（数値）/ Categorical（カテゴリ）</td>
+            </tr>
+            <tr>
+                <td>Series</td>
+                <td>-</td>
+                <td>データのグループ化方法（msg.topic、key指定など）</td>
+            </tr>
+            <tr>
+                <td>X / Y</td>
+                <td>-</td>
+                <td>プロットするデータのプロパティ指定</td>
+            </tr>
+            <tr>
+                <td>Action</td>
+                <td>✓</td>
+                <td>append（追加）/ replace（置換）</td>
+            </tr>
+            <tr>
+                <td>X-Axis Limit</td>
+                <td>-</td>
+                <td>表示するデータ期間の制限</td>
+            </tr>
+            <tr>
+                <td>Show Legend</td>
+                <td>-</td>
+                <td>凡例の表示/非表示</td>
+            </tr>
+        </table>
+        
+        <h3>🔹 入力データ形式</h3>
+        
+        <h4>パターン1: シンプルな数値（時系列自動）</h4>
+        <div class="data-format">
+            <h5>📤 送信データ</h5>
+            <div class="code-block">msg.payload = 25.5;
+msg.topic = "温度";</div>
+        </div>
+        <p>X軸のタイプが「Timescale」で、X値を指定しない場合、現在時刻が自動的に使用されます。</p>
+        
+        <h4>パターン2: オブジェクト形式</h4>
+        <div class="data-format">
+            <h5>📤 送信データ</h5>
+            <div class="code-block">msg.payload = {
+    "time": 1703500800000,  // ミリ秒タイムスタンプ
+    "value": 25.5
+};
+msg.topic = "センサーA";</div>
+        </div>
+        
+        <h4>パターン3: 配列形式（一括データ）</h4>
+        <div class="data-format">
+            <h5>📤 送信データ</h5>
+            <div class="code-block">msg.payload = [
+    { "category": "1月", "sales": 100 },
+    { "category": "2月", "sales": 150 },
+    { "category": "3月", "sales": 120 }
+];</div>
+        </div>
+        
+        <h3>🔹 補間方法（Interpolation）</h3>
+        <p>折れ線グラフでポイント間をどう描画するかを選択できます：</p>
+        <ul>
+            <li><strong>Linear</strong> - 直線で接続（デフォルト）</li>
+            <li><strong>Step</strong> - 階段状に接続（ON/OFF状態の表示に最適）</li>
+            <li><strong>Bezier</strong> - 滑らかな曲線で接続</li>
+            <li><strong>Cubic</strong> - より滑らかな曲線</li>
+            <li><strong>Cubic-Mono</strong> - オーバーシュートしない滑らかな曲線</li>
+        </ul>
+        
+        <h3>🔹 タイムスタンプのフォーマット</h3>
+        <table>
+            <tr>
+                <th>フォーマット</th>
+                <th>表示例</th>
+            </tr>
+            <tr>
+                <td>{HH}:{mm}:{ss}</td>
+                <td>12:30:45</td>
+            </tr>
+            <tr>
+                <td>{HH}:{mm}</td>
+                <td>12:30</td>
+            </tr>
+            <tr>
+                <td>{yyyy}-{M}-{d}</td>
+                <td>2024-12-25</td>
+            </tr>
+            <tr>
+                <td>{d}/{M}</td>
+                <td>25/12</td>
+            </tr>
+            <tr>
+                <td>{ee} {HH}:{mm}</td>
+                <td>Wed 12:30</td>
+            </tr>
+        </table>
+        
+        <h3>🔹 チャートのクリア</h3>
+        <div class="tip">
+            <strong>💡 ヒント:</strong> チャートの全データをクリアするには、<code>msg.payload = []</code>（空配列）を送信します。
+        </div>
+        
+        <div class="node-example">
+            <span class="node node-ui-button">クリアボタン</span>
+            <span class="arrow">→</span>
+            <span class="node node-ui-chart">ui-chart</span>
+        </div>
+        
+        <h2 id="section4">🎯 4. ui-gauge（ゲージ）</h2>
+        
+        <div class="widget-card">
+            <h3>
+                <span class="widget-badge badge-output">表示</span>
+                ui-gauge ウィジェット
+            </h3>
+            <p>数値をメーター形式で表示するウィジェットです。温度、速度、進捗率など、範囲が明確な値の表示に最適です。複数のスタイル（Half、3/4、Tile、Battery、Water Tank）から選択できます。</p>
+        </div>
+        
+        <h3>🔹 ゲージタイプ</h3>
+        
+        <div class="gauge-type-grid">
+            <div class="gauge-type-card">
+                <div class="icon">🎯</div>
+                <h4>3/4 Gauge</h4>
+                <p>270度の円弧</p>
+            </div>
+            <div class="gauge-type-card">
+                <div class="icon">⏱️</div>
+                <h4>Half Gauge</h4>
+                <p>180度の半円</p>
+            </div>
+            <div class="gauge-type-card">
+                <div class="icon">🔲</div>
+                <h4>Tile</h4>
+                <p>タイル形式の数値表示</p>
+            </div>
+            <div class="gauge-type-card">
+                <div class="icon">🔋</div>
+                <h4>Battery</h4>
+                <p>バッテリー形式</p>
+            </div>
+            <div class="gauge-type-card">
+                <div class="icon">💧</div>
+                <h4>Water Tank</h4>
+                <p>水位タンク形式</p>
+            </div>
+        </div>
+        
+        <h3>🔹 主要プロパティ</h3>
+        
+        <table>
+            <tr>
+                <th>プロパティ</th>
+                <th>動的</th>
+                <th>説明</th>
+            </tr>
+            <tr>
+                <td>Type</td>
+                <td>✓</td>
+                <td>gauge-34 / gauge-half / gauge-tile / gauge-battery / gauge-tank</td>
+            </tr>
+            <tr>
+                <td>Style</td>
+                <td>✓</td>
+                <td>Rounded（丸）/ Needle（針）</td>
+            </tr>
+            <tr>
+                <td>Range (min/max)</td>
+                <td>✓</td>
+                <td>表示範囲の最小値・最大値</td>
+            </tr>
+            <tr>
+                <td>Segments</td>
+                <td>✓</td>
+                <td>色分けするセグメントの定義</td>
+            </tr>
+            <tr>
+                <td>Label</td>
+                <td>✓</td>
+                <td>ゲージの上部に表示するラベル</td>
+            </tr>
+            <tr>
+                <td>Units</td>
+                <td>✓</td>
+                <td>単位（°C、%など）</td>
+            </tr>
+            <tr>
+                <td>Icon</td>
+                <td>✓</td>
+                <td>Material Design Iconの指定</td>
+            </tr>
+        </table>
+        
+        <h3>🔹 セグメント（色分け）の設定</h3>
+        
+        <div class="code-block">// セグメント設定例
+[
+    { "from": 0, "color": "#2196f3" },   // 青: 0-30
+    { "from": 30, "color": "#4caf50" },  // 緑: 30-60
+    { "from": 60, "color": "#ff9800" },  // オレンジ: 60-80
+    { "from": 80, "color": "#f44336" }   // 赤: 80-100
+]</div>
+        
+        <h3>🔹 動的プロパティの更新</h3>
+        
+        <div class="data-format">
+            <h5>📤 msg.ui_updateで動的変更</h5>
+            <div class="code-block">msg.payload = 75;  // 値
+msg.ui_update = {
+    "label": "CPU温度",
+    "units": "°C",
+    "min": 0,
+    "max": 100,
+    "segments": [
+        { "from": 0, "color": "green" },
+        { "from": 70, "color": "orange" },
+        { "from": 90, "color": "red" }
+    ]
+};</div>
+        </div>
+        
+        <h3>🔹 値のフォーマット（JSONata）</h3>
+        
+        <p>Valueプロパティで「JSONata」タイプを選択すると、値を加工して表示できます：</p>
+        
+        <div class="code-block">$round(payload, 1)    // 小数点1桁に丸める
+$round(payload, 0)    // 整数に丸める
+payload * 100         // パーセント変換</div>
+        
+        <h2 id="section5">📋 5. ui-table（テーブル）</h2>
+        
+        <div class="widget-card">
+            <h3>
+                <span class="widget-badge badge-both">入出力</span>
+                ui-table ウィジェット
+            </h3>
+            <p>配列データを表形式で表示するウィジェットです。センサー一覧、ログデータ、設定値リストなどの表示に最適です。行選択による入力機能もあります。</p>
+        </div>
+        
+        <h3>🔹 基本的な使い方</h3>
+        
+        <div class="node-example">
+            <span class="node node-inject">データ</span>
+            <span class="arrow">→</span>
+            <span class="node node-ui-table">ui-table</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">選択行</span>
+        </div>
+        
+        <h3>🔹 入力データ形式</h3>
+        
+        <div class="data-format">
+            <h5>📤 配列形式のデータ</h5>
+            <div class="code-block">msg.payload = [
+    { "id": 1, "name": "センサーA", "value": 25.5, "status": "正常" },
+    { "id": 2, "name": "センサーB", "value": 30.2, "status": "正常" },
+    { "id": 3, "name": "センサーC", "value": 45.8, "status": "警告" },
+    { "id": 4, "name": "センサーD", "value": 18.3, "status": "正常" }
+];</div>
+        </div>
+        
+        <h3>🔹 主要プロパティ</h3>
+        
+        <table>
+            <tr>
+                <th>プロパティ</th>
+                <th>説明</th>
+            </tr>
+            <tr>
+                <td>Auto Columns</td>
+                <td>オブジェクトのキーから自動的に列を生成</td>
+            </tr>
+            <tr>
+                <td>Columns</td>
+                <td>手動での列定義（表示順序、ラベル、幅などを指定）</td>
+            </tr>
+            <tr>
+                <td>Max Rows</td>
+                <td>表示する最大行数</td>
+            </tr>
+            <tr>
+                <td>Selection</td>
+                <td>行選択時にメッセージを出力</td>
+            </tr>
+        </table>
+        
+        <h3>🔹 列のカスタム定義</h3>
+        
+        <div class="code-block">// Columnsプロパティの設定例
+[
+    { "key": "id", "label": "ID", "width": "60px" },
+    { "key": "name", "label": "センサー名", "width": "150px" },
+    { "key": "value", "label": "現在値", "width": "100px", "align": "right" },
+    { "key": "status", "label": "状態", "width": "80px" }
+]</div>
+        
+        <h3>🔹 行選択時の出力</h3>
+        
+        <div class="data-format">
+            <h5>📥 選択行のデータが出力される</h5>
+            <div class="code-block">msg.payload = {
+    "id": 2,
+    "name": "センサーB",
+    "value": 30.2,
+    "status": "正常"
+}</div>
+        </div>
+        
+        <h2 id="section6">📊 6. ui-progress（プログレスバー）</h2>
+        
+        <div class="widget-card">
+            <h3>
+                <span class="widget-badge badge-output">表示</span>
+                ui-progress ウィジェット
+            </h3>
+            <p>進捗状況を棒形式で表示するシンプルなウィジェットです。ダウンロード進捗、処理状況、容量使用率などの表示に最適です。</p>
+        </div>
+        
+        <h3>🔹 基本的な使い方</h3>
+        
+        <div class="node-example">
+            <span class="node node-inject">進捗値</span>
+            <span class="arrow">→</span>
+            <span class="node node-ui-progress">ui-progress</span>
+        </div>
+        
+        <h3>🔹 主要プロパティ</h3>
+        
+        <table>
+            <tr>
+                <th>プロパティ</th>
+                <th>説明</th>
+            </tr>
+            <tr>
+                <td>Style</td>
+                <td>Linear（直線）/ Circular（円形）</td>
+            </tr>
+            <tr>
+                <td>Show Value</td>
+                <td>数値を表示するかどうか</td>
+            </tr>
+            <tr>
+                <td>Color</td>
+                <td>バーの色</td>
+            </tr>
+            <tr>
+                <td>Min / Max</td>
+                <td>範囲の最小値・最大値</td>
+            </tr>
+        </table>
+        
+        <h3>🔹 入力データ</h3>
+        
+        <div class="code-block">msg.payload = 75;  // 0-100の値（Min/Maxに応じて調整）</div>
+        
+        <h2 id="section7">📝 7. 演習問題</h2>
+        
+        <div class="exercise">
+            <h3>演習1: リアルタイム温度モニター <span class="difficulty difficulty-easy">初級</span></h3>
+            
+            <p><strong>📋 課題:</strong></p>
+            <p>温度センサーの値をリアルタイムで折れ線グラフとゲージに表示するダッシュボードを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Injectノード: 2秒ごとにトリガー</li>
+                <li>Functionノード: 20〜40の範囲でランダムな温度値を生成</li>
+                <li>ui-chart: 折れ線グラフで温度推移を表示（過去60秒分）</li>
+                <li>ui-gauge: 3/4ゲージで現在温度を表示（セグメント色分け付き）</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Functionノードの設定:</strong></p>
+                <div class="code-block">// ランダム温度生成（20〜40度）
+msg.payload = Math.floor(Math.random() * 21) + 20;
+msg.topic = "室温";
+return msg;</div>
+                <p><strong>ui-chartの設定:</strong></p>
+                <ul>
+                    <li>Chart Type: Line</li>
+                    <li>X-Axis Type: Timescale</li>
+                    <li>X-Axis Limit: 1分</li>
+                    <li>Series: msg.topic</li>
+                </ul>
+                <p><strong>ui-gaugeの設定:</strong></p>
+                <ul>
+                    <li>Type: 3/4 Gauge</li>
+                    <li>Min: 0, Max: 50</li>
+                    <li>Units: °C</li>
+                    <li>Segments: 0→青, 25→緑, 35→オレンジ, 40→赤</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "ex1_tab",
+        "type": "tab",
+        "label": "演習1: 温度モニター",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "ex1_ui_base",
+        "type": "ui-base",
+        "name": "My Dashboard",
+        "path": "/dashboard",
+        "appIcon": "",
+        "includeClientData": true,
+        "acceptsClientConfig": ["ui-notification", "ui-control"],
+        "showPathInSidebar": false,
+        "showReconnectNotification": true,
+        "notificationDisplayTime": 5,
+        "showDisconnectNotification": true,
+        "allowInstall": true
+    },
+    {
+        "id": "ex1_ui_page",
+        "type": "ui-page",
+        "name": "温度モニター",
+        "ui": "ex1_ui_base",
+        "path": "/exercise1",
+        "icon": "mdi-thermometer",
+        "layout": "grid",
+        "theme": "ex1_ui_theme",
+        "breakpoints": [
+            {"name": "Default", "px": 0, "cols": 3},
+            {"name": "Tablet", "px": 576, "cols": 6},
+            {"name": "Small Desktop", "px": 768, "cols": 9},
+            {"name": "Desktop", "px": 1024, "cols": 12}
+        ],
+        "order": 1,
+        "visible": true,
+        "disabled": false
+    },
+    {
+        "id": "ex1_ui_theme",
+        "type": "ui-theme",
+        "name": "Default Theme",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#b92d5d",
+            "bgPage": "#eeeeee",
+            "groupBg": "#ffffff",
+            "groupOutline": "#cccccc"
+        },
+        "sizes": {
+            "pagePadding": "12px",
+            "groupGap": "12px",
+            "groupBorderRadius": "4px",
+            "widgetGap": "12px"
+        }
+    },
+    {
+        "id": "ex1_ui_group",
+        "type": "ui-group",
+        "name": "🌡️ 温度モニター",
+        "page": "ex1_ui_page",
+        "width": "6",
+        "height": "8",
+        "order": 1,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "ex1_inject",
+        "type": "inject",
+        "z": "ex1_tab",
+        "name": "2秒毎",
+        "props": [{"p": "payload"}],
+        "repeat": "2",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 130,
+        "y": 100,
+        "wires": [["ex1_function"]]
+    },
+    {
+        "id": "ex1_function",
+        "type": "function",
+        "z": "ex1_tab",
+        "name": "温度生成",
+        "func": "msg.payload = Math.floor(Math.random() * 21) + 20;\nmsg.topic = \"室温\";\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 280,
+        "y": 100,
+        "wires": [["ex1_chart", "ex1_gauge"]]
+    },
+    {
+        "id": "ex1_chart",
+        "type": "ui-chart",
+        "z": "ex1_tab",
+        "group": "ex1_ui_group",
+        "name": "温度推移",
+        "label": "温度推移",
+        "order": 1,
+        "chartType": "line",
+        "category": "topic",
+        "categoryType": "msg",
+        "xAxisProperty": "",
+        "xAxisPropertyType": "msg",
+        "xAxisType": "time",
+        "xAxisFormat": "",
+        "xAxisFormatType": "auto",
+        "yAxisProperty": "payload",
+        "yAxisPropertyType": "msg",
+        "action": "append",
+        "pointShape": "circle",
+        "pointRadius": 4,
+        "showLegend": true,
+        "removeOlder": 1,
+        "removeOlderUnit": "60",
+        "removeOlderPoints": "",
+        "colors": ["#b92d5d"],
+        "textColor": ["#666666"],
+        "textColorDefault": true,
+        "gridColor": ["#e5e5e5"],
+        "gridColorDefault": true,
+        "width": "0",
+        "height": "0",
+        "className": "",
+        "x": 450,
+        "y": 80,
+        "wires": [[]]
+    },
+    {
+        "id": "ex1_gauge",
+        "type": "ui-gauge",
+        "z": "ex1_tab",
+        "name": "現在温度",
+        "group": "ex1_ui_group",
+        "order": 2,
+        "width": "0",
+        "height": "0",
+        "gtype": "gauge-34",
+        "gstyle": "rounded",
+        "title": "現在温度",
+        "units": "°C",
+        "icon": "mdi-thermometer",
+        "prefix": "",
+        "suffix": "",
+        "segments": [
+            {"from": 0, "color": "#2196f3"},
+            {"from": 25, "color": "#4caf50"},
+            {"from": 35, "color": "#ff9800"},
+            {"from": 40, "color": "#f44336"}
+        ],
+        "min": 0,
+        "max": 50,
+        "sizeThickness": 16,
+        "sizeGap": 4,
+        "sizeKeyThickness": 8,
+        "styleRounded": true,
+        "styleGlow": false,
+        "className": "",
+        "x": 450,
+        "y": 120,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習2: 複数センサー比較チャート <span class="difficulty difficulty-medium">中級</span></h3>
+            
+            <p><strong>📋 課題:</strong></p>
+            <p>3つのセンサーからのデータを1つのチャートで比較表示するダッシュボードを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>3つのInjectノード: それぞれ異なるtopic（センサーA/B/C）を持つ</li>
+                <li>各センサーで異なる範囲のランダム値を生成</li>
+                <li>ui-chart: 3つの折れ線を凡例付きで表示</li>
+                <li>クリアボタン: チャートをリセット</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>各Injectノードの設定:</strong></p>
+                <ul>
+                    <li>センサーA: topic = "センサーA", 10-30の値</li>
+                    <li>センサーB: topic = "センサーB", 20-40の値</li>
+                    <li>センサーC: topic = "センサーC", 15-35の値</li>
+                </ul>
+                <p><strong>クリアボタン（ui-buttonまたはInject）:</strong></p>
+                <ul>
+                    <li>Payload: [] (空配列)</li>
+                    <li>Payload Type: JSON</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "ex2_tab",
+        "type": "tab",
+        "label": "演習2: 複数センサー比較",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "ex2_ui_base",
+        "type": "ui-base",
+        "name": "My Dashboard",
+        "path": "/dashboard",
+        "appIcon": "",
+        "includeClientData": true,
+        "acceptsClientConfig": ["ui-notification", "ui-control"],
+        "showPathInSidebar": false,
+        "showReconnectNotification": true,
+        "notificationDisplayTime": 5,
+        "showDisconnectNotification": true,
+        "allowInstall": true
+    },
+    {
+        "id": "ex2_ui_page",
+        "type": "ui-page",
+        "name": "センサー比較",
+        "ui": "ex2_ui_base",
+        "path": "/exercise2",
+        "icon": "mdi-chart-multiline",
+        "layout": "grid",
+        "theme": "ex2_ui_theme",
+        "breakpoints": [
+            {"name": "Default", "px": 0, "cols": 3},
+            {"name": "Tablet", "px": 576, "cols": 6},
+            {"name": "Small Desktop", "px": 768, "cols": 9},
+            {"name": "Desktop", "px": 1024, "cols": 12}
+        ],
+        "order": 1,
+        "visible": true,
+        "disabled": false
+    },
+    {
+        "id": "ex2_ui_theme",
+        "type": "ui-theme",
+        "name": "Default Theme",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#b92d5d",
+            "bgPage": "#eeeeee",
+            "groupBg": "#ffffff",
+            "groupOutline": "#cccccc"
+        },
+        "sizes": {
+            "pagePadding": "12px",
+            "groupGap": "12px",
+            "groupBorderRadius": "4px",
+            "widgetGap": "12px"
+        }
+    },
+    {
+        "id": "ex2_ui_group",
+        "type": "ui-group",
+        "name": "📈 センサー比較",
+        "page": "ex2_ui_page",
+        "width": "6",
+        "height": "6",
+        "order": 1,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "ex2_inject_a",
+        "type": "inject",
+        "z": "ex2_tab",
+        "name": "センサーA",
+        "props": [{"p": "payload"},{"p": "topic", "vt": "str"}],
+        "repeat": "2",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "センサーA",
+        "payload": "",
+        "payloadType": "date",
+        "x": 130,
+        "y": 80,
+        "wires": [["ex2_func_a"]]
+    },
+    {
+        "id": "ex2_inject_b",
+        "type": "inject",
+        "z": "ex2_tab",
+        "name": "センサーB",
+        "props": [{"p": "payload"},{"p": "topic", "vt": "str"}],
+        "repeat": "2",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.5,
+        "topic": "センサーB",
+        "payload": "",
+        "payloadType": "date",
+        "x": 130,
+        "y": 140,
+        "wires": [["ex2_func_b"]]
+    },
+    {
+        "id": "ex2_inject_c",
+        "type": "inject",
+        "z": "ex2_tab",
+        "name": "センサーC",
+        "props": [{"p": "payload"},{"p": "topic", "vt": "str"}],
+        "repeat": "2",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 1,
+        "topic": "センサーC",
+        "payload": "",
+        "payloadType": "date",
+        "x": 130,
+        "y": 200,
+        "wires": [["ex2_func_c"]]
+    },
+    {
+        "id": "ex2_func_a",
+        "type": "function",
+        "z": "ex2_tab",
+        "name": "10-30",
+        "func": "msg.payload = Math.floor(Math.random() * 21) + 10;\nreturn msg;",
+        "outputs": 1,
+        "x": 290,
+        "y": 80,
+        "wires": [["ex2_chart"]]
+    },
+    {
+        "id": "ex2_func_b",
+        "type": "function",
+        "z": "ex2_tab",
+        "name": "20-40",
+        "func": "msg.payload = Math.floor(Math.random() * 21) + 20;\nreturn msg;",
+        "outputs": 1,
+        "x": 290,
+        "y": 140,
+        "wires": [["ex2_chart"]]
+    },
+    {
+        "id": "ex2_func_c",
+        "type": "function",
+        "z": "ex2_tab",
+        "name": "15-35",
+        "func": "msg.payload = Math.floor(Math.random() * 21) + 15;\nreturn msg;",
+        "outputs": 1,
+        "x": 290,
+        "y": 200,
+        "wires": [["ex2_chart"]]
+    },
+    {
+        "id": "ex2_clear",
+        "type": "inject",
+        "z": "ex2_tab",
+        "name": "クリア",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "topic": "",
+        "payload": "[]",
+        "payloadType": "json",
+        "x": 130,
+        "y": 260,
+        "wires": [["ex2_chart"]]
+    },
+    {
+        "id": "ex2_chart",
+        "type": "ui-chart",
+        "z": "ex2_tab",
+        "group": "ex2_ui_group",
+        "name": "センサー比較",
+        "label": "センサー比較チャート",
+        "order": 1,
+        "chartType": "line",
+        "category": "topic",
+        "categoryType": "msg",
+        "xAxisProperty": "",
+        "xAxisPropertyType": "msg",
+        "xAxisType": "time",
+        "xAxisFormat": "",
+        "xAxisFormatType": "auto",
+        "yAxisProperty": "payload",
+        "yAxisPropertyType": "msg",
+        "action": "append",
+        "pointShape": "circle",
+        "pointRadius": 4,
+        "showLegend": true,
+        "removeOlder": 1,
+        "removeOlderUnit": "60",
+        "removeOlderPoints": "",
+        "colors": ["#b92d5d", "#2196f3", "#4caf50"],
+        "textColor": ["#666666"],
+        "textColorDefault": true,
+        "gridColor": ["#e5e5e5"],
+        "gridColorDefault": true,
+        "width": "0",
+        "height": "0",
+        "className": "",
+        "x": 470,
+        "y": 140,
+        "wires": [[]]
+    }
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習3: センサーデータテーブル <span class="difficulty difficulty-medium">中級</span></h3>
+            
+            <p><strong>📋 課題:</strong></p>
+            <p>複数センサーの状態を一覧表示し、行を選択すると詳細が表示されるダッシュボードを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>ui-table: センサー一覧（ID、名前、値、状態）を表示</li>
+                <li>行選択時: 選択したセンサーの情報をui-textで表示</li>
+                <li>更新ボタン: テーブルデータを更新</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>テーブルデータの形式:</strong></p>
+                <div class="code-block">msg.payload = [
+    { "id": 1, "name": "温度センサー", "value": 25.5, "status": "正常" },
+    { "id": 2, "name": "湿度センサー", "value": 65, "status": "正常" },
+    { "id": 3, "name": "圧力センサー", "value": 1013, "status": "警告" }
+];</div>
+                <p><strong>ui-tableの出力:</strong></p>
+                <p>行を選択すると、その行のオブジェクトがmsg.payloadとして出力されます。</p>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "ex3_tab",
+        "type": "tab",
+        "label": "演習3: センサーテーブル",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "ex3_ui_base",
+        "type": "ui-base",
+        "name": "My Dashboard",
+        "path": "/dashboard",
+        "appIcon": "",
+        "includeClientData": true,
+        "acceptsClientConfig": ["ui-notification", "ui-control"],
+        "showPathInSidebar": false,
+        "showReconnectNotification": true,
+        "notificationDisplayTime": 5,
+        "showDisconnectNotification": true,
+        "allowInstall": true
+    },
+    {
+        "id": "ex3_ui_page",
+        "type": "ui-page",
+        "name": "センサー管理",
+        "ui": "ex3_ui_base",
+        "path": "/exercise3",
+        "icon": "mdi-table",
+        "layout": "grid",
+        "theme": "ex3_ui_theme",
+        "breakpoints": [
+            {"name": "Default", "px": 0, "cols": 3},
+            {"name": "Tablet", "px": 576, "cols": 6},
+            {"name": "Small Desktop", "px": 768, "cols": 9},
+            {"name": "Desktop", "px": 1024, "cols": 12}
+        ],
+        "order": 1,
+        "visible": true,
+        "disabled": false
+    },
+    {
+        "id": "ex3_ui_theme",
+        "type": "ui-theme",
+        "name": "Default Theme",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#b92d5d",
+            "bgPage": "#eeeeee",
+            "groupBg": "#ffffff",
+            "groupOutline": "#cccccc"
+        },
+        "sizes": {
+            "pagePadding": "12px",
+            "groupGap": "12px",
+            "groupBorderRadius": "4px",
+            "widgetGap": "12px"
+        }
+    },
+    {
+        "id": "ex3_group_table",
+        "type": "ui-group",
+        "name": "📋 センサー一覧",
+        "page": "ex3_ui_page",
+        "width": "6",
+        "height": "6",
+        "order": 1,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "ex3_group_detail",
+        "type": "ui-group",
+        "name": "📝 選択詳細",
+        "page": "ex3_ui_page",
+        "width": "6",
+        "height": "3",
+        "order": 2,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "ex3_inject",
+        "type": "inject",
+        "z": "ex3_tab",
+        "name": "データ更新",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 130,
+        "y": 100,
+        "wires": [["ex3_function"]]
+    },
+    {
+        "id": "ex3_function",
+        "type": "function",
+        "z": "ex3_tab",
+        "name": "テーブルデータ生成",
+        "func": "msg.payload = [\n    { \"id\": 1, \"name\": \"温度センサー\", \"value\": (Math.random() * 10 + 20).toFixed(1), \"status\": \"正常\" },\n    { \"id\": 2, \"name\": \"湿度センサー\", \"value\": Math.floor(Math.random() * 30 + 50), \"status\": \"正常\" },\n    { \"id\": 3, \"name\": \"圧力センサー\", \"value\": Math.floor(Math.random() * 50 + 990), \"status\": Math.random() > 0.7 ? \"警告\" : \"正常\" },\n    { \"id\": 4, \"name\": \"照度センサー\", \"value\": Math.floor(Math.random() * 500 + 100), \"status\": \"正常\" }\n];\nreturn msg;",
+        "outputs": 1,
+        "x": 330,
+        "y": 100,
+        "wires": [["ex3_table"]]
+    },
+    {
+        "id": "ex3_table",
+        "type": "ui-table",
+        "z": "ex3_tab",
+        "group": "ex3_group_table",
+        "name": "センサー一覧",
+        "label": "",
+        "order": 1,
+        "width": "6",
+        "height": "5",
+        "maxrows": 10,
+        "autocols": true,
+        "showSearch": true,
+        "deselect": true,
+        "selectionType": "click",
+        "columns": [],
+        "mobileBreakpoint": "sm",
+        "mobileBreakpointType": "defaults",
+        "action": "replace",
+        "x": 530,
+        "y": 100,
+        "wires": [["ex3_template"]]
+    },
+    {
+        "id": "ex3_template",
+        "type": "template",
+        "z": "ex3_tab",
+        "name": "詳細フォーマット",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "text",
+        "syntax": "mustache",
+        "template": "選択: {{name}} (ID: {{id}})\n現在値: {{value}}\n状態: {{status}}",
+        "output": "str",
+        "x": 720,
+        "y": 100,
+        "wires": [["ex3_text"]]
+    },
+    {
+        "id": "ex3_text",
+        "type": "ui-text",
+        "z": "ex3_tab",
+        "group": "ex3_group_detail",
+        "name": "選択詳細",
+        "label": "選択されたセンサー:",
+        "order": 1,
+        "width": "0",
+        "height": "0",
+        "fontSize": 14,
+        "fontStyle": false,
+        "fontWeight": false,
+        "alignment": "left",
+        "className": "",
+        "x": 910,
+        "y": 100,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習4: 総合ダッシュボード <span class="difficulty difficulty-hard">上級</span></h3>
+            
+            <p><strong>📋 課題:</strong></p>
+            <p>工場の環境監視ダッシュボードを作成してください。温度・湿度・消費電力を監視し、異常時にはアラートを表示します。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>ui-gauge: 温度（Tileタイプ）、湿度（Batteryタイプ）</li>
+                <li>ui-chart: 消費電力の時系列グラフ（棒グラフ）</li>
+                <li>ui-table: 過去10件のアラート履歴</li>
+                <li>ui-progress: システム稼働率</li>
+                <li>しきい値超過時: ui-notificationでアラート表示</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>アラート判定のFunctionノード:</strong></p>
+                <div class="code-block">// 温度が35度を超えた場合
+if (msg.payload > 35) {
+    let alert = {
+        "time": new Date().toLocaleTimeString(),
+        "type": "温度異常",
+        "value": msg.payload + "°C"
+    };
+    
+    // グローバル変数でアラート履歴を管理
+    let history = global.get("alertHistory") || [];
+    history.unshift(alert);
+    if (history.length > 10) history.pop();
+    global.set("alertHistory", history);
+    
+    return [msg, { payload: history }, { payload: "温度警告: " + msg.payload + "°C", topic: "alert" }];
+}
+return [msg, null, null];</div>
+                <p><strong>各ウィジェットの配置:</strong></p>
+                <ul>
+                    <li>左上: 温度ゲージ（Tile）</li>
+                    <li>右上: 湿度ゲージ（Battery）</li>
+                    <li>中央: 電力チャート（Bar）</li>
+                    <li>下部: アラート履歴テーブル + 稼働率プログレス</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "ex4_tab",
+        "type": "tab",
+        "label": "演習4: 総合ダッシュボード",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "ex4_ui_base",
+        "type": "ui-base",
+        "name": "My Dashboard",
+        "path": "/dashboard",
+        "appIcon": "",
+        "includeClientData": true,
+        "acceptsClientConfig": ["ui-notification", "ui-control"],
+        "showPathInSidebar": false,
+        "showReconnectNotification": true,
+        "notificationDisplayTime": 5,
+        "showDisconnectNotification": true,
+        "allowInstall": true
+    },
+    {
+        "id": "ex4_ui_page",
+        "type": "ui-page",
+        "name": "工場監視",
+        "ui": "ex4_ui_base",
+        "path": "/exercise4",
+        "icon": "mdi-factory",
+        "layout": "grid",
+        "theme": "ex4_ui_theme",
+        "breakpoints": [
+            {"name": "Default", "px": 0, "cols": 3},
+            {"name": "Tablet", "px": 576, "cols": 6},
+            {"name": "Small Desktop", "px": 768, "cols": 9},
+            {"name": "Desktop", "px": 1024, "cols": 12}
+        ],
+        "order": 1,
+        "visible": true,
+        "disabled": false
+    },
+    {
+        "id": "ex4_ui_theme",
+        "type": "ui-theme",
+        "name": "Default Theme",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#b92d5d",
+            "bgPage": "#eeeeee",
+            "groupBg": "#ffffff",
+            "groupOutline": "#cccccc"
+        },
+        "sizes": {
+            "pagePadding": "12px",
+            "groupGap": "12px",
+            "groupBorderRadius": "4px",
+            "widgetGap": "12px"
+        }
+    },
+    {
+        "id": "ex4_group_temp",
+        "type": "ui-group",
+        "name": "🌡️ 温度",
+        "page": "ex4_ui_page",
+        "width": "3",
+        "height": "4",
+        "order": 1,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "ex4_group_humid",
+        "type": "ui-group",
+        "name": "💧 湿度",
+        "page": "ex4_ui_page",
+        "width": "3",
+        "height": "4",
+        "order": 2,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "ex4_group_power",
+        "type": "ui-group",
+        "name": "⚡ 消費電力",
+        "page": "ex4_ui_page",
+        "width": "6",
+        "height": "5",
+        "order": 3,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "ex4_group_alert",
+        "type": "ui-group",
+        "name": "🚨 アラート履歴",
+        "page": "ex4_ui_page",
+        "width": "4",
+        "height": "6",
+        "order": 4,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "ex4_group_status",
+        "type": "ui-group",
+        "name": "📊 システム状態",
+        "page": "ex4_ui_page",
+        "width": "2",
+        "height": "3",
+        "order": 5,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "ex4_inject_temp",
+        "type": "inject",
+        "z": "ex4_tab",
+        "name": "温度データ",
+        "props": [{"p": "payload"}],
+        "repeat": "3",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 130,
+        "y": 80,
+        "wires": [["ex4_func_temp"]]
+    },
+    {
+        "id": "ex4_func_temp",
+        "type": "function",
+        "z": "ex4_tab",
+        "name": "温度生成(20-40)",
+        "func": "msg.payload = Math.floor(Math.random() * 21) + 20;\nreturn msg;",
+        "outputs": 1,
+        "x": 330,
+        "y": 80,
+        "wires": [["ex4_gauge_temp", "ex4_func_alert"]]
+    },
+    {
+        "id": "ex4_gauge_temp",
+        "type": "ui-gauge",
+        "z": "ex4_tab",
+        "name": "温度",
+        "group": "ex4_group_temp",
+        "order": 1,
+        "width": "0",
+        "height": "0",
+        "gtype": "gauge-tile",
+        "gstyle": "rounded",
+        "title": "温度",
+        "units": "°C",
+        "icon": "mdi-thermometer",
+        "prefix": "",
+        "suffix": "",
+        "segments": [
+            {"from": 0, "color": "#2196f3"},
+            {"from": 25, "color": "#4caf50"},
+            {"from": 35, "color": "#ff9800"},
+            {"from": 38, "color": "#f44336"}
+        ],
+        "min": 0,
+        "max": 50,
+        "x": 550,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "ex4_func_alert",
+        "type": "function",
+        "z": "ex4_tab",
+        "name": "アラート判定",
+        "func": "if (msg.payload > 35) {\n    let alert = {\n        \"time\": new Date().toLocaleTimeString(),\n        \"type\": \"温度異常\",\n        \"value\": msg.payload + \"°C\"\n    };\n    let history = global.get(\"alertHistory\") || [];\n    history.unshift(alert);\n    if (history.length > 10) history.pop();\n    global.set(\"alertHistory\", history);\n    return [{ payload: history }, { payload: \"⚠️ 温度警告: \" + msg.payload + \"°C\" }];\n}\nreturn [null, null];",
+        "outputs": 2,
+        "x": 550,
+        "y": 100,
+        "wires": [["ex4_table"], ["ex4_notification"]]
+    },
+    {
+        "id": "ex4_inject_humid",
+        "type": "inject",
+        "z": "ex4_tab",
+        "name": "湿度データ",
+        "props": [{"p": "payload"}],
+        "repeat": "5",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.3,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 130,
+        "y": 160,
+        "wires": [["ex4_func_humid"]]
+    },
+    {
+        "id": "ex4_func_humid",
+        "type": "function",
+        "z": "ex4_tab",
+        "name": "湿度生成(40-80)",
+        "func": "msg.payload = Math.floor(Math.random() * 41) + 40;\nreturn msg;",
+        "outputs": 1,
+        "x": 330,
+        "y": 160,
+        "wires": [["ex4_gauge_humid"]]
+    },
+    {
+        "id": "ex4_gauge_humid",
+        "type": "ui-gauge",
+        "z": "ex4_tab",
+        "name": "湿度",
+        "group": "ex4_group_humid",
+        "order": 1,
+        "width": "0",
+        "height": "0",
+        "gtype": "gauge-battery",
+        "gstyle": "rounded",
+        "title": "湿度",
+        "units": "%",
+        "icon": "",
+        "prefix": "",
+        "suffix": "",
+        "segments": [
+            {"from": 0, "color": "#ff9800"},
+            {"from": 30, "color": "#4caf50"},
+            {"from": 70, "color": "#2196f3"}
+        ],
+        "min": 0,
+        "max": 100,
+        "x": 550,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "ex4_inject_power",
+        "type": "inject",
+        "z": "ex4_tab",
+        "name": "電力データ",
+        "props": [{"p": "payload"},{"p": "topic", "vt": "str"}],
+        "repeat": "4",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.5,
+        "topic": "電力",
+        "payload": "",
+        "payloadType": "date",
+        "x": 130,
+        "y": 240,
+        "wires": [["ex4_func_power"]]
+    },
+    {
+        "id": "ex4_func_power",
+        "type": "function",
+        "z": "ex4_tab",
+        "name": "電力生成(100-200kW)",
+        "func": "msg.payload = Math.floor(Math.random() * 101) + 100;\nreturn msg;",
+        "outputs": 1,
+        "x": 350,
+        "y": 240,
+        "wires": [["ex4_chart_power"]]
+    },
+    {
+        "id": "ex4_chart_power",
+        "type": "ui-chart",
+        "z": "ex4_tab",
+        "group": "ex4_group_power",
+        "name": "消費電力",
+        "label": "消費電力 (kW)",
+        "order": 1,
+        "chartType": "bar",
+        "category": "topic",
+        "categoryType": "msg",
+        "xAxisProperty": "",
+        "xAxisPropertyType": "msg",
+        "xAxisType": "time",
+        "xAxisFormat": "{HH}:{mm}",
+        "xAxisFormatType": "custom",
+        "yAxisProperty": "payload",
+        "yAxisPropertyType": "msg",
+        "action": "append",
+        "pointShape": "rect",
+        "pointRadius": 4,
+        "showLegend": false,
+        "removeOlder": 1,
+        "removeOlderUnit": "60",
+        "colors": ["#b92d5d"],
+        "width": "0",
+        "height": "0",
+        "x": 570,
+        "y": 240,
+        "wires": [[]]
+    },
+    {
+        "id": "ex4_table",
+        "type": "ui-table",
+        "z": "ex4_tab",
+        "group": "ex4_group_alert",
+        "name": "アラート履歴",
+        "label": "",
+        "order": 1,
+        "width": "0",
+        "height": "0",
+        "maxrows": 5,
+        "autocols": true,
+        "showSearch": false,
+        "deselect": true,
+        "selectionType": "none",
+        "columns": [],
+        "mobileBreakpoint": "sm",
+        "mobileBreakpointType": "defaults",
+        "action": "replace",
+        "x": 750,
+        "y": 80,
+        "wires": [[]]
+    },
+    {
+        "id": "ex4_notification",
+        "type": "ui-notification",
+        "z": "ex4_tab",
+        "ui": "ex4_ui_base",
+        "name": "アラート通知",
+        "position": "top right",
+        "colorDefault": false,
+        "color": "#f44336",
+        "displayTime": 5,
+        "showCountdown": true,
+        "outputs": 0,
+        "allowDismiss": true,
+        "dismissText": "閉じる",
+        "raw": false,
+        "className": "",
+        "x": 750,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "ex4_inject_status",
+        "type": "inject",
+        "z": "ex4_tab",
+        "name": "稼働率",
+        "props": [{"p": "payload"}],
+        "repeat": "10",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.2,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 130,
+        "y": 320,
+        "wires": [["ex4_func_status"]]
+    },
+    {
+        "id": "ex4_func_status",
+        "type": "function",
+        "z": "ex4_tab",
+        "name": "稼働率(85-100)",
+        "func": "msg.payload = Math.floor(Math.random() * 16) + 85;\nreturn msg;",
+        "outputs": 1,
+        "x": 330,
+        "y": 320,
+        "wires": [["ex4_progress"]]
+    },
+    {
+        "id": "ex4_progress",
+        "type": "ui-progress",
+        "z": "ex4_tab",
+        "group": "ex4_group_status",
+        "name": "稼働率",
+        "order": 1,
+        "width": "0",
+        "height": "0",
+        "style": "circular",
+        "showValue": true,
+        "color": "#4caf50",
+        "min": 0,
+        "max": 100,
+        "x": 530,
+        "y": 320,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+        
+        <h2 id="section8">✅ 8. まとめ</h2>
+        
+        <h3>📊 データ可視化ウィジェットの使い分け</h3>
+        
+        <table class="comparison-table">
+            <tr>
+                <th>ウィジェット</th>
+                <th>最適な用途</th>
+                <th>入力データ形式</th>
+            </tr>
+            <tr>
+                <td><strong>ui-chart (Line)</strong></td>
+                <td>時系列データの推移、トレンド分析</td>
+                <td>数値 + topic</td>
+            </tr>
+            <tr>
+                <td><strong>ui-chart (Bar)</strong></td>
+                <td>カテゴリ別比較、期間別集計</td>
+                <td>配列 / オブジェクト</td>
+            </tr>
+            <tr>
+                <td><strong>ui-chart (Pie)</strong></td>
+                <td>構成比、割合の表示</td>
+                <td>配列 / オブジェクト</td>
+            </tr>
+            <tr>
+                <td><strong>ui-gauge (3/4, Half)</strong></td>
+                <td>現在値の直感的表示、しきい値監視</td>
+                <td>数値</td>
+            </tr>
+            <tr>
+                <td><strong>ui-gauge (Tile)</strong></td>
+                <td>コンパクトな数値表示</td>
+                <td>数値</td>
+            </tr>
+            <tr>
+                <td><strong>ui-gauge (Battery, Tank)</strong></td>
+                <td>残量、レベル表示</td>
+                <td>数値（%）</td>
+            </tr>
+            <tr>
+                <td><strong>ui-table</strong></td>
+                <td>一覧表示、詳細データ確認</td>
+                <td>オブジェクト配列</td>
+            </tr>
+            <tr>
+                <td><strong>ui-progress</strong></td>
+                <td>進捗状況、完了率</td>
+                <td>数値（%）</td>
+            </tr>
+        </table>
+        
+        <h3>💡 重要ポイント</h3>
+        
+        <div class="important">
+            <ul>
+                <li><strong>時系列チャート</strong>: X-Axis Limitを設定して表示期間を制限（メモリ節約）</li>
+                <li><strong>複数系列</strong>: msg.topicでデータをグループ化</li>
+                <li><strong>ゲージのセグメント</strong>: 閾値に応じた色分けで異常を視覚化</li>
+                <li><strong>動的プロパティ</strong>: msg.ui_updateで実行時に設定変更可能</li>
+                <li><strong>チャートクリア</strong>: 空配列 [] を送信してリセット</li>
+            </ul>
+        </div>
+        
+        <h2 id="section9">🔧 9. トラブルシューティング</h2>
+        
+        <table>
+            <tr>
+                <th>問題</th>
+                <th>原因</th>
+                <th>解決方法</th>
+            </tr>
+            <tr>
+                <td>チャートにデータが表示されない</td>
+                <td>Y軸のプロパティ指定ミス</td>
+                <td>データ構造を確認し、正しいキーを指定</td>
+            </tr>
+            <tr>
+                <td>複数のラインが1本にまとまる</td>
+                <td>Seriesの設定不足</td>
+                <td>msg.topicを設定するか、Seriesでkeyを指定</td>
+            </tr>
+            <tr>
+                <td>ゲージの色が変わらない</td>
+                <td>Segmentsの設定ミス</td>
+                <td>from値が昇順になっているか確認</td>
+            </tr>
+            <tr>
+                <td>テーブルの列が表示されない</td>
+                <td>データ形式の問題</td>
+                <td>配列内のオブジェクトにキーが存在するか確認</td>
+            </tr>
+            <tr>
+                <td>テーブルのデータが縦に並ぶ</td>
+                <td>mobileBreakpointの設定</td>
+                <td>mobileBreakpointを「sm」に設定（レスポンシブ表示の切替点）</td>
+            </tr>
+            <tr>
+                <td>テーブルに行データが表示されない（ページネーションのみ表示）</td>
+                <td>グループの高さ不足、またはmobileBreakpoint未設定</td>
+                <td>ui-groupの高さを明示的に設定（例: 6）、mobileBreakpointを「sm」に設定</td>
+            </tr>
+            <tr>
+                <td>チャートがリセットされる</td>
+                <td>Action設定がreplace</td>
+                <td>appendに変更するか、msg.actionで制御</td>
+            </tr>
+            <tr>
+                <td>X軸の時間表示がおかしい</td>
+                <td>タイムスタンプ形式の問題</td>
+                <td>ミリ秒単位のUnixタイムスタンプを使用</td>
+            </tr>
+        </table>
+        
+        <h2 id="section10">🏭 10. 実務活用例</h2>
+        
+        <h3>ケース1: 工場環境モニタリング</h3>
+        <div class="code-block">温度・湿度・気圧センサー
+  → ui-chart（時系列推移）
+  → ui-gauge（現在値表示）
+  → 閾値超過時にui-notification</div>
+        
+        <h3>ケース2: 生産ライン稼働状況</h3>
+        <div class="code-block">各設備の稼働率データ
+  → ui-chart（棒グラフで比較）
+  → ui-progress（全体稼働率）
+  → ui-table（設備別詳細）</div>
+        
+        <h3>ケース3: エネルギー管理ダッシュボード</h3>
+        <div class="code-block">電力・ガス・水道使用量
+  → ui-chart（時間帯別消費量）
+  → ui-gauge（リアルタイム消費）
+  → ui-chart（円グラフで構成比）</div>
+        
+        <h3>ケース4: IoTセンサーネットワーク</h3>
+        <div class="code-block">複数センサーからのMQTTデータ
+  → ui-table（センサー一覧・状態）
+  → ui-chart（選択センサーの履歴）
+  → ui-gauge（バッテリー残量）</div>
+        
+        <h2 id="section11">📚 11. 追加リソース</h2>
+        
+        <ul>
+            <li><a href="https://dashboard.flowfuse.com/nodes/widgets/ui-chart.html" target="_blank">ui-chart 公式ドキュメント</a></li>
+            <li><a href="https://dashboard.flowfuse.com/nodes/widgets/ui-gauge.html" target="_blank">ui-gauge 公式ドキュメント</a></li>
+            <li><a href="https://dashboard.flowfuse.com/nodes/widgets/ui-table.html" target="_blank">ui-table 公式ドキュメント</a></li>
+            <li><a href="https://echarts.apache.org/en/option.html" target="_blank">eCharts オプションリファレンス（チャートカスタマイズ）</a></li>
+            <li><a href="https://pictogrammers.com/library/mdi/" target="_blank">Material Design Icons（ゲージアイコン検索）</a></li>
+            <li><a href="https://flows.nodered.org/?term=dashboard+2.0" target="_blank">Node-RED Flow Library（サンプル検索）</a></li>
+        </ul>
+        
+        <hr>
+        
+        <p style="text-align: center; color: #999; margin-top: 40px;">
+            <small>このガイドが役に立ちましたら、実際のプロジェクトで練習してみてください！<br>
+            データ可視化はIoTダッシュボードの核心機能です。<br>
+            サンプルフローの提供元: <a href="https://dashboard.flowfuse.com/" target="_blank">FlowFuse Dashboard 2.0</a></small>
+        </p>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var codeBlocks = document.querySelectorAll('.flow-json, .js-code[data-copy="true"]');
+            
+            codeBlocks.forEach(function(block) {
+                var button = document.createElement('button');
+                button.className = 'copy-button';
+                button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                
+                button.addEventListener('click', function() {
+                    var code = block.textContent.replace(/コピー(しました!)?$/, '').trim();
+                    
+                    if (block.classList.contains('js-code')) {
+                        code = block.innerText.replace(/コピー(しました!)?$/, '').trim();
+                    }
+                    
+                    navigator.clipboard.writeText(code).then(function() {
+                        button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>コピーしました!';
+                        button.classList.add('copied');
+                        
+                        setTimeout(function() {
+                            button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                            button.classList.remove('copied');
+                        }, 2000);
+                    });
+                });
+                
+                block.style.position = 'relative';
+                block.appendChild(button);
+            });
+        });
+    </script>
+</body>
+</html>
