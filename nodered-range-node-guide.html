@@ -56,12 +56,10 @@
             <ul>
                 <li><a href="#section1">1. 概要</a></li>
                 <li><a href="#section2">2. 設定詳細</a></li>
-                <li><a href="#section3">3. 実用的な使用パターン</a></li>
-                <li><a href="#section4">4. サンプルフロー</a></li>
-                <li><a href="#section5">5. 演習問題</a></li>
-                <li><a href="#section6">6. まとめ</a></li>
-                <li><a href="#section7">7. トラブルシューティング</a></li>
-                <li><a href="#section8">8. 実務活用例</a></li>
+                <li><a href="#section3">3. 実用的な使用パターン</a></li>                <li><a href="#section4">4. 演習問題</a></li>
+                <li><a href="#section5">5. まとめ</a></li>
+                <li><a href="#section6">6. トラブルシューティング</a></li>
+                <li><a href="#section7">7. 実務活用例</a></li>
             </ul>
         </div>
         
@@ -123,48 +121,16 @@
 入力: 1023 → 出力: 100</div>
         
         <h2 id="section3">🔧 3. 実用的な使用パターン</h2>
-        
-        <h3>パターン1: センサー値の正規化</h3>
-        <div class="node-example">
-            <span class="node node-inject">ADC値 (0-4095)</span>
-            <span class="arrow">→</span>
-            <span class="node node-range">0-100%</span>
-            <span class="arrow">→</span>
-            <span class="node node-debug">Debug</span>
+        <div class="important">
+            <p><strong>📥 サンプルフローのインポート方法:</strong></p>
+            <ol>
+                <li>下のサンプルフローJSONをコピー</li>
+                <li>Node-REDエディタで <strong>メニュー → 読み込み</strong> を選択</li>
+                <li>JSONをペーストして「読み込み」をクリック</li>
+            </ol>
+            <p>このサンプルフローには、以下で説明するパターンの実例が含まれています。</p>
         </div>
-        <p><strong>用途:</strong> アナログセンサーの生データをパーセンテージに変換</p>
-        
-        <h3>パターン2: 温度スケール変換</h3>
-        <div class="node-example">
-            <span class="node node-inject">摂氏 (°C)</span>
-            <span class="arrow">→</span>
-            <span class="node node-range">華氏 (°F)</span>
-            <span class="arrow">→</span>
-            <span class="node node-debug">Debug</span>
-        </div>
-        <p><strong>設定:</strong> 入力 0-100 → 出力 32-212</p>
-        
-        <h3>パターン3: PWM制御値の生成</h3>
-        <div class="node-example">
-            <span class="node node-inject">スライダー (0-100)</span>
-            <span class="arrow">→</span>
-            <span class="node node-range">PWM (0-255)</span>
-            <span class="arrow">→</span>
-            <span class="node node-debug">GPIO出力</span>
-        </div>
-        <p><strong>用途:</strong> UI値をマイコンのPWMデューティ比に変換</p>
-        
-        <h3>パターン4: 逆方向変換</h3>
-        <div class="node-example">
-            <span class="node node-inject">入力 (0-100)</span>
-            <span class="arrow">→</span>
-            <span class="node node-range">反転 (100-0)</span>
-            <span class="arrow">→</span>
-            <span class="node node-debug">Debug</span>
-        </div>
-        <p><strong>用途:</strong> 値を反転（最大が最小に、最小が最大に）</p>
-        
-        <h2 id="section4">📥 4. サンプルフロー</h2>
+
         
         <details>
             <summary>📥 サンプルフローJSON（クリックで展開）</summary>
@@ -425,7 +391,43 @@
 ]</div>
         </details>
         
-        <h2 id="section5">📝 5. 演習問題</h2>
+        
+        <h3>使用パターン</h3>
+        
+        <h3>パターン1: 範囲制限モードの比較</h3>
+        <p>サンプルフローの「範囲制限デモ」を参照してください。同じ入力値（150）に対して、3つのモードで異なる結果になります。</p>
+        <div class="node-example">
+            <span class="node node-inject">150を送信</span>
+            <span class="arrow">→</span>
+            <span class="node node-range">Scale & Limit</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">255（上限に制限）</span>
+        </div>
+        <p><strong>3つのモードの違い:</strong></p>
+        <table>
+            <tr><th>モード</th><th>入力150（範囲外）の結果</th><th>説明</th></tr>
+            <tr><td>Scale & Limit</td><td>255</td><td>出力範囲に制限</td></tr>
+            <tr><td>Scale Only</td><td>382</td><td>そのまま変換（範囲外も許可）</td></tr>
+            <tr><td>Scale & Wrap</td><td>127</td><td>範囲内にラップ（循環）</td></tr>
+        </table>
+        
+        <h3>パターン2: 温度変換（摂氏→華氏）</h3>
+        <p>サンプルフローの「温度変換デモ」を参照してください。</p>
+        <div class="node-example">
+            <span class="node node-inject">25°C</span>
+            <span class="arrow">→</span>
+            <span class="node node-range">C→F変換</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">77°F</span>
+        </div>
+        <p><strong>設定:</strong></p>
+        <ul>
+            <li>Input Range: 0〜100（摂氏）</li>
+            <li>Output Range: 32〜212（華氏）</li>
+            <li>変換式: F = C × 1.8 + 32</li>
+        </ul>
+        
+        <h2 id="section4">📝 4. 演習問題</h2>
         
         <div class="exercise">
             <h3>演習1: 基本的な範囲変換 <span class="difficulty difficulty-easy">初級</span></h3>
@@ -528,7 +530,7 @@
             </details>
         </div>
         
-        <h2 id="section6">✅ 6. まとめ</h2>
+        <h2 id="section5">✅ 5. まとめ</h2>
         
         <div class="important">
             <p><strong>🎯 重要ポイント:</strong></p>
@@ -549,7 +551,7 @@
             </ul>
         </div>
         
-        <h2 id="section7">🔧 7. トラブルシューティング</h2>
+        <h2 id="section6">🔧 6. トラブルシューティング</h2>
         
         <table>
             <tr><th>問題</th><th>原因</th><th>解決方法</th></tr>
@@ -559,7 +561,7 @@
             <tr><td>範囲外の値が出力される</td><td>Action が Scale Only</td><td>Scale and Limit に変更</td></tr>
         </table>
         
-        <h2 id="section8">🏭 8. 実務活用例</h2>
+        <h2 id="section7">🏭 7. 実務活用例</h2>
         
         <h3>ケース1: IoTセンサーの値変換</h3>
         <p>アナログセンサーの生データを人間が理解しやすい単位に変換。例：ADC値→温度、電圧→圧力など。</p>

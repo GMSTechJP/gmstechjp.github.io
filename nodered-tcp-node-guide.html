@@ -66,12 +66,10 @@
                 <li><a href="#section2">2. TCP In ノード</a></li>
                 <li><a href="#section3">3. TCP Out ノード</a></li>
                 <li><a href="#section4">4. TCP Request ノード</a></li>
-                <li><a href="#section5">5. 実用的な使用パターン</a></li>
-                <li><a href="#section6">6. サンプルフロー</a></li>
-                <li><a href="#section7">7. 演習問題</a></li>
-                <li><a href="#section8">8. まとめ</a></li>
-                <li><a href="#section9">9. トラブルシューティング</a></li>
-                <li><a href="#section10">10. 実務活用例</a></li>
+                <li><a href="#section5">5. 実用的な使用パターン</a></li>                <li><a href="#section6">6. 演習問題</a></li>
+                <li><a href="#section7">7. まとめ</a></li>
+                <li><a href="#section8">8. トラブルシューティング</a></li>
+                <li><a href="#section9">9. 実務活用例</a></li>
             </ul>
         </div>
         
@@ -239,44 +237,16 @@
         </table>
         
         <h2 id="section5">🔧 5. 実用的な使用パターン</h2>
-        
-        <h3>パターン1: TCPサーバー（Echo）</h3>
-        <div class="node-example">
-            <span class="node node-tcp-in">TCP In (Listen)</span>
-            <span class="arrow">→</span>
-            <span class="node node-function">処理</span>
-            <span class="arrow">→</span>
-            <span class="node node-tcp-out">TCP Out (Reply)</span>
+        <div class="important">
+            <p><strong>📥 サンプルフローのインポート方法:</strong></p>
+            <ol>
+                <li>下のサンプルフローJSONをコピー</li>
+                <li>Node-REDエディタで <strong>メニュー → 読み込み</strong> を選択</li>
+                <li>JSONをペーストして「読み込み」をクリック</li>
+            </ol>
+            <p>このサンプルフローには、以下で説明するパターンの実例が含まれています。</p>
         </div>
-        <p><strong>用途:</strong> クライアントからの接続を受け付け、レスポンスを返す</p>
-        
-        <h3>パターン2: TCPクライアント</h3>
-        <div class="node-example">
-            <span class="node node-inject">トリガー</span>
-            <span class="arrow">→</span>
-            <span class="node node-tcp-request">TCP Request</span>
-            <span class="arrow">→</span>
-            <span class="node node-debug">結果</span>
-        </div>
-        <p><strong>用途:</strong> 外部TCPサーバーにリクエストを送信</p>
-        
-        <h3>パターン3: デバイス間通信（双方向）</h3>
-        <div class="diagram-box">
-            [Raspberry Pi A]          [Raspberry Pi B]<br>
-            TCP Out (Connect) ──────→ TCP In (Listen)<br>
-            TCP In (Listen)  ←────── TCP Out (Connect)
-        </div>
-        <p><strong>用途:</strong> 2台のデバイス間でデータを双方向にやり取り</p>
-        
-        <h3>パターン4: ブロードキャスト送信</h3>
-        <div class="node-example">
-            <span class="node node-inject">データ</span>
-            <span class="arrow">→</span>
-            <span class="node node-tcp-out">TCP Out (Listen)</span>
-        </div>
-        <p><strong>用途:</strong> 接続中の全クライアントにデータを配信</p>
-        
-        <h2 id="section6">📥 6. サンプルフロー</h2>
+
         
         <div class="warning">
             <p><strong>⚠️ テスト方法:</strong></p>
@@ -635,7 +605,73 @@ Hello Server!
 ]</div>
         </details>
         
-        <h2 id="section7">📝 7. 演習問題</h2>
+        
+        <h3>使用パターン</h3>
+        
+        <h3>パターン1: TCPサーバー（エコー）</h3>
+        <p>サンプルフローの「TCPサーバー（エコー）」を参照してください。</p>
+        <div class="node-example">
+            <span class="node node-tcp-in">TCP In (Listen)</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">処理</span>
+            <span class="arrow">→</span>
+            <span class="node node-tcp-out">TCP Out (Reply)</span>
+        </div>
+        <p><strong>ポイント:</strong></p>
+        <ul>
+            <li>TCP In を Listen モードで待ち受け</li>
+            <li>TCP Out を Reply モードで送信元に返信</li>
+            <li>msg._session で接続を識別</li>
+        </ul>
+        
+        <h3>パターン2: TCP Request（クライアント）</h3>
+        <p>サンプルフローの「TCP Request（クライアント）」を参照してください。</p>
+        <div class="node-example">
+            <span class="node node-inject">トリガー</span>
+            <span class="arrow">→</span>
+            <span class="node node-tcp-request">TCP Request</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">結果</span>
+        </div>
+        <p><strong>ポイント:</strong></p>
+        <ul>
+            <li>TCP Request は接続→送信→受信→切断を1ノードで実行</li>
+            <li>外部TCPサーバーにコマンドを送信して結果を取得</li>
+        </ul>
+        
+        <h3>パターン3: JSONデータの送受信</h3>
+        <p>サンプルフローの「JSONデータの送受信」を参照してください。</p>
+        <div class="node-example">
+            <span class="node node-inject">JSONデータ</span>
+            <span class="arrow">→</span>
+            <span class="node node-json">JSON変換</span>
+            <span class="arrow">→</span>
+            <span class="node node-tcp-out">TCP Out</span>
+        </div>
+        <p><strong>ポイント:</strong></p>
+        <ul>
+            <li>構造化データはJSON文字列に変換して送信</li>
+            <li>受信側もJSONノードでパース</li>
+            <li>デリミタ（改行など）で区切りを明確に</li>
+        </ul>
+        
+        <h3>パターン4: 接続状態の監視</h3>
+        <p>サンプルフローの「接続状態の監視」を参照してください。</p>
+        <div class="node-example">
+            <span class="node node-tcp-in">TCP In</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">接続管理</span>
+            <span class="arrow">→</span>
+            <span class="node node-tcp-out">Welcome返信</span>
+        </div>
+        <p><strong>ポイント:</strong></p>
+        <ul>
+            <li>msg.ip, msg.port でクライアント情報を取得</li>
+            <li>flow変数で接続中クライアントを管理</li>
+            <li>ノードステータスで接続数を表示</li>
+        </ul>
+        
+        <h2 id="section6">📝 6. 演習問題</h2>
         
         <div class="exercise">
             <h3>演習1: シンプルなTCPエコーサーバー <span class="difficulty difficulty-easy">初級</span></h3>
@@ -783,7 +819,7 @@ return msg;</div>
             </details>
         </div>
         
-        <h2 id="section8">✅ 8. まとめ</h2>
+        <h2 id="section7">✅ 7. まとめ</h2>
         
         <div class="important">
             <p><strong>🎯 重要ポイント:</strong></p>
@@ -806,7 +842,7 @@ return msg;</div>
             </ul>
         </div>
         
-        <h2 id="section9">🔧 9. トラブルシューティング</h2>
+        <h2 id="section8">🔧 8. トラブルシューティング</h2>
         
         <table>
             <tr><th>症状</th><th>原因</th><th>解決方法</th></tr>
@@ -817,7 +853,7 @@ return msg;</div>
             <tr><td>接続がすぐ切れる</td><td>タイムアウト</td><td>Keep-alive の実装を検討</td></tr>
         </table>
         
-        <h2 id="section10">🏭 10. 実務活用例</h2>
+        <h2 id="section9">🏭 9. 実務活用例</h2>
         
         <h3>ケース1: 産業機器との通信</h3>
         <p>PLC（プログラマブルロジックコントローラ）やセンサー機器とTCPで直接通信</p>

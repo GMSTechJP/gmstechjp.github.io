@@ -59,11 +59,9 @@
                 <li><a href="#section1">1. 概要</a></li>
                 <li><a href="#section2">2. 設定詳細</a></li>
                 <li><a href="#section3">3. 変換ルール</a></li>
-                <li><a href="#section4">4. 実用的な使用パターン</a></li>
-                <li><a href="#section5">5. サンプルフロー</a></li>
-                <li><a href="#section6">6. 演習問題</a></li>
-                <li><a href="#section7">7. まとめ</a></li>
-                <li><a href="#section8">8. 実務活用例</a></li>
+                <li><a href="#section4">4. 実用的な使用パターン</a></li>                <li><a href="#section5">5. 演習問題</a></li>
+                <li><a href="#section6">6. まとめ</a></li>
+                <li><a href="#section7">7. 実務活用例</a></li>
             </ul>
         </div>
         
@@ -163,38 +161,16 @@
         </table>
         
         <h2 id="section4">🔧 4. 実用的な使用パターン</h2>
-        
-        <h3>パターン1: XMLレスポンスの解析</h3>
-        <div class="node-example">
-            <span class="node node-inject">HTTP Request</span>
-            <span class="arrow">→</span>
-            <span class="node node-xml">XML→Obj</span>
-            <span class="arrow">→</span>
-            <span class="node node-function">データ抽出</span>
+        <div class="important">
+            <p><strong>📥 サンプルフローのインポート方法:</strong></p>
+            <ol>
+                <li>下のサンプルフローJSONをコピー</li>
+                <li>Node-REDエディタで <strong>メニュー → 読み込み</strong> を選択</li>
+                <li>JSONをペーストして「読み込み」をクリック</li>
+            </ol>
+            <p>このサンプルフローには、以下で説明するパターンの実例が含まれています。</p>
         </div>
-        <p><strong>用途:</strong> SOAP APIやXML形式のWebサービスからのレスポンスを解析</p>
-        
-        <h3>パターン2: XMLリクエストの生成</h3>
-        <div class="node-example">
-            <span class="node node-function">オブジェクト生成</span>
-            <span class="arrow">→</span>
-            <span class="node node-xml">Obj→XML</span>
-            <span class="arrow">→</span>
-            <span class="node node-inject">HTTP Request</span>
-        </div>
-        <p><strong>用途:</strong> XML形式のリクエストを要求するAPIへの送信</p>
-        
-        <h3>パターン3: 設定ファイルの読み書き</h3>
-        <div class="node-example">
-            <span class="node node-inject">File Read</span>
-            <span class="arrow">→</span>
-            <span class="node node-xml">XML</span>
-            <span class="arrow">→</span>
-            <span class="node node-function">設定値取得</span>
-        </div>
-        <p><strong>用途:</strong> XML形式の設定ファイル（config.xml等）の読み込み</p>
-        
-        <h2 id="section5">📥 5. サンプルフロー</h2>
+
         
         <details>
             <summary>📥 サンプルフローJSON（クリックで展開）</summary>
@@ -429,7 +405,54 @@
 ]</div>
         </details>
         
-        <h2 id="section6">📝 6. 演習問題</h2>
+        
+        <h3>使用パターン</h3>
+        
+        <h3>パターン1: XML → オブジェクト変換</h3>
+        <p>サンプルフローの「XML → オブジェクト変換」を参照してください。</p>
+        <div class="node-example">
+            <span class="node node-template">XML文字列</span>
+            <span class="arrow">→</span>
+            <span class="node node-xml">XML→Obj</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">オブジェクト</span>
+        </div>
+        <p><strong>ポイント:</strong></p>
+        <ul>
+            <li>属性は <code>$</code> プロパティに格納される</li>
+            <li>テキスト内容は <code>_</code> プロパティに格納される</li>
+        </ul>
+        
+        <h3>パターン2: オブジェクト → XML変換</h3>
+        <p>サンプルフローの「オブジェクト → XML変換」を参照してください。</p>
+        <div class="node-example">
+            <span class="node node-function">オブジェクト生成</span>
+            <span class="arrow">→</span>
+            <span class="node node-xml">Obj→XML</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">XML文字列</span>
+        </div>
+        <p><strong>ポイント:</strong> 属性をつける場合は <code>$</code> プロパティを使用</p>
+        
+        <h3>パターン3: データ抽出の例</h3>
+        <p>サンプルフローの「データ抽出の例」を参照してください。</p>
+        <div class="node-example">
+            <span class="node node-template">センサーXML</span>
+            <span class="arrow">→</span>
+            <span class="node node-xml">XML→Obj</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">温度抽出</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">温度データ</span>
+        </div>
+        <p><strong>ポイント:</strong></p>
+        <ul>
+            <li><code>find()</code> で特定の要素を検索</li>
+            <li>属性アクセス: <code>element.$.type</code></li>
+            <li>テキスト値: <code>element.value[0]._</code></li>
+        </ul>
+        
+        <h2 id="section5">📝 5. 演習問題</h2>
         
         <div class="exercise">
             <h3>演習1: 基本的なXML変換 <span class="difficulty difficulty-easy">初級</span></h3>
@@ -443,7 +466,7 @@
                 <div class="flow-json">[
     {"id": "ex1_tab", "type": "tab", "label": "演習1"},
     {"id": "ex1_inject", "type": "inject", "z": "ex1_tab", "name": "実行", "props": [], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "x": 130, "y": 100, "wires": [["ex1_template"]]},
-    {"id": "ex1_template", "type": "template", "z": "ex1_tab", "name": "XML", "field": "payload", "fieldType": "msg", "format": "text", "syntax": "plain", "template": "<user><name>山田太郎</name><email>yamada@example.com</email></user>", "output": "str", "x": 270, "y": 100, "wires": [["ex1_xml"]]},
+    {"id": "ex1_template", "type": "template", "z": "ex1_tab", "name": "XML", "field": "payload", "fieldType": "msg", "format": "text", "syntax": "plain", "template": "<user><name>山田太郎</name><email><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="f28b939f939693b2978a939f829e97dc919d9f">[email&#160;protected]</a></email></user>", "output": "str", "x": 270, "y": 100, "wires": [["ex1_xml"]]},
     {"id": "ex1_xml", "type": "xml", "z": "ex1_tab", "name": "XML→Obj", "property": "payload", "attr": "$", "chr": "_", "x": 410, "y": 100, "wires": [["ex1_debug"]]},
     {"id": "ex1_debug", "type": "debug", "z": "ex1_tab", "name": "結果", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "x": 550, "y": 100, "wires": []}
 ]</div>
@@ -508,7 +531,7 @@
             </details>
         </div>
         
-        <h2 id="section7">✅ 7. まとめ</h2>
+        <h2 id="section6">✅ 6. まとめ</h2>
         
         <div class="important">
             <p><strong>🎯 重要ポイント:</strong></p>
@@ -529,7 +552,7 @@
             </ul>
         </div>
         
-        <h2 id="section8">🏭 8. 実務活用例</h2>
+        <h2 id="section7">🏭 7. 実務活用例</h2>
         
         <h3>ケース1: SOAP API連携</h3>
         <p>SOAP Webサービスとの通信でXMLリクエスト/レスポンスを処理。</p>
@@ -546,7 +569,7 @@
         <p style="margin-top: 40px;"><a href="https://nodered.org/docs/" target="_blank">📚 Node-RED 公式ドキュメント</a></p>
     </div>
     
-    <script>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
         document.querySelectorAll('.flow-json').forEach(function(block) {
             var btn = document.createElement('button');
             btn.className = 'copy-btn';
@@ -562,6 +585,4 @@
         });
     </script>
     <!-- フローティングホームボタン -->
-    <a href="index.html" style="position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px; background: linear-gradient(135deg, #42b883 0%, #35495e 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; transition: transform 0.3s, box-shadow 0.3s;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 6px 16px rgba(0,0,0,0.4)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.3)';" title="トップページへ">🏠</a>
-</body>
-</html>
+    <a href="index.html" style="position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px; background: linear-gradient(135deg, #42b883 0%, #35495e 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; transition: transform 0.3s, box-shadow 0.3s;" onmouseover="this.style

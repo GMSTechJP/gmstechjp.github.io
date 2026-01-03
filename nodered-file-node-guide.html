@@ -61,11 +61,9 @@
                 <li><a href="#section1">1. 概要</a></li>
                 <li><a href="#section2">2. File（書き込み）ノード</a></li>
                 <li><a href="#section3">3. File In（読み込み）ノード</a></li>
-                <li><a href="#section4">4. 実用的な使用パターン</a></li>
-                <li><a href="#section5">5. サンプルフロー</a></li>
-                <li><a href="#section6">6. 演習問題</a></li>
-                <li><a href="#section7">7. まとめ</a></li>
-                <li><a href="#section8">8. 実務活用例</a></li>
+                <li><a href="#section4">4. 実用的な使用パターン</a></li>                <li><a href="#section5">5. 演習問題</a></li>
+                <li><a href="#section6">6. まとめ</a></li>
+                <li><a href="#section7">7. 実務活用例</a></li>
             </ul>
         </div>
         
@@ -161,48 +159,16 @@ return msg;</div>
         </div>
         
         <h2 id="section4">🔧 4. 実用的な使用パターン</h2>
-        
-        <h3>パターン1: ログファイルへの追記</h3>
-        <div class="node-example">
-            <span class="node node-inject">センサーデータ</span>
-            <span class="arrow">→</span>
-            <span class="node node-function">タイムスタンプ付加</span>
-            <span class="arrow">→</span>
-            <span class="node node-file">追記</span>
+        <div class="important">
+            <p><strong>📥 サンプルフローのインポート方法:</strong></p>
+            <ol>
+                <li>下のサンプルフローJSONをコピー</li>
+                <li>Node-REDエディタで <strong>メニュー → 読み込み</strong> を選択</li>
+                <li>JSONをペーストして「読み込み」をクリック</li>
+            </ol>
+            <p>このサンプルフローには、以下で説明するパターンの実例が含まれています。</p>
         </div>
-        <p><strong>設定:</strong> Action: append to file, Add newline: ✓</p>
-        
-        <h3>パターン2: 設定ファイルの読み込み</h3>
-        <div class="node-example">
-            <span class="node node-inject">起動時</span>
-            <span class="arrow">→</span>
-            <span class="node node-file-in">config.json</span>
-            <span class="arrow">→</span>
-            <span class="node node-function">JSON解析</span>
-        </div>
-        <p><strong>設定:</strong> Output: a single utf8 string</p>
-        
-        <h3>パターン3: CSVファイルの行処理</h3>
-        <div class="node-example">
-            <span class="node node-inject">読み込み開始</span>
-            <span class="arrow">→</span>
-            <span class="node node-file-in">data.csv</span>
-            <span class="arrow">→</span>
-            <span class="node node-function">各行処理</span>
-        </div>
-        <p><strong>設定:</strong> Output: a msg per line（1行ずつ処理）</p>
-        
-        <h3>パターン4: 日付別ログファイル</h3>
-        <div class="node-example">
-            <span class="node node-inject">データ</span>
-            <span class="arrow">→</span>
-            <span class="node node-function">日付でファイル名生成</span>
-            <span class="arrow">→</span>
-            <span class="node node-file">動的ファイル名</span>
-        </div>
-        <p><strong>設定:</strong> Filename: 空（msg.filename で指定）</p>
-        
-        <h2 id="section5">📥 5. サンプルフロー</h2>
+
         
         <details>
             <summary>📥 サンプルフローJSON（クリックで展開）</summary>
@@ -580,7 +546,67 @@ return msg;</div>
 ]</div>
         </details>
         
-        <h2 id="section6">📝 6. 演習問題</h2>
+        
+        <h3>使用パターン</h3>
+        
+        <h3>パターン1: ファイルへの書き込み（追記）</h3>
+        <p>サンプルフローの「ファイルへの書き込み（追記）」を参照してください。</p>
+        <div class="node-example">
+            <span class="node node-inject">メッセージ</span>
+            <span class="arrow">→</span>
+            <span class="node node-file">追記</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">完了</span>
+        </div>
+        <p><strong>設定:</strong> Action: append to file, Add newline: ✓</p>
+        
+        <h3>パターン2: ファイルの読み込み</h3>
+        <p>サンプルフローの「ファイルの読み込み」を参照してください。</p>
+        <div class="node-example">
+            <span class="node node-inject">読み込み</span>
+            <span class="arrow">→</span>
+            <span class="node node-file-in">File In</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">内容表示</span>
+        </div>
+        <p><strong>設定:</strong> Output: a single utf8 string</p>
+        
+        <h3>パターン3: 上書き保存</h3>
+        <p>サンプルフローの「上書き保存」を参照してください。</p>
+        <div class="node-example">
+            <span class="node node-inject">新データ</span>
+            <span class="arrow">→</span>
+            <span class="node node-file">上書き</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">保存完了</span>
+        </div>
+        <p><strong>設定:</strong> Action: overwrite file（既存ファイルを置き換え）</p>
+        
+        <h3>パターン4: 動的ファイル名（日付別ログ）</h3>
+        <p>サンプルフローの「動的ファイル名（日付別ログ）」を参照してください。</p>
+        <div class="node-example">
+            <span class="node node-inject">データ</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">日付でファイル名生成</span>
+            <span class="arrow">→</span>
+            <span class="node node-file">動的ファイル</span>
+        </div>
+        <p><strong>設定:</strong> Filename: 空（msg.filename で指定）</p>
+        
+        <h3>パターン5: エラーハンドリング</h3>
+        <p>サンプルフローの「エラーハンドリング」を参照してください。</p>
+        <div class="node-example">
+            <span class="node node-file-in">読み込み試行</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">成功時</span>
+            <span style="margin: 0 10px;">｜</span>
+            <span class="node node-catch">Catch</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">エラー時</span>
+        </div>
+        <p><strong>ポイント:</strong> Catch ノードでファイルエラー（存在しない、権限なし等）をキャッチ</p>
+        
+        <h2 id="section5">📝 5. 演習問題</h2>
         
         <div class="exercise">
             <h3>演習1: 基本的なログ出力 <span class="difficulty difficulty-easy">初級</span></h3>
@@ -665,7 +691,7 @@ return msg;</div>
             </details>
         </div>
         
-        <h2 id="section7">✅ 7. まとめ</h2>
+        <h2 id="section6">✅ 6. まとめ</h2>
         
         <div class="important">
             <p><strong>🎯 重要ポイント:</strong></p>
@@ -687,7 +713,7 @@ return msg;</div>
             </ul>
         </div>
         
-        <h2 id="section8">🏭 8. 実務活用例</h2>
+        <h2 id="section7">🏭 7. 実務活用例</h2>
         
         <h3>ケース1: センサーデータのログ記録</h3>
         <p>IoTセンサーからのデータを時系列でログファイルに記録。日付別ローテーション。</p>

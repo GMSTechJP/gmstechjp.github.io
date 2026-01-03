@@ -61,12 +61,10 @@
             <ul>
                 <li><a href="#section1">1. 概要</a></li>
                 <li><a href="#section2">2. 設定詳細</a></li>
-                <li><a href="#section3">3. 実用的な使用パターン</a></li>
-                <li><a href="#section4">4. サンプルフロー</a></li>
-                <li><a href="#section5">5. 演習問題</a></li>
-                <li><a href="#section6">6. まとめ</a></li>
-                <li><a href="#section7">7. トラブルシューティング</a></li>
-                <li><a href="#section8">8. 実務活用例</a></li>
+                <li><a href="#section3">3. 実用的な使用パターン</a></li>                <li><a href="#section4">4. 演習問題</a></li>
+                <li><a href="#section5">5. まとめ</a></li>
+                <li><a href="#section6">6. トラブルシューティング</a></li>
+                <li><a href="#section7">7. 実務活用例</a></li>
             </ul>
         </div>
         
@@ -140,54 +138,16 @@ msg.headers = {
 return msg;</div>
         
         <h2 id="section3">🔧 3. 実用的な使用パターン</h2>
-        
-        <h3>パターン1: シンプルなGETリクエスト</h3>
-        <div class="node-example">
-            <span class="node node-inject">トリガー</span>
-            <span class="arrow">→</span>
-            <span class="node node-http-request">GET API</span>
-            <span class="arrow">→</span>
-            <span class="node node-debug">結果表示</span>
+        <div class="important">
+            <p><strong>📥 サンプルフローのインポート方法:</strong></p>
+            <ol>
+                <li>下のサンプルフローJSONをコピー</li>
+                <li>Node-REDエディタで <strong>メニュー → 読み込み</strong> を選択</li>
+                <li>JSONをペーストして「読み込み」をクリック</li>
+            </ol>
+            <p>このサンプルフローには、以下で説明するパターンの実例が含まれています。</p>
         </div>
-        <p><strong>用途:</strong> 外部APIからデータを取得（天気、時刻、為替など）</p>
-        
-        <h3>パターン2: POSTでデータ送信</h3>
-        <div class="node-example">
-            <span class="node node-inject">データ</span>
-            <span class="arrow">→</span>
-            <span class="node node-change">JSON設定</span>
-            <span class="arrow">→</span>
-            <span class="node node-http-request">POST API</span>
-            <span class="arrow">→</span>
-            <span class="node node-debug">結果</span>
-        </div>
-        <p><strong>用途:</strong> サーバーにデータを登録（センサーデータ送信など）</p>
-        
-        <h3>パターン3: エラーハンドリング付き</h3>
-        <div class="node-example">
-            <span class="node node-inject">リクエスト</span>
-            <span class="arrow">→</span>
-            <span class="node node-http-request">API呼出</span>
-            <span class="arrow">→</span>
-            <span class="node node-switch">ステータス判定</span>
-            <span class="arrow">→</span>
-            <span class="node node-debug">成功/失敗</span>
-        </div>
-        <p><strong>用途:</strong> API呼び出しの成功/失敗を適切に処理</p>
-        
-        <h3>パターン4: 認証付きAPI</h3>
-        <div class="node-example">
-            <span class="node node-inject">トリガー</span>
-            <span class="arrow">→</span>
-            <span class="node node-function">認証ヘッダー設定</span>
-            <span class="arrow">→</span>
-            <span class="node node-http-request">認証API</span>
-            <span class="arrow">→</span>
-            <span class="node node-debug">結果</span>
-        </div>
-        <p><strong>用途:</strong> APIキーやトークンが必要なサービス</p>
-        
-        <h2 id="section4">📥 4. サンプルフロー</h2>
+
         
         <h3>利用する無料API</h3>
         <p>このガイドでは、以下の認証不要で安定した公開APIを使用します：</p>
@@ -667,7 +627,68 @@ return msg;</div>
 ]</div>
         </details>
         
-        <h2 id="section5">📝 5. 演習問題</h2>
+        
+        <h3>使用パターン</h3>
+        
+        <h3>パターン1: 基本GETリクエスト（世界時刻取得）</h3>
+        <p>サンプルフローの「基本: GETリクエスト（世界時刻取得）」を参照してください。</p>
+        <div class="node-example">
+            <span class="node node-inject">トリガー</span>
+            <span class="arrow">→</span>
+            <span class="node node-http-request">World Time API</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">時刻整形</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">結果表示</span>
+        </div>
+        <p><strong>ポイント:</strong> Return を「JSONオブジェクトを解析」に設定すると自動パース</p>
+        
+        <h3>パターン2: POSTリクエスト（データ送信）</h3>
+        <p>サンプルフローの「POSTリクエスト（データ送信）」を参照してください。</p>
+        <div class="node-example">
+            <span class="node node-inject">センサーデータ</span>
+            <span class="arrow">→</span>
+            <span class="node node-http-request">POST httpbin.org</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">結果</span>
+        </div>
+        <p><strong>ポイント:</strong> msg.payload にオブジェクトを設定すると自動でJSON送信</p>
+        
+        <h3>パターン3: エラーハンドリング</h3>
+        <p>サンプルフローの「エラーハンドリング」を参照してください。</p>
+        <div class="node-example">
+            <span class="node node-inject">リクエスト</span>
+            <span class="arrow">→</span>
+            <span class="node node-http-request">API呼出</span>
+            <span class="arrow">→</span>
+            <span class="node node-switch">ステータス判定</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">成功/失敗</span>
+        </div>
+        <p><strong>ポイント:</strong></p>
+        <ul>
+            <li>msg.statusCode でHTTPステータスを確認</li>
+            <li>Catch ノードでネットワークエラーを捕捉</li>
+        </ul>
+        
+        <h3>パターン4: 動的URL（パラメータ付き）</h3>
+        <p>サンプルフローの「動的URL（パラメータ付き）」を参照してください。</p>
+        <div class="node-example">
+            <span class="node node-inject">ユーザーID</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">URL生成</span>
+            <span class="arrow">→</span>
+            <span class="node node-http-request">動的URL GET</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">ユーザー情報</span>
+        </div>
+        <p><strong>ポイント:</strong></p>
+        <ul>
+            <li>msg.url を設定するとノード設定より優先</li>
+            <li>テンプレートリテラルでURLを動的生成</li>
+        </ul>
+        
+        <h2 id="section4">📝 4. 演習問題</h2>
         
         <div class="exercise">
             <h3>演習1: 世界時刻の取得 <span class="difficulty difficulty-easy">初級</span></h3>
@@ -817,7 +838,7 @@ return msg;</div>
             </details>
         </div>
         
-        <h2 id="section6">✅ 6. まとめ</h2>
+        <h2 id="section5">✅ 5. まとめ</h2>
         
         <div class="important">
             <p><strong>🎯 重要ポイント:</strong></p>
@@ -841,7 +862,7 @@ return msg;</div>
             </ul>
         </div>
         
-        <h2 id="section7">🔧 7. トラブルシューティング</h2>
+        <h2 id="section6">🔧 6. トラブルシューティング</h2>
         
         <table>
             <tr><th>症状</th><th>原因</th><th>解決方法</th></tr>
@@ -882,7 +903,7 @@ return msg;</div>
             </tr>
         </table>
         
-        <h2 id="section8">🏭 8. 実務活用例</h2>
+        <h2 id="section7">🏭 7. 実務活用例</h2>
         
         <h3>ケース1: 天気情報の定期取得</h3>
         <p>Open-Meteo API を使って、1時間ごとに天気情報を取得し、温度が閾値を超えたら通知</p>

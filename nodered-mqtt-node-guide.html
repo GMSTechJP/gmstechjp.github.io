@@ -71,12 +71,10 @@
                 <li><a href="#section2">2. MQTTブローカー設定</a></li>
                 <li><a href="#section3">3. MQTT In / Out ノード</a></li>
                 <li><a href="#section4">4. トピックとワイルドカード</a></li>
-                <li><a href="#section5">5. 実用的な使用パターン</a></li>
-                <li><a href="#section6">6. サンプルフロー</a></li>
-                <li><a href="#section7">7. 演習問題</a></li>
-                <li><a href="#section8">8. まとめ</a></li>
-                <li><a href="#section9">9. トラブルシューティング</a></li>
-                <li><a href="#section10">10. 実務活用例</a></li>
+                <li><a href="#section5">5. 実用的な使用パターン</a></li>                <li><a href="#section6">6. 演習問題</a></li>
+                <li><a href="#section7">7. まとめ</a></li>
+                <li><a href="#section8">8. トラブルシューティング</a></li>
+                <li><a href="#section9">9. 実務活用例</a></li>
             </ul>
         </div>
         
@@ -253,48 +251,16 @@ home/bedroom/temperature     → 22.0</div>
         </div>
         
         <h2 id="section5">🔧 5. 実用的な使用パターン</h2>
-        
-        <h3>パターン1: センサーデータの収集</h3>
-        <div class="node-example">
-            <span class="node node-mqtt-in">MQTT In</span>
-            <span class="arrow">→</span>
-            <span class="node node-function">データ処理</span>
-            <span class="arrow">→</span>
-            <span class="node node-debug">表示</span>
+        <div class="important">
+            <p><strong>📥 サンプルフローのインポート方法:</strong></p>
+            <ol>
+                <li>下のサンプルフローJSONをコピー</li>
+                <li>Node-REDエディタで <strong>メニュー → 読み込み</strong> を選択</li>
+                <li>JSONをペーストして「読み込み」をクリック</li>
+            </ol>
+            <p>このサンプルフローには、以下で説明するパターンの実例が含まれています。</p>
         </div>
-        <p><strong>用途:</strong> 複数のセンサーからデータを一括受信</p>
-        
-        <h3>パターン2: デバイス制御コマンドの送信</h3>
-        <div class="node-example">
-            <span class="node node-inject">コマンド</span>
-            <span class="arrow">→</span>
-            <span class="node node-function">整形</span>
-            <span class="arrow">→</span>
-            <span class="node node-mqtt-out">MQTT Out</span>
-        </div>
-        <p><strong>用途:</strong> IoTデバイスへの制御コマンド送信</p>
-        
-        <h3>パターン3: Pub/Sub 双方向通信</h3>
-        <div class="node-example">
-            <span class="node node-mqtt-in">コマンド受信</span>
-            <span class="arrow">→</span>
-            <span class="node node-function">処理</span>
-            <span class="arrow">→</span>
-            <span class="node node-mqtt-out">結果送信</span>
-        </div>
-        <p><strong>用途:</strong> コマンド受信→処理→結果返信</p>
-        
-        <h3>パターン4: トピックルーティング</h3>
-        <div class="node-example">
-            <span class="node node-mqtt-in">sensors/#</span>
-            <span class="arrow">→</span>
-            <span class="node node-switch">トピック分岐</span>
-            <span class="arrow">→</span>
-            <span class="node node-function">個別処理</span>
-        </div>
-        <p><strong>用途:</strong> ワイルドカードで受信し、トピックごとに処理を分岐</p>
-        
-        <h2 id="section6">📥 6. サンプルフロー</h2>
+
         
         <div class="important">
             <p><strong>⚠️ 使用前の準備:</strong></p>
@@ -684,7 +650,72 @@ home/bedroom/temperature     → 22.0</div>
 ]</div>
         </details>
         
-        <h2 id="section7">📝 7. 演習問題</h2>
+        
+        <h3>使用パターン</h3>
+        
+        <h3>パターン1: 基本 Publish（発行）</h3>
+        <p>サンプルフローの「基本: Publish（発行）」を参照してください。</p>
+        <div class="node-example">
+            <span class="node node-inject">メッセージ</span>
+            <span class="arrow">→</span>
+            <span class="node node-mqtt-out">MQTT Out</span>
+        </div>
+        <p><strong>ポイント:</strong></p>
+        <ul>
+            <li>msg.payload にメッセージ内容を設定</li>
+            <li>トピックはノード設定または msg.topic で指定</li>
+            <li>QoS でメッセージ配信の信頼性を選択</li>
+        </ul>
+        
+        <h3>パターン2: 基本 Subscribe（購読）</h3>
+        <p>サンプルフローの「基本: Subscribe（購読）」を参照してください。</p>
+        <div class="node-example">
+            <span class="node node-mqtt-in">MQTT In</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">メッセージ表示</span>
+        </div>
+        <p><strong>ポイント:</strong></p>
+        <ul>
+            <li>購読トピックはワイルドカード（#, +）使用可能</li>
+            <li>msg.topic に受信したトピック名が格納される</li>
+            <li>Output設定で自動型検出またはString/Buffer指定</li>
+        </ul>
+        
+        <h3>パターン3: JSONデータの送受信</h3>
+        <p>サンプルフローの「JSON データの送受信」を参照してください。</p>
+        <div class="node-example">
+            <span class="node node-inject">JSON生成</span>
+            <span class="arrow">→</span>
+            <span class="node node-mqtt-out">送信</span>
+            <span style="margin: 0 20px;">｜</span>
+            <span class="node node-mqtt-in">受信</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">JSON確認</span>
+        </div>
+        <p><strong>ポイント:</strong></p>
+        <ul>
+            <li>送信時: msg.payload にオブジェクトを設定すると自動でJSON文字列化</li>
+            <li>受信時: Output を auto-detect にすると自動でパース</li>
+            <li>センサー値など構造化データの送受信に最適</li>
+        </ul>
+        
+        <h3>パターン4: デバイス制御（コマンド送受信）</h3>
+        <p>サンプルフローの「デバイス制御（コマンド送受信）」を参照してください。</p>
+        <div class="node-example">
+            <span class="node node-mqtt-in">コマンド受信</span>
+            <span class="arrow">→</span>
+            <span class="node node-switch">ON/OFF分岐</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">デバイス制御</span>
+        </div>
+        <p><strong>ポイント:</strong></p>
+        <ul>
+            <li>デバイスごとにトピックを分ける（例: home/light/living）</li>
+            <li>Switchノードでコマンド内容（ON/OFF等）を分岐</li>
+            <li>制御結果をstatusトピックに発行するとフィードバック可能</li>
+        </ul>
+        
+        <h2 id="section6">📝 6. 演習問題</h2>
         
         <div class="exercise">
             <h3>演習1: メッセージの発行 <span class="difficulty difficulty-easy">初級</span></h3>
@@ -825,7 +856,7 @@ return msg;</div>
             </details>
         </div>
         
-        <h2 id="section8">✅ 8. まとめ</h2>
+        <h2 id="section7">✅ 7. まとめ</h2>
         
         <div class="important">
             <p><strong>🎯 重要ポイント:</strong></p>
@@ -847,7 +878,7 @@ return msg;</div>
             </ul>
         </div>
         
-        <h2 id="section9">🔧 9. トラブルシューティング</h2>
+        <h2 id="section8">🔧 8. トラブルシューティング</h2>
         
         <table>
             <tr><th>症状</th><th>原因</th><th>解決方法</th></tr>
@@ -858,7 +889,7 @@ return msg;</div>
             <tr><td>古いメッセージが届く</td><td>Retain メッセージ</td><td>空のRetainメッセージを発行してクリア</td></tr>
         </table>
         
-        <h2 id="section10">🏭 10. 実務活用例</h2>
+        <h2 id="section9">🏭 9. 実務活用例</h2>
         
         <h3>ケース1: 分散センサーネットワーク</h3>
         <p>複数のRaspberry Pi からセンサーデータをMQTTで収集し、中央のNode-REDで集約・可視化</p>

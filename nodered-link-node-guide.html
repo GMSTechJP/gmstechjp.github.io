@@ -61,11 +61,9 @@
                 <li><a href="#section1">1. 概要</a></li>
                 <li><a href="#section2">2. 3種類のLinkノード</a></li>
                 <li><a href="#section3">3. 設定詳細</a></li>
-                <li><a href="#section4">4. 実用的な使用パターン</a></li>
-                <li><a href="#section5">5. サンプルフロー</a></li>
-                <li><a href="#section6">6. 演習問題</a></li>
-                <li><a href="#section7">7. まとめ</a></li>
-                <li><a href="#section8">8. 実務活用例</a></li>
+                <li><a href="#section4">4. 実用的な使用パターン</a></li>                <li><a href="#section5">5. 演習問題</a></li>
+                <li><a href="#section6">6. まとめ</a></li>
+                <li><a href="#section7">7. 実務活用例</a></li>
             </ul>
         </div>
         
@@ -162,62 +160,16 @@
         </table>
         
         <h2 id="section4">🔧 4. 実用的な使用パターン</h2>
-        
-        <h3>パターン1: 基本的な Link Out → Link In</h3>
-        <div class="node-example">
-            <span class="node node-inject">Inject</span>
-            <span class="arrow">→</span>
-            <span class="node node-link-out">Link Out</span>
-            <span class="arrow-dashed">- - -</span>
-            <span class="node node-link-in">Link In</span>
-            <span class="arrow">→</span>
-            <span class="node node-debug">Debug</span>
+        <div class="important">
+            <p><strong>📥 サンプルフローのインポート方法:</strong></p>
+            <ol>
+                <li>下のサンプルフローJSONをコピー</li>
+                <li>Node-REDエディタで <strong>メニュー → 読み込み</strong> を選択</li>
+                <li>JSONをペーストして「読み込み」をクリック</li>
+            </ol>
+            <p>このサンプルフローには、以下で説明するパターンの実例が含まれています。</p>
         </div>
-        <p><strong>用途:</strong> フロー内でワイヤーの交差を避ける、別タブへメッセージを送る</p>
-        
-        <h3>パターン2: 複数の送信先</h3>
-        <div class="node-example">
-            <span class="node node-link-out">Link Out</span>
-            <span class="arrow-dashed">- - -</span>
-            <span class="node node-link-in">Log処理</span>
-        </div>
-        <div class="node-example" style="margin-top: -10px;">
-            <span style="width: 100px;"></span>
-            <span class="arrow-dashed">- - -</span>
-            <span class="node node-link-in">DB保存</span>
-        </div>
-        <p><strong>用途:</strong> 1つのメッセージを複数の処理に送る（ログ記録、データ保存など）</p>
-        
-        <h3>パターン3: Link Call（サブルーチン呼び出し）</h3>
-        <div class="node-example">
-            <span class="node node-inject">Inject</span>
-            <span class="arrow">→</span>
-            <span class="node node-link-call">Link Call</span>
-            <span class="arrow">→</span>
-            <span class="node node-debug">結果</span>
-        </div>
-        <div class="node-example" style="background-color: #1a3a3a;">
-            <span style="color: #888;">【呼び出し先】</span>
-            <span class="node node-link-in">共通処理</span>
-            <span class="arrow">→</span>
-            <span class="node node-function">処理</span>
-            <span class="arrow">→</span>
-            <span class="node node-link-out" style="border: 2px solid #4caf50;">Return</span>
-        </div>
-        <p><strong>用途:</strong> 共通処理を別フローに切り出して再利用</p>
-        
-        <h3>パターン4: クロスタブ通信</h3>
-        <div class="code-block">【タブA: センサー入力】
-  Inject → 処理 → Link Out("sensor-data")
 
-【タブB: データ処理】
-  Link In("sensor-data") → 加工 → Link Out("processed")
-
-【タブC: 表示】
-  Link In("processed") → Dashboard</div>
-        <p><strong>用途:</strong> 機能ごとにタブを分けて、Link で連携</p>
-        
-        <h2 id="section5">📥 5. サンプルフロー</h2>
         
         <details>
             <summary>📥 サンプルフローJSON（クリックで展開）</summary>
@@ -488,7 +440,78 @@
 ]</div>
         </details>
         
-        <h2 id="section6">📝 6. 演習問題</h2>
+        
+        <h3>使用パターン</h3>
+        
+        <h3>パターン1: 基本的な Link Out → Link In</h3>
+        <p>サンプルフローの「基本: Link Out → Link In」を参照してください。</p>
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-link-out">Link Out</span>
+            <span class="arrow-dashed">- - -</span>
+            <span class="node node-link-in">Link In</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        <p><strong>ポイント:</strong> ワイヤーの交差を避けたり、離れた場所にメッセージを送る</p>
+        
+        <h3>パターン2: Link Call（サブルーチン呼び出し）</h3>
+        <p>サンプルフローの「Link Call（サブルーチン呼び出し）」を参照してください。</p>
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-link-call">Link Call</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">結果</span>
+        </div>
+        <div class="node-example" style="background-color: #1a3a3a;">
+            <span style="color: #888;">【呼び出し先】</span>
+            <span class="node node-link-in">共通処理（3倍）</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">処理</span>
+            <span class="arrow">→</span>
+            <span class="node node-link-out" style="border: 2px solid #4caf50;">Return</span>
+        </div>
+        <p><strong>ポイント:</strong></p>
+        <ul>
+            <li>Link Call は呼び出し先から結果が返るまで待機</li>
+            <li>Link Out の Mode を「Return」に設定すると結果を返せる</li>
+        </ul>
+        
+        <h3>パターン3: 複数の送信先</h3>
+        <p>サンプルフローの「複数の送信先」を参照してください。</p>
+        <div class="node-example">
+            <span class="node node-link-out">Link Out</span>
+            <span class="arrow-dashed">- - -</span>
+            <span class="node node-link-in">受信A</span>
+        </div>
+        <div class="node-example" style="margin-top: -10px;">
+            <span style="width: 100px;"></span>
+            <span class="arrow-dashed">- - -</span>
+            <span class="node node-link-in">受信B</span>
+        </div>
+        <p><strong>ポイント:</strong> 1つの Link Out から複数の Link In に送信可能</p>
+        
+        <h3>パターン4: 共通検証処理の再利用</h3>
+        <p>サンプルフローの「検証処理（共通）」「テスト呼び出し」を参照してください。</p>
+        <div class="node-example">
+            <span class="node node-inject">テストA</span>
+            <span class="arrow">→</span>
+            <span class="node node-link-call">検証呼出</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">結果</span>
+        </div>
+        <div class="node-example">
+            <span class="node node-inject">テストB</span>
+            <span class="arrow">→</span>
+            <span class="node node-link-call">検証呼出</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">結果</span>
+        </div>
+        <p><strong>ポイント:</strong> 同じ検証ロジックを複数箇所から呼び出して再利用</p>
+        
+        <h2 id="section5">📝 5. 演習問題</h2>
         
         <div class="exercise">
             <h3>演習1: 基本的なLink接続 <span class="difficulty difficulty-easy">初級</span></h3>
@@ -585,7 +608,7 @@
             </details>
         </div>
         
-        <h2 id="section7">✅ 7. まとめ</h2>
+        <h2 id="section6">✅ 6. まとめ</h2>
         
         <div class="important">
             <p><strong>🎯 重要ポイント:</strong></p>
@@ -607,7 +630,7 @@
             </ul>
         </div>
         
-        <h2 id="section8">🏭 8. 実務活用例</h2>
+        <h2 id="section7">🏭 7. 実務活用例</h2>
         
         <h3>ケース1: ログ記録の共通化</h3>
         <p>各処理からログ記録用の Link In にメッセージを送信し、ログ処理を一元管理。</p>

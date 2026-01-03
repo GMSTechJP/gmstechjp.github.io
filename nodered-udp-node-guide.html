@@ -67,12 +67,10 @@
                 <li><a href="#section2">2. UDP vs TCP の違い</a></li>
                 <li><a href="#section3">3. UDP In ノード</a></li>
                 <li><a href="#section4">4. UDP Out ノード</a></li>
-                <li><a href="#section5">5. 実用的な使用パターン</a></li>
-                <li><a href="#section6">6. サンプルフロー</a></li>
-                <li><a href="#section7">7. 演習問題</a></li>
-                <li><a href="#section8">8. まとめ</a></li>
-                <li><a href="#section9">9. トラブルシューティング</a></li>
-                <li><a href="#section10">10. 実務活用例</a></li>
+                <li><a href="#section5">5. 実用的な使用パターン</a></li>                <li><a href="#section6">6. 演習問題</a></li>
+                <li><a href="#section7">7. まとめ</a></li>
+                <li><a href="#section8">8. トラブルシューティング</a></li>
+                <li><a href="#section9">9. 実務活用例</a></li>
             </ul>
         </div>
         
@@ -238,49 +236,16 @@
         </table>
         
         <h2 id="section5">🔧 5. 実用的な使用パターン</h2>
-        
-        <h3>パターン1: 単純なUDP送受信</h3>
-        <div class="node-example">
-            <span class="node node-inject">データ</span>
-            <span class="arrow">→</span>
-            <span class="node node-udp-out">UDP Out</span>
+        <div class="important">
+            <p><strong>📥 サンプルフローのインポート方法:</strong></p>
+            <ol>
+                <li>下のサンプルフローJSONをコピー</li>
+                <li>Node-REDエディタで <strong>メニュー → 読み込み</strong> を選択</li>
+                <li>JSONをペーストして「読み込み」をクリック</li>
+            </ol>
+            <p>このサンプルフローには、以下で説明するパターンの実例が含まれています。</p>
         </div>
-        <div class="node-example">
-            <span class="node node-udp-in">UDP In</span>
-            <span class="arrow">→</span>
-            <span class="node node-debug">表示</span>
-        </div>
-        <p><strong>用途:</strong> 1対1のシンプルなUDP通信</p>
-        
-        <h3>パターン2: ブロードキャスト送信</h3>
-        <div class="node-example">
-            <span class="node node-inject">センサーデータ</span>
-            <span class="arrow">→</span>
-            <span class="node node-udp-out">UDP Out (Broadcast)</span>
-        </div>
-        <p><strong>用途:</strong> ネットワーク上の全デバイスにデータを一斉配信</p>
-        
-        <h3>パターン3: センサーデータ収集</h3>
-        <div class="node-example">
-            <span class="node node-udp-in">UDP In</span>
-            <span class="arrow">→</span>
-            <span class="node node-function">パース</span>
-            <span class="arrow">→</span>
-            <span class="node node-switch">振り分け</span>
-        </div>
-        <p><strong>用途:</strong> 複数デバイスからのセンサーデータを集約</p>
-        
-        <h3>パターン4: 返信パターン</h3>
-        <div class="node-example">
-            <span class="node node-udp-in">受信</span>
-            <span class="arrow">→</span>
-            <span class="node node-function">処理</span>
-            <span class="arrow">→</span>
-            <span class="node node-udp-out">返信(msg.ip/port)</span>
-        </div>
-        <p><strong>用途:</strong> 受信元に返信（msg.ip, msg.port を利用）</p>
-        
-        <h2 id="section6">📥 6. サンプルフロー</h2>
+
         
         <div class="warning">
             <p><strong>⚠️ テスト方法:</strong></p>
@@ -711,7 +676,90 @@ nc -ul 8000</div>
 ]</div>
         </details>
         
-        <h2 id="section7">📝 7. 演習問題</h2>
+        
+        <h3>使用パターン</h3>
+        
+        <h3>パターン1: 基本UDP送受信</h3>
+        <p>サンプルフローの「基本: UDP受信」「基本: UDP送信（ユニキャスト）」を参照してください。</p>
+        <div class="node-example">
+            <span class="node node-inject">データ</span>
+            <span class="arrow">→</span>
+            <span class="node node-udp-out">UDP Out</span>
+        </div>
+        <div class="node-example">
+            <span class="node node-udp-in">UDP In</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">表示</span>
+        </div>
+        <p><strong>ポイント:</strong></p>
+        <ul>
+            <li>UDP In: 受信時に msg.ip, msg.port が設定される</li>
+            <li>UDP Out: 宛先アドレスとポートを指定</li>
+        </ul>
+        
+        <h3>パターン2: ブロードキャスト送信</h3>
+        <p>サンプルフローの「ブロードキャスト送信」を参照してください。</p>
+        <div class="node-example">
+            <span class="node node-inject">メッセージ</span>
+            <span class="arrow">→</span>
+            <span class="node node-udp-out">UDP Out (255.255.255.255)</span>
+        </div>
+        <p><strong>ポイント:</strong></p>
+        <ul>
+            <li>アドレス: 255.255.255.255 または サブネットのブロードキャスト（192.168.1.255）</li>
+            <li>ネットワーク上の全デバイスにデータを一斉配信</li>
+        </ul>
+        
+        <h3>パターン3: JSONデータの送受信</h3>
+        <p>サンプルフローの「JSON データの送受信」を参照してください。</p>
+        <div class="node-example">
+            <span class="node node-inject">JSON生成</span>
+            <span class="arrow">→</span>
+            <span class="node node-udp-out">UDP送信</span>
+            <span style="margin: 0 20px;">｜</span>
+            <span class="node node-udp-in">UDP受信</span>
+            <span class="arrow">→</span>
+            <span class="node node-json">JSONパース</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">確認</span>
+        </div>
+        <p><strong>ポイント:</strong></p>
+        <ul>
+            <li>送信時: JSON.stringify() で文字列化</li>
+            <li>受信時: JSON ノードでパース</li>
+        </ul>
+        
+        <h3>パターン4: 受信元への返信（エコー）</h3>
+        <p>サンプルフローの「受信元への返信（エコー）」を参照してください。</p>
+        <div class="node-example">
+            <span class="node node-udp-in">受信</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">処理</span>
+            <span class="arrow">→</span>
+            <span class="node node-udp-out">返信(msg.ip/port)</span>
+        </div>
+        <p><strong>ポイント:</strong></p>
+        <ul>
+            <li>UDP Out のアドレス/ポートを空にすると msg.ip, msg.port を使用</li>
+            <li>受信したパケットの送信元に返信可能</li>
+        </ul>
+        
+        <h3>パターン5: 定期的なセンサーデータ送信</h3>
+        <p>サンプルフローの「定期的なセンサーデータ送信」を参照してください。</p>
+        <div class="node-example">
+            <span class="node node-inject">3秒ごと</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">センサーデータ生成</span>
+            <span class="arrow">→</span>
+            <span class="node node-udp-out">ブロードキャスト</span>
+        </div>
+        <p><strong>ポイント:</strong></p>
+        <ul>
+            <li>Inject の repeat 設定で定期実行</li>
+            <li>センサーデータをJSON形式でブロードキャスト</li>
+        </ul>
+        
+        <h2 id="section6">📝 6. 演習問題</h2>
         
         <div class="exercise">
             <h3>演習1: UDPメッセージの送受信 <span class="difficulty difficulty-easy">初級</span></h3>
@@ -864,7 +912,7 @@ return msg;</div>
             </details>
         </div>
         
-        <h2 id="section8">✅ 8. まとめ</h2>
+        <h2 id="section7">✅ 7. まとめ</h2>
         
         <div class="important">
             <p><strong>🎯 重要ポイント:</strong></p>
@@ -887,7 +935,7 @@ return msg;</div>
             </ul>
         </div>
         
-        <h2 id="section9">🔧 9. トラブルシューティング</h2>
+        <h2 id="section8">🔧 8. トラブルシューティング</h2>
         
         <table>
             <tr><th>症状</th><th>原因</th><th>解決方法</th></tr>
@@ -898,7 +946,7 @@ return msg;</div>
             <tr><td>返信が届かない</td><td>msg.ip/port が未設定</td><td>受信時のmsg.ip/portを保持</td></tr>
         </table>
         
-        <h2 id="section10">🏭 10. 実務活用例</h2>
+        <h2 id="section9">🏭 9. 実務活用例</h2>
         
         <h3>ケース1: センサーデータ収集</h3>
         <p>複数のIoTセンサーからUDPでデータを受信。多少のデータロスが許容できる場合に最適。</p>
