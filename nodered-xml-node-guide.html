@@ -443,7 +443,7 @@
                 <div class="flow-json">[
     {"id": "ex1_tab", "type": "tab", "label": "演習1"},
     {"id": "ex1_inject", "type": "inject", "z": "ex1_tab", "name": "実行", "props": [], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "x": 130, "y": 100, "wires": [["ex1_template"]]},
-    {"id": "ex1_template", "type": "template", "z": "ex1_tab", "name": "XML", "field": "payload", "fieldType": "msg", "format": "text", "syntax": "plain", "template": "<user><n>山田太郎</n><email>yamada@example.com</email></user>", "output": "str", "x": 270, "y": 100, "wires": [["ex1_xml"]]},
+    {"id": "ex1_template", "type": "template", "z": "ex1_tab", "name": "XML", "field": "payload", "fieldType": "msg", "format": "text", "syntax": "plain", "template": "<user><name>山田太郎</name><email>yamada@example.com</email></user>", "output": "str", "x": 270, "y": 100, "wires": [["ex1_xml"]]},
     {"id": "ex1_xml", "type": "xml", "z": "ex1_tab", "name": "XML→Obj", "property": "payload", "attr": "$", "chr": "_", "x": 410, "y": 100, "wires": [["ex1_debug"]]},
     {"id": "ex1_debug", "type": "debug", "z": "ex1_tab", "name": "結果", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "x": 550, "y": 100, "wires": []}
 ]</div>
@@ -481,7 +481,7 @@
                 <div class="flow-json">[
     {"id": "ex3_tab", "type": "tab", "label": "演習3"},
     {"id": "ex3_inject", "type": "inject", "z": "ex3_tab", "name": "実行", "props": [], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "x": 130, "y": 100, "wires": [["ex3_template"]]},
-    {"id": "ex3_template", "type": "template", "z": "ex3_tab", "name": "属性付きXML", "field": "payload", "fieldType": "msg", "format": "text", "syntax": "plain", "template": "<item id=\"ITM001\" category=\"electronics\">\n  <n>スマートフォン</n>\n  <price currency=\"JPY\">50000</price>\n</item>", "output": "str", "x": 290, "y": 100, "wires": [["ex3_xml"]]},
+    {"id": "ex3_template", "type": "template", "z": "ex3_tab", "name": "属性付きXML", "field": "payload", "fieldType": "msg", "format": "text", "syntax": "plain", "template": "<item id=\"ITM001\" category=\"electronics\">\n  <name>スマートフォン</name>\n  <price currency=\"JPY\">50000</price>\n</item>", "output": "str", "x": 290, "y": 100, "wires": [["ex3_xml"]]},
     {"id": "ex3_xml", "type": "xml", "z": "ex3_tab", "name": "XML→Obj", "property": "payload", "attr": "$", "chr": "_", "x": 450, "y": 100, "wires": [["ex3_func"]]},
     {"id": "ex3_func", "type": "function", "z": "ex3_tab", "name": "属性抽出", "func": "var item = msg.payload.item;\nmsg.payload = {\n    id: item.$.id,\n    category: item.$.category,\n    name: item.name[0],\n    price: item.price[0]._,\n    currency: item.price[0].$.currency\n};\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 600, "y": 100, "wires": [["ex3_debug"]]},
     {"id": "ex3_debug", "type": "debug", "z": "ex3_tab", "name": "抽出結果", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "x": 750, "y": 100, "wires": []}
@@ -561,5 +561,7 @@
             block.appendChild(btn);
         });
     </script>
+    <!-- フローティングホームボタン -->
+    <a href="index.html" style="position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px; background: linear-gradient(135deg, #42b883 0%, #35495e 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; transition: transform 0.3s, box-shadow 0.3s;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 6px 16px rgba(0,0,0,0.4)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.3)';" title="トップページへ">🏠</a>
 </body>
 </html>
