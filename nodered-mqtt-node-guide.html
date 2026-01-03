@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED MQTT ノード完全ガイド</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.8; max-width: 1000px; margin: 0 auto; padding: 20px; background-color: #f5f5f5; color: #333; }
+        h1 { color: #b92d5d; border-bottom: 3px solid #b92d5d; padding-bottom: 10px; }
+        h2 { color: #d33682; margin-top: 40px; border-left: 5px solid #d33682; padding-left: 15px; }
+        h3 { color: #555; margin-top: 25px; }
+        h4 { color: #666; margin-top: 20px; }
+        .container { background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .node-example { background-color: #2d3133; padding: 20px; border-radius: 5px; margin: 20px 0; color: white; font-family: 'Courier New', monospace; display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
+        .node { display: inline-block; padding: 8px 15px; border-radius: 4px; margin: 5px; font-weight: bold; font-size: 14px; }
+        .node-inject { background-color: #3fadb5; color: white; }
+        .node-debug { background-color: #87a48d; color: white; }
+        .node-function { background-color: #e8a658; color: white; }
+        .node-change { background-color: #e7a070; color: white; }
+        .node-switch { background-color: #e2d96e; color: #333; }
+        .node-mqtt-in { background-color: #c9b6d5; color: #333; }
+        .node-mqtt-out { background-color: #c9b6d5; color: #333; }
+        .node-catch { background-color: #e8967a; color: white; }
+        .arrow { color: #999; font-size: 20px; margin: 0 10px; }
+        .important { background-color: #fce4ec; border-left: 4px solid #b92d5d; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .tip { background-color: #e8f5e9; border-left: 4px solid #4caf50; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .warning { background-color: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .code-block { background-color: #2d3133; color: #f8f8f2; padding: 15px; border-radius: 5px; margin: 15px 0; overflow-x: auto; font-family: 'Courier New', Consolas, monospace; font-size: 14px; white-space: pre; }
+        .flow-json { background-color: #1a1a2e; color: #a6e22e; padding: 15px; border-radius: 5px; font-family: 'Courier New', Consolas, monospace; font-size: 12px; overflow-x: auto; white-space: pre; position: relative; max-height: 400px; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #b92d5d; color: white; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .exercise { background-color: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0; border: 2px solid #2196f3; }
+        .exercise h3 { color: #1976d2; margin-top: 0; }
+        .difficulty { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; margin-left: 10px; }
+        .difficulty-easy { background-color: #c8e6c9; color: #2e7d32; }
+        .difficulty-medium { background-color: #fff9c4; color: #f57f17; }
+        .difficulty-hard { background-color: #ffcdd2; color: #c62828; }
+        details { background-color: #f5f5f5; padding: 10px 15px; border-radius: 5px; margin: 10px 0; }
+        details summary { cursor: pointer; font-weight: bold; color: #1976d2; }
+        details[open] summary { margin-bottom: 10px; }
+        .toc { background-color: #fafafa; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .toc h3 { margin-top: 0; color: #b92d5d; }
+        .toc ul { list-style: none; padding-left: 0; }
+        .toc li { padding: 5px 0; }
+        .toc a { color: #1976d2; text-decoration: none; }
+        .toc a:hover { text-decoration: underline; }
+        .copy-btn { position: absolute; top: 5px; right: 5px; background-color: #666; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px; }
+        .copy-btn:hover { background-color: #888; }
+        .node-compare { display: flex; gap: 20px; flex-wrap: wrap; margin: 20px 0; }
+        .node-card { background: #f9f9f9; border: 1px solid #ddd; border-radius: 8px; padding: 15px; flex: 1; min-width: 280px; }
+        .node-card h4 { margin-top: 0; color: #b92d5d; }
+        .broker-box { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 20px; border-radius: 8px; margin: 10px 0; }
+        .broker-box h4 { margin: 0 0 10px 0; }
+        .broker-box code { background: rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 3px; }
+        .topic-tree { background: #f5f5f5; padding: 15px; border-radius: 8px; font-family: monospace; margin: 15px 0; }
+        .topic-tree .level1 { margin-left: 0; }
+        .topic-tree .level2 { margin-left: 20px; }
+        .topic-tree .level3 { margin-left: 40px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📡 Node-RED MQTT ノード完全ガイド</h1>
+        
+        <div class="toc">
+            <h3>📚 目次</h3>
+            <ul>
+                <li><a href="#section1">1. 概要</a></li>
+                <li><a href="#section2">2. MQTTブローカー設定</a></li>
+                <li><a href="#section3">3. MQTT In / Out ノード</a></li>
+                <li><a href="#section4">4. トピックとワイルドカード</a></li>
+                <li><a href="#section5">5. 実用的な使用パターン</a></li>
+                <li><a href="#section6">6. サンプルフロー</a></li>
+                <li><a href="#section7">7. 演習問題</a></li>
+                <li><a href="#section8">8. まとめ</a></li>
+                <li><a href="#section9">9. トラブルシューティング</a></li>
+                <li><a href="#section10">10. 実務活用例</a></li>
+            </ul>
+        </div>
+        
+        <h2 id="section1">📖 1. 概要</h2>
+        
+        <p>MQTT（Message Queuing Telemetry Transport）は、<strong>IoT向けの軽量メッセージングプロトコル</strong>です。センサーデータの収集や機器制御など、多数のデバイス間通信に最適化されています。</p>
+        
+        <h3>MQTTの特徴</h3>
+        <ul>
+            <li><strong>軽量</strong>：ヘッダーが小さく、帯域幅を節約</li>
+            <li><strong>Pub/Sub モデル</strong>：送信者と受信者が直接接続しない</li>
+            <li><strong>QoS（Quality of Service）</strong>：メッセージ配信の信頼性を選択可能</li>
+            <li><strong>Retain</strong>：最後のメッセージを保持し、新規購読者に配信</li>
+        </ul>
+        
+        <p>📬 <strong>掲示板に例えると</strong>：MQTTは「テーマ別掲示板」のようなものです。</p>
+        <ul>
+            <li><strong>ブローカー</strong>：掲示板の管理人（メッセージを仲介）</li>
+            <li><strong>トピック</strong>：掲示板のカテゴリ（例：「センサー/温度」「センサー/湿度」）</li>
+            <li><strong>Publish（発行）</strong>：掲示板に投稿</li>
+            <li><strong>Subscribe（購読）</strong>：特定カテゴリの投稿を受け取る</li>
+        </ul>
+        
+        <div class="node-compare">
+            <div class="node-card">
+                <h4>📥 MQTT In（Subscribe）</h4>
+                <div class="node-example" style="justify-content: center;">
+                    <span class="node node-mqtt-in">MQTT In</span>
+                </div>
+                <p><strong>役割:</strong> トピックを購読してメッセージを受信</p>
+            </div>
+            
+            <div class="node-card">
+                <h4>📤 MQTT Out（Publish）</h4>
+                <div class="node-example" style="justify-content: center;">
+                    <span class="node node-mqtt-out">MQTT Out</span>
+                </div>
+                <p><strong>役割:</strong> トピックにメッセージを発行</p>
+            </div>
+        </div>
+        
+        <h2 id="section2">⚙️ 2. MQTTブローカー設定</h2>
+        
+        <p>MQTTノードを使用するには、まず<strong>ブローカー設定ノード</strong>を作成します。</p>
+        
+        <h3>公開MQTTブローカー（学習・テスト用）</h3>
+        
+        <div class="broker-box">
+            <h4>🦟 test.mosquitto.org</h4>
+            <p>Eclipse Mosquitto プロジェクト提供の公開ブローカー</p>
+            <p><code>Server: test.mosquitto.org</code> / <code>Port: 1883</code>（非暗号化）</p>
+        </div>
+        
+        <div class="broker-box">
+            <h4>🐝 broker.hivemq.com</h4>
+            <p>HiveMQ提供の公開ブローカー</p>
+            <p><code>Server: broker.hivemq.com</code> / <code>Port: 1883</code></p>
+        </div>
+        
+        <div class="broker-box">
+            <h4>📦 broker.emqx.io</h4>
+            <p>EMQ X提供の公開ブローカー</p>
+            <p><code>Server: broker.emqx.io</code> / <code>Port: 1883</code></p>
+        </div>
+        
+        <div class="warning">
+            <p><strong>⚠️ 公開ブローカーの注意事項:</strong></p>
+            <ul>
+                <li>誰でもアクセス可能なので、<strong>機密データは送らない</strong></li>
+                <li>トピック名は<strong>ユニークに</strong>（例: <code>yourname/sensor/temp</code>）</li>
+                <li>サービスの稼働状況により接続できない場合がある</li>
+            </ul>
+        </div>
+        
+        <h3>ブローカー設定のプロパティ</h3>
+        <table>
+            <tr><th>プロパティ</th><th>説明</th><th>例</th></tr>
+            <tr><td><strong>Server</strong></td><td>ブローカーのホスト名/IP</td><td>test.mosquitto.org</td></tr>
+            <tr><td><strong>Port</strong></td><td>接続ポート</td><td>1883（非暗号化）, 8883（TLS）</td></tr>
+            <tr><td><strong>Client ID</strong></td><td>クライアント識別子（空欄で自動生成）</td><td>nodered-client-001</td></tr>
+            <tr><td><strong>Keep Alive</strong></td><td>接続維持間隔（秒）</td><td>60</td></tr>
+            <tr><td><strong>Clean Session</strong></td><td>接続時にセッションをクリア</td><td>true</td></tr>
+        </table>
+        
+        <h3>認証設定（Security タブ）</h3>
+        <table>
+            <tr><th>プロパティ</th><th>説明</th></tr>
+            <tr><td><strong>Username</strong></td><td>認証ユーザー名</td></tr>
+            <tr><td><strong>Password</strong></td><td>認証パスワード</td></tr>
+            <tr><td><strong>TLS</strong></td><td>暗号化接続の設定</td></tr>
+        </table>
+        
+        <h2 id="section3">⚙️ 3. MQTT In / Out ノード</h2>
+        
+        <h3>MQTT In ノード（購読）</h3>
+        <table>
+            <tr><th>プロパティ</th><th>説明</th><th>例</th></tr>
+            <tr><td><strong>Server</strong></td><td>ブローカー設定</td><td>（設定ノード選択）</td></tr>
+            <tr><td><strong>Topic</strong></td><td>購読するトピック</td><td>sensors/+/temperature</td></tr>
+            <tr><td><strong>QoS</strong></td><td>サービス品質</td><td>0, 1, 2</td></tr>
+            <tr><td><strong>Output</strong></td><td>出力形式</td><td>auto, string, buffer, JSON</td></tr>
+        </table>
+        
+        <p><strong>受信時の msg プロパティ:</strong></p>
+        <table>
+            <tr><th>プロパティ</th><th>説明</th></tr>
+            <tr><td><strong>msg.payload</strong></td><td>受信データ</td></tr>
+            <tr><td><strong>msg.topic</strong></td><td>メッセージのトピック</td></tr>
+            <tr><td><strong>msg.qos</strong></td><td>QoSレベル</td></tr>
+            <tr><td><strong>msg.retain</strong></td><td>Retainフラグ</td></tr>
+        </table>
+        
+        <h3>MQTT Out ノード（発行）</h3>
+        <table>
+            <tr><th>プロパティ</th><th>説明</th><th>例</th></tr>
+            <tr><td><strong>Server</strong></td><td>ブローカー設定</td><td>（設定ノード選択）</td></tr>
+            <tr><td><strong>Topic</strong></td><td>発行先トピック（空欄でmsg.topic使用）</td><td>devices/lamp/control</td></tr>
+            <tr><td><strong>QoS</strong></td><td>サービス品質</td><td>0, 1, 2</td></tr>
+            <tr><td><strong>Retain</strong></td><td>メッセージを保持</td><td>true/false</td></tr>
+        </table>
+        
+        <h3>QoS（Quality of Service）レベル</h3>
+        <table>
+            <tr><th>QoS</th><th>説明</th><th>用途</th></tr>
+            <tr><td><strong>0</strong></td><td>At most once（最大1回）</td><td>センサーデータなど、多少のロスが許容できる場合</td></tr>
+            <tr><td><strong>1</strong></td><td>At least once（最低1回）</td><td>重要データ（重複の可能性あり）</td></tr>
+            <tr><td><strong>2</strong></td><td>Exactly once（正確に1回）</td><td>課金など、厳密な配信が必要な場合</td></tr>
+        </table>
+        
+        <h2 id="section4">🏷️ 4. トピックとワイルドカード</h2>
+        
+        <h3>トピックの階層構造</h3>
+        <p>MQTTのトピックは <code>/</code> で区切った階層構造で設計します：</p>
+        
+        <div class="topic-tree">
+            <div class="level1">📁 home</div>
+            <div class="level2">📁 livingroom</div>
+            <div class="level3">📄 temperature</div>
+            <div class="level3">📄 humidity</div>
+            <div class="level3">📄 light</div>
+            <div class="level2">📁 bedroom</div>
+            <div class="level3">📄 temperature</div>
+            <div class="level3">📄 humidity</div>
+        </div>
+        
+        <div class="code-block">// トピック例
+home/livingroom/temperature  → 25.5
+home/livingroom/humidity     → 60
+home/bedroom/temperature     → 22.0</div>
+        
+        <h3>ワイルドカード</h3>
+        <table>
+            <tr><th>ワイルドカード</th><th>説明</th><th>例</th></tr>
+            <tr>
+                <td><strong>+</strong>（シングルレベル）</td>
+                <td>1階層のみにマッチ</td>
+                <td><code>home/+/temperature</code><br>→ home/livingroom/temperature ✓<br>→ home/bedroom/temperature ✓</td>
+            </tr>
+            <tr>
+                <td><strong>#</strong>（マルチレベル）</td>
+                <td>以降の全階層にマッチ（末尾のみ）</td>
+                <td><code>home/#</code><br>→ home/livingroom/temperature ✓<br>→ home/bedroom/humidity ✓</td>
+            </tr>
+        </table>
+        
+        <div class="tip">
+            <p><strong>💡 トピック設計のベストプラクティス:</strong></p>
+            <ul>
+                <li>意味のある階層構造にする（場所/デバイス/センサー）</li>
+                <li>小文字とアンダースコアを使用</li>
+                <li>先頭に <code>/</code> を付けない（<code>home/temp</code> が推奨、<code>/home/temp</code> は非推奨）</li>
+                <li>ユニークな接頭辞を使用（公開ブローカーでは特に重要）</li>
+            </ul>
+        </div>
+        
+        <h2 id="section5">🔧 5. 実用的な使用パターン</h2>
+        
+        <h3>パターン1: センサーデータの収集</h3>
+        <div class="node-example">
+            <span class="node node-mqtt-in">MQTT In</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">データ処理</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">表示</span>
+        </div>
+        <p><strong>用途:</strong> 複数のセンサーからデータを一括受信</p>
+        
+        <h3>パターン2: デバイス制御コマンドの送信</h3>
+        <div class="node-example">
+            <span class="node node-inject">コマンド</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">整形</span>
+            <span class="arrow">→</span>
+            <span class="node node-mqtt-out">MQTT Out</span>
+        </div>
+        <p><strong>用途:</strong> IoTデバイスへの制御コマンド送信</p>
+        
+        <h3>パターン3: Pub/Sub 双方向通信</h3>
+        <div class="node-example">
+            <span class="node node-mqtt-in">コマンド受信</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">処理</span>
+            <span class="arrow">→</span>
+            <span class="node node-mqtt-out">結果送信</span>
+        </div>
+        <p><strong>用途:</strong> コマンド受信→処理→結果返信</p>
+        
+        <h3>パターン4: トピックルーティング</h3>
+        <div class="node-example">
+            <span class="node node-mqtt-in">sensors/#</span>
+            <span class="arrow">→</span>
+            <span class="node node-switch">トピック分岐</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">個別処理</span>
+        </div>
+        <p><strong>用途:</strong> ワイルドカードで受信し、トピックごとに処理を分岐</p>
+        
+        <h2 id="section6">📥 6. サンプルフロー</h2>
+        
+        <div class="important">
+            <p><strong>⚠️ 使用前の準備:</strong></p>
+            <ol>
+                <li>サンプルフローをインポート</li>
+                <li>MQTT In/Out ノードをダブルクリック</li>
+                <li>Server の鉛筆アイコンをクリックして<strong>ブローカー設定を確認</strong></li>
+                <li>必要に応じて Server を <code>test.mosquitto.org</code> に変更</li>
+                <li>デプロイ</li>
+            </ol>
+            <p>※ トピック名の <code>nodered-guide</code> 部分を自分専用の名前に変更することを推奨します</p>
+        </div>
+        
+        <details>
+            <summary>📥 サンプルフローJSON（クリックで展開）</summary>
+            <div class="flow-json">[
+    {
+        "id": "mqtt_sample_tab",
+        "type": "tab",
+        "label": "MQTT サンプル",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "mqtt_broker_public",
+        "type": "mqtt-broker",
+        "name": "Public Broker",
+        "broker": "test.mosquitto.org",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true
+    },
+    {
+        "id": "mqtt_comment1",
+        "type": "comment",
+        "z": "mqtt_sample_tab",
+        "name": "━━━ 基本: Publish（発行） ━━━",
+        "info": "",
+        "x": 180,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "mqtt_inject_temp",
+        "type": "inject",
+        "z": "mqtt_sample_tab",
+        "name": "温度データ送信",
+        "props": [{"p": "payload"}, {"p": "topic", "vt": "str"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "nodered-guide/sensors/temperature",
+        "payload": "25.5",
+        "payloadType": "num",
+        "x": 180,
+        "y": 100,
+        "wires": [["mqtt_out_sensor"]]
+    },
+    {
+        "id": "mqtt_inject_humidity",
+        "type": "inject",
+        "z": "mqtt_sample_tab",
+        "name": "湿度データ送信",
+        "props": [{"p": "payload"}, {"p": "topic", "vt": "str"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "nodered-guide/sensors/humidity",
+        "payload": "60",
+        "payloadType": "num",
+        "x": 180,
+        "y": 140,
+        "wires": [["mqtt_out_sensor"]]
+    },
+    {
+        "id": "mqtt_out_sensor",
+        "type": "mqtt out",
+        "z": "mqtt_sample_tab",
+        "name": "Publish Sensor",
+        "topic": "",
+        "qos": "1",
+        "retain": "false",
+        "broker": "mqtt_broker_public",
+        "x": 420,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "mqtt_comment2",
+        "type": "comment",
+        "z": "mqtt_sample_tab",
+        "name": "━━━ 基本: Subscribe（購読） ━━━",
+        "info": "",
+        "x": 190,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "mqtt_in_sensors",
+        "type": "mqtt in",
+        "z": "mqtt_sample_tab",
+        "name": "Subscribe sensors/#",
+        "topic": "nodered-guide/sensors/#",
+        "qos": "1",
+        "datatype": "auto",
+        "broker": "mqtt_broker_public",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 190,
+        "y": 280,
+        "wires": [["mqtt_debug_sensors", "mqtt_func_format"]]
+    },
+    {
+        "id": "mqtt_debug_sensors",
+        "type": "debug",
+        "z": "mqtt_sample_tab",
+        "name": "受信データ",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "topic",
+        "statusType": "msg",
+        "x": 430,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "mqtt_func_format",
+        "type": "function",
+        "z": "mqtt_sample_tab",
+        "name": "データ整形",
+        "func": "var parts = msg.topic.split('/');\nvar sensorType = parts[parts.length - 1];\n\nmsg.formatted = {\n    sensor: sensorType,\n    value: msg.payload,\n    topic: msg.topic,\n    timestamp: new Date().toISOString()\n};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 430,
+        "y": 320,
+        "wires": [["mqtt_debug_formatted"]]
+    },
+    {
+        "id": "mqtt_debug_formatted",
+        "type": "debug",
+        "z": "mqtt_sample_tab",
+        "name": "整形データ",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "formatted",
+        "targetType": "msg",
+        "statusVal": "formatted.sensor",
+        "statusType": "msg",
+        "x": 610,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "mqtt_comment3",
+        "type": "comment",
+        "z": "mqtt_sample_tab",
+        "name": "━━━ JSON データの送受信 ━━━",
+        "info": "",
+        "x": 190,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "mqtt_inject_json",
+        "type": "inject",
+        "z": "mqtt_sample_tab",
+        "name": "JSONデータ送信",
+        "props": [{"p": "payload"}, {"p": "topic", "vt": "str"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "nodered-guide/device/status",
+        "payload": "{\"device\":\"sensor-001\",\"temperature\":25.5,\"humidity\":60,\"battery\":85}",
+        "payloadType": "json",
+        "x": 180,
+        "y": 460,
+        "wires": [["mqtt_func_stringify"]]
+    },
+    {
+        "id": "mqtt_func_stringify",
+        "type": "function",
+        "z": "mqtt_sample_tab",
+        "name": "JSON文字列化",
+        "func": "msg.payload = JSON.stringify(msg.payload);\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 400,
+        "y": 460,
+        "wires": [["mqtt_out_json"]]
+    },
+    {
+        "id": "mqtt_out_json",
+        "type": "mqtt out",
+        "z": "mqtt_sample_tab",
+        "name": "Publish JSON",
+        "topic": "",
+        "qos": "1",
+        "retain": "false",
+        "broker": "mqtt_broker_public",
+        "x": 590,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "mqtt_in_json",
+        "type": "mqtt in",
+        "z": "mqtt_sample_tab",
+        "name": "Subscribe device/#",
+        "topic": "nodered-guide/device/#",
+        "qos": "1",
+        "datatype": "json",
+        "broker": "mqtt_broker_public",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 190,
+        "y": 520,
+        "wires": [["mqtt_debug_json"]]
+    },
+    {
+        "id": "mqtt_debug_json",
+        "type": "debug",
+        "z": "mqtt_sample_tab",
+        "name": "JSON受信",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload.device",
+        "statusType": "msg",
+        "x": 420,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "mqtt_comment4",
+        "type": "comment",
+        "z": "mqtt_sample_tab",
+        "name": "━━━ デバイス制御（コマンド送受信） ━━━",
+        "info": "",
+        "x": 210,
+        "y": 600,
+        "wires": []
+    },
+    {
+        "id": "mqtt_inject_on",
+        "type": "inject",
+        "z": "mqtt_sample_tab",
+        "name": "LED ON",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "ON",
+        "payloadType": "str",
+        "x": 150,
+        "y": 660,
+        "wires": [["mqtt_out_control"]]
+    },
+    {
+        "id": "mqtt_inject_off",
+        "type": "inject",
+        "z": "mqtt_sample_tab",
+        "name": "LED OFF",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "OFF",
+        "payloadType": "str",
+        "x": 150,
+        "y": 700,
+        "wires": [["mqtt_out_control"]]
+    },
+    {
+        "id": "mqtt_out_control",
+        "type": "mqtt out",
+        "z": "mqtt_sample_tab",
+        "name": "Publish Control",
+        "topic": "nodered-guide/control/led",
+        "qos": "1",
+        "retain": "true",
+        "broker": "mqtt_broker_public",
+        "x": 360,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "mqtt_in_control",
+        "type": "mqtt in",
+        "z": "mqtt_sample_tab",
+        "name": "Subscribe control/#",
+        "topic": "nodered-guide/control/#",
+        "qos": "1",
+        "datatype": "utf8",
+        "broker": "mqtt_broker_public",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 190,
+        "y": 760,
+        "wires": [["mqtt_switch_control"]]
+    },
+    {
+        "id": "mqtt_switch_control",
+        "type": "switch",
+        "z": "mqtt_sample_tab",
+        "name": "ON/OFF判定",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {"t": "eq", "v": "ON", "vt": "str"},
+            {"t": "eq", "v": "OFF", "vt": "str"}
+        ],
+        "checkall": "false",
+        "repair": false,
+        "outputs": 2,
+        "x": 410,
+        "y": 760,
+        "wires": [["mqtt_debug_on"], ["mqtt_debug_off"]]
+    },
+    {
+        "id": "mqtt_debug_on",
+        "type": "debug",
+        "z": "mqtt_sample_tab",
+        "name": "LED ON!",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "\"💡 ON\"",
+        "statusType": "str",
+        "x": 580,
+        "y": 740,
+        "wires": []
+    },
+    {
+        "id": "mqtt_debug_off",
+        "type": "debug",
+        "z": "mqtt_sample_tab",
+        "name": "LED OFF!",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "\"⚫ OFF\"",
+        "statusType": "str",
+        "x": 580,
+        "y": 780,
+        "wires": []
+    }
+]</div>
+        </details>
+        
+        <h2 id="section7">📝 7. 演習問題</h2>
+        
+        <div class="exercise">
+            <h3>演習1: メッセージの発行 <span class="difficulty difficulty-easy">初級</span></h3>
+            <p><strong>📋 課題:</strong> ボタンをクリックすると、MQTTブローカーに「Hello MQTT!」を発行するフローを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>トピック: <code>あなたの名前/test/hello</code></li>
+                <li>メッセージ: <code>Hello MQTT!</code></li>
+                <li>ブローカー: test.mosquitto.org</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Inject ノード:</strong> msg.payload に「Hello MQTT!」を設定</p>
+                <p><strong>MQTT Out ノード:</strong></p>
+                <ul>
+                    <li>Server: test.mosquitto.org（新規作成）</li>
+                    <li>Topic: あなたの名前/test/hello</li>
+                    <li>QoS: 1</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex1_tab", "type": "tab", "label": "演習1"},
+    {"id": "ex1_broker", "type": "mqtt-broker", "name": "Public Broker", "broker": "test.mosquitto.org", "port": "1883", "clientid": "", "autoConnect": true, "usetls": false, "protocolVersion": "4", "keepalive": "60", "cleansession": true},
+    {"id": "ex1_inject", "type": "inject", "z": "ex1_tab", "name": "Hello送信", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "Hello MQTT!", "payloadType": "str", "x": 160, "y": 100, "wires": [["ex1_mqtt_out"]]},
+    {"id": "ex1_mqtt_out", "type": "mqtt out", "z": "ex1_tab", "name": "Publish", "topic": "yourname/test/hello", "qos": "1", "retain": "false", "broker": "ex1_broker", "x": 350, "y": 100, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習2: メッセージの購読 <span class="difficulty difficulty-easy">初級</span></h3>
+            <p><strong>📋 課題:</strong> 演習1で発行したメッセージを購読して、Debugノードに表示してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>トピック: <code>あなたの名前/test/hello</code></li>
+                <li>受信したメッセージをデバッグサイドバーに表示</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>MQTT In ノード:</strong></p>
+                <ul>
+                    <li>Server: 演習1と同じブローカー設定</li>
+                    <li>Topic: 演習1と同じトピック</li>
+                    <li>QoS: 1</li>
+                    <li>Output: auto-detect</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex2_tab", "type": "tab", "label": "演習2"},
+    {"id": "ex2_broker", "type": "mqtt-broker", "name": "Public Broker", "broker": "test.mosquitto.org", "port": "1883", "clientid": "", "autoConnect": true, "usetls": false, "protocolVersion": "4", "keepalive": "60", "cleansession": true},
+    {"id": "ex2_mqtt_in", "type": "mqtt in", "z": "ex2_tab", "name": "Subscribe", "topic": "yourname/test/hello", "qos": "1", "datatype": "auto", "broker": "ex2_broker", "nl": false, "rap": true, "rh": 0, "inputs": 0, "x": 160, "y": 100, "wires": [["ex2_debug"]]},
+    {"id": "ex2_debug", "type": "debug", "z": "ex2_tab", "name": "受信メッセージ", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "payload", "statusType": "msg", "x": 380, "y": 100, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習3: ワイルドカードによる複数トピック購読 <span class="difficulty difficulty-medium">中級</span></h3>
+            <p><strong>📋 課題:</strong> ワイルドカードを使って複数のセンサートピックを一括購読し、トピックごとに異なる処理を行ってください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>発行トピック: <code>yourname/sensors/temperature</code>, <code>yourname/sensors/humidity</code></li>
+                <li>購読トピック: <code>yourname/sensors/+</code>（ワイルドカード使用）</li>
+                <li>トピックから「temperature」か「humidity」かを判定</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Switch ノード:</strong></p>
+                <ul>
+                    <li>プロパティ: msg.topic</li>
+                    <li>条件1: contains "temperature"</li>
+                    <li>条件2: contains "humidity"</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex3_tab", "type": "tab", "label": "演習3"},
+    {"id": "ex3_broker", "type": "mqtt-broker", "name": "Public Broker", "broker": "test.mosquitto.org", "port": "1883", "clientid": "", "autoConnect": true, "usetls": false, "protocolVersion": "4", "keepalive": "60", "cleansession": true},
+    {"id": "ex3_inject_temp", "type": "inject", "z": "ex3_tab", "name": "温度送信", "props": [{"p": "payload"}, {"p": "topic", "vt": "str"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "yourname/sensors/temperature", "payload": "25.5", "payloadType": "num", "x": 160, "y": 80, "wires": [["ex3_mqtt_out"]]},
+    {"id": "ex3_inject_humidity", "type": "inject", "z": "ex3_tab", "name": "湿度送信", "props": [{"p": "payload"}, {"p": "topic", "vt": "str"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "yourname/sensors/humidity", "payload": "60", "payloadType": "num", "x": 160, "y": 120, "wires": [["ex3_mqtt_out"]]},
+    {"id": "ex3_mqtt_out", "type": "mqtt out", "z": "ex3_tab", "name": "Publish", "topic": "", "qos": "1", "retain": "false", "broker": "ex3_broker", "x": 350, "y": 100, "wires": []},
+    {"id": "ex3_mqtt_in", "type": "mqtt in", "z": "ex3_tab", "name": "Subscribe +", "topic": "yourname/sensors/+", "qos": "1", "datatype": "auto", "broker": "ex3_broker", "nl": false, "rap": true, "rh": 0, "inputs": 0, "x": 170, "y": 200, "wires": [["ex3_switch"]]},
+    {"id": "ex3_switch", "type": "switch", "z": "ex3_tab", "name": "トピック分岐", "property": "topic", "propertyType": "msg", "rules": [{"t": "cont", "v": "temperature", "vt": "str"}, {"t": "cont", "v": "humidity", "vt": "str"}], "checkall": "false", "repair": false, "outputs": 2, "x": 370, "y": 200, "wires": [["ex3_debug_temp"], ["ex3_debug_humidity"]]},
+    {"id": "ex3_debug_temp", "type": "debug", "z": "ex3_tab", "name": "温度データ", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "\"🌡️\"", "statusType": "str", "x": 570, "y": 180, "wires": []},
+    {"id": "ex3_debug_humidity", "type": "debug", "z": "ex3_tab", "name": "湿度データ", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "\"💧\"", "statusType": "str", "x": 570, "y": 220, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習4: IoTデバイスシミュレーション <span class="difficulty difficulty-hard">上級</span></h3>
+            <p><strong>📋 課題:</strong> 定期的にセンサーデータを発行し、制御コマンドを受け付ける仮想IoTデバイスを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li><strong>発行:</strong> 10秒ごとにランダムな温度・湿度を発行</li>
+                <li>トピック: <code>yourname/device001/telemetry</code></li>
+                <li><strong>購読:</strong> 制御コマンド（ON/OFF）を受信</li>
+                <li>トピック: <code>yourname/device001/command</code></li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>定期発行:</strong> Inject ノードの repeat を 10 秒に設定</p>
+                <p><strong>ランダム値:</strong></p>
+                <div class="code-block">var temp = 20 + Math.random() * 10;
+var humidity = 40 + Math.random() * 40;
+msg.payload = JSON.stringify({temperature: temp.toFixed(1), humidity: Math.floor(humidity)});
+return msg;</div>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex4_tab", "type": "tab", "label": "演習4"},
+    {"id": "ex4_broker", "type": "mqtt-broker", "name": "Public Broker", "broker": "test.mosquitto.org", "port": "1883", "clientid": "", "autoConnect": true, "usetls": false, "protocolVersion": "4", "keepalive": "60", "cleansession": true},
+    {"id": "ex4_inject", "type": "inject", "z": "ex4_tab", "name": "10秒ごと", "props": [{"p": "payload"}], "repeat": "10", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "", "payloadType": "date", "x": 160, "y": 100, "wires": [["ex4_func_sensor"]]},
+    {"id": "ex4_func_sensor", "type": "function", "z": "ex4_tab", "name": "センサー値生成", "func": "var temp = 20 + Math.random() * 10;\nvar humidity = 40 + Math.random() * 40;\nmsg.payload = JSON.stringify({deviceId: \"device001\", temperature: parseFloat(temp.toFixed(1)), humidity: Math.floor(humidity), timestamp: new Date().toISOString()});\nmsg.topic = \"yourname/device001/telemetry\";\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 370, "y": 100, "wires": [["ex4_mqtt_out", "ex4_debug_send"]]},
+    {"id": "ex4_mqtt_out", "type": "mqtt out", "z": "ex4_tab", "name": "Publish Telemetry", "topic": "", "qos": "1", "retain": "false", "broker": "ex4_broker", "x": 590, "y": 100, "wires": []},
+    {"id": "ex4_debug_send", "type": "debug", "z": "ex4_tab", "name": "送信データ", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "\"送信\"", "statusType": "str", "x": 570, "y": 140, "wires": []},
+    {"id": "ex4_mqtt_in", "type": "mqtt in", "z": "ex4_tab", "name": "Subscribe Command", "topic": "yourname/device001/command", "qos": "1", "datatype": "utf8", "broker": "ex4_broker", "nl": false, "rap": true, "rh": 0, "inputs": 0, "x": 190, "y": 220, "wires": [["ex4_debug_cmd"]]},
+    {"id": "ex4_debug_cmd", "type": "debug", "z": "ex4_tab", "name": "コマンド受信", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "payload", "statusType": "msg", "x": 430, "y": 220, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <h2 id="section8">✅ 8. まとめ</h2>
+        
+        <div class="important">
+            <p><strong>🎯 重要ポイント:</strong></p>
+            <ul>
+                <li><strong>Pub/Sub モデル</strong>: 送信者と受信者が直接接続せず、ブローカーを介して通信</li>
+                <li><strong>トピック</strong>: 階層構造で設計（例: home/sensor/temperature）</li>
+                <li><strong>ワイルドカード</strong>: <code>+</code>（1階層）、<code>#</code>（全階層）</li>
+                <li><strong>QoS</strong>: 0=最大1回、1=最低1回、2=正確に1回</li>
+                <li><strong>Retain</strong>: 最後のメッセージを保持（新規購読者に配信）</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <p><strong>⚠️ 注意事項:</strong></p>
+            <ul>
+                <li>公開ブローカーでは<strong>ユニークなトピック名</strong>を使用</li>
+                <li>機密データは<strong>認証・暗号化</strong>を設定したブローカーを使用</li>
+                <li>大量のメッセージを発行する際は<strong>QoS 0</strong>を検討（軽量）</li>
+            </ul>
+        </div>
+        
+        <h2 id="section9">🔧 9. トラブルシューティング</h2>
+        
+        <table>
+            <tr><th>症状</th><th>原因</th><th>解決方法</th></tr>
+            <tr><td>接続できない</td><td>ブローカー設定の誤り</td><td>Server、Port を確認、ファイアウォール確認</td></tr>
+            <tr><td>メッセージが届かない</td><td>トピック名の不一致</td><td>発行/購読のトピック名を正確に一致させる</td></tr>
+            <tr><td>接続が切れる</td><td>Keep Alive タイムアウト</td><td>Keep Alive 値を調整</td></tr>
+            <tr><td>重複メッセージ</td><td>QoS 1 の再送</td><td>アプリケーション側で重複排除</td></tr>
+            <tr><td>古いメッセージが届く</td><td>Retain メッセージ</td><td>空のRetainメッセージを発行してクリア</td></tr>
+        </table>
+        
+        <h2 id="section10">🏭 10. 実務活用例</h2>
+        
+        <h3>ケース1: 分散センサーネットワーク</h3>
+        <p>複数のRaspberry Pi からセンサーデータをMQTTで収集し、中央のNode-REDで集約・可視化</p>
+        
+        <h3>ケース2: スマートホーム制御</h3>
+        <p>照明、エアコン、ドアロックなどをMQTTでコントロール</p>
+        
+        <h3>ケース3: 工場IoT</h3>
+        <p>製造機器の状態監視、予知保全のためのデータ収集</p>
+        
+        <h3>ケース4: 車両追跡システム</h3>
+        <p>GPSデータをMQTTで送信し、リアルタイム位置追跡</p>
+        
+        <p style="margin-top: 40px;"><a href="https://nodered.org/docs/user-guide/nodes#mqtt" target="_blank">📚 Node-RED 公式ドキュメント - MQTT</a></p>
+    </div>
+    
+    <script>
+        document.querySelectorAll('.flow-json').forEach(function(block) {
+            var btn = document.createElement('button');
+            btn.className = 'copy-btn';
+            btn.textContent = 'コピー';
+            btn.onclick = function() {
+                navigator.clipboard.writeText(block.textContent).then(function() {
+                    btn.textContent = 'コピー完了!';
+                    setTimeout(function() { btn.textContent = 'コピー'; }, 2000);
+                });
+            };
+            block.style.position = 'relative';
+            block.appendChild(btn);
+        });
+    </script>
+</body>
+</html>

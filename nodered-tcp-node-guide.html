@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED TCP ノード完全ガイド</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.8; max-width: 1000px; margin: 0 auto; padding: 20px; background-color: #f5f5f5; color: #333; }
+        h1 { color: #b92d5d; border-bottom: 3px solid #b92d5d; padding-bottom: 10px; }
+        h2 { color: #d33682; margin-top: 40px; border-left: 5px solid #d33682; padding-left: 15px; }
+        h3 { color: #555; margin-top: 25px; }
+        h4 { color: #666; margin-top: 20px; }
+        .container { background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .node-example { background-color: #2d3133; padding: 20px; border-radius: 5px; margin: 20px 0; color: white; font-family: 'Courier New', monospace; display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
+        .node { display: inline-block; padding: 8px 15px; border-radius: 4px; margin: 5px; font-weight: bold; font-size: 14px; }
+        .node-inject { background-color: #3fadb5; color: white; }
+        .node-debug { background-color: #87a48d; color: white; }
+        .node-function { background-color: #e8a658; color: white; }
+        .node-change { background-color: #e7a070; color: white; }
+        .node-switch { background-color: #e2d96e; color: #333; }
+        .node-tcp-in { background-color: #c9b6d5; color: #333; }
+        .node-tcp-out { background-color: #c9b6d5; color: #333; }
+        .node-tcp-request { background-color: #c9b6d5; color: #333; }
+        .node-catch { background-color: #e8967a; color: white; }
+        .arrow { color: #999; font-size: 20px; margin: 0 10px; }
+        .important { background-color: #fce4ec; border-left: 4px solid #b92d5d; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .tip { background-color: #e8f5e9; border-left: 4px solid #4caf50; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .warning { background-color: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .code-block { background-color: #2d3133; color: #f8f8f2; padding: 15px; border-radius: 5px; margin: 15px 0; overflow-x: auto; font-family: 'Courier New', Consolas, monospace; font-size: 14px; white-space: pre; }
+        .flow-json { background-color: #1a1a2e; color: #a6e22e; padding: 15px; border-radius: 5px; font-family: 'Courier New', Consolas, monospace; font-size: 12px; overflow-x: auto; white-space: pre; position: relative; max-height: 400px; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #b92d5d; color: white; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .exercise { background-color: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0; border: 2px solid #2196f3; }
+        .exercise h3 { color: #1976d2; margin-top: 0; }
+        .difficulty { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; margin-left: 10px; }
+        .difficulty-easy { background-color: #c8e6c9; color: #2e7d32; }
+        .difficulty-medium { background-color: #fff9c4; color: #f57f17; }
+        .difficulty-hard { background-color: #ffcdd2; color: #c62828; }
+        details { background-color: #f5f5f5; padding: 10px 15px; border-radius: 5px; margin: 10px 0; }
+        details summary { cursor: pointer; font-weight: bold; color: #1976d2; }
+        details[open] summary { margin-bottom: 10px; }
+        .toc { background-color: #fafafa; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .toc h3 { margin-top: 0; color: #b92d5d; }
+        .toc ul { list-style: none; padding-left: 0; }
+        .toc li { padding: 5px 0; }
+        .toc a { color: #1976d2; text-decoration: none; }
+        .toc a:hover { text-decoration: underline; }
+        .copy-btn { position: absolute; top: 5px; right: 5px; background-color: #666; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px; }
+        .copy-btn:hover { background-color: #888; }
+        .node-compare { display: flex; gap: 20px; flex-wrap: wrap; margin: 20px 0; }
+        .node-card { background: #f9f9f9; border: 1px solid #ddd; border-radius: 8px; padding: 15px; flex: 1; min-width: 200px; }
+        .node-card h4 { margin-top: 0; color: #b92d5d; }
+        .diagram-box { background: #2d3133; color: white; padding: 20px; border-radius: 8px; font-family: monospace; margin: 15px 0; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 Node-RED TCP ノード完全ガイド</h1>
+        
+        <div class="toc">
+            <h3>📚 目次</h3>
+            <ul>
+                <li><a href="#section1">1. 概要</a></li>
+                <li><a href="#section2">2. TCP In ノード</a></li>
+                <li><a href="#section3">3. TCP Out ノード</a></li>
+                <li><a href="#section4">4. TCP Request ノード</a></li>
+                <li><a href="#section5">5. 実用的な使用パターン</a></li>
+                <li><a href="#section6">6. サンプルフロー</a></li>
+                <li><a href="#section7">7. 演習問題</a></li>
+                <li><a href="#section8">8. まとめ</a></li>
+                <li><a href="#section9">9. トラブルシューティング</a></li>
+                <li><a href="#section10">10. 実務活用例</a></li>
+            </ul>
+        </div>
+        
+        <h2 id="section1">📖 1. 概要</h2>
+        
+        <p>TCP ノードは、<strong>低レベルのTCP/IPソケット通信</strong>を行うためのノードです。HTTPやMQTTなどの高レベルプロトコルを使わず、直接TCPで通信したい場合に使用します。</p>
+        
+        <p>📞 <strong>電話に例えると</strong>：TCPは「糸電話」のようなものです。相手と1対1で線をつなぎ、その線を通じてデータを送り合います。HTTPやMQTTはこの「糸電話」の上に決まった会話ルール（プロトコル）を載せたものです。</p>
+        
+        <h3>TCPの特徴</h3>
+        <ul>
+            <li><strong>信頼性</strong>：データが必ず順番通りに届く（再送制御あり）</li>
+            <li><strong>コネクション型</strong>：通信前に接続を確立</li>
+            <li><strong>双方向通信</strong>：一度接続すれば双方からデータ送信可能</li>
+            <li><strong>ストリーム</strong>：データは連続したバイト列として扱う</li>
+        </ul>
+        
+        <div class="node-compare">
+            <div class="node-card">
+                <h4>📥 TCP In</h4>
+                <div class="node-example" style="justify-content: center;">
+                    <span class="node node-tcp-in">TCP In</span>
+                </div>
+                <p><strong>役割:</strong> TCP接続を待ち受け、データを受信</p>
+                <p>サーバー/クライアント両モード対応</p>
+            </div>
+            
+            <div class="node-card">
+                <h4>📤 TCP Out</h4>
+                <div class="node-example" style="justify-content: center;">
+                    <span class="node node-tcp-out">TCP Out</span>
+                </div>
+                <p><strong>役割:</strong> TCP接続でデータを送信</p>
+                <p>既存接続または新規接続に送信</p>
+            </div>
+            
+            <div class="node-card">
+                <h4>🔄 TCP Request</h4>
+                <div class="node-example" style="justify-content: center;">
+                    <span class="node node-tcp-request">TCP Request</span>
+                </div>
+                <p><strong>役割:</strong> リクエスト送信→レスポンス受信</p>
+                <p>HTTP Requestのような使い方</p>
+            </div>
+        </div>
+        
+        <h2 id="section2">⚙️ 2. TCP In ノード</h2>
+        
+        <h3>動作モード</h3>
+        <table>
+            <tr><th>モード</th><th>説明</th><th>用途</th></tr>
+            <tr>
+                <td><strong>Listen on</strong></td>
+                <td>指定ポートでサーバーとして待ち受け</td>
+                <td>TCPサーバーを構築</td>
+            </tr>
+            <tr>
+                <td><strong>Connect to</strong></td>
+                <td>指定ホスト:ポートにクライアントとして接続</td>
+                <td>外部TCPサーバーに接続</td>
+            </tr>
+        </table>
+        
+        <h3>主要プロパティ</h3>
+        <table>
+            <tr><th>プロパティ</th><th>説明</th><th>例</th></tr>
+            <tr><td><strong>Type</strong></td><td>Listen on / Connect to</td><td>Listen on</td></tr>
+            <tr><td><strong>Port</strong></td><td>ポート番号</td><td>9000</td></tr>
+            <tr><td><strong>Host</strong></td><td>接続先ホスト（Connect to時）</td><td>192.168.1.100</td></tr>
+            <tr><td><strong>Output</strong></td><td>出力形式</td><td>stream / single / after silence</td></tr>
+        </table>
+        
+        <h3>Output オプション</h3>
+        <table>
+            <tr><th>オプション</th><th>説明</th><th>用途</th></tr>
+            <tr>
+                <td><strong>stream of</strong></td>
+                <td>固定長バイト数で分割出力</td>
+                <td>バイナリプロトコル</td>
+            </tr>
+            <tr>
+                <td><strong>single</strong></td>
+                <td>接続ごとに1メッセージ</td>
+                <td>短いデータ</td>
+            </tr>
+            <tr>
+                <td><strong>after silence of</strong></td>
+                <td>指定秒の無通信後に出力</td>
+                <td>不定長データ</td>
+            </tr>
+            <tr>
+                <td><strong>never - keep connection</strong></td>
+                <td>接続維持、データごとに出力</td>
+                <td>ストリーム処理</td>
+            </tr>
+        </table>
+        
+        <h3>受信時の msg プロパティ</h3>
+        <table>
+            <tr><th>プロパティ</th><th>説明</th></tr>
+            <tr><td><strong>msg.payload</strong></td><td>受信データ（Buffer または String）</td></tr>
+            <tr><td><strong>msg._session</strong></td><td>接続セッション識別子</td></tr>
+            <tr><td><strong>msg.ip</strong></td><td>接続元IPアドレス</td></tr>
+            <tr><td><strong>msg.port</strong></td><td>接続元ポート番号</td></tr>
+        </table>
+        
+        <h2 id="section3">⚙️ 3. TCP Out ノード</h2>
+        
+        <h3>動作モード</h3>
+        <table>
+            <tr><th>モード</th><th>説明</th><th>用途</th></tr>
+            <tr>
+                <td><strong>Listen on</strong></td>
+                <td>サーバーとして待ち受け、接続したクライアントに送信</td>
+                <td>サーバーからクライアントへ送信</td>
+            </tr>
+            <tr>
+                <td><strong>Connect to</strong></td>
+                <td>指定ホストに接続して送信</td>
+                <td>クライアントとして送信</td>
+            </tr>
+            <tr>
+                <td><strong>Reply to TCP</strong></td>
+                <td>TCP In で受信した接続に返信</td>
+                <td>リクエスト→レスポンス</td>
+            </tr>
+        </table>
+        
+        <h3>主要プロパティ</h3>
+        <table>
+            <tr><th>プロパティ</th><th>説明</th><th>例</th></tr>
+            <tr><td><strong>Type</strong></td><td>動作モード</td><td>Reply to TCP</td></tr>
+            <tr><td><strong>Port</strong></td><td>ポート番号</td><td>9000</td></tr>
+            <tr><td><strong>Host</strong></td><td>接続先ホスト</td><td>192.168.1.100</td></tr>
+            <tr><td><strong>Close connection</strong></td><td>送信後に接続を閉じる</td><td>after each message</td></tr>
+        </table>
+        
+        <h3>送信時に設定できる msg プロパティ</h3>
+        <table>
+            <tr><th>プロパティ</th><th>説明</th></tr>
+            <tr><td><strong>msg.payload</strong></td><td>送信データ（String または Buffer）</td></tr>
+            <tr><td><strong>msg._session</strong></td><td>送信先セッション（Reply to TCP時に必要）</td></tr>
+        </table>
+        
+        <h2 id="section4">⚙️ 4. TCP Request ノード</h2>
+        
+        <p>TCP Request ノードは、<strong>リクエスト送信→レスポンス待機</strong>を1ノードで行います。HTTP Request に似た動作です。</p>
+        
+        <h3>主要プロパティ</h3>
+        <table>
+            <tr><th>プロパティ</th><th>説明</th><th>例</th></tr>
+            <tr><td><strong>Host</strong></td><td>接続先ホスト</td><td>192.168.1.100</td></tr>
+            <tr><td><strong>Port</strong></td><td>接続先ポート</td><td>9000</td></tr>
+            <tr><td><strong>Return</strong></td><td>レスポンス出力条件</td><td>after fixed number of chars</td></tr>
+        </table>
+        
+        <h3>Return オプション</h3>
+        <table>
+            <tr><th>オプション</th><th>説明</th></tr>
+            <tr><td><strong>never - keep connection open</strong></td><td>接続維持、データ受信ごとに出力</td></tr>
+            <tr><td><strong>after fixed number of chars</strong></td><td>指定バイト数受信後に出力</td></tr>
+            <tr><td><strong>when character received</strong></td><td>特定文字（例: 改行）受信時に出力</td></tr>
+            <tr><td><strong>after a fixed timeout</strong></td><td>タイムアウト後に出力</td></tr>
+            <tr><td><strong>immediately</strong></td><td>送信後すぐに出力（レスポンス待たない）</td></tr>
+        </table>
+        
+        <h2 id="section5">🔧 5. 実用的な使用パターン</h2>
+        
+        <h3>パターン1: TCPサーバー（Echo）</h3>
+        <div class="node-example">
+            <span class="node node-tcp-in">TCP In (Listen)</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">処理</span>
+            <span class="arrow">→</span>
+            <span class="node node-tcp-out">TCP Out (Reply)</span>
+        </div>
+        <p><strong>用途:</strong> クライアントからの接続を受け付け、レスポンスを返す</p>
+        
+        <h3>パターン2: TCPクライアント</h3>
+        <div class="node-example">
+            <span class="node node-inject">トリガー</span>
+            <span class="arrow">→</span>
+            <span class="node node-tcp-request">TCP Request</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">結果</span>
+        </div>
+        <p><strong>用途:</strong> 外部TCPサーバーにリクエストを送信</p>
+        
+        <h3>パターン3: デバイス間通信（双方向）</h3>
+        <div class="diagram-box">
+            [Raspberry Pi A]          [Raspberry Pi B]<br>
+            TCP Out (Connect) ──────→ TCP In (Listen)<br>
+            TCP In (Listen)  ←────── TCP Out (Connect)
+        </div>
+        <p><strong>用途:</strong> 2台のデバイス間でデータを双方向にやり取り</p>
+        
+        <h3>パターン4: ブロードキャスト送信</h3>
+        <div class="node-example">
+            <span class="node node-inject">データ</span>
+            <span class="arrow">→</span>
+            <span class="node node-tcp-out">TCP Out (Listen)</span>
+        </div>
+        <p><strong>用途:</strong> 接続中の全クライアントにデータを配信</p>
+        
+        <h2 id="section6">📥 6. サンプルフロー</h2>
+        
+        <div class="warning">
+            <p><strong>⚠️ テスト方法:</strong></p>
+            <p>TCPのテストには以下のツールを使用できます：</p>
+            <ul>
+                <li><strong>netcat (nc):</strong> <code>nc localhost 9000</code>（Linux/Mac）</li>
+                <li><strong>telnet:</strong> <code>telnet localhost 9000</code></li>
+                <li><strong>Node-RED内:</strong> TCP Request ノードでセルフテスト</li>
+                <li><strong>Python:</strong> socket モジュールでテストクライアント作成</li>
+            </ul>
+        </div>
+        
+        <h3>netcat でのテスト例</h3>
+        <div class="code-block"># サーバーに接続（サンプルフロー実行後）
+nc localhost 9000
+
+# メッセージを入力してEnter
+Hello Server!
+
+# サーバーからのレスポンスが表示される</div>
+        
+        <details>
+            <summary>📥 サンプルフローJSON（クリックで展開）</summary>
+            <div class="flow-json">[
+    {
+        "id": "tcp_sample_tab",
+        "type": "tab",
+        "label": "TCP サンプル",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "tcp_comment1",
+        "type": "comment",
+        "z": "tcp_sample_tab",
+        "name": "━━━ TCPサーバー（エコー） ━━━",
+        "info": "ポート9000で待ち受け、受信データをそのまま返す",
+        "x": 200,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "tcp_in_server",
+        "type": "tcp in",
+        "z": "tcp_sample_tab",
+        "name": "TCP Server :9000",
+        "server": "server",
+        "host": "",
+        "port": "9000",
+        "datamode": "stream",
+        "datatype": "utf8",
+        "newline": "",
+        "topic": "",
+        "trim": false,
+        "base64": false,
+        "tls": "",
+        "x": 180,
+        "y": 100,
+        "wires": [["tcp_func_echo", "tcp_debug_received"]]
+    },
+    {
+        "id": "tcp_func_echo",
+        "type": "function",
+        "z": "tcp_sample_tab",
+        "name": "エコー処理",
+        "func": "// 受信データに情報を追加して返信\nvar received = msg.payload;\nvar clientInfo = msg.ip + \":\" + msg.port;\n\nnode.status({fill: \"green\", shape: \"dot\", text: clientInfo});\n\nmsg.payload = \"[Echo] \" + received + \" (from \" + clientInfo + \")\\n\";\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 390,
+        "y": 100,
+        "wires": [["tcp_out_reply"]]
+    },
+    {
+        "id": "tcp_out_reply",
+        "type": "tcp out",
+        "z": "tcp_sample_tab",
+        "name": "Reply to Client",
+        "host": "",
+        "port": "",
+        "beserver": "reply",
+        "base64": false,
+        "end": false,
+        "tls": "",
+        "x": 600,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "tcp_debug_received",
+        "type": "debug",
+        "z": "tcp_sample_tab",
+        "name": "受信データ",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "ip",
+        "statusType": "msg",
+        "x": 390,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "tcp_comment2",
+        "type": "comment",
+        "z": "tcp_sample_tab",
+        "name": "━━━ TCP Request（クライアント） ━━━",
+        "info": "上記サーバーにリクエストを送信",
+        "x": 210,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "tcp_inject_request",
+        "type": "inject",
+        "z": "tcp_sample_tab",
+        "name": "リクエスト送信",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "Hello TCP Server!",
+        "payloadType": "str",
+        "x": 180,
+        "y": 280,
+        "wires": [["tcp_request"]]
+    },
+    {
+        "id": "tcp_request",
+        "type": "tcp request",
+        "z": "tcp_sample_tab",
+        "name": "TCP Request",
+        "server": "localhost",
+        "port": "9000",
+        "out": "sit",
+        "ret": "string",
+        "splitc": " ",
+        "newline": "",
+        "trim": false,
+        "tls": "",
+        "x": 390,
+        "y": 280,
+        "wires": [["tcp_debug_response"]]
+    },
+    {
+        "id": "tcp_debug_response",
+        "type": "debug",
+        "z": "tcp_sample_tab",
+        "name": "レスポンス",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "\"受信\"",
+        "statusType": "str",
+        "x": 590,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "tcp_comment3",
+        "type": "comment",
+        "z": "tcp_sample_tab",
+        "name": "━━━ JSONデータの送受信 ━━━",
+        "info": "",
+        "x": 190,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "tcp_in_json_server",
+        "type": "tcp in",
+        "z": "tcp_sample_tab",
+        "name": "TCP Server :9001",
+        "server": "server",
+        "host": "",
+        "port": "9001",
+        "datamode": "stream",
+        "datatype": "utf8",
+        "newline": "\\n",
+        "topic": "",
+        "trim": false,
+        "base64": false,
+        "tls": "",
+        "x": 180,
+        "y": 420,
+        "wires": [["tcp_func_json_process"]]
+    },
+    {
+        "id": "tcp_func_json_process",
+        "type": "function",
+        "z": "tcp_sample_tab",
+        "name": "JSON処理",
+        "func": "try {\n    // 受信データをJSONとしてパース\n    var data = JSON.parse(msg.payload);\n    \n    // 処理結果を作成\n    var response = {\n        status: \"success\",\n        received: data,\n        processed: true,\n        timestamp: new Date().toISOString()\n    };\n    \n    msg.payload = JSON.stringify(response) + \"\\n\";\n} catch(e) {\n    msg.payload = JSON.stringify({status: \"error\", message: \"Invalid JSON\"}) + \"\\n\";\n}\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 390,
+        "y": 420,
+        "wires": [["tcp_out_json_reply", "tcp_debug_json"]]
+    },
+    {
+        "id": "tcp_out_json_reply",
+        "type": "tcp out",
+        "z": "tcp_sample_tab",
+        "name": "Reply JSON",
+        "host": "",
+        "port": "",
+        "beserver": "reply",
+        "base64": false,
+        "end": false,
+        "tls": "",
+        "x": 590,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "tcp_debug_json",
+        "type": "debug",
+        "z": "tcp_sample_tab",
+        "name": "JSON処理結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 600,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "tcp_inject_json",
+        "type": "inject",
+        "z": "tcp_sample_tab",
+        "name": "JSONリクエスト",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"command\":\"getData\",\"id\":123}",
+        "payloadType": "str",
+        "x": 180,
+        "y": 500,
+        "wires": [["tcp_request_json"]]
+    },
+    {
+        "id": "tcp_request_json",
+        "type": "tcp request",
+        "z": "tcp_sample_tab",
+        "name": "TCP Request JSON",
+        "server": "localhost",
+        "port": "9001",
+        "out": "char",
+        "ret": "string",
+        "splitc": "\\n",
+        "newline": "",
+        "trim": false,
+        "tls": "",
+        "x": 410,
+        "y": 500,
+        "wires": [["tcp_debug_json_response"]]
+    },
+    {
+        "id": "tcp_debug_json_response",
+        "type": "debug",
+        "z": "tcp_sample_tab",
+        "name": "JSONレスポンス",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "\"JSON受信\"",
+        "statusType": "str",
+        "x": 620,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "tcp_comment4",
+        "type": "comment",
+        "z": "tcp_sample_tab",
+        "name": "━━━ 接続状態の監視 ━━━",
+        "info": "",
+        "x": 180,
+        "y": 580,
+        "wires": []
+    },
+    {
+        "id": "tcp_in_monitor",
+        "type": "tcp in",
+        "z": "tcp_sample_tab",
+        "name": "TCP Server :9002",
+        "server": "server",
+        "host": "",
+        "port": "9002",
+        "datamode": "stream",
+        "datatype": "utf8",
+        "newline": "",
+        "topic": "",
+        "trim": false,
+        "base64": false,
+        "tls": "",
+        "x": 180,
+        "y": 640,
+        "wires": [["tcp_func_monitor"]]
+    },
+    {
+        "id": "tcp_func_monitor",
+        "type": "function",
+        "z": "tcp_sample_tab",
+        "name": "接続管理",
+        "func": "// クライアント情報を取得\nvar clientId = msg.ip + \":\" + msg.port;\nvar session = msg._session;\n\n// 接続リストを管理\nvar clients = flow.get('tcpClients') || {};\n\nif (msg.payload === '') {\n    // 空データは切断を意味することがある\n    delete clients[session];\n    node.warn(\"Client disconnected: \" + clientId);\n} else {\n    // 接続中のクライアントを記録\n    clients[session] = {\n        ip: msg.ip,\n        port: msg.port,\n        lastSeen: new Date().toISOString()\n    };\n}\n\nflow.set('tcpClients', clients);\nnode.status({fill: \"blue\", shape: \"dot\", text: Object.keys(clients).length + \" clients\"});\n\nmsg.payload = \"Welcome! You are: \" + clientId + \"\\n\";\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 390,
+        "y": 640,
+        "wires": [["tcp_out_monitor"]]
+    },
+    {
+        "id": "tcp_out_monitor",
+        "type": "tcp out",
+        "z": "tcp_sample_tab",
+        "name": "Reply",
+        "host": "",
+        "port": "",
+        "beserver": "reply",
+        "base64": false,
+        "end": false,
+        "tls": "",
+        "x": 570,
+        "y": 640,
+        "wires": []
+    }
+]</div>
+        </details>
+        
+        <h2 id="section7">📝 7. 演習問題</h2>
+        
+        <div class="exercise">
+            <h3>演習1: シンプルなTCPエコーサーバー <span class="difficulty difficulty-easy">初級</span></h3>
+            <p><strong>📋 課題:</strong> ポート9100で接続を待ち受け、受信したデータをそのまま返すエコーサーバーを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>TCP In ノード: Listen on ポート 9100</li>
+                <li>受信したデータをそのまま TCP Out で返信</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>TCP In ノード:</strong></p>
+                <ul>
+                    <li>Type: Listen on</li>
+                    <li>Port: 9100</li>
+                    <li>Output: stream of String</li>
+                </ul>
+                <p><strong>TCP Out ノード:</strong></p>
+                <ul>
+                    <li>Type: Reply to TCP</li>
+                </ul>
+                <p>TCP In の出力を直接 TCP Out に接続すれば、msg._session が保持されてクライアントに返信されます。</p>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex1_tab", "type": "tab", "label": "演習1"},
+    {"id": "ex1_tcp_in", "type": "tcp in", "z": "ex1_tab", "name": "TCP Server :9100", "server": "server", "host": "", "port": "9100", "datamode": "stream", "datatype": "utf8", "newline": "", "topic": "", "trim": false, "base64": false, "tls": "", "x": 180, "y": 100, "wires": [["ex1_tcp_out", "ex1_debug"]]},
+    {"id": "ex1_tcp_out", "type": "tcp out", "z": "ex1_tab", "name": "Reply", "host": "", "port": "", "beserver": "reply", "base64": false, "end": false, "tls": "", "x": 410, "y": 100, "wires": []},
+    {"id": "ex1_debug", "type": "debug", "z": "ex1_tab", "name": "受信ログ", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "ip", "statusType": "msg", "x": 410, "y": 140, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習2: 時刻付きレスポンス <span class="difficulty difficulty-easy">初級</span></h3>
+            <p><strong>📋 課題:</strong> 受信データに現在時刻を追加して返信するサーバーを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>ポート: 9101</li>
+                <li>受信: <code>Hello</code></li>
+                <li>返信: <code>[2024-01-01T12:00:00] Hello</code></li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Function ノード:</strong></p>
+                <div class="code-block">var timestamp = new Date().toISOString();
+msg.payload = "[" + timestamp + "] " + msg.payload;
+return msg;</div>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex2_tab", "type": "tab", "label": "演習2"},
+    {"id": "ex2_tcp_in", "type": "tcp in", "z": "ex2_tab", "name": "TCP Server :9101", "server": "server", "host": "", "port": "9101", "datamode": "stream", "datatype": "utf8", "newline": "", "topic": "", "trim": false, "base64": false, "tls": "", "x": 180, "y": 100, "wires": [["ex2_func"]]},
+    {"id": "ex2_func", "type": "function", "z": "ex2_tab", "name": "時刻追加", "func": "var timestamp = new Date().toISOString();\nmsg.payload = \"[\" + timestamp + \"] \" + msg.payload + \"\\n\";\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 390, "y": 100, "wires": [["ex2_tcp_out"]]},
+    {"id": "ex2_tcp_out", "type": "tcp out", "z": "ex2_tab", "name": "Reply", "host": "", "port": "", "beserver": "reply", "base64": false, "end": false, "tls": "", "x": 570, "y": 100, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習3: コマンド処理サーバー <span class="difficulty difficulty-medium">中級</span></h3>
+            <p><strong>📋 課題:</strong> 簡単なコマンドを受け付けるTCPサーバーを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>ポート: 9102</li>
+                <li><code>TIME</code> → 現在時刻を返す</li>
+                <li><code>PING</code> → <code>PONG</code>を返す</li>
+                <li><code>HELLO 名前</code> → <code>Hello, 名前!</code>を返す</li>
+                <li>その他 → <code>Unknown command</code>を返す</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Function ノード:</strong></p>
+                <div class="code-block">var cmd = msg.payload.trim().toUpperCase();
+var parts = msg.payload.trim().split(' ');
+
+if (cmd === 'TIME') {
+    msg.payload = new Date().toISOString();
+} else if (cmd === 'PING') {
+    msg.payload = 'PONG';
+} else if (parts[0].toUpperCase() === 'HELLO') {
+    var name = parts[1] || 'Guest';
+    msg.payload = 'Hello, ' + name + '!';
+} else {
+    msg.payload = 'Unknown command';
+}
+msg.payload += '\n';
+return msg;</div>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex3_tab", "type": "tab", "label": "演習3"},
+    {"id": "ex3_tcp_in", "type": "tcp in", "z": "ex3_tab", "name": "TCP Server :9102", "server": "server", "host": "", "port": "9102", "datamode": "stream", "datatype": "utf8", "newline": "", "topic": "", "trim": false, "base64": false, "tls": "", "x": 180, "y": 100, "wires": [["ex3_func"]]},
+    {"id": "ex3_func", "type": "function", "z": "ex3_tab", "name": "コマンド処理", "func": "var cmd = msg.payload.trim().toUpperCase();\nvar parts = msg.payload.trim().split(' ');\n\nif (cmd === 'TIME') {\n    msg.payload = new Date().toISOString();\n} else if (cmd === 'PING') {\n    msg.payload = 'PONG';\n} else if (parts[0].toUpperCase() === 'HELLO') {\n    var name = parts[1] || 'Guest';\n    msg.payload = 'Hello, ' + name + '!';\n} else {\n    msg.payload = 'Unknown command';\n}\nmsg.payload += '\\n';\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 400, "y": 100, "wires": [["ex3_tcp_out"]]},
+    {"id": "ex3_tcp_out", "type": "tcp out", "z": "ex3_tab", "name": "Reply", "host": "", "port": "", "beserver": "reply", "base64": false, "end": false, "tls": "", "x": 590, "y": 100, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習4: 2台のNode-RED間通信 <span class="difficulty difficulty-hard">上級</span></h3>
+            <p><strong>📋 課題:</strong> センサーデータを送信するクライアントと、受信して処理するサーバーを同一フロー内に作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>サーバー: ポート9103で待ち受け、JSONデータを受信して処理</li>
+                <li>クライアント: 5秒ごとにランダムなセンサーデータを送信</li>
+                <li>送信データ: <code>{"sensor":"temp","value":25.5}</code></li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>クライアント側:</strong> Inject（5秒repeat）→ Function（JSON生成）→ TCP Request</p>
+                <p><strong>サーバー側:</strong> TCP In → Function（JSON処理）→ TCP Out</p>
+                <p>改行文字（\n）を区切りとして使うと、JSONデータの境界が分かりやすくなります。</p>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex4_tab", "type": "tab", "label": "演習4"},
+    {"id": "ex4_comment1", "type": "comment", "z": "ex4_tab", "name": "【サーバー】", "info": "", "x": 130, "y": 40, "wires": []},
+    {"id": "ex4_tcp_in", "type": "tcp in", "z": "ex4_tab", "name": "TCP Server :9103", "server": "server", "host": "", "port": "9103", "datamode": "stream", "datatype": "utf8", "newline": "\\n", "topic": "", "trim": false, "base64": false, "tls": "", "x": 180, "y": 100, "wires": [["ex4_func_server"]]},
+    {"id": "ex4_func_server", "type": "function", "z": "ex4_tab", "name": "JSONパース", "func": "try {\n    var data = JSON.parse(msg.payload);\n    node.status({fill: \"green\", shape: \"dot\", text: data.sensor + \": \" + data.value});\n    msg.payload = JSON.stringify({status: \"received\", data: data}) + \"\\n\";\n} catch(e) {\n    msg.payload = JSON.stringify({status: \"error\"}) + \"\\n\";\n}\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 400, "y": 100, "wires": [["ex4_tcp_out", "ex4_debug_server"]]},
+    {"id": "ex4_tcp_out", "type": "tcp out", "z": "ex4_tab", "name": "Reply", "host": "", "port": "", "beserver": "reply", "base64": false, "end": false, "tls": "", "x": 590, "y": 100, "wires": []},
+    {"id": "ex4_debug_server", "type": "debug", "z": "ex4_tab", "name": "サーバー処理", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "x": 610, "y": 140, "wires": []},
+    {"id": "ex4_comment2", "type": "comment", "z": "ex4_tab", "name": "【クライアント】", "info": "", "x": 140, "y": 200, "wires": []},
+    {"id": "ex4_inject", "type": "inject", "z": "ex4_tab", "name": "5秒ごと", "props": [{"p": "payload"}], "repeat": "5", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "", "payloadType": "date", "x": 150, "y": 260, "wires": [["ex4_func_client"]]},
+    {"id": "ex4_func_client", "type": "function", "z": "ex4_tab", "name": "センサーデータ生成", "func": "var temp = (20 + Math.random() * 10).toFixed(1);\nmsg.payload = JSON.stringify({\n    sensor: \"temperature\",\n    value: parseFloat(temp),\n    timestamp: new Date().toISOString()\n}) + \"\\n\";\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 380, "y": 260, "wires": [["ex4_tcp_request"]]},
+    {"id": "ex4_tcp_request", "type": "tcp request", "z": "ex4_tab", "name": "TCP Request", "server": "localhost", "port": "9103", "out": "char", "ret": "string", "splitc": "\\n", "newline": "", "trim": false, "tls": "", "x": 590, "y": 260, "wires": [["ex4_debug_client"]]},
+    {"id": "ex4_debug_client", "type": "debug", "z": "ex4_tab", "name": "クライアント受信", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "\"送受信完了\"", "statusType": "str", "x": 790, "y": 260, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <h2 id="section8">✅ 8. まとめ</h2>
+        
+        <div class="important">
+            <p><strong>🎯 重要ポイント:</strong></p>
+            <ul>
+                <li><strong>TCP In</strong>: Listen（サーバー）または Connect（クライアント）として動作</li>
+                <li><strong>TCP Out</strong>: Reply で受信元に返信、または指定ホストに送信</li>
+                <li><strong>TCP Request</strong>: リクエスト→レスポンスを1ノードで処理</li>
+                <li><strong>msg._session</strong>: 接続を識別（Reply to TCP時に必須）</li>
+                <li><strong>区切り文字</strong>: 改行（\n）を使うとデータの境界が明確になる</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <p><strong>⚠️ 注意事項:</strong></p>
+            <ul>
+                <li><strong>ポート番号</strong>: 1024以上を使用（1023以下はroot権限が必要）</li>
+                <li><strong>ファイアウォール</strong>: 必要なポートを開放</li>
+                <li><strong>データ区切り</strong>: TCPはストリームなので、アプリケーション側でデータ境界を管理</li>
+                <li><strong>接続管理</strong>: 切断時の処理を考慮</li>
+            </ul>
+        </div>
+        
+        <h2 id="section9">🔧 9. トラブルシューティング</h2>
+        
+        <table>
+            <tr><th>症状</th><th>原因</th><th>解決方法</th></tr>
+            <tr><td>接続できない</td><td>ポートが使用中/ファイアウォール</td><td>別のポート使用、FW設定確認</td></tr>
+            <tr><td>データが途中で切れる</td><td>ストリーム分割の問題</td><td>区切り文字を設定、適切な Output 設定</td></tr>
+            <tr><td>返信が届かない</td><td>_session が消えている</td><td>Reply to TCP を使用、msg._session を保持</td></tr>
+            <tr><td>文字化け</td><td>エンコーディング不一致</td><td>UTF-8 で統一</td></tr>
+            <tr><td>接続がすぐ切れる</td><td>タイムアウト</td><td>Keep-alive の実装を検討</td></tr>
+        </table>
+        
+        <h2 id="section10">🏭 10. 実務活用例</h2>
+        
+        <h3>ケース1: 産業機器との通信</h3>
+        <p>PLC（プログラマブルロジックコントローラ）やセンサー機器とTCPで直接通信</p>
+        
+        <h3>ケース2: Raspberry Pi 間の通信</h3>
+        <p>複数のRaspberry Piでセンサーデータを収集し、中央のサーバーに送信</p>
+        
+        <h3>ケース3: レガシーシステム連携</h3>
+        <p>独自プロトコルを使用する古いシステムとの連携</p>
+        
+        <h3>ケース4: カスタムプロトコルの実装</h3>
+        <p>特定の要件に合わせた独自の通信プロトコルを実装</p>
+        
+        <p style="margin-top: 40px;"><a href="https://nodered.org/docs/user-guide/nodes#tcp" target="_blank">📚 Node-RED 公式ドキュメント - TCP</a></p>
+    </div>
+    
+    <script>
+        document.querySelectorAll('.flow-json').forEach(function(block) {
+            var btn = document.createElement('button');
+            btn.className = 'copy-btn';
+            btn.textContent = 'コピー';
+            btn.onclick = function() {
+                navigator.clipboard.writeText(block.textContent).then(function() {
+                    btn.textContent = 'コピー完了!';
+                    setTimeout(function() { btn.textContent = 'コピー'; }, 2000);
+                });
+            };
+            block.style.position = 'relative';
+            block.appendChild(btn);
+        });
+    </script>
+</body>
+</html>

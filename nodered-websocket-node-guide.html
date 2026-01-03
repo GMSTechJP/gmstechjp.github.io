@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED WebSocket ノード完全ガイド</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.8; max-width: 1000px; margin: 0 auto; padding: 20px; background-color: #f5f5f5; color: #333; }
+        h1 { color: #b92d5d; border-bottom: 3px solid #b92d5d; padding-bottom: 10px; }
+        h2 { color: #d33682; margin-top: 40px; border-left: 5px solid #d33682; padding-left: 15px; }
+        h3 { color: #555; margin-top: 25px; }
+        h4 { color: #666; margin-top: 20px; }
+        .container { background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .node-example { background-color: #2d3133; padding: 20px; border-radius: 5px; margin: 20px 0; color: white; font-family: 'Courier New', monospace; display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
+        .node { display: inline-block; padding: 8px 15px; border-radius: 4px; margin: 5px; font-weight: bold; font-size: 14px; }
+        .node-inject { background-color: #3fadb5; color: white; }
+        .node-debug { background-color: #87a48d; color: white; }
+        .node-function { background-color: #e8a658; color: white; }
+        .node-change { background-color: #e7a070; color: white; }
+        .node-switch { background-color: #e2d96e; color: #333; }
+        .node-websocket-in { background-color: #c9b6d5; color: #333; }
+        .node-websocket-out { background-color: #c9b6d5; color: #333; }
+        .node-catch { background-color: #e8967a; color: white; }
+        .arrow { color: #999; font-size: 20px; margin: 0 10px; }
+        .arrow-double { color: #4caf50; font-size: 20px; margin: 0 10px; }
+        .important { background-color: #fce4ec; border-left: 4px solid #b92d5d; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .tip { background-color: #e8f5e9; border-left: 4px solid #4caf50; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .warning { background-color: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .code-block { background-color: #2d3133; color: #f8f8f2; padding: 15px; border-radius: 5px; margin: 15px 0; overflow-x: auto; font-family: 'Courier New', Consolas, monospace; font-size: 14px; white-space: pre; }
+        .flow-json { background-color: #1a1a2e; color: #a6e22e; padding: 15px; border-radius: 5px; font-family: 'Courier New', Consolas, monospace; font-size: 12px; overflow-x: auto; white-space: pre; position: relative; max-height: 400px; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #b92d5d; color: white; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .exercise { background-color: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0; border: 2px solid #2196f3; }
+        .exercise h3 { color: #1976d2; margin-top: 0; }
+        .difficulty { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; margin-left: 10px; }
+        .difficulty-easy { background-color: #c8e6c9; color: #2e7d32; }
+        .difficulty-medium { background-color: #fff9c4; color: #f57f17; }
+        .difficulty-hard { background-color: #ffcdd2; color: #c62828; }
+        details { background-color: #f5f5f5; padding: 10px 15px; border-radius: 5px; margin: 10px 0; }
+        details summary { cursor: pointer; font-weight: bold; color: #1976d2; }
+        details[open] summary { margin-bottom: 10px; }
+        .toc { background-color: #fafafa; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .toc h3 { margin-top: 0; color: #b92d5d; }
+        .toc ul { list-style: none; padding-left: 0; }
+        .toc li { padding: 5px 0; }
+        .toc a { color: #1976d2; text-decoration: none; }
+        .toc a:hover { text-decoration: underline; }
+        .copy-btn { position: absolute; top: 5px; right: 5px; background-color: #666; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px; }
+        .copy-btn:hover { background-color: #888; }
+        .node-compare { display: flex; gap: 20px; flex-wrap: wrap; margin: 20px 0; }
+        .node-card { background: #f9f9f9; border: 1px solid #ddd; border-radius: 8px; padding: 15px; flex: 1; min-width: 280px; }
+        .node-card h4 { margin-top: 0; color: #b92d5d; }
+        .compare-box { display: flex; gap: 20px; flex-wrap: wrap; margin: 20px 0; }
+        .compare-item { flex: 1; min-width: 200px; background: #f9f9f9; padding: 15px; border-radius: 8px; border: 2px solid #ddd; }
+        .compare-item h4 { margin-top: 0; }
+        .compare-item.http { border-color: #2196f3; }
+        .compare-item.websocket { border-color: #4caf50; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔌 Node-RED WebSocket ノード完全ガイド</h1>
+        
+        <div class="toc">
+            <h3>📚 目次</h3>
+            <ul>
+                <li><a href="#section1">1. 概要</a></li>
+                <li><a href="#section2">2. WebSocket設定ノード</a></li>
+                <li><a href="#section3">3. WebSocket In / Out ノード</a></li>
+                <li><a href="#section4">4. 実用的な使用パターン</a></li>
+                <li><a href="#section5">5. サンプルフロー</a></li>
+                <li><a href="#section6">6. 演習問題</a></li>
+                <li><a href="#section7">7. まとめ</a></li>
+                <li><a href="#section8">8. トラブルシューティング</a></li>
+                <li><a href="#section9">9. 実務活用例</a></li>
+            </ul>
+        </div>
+        
+        <h2 id="section1">📖 1. 概要</h2>
+        
+        <p>WebSocket ノードは、<strong>双方向リアルタイム通信</strong>を実現するためのノードです。HTTPと異なり、一度接続を確立すると、サーバーからクライアントへプッシュ送信が可能になります。</p>
+        
+        <h3>HTTP vs WebSocket</h3>
+        <div class="compare-box">
+            <div class="compare-item http">
+                <h4>🔄 HTTP（リクエスト-レスポンス）</h4>
+                <p>クライアントが毎回リクエストを送信</p>
+                <ul>
+                    <li>リクエスト → レスポンス → 接続終了</li>
+                    <li>サーバーからプッシュ不可</li>
+                    <li>オーバーヘッドが大きい</li>
+                </ul>
+            </div>
+            <div class="compare-item websocket">
+                <h4>⚡ WebSocket（双方向通信）</h4>
+                <p>一度接続したら維持</p>
+                <ul>
+                    <li>接続確立 → 双方向通信 → 切断</li>
+                    <li>サーバーからプッシュ可能</li>
+                    <li>低オーバーヘッド</li>
+                </ul>
+            </div>
+        </div>
+        
+        <p>📞 <strong>電話に例えると</strong>：HTTPは「毎回電話をかけ直す」、WebSocketは「電話をつなぎっぱなしにしておく」イメージです。つなぎっぱなしなので、相手からも自由に話しかけることができます。</p>
+        
+        <div class="node-compare">
+            <div class="node-card">
+                <h4>📥 WebSocket In</h4>
+                <div class="node-example" style="justify-content: center;">
+                    <span class="node node-websocket-in">WebSocket In</span>
+                </div>
+                <p><strong>役割:</strong> WebSocketメッセージを受信</p>
+                <ul>
+                    <li>サーバーモード: クライアントからの接続受付</li>
+                    <li>クライアントモード: サーバーへ接続</li>
+                </ul>
+            </div>
+            
+            <div class="node-card">
+                <h4>📤 WebSocket Out</h4>
+                <div class="node-example" style="justify-content: center;">
+                    <span class="node node-websocket-out">WebSocket Out</span>
+                </div>
+                <p><strong>役割:</strong> WebSocketメッセージを送信</p>
+                <ul>
+                    <li>接続中のクライアント全員に送信</li>
+                    <li>特定クライアントに送信</li>
+                </ul>
+            </div>
+        </div>
+        
+        <h2 id="section2">⚙️ 2. WebSocket設定ノード</h2>
+        
+        <p>WebSocket In/Out ノードは、<strong>設定ノード</strong>（WebSocket-listener または WebSocket-client）を共有します。</p>
+        
+        <h3>サーバーモード（Listen）</h3>
+        <p>Node-REDがWebSocketサーバーとして動作し、クライアントからの接続を受け付けます。</p>
+        <table>
+            <tr><th>プロパティ</th><th>説明</th><th>例</th></tr>
+            <tr><td><strong>Type</strong></td><td>Listen at（サーバー）</td><td>-</td></tr>
+            <tr><td><strong>Path</strong></td><td>WebSocketエンドポイント</td><td>/ws/chat</td></tr>
+            <tr><td><strong>Send/Receive</strong></td><td>データ形式</td><td>entire message / payload</td></tr>
+        </table>
+        
+        <div class="code-block">// クライアントからの接続URL
+ws://localhost:1880/ws/chat</div>
+        
+        <h3>クライアントモード（Connect）</h3>
+        <p>Node-REDがWebSocketクライアントとして、外部サーバーに接続します。</p>
+        <table>
+            <tr><th>プロパティ</th><th>説明</th><th>例</th></tr>
+            <tr><td><strong>Type</strong></td><td>Connect to（クライアント）</td><td>-</td></tr>
+            <tr><td><strong>URL</strong></td><td>接続先WebSocketサーバー</td><td>ws://example.com/socket</td></tr>
+            <tr><td><strong>Send heartbeat</strong></td><td>キープアライブ送信</td><td>25秒ごと</td></tr>
+        </table>
+        
+        <h3>Send/Receive オプション</h3>
+        <table>
+            <tr><th>オプション</th><th>説明</th><th>用途</th></tr>
+            <tr><td><strong>entire message</strong></td><td>msg全体をJSON化して送受信</td><td>Node-RED間通信</td></tr>
+            <tr><td><strong>payload only</strong></td><td>msg.payloadのみ送受信</td><td>一般的なWebSocket通信</td></tr>
+        </table>
+        
+        <h2 id="section3">⚙️ 3. WebSocket In / Out ノード</h2>
+        
+        <h3>WebSocket In ノード</h3>
+        <p>受信時に設定される msg プロパティ：</p>
+        <table>
+            <tr><th>プロパティ</th><th>説明</th></tr>
+            <tr><td><strong>msg.payload</strong></td><td>受信データ</td></tr>
+            <tr><td><strong>msg._session</strong></td><td>セッションID（クライアント識別用）</td></tr>
+        </table>
+        
+        <h3>WebSocket Out ノード</h3>
+        <p>送信時に使用できる msg プロパティ：</p>
+        <table>
+            <tr><th>プロパティ</th><th>説明</th></tr>
+            <tr><td><strong>msg.payload</strong></td><td>送信データ</td></tr>
+            <tr><td><strong>msg._session</strong></td><td>特定クライアントに送信（省略時は全員）</td></tr>
+        </table>
+        
+        <div class="tip">
+            <p><strong>💡 ポイント:</strong></p>
+            <ul>
+                <li><code>msg._session</code> を指定すると特定のクライアントのみに送信</li>
+                <li><code>msg._session</code> を削除すると全クライアントにブロードキャスト</li>
+                <li>WebSocket In で受け取った msg をそのまま WebSocket Out に渡すと、送信元に返信</li>
+            </ul>
+        </div>
+        
+        <h2 id="section4">🔧 4. 実用的な使用パターン</h2>
+        
+        <h3>パターン1: エコーサーバー（受信→返信）</h3>
+        <div class="node-example">
+            <span class="node node-websocket-in">WS In</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">処理</span>
+            <span class="arrow">→</span>
+            <span class="node node-websocket-out">WS Out</span>
+        </div>
+        <p><strong>用途:</strong> 受信したメッセージを加工して送信元に返信</p>
+        
+        <h3>パターン2: ブロードキャスト（全員に配信）</h3>
+        <div class="node-example">
+            <span class="node node-inject">データ生成</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">_session削除</span>
+            <span class="arrow">→</span>
+            <span class="node node-websocket-out">WS Out</span>
+        </div>
+        <p><strong>用途:</strong> センサーデータなどを全クライアントにプッシュ配信</p>
+        
+        <h3>パターン3: 外部WebSocketサーバーに接続</h3>
+        <div class="node-example">
+            <span class="node node-websocket-in">WS Client</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">データ処理</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">表示</span>
+        </div>
+        <p><strong>用途:</strong> 外部サービス（株価、仮想通貨など）のリアルタイムデータ受信</p>
+        
+        <h3>パターン4: チャットルーム</h3>
+        <div class="node-example">
+            <span class="node node-websocket-in">WS In</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">メッセージ整形</span>
+            <span class="arrow">→</span>
+            <span class="node node-change">_session削除</span>
+            <span class="arrow">→</span>
+            <span class="node node-websocket-out">WS Out</span>
+        </div>
+        <p><strong>用途:</strong> 受信したメッセージを全員に配信（チャット）</p>
+        
+        <h2 id="section5">📥 5. サンプルフロー</h2>
+        
+        <div class="warning">
+            <p><strong>⚠️ テスト方法:</strong></p>
+            <p>WebSocketのテストには以下のツールが便利です：</p>
+            <ul>
+                <li><strong>ブラウザの開発者ツール:</strong> Console から JavaScript で接続テスト</li>
+                <li><strong>wscat:</strong> コマンドラインツール（<code>npm install -g wscat</code>）</li>
+                <li><strong>Postman:</strong> WebSocket機能でテスト</li>
+                <li><strong>Simple WebSocket Client:</strong> ブラウザ拡張機能</li>
+            </ul>
+        </div>
+        
+        <h3>ブラウザでのテスト方法</h3>
+        <div class="code-block">// ブラウザの開発者ツール (Console) で実行
+var ws = new WebSocket("ws://localhost:1880/ws/echo");
+
+ws.onopen = function() {
+    console.log("接続成功!");
+    ws.send("Hello WebSocket!");
+};
+
+ws.onmessage = function(event) {
+    console.log("受信:", event.data);
+};
+
+ws.onclose = function() {
+    console.log("切断");
+};
+
+// メッセージ送信
+ws.send("テストメッセージ");</div>
+        
+        <details>
+            <summary>📥 サンプルフローJSON（クリックで展開）</summary>
+            <div class="flow-json">[
+    {
+        "id": "ws_sample_tab",
+        "type": "tab",
+        "label": "WebSocket サンプル",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "ws_listener_echo",
+        "type": "websocket-listener",
+        "path": "/ws/echo",
+        "wholemsg": "false"
+    },
+    {
+        "id": "ws_listener_chat",
+        "type": "websocket-listener",
+        "path": "/ws/chat",
+        "wholemsg": "false"
+    },
+    {
+        "id": "ws_comment1",
+        "type": "comment",
+        "z": "ws_sample_tab",
+        "name": "━━━ エコーサーバー（受信→返信） ━━━",
+        "info": "ws://localhost:1880/ws/echo",
+        "x": 220,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "ws_in_echo",
+        "type": "websocket in",
+        "z": "ws_sample_tab",
+        "name": "WS Echo In",
+        "server": "ws_listener_echo",
+        "client": "",
+        "x": 150,
+        "y": 100,
+        "wires": [["ws_func_echo", "ws_debug1"]]
+    },
+    {
+        "id": "ws_func_echo",
+        "type": "function",
+        "z": "ws_sample_tab",
+        "name": "エコー処理",
+        "func": "// 受信データに時刻を追加して返信\nvar received = msg.payload;\n\nmsg.payload = {\n    type: \"echo\",\n    original: received,\n    timestamp: new Date().toISOString(),\n    message: \"あなたは「\" + received + \"」と言いました\"\n};\n\n// JSON文字列に変換\nmsg.payload = JSON.stringify(msg.payload);\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 350,
+        "y": 100,
+        "wires": [["ws_out_echo"]]
+    },
+    {
+        "id": "ws_out_echo",
+        "type": "websocket out",
+        "z": "ws_sample_tab",
+        "name": "WS Echo Out",
+        "server": "ws_listener_echo",
+        "client": "",
+        "x": 550,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "ws_debug1",
+        "type": "debug",
+        "z": "ws_sample_tab",
+        "name": "受信ログ",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "\"受信\"",
+        "statusType": "str",
+        "x": 350,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "ws_comment2",
+        "type": "comment",
+        "z": "ws_sample_tab",
+        "name": "━━━ ブロードキャスト（全員に配信） ━━━",
+        "info": "ws://localhost:1880/ws/chat",
+        "x": 220,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "ws_in_chat",
+        "type": "websocket in",
+        "z": "ws_sample_tab",
+        "name": "WS Chat In",
+        "server": "ws_listener_chat",
+        "client": "",
+        "x": 150,
+        "y": 280,
+        "wires": [["ws_func_chat", "ws_debug2"]]
+    },
+    {
+        "id": "ws_func_chat",
+        "type": "function",
+        "z": "ws_sample_tab",
+        "name": "チャット処理",
+        "func": "// 送信者のセッションIDを保存\nvar senderSession = msg._session;\n\ntry {\n    var data = JSON.parse(msg.payload);\n} catch(e) {\n    var data = {name: \"匿名\", message: msg.payload};\n}\n\n// ブロードキャスト用にメッセージを整形\nmsg.payload = JSON.stringify({\n    type: \"chat\",\n    name: data.name || \"匿名\",\n    message: data.message || data,\n    timestamp: new Date().toISOString()\n});\n\n// _sessionを削除して全員に送信\ndelete msg._session;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 350,
+        "y": 280,
+        "wires": [["ws_out_chat"]]
+    },
+    {
+        "id": "ws_out_chat",
+        "type": "websocket out",
+        "z": "ws_sample_tab",
+        "name": "WS Chat Out (全員)",
+        "server": "ws_listener_chat",
+        "client": "",
+        "x": 580,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "ws_debug2",
+        "type": "debug",
+        "z": "ws_sample_tab",
+        "name": "チャットログ",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "\"チャット受信\"",
+        "statusType": "str",
+        "x": 370,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "ws_comment3",
+        "type": "comment",
+        "z": "ws_sample_tab",
+        "name": "━━━ サーバーからのプッシュ配信 ━━━",
+        "info": "",
+        "x": 210,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "ws_inject_push",
+        "type": "inject",
+        "z": "ws_sample_tab",
+        "name": "プッシュ送信",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"type\":\"notification\",\"message\":\"サーバーからのお知らせです\"}",
+        "payloadType": "json",
+        "x": 160,
+        "y": 460,
+        "wires": [["ws_func_push"]]
+    },
+    {
+        "id": "ws_inject_timer",
+        "type": "inject",
+        "z": "ws_sample_tab",
+        "name": "5秒ごとに時刻配信",
+        "props": [{"p": "payload"}],
+        "repeat": "5",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 180,
+        "y": 520,
+        "wires": [["ws_func_time"]]
+    },
+    {
+        "id": "ws_func_push",
+        "type": "function",
+        "z": "ws_sample_tab",
+        "name": "プッシュ整形",
+        "func": "msg.payload = JSON.stringify(msg.payload);\n// _sessionがないので全員に送信\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 370,
+        "y": 460,
+        "wires": [["ws_out_chat"]]
+    },
+    {
+        "id": "ws_func_time",
+        "type": "function",
+        "z": "ws_sample_tab",
+        "name": "時刻整形",
+        "func": "msg.payload = JSON.stringify({\n    type: \"time\",\n    serverTime: new Date().toISOString()\n});\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 360,
+        "y": 520,
+        "wires": [["ws_out_chat"]]
+    },
+    {
+        "id": "ws_comment4",
+        "type": "comment",
+        "z": "ws_sample_tab",
+        "name": "━━━ ブラウザテスト用HTMLページ ━━━",
+        "info": "http://localhost:1880/ws-test",
+        "x": 220,
+        "y": 600,
+        "wires": []
+    },
+    {
+        "id": "ws_http_in_test",
+        "type": "http in",
+        "z": "ws_sample_tab",
+        "name": "GET /ws-test",
+        "url": "/ws-test",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 160,
+        "y": 660,
+        "wires": [["ws_template_test"]]
+    },
+    {
+        "id": "ws_template_test",
+        "type": "template",
+        "z": "ws_sample_tab",
+        "name": "テストページHTML",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "html",
+        "syntax": "plain",
+        "template": "<!DOCTYPE html>\n<html>\n<head>\n    <meta charset=\"UTF-8\">\n    <title>WebSocket テスト</title>\n    <style>\n        body { font-family: Arial, sans-serif; padding: 20px; background: #f0f0f0; }\n        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; }\n        h1 { color: #b92d5d; }\n        .status { padding: 10px; border-radius: 5px; margin: 10px 0; }\n        .connected { background: #c8e6c9; color: #2e7d32; }\n        .disconnected { background: #ffcdd2; color: #c62828; }\n        #messages { height: 200px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; margin: 10px 0; background: #fafafa; }\n        .message { padding: 5px; border-bottom: 1px solid #eee; }\n        input, button { padding: 10px; margin: 5px 0; }\n        input { width: 70%; }\n        button { background: #b92d5d; color: white; border: none; cursor: pointer; border-radius: 5px; }\n        button:hover { background: #8e2347; }\n    </style>\n</head>\n<body>\n    <div class=\"container\">\n        <h1>🔌 WebSocket テスト</h1>\n        \n        <div id=\"status\" class=\"status disconnected\">切断中</div>\n        \n        <div>\n            <button onclick=\"connectEcho()\">Echoサーバーに接続</button>\n            <button onclick=\"connectChat()\">Chatサーバーに接続</button>\n            <button onclick=\"disconnect()\">切断</button>\n        </div>\n        \n        <div id=\"messages\"></div>\n        \n        <div>\n            <input type=\"text\" id=\"messageInput\" placeholder=\"メッセージを入力...\">\n            <button onclick=\"sendMessage()\">送信</button>\n        </div>\n    </div>\n    \n    <script>\n        var ws = null;\n        \n        function connectEcho() {\n            connect('ws://' + location.host + '/ws/echo');\n        }\n        \n        function connectChat() {\n            connect('ws://' + location.host + '/ws/chat');\n        }\n        \n        function connect(url) {\n            if (ws) ws.close();\n            \n            ws = new WebSocket(url);\n            \n            ws.onopen = function() {\n                document.getElementById('status').className = 'status connected';\n                document.getElementById('status').textContent = '接続中: ' + url;\n                addMessage('システム', '接続しました');\n            };\n            \n            ws.onmessage = function(event) {\n                try {\n                    var data = JSON.parse(event.data);\n                    addMessage('受信', JSON.stringify(data, null, 2));\n                } catch(e) {\n                    addMessage('受信', event.data);\n                }\n            };\n            \n            ws.onclose = function() {\n                document.getElementById('status').className = 'status disconnected';\n                document.getElementById('status').textContent = '切断中';\n                addMessage('システム', '切断しました');\n            };\n            \n            ws.onerror = function(error) {\n                addMessage('エラー', 'WebSocket エラー');\n            };\n        }\n        \n        function disconnect() {\n            if (ws) ws.close();\n        }\n        \n        function sendMessage() {\n            var input = document.getElementById('messageInput');\n            if (ws && ws.readyState === WebSocket.OPEN && input.value) {\n                ws.send(input.value);\n                addMessage('送信', input.value);\n                input.value = '';\n            }\n        }\n        \n        function addMessage(type, text) {\n            var messages = document.getElementById('messages');\n            var div = document.createElement('div');\n            div.className = 'message';\n            div.innerHTML = '<strong>' + type + ':</strong> <pre style=\"margin:0;white-space:pre-wrap;\">' + text + '</pre>';\n            messages.appendChild(div);\n            messages.scrollTop = messages.scrollHeight;\n        }\n        \n        document.getElementById('messageInput').addEventListener('keypress', function(e) {\n            if (e.key === 'Enter') sendMessage();\n        });\n    </script>\n</body>\n</html>",
+        "output": "str",
+        "x": 390,
+        "y": 660,
+        "wires": [["ws_http_response_test"]]
+    },
+    {
+        "id": "ws_http_response_test",
+        "type": "http response",
+        "z": "ws_sample_tab",
+        "name": "Response",
+        "statusCode": "200",
+        "headers": {"Content-Type": "text/html; charset=utf-8"},
+        "x": 600,
+        "y": 660,
+        "wires": []
+    }
+]</div>
+        </details>
+        
+        <h2 id="section6">📝 6. 演習問題</h2>
+        
+        <div class="exercise">
+            <h3>演習1: シンプルなエコーサーバー <span class="difficulty difficulty-easy">初級</span></h3>
+            <p><strong>📋 課題:</strong> 受信したメッセージをそのまま送信元に返すエコーサーバーを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>エンドポイント: <code>/ws/myecho</code></li>
+                <li>受信したデータをそのまま返信</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>WebSocket In ノード:</strong></p>
+                <ul>
+                    <li>Type: Listen at</li>
+                    <li>Path: /ws/myecho</li>
+                </ul>
+                <p><strong>WebSocket Out ノード:</strong> 同じ設定ノードを選択</p>
+                <p>WebSocket In の出力を直接 WebSocket Out に接続すれば、msg._session が保持されて送信元に返信されます。</p>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex1_tab", "type": "tab", "label": "演習1"},
+    {"id": "ex1_ws_listener", "type": "websocket-listener", "path": "/ws/myecho", "wholemsg": "false"},
+    {"id": "ex1_ws_in", "type": "websocket in", "z": "ex1_tab", "name": "WS In", "server": "ex1_ws_listener", "client": "", "x": 150, "y": 100, "wires": [["ex1_ws_out", "ex1_debug"]]},
+    {"id": "ex1_ws_out", "type": "websocket out", "z": "ex1_tab", "name": "WS Out", "server": "ex1_ws_listener", "client": "", "x": 350, "y": 100, "wires": []},
+    {"id": "ex1_debug", "type": "debug", "z": "ex1_tab", "name": "ログ", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "\"受信\"", "statusType": "str", "x": 350, "y": 140, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習2: 時刻付きレスポンス <span class="difficulty difficulty-easy">初級</span></h3>
+            <p><strong>📋 課題:</strong> 受信したメッセージに現在時刻を追加して返信してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>受信: <code>"こんにちは"</code></li>
+                <li>返信: <code>{"message": "こんにちは", "receivedAt": "2024-01-01T12:00:00.000Z"}</code></li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Function ノード:</strong></p>
+                <div class="code-block">msg.payload = JSON.stringify({
+    message: msg.payload,
+    receivedAt: new Date().toISOString()
+});
+return msg;</div>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex2_tab", "type": "tab", "label": "演習2"},
+    {"id": "ex2_ws_listener", "type": "websocket-listener", "path": "/ws/time", "wholemsg": "false"},
+    {"id": "ex2_ws_in", "type": "websocket in", "z": "ex2_tab", "name": "WS In", "server": "ex2_ws_listener", "client": "", "x": 150, "y": 100, "wires": [["ex2_func"]]},
+    {"id": "ex2_func", "type": "function", "z": "ex2_tab", "name": "時刻追加", "func": "msg.payload = JSON.stringify({\n    message: msg.payload,\n    receivedAt: new Date().toISOString()\n});\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 320, "y": 100, "wires": [["ex2_ws_out"]]},
+    {"id": "ex2_ws_out", "type": "websocket out", "z": "ex2_tab", "name": "WS Out", "server": "ex2_ws_listener", "client": "", "x": 490, "y": 100, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習3: ブロードキャスト配信 <span class="difficulty difficulty-medium">中級</span></h3>
+            <p><strong>📋 課題:</strong> Injectノードからメッセージを送信すると、接続中の全クライアントに配信されるフローを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Injectノードでトリガー（手動）</li>
+                <li>送信メッセージ: <code>{"type": "broadcast", "content": "全員へのお知らせ"}</code></li>
+                <li>全クライアントに配信</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>ブロードキャストのポイント:</strong></p>
+                <ul>
+                    <li>WebSocket Out に渡す msg に <code>_session</code> がないと全員に送信されます</li>
+                    <li>Inject ノードから生成した msg には _session がないので、そのまま送信可能</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex3_tab", "type": "tab", "label": "演習3"},
+    {"id": "ex3_ws_listener", "type": "websocket-listener", "path": "/ws/broadcast", "wholemsg": "false"},
+    {"id": "ex3_inject", "type": "inject", "z": "ex3_tab", "name": "ブロードキャスト", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "{\"type\":\"broadcast\",\"content\":\"全員へのお知らせ\"}", "payloadType": "json", "x": 170, "y": 100, "wires": [["ex3_func"]]},
+    {"id": "ex3_func", "type": "function", "z": "ex3_tab", "name": "JSON化", "func": "msg.payload = JSON.stringify(msg.payload);\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 350, "y": 100, "wires": [["ex3_ws_out"]]},
+    {"id": "ex3_ws_out", "type": "websocket out", "z": "ex3_tab", "name": "WS Out (全員)", "server": "ex3_ws_listener", "client": "", "x": 540, "y": 100, "wires": []},
+    {"id": "ex3_ws_in", "type": "websocket in", "z": "ex3_tab", "name": "WS In (接続確認用)", "server": "ex3_ws_listener", "client": "", "x": 190, "y": 180, "wires": [["ex3_debug"]]},
+    {"id": "ex3_debug", "type": "debug", "z": "ex3_tab", "name": "接続ログ", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "\"クライアント接続\"", "statusType": "str", "x": 410, "y": 180, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習4: 簡易チャットシステム <span class="difficulty difficulty-hard">上級</span></h3>
+            <p><strong>📋 課題:</strong> 複数のクライアントが参加できるチャットルームを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>クライアントからのメッセージ形式: <code>{"name": "ユーザー名", "message": "内容"}</code></li>
+                <li>全員に配信する形式: <code>{"type": "chat", "name": "...", "message": "...", "timestamp": "..."}</code></li>
+                <li>接続/切断時も通知（任意）</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>処理の流れ:</strong></p>
+                <ol>
+                    <li>WebSocket In で受信</li>
+                    <li>Function で JSON パース＆整形</li>
+                    <li><code>delete msg._session</code> でブロードキャスト準備</li>
+                    <li>WebSocket Out で全員に送信</li>
+                </ol>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex4_tab", "type": "tab", "label": "演習4"},
+    {"id": "ex4_ws_listener", "type": "websocket-listener", "path": "/ws/chatroom", "wholemsg": "false"},
+    {"id": "ex4_ws_in", "type": "websocket in", "z": "ex4_tab", "name": "WS Chat In", "server": "ex4_ws_listener", "client": "", "x": 160, "y": 100, "wires": [["ex4_func"]]},
+    {"id": "ex4_func", "type": "function", "z": "ex4_tab", "name": "チャット処理", "func": "try {\n    var data = JSON.parse(msg.payload);\n} catch(e) {\n    var data = {name: \"匿名\", message: msg.payload};\n}\n\nmsg.payload = JSON.stringify({\n    type: \"chat\",\n    name: data.name || \"匿名\",\n    message: data.message || \"\",\n    timestamp: new Date().toISOString()\n});\n\n// 全員に送信するため _session を削除\ndelete msg._session;\n\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 360, "y": 100, "wires": [["ex4_ws_out", "ex4_debug"]]},
+    {"id": "ex4_ws_out", "type": "websocket out", "z": "ex4_tab", "name": "WS Chat Out", "server": "ex4_ws_listener", "client": "", "x": 570, "y": 100, "wires": []},
+    {"id": "ex4_debug", "type": "debug", "z": "ex4_tab", "name": "チャットログ", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "x": 570, "y": 140, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <h2 id="section7">✅ 7. まとめ</h2>
+        
+        <div class="important">
+            <p><strong>🎯 重要ポイント:</strong></p>
+            <ul>
+                <li><strong>双方向通信</strong>: サーバーからクライアントへプッシュ送信が可能</li>
+                <li><strong>サーバーモード</strong>: <code>ws://localhost:1880/path</code> で接続受付</li>
+                <li><strong>クライアントモード</strong>: 外部WebSocketサーバーに接続</li>
+                <li><strong>msg._session</strong>: あり→特定クライアント、なし→全員にブロードキャスト</li>
+                <li><strong>データ形式</strong>: JSON文字列で送受信が一般的</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <p><strong>⚠️ 注意事項:</strong></p>
+            <ul>
+                <li>WebSocket接続は<strong>ステートフル</strong>（状態を持つ）なので、サーバー再起動時に切断される</li>
+                <li>クライアント側で<strong>再接続処理</strong>を実装することを推奨</li>
+                <li>大量のクライアント接続時は<strong>メモリ使用量</strong>に注意</li>
+                <li>外部公開時は<strong>WSS（WebSocket Secure）</strong>を使用</li>
+            </ul>
+        </div>
+        
+        <h2 id="section8">🔧 8. トラブルシューティング</h2>
+        
+        <table>
+            <tr><th>症状</th><th>原因</th><th>解決方法</th></tr>
+            <tr>
+                <td>接続できない</td>
+                <td>URLが間違っている</td>
+                <td>ws://（httpsならwss://）を確認</td>
+            </tr>
+            <tr>
+                <td>すぐ切断される</td>
+                <td>サーバー側の問題</td>
+                <td>Node-REDのログを確認</td>
+            </tr>
+            <tr>
+                <td>メッセージが届かない</td>
+                <td>設定ノードが異なる</td>
+                <td>In/Outで同じ設定ノードを使用</td>
+            </tr>
+            <tr>
+                <td>全員に送信されない</td>
+                <td>_sessionが残っている</td>
+                <td><code>delete msg._session</code></td>
+            </tr>
+            <tr>
+                <td>JSONパースエラー</td>
+                <td>データ形式の問題</td>
+                <td>try-catchでエラーハンドリング</td>
+            </tr>
+        </table>
+        
+        <h2 id="section9">🏭 9. 実務活用例</h2>
+        
+        <h3>ケース1: リアルタイムセンサーモニタリング</h3>
+        <p>Raspberry Pi からのセンサーデータをWebSocketで配信し、ダッシュボードでリアルタイム表示</p>
+        
+        <h3>ケース2: 機器の遠隔制御</h3>
+        <p>WebSocket経由でコマンドを受信し、GPIOやアクチュエーターを制御</p>
+        
+        <h3>ケース3: 通知システム</h3>
+        <p>アラートや警告をクライアントに即時プッシュ配信</p>
+        
+        <h3>ケース4: 複数デバイス間の同期</h3>
+        <p>複数のRaspberry Pi間でデータを同期（分散センサーネットワーク）</p>
+        
+        <p style="margin-top: 40px;"><a href="https://nodered.org/docs/user-guide/nodes#websocket" target="_blank">📚 Node-RED 公式ドキュメント - WebSocket</a></p>
+    </div>
+    
+    <script>
+        document.querySelectorAll('.flow-json').forEach(function(block) {
+            var btn = document.createElement('button');
+            btn.className = 'copy-btn';
+            btn.textContent = 'コピー';
+            btn.onclick = function() {
+                navigator.clipboard.writeText(block.textContent).then(function() {
+                    btn.textContent = 'コピー完了!';
+                    setTimeout(function() { btn.textContent = 'コピー'; }, 2000);
+                });
+            };
+            block.style.position = 'relative';
+            block.appendChild(btn);
+        });
+    </script>
+</body>
+</html>

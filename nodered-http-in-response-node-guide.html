@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED HTTP In / Response ノード完全ガイド</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.8; max-width: 1000px; margin: 0 auto; padding: 20px; background-color: #f5f5f5; color: #333; }
+        h1 { color: #b92d5d; border-bottom: 3px solid #b92d5d; padding-bottom: 10px; }
+        h2 { color: #d33682; margin-top: 40px; border-left: 5px solid #d33682; padding-left: 15px; }
+        h3 { color: #555; margin-top: 25px; }
+        h4 { color: #666; margin-top: 20px; }
+        .container { background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .node-example { background-color: #2d3133; padding: 20px; border-radius: 5px; margin: 20px 0; color: white; font-family: 'Courier New', monospace; display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
+        .node { display: inline-block; padding: 8px 15px; border-radius: 4px; margin: 5px; font-weight: bold; font-size: 14px; }
+        .node-inject { background-color: #3fadb5; color: white; }
+        .node-debug { background-color: #87a48d; color: white; }
+        .node-function { background-color: #e8a658; color: white; }
+        .node-change { background-color: #e7a070; color: white; }
+        .node-switch { background-color: #e2d96e; color: #333; }
+        .node-http-in { background-color: #c9b6d5; color: #333; }
+        .node-http-response { background-color: #c9b6d5; color: #333; }
+        .node-catch { background-color: #e8967a; color: white; }
+        .node-template { background-color: #d4b8a0; color: #333; }
+        .arrow { color: #999; font-size: 20px; margin: 0 10px; }
+        .important { background-color: #fce4ec; border-left: 4px solid #b92d5d; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .tip { background-color: #e8f5e9; border-left: 4px solid #4caf50; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .warning { background-color: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .code-block { background-color: #2d3133; color: #f8f8f2; padding: 15px; border-radius: 5px; margin: 15px 0; overflow-x: auto; font-family: 'Courier New', Consolas, monospace; font-size: 14px; white-space: pre; }
+        .flow-json { background-color: #1a1a2e; color: #a6e22e; padding: 15px; border-radius: 5px; font-family: 'Courier New', Consolas, monospace; font-size: 12px; overflow-x: auto; white-space: pre; position: relative; max-height: 400px; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #b92d5d; color: white; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .exercise { background-color: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0; border: 2px solid #2196f3; }
+        .exercise h3 { color: #1976d2; margin-top: 0; }
+        .difficulty { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; margin-left: 10px; }
+        .difficulty-easy { background-color: #c8e6c9; color: #2e7d32; }
+        .difficulty-medium { background-color: #fff9c4; color: #f57f17; }
+        .difficulty-hard { background-color: #ffcdd2; color: #c62828; }
+        details { background-color: #f5f5f5; padding: 10px 15px; border-radius: 5px; margin: 10px 0; }
+        details summary { cursor: pointer; font-weight: bold; color: #1976d2; }
+        details[open] summary { margin-bottom: 10px; }
+        .toc { background-color: #fafafa; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .toc h3 { margin-top: 0; color: #b92d5d; }
+        .toc ul { list-style: none; padding-left: 0; }
+        .toc li { padding: 5px 0; }
+        .toc a { color: #1976d2; text-decoration: none; }
+        .toc a:hover { text-decoration: underline; }
+        .copy-btn { position: absolute; top: 5px; right: 5px; background-color: #666; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px; }
+        .copy-btn:hover { background-color: #888; }
+        .node-compare { display: flex; gap: 20px; flex-wrap: wrap; margin: 20px 0; }
+        .node-card { background: #f9f9f9; border: 1px solid #ddd; border-radius: 8px; padding: 15px; flex: 1; min-width: 280px; }
+        .node-card h4 { margin-top: 0; color: #b92d5d; }
+        .endpoint-box { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 20px; border-radius: 8px; margin: 10px 0; font-family: 'Courier New', monospace; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🖥️ Node-RED HTTP In / Response ノード完全ガイド</h1>
+        
+        <div class="toc">
+            <h3>📚 目次</h3>
+            <ul>
+                <li><a href="#section1">1. 概要</a></li>
+                <li><a href="#section2">2. HTTP In ノード設定</a></li>
+                <li><a href="#section3">3. HTTP Response ノード設定</a></li>
+                <li><a href="#section4">4. 実用的な使用パターン</a></li>
+                <li><a href="#section5">5. サンプルフロー</a></li>
+                <li><a href="#section6">6. 演習問題</a></li>
+                <li><a href="#section7">7. まとめ</a></li>
+                <li><a href="#section8">8. トラブルシューティング</a></li>
+                <li><a href="#section9">9. 実務活用例</a></li>
+            </ul>
+        </div>
+        
+        <h2 id="section1">📖 1. 概要</h2>
+        
+        <p>HTTP In / Response ノードは、<strong>Node-RED自体をWebサーバーとして動作させる</strong>ためのノードです。外部からのHTTPリクエストを受け付け、処理してレスポンスを返すAPIを作成できます。</p>
+        
+        <div class="node-compare">
+            <div class="node-card">
+                <h4>📥 HTTP In</h4>
+                <div class="node-example" style="justify-content: center;">
+                    <span class="node node-http-in">HTTP In</span>
+                </div>
+                <p><strong>役割:</strong> HTTPリクエストを受信</p>
+                <p><strong>機能:</strong></p>
+                <ul>
+                    <li>URLエンドポイントを定義</li>
+                    <li>HTTPメソッドを指定（GET/POST等）</li>
+                    <li>リクエスト情報をmsgに設定</li>
+                </ul>
+            </div>
+            
+            <div class="node-card">
+                <h4>📤 HTTP Response</h4>
+                <div class="node-example" style="justify-content: center;">
+                    <span class="node node-http-response">HTTP Response</span>
+                </div>
+                <p><strong>役割:</strong> HTTPレスポンスを送信</p>
+                <p><strong>機能:</strong></p>
+                <ul>
+                    <li>ステータスコードを設定</li>
+                    <li>ヘッダーを設定</li>
+                    <li>ボディを返す</li>
+                </ul>
+            </div>
+        </div>
+        
+        <p>🏪 <strong>コンビニに例えると</strong>：HTTP In ノードは「入口の自動ドア」、HTTP Response ノードは「レジで商品を渡す店員」です。お客さん（リクエスト）が入ってきて、注文（処理）を受け、商品（レスポンス）を渡すという流れです。</p>
+        
+        <div class="node-example">
+            <span class="node node-http-in">HTTP In</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">処理</span>
+            <span class="arrow">→</span>
+            <span class="node node-http-response">HTTP Response</span>
+        </div>
+        
+        <div class="important">
+            <p><strong>⚠️ 重要:</strong> HTTP In と HTTP Response は必ずペアで使用します。HTTP Response がないと、リクエスト元はタイムアウトまで待ち続けます。</p>
+        </div>
+        
+        <h2 id="section2">⚙️ 2. HTTP In ノード設定</h2>
+        
+        <h3>主要プロパティ</h3>
+        <table>
+            <tr><th>プロパティ</th><th>説明</th><th>例</th></tr>
+            <tr><td><strong>Method</strong></td><td>受け付けるHTTPメソッド</td><td>GET, POST, PUT, DELETE</td></tr>
+            <tr><td><strong>URL</strong></td><td>エンドポイントのパス</td><td>/api/data, /users/:id</td></tr>
+            <tr><td><strong>Name</strong></td><td>ノードの表示名</td><td>GET /api/sensors</td></tr>
+        </table>
+        
+        <h3>URLパラメータ</h3>
+        <p>URLに <code>:パラメータ名</code> を含めると、動的なパスを定義できます：</p>
+        <div class="code-block">// URL設定: /users/:userId/posts/:postId
+
+// リクエスト: GET /users/123/posts/456
+// msg.req.params の内容:
+{
+    "userId": "123",
+    "postId": "456"
+}</div>
+        
+        <h3>msg に設定される情報</h3>
+        <table>
+            <tr><th>プロパティ</th><th>説明</th><th>例</th></tr>
+            <tr><td><strong>msg.payload</strong></td><td>リクエストボディ</td><td>POSTで送られたJSONなど</td></tr>
+            <tr><td><strong>msg.req.params</strong></td><td>URLパラメータ</td><td>{id: "123"}</td></tr>
+            <tr><td><strong>msg.req.query</strong></td><td>クエリパラメータ</td><td>{page: "1", limit: "10"}</td></tr>
+            <tr><td><strong>msg.req.headers</strong></td><td>リクエストヘッダー</td><td>{"content-type": "..."}</td></tr>
+            <tr><td><strong>msg.req.body</strong></td><td>リクエストボディ（生）</td><td>POSTデータ</td></tr>
+        </table>
+        
+        <h3>エンドポイントのアクセス方法</h3>
+        <div class="endpoint-box">
+            http://[Node-REDのホスト]:1880/[設定したURL]
+        </div>
+        <p>例: URLを <code>/api/hello</code> に設定した場合</p>
+        <div class="endpoint-box">
+            http://localhost:1880/api/hello
+        </div>
+        
+        <h2 id="section3">⚙️ 3. HTTP Response ノード設定</h2>
+        
+        <h3>主要プロパティ</h3>
+        <table>
+            <tr><th>プロパティ</th><th>説明</th><th>デフォルト</th></tr>
+            <tr><td><strong>Status code</strong></td><td>HTTPステータスコード</td><td>（msg.statusCodeを使用）</td></tr>
+            <tr><td><strong>Headers</strong></td><td>追加ヘッダー</td><td>（msg.headersを使用）</td></tr>
+        </table>
+        
+        <h3>msgで設定する情報</h3>
+        <table>
+            <tr><th>プロパティ</th><th>説明</th><th>例</th></tr>
+            <tr><td><strong>msg.payload</strong></td><td>レスポンスボディ</td><td>JSON、HTML、テキスト</td></tr>
+            <tr><td><strong>msg.statusCode</strong></td><td>ステータスコード</td><td>200, 201, 400, 404, 500</td></tr>
+            <tr><td><strong>msg.headers</strong></td><td>レスポンスヘッダー</td><td>{"Content-Type": "..."}</td></tr>
+        </table>
+        
+        <h3>主要なHTTPステータスコード</h3>
+        <table>
+            <tr><th>コード</th><th>意味</th><th>用途</th></tr>
+            <tr><td><strong>200</strong></td><td>OK</td><td>成功（デフォルト）</td></tr>
+            <tr><td><strong>201</strong></td><td>Created</td><td>リソース作成成功</td></tr>
+            <tr><td><strong>400</strong></td><td>Bad Request</td><td>リクエスト形式エラー</td></tr>
+            <tr><td><strong>401</strong></td><td>Unauthorized</td><td>認証必要</td></tr>
+            <tr><td><strong>404</strong></td><td>Not Found</td><td>リソースが存在しない</td></tr>
+            <tr><td><strong>500</strong></td><td>Internal Server Error</td><td>サーバー内部エラー</td></tr>
+        </table>
+        
+        <h2 id="section4">🔧 4. 実用的な使用パターン</h2>
+        
+        <h3>パターン1: シンプルなGET API</h3>
+        <div class="node-example">
+            <span class="node node-http-in">GET /api/hello</span>
+            <span class="arrow">→</span>
+            <span class="node node-change">レスポンス設定</span>
+            <span class="arrow">→</span>
+            <span class="node node-http-response">Response</span>
+        </div>
+        <p><strong>用途:</strong> 固定データや状態を返すシンプルなエンドポイント</p>
+        
+        <h3>パターン2: POST でデータ受信</h3>
+        <div class="node-example">
+            <span class="node node-http-in">POST /api/data</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">データ処理</span>
+            <span class="arrow">→</span>
+            <span class="node node-http-response">Response</span>
+        </div>
+        <p><strong>用途:</strong> センサーデータの受信、フォーム送信の処理</p>
+        
+        <h3>パターン3: URLパラメータで動的処理</h3>
+        <div class="node-example">
+            <span class="node node-http-in">GET /users/:id</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">ID取得・検索</span>
+            <span class="arrow">→</span>
+            <span class="node node-http-response">Response</span>
+        </div>
+        <p><strong>用途:</strong> 特定リソースの取得（REST API）</p>
+        
+        <h3>パターン4: HTMLページの提供</h3>
+        <div class="node-example">
+            <span class="node node-http-in">GET /page</span>
+            <span class="arrow">→</span>
+            <span class="node node-template">HTML生成</span>
+            <span class="arrow">→</span>
+            <span class="node node-http-response">Response</span>
+        </div>
+        <p><strong>用途:</strong> 動的なWebページ、ダッシュボード</p>
+        
+        <h2 id="section5">📥 5. サンプルフロー</h2>
+        
+        <div class="tip">
+            <p><strong>💡 テスト方法:</strong></p>
+            <ul>
+                <li><strong>ブラウザ:</strong> GETリクエストはURLをブラウザに直接入力</li>
+                <li><strong>curl:</strong> コマンドラインから <code>curl http://localhost:1880/api/hello</code></li>
+                <li><strong>Postman:</strong> GUIでリクエスト作成・テスト</li>
+                <li><strong>HTTP Request ノード:</strong> Node-RED内でセルフテスト</li>
+            </ul>
+        </div>
+        
+        <details>
+            <summary>📥 サンプルフローJSON（クリックで展開）</summary>
+            <div class="flow-json">[
+    {
+        "id": "http_in_sample_tab",
+        "type": "tab",
+        "label": "HTTP In/Response サンプル",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "http_in_comment1",
+        "type": "comment",
+        "z": "http_in_sample_tab",
+        "name": "━━━ 基本: Hello World API ━━━",
+        "info": "GET http://localhost:1880/api/hello",
+        "x": 190,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "http_in_hello",
+        "type": "http in",
+        "z": "http_in_sample_tab",
+        "name": "GET /api/hello",
+        "url": "/api/hello",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 160,
+        "y": 100,
+        "wires": [["http_in_change_hello"]]
+    },
+    {
+        "id": "http_in_change_hello",
+        "type": "change",
+        "z": "http_in_sample_tab",
+        "name": "レスポンス設定",
+        "rules": [
+            {"t": "set", "p": "payload", "pt": "msg", "to": "{\"message\":\"Hello from Node-RED!\",\"timestamp\":\"\"}", "tot": "json"},
+            {"t": "set", "p": "payload.timestamp", "pt": "msg", "to": "", "tot": "date"},
+            {"t": "set", "p": "headers", "pt": "msg", "to": "{\"Content-Type\":\"application/json\"}", "tot": "json"}
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 380,
+        "y": 100,
+        "wires": [["http_in_response_hello", "http_in_debug1"]]
+    },
+    {
+        "id": "http_in_response_hello",
+        "type": "http response",
+        "z": "http_in_sample_tab",
+        "name": "Response",
+        "statusCode": "200",
+        "headers": {},
+        "x": 580,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "http_in_debug1",
+        "type": "debug",
+        "z": "http_in_sample_tab",
+        "name": "リクエスト確認",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "req.headers.host",
+        "targetType": "msg",
+        "statusVal": "\"リクエスト受信\"",
+        "statusType": "str",
+        "x": 600,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "http_in_comment2",
+        "type": "comment",
+        "z": "http_in_sample_tab",
+        "name": "━━━ POST: データ受信API ━━━",
+        "info": "POST http://localhost:1880/api/data",
+        "x": 190,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "http_in_post",
+        "type": "http in",
+        "z": "http_in_sample_tab",
+        "name": "POST /api/data",
+        "url": "/api/data",
+        "method": "post",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 160,
+        "y": 260,
+        "wires": [["http_in_func_post"]]
+    },
+    {
+        "id": "http_in_func_post",
+        "type": "function",
+        "z": "http_in_sample_tab",
+        "name": "データ処理",
+        "func": "// 受信データを処理\nvar receivedData = msg.payload;\n\n// データを保存（flow変数）\nvar dataStore = flow.get('dataStore') || [];\ndataStore.push({\n    id: Date.now(),\n    data: receivedData,\n    receivedAt: new Date().toISOString()\n});\nflow.set('dataStore', dataStore);\n\n// レスポンス作成\nmsg.payload = {\n    success: true,\n    message: \"データを受信しました\",\n    received: receivedData,\n    totalCount: dataStore.length\n};\nmsg.statusCode = 201;\nmsg.headers = {\"Content-Type\": \"application/json\"};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 350,
+        "y": 260,
+        "wires": [["http_in_response_post", "http_in_debug2"]]
+    },
+    {
+        "id": "http_in_response_post",
+        "type": "http response",
+        "z": "http_in_sample_tab",
+        "name": "Response",
+        "statusCode": "",
+        "headers": {},
+        "x": 540,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "http_in_debug2",
+        "type": "debug",
+        "z": "http_in_sample_tab",
+        "name": "受信データ",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "\"データ受信\"",
+        "statusType": "str",
+        "x": 550,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "http_in_comment3",
+        "type": "comment",
+        "z": "http_in_sample_tab",
+        "name": "━━━ URLパラメータ: /users/:id ━━━",
+        "info": "GET http://localhost:1880/api/users/123",
+        "x": 200,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "http_in_params",
+        "type": "http in",
+        "z": "http_in_sample_tab",
+        "name": "GET /api/users/:id",
+        "url": "/api/users/:id",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 170,
+        "y": 420,
+        "wires": [["http_in_func_params"]]
+    },
+    {
+        "id": "http_in_func_params",
+        "type": "function",
+        "z": "http_in_sample_tab",
+        "name": "ユーザー検索",
+        "func": "// URLパラメータからIDを取得\nvar userId = msg.req.params.id;\n\n// サンプルユーザーデータ\nvar users = {\n    \"1\": {name: \"田中太郎\", email: \"tanaka@example.com\"},\n    \"2\": {name: \"鈴木花子\", email: \"suzuki@example.com\"},\n    \"3\": {name: \"佐藤次郎\", email: \"sato@example.com\"}\n};\n\n// ユーザー検索\nif (users[userId]) {\n    msg.payload = {\n        success: true,\n        user: {\n            id: userId,\n            ...users[userId]\n        }\n    };\n    msg.statusCode = 200;\n} else {\n    msg.payload = {\n        success: false,\n        error: \"ユーザーが見つかりません\",\n        requestedId: userId\n    };\n    msg.statusCode = 404;\n}\n\nmsg.headers = {\"Content-Type\": \"application/json\"};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 380,
+        "y": 420,
+        "wires": [["http_in_response_params", "http_in_debug3"]]
+    },
+    {
+        "id": "http_in_response_params",
+        "type": "http response",
+        "z": "http_in_sample_tab",
+        "name": "Response",
+        "statusCode": "",
+        "headers": {},
+        "x": 580,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "http_in_debug3",
+        "type": "debug",
+        "z": "http_in_sample_tab",
+        "name": "検索結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "req.params.id",
+        "statusType": "msg",
+        "x": 570,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "http_in_comment4",
+        "type": "comment",
+        "z": "http_in_sample_tab",
+        "name": "━━━ クエリパラメータ: ?name=xxx ━━━",
+        "info": "GET http://localhost:1880/api/search?name=田中",
+        "x": 210,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "http_in_query",
+        "type": "http in",
+        "z": "http_in_sample_tab",
+        "name": "GET /api/search",
+        "url": "/api/search",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 160,
+        "y": 580,
+        "wires": [["http_in_func_query"]]
+    },
+    {
+        "id": "http_in_func_query",
+        "type": "function",
+        "z": "http_in_sample_tab",
+        "name": "クエリ処理",
+        "func": "// クエリパラメータを取得\nvar query = msg.req.query;\nvar searchName = query.name || \"\";\nvar limit = parseInt(query.limit) || 10;\n\n// サンプルデータ\nvar allUsers = [\n    {id: 1, name: \"田中太郎\"},\n    {id: 2, name: \"田中花子\"},\n    {id: 3, name: \"鈴木一郎\"},\n    {id: 4, name: \"佐藤次郎\"}\n];\n\n// 検索実行\nvar results = allUsers.filter(function(user) {\n    return user.name.includes(searchName);\n}).slice(0, limit);\n\nmsg.payload = {\n    query: {\n        name: searchName,\n        limit: limit\n    },\n    results: results,\n    count: results.length\n};\nmsg.statusCode = 200;\nmsg.headers = {\"Content-Type\": \"application/json\"};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 350,
+        "y": 580,
+        "wires": [["http_in_response_query", "http_in_debug4"]]
+    },
+    {
+        "id": "http_in_response_query",
+        "type": "http response",
+        "z": "http_in_sample_tab",
+        "name": "Response",
+        "statusCode": "",
+        "headers": {},
+        "x": 540,
+        "y": 580,
+        "wires": []
+    },
+    {
+        "id": "http_in_debug4",
+        "type": "debug",
+        "z": "http_in_sample_tab",
+        "name": "検索結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload.count",
+        "statusType": "msg",
+        "x": 550,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "http_in_comment5",
+        "type": "comment",
+        "z": "http_in_sample_tab",
+        "name": "━━━ HTMLページ提供 ━━━",
+        "info": "GET http://localhost:1880/page",
+        "x": 180,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "http_in_page",
+        "type": "http in",
+        "z": "http_in_sample_tab",
+        "name": "GET /page",
+        "url": "/page",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 140,
+        "y": 740,
+        "wires": [["http_in_template"]]
+    },
+    {
+        "id": "http_in_template",
+        "type": "template",
+        "z": "http_in_sample_tab",
+        "name": "HTML生成",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "html",
+        "syntax": "mustache",
+        "template": "<!DOCTYPE html>\n<html>\n<head>\n    <meta charset=\"UTF-8\">\n    <title>Node-RED Page</title>\n    <style>\n        body { font-family: Arial, sans-serif; padding: 40px; background: #f0f0f0; }\n        .container { background: white; padding: 30px; border-radius: 10px; max-width: 600px; margin: 0 auto; }\n        h1 { color: #b92d5d; }\n        .info { background: #e8f5e9; padding: 15px; border-radius: 5px; }\n    </style>\n</head>\n<body>\n    <div class=\"container\">\n        <h1>🎉 Node-RED Webページ</h1>\n        <p>このページはNode-REDによって動的に生成されています。</p>\n        <div class=\"info\">\n            <p><strong>現在時刻:</strong> {{timestamp}}</p>\n            <p><strong>リクエスト元:</strong> {{req.headers.host}}</p>\n        </div>\n    </div>\n</body>\n</html>",
+        "output": "str",
+        "x": 310,
+        "y": 740,
+        "wires": [["http_in_change_html"]]
+    },
+    {
+        "id": "http_in_change_html",
+        "type": "change",
+        "z": "http_in_sample_tab",
+        "name": "タイムスタンプ設定",
+        "rules": [
+            {"t": "set", "p": "timestamp", "pt": "msg", "to": "", "tot": "date"},
+            {"t": "set", "p": "headers", "pt": "msg", "to": "{\"Content-Type\":\"text/html; charset=utf-8\"}", "tot": "json"}
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 510,
+        "y": 740,
+        "wires": [["http_in_response_page"]]
+    },
+    {
+        "id": "http_in_response_page",
+        "type": "http response",
+        "z": "http_in_sample_tab",
+        "name": "Response",
+        "statusCode": "200",
+        "headers": {},
+        "x": 700,
+        "y": 740,
+        "wires": []
+    },
+    {
+        "id": "http_in_comment6",
+        "type": "comment",
+        "z": "http_in_sample_tab",
+        "name": "━━━ セルフテスト（HTTP Requestで呼び出し） ━━━",
+        "info": "",
+        "x": 240,
+        "y": 820,
+        "wires": []
+    },
+    {
+        "id": "http_in_inject_test",
+        "type": "inject",
+        "z": "http_in_sample_tab",
+        "name": "APIテスト",
+        "props": [],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 140,
+        "y": 880,
+        "wires": [["http_in_request_test"]]
+    },
+    {
+        "id": "http_in_request_test",
+        "type": "http request",
+        "z": "http_in_sample_tab",
+        "name": "自分のAPIを呼出",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "http://localhost:1880/api/hello",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 350,
+        "y": 880,
+        "wires": [["http_in_debug_test"]]
+    },
+    {
+        "id": "http_in_debug_test",
+        "type": "debug",
+        "z": "http_in_sample_tab",
+        "name": "テスト結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload.message",
+        "statusType": "msg",
+        "x": 550,
+        "y": 880,
+        "wires": []
+    }
+]</div>
+        </details>
+        
+        <h2 id="section6">📝 6. 演習問題</h2>
+        
+        <div class="exercise">
+            <h3>演習1: シンプルなJSON API <span class="difficulty difficulty-easy">初級</span></h3>
+            <p><strong>📋 課題:</strong> <code>GET /api/status</code> でシステムの状態を返すAPIを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>エンドポイント: <code>/api/status</code></li>
+                <li>レスポンス: <code>{"status": "running", "version": "1.0.0"}</code></li>
+                <li>Content-Type: application/json</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>HTTP In ノード:</strong></p>
+                <ul>
+                    <li>Method: GET</li>
+                    <li>URL: /api/status</li>
+                </ul>
+                <p><strong>Change ノード:</strong></p>
+                <ul>
+                    <li>msg.payload に JSONオブジェクトを設定</li>
+                    <li>msg.headers に Content-Type を設定</li>
+                </ul>
+                <p><strong>HTTP Response ノード:</strong> デフォルト設定でOK</p>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex1_tab", "type": "tab", "label": "演習1"},
+    {"id": "ex1_http_in", "type": "http in", "z": "ex1_tab", "name": "GET /api/status", "url": "/api/status", "method": "get", "upload": false, "swaggerDoc": "", "x": 170, "y": 100, "wires": [["ex1_change"]]},
+    {"id": "ex1_change", "type": "change", "z": "ex1_tab", "name": "レスポンス設定", "rules": [{"t": "set", "p": "payload", "pt": "msg", "to": "{\"status\":\"running\",\"version\":\"1.0.0\"}", "tot": "json"}, {"t": "set", "p": "headers", "pt": "msg", "to": "{\"Content-Type\":\"application/json\"}", "tot": "json"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 390, "y": 100, "wires": [["ex1_response"]]},
+    {"id": "ex1_response", "type": "http response", "z": "ex1_tab", "name": "Response", "statusCode": "200", "headers": {}, "x": 580, "y": 100, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習2: POSTでデータを受け取る <span class="difficulty difficulty-easy">初級</span></h3>
+            <p><strong>📋 課題:</strong> <code>POST /api/sensor</code> でセンサーデータを受け取り、確認メッセージを返すAPIを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>エンドポイント: <code>/api/sensor</code></li>
+                <li>受信データ例: <code>{"temperature": 25.5, "humidity": 60}</code></li>
+                <li>レスポンス: <code>{"received": true, "data": {受信データ}}</code></li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>HTTP In ノード:</strong> Method: POST, URL: /api/sensor</p>
+                <p><strong>Function ノード:</strong></p>
+                <div class="code-block">// 受信データは msg.payload に入っている
+var receivedData = msg.payload;
+
+msg.payload = {
+    received: true,
+    data: receivedData
+};
+msg.headers = {"Content-Type": "application/json"};
+
+return msg;</div>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex2_tab", "type": "tab", "label": "演習2"},
+    {"id": "ex2_http_in", "type": "http in", "z": "ex2_tab", "name": "POST /api/sensor", "url": "/api/sensor", "method": "post", "upload": false, "swaggerDoc": "", "x": 170, "y": 100, "wires": [["ex2_func"]]},
+    {"id": "ex2_func", "type": "function", "z": "ex2_tab", "name": "レスポンス作成", "func": "var receivedData = msg.payload;\n\nmsg.payload = {\n    received: true,\n    data: receivedData,\n    timestamp: new Date().toISOString()\n};\nmsg.headers = {\"Content-Type\": \"application/json\"};\nmsg.statusCode = 201;\n\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 380, "y": 100, "wires": [["ex2_response"]]},
+    {"id": "ex2_response", "type": "http response", "z": "ex2_tab", "name": "Response", "statusCode": "", "headers": {}, "x": 560, "y": 100, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習3: URLパラメータを使ったAPI <span class="difficulty difficulty-medium">中級</span></h3>
+            <p><strong>📋 課題:</strong> <code>GET /api/items/:id</code> で商品情報を返すAPIを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>エンドポイント: <code>/api/items/:id</code></li>
+                <li>商品データ: id=1「りんご」, id=2「みかん」, id=3「バナナ」</li>
+                <li>存在する場合: 200 + 商品情報</li>
+                <li>存在しない場合: 404 + エラーメッセージ</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>URLパラメータの取得:</strong> <code>msg.req.params.id</code></p>
+                <p><strong>商品データの定義:</strong> Functionノード内でオブジェクトとして定義</p>
+                <p><strong>存在チェック:</strong> if文で商品の存在を確認し、msg.statusCodeを分岐</p>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex3_tab", "type": "tab", "label": "演習3"},
+    {"id": "ex3_http_in", "type": "http in", "z": "ex3_tab", "name": "GET /api/items/:id", "url": "/api/items/:id", "method": "get", "upload": false, "swaggerDoc": "", "x": 180, "y": 100, "wires": [["ex3_func"]]},
+    {"id": "ex3_func", "type": "function", "z": "ex3_tab", "name": "商品検索", "func": "var itemId = msg.req.params.id;\n\nvar items = {\n    \"1\": {name: \"りんご\", price: 150},\n    \"2\": {name: \"みかん\", price: 100},\n    \"3\": {name: \"バナナ\", price: 120}\n};\n\nif (items[itemId]) {\n    msg.payload = {\n        success: true,\n        item: {id: itemId, ...items[itemId]}\n    };\n    msg.statusCode = 200;\n} else {\n    msg.payload = {\n        success: false,\n        error: \"商品が見つかりません\",\n        requestedId: itemId\n    };\n    msg.statusCode = 404;\n}\n\nmsg.headers = {\"Content-Type\": \"application/json\"};\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 400, "y": 100, "wires": [["ex3_response"]]},
+    {"id": "ex3_response", "type": "http response", "z": "ex3_tab", "name": "Response", "statusCode": "", "headers": {}, "x": 580, "y": 100, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習4: CRUD APIの作成 <span class="difficulty difficulty-hard">上級</span></h3>
+            <p><strong>📋 課題:</strong> メモを管理するシンプルなREST APIを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li><code>GET /api/notes</code> - 全メモ一覧取得</li>
+                <li><code>POST /api/notes</code> - 新規メモ作成</li>
+                <li><code>GET /api/notes/:id</code> - 特定メモ取得</li>
+                <li><code>DELETE /api/notes/:id</code> - メモ削除</li>
+                <li>データはflow変数に保存</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>データ保存:</strong> <code>flow.set('notes', notesArray)</code></p>
+                <p><strong>データ取得:</strong> <code>flow.get('notes') || []</code></p>
+                <p><strong>新規ID生成:</strong> <code>Date.now()</code></p>
+                <p><strong>削除:</strong> <code>array.filter()</code> で該当IDを除外</p>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex4_tab", "type": "tab", "label": "演習4"},
+    {"id": "ex4_get_all", "type": "http in", "z": "ex4_tab", "name": "GET /api/notes", "url": "/api/notes", "method": "get", "upload": false, "swaggerDoc": "", "x": 160, "y": 80, "wires": [["ex4_func_get_all"]]},
+    {"id": "ex4_func_get_all", "type": "function", "z": "ex4_tab", "name": "全件取得", "func": "var notes = flow.get('notes') || [];\nmsg.payload = {notes: notes, count: notes.length};\nmsg.headers = {\"Content-Type\": \"application/json\"};\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 370, "y": 80, "wires": [["ex4_response"]]},
+    {"id": "ex4_post", "type": "http in", "z": "ex4_tab", "name": "POST /api/notes", "url": "/api/notes", "method": "post", "upload": false, "swaggerDoc": "", "x": 170, "y": 140, "wires": [["ex4_func_post"]]},
+    {"id": "ex4_func_post", "type": "function", "z": "ex4_tab", "name": "新規作成", "func": "var notes = flow.get('notes') || [];\nvar newNote = {\n    id: Date.now(),\n    text: msg.payload.text || \"(内容なし)\",\n    createdAt: new Date().toISOString()\n};\nnotes.push(newNote);\nflow.set('notes', notes);\nmsg.payload = {success: true, note: newNote};\nmsg.statusCode = 201;\nmsg.headers = {\"Content-Type\": \"application/json\"};\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 370, "y": 140, "wires": [["ex4_response"]]},
+    {"id": "ex4_get_one", "type": "http in", "z": "ex4_tab", "name": "GET /api/notes/:id", "url": "/api/notes/:id", "method": "get", "upload": false, "swaggerDoc": "", "x": 180, "y": 200, "wires": [["ex4_func_get_one"]]},
+    {"id": "ex4_func_get_one", "type": "function", "z": "ex4_tab", "name": "1件取得", "func": "var notes = flow.get('notes') || [];\nvar noteId = parseInt(msg.req.params.id);\nvar note = notes.find(n => n.id === noteId);\nif (note) {\n    msg.payload = {success: true, note: note};\n    msg.statusCode = 200;\n} else {\n    msg.payload = {success: false, error: \"Not found\"};\n    msg.statusCode = 404;\n}\nmsg.headers = {\"Content-Type\": \"application/json\"};\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 370, "y": 200, "wires": [["ex4_response"]]},
+    {"id": "ex4_delete", "type": "http in", "z": "ex4_tab", "name": "DELETE /api/notes/:id", "url": "/api/notes/:id", "method": "delete", "upload": false, "swaggerDoc": "", "x": 190, "y": 260, "wires": [["ex4_func_delete"]]},
+    {"id": "ex4_func_delete", "type": "function", "z": "ex4_tab", "name": "削除", "func": "var notes = flow.get('notes') || [];\nvar noteId = parseInt(msg.req.params.id);\nvar originalLength = notes.length;\nnotes = notes.filter(n => n.id !== noteId);\nflow.set('notes', notes);\nif (notes.length < originalLength) {\n    msg.payload = {success: true, message: \"Deleted\"};\n    msg.statusCode = 200;\n} else {\n    msg.payload = {success: false, error: \"Not found\"};\n    msg.statusCode = 404;\n}\nmsg.headers = {\"Content-Type\": \"application/json\"};\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 370, "y": 260, "wires": [["ex4_response"]]},
+    {"id": "ex4_response", "type": "http response", "z": "ex4_tab", "name": "Response", "statusCode": "", "headers": {}, "x": 560, "y": 160, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <h2 id="section7">✅ 7. まとめ</h2>
+        
+        <div class="important">
+            <p><strong>🎯 重要ポイント:</strong></p>
+            <ul>
+                <li><strong>HTTP In + HTTP Response</strong> は必ずペアで使用</li>
+                <li><strong>URLパラメータ</strong>: <code>:id</code> 形式で定義 → <code>msg.req.params.id</code> で取得</li>
+                <li><strong>クエリパラメータ</strong>: <code>?key=value</code> → <code>msg.req.query.key</code> で取得</li>
+                <li><strong>POSTボディ</strong>: <code>msg.payload</code> に自動でパース</li>
+                <li><strong>ステータスコード</strong>: <code>msg.statusCode</code> で設定</li>
+                <li><strong>ヘッダー</strong>: <code>msg.headers</code> でContent-Type等を設定</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <p><strong>⚠️ 注意事項:</strong></p>
+            <ul>
+                <li>HTTP Response を忘れると<strong>タイムアウト</strong>になる</li>
+                <li>外部公開時は<strong>認証・認可</strong>を実装すること</li>
+                <li>本番環境では<strong>HTTPS</strong>を使用（リバースプロキシ等）</li>
+                <li>エラー時も必ずレスポンスを返す（Catchノード活用）</li>
+            </ul>
+        </div>
+        
+        <h2 id="section8">🔧 8. トラブルシューティング</h2>
+        
+        <table>
+            <tr><th>症状</th><th>原因</th><th>解決方法</th></tr>
+            <tr>
+                <td>リクエストがタイムアウト</td>
+                <td>HTTP Response がない</td>
+                <td>必ず HTTP Response を配置</td>
+            </tr>
+            <tr>
+                <td>404 Not Found</td>
+                <td>URLが間違っている</td>
+                <td>HTTP In のURL設定を確認</td>
+            </tr>
+            <tr>
+                <td>POSTのボディが空</td>
+                <td>Content-Typeがない</td>
+                <td>クライアント側でヘッダー設定</td>
+            </tr>
+            <tr>
+                <td>文字化け</td>
+                <td>エンコーディング問題</td>
+                <td>charset=utf-8 を追加</td>
+            </tr>
+            <tr>
+                <td>CORSエラー</td>
+                <td>クロスオリジン制限</td>
+                <td>CORSヘッダーを追加</td>
+            </tr>
+        </table>
+        
+        <h3>CORSヘッダーの追加方法</h3>
+        <div class="code-block">// Functionノードで設定
+msg.headers = {
+    "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE",
+    "Access-Control-Allow-Headers": "Content-Type"
+};
+return msg;</div>
+        
+        <h2 id="section9">🏭 9. 実務活用例</h2>
+        
+        <h3>ケース1: センサーデータ受信エンドポイント</h3>
+        <p>Raspberry Pi からHTTP POSTでセンサーデータを受け取り、データベースやクラウドに転送</p>
+        
+        <h3>ケース2: Webhook受信</h3>
+        <p>GitHub、Slack、LINE等の外部サービスからのWebhook通知を受信して処理</p>
+        
+        <h3>ケース3: 機器制御API</h3>
+        <p>IoT機器の状態取得・制御コマンド送信用のREST APIを提供</p>
+        
+        <h3>ケース4: 簡易ダッシュボード</h3>
+        <p>HTMLページを動的に生成して、センサーデータの可視化ページを提供</p>
+        
+        <p style="margin-top: 40px;"><a href="https://nodered.org/docs/user-guide/nodes#http-in" target="_blank">📚 Node-RED 公式ドキュメント - HTTP In/Response</a></p>
+    </div>
+    
+    <script>
+        document.querySelectorAll('.flow-json').forEach(function(block) {
+            var btn = document.createElement('button');
+            btn.className = 'copy-btn';
+            btn.textContent = 'コピー';
+            btn.onclick = function() {
+                navigator.clipboard.writeText(block.textContent).then(function() {
+                    btn.textContent = 'コピー完了!';
+                    setTimeout(function() { btn.textContent = 'コピー'; }, 2000);
+                });
+            };
+            block.style.position = 'relative';
+            block.appendChild(btn);
+        });
+    </script>
+</body>
+</html>

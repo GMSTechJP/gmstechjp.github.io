@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED UDP ノード完全ガイド</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.8; max-width: 1000px; margin: 0 auto; padding: 20px; background-color: #f5f5f5; color: #333; }
+        h1 { color: #b92d5d; border-bottom: 3px solid #b92d5d; padding-bottom: 10px; }
+        h2 { color: #d33682; margin-top: 40px; border-left: 5px solid #d33682; padding-left: 15px; }
+        h3 { color: #555; margin-top: 25px; }
+        h4 { color: #666; margin-top: 20px; }
+        .container { background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .node-example { background-color: #2d3133; padding: 20px; border-radius: 5px; margin: 20px 0; color: white; font-family: 'Courier New', monospace; display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
+        .node { display: inline-block; padding: 8px 15px; border-radius: 4px; margin: 5px; font-weight: bold; font-size: 14px; }
+        .node-inject { background-color: #3fadb5; color: white; }
+        .node-debug { background-color: #87a48d; color: white; }
+        .node-function { background-color: #e8a658; color: white; }
+        .node-change { background-color: #e7a070; color: white; }
+        .node-switch { background-color: #e2d96e; color: #333; }
+        .node-udp-in { background-color: #c9b6d5; color: #333; }
+        .node-udp-out { background-color: #c9b6d5; color: #333; }
+        .node-catch { background-color: #e8967a; color: white; }
+        .arrow { color: #999; font-size: 20px; margin: 0 10px; }
+        .important { background-color: #fce4ec; border-left: 4px solid #b92d5d; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .tip { background-color: #e8f5e9; border-left: 4px solid #4caf50; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .warning { background-color: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .code-block { background-color: #2d3133; color: #f8f8f2; padding: 15px; border-radius: 5px; margin: 15px 0; overflow-x: auto; font-family: 'Courier New', Consolas, monospace; font-size: 14px; white-space: pre; }
+        .flow-json { background-color: #1a1a2e; color: #a6e22e; padding: 15px; border-radius: 5px; font-family: 'Courier New', Consolas, monospace; font-size: 12px; overflow-x: auto; white-space: pre; position: relative; max-height: 400px; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #b92d5d; color: white; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .exercise { background-color: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0; border: 2px solid #2196f3; }
+        .exercise h3 { color: #1976d2; margin-top: 0; }
+        .difficulty { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; margin-left: 10px; }
+        .difficulty-easy { background-color: #c8e6c9; color: #2e7d32; }
+        .difficulty-medium { background-color: #fff9c4; color: #f57f17; }
+        .difficulty-hard { background-color: #ffcdd2; color: #c62828; }
+        details { background-color: #f5f5f5; padding: 10px 15px; border-radius: 5px; margin: 10px 0; }
+        details summary { cursor: pointer; font-weight: bold; color: #1976d2; }
+        details[open] summary { margin-bottom: 10px; }
+        .toc { background-color: #fafafa; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .toc h3 { margin-top: 0; color: #b92d5d; }
+        .toc ul { list-style: none; padding-left: 0; }
+        .toc li { padding: 5px 0; }
+        .toc a { color: #1976d2; text-decoration: none; }
+        .toc a:hover { text-decoration: underline; }
+        .copy-btn { position: absolute; top: 5px; right: 5px; background-color: #666; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px; }
+        .copy-btn:hover { background-color: #888; }
+        .node-compare { display: flex; gap: 20px; flex-wrap: wrap; margin: 20px 0; }
+        .node-card { background: #f9f9f9; border: 1px solid #ddd; border-radius: 8px; padding: 15px; flex: 1; min-width: 280px; }
+        .node-card h4 { margin-top: 0; color: #b92d5d; }
+        .compare-table { margin: 20px 0; }
+        .compare-table th { background-color: #667eea; }
+        .diagram-box { background: #2d3133; color: white; padding: 20px; border-radius: 8px; font-family: monospace; margin: 15px 0; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📨 Node-RED UDP ノード完全ガイド</h1>
+        
+        <div class="toc">
+            <h3>📚 目次</h3>
+            <ul>
+                <li><a href="#section1">1. 概要</a></li>
+                <li><a href="#section2">2. UDP vs TCP の違い</a></li>
+                <li><a href="#section3">3. UDP In ノード</a></li>
+                <li><a href="#section4">4. UDP Out ノード</a></li>
+                <li><a href="#section5">5. 実用的な使用パターン</a></li>
+                <li><a href="#section6">6. サンプルフロー</a></li>
+                <li><a href="#section7">7. 演習問題</a></li>
+                <li><a href="#section8">8. まとめ</a></li>
+                <li><a href="#section9">9. トラブルシューティング</a></li>
+                <li><a href="#section10">10. 実務活用例</a></li>
+            </ul>
+        </div>
+        
+        <h2 id="section1">📖 1. 概要</h2>
+        
+        <p>UDP（User Datagram Protocol）は、<strong>コネクションレスの軽量プロトコル</strong>です。TCPと異なり、接続の確立や再送制御を行わないため、高速で軽量な通信が可能です。</p>
+        
+        <p>📮 <strong>郵便に例えると</strong>：UDPは「はがき」のようなものです。送ったら終わり。届いたかどうかの確認はしません。一方TCPは「書留郵便」で、相手に届いたことを確認します。</p>
+        
+        <h3>UDPの特徴</h3>
+        <ul>
+            <li><strong>コネクションレス</strong>：接続確立なしに即座に送信</li>
+            <li><strong>軽量・高速</strong>：オーバーヘッドが少ない</li>
+            <li><strong>信頼性なし</strong>：パケット損失や順序逆転の可能性</li>
+            <li><strong>ブロードキャスト可能</strong>：ネットワーク全体に一斉送信</li>
+            <li><strong>マルチキャスト対応</strong>：特定グループに送信</li>
+        </ul>
+        
+        <div class="node-compare">
+            <div class="node-card">
+                <h4>📥 UDP In</h4>
+                <div class="node-example" style="justify-content: center;">
+                    <span class="node node-udp-in">UDP In</span>
+                </div>
+                <p><strong>役割:</strong> 指定ポートでUDPパケットを受信</p>
+            </div>
+            
+            <div class="node-card">
+                <h4>📤 UDP Out</h4>
+                <div class="node-example" style="justify-content: center;">
+                    <span class="node node-udp-out">UDP Out</span>
+                </div>
+                <p><strong>役割:</strong> UDPパケットを送信（ユニキャスト/ブロードキャスト）</p>
+            </div>
+        </div>
+        
+        <h2 id="section2">⚖️ 2. UDP vs TCP の違い</h2>
+        
+        <table class="compare-table">
+            <tr>
+                <th>特性</th>
+                <th>UDP</th>
+                <th>TCP</th>
+            </tr>
+            <tr>
+                <td><strong>接続</strong></td>
+                <td>コネクションレス（接続不要）</td>
+                <td>コネクション型（接続確立必要）</td>
+            </tr>
+            <tr>
+                <td><strong>信頼性</strong></td>
+                <td>なし（パケットロスあり得る）</td>
+                <td>あり（再送制御）</td>
+            </tr>
+            <tr>
+                <td><strong>順序保証</strong></td>
+                <td>なし</td>
+                <td>あり</td>
+            </tr>
+            <tr>
+                <td><strong>速度</strong></td>
+                <td>高速</td>
+                <td>比較的遅い</td>
+            </tr>
+            <tr>
+                <td><strong>オーバーヘッド</strong></td>
+                <td>小さい（8バイト）</td>
+                <td>大きい（20バイト〜）</td>
+            </tr>
+            <tr>
+                <td><strong>ブロードキャスト</strong></td>
+                <td>可能</td>
+                <td>不可</td>
+            </tr>
+            <tr>
+                <td><strong>用途例</strong></td>
+                <td>DNS、動画配信、ゲーム、センサーデータ</td>
+                <td>Web、メール、ファイル転送</td>
+            </tr>
+        </table>
+        
+        <div class="tip">
+            <p><strong>💡 使い分けのポイント:</strong></p>
+            <ul>
+                <li><strong>UDP を選ぶ場合</strong>：リアルタイム性重視、多少のデータロスが許容できる、ブロードキャストしたい</li>
+                <li><strong>TCP を選ぶ場合</strong>：確実にデータを届けたい、順序が重要、双方向のやり取りが必要</li>
+            </ul>
+        </div>
+        
+        <h2 id="section3">⚙️ 3. UDP In ノード</h2>
+        
+        <h3>動作モード</h3>
+        <table>
+            <tr><th>モード</th><th>説明</th><th>用途</th></tr>
+            <tr>
+                <td><strong>Listen for udp messages</strong></td>
+                <td>指定ポートでUDPパケットを待ち受け</td>
+                <td>UDPサーバー、センサーデータ受信</td>
+            </tr>
+            <tr>
+                <td><strong>Listen for multicast messages</strong></td>
+                <td>マルチキャストグループに参加して受信</td>
+                <td>グループ通信</td>
+            </tr>
+        </table>
+        
+        <h3>主要プロパティ</h3>
+        <table>
+            <tr><th>プロパティ</th><th>説明</th><th>例</th></tr>
+            <tr><td><strong>Listen for</strong></td><td>受信モード</td><td>udp messages</td></tr>
+            <tr><td><strong>on port</strong></td><td>待ち受けポート</td><td>8000</td></tr>
+            <tr><td><strong>using</strong></td><td>IPv4 または IPv6</td><td>ipv4</td></tr>
+            <tr><td><strong>Group</strong></td><td>マルチキャストグループ（マルチキャスト時）</td><td>224.0.0.1</td></tr>
+            <tr><td><strong>Output</strong></td><td>出力形式</td><td>String / Buffer</td></tr>
+        </table>
+        
+        <h3>受信時の msg プロパティ</h3>
+        <table>
+            <tr><th>プロパティ</th><th>説明</th></tr>
+            <tr><td><strong>msg.payload</strong></td><td>受信データ（String または Buffer）</td></tr>
+            <tr><td><strong>msg.ip</strong></td><td>送信元IPアドレス</td></tr>
+            <tr><td><strong>msg.port</strong></td><td>送信元ポート番号</td></tr>
+        </table>
+        
+        <h2 id="section4">⚙️ 4. UDP Out ノード</h2>
+        
+        <h3>送信先の設定方法</h3>
+        <table>
+            <tr><th>設定方法</th><th>説明</th></tr>
+            <tr>
+                <td><strong>ノードで固定</strong></td>
+                <td>Address と Port をノード設定で指定</td>
+            </tr>
+            <tr>
+                <td><strong>メッセージで動的指定</strong></td>
+                <td>msg.ip と msg.port で送信先を指定</td>
+            </tr>
+        </table>
+        
+        <h3>主要プロパティ</h3>
+        <table>
+            <tr><th>プロパティ</th><th>説明</th><th>例</th></tr>
+            <tr><td><strong>Send a</strong></td><td>送信モード</td><td>udp message</td></tr>
+            <tr><td><strong>to</strong></td><td>送信先アドレス</td><td>192.168.1.100</td></tr>
+            <tr><td><strong>port</strong></td><td>送信先ポート</td><td>8000</td></tr>
+            <tr><td><strong>Address</strong></td><td>ブロードキャストアドレス</td><td>192.168.1.255</td></tr>
+            <tr><td><strong>bind to local port</strong></td><td>ローカルポートを固定</td><td>8001</td></tr>
+        </table>
+        
+        <h3>ブロードキャストアドレス</h3>
+        <div class="code-block">// 限定ブロードキャスト（同一サブネット内）
+192.168.1.255   ← サブネット 192.168.1.0/24 の場合
+
+// ローカルブロードキャスト
+255.255.255.255</div>
+        
+        <h3>送信時に設定できる msg プロパティ</h3>
+        <table>
+            <tr><th>プロパティ</th><th>説明</th></tr>
+            <tr><td><strong>msg.payload</strong></td><td>送信データ（String または Buffer）</td></tr>
+            <tr><td><strong>msg.ip</strong></td><td>送信先IPアドレス（動的指定時）</td></tr>
+            <tr><td><strong>msg.port</strong></td><td>送信先ポート（動的指定時）</td></tr>
+        </table>
+        
+        <h2 id="section5">🔧 5. 実用的な使用パターン</h2>
+        
+        <h3>パターン1: 単純なUDP送受信</h3>
+        <div class="node-example">
+            <span class="node node-inject">データ</span>
+            <span class="arrow">→</span>
+            <span class="node node-udp-out">UDP Out</span>
+        </div>
+        <div class="node-example">
+            <span class="node node-udp-in">UDP In</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">表示</span>
+        </div>
+        <p><strong>用途:</strong> 1対1のシンプルなUDP通信</p>
+        
+        <h3>パターン2: ブロードキャスト送信</h3>
+        <div class="node-example">
+            <span class="node node-inject">センサーデータ</span>
+            <span class="arrow">→</span>
+            <span class="node node-udp-out">UDP Out (Broadcast)</span>
+        </div>
+        <p><strong>用途:</strong> ネットワーク上の全デバイスにデータを一斉配信</p>
+        
+        <h3>パターン3: センサーデータ収集</h3>
+        <div class="node-example">
+            <span class="node node-udp-in">UDP In</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">パース</span>
+            <span class="arrow">→</span>
+            <span class="node node-switch">振り分け</span>
+        </div>
+        <p><strong>用途:</strong> 複数デバイスからのセンサーデータを集約</p>
+        
+        <h3>パターン4: 返信パターン</h3>
+        <div class="node-example">
+            <span class="node node-udp-in">受信</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">処理</span>
+            <span class="arrow">→</span>
+            <span class="node node-udp-out">返信(msg.ip/port)</span>
+        </div>
+        <p><strong>用途:</strong> 受信元に返信（msg.ip, msg.port を利用）</p>
+        
+        <h2 id="section6">📥 6. サンプルフロー</h2>
+        
+        <div class="warning">
+            <p><strong>⚠️ テスト方法:</strong></p>
+            <p>UDPのテストには以下のツールを使用できます：</p>
+            <ul>
+                <li><strong>netcat (nc):</strong> <code>echo "Hello" | nc -u localhost 8000</code></li>
+                <li><strong>socat:</strong> <code>echo "Hello" | socat - UDP:localhost:8000</code></li>
+                <li><strong>Node-RED内:</strong> UDP Out で自分自身にテスト送信</li>
+                <li><strong>Python:</strong> socket モジュールでテスト</li>
+            </ul>
+        </div>
+        
+        <h3>netcat でのテスト例</h3>
+        <div class="code-block"># UDP送信
+echo "Hello UDP" | nc -u localhost 8000
+
+# UDP受信（別ターミナル）
+nc -ul 8000</div>
+        
+        <details>
+            <summary>📥 サンプルフローJSON（クリックで展開）</summary>
+            <div class="flow-json">[
+    {
+        "id": "udp_sample_tab",
+        "type": "tab",
+        "label": "UDP サンプル",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "udp_comment1",
+        "type": "comment",
+        "z": "udp_sample_tab",
+        "name": "━━━ 基本: UDP受信 ━━━",
+        "info": "ポート8000でUDPパケットを受信",
+        "x": 170,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "udp_in_basic",
+        "type": "udp in",
+        "z": "udp_sample_tab",
+        "name": "UDP In :8000",
+        "iface": "",
+        "port": "8000",
+        "ipv": "udp4",
+        "multicast": "false",
+        "group": "",
+        "datatype": "utf8",
+        "x": 170,
+        "y": 100,
+        "wires": [["udp_debug_received", "udp_func_info"]]
+    },
+    {
+        "id": "udp_debug_received",
+        "type": "debug",
+        "z": "udp_sample_tab",
+        "name": "受信データ",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "ip",
+        "statusType": "msg",
+        "x": 390,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "udp_func_info",
+        "type": "function",
+        "z": "udp_sample_tab",
+        "name": "送信元情報",
+        "func": "msg.senderInfo = {\n    ip: msg.ip,\n    port: msg.port,\n    data: msg.payload,\n    timestamp: new Date().toISOString()\n};\nnode.status({fill: \"green\", shape: \"dot\", text: msg.ip + \":\" + msg.port});\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 390,
+        "y": 140,
+        "wires": [["udp_debug_info"]]
+    },
+    {
+        "id": "udp_debug_info",
+        "type": "debug",
+        "z": "udp_sample_tab",
+        "name": "送信元情報",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "senderInfo",
+        "targetType": "msg",
+        "x": 590,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "udp_comment2",
+        "type": "comment",
+        "z": "udp_sample_tab",
+        "name": "━━━ 基本: UDP送信（ユニキャスト） ━━━",
+        "info": "",
+        "x": 210,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "udp_inject_unicast",
+        "type": "inject",
+        "z": "udp_sample_tab",
+        "name": "ユニキャスト送信",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "Hello UDP!",
+        "payloadType": "str",
+        "x": 180,
+        "y": 280,
+        "wires": [["udp_out_unicast"]]
+    },
+    {
+        "id": "udp_out_unicast",
+        "type": "udp out",
+        "z": "udp_sample_tab",
+        "name": "UDP Out (localhost:8000)",
+        "addr": "localhost",
+        "iface": "",
+        "port": "8000",
+        "ipv": "udp4",
+        "outport": "",
+        "base64": false,
+        "multicast": "false",
+        "x": 440,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "udp_comment3",
+        "type": "comment",
+        "z": "udp_sample_tab",
+        "name": "━━━ ブロードキャスト送信 ━━━",
+        "info": "同一サブネット内の全デバイスに送信",
+        "x": 190,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "udp_inject_broadcast",
+        "type": "inject",
+        "z": "udp_sample_tab",
+        "name": "ブロードキャスト送信",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "BROADCAST: Hello everyone!",
+        "payloadType": "str",
+        "x": 190,
+        "y": 420,
+        "wires": [["udp_out_broadcast"]]
+    },
+    {
+        "id": "udp_out_broadcast",
+        "type": "udp out",
+        "z": "udp_sample_tab",
+        "name": "UDP Broadcast",
+        "addr": "255.255.255.255",
+        "iface": "",
+        "port": "8000",
+        "ipv": "udp4",
+        "outport": "",
+        "base64": false,
+        "multicast": "broadcast",
+        "x": 440,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "udp_comment4",
+        "type": "comment",
+        "z": "udp_sample_tab",
+        "name": "━━━ JSON データの送受信 ━━━",
+        "info": "",
+        "x": 190,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "udp_in_json",
+        "type": "udp in",
+        "z": "udp_sample_tab",
+        "name": "UDP In :8001 (JSON)",
+        "iface": "",
+        "port": "8001",
+        "ipv": "udp4",
+        "multicast": "false",
+        "group": "",
+        "datatype": "utf8",
+        "x": 190,
+        "y": 560,
+        "wires": [["udp_func_json_parse"]]
+    },
+    {
+        "id": "udp_func_json_parse",
+        "type": "function",
+        "z": "udp_sample_tab",
+        "name": "JSONパース",
+        "func": "try {\n    msg.data = JSON.parse(msg.payload);\n    msg.data.receivedAt = new Date().toISOString();\n    msg.data.from = msg.ip;\n    node.status({fill: \"green\", shape: \"dot\", text: \"JSON OK\"});\n} catch(e) {\n    msg.data = {error: \"Invalid JSON\", raw: msg.payload};\n    node.status({fill: \"red\", shape: \"ring\", text: \"JSON Error\"});\n}\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 430,
+        "y": 560,
+        "wires": [["udp_debug_json"]]
+    },
+    {
+        "id": "udp_debug_json",
+        "type": "debug",
+        "z": "udp_sample_tab",
+        "name": "JSON データ",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "data",
+        "targetType": "msg",
+        "x": 610,
+        "y": 560,
+        "wires": []
+    },
+    {
+        "id": "udp_inject_json",
+        "type": "inject",
+        "z": "udp_sample_tab",
+        "name": "JSON送信",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"sensor\":\"temp\",\"value\":25.5,\"unit\":\"C\"}",
+        "payloadType": "str",
+        "x": 170,
+        "y": 620,
+        "wires": [["udp_out_json"]]
+    },
+    {
+        "id": "udp_out_json",
+        "type": "udp out",
+        "z": "udp_sample_tab",
+        "name": "UDP Out :8001",
+        "addr": "localhost",
+        "iface": "",
+        "port": "8001",
+        "ipv": "udp4",
+        "outport": "",
+        "base64": false,
+        "multicast": "false",
+        "x": 400,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "udp_comment5",
+        "type": "comment",
+        "z": "udp_sample_tab",
+        "name": "━━━ 受信元への返信（エコー） ━━━",
+        "info": "msg.ip と msg.port を使って返信",
+        "x": 200,
+        "y": 700,
+        "wires": []
+    },
+    {
+        "id": "udp_in_echo",
+        "type": "udp in",
+        "z": "udp_sample_tab",
+        "name": "UDP In :8002",
+        "iface": "",
+        "port": "8002",
+        "ipv": "udp4",
+        "multicast": "false",
+        "group": "",
+        "datatype": "utf8",
+        "x": 170,
+        "y": 760,
+        "wires": [["udp_func_echo"]]
+    },
+    {
+        "id": "udp_func_echo",
+        "type": "function",
+        "z": "udp_sample_tab",
+        "name": "エコー処理",
+        "func": "// 送信元情報を保持（返信用）\nvar replyTo = {\n    ip: msg.ip,\n    port: msg.port\n};\n\n// エコー応答を作成\nmsg.payload = \"[ECHO] \" + msg.payload;\n\n// 返信先を設定\nmsg.ip = replyTo.ip;\nmsg.port = replyTo.port;\n\nnode.status({fill: \"blue\", shape: \"dot\", text: \"Reply to \" + replyTo.ip});\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 390,
+        "y": 760,
+        "wires": [["udp_out_echo", "udp_debug_echo"]]
+    },
+    {
+        "id": "udp_out_echo",
+        "type": "udp out",
+        "z": "udp_sample_tab",
+        "name": "UDP Reply (msg.ip/port)",
+        "addr": "",
+        "iface": "",
+        "port": "",
+        "ipv": "udp4",
+        "outport": "",
+        "base64": false,
+        "multicast": "false",
+        "x": 620,
+        "y": 760,
+        "wires": []
+    },
+    {
+        "id": "udp_debug_echo",
+        "type": "debug",
+        "z": "udp_sample_tab",
+        "name": "エコー送信",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "ip",
+        "statusType": "msg",
+        "x": 590,
+        "y": 800,
+        "wires": []
+    },
+    {
+        "id": "udp_comment6",
+        "type": "comment",
+        "z": "udp_sample_tab",
+        "name": "━━━ 定期的なセンサーデータ送信 ━━━",
+        "info": "",
+        "x": 210,
+        "y": 880,
+        "wires": []
+    },
+    {
+        "id": "udp_inject_periodic",
+        "type": "inject",
+        "z": "udp_sample_tab",
+        "name": "3秒ごと",
+        "props": [{"p": "payload"}],
+        "repeat": "3",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 160,
+        "y": 940,
+        "wires": [["udp_func_sensor"]]
+    },
+    {
+        "id": "udp_func_sensor",
+        "type": "function",
+        "z": "udp_sample_tab",
+        "name": "センサーデータ生成",
+        "func": "var temp = (20 + Math.random() * 10).toFixed(1);\nvar humidity = Math.floor(40 + Math.random() * 40);\n\nmsg.payload = JSON.stringify({\n    deviceId: \"sensor-001\",\n    temperature: parseFloat(temp),\n    humidity: humidity,\n    timestamp: new Date().toISOString()\n});\n\nnode.status({fill: \"green\", shape: \"dot\", text: temp + \"°C\"});\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 380,
+        "y": 940,
+        "wires": [["udp_out_sensor", "udp_debug_sensor"]]
+    },
+    {
+        "id": "udp_out_sensor",
+        "type": "udp out",
+        "z": "udp_sample_tab",
+        "name": "UDP Broadcast :8003",
+        "addr": "255.255.255.255",
+        "iface": "",
+        "port": "8003",
+        "ipv": "udp4",
+        "outport": "",
+        "base64": false,
+        "multicast": "broadcast",
+        "x": 620,
+        "y": 940,
+        "wires": []
+    },
+    {
+        "id": "udp_debug_sensor",
+        "type": "debug",
+        "z": "udp_sample_tab",
+        "name": "送信データ",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "\"送信\"",
+        "statusType": "str",
+        "x": 590,
+        "y": 980,
+        "wires": []
+    }
+]</div>
+        </details>
+        
+        <h2 id="section7">📝 7. 演習問題</h2>
+        
+        <div class="exercise">
+            <h3>演習1: UDPメッセージの送受信 <span class="difficulty difficulty-easy">初級</span></h3>
+            <p><strong>📋 課題:</strong> ポート9000でUDPパケットを受信し、デバッグサイドバーに表示してください。同時に、送信ノードでテストメッセージを送れるようにしてください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>UDP In: ポート 9000 で待ち受け</li>
+                <li>UDP Out: localhost:9000 にテストメッセージ送信</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>UDP In ノード:</strong></p>
+                <ul>
+                    <li>Listen for: udp messages</li>
+                    <li>on port: 9000</li>
+                    <li>Output: String</li>
+                </ul>
+                <p><strong>UDP Out ノード:</strong></p>
+                <ul>
+                    <li>to: localhost</li>
+                    <li>port: 9000</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex1_tab", "type": "tab", "label": "演習1"},
+    {"id": "ex1_udp_in", "type": "udp in", "z": "ex1_tab", "name": "UDP In :9000", "iface": "", "port": "9000", "ipv": "udp4", "multicast": "false", "group": "", "datatype": "utf8", "x": 170, "y": 100, "wires": [["ex1_debug"]]},
+    {"id": "ex1_debug", "type": "debug", "z": "ex1_tab", "name": "受信データ", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "ip", "statusType": "msg", "x": 390, "y": 100, "wires": []},
+    {"id": "ex1_inject", "type": "inject", "z": "ex1_tab", "name": "テスト送信", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "Hello UDP!", "payloadType": "str", "x": 170, "y": 180, "wires": [["ex1_udp_out"]]},
+    {"id": "ex1_udp_out", "type": "udp out", "z": "ex1_tab", "name": "UDP Out", "addr": "localhost", "iface": "", "port": "9000", "ipv": "udp4", "outport": "", "base64": false, "multicast": "false", "x": 380, "y": 180, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習2: 送信元への返信 <span class="difficulty difficulty-easy">初級</span></h3>
+            <p><strong>📋 課題:</strong> 受信したデータに「[REPLY]」を付けて、送信元に返信してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>ポート: 9001</li>
+                <li>受信: <code>Hello</code></li>
+                <li>返信: <code>[REPLY] Hello</code></li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Function ノード:</strong></p>
+                <div class="code-block">// msg.ip と msg.port はそのまま保持される
+msg.payload = "[REPLY] " + msg.payload;
+return msg;</div>
+                <p><strong>UDP Out ノード:</strong></p>
+                <ul>
+                    <li>to: 空欄（msg.ip を使用）</li>
+                    <li>port: 空欄（msg.port を使用）</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex2_tab", "type": "tab", "label": "演習2"},
+    {"id": "ex2_udp_in", "type": "udp in", "z": "ex2_tab", "name": "UDP In :9001", "iface": "", "port": "9001", "ipv": "udp4", "multicast": "false", "group": "", "datatype": "utf8", "x": 170, "y": 100, "wires": [["ex2_func"]]},
+    {"id": "ex2_func", "type": "function", "z": "ex2_tab", "name": "返信作成", "func": "msg.payload = \"[REPLY] \" + msg.payload;\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 370, "y": 100, "wires": [["ex2_udp_out"]]},
+    {"id": "ex2_udp_out", "type": "udp out", "z": "ex2_tab", "name": "UDP Reply", "addr": "", "iface": "", "port": "", "ipv": "udp4", "outport": "", "base64": false, "multicast": "false", "x": 560, "y": 100, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習3: 複数デバイスからのデータ集約 <span class="difficulty difficulty-medium">中級</span></h3>
+            <p><strong>📋 課題:</strong> 複数のデバイス（シミュレート）からJSONデータを受信し、デバイスIDごとに最新値を保持してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>ポート: 9002</li>
+                <li>受信データ: <code>{"deviceId":"dev-001","value":25}</code></li>
+                <li>デバイスごとの最新値を flow コンテキストに保存</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Function ノード:</strong></p>
+                <div class="code-block">var data = JSON.parse(msg.payload);
+var devices = flow.get('devices') || {};
+
+devices[data.deviceId] = {
+    value: data.value,
+    lastSeen: new Date().toISOString(),
+    ip: msg.ip
+};
+
+flow.set('devices', devices);
+msg.devices = devices;
+return msg;</div>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex3_tab", "type": "tab", "label": "演習3"},
+    {"id": "ex3_udp_in", "type": "udp in", "z": "ex3_tab", "name": "UDP In :9002", "iface": "", "port": "9002", "ipv": "udp4", "multicast": "false", "group": "", "datatype": "utf8", "x": 170, "y": 100, "wires": [["ex3_func"]]},
+    {"id": "ex3_func", "type": "function", "z": "ex3_tab", "name": "データ集約", "func": "try {\n    var data = JSON.parse(msg.payload);\n    var devices = flow.get('devices') || {};\n    \n    devices[data.deviceId] = {\n        value: data.value,\n        lastSeen: new Date().toISOString(),\n        ip: msg.ip\n    };\n    \n    flow.set('devices', devices);\n    msg.devices = devices;\n    \n    node.status({fill: \"green\", shape: \"dot\", text: Object.keys(devices).length + \" devices\"});\n} catch(e) {\n    msg.error = e.message;\n    node.status({fill: \"red\", shape: \"ring\", text: \"Error\"});\n}\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 370, "y": 100, "wires": [["ex3_debug"]]},
+    {"id": "ex3_debug", "type": "debug", "z": "ex3_tab", "name": "デバイス一覧", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "devices", "targetType": "msg", "x": 570, "y": 100, "wires": []},
+    {"id": "ex3_inject1", "type": "inject", "z": "ex3_tab", "name": "dev-001", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "{\"deviceId\":\"dev-001\",\"value\":25}", "payloadType": "str", "x": 160, "y": 200, "wires": [["ex3_udp_out"]]},
+    {"id": "ex3_inject2", "type": "inject", "z": "ex3_tab", "name": "dev-002", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "{\"deviceId\":\"dev-002\",\"value\":30}", "payloadType": "str", "x": 160, "y": 240, "wires": [["ex3_udp_out"]]},
+    {"id": "ex3_udp_out", "type": "udp out", "z": "ex3_tab", "name": "UDP Out", "addr": "localhost", "iface": "", "port": "9002", "ipv": "udp4", "outport": "", "base64": false, "multicast": "false", "x": 360, "y": 220, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習4: ブロードキャストによるデバイス発見 <span class="difficulty difficulty-hard">上級</span></h3>
+            <p><strong>📋 課題:</strong> 「DISCOVER」ブロードキャストを送信し、応答したデバイスを一覧表示するシステムを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>発見側: ポート9003にブロードキャスト「DISCOVER」を送信</li>
+                <li>デバイス側: 「DISCOVER」受信時に自デバイス情報を返信</li>
+                <li>発見側: 応答を収集して一覧表示</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>「発見側」と「デバイス側」両方の機能を同一フローに実装します。</p>
+                <p><strong>デバイス側:</strong> 受信データが「DISCOVER」なら自デバイス情報を返信</p>
+                <p><strong>発見側:</strong> 応答（DISCOVER以外）を収集してリスト化</p>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex4_tab", "type": "tab", "label": "演習4"},
+    {"id": "ex4_comment1", "type": "comment", "z": "ex4_tab", "name": "【発見リクエスト送信】", "info": "", "x": 170, "y": 40, "wires": []},
+    {"id": "ex4_inject_discover", "type": "inject", "z": "ex4_tab", "name": "DISCOVER送信", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "DISCOVER", "payloadType": "str", "x": 180, "y": 100, "wires": [["ex4_func_clear", "ex4_udp_broadcast"]]},
+    {"id": "ex4_func_clear", "type": "function", "z": "ex4_tab", "name": "リストクリア", "func": "flow.set('discoveredDevices', {});\nreturn null;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 390, "y": 100, "wires": [[]]},
+    {"id": "ex4_udp_broadcast", "type": "udp out", "z": "ex4_tab", "name": "Broadcast :9003", "addr": "255.255.255.255", "iface": "", "port": "9003", "ipv": "udp4", "outport": "", "base64": false, "multicast": "broadcast", "x": 400, "y": 140, "wires": []},
+    {"id": "ex4_comment2", "type": "comment", "z": "ex4_tab", "name": "【デバイス側（応答）】", "info": "", "x": 160, "y": 200, "wires": []},
+    {"id": "ex4_udp_in", "type": "udp in", "z": "ex4_tab", "name": "UDP In :9003", "iface": "", "port": "9003", "ipv": "udp4", "multicast": "false", "group": "", "datatype": "utf8", "x": 170, "y": 260, "wires": [["ex4_switch"]]},
+    {"id": "ex4_switch", "type": "switch", "z": "ex4_tab", "name": "DISCOVER判定", "property": "payload", "propertyType": "msg", "rules": [{"t": "eq", "v": "DISCOVER", "vt": "str"}, {"t": "else"}], "checkall": "false", "repair": false, "outputs": 2, "x": 380, "y": 260, "wires": [["ex4_func_response"], ["ex4_func_collect"]]},
+    {"id": "ex4_func_response", "type": "function", "z": "ex4_tab", "name": "デバイス情報返信", "func": "// デバイス情報を作成\nvar deviceInfo = JSON.stringify({\n    type: \"DEVICE_INFO\",\n    deviceId: \"my-device-\" + Math.floor(Math.random() * 1000),\n    name: \"Node-RED Device\",\n    timestamp: new Date().toISOString()\n});\n\nmsg.payload = deviceInfo;\n// msg.ip と msg.port は保持されている\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 620, "y": 240, "wires": [["ex4_udp_reply"]]},
+    {"id": "ex4_udp_reply", "type": "udp out", "z": "ex4_tab", "name": "Reply", "addr": "", "iface": "", "port": "", "ipv": "udp4", "outport": "", "base64": false, "multicast": "false", "x": 810, "y": 240, "wires": []},
+    {"id": "ex4_func_collect", "type": "function", "z": "ex4_tab", "name": "応答収集", "func": "try {\n    var data = JSON.parse(msg.payload);\n    if (data.type === \"DEVICE_INFO\") {\n        var devices = flow.get('discoveredDevices') || {};\n        devices[data.deviceId] = {\n            name: data.name,\n            ip: msg.ip,\n            timestamp: data.timestamp\n        };\n        flow.set('discoveredDevices', devices);\n        msg.devices = devices;\n        node.status({fill: \"green\", shape: \"dot\", text: Object.keys(devices).length + \" found\"});\n        return msg;\n    }\n} catch(e) {}\nreturn null;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 600, "y": 280, "wires": [["ex4_debug"]]},
+    {"id": "ex4_debug", "type": "debug", "z": "ex4_tab", "name": "発見デバイス", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "devices", "targetType": "msg", "x": 790, "y": 280, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <h2 id="section8">✅ 8. まとめ</h2>
+        
+        <div class="important">
+            <p><strong>🎯 重要ポイント:</strong></p>
+            <ul>
+                <li><strong>コネクションレス</strong>：接続確立不要で即座に送信可能</li>
+                <li><strong>信頼性なし</strong>：パケットロスや順序逆転の可能性があることを考慮</li>
+                <li><strong>ブロードキャスト</strong>：255.255.255.255 または サブネットアドレス</li>
+                <li><strong>返信</strong>：msg.ip と msg.port を使って送信元に返信可能</li>
+                <li><strong>用途</strong>：センサーデータ、発見プロトコル、リアルタイム通信</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <p><strong>⚠️ 注意事項:</strong></p>
+            <ul>
+                <li><strong>信頼性が必要な場合はTCPを使用</strong></li>
+                <li><strong>ブロードキャスト</strong>は同一サブネット内でのみ有効</li>
+                <li><strong>ファイアウォール</strong>設定でUDPポートを開放</li>
+                <li><strong>パケットサイズ</strong>：MTU（通常1500バイト）を超えると分割される</li>
+            </ul>
+        </div>
+        
+        <h2 id="section9">🔧 9. トラブルシューティング</h2>
+        
+        <table>
+            <tr><th>症状</th><th>原因</th><th>解決方法</th></tr>
+            <tr><td>データが届かない</td><td>ファイアウォール/ポート未開放</td><td>FW設定確認、別ポート試行</td></tr>
+            <tr><td>ブロードキャストが届かない</td><td>異なるサブネット/ルーター越え</td><td>同一サブネット内で使用</td></tr>
+            <tr><td>データが途中で切れる</td><td>MTU超過</td><td>データサイズを小さくする</td></tr>
+            <tr><td>文字化け</td><td>エンコーディング不一致</td><td>UTF-8で統一</td></tr>
+            <tr><td>返信が届かない</td><td>msg.ip/port が未設定</td><td>受信時のmsg.ip/portを保持</td></tr>
+        </table>
+        
+        <h2 id="section10">🏭 10. 実務活用例</h2>
+        
+        <h3>ケース1: センサーデータ収集</h3>
+        <p>複数のIoTセンサーからUDPでデータを受信。多少のデータロスが許容できる場合に最適。</p>
+        
+        <h3>ケース2: デバイス発見（Discovery）</h3>
+        <p>ネットワーク上のデバイスをブロードキャストで発見。mDNS/Bonjourと同様の機能を実装可能。</p>
+        
+        <h3>ケース3: リアルタイム通知</h3>
+        <p>即時性が重要な通知システム。低レイテンシが求められる場合に有効。</p>
+        
+        <h3>ケース4: Raspberry Pi 間の軽量通信</h3>
+        <p>同一ネットワーク内の複数Raspberry Piでセンサーデータを共有。</p>
+        
+        <p style="margin-top: 40px;"><a href="https://nodered.org/docs/user-guide/nodes#udp" target="_blank">📚 Node-RED 公式ドキュメント - UDP</a></p>
+    </div>
+    
+    <script>
+        document.querySelectorAll('.flow-json').forEach(function(block) {
+            var btn = document.createElement('button');
+            btn.className = 'copy-btn';
+            btn.textContent = 'コピー';
+            btn.onclick = function() {
+                navigator.clipboard.writeText(block.textContent).then(function() {
+                    btn.textContent = 'コピー完了!';
+                    setTimeout(function() { btn.textContent = 'コピー'; }, 2000);
+                });
+            };
+            block.style.position = 'relative';
+            block.appendChild(btn);
+        });
+    </script>
+</body>
+</html>

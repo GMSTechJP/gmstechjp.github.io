@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED HTTP Request ノード完全ガイド</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.8; max-width: 1000px; margin: 0 auto; padding: 20px; background-color: #f5f5f5; color: #333; }
+        h1 { color: #b92d5d; border-bottom: 3px solid #b92d5d; padding-bottom: 10px; }
+        h2 { color: #d33682; margin-top: 40px; border-left: 5px solid #d33682; padding-left: 15px; }
+        h3 { color: #555; margin-top: 25px; }
+        h4 { color: #666; margin-top: 20px; }
+        .container { background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .node-example { background-color: #2d3133; padding: 20px; border-radius: 5px; margin: 20px 0; color: white; font-family: 'Courier New', monospace; display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
+        .node { display: inline-block; padding: 8px 15px; border-radius: 4px; margin: 5px; font-weight: bold; font-size: 14px; }
+        .node-inject { background-color: #3fadb5; color: white; }
+        .node-debug { background-color: #87a48d; color: white; }
+        .node-function { background-color: #e8a658; color: white; }
+        .node-change { background-color: #e7a070; color: white; }
+        .node-switch { background-color: #e2d96e; color: #333; }
+        .node-http-request { background-color: #e2d96e; color: #333; }
+        .node-catch { background-color: #e8967a; color: white; }
+        .arrow { color: #999; font-size: 20px; margin: 0 10px; }
+        .important { background-color: #fce4ec; border-left: 4px solid #b92d5d; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .tip { background-color: #e8f5e9; border-left: 4px solid #4caf50; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .warning { background-color: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .code-block { background-color: #2d3133; color: #f8f8f2; padding: 15px; border-radius: 5px; margin: 15px 0; overflow-x: auto; font-family: 'Courier New', Consolas, monospace; font-size: 14px; white-space: pre; }
+        .flow-json { background-color: #1a1a2e; color: #a6e22e; padding: 15px; border-radius: 5px; font-family: 'Courier New', Consolas, monospace; font-size: 12px; overflow-x: auto; white-space: pre; position: relative; max-height: 400px; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #b92d5d; color: white; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .exercise { background-color: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0; border: 2px solid #2196f3; }
+        .exercise h3 { color: #1976d2; margin-top: 0; }
+        .difficulty { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; margin-left: 10px; }
+        .difficulty-easy { background-color: #c8e6c9; color: #2e7d32; }
+        .difficulty-medium { background-color: #fff9c4; color: #f57f17; }
+        .difficulty-hard { background-color: #ffcdd2; color: #c62828; }
+        details { background-color: #f5f5f5; padding: 10px 15px; border-radius: 5px; margin: 10px 0; }
+        details summary { cursor: pointer; font-weight: bold; color: #1976d2; }
+        details[open] summary { margin-bottom: 10px; }
+        .toc { background-color: #fafafa; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .toc h3 { margin-top: 0; color: #b92d5d; }
+        .toc ul { list-style: none; padding-left: 0; }
+        .toc li { padding: 5px 0; }
+        .toc a { color: #1976d2; text-decoration: none; }
+        .toc a:hover { text-decoration: underline; }
+        .copy-btn { position: absolute; top: 5px; right: 5px; background-color: #666; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px; }
+        .copy-btn:hover { background-color: #888; }
+        .api-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 20px; border-radius: 8px; margin: 10px 0; }
+        .api-card h4 { margin: 0 0 10px 0; }
+        .api-card code { background: rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌐 Node-RED HTTP Request ノード完全ガイド</h1>
+        
+        <div class="toc">
+            <h3>📚 目次</h3>
+            <ul>
+                <li><a href="#section1">1. 概要</a></li>
+                <li><a href="#section2">2. 設定詳細</a></li>
+                <li><a href="#section3">3. 実用的な使用パターン</a></li>
+                <li><a href="#section4">4. サンプルフロー</a></li>
+                <li><a href="#section5">5. 演習問題</a></li>
+                <li><a href="#section6">6. まとめ</a></li>
+                <li><a href="#section7">7. トラブルシューティング</a></li>
+                <li><a href="#section8">8. 実務活用例</a></li>
+            </ul>
+        </div>
+        
+        <h2 id="section1">📖 1. 概要</h2>
+        
+        <p>HTTP Request ノードは、<strong>外部のWebサービスやAPIにリクエストを送信</strong>するためのノードです。</p>
+        
+        <p>📬 <strong>郵便局に例えると</strong>：HTTP Request ノードは「郵便局の窓口」のようなものです。あなたが手紙（リクエスト）を送ると、相手（Webサーバー）から返事（レスポンス）が届きます。手紙の種類（GET、POST、PUT、DELETE）によって、情報を「もらう」「送る」「更新する」「削除する」といった異なる目的を伝えます。</p>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-http-request">HTTP Request</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <div class="tip">
+            <p><strong>💡 HTTPメソッドの基本</strong></p>
+            <ul>
+                <li><strong>GET</strong>：データを取得する（Webページを見る、情報を検索）</li>
+                <li><strong>POST</strong>：データを送信する（フォーム送信、新規登録）</li>
+                <li><strong>PUT</strong>：データを更新する（情報の変更）</li>
+                <li><strong>DELETE</strong>：データを削除する</li>
+            </ul>
+        </div>
+        
+        <h2 id="section2">⚙️ 2. 設定詳細</h2>
+        
+        <h3>主要プロパティ</h3>
+        <table>
+            <tr><th>プロパティ</th><th>説明</th><th>デフォルト</th></tr>
+            <tr><td><strong>Method</strong></td><td>HTTPメソッド（GET/POST/PUT/DELETE等）</td><td>GET</td></tr>
+            <tr><td><strong>URL</strong></td><td>リクエスト先のURL</td><td>（空）</td></tr>
+            <tr><td><strong>Payload</strong></td><td>リクエストボディの扱い</td><td>Ignore</td></tr>
+            <tr><td><strong>Return</strong></td><td>レスポンスの形式</td><td>UTF-8文字列</td></tr>
+            <tr><td><strong>Headers</strong></td><td>追加HTTPヘッダー</td><td>（空）</td></tr>
+        </table>
+        
+        <h3>Method（HTTPメソッド）オプション</h3>
+        <table>
+            <tr><th>オプション</th><th>用途</th><th>ボディ</th></tr>
+            <tr><td><strong>GET</strong></td><td>データ取得、検索</td><td>なし</td></tr>
+            <tr><td><strong>POST</strong></td><td>データ送信、新規作成</td><td>あり</td></tr>
+            <tr><td><strong>PUT</strong></td><td>データ更新（全体置換）</td><td>あり</td></tr>
+            <tr><td><strong>PATCH</strong></td><td>データ更新（部分変更）</td><td>あり</td></tr>
+            <tr><td><strong>DELETE</strong></td><td>データ削除</td><td>任意</td></tr>
+            <tr><td><strong>- set by msg.method -</strong></td><td>動的に指定</td><td>可変</td></tr>
+        </table>
+        
+        <h3>Return（レスポンス形式）オプション</h3>
+        <table>
+            <tr><th>オプション</th><th>説明</th><th>用途</th></tr>
+            <tr><td><strong>UTF-8文字列</strong></td><td>文字列として受信</td><td>テキスト、HTML、JSON</td></tr>
+            <tr><td><strong>バイナリバッファ</strong></td><td>Bufferオブジェクト</td><td>画像、ファイル</td></tr>
+            <tr><td><strong>JSONオブジェクト</strong></td><td>自動でJSONパース</td><td>REST API</td></tr>
+        </table>
+        
+        <h3>動的なURL設定</h3>
+        <p>URLを空にすると、<code>msg.url</code> でURLを動的に指定できます：</p>
+        <div class="code-block">// Function ノードで動的にURL設定
+msg.url = "https://api.example.com/users/" + msg.payload.userId;
+return msg;</div>
+        
+        <h3>動的なヘッダー設定</h3>
+        <div class="code-block">// Function ノードでヘッダーを設定
+msg.headers = {
+    "Content-Type": "application/json",
+    "Authorization": "Bearer " + flow.get("apiToken")
+};
+return msg;</div>
+        
+        <h2 id="section3">🔧 3. 実用的な使用パターン</h2>
+        
+        <h3>パターン1: シンプルなGETリクエスト</h3>
+        <div class="node-example">
+            <span class="node node-inject">トリガー</span>
+            <span class="arrow">→</span>
+            <span class="node node-http-request">GET API</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">結果表示</span>
+        </div>
+        <p><strong>用途:</strong> 外部APIからデータを取得（天気、時刻、為替など）</p>
+        
+        <h3>パターン2: POSTでデータ送信</h3>
+        <div class="node-example">
+            <span class="node node-inject">データ</span>
+            <span class="arrow">→</span>
+            <span class="node node-change">JSON設定</span>
+            <span class="arrow">→</span>
+            <span class="node node-http-request">POST API</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">結果</span>
+        </div>
+        <p><strong>用途:</strong> サーバーにデータを登録（センサーデータ送信など）</p>
+        
+        <h3>パターン3: エラーハンドリング付き</h3>
+        <div class="node-example">
+            <span class="node node-inject">リクエスト</span>
+            <span class="arrow">→</span>
+            <span class="node node-http-request">API呼出</span>
+            <span class="arrow">→</span>
+            <span class="node node-switch">ステータス判定</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">成功/失敗</span>
+        </div>
+        <p><strong>用途:</strong> API呼び出しの成功/失敗を適切に処理</p>
+        
+        <h3>パターン4: 認証付きAPI</h3>
+        <div class="node-example">
+            <span class="node node-inject">トリガー</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">認証ヘッダー設定</span>
+            <span class="arrow">→</span>
+            <span class="node node-http-request">認証API</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">結果</span>
+        </div>
+        <p><strong>用途:</strong> APIキーやトークンが必要なサービス</p>
+        
+        <h2 id="section4">📥 4. サンプルフロー</h2>
+        
+        <h3>利用する無料API</h3>
+        <p>このガイドでは、以下の認証不要で安定した公開APIを使用します：</p>
+        
+        <div class="api-card">
+            <h4>🌍 World Time API</h4>
+            <p>世界各地の現在時刻を取得</p>
+            <p><code>https://worldtimeapi.org/api/timezone/Asia/Tokyo</code></p>
+        </div>
+        
+        <div class="api-card">
+            <h4>🔧 httpbin.org</h4>
+            <p>HTTPリクエストのテスト・デバッグ用</p>
+            <p><code>https://httpbin.org/get</code>, <code>/post</code>, <code>/status/200</code></p>
+        </div>
+        
+        <div class="api-card">
+            <h4>📝 JSONPlaceholder</h4>
+            <p>REST APIのテスト用（TODOリスト、投稿など）</p>
+            <p><code>https://jsonplaceholder.typicode.com/todos/1</code></p>
+        </div>
+        
+        <details>
+            <summary>📥 サンプルフローJSON（クリックで展開）</summary>
+            <div class="flow-json">[
+    {
+        "id": "http_req_sample_tab",
+        "type": "tab",
+        "label": "HTTP Request サンプル",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "http_comment1",
+        "type": "comment",
+        "z": "http_req_sample_tab",
+        "name": "━━━ 基本: GETリクエスト（世界時刻取得） ━━━",
+        "info": "",
+        "x": 230,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "http_inject1",
+        "type": "inject",
+        "z": "http_req_sample_tab",
+        "name": "東京の時刻取得",
+        "props": [],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 160,
+        "y": 100,
+        "wires": [["http_get_time"]]
+    },
+    {
+        "id": "http_get_time",
+        "type": "http request",
+        "z": "http_req_sample_tab",
+        "name": "World Time API",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://worldtimeapi.org/api/timezone/Asia/Tokyo",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 360,
+        "y": 100,
+        "wires": [["http_func_format_time"]]
+    },
+    {
+        "id": "http_func_format_time",
+        "type": "function",
+        "z": "http_req_sample_tab",
+        "name": "時刻を整形",
+        "func": "// APIレスポンスから時刻情報を抽出\nvar datetime = msg.payload.datetime;\nvar timezone = msg.payload.timezone;\n\nmsg.payload = {\n    timezone: timezone,\n    datetime: datetime,\n    formatted: new Date(datetime).toLocaleString('ja-JP')\n};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 550,
+        "y": 100,
+        "wires": [["http_debug1"]]
+    },
+    {
+        "id": "http_debug1",
+        "type": "debug",
+        "z": "http_req_sample_tab",
+        "name": "時刻表示",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload.formatted",
+        "statusType": "msg",
+        "x": 720,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "http_comment2",
+        "type": "comment",
+        "z": "http_req_sample_tab",
+        "name": "━━━ POSTリクエスト（データ送信） ━━━",
+        "info": "",
+        "x": 210,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "http_inject2",
+        "type": "inject",
+        "z": "http_req_sample_tab",
+        "name": "データを送信",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"sensor\":\"温度センサー\",\"value\":25.5,\"unit\":\"℃\"}",
+        "payloadType": "json",
+        "x": 150,
+        "y": 240,
+        "wires": [["http_set_headers"]]
+    },
+    {
+        "id": "http_set_headers",
+        "type": "change",
+        "z": "http_req_sample_tab",
+        "name": "ヘッダー設定",
+        "rules": [
+            {"t": "set", "p": "headers", "pt": "msg", "to": "{\"Content-Type\":\"application/json\"}", "tot": "json"}
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 330,
+        "y": 240,
+        "wires": [["http_post"]]
+    },
+    {
+        "id": "http_post",
+        "type": "http request",
+        "z": "http_req_sample_tab",
+        "name": "POST httpbin",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://httpbin.org/post",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 510,
+        "y": 240,
+        "wires": [["http_debug2"]]
+    },
+    {
+        "id": "http_debug2",
+        "type": "debug",
+        "z": "http_req_sample_tab",
+        "name": "POST結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload.json",
+        "targetType": "msg",
+        "statusVal": "\"送信成功\"",
+        "statusType": "str",
+        "x": 690,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "http_comment3",
+        "type": "comment",
+        "z": "http_req_sample_tab",
+        "name": "━━━ JSONPlaceholder（REST API練習） ━━━",
+        "info": "",
+        "x": 220,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "http_inject3",
+        "type": "inject",
+        "z": "http_req_sample_tab",
+        "name": "TODO取得",
+        "props": [],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 140,
+        "y": 380,
+        "wires": [["http_get_todo"]]
+    },
+    {
+        "id": "http_get_todo",
+        "type": "http request",
+        "z": "http_req_sample_tab",
+        "name": "GET TODO",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://jsonplaceholder.typicode.com/todos/1",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 310,
+        "y": 380,
+        "wires": [["http_debug3"]]
+    },
+    {
+        "id": "http_debug3",
+        "type": "debug",
+        "z": "http_req_sample_tab",
+        "name": "TODO内容",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload.title",
+        "statusType": "msg",
+        "x": 490,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "http_comment4",
+        "type": "comment",
+        "z": "http_req_sample_tab",
+        "name": "━━━ エラーハンドリング ━━━",
+        "info": "",
+        "x": 180,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "http_inject4",
+        "type": "inject",
+        "z": "http_req_sample_tab",
+        "name": "存在しないURL",
+        "props": [],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 160,
+        "y": 520,
+        "wires": [["http_get_error"]]
+    },
+    {
+        "id": "http_get_error",
+        "type": "http request",
+        "z": "http_req_sample_tab",
+        "name": "404エラーテスト",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://httpbin.org/status/404",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 360,
+        "y": 520,
+        "wires": [["http_switch_status"]]
+    },
+    {
+        "id": "http_switch_status",
+        "type": "switch",
+        "z": "http_req_sample_tab",
+        "name": "ステータス判定",
+        "property": "statusCode",
+        "propertyType": "msg",
+        "rules": [
+            {"t": "btwn", "v": "200", "vt": "num", "v2": "299", "v2t": "num"},
+            {"t": "btwn", "v": "400", "vt": "num", "v2": "499", "v2t": "num"},
+            {"t": "gte", "v": "500", "vt": "num"}
+        ],
+        "checkall": "false",
+        "repair": false,
+        "outputs": 3,
+        "x": 560,
+        "y": 520,
+        "wires": [["http_debug_success"], ["http_debug_client_error"], ["http_debug_server_error"]]
+    },
+    {
+        "id": "http_debug_success",
+        "type": "debug",
+        "z": "http_req_sample_tab",
+        "name": "成功 (2xx)",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "statusCode",
+        "targetType": "msg",
+        "statusVal": "\"成功\"",
+        "statusType": "str",
+        "x": 750,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "http_debug_client_error",
+        "type": "debug",
+        "z": "http_req_sample_tab",
+        "name": "クライアントエラー (4xx)",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "statusCode",
+        "targetType": "msg",
+        "statusVal": "\"クライアントエラー\"",
+        "statusType": "str",
+        "x": 790,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "http_debug_server_error",
+        "type": "debug",
+        "z": "http_req_sample_tab",
+        "name": "サーバーエラー (5xx)",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "statusCode",
+        "targetType": "msg",
+        "statusVal": "\"サーバーエラー\"",
+        "statusType": "str",
+        "x": 780,
+        "y": 560,
+        "wires": []
+    },
+    {
+        "id": "http_comment5",
+        "type": "comment",
+        "z": "http_req_sample_tab",
+        "name": "━━━ 動的URL（パラメータ付き） ━━━",
+        "info": "",
+        "x": 200,
+        "y": 640,
+        "wires": []
+    },
+    {
+        "id": "http_inject5",
+        "type": "inject",
+        "z": "http_req_sample_tab",
+        "name": "ユーザーID: 3",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "3",
+        "payloadType": "num",
+        "x": 150,
+        "y": 700,
+        "wires": [["http_func_dynamic_url"]]
+    },
+    {
+        "id": "http_func_dynamic_url",
+        "type": "function",
+        "z": "http_req_sample_tab",
+        "name": "URL組み立て",
+        "func": "// payloadのIDを使ってURLを動的に作成\nvar userId = msg.payload;\nmsg.url = \"https://jsonplaceholder.typicode.com/users/\" + userId;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 330,
+        "y": 700,
+        "wires": [["http_get_dynamic"]]
+    },
+    {
+        "id": "http_get_dynamic",
+        "type": "http request",
+        "z": "http_req_sample_tab",
+        "name": "動的URL GET",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 520,
+        "y": 700,
+        "wires": [["http_debug5"]]
+    },
+    {
+        "id": "http_debug5",
+        "type": "debug",
+        "z": "http_req_sample_tab",
+        "name": "ユーザー情報",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload.name",
+        "statusType": "msg",
+        "x": 710,
+        "y": 700,
+        "wires": []
+    },
+    {
+        "id": "http_catch",
+        "type": "catch",
+        "z": "http_req_sample_tab",
+        "name": "HTTPエラー捕捉",
+        "scope": null,
+        "uncaught": false,
+        "x": 160,
+        "y": 780,
+        "wires": [["http_debug_error"]]
+    },
+    {
+        "id": "http_debug_error",
+        "type": "debug",
+        "z": "http_req_sample_tab",
+        "name": "エラー内容",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "error",
+        "targetType": "msg",
+        "statusVal": "error.message",
+        "statusType": "msg",
+        "x": 350,
+        "y": 780,
+        "wires": []
+    }
+]</div>
+        </details>
+        
+        <h2 id="section5">📝 5. 演習問題</h2>
+        
+        <div class="exercise">
+            <h3>演習1: 世界時刻の取得 <span class="difficulty difficulty-easy">初級</span></h3>
+            <p><strong>📋 課題:</strong> World Time API を使って、ニューヨークの現在時刻を取得し、Debugノードに表示してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Inject ノードでトリガー</li>
+                <li>HTTP Request ノードでGETリクエスト</li>
+                <li>URL: <code>https://worldtimeapi.org/api/timezone/America/New_York</code></li>
+                <li>レスポンスをJSONオブジェクトとして受信</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Inject ノード:</strong> デフォルト設定でOK（タイムスタンプを送信）</p>
+                <p><strong>HTTP Request ノード:</strong></p>
+                <ul>
+                    <li>Method: GET</li>
+                    <li>URL: 上記URLを入力</li>
+                    <li>Return: JSONオブジェクトを解析</li>
+                </ul>
+                <p><strong>Debug ノード:</strong> msg.payload全体を表示</p>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex1_tab", "type": "tab", "label": "演習1"},
+    {"id": "ex1_inject", "type": "inject", "z": "ex1_tab", "name": "NY時刻取得", "props": [], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "x": 150, "y": 100, "wires": [["ex1_http"]]},
+    {"id": "ex1_http", "type": "http request", "z": "ex1_tab", "name": "World Time API", "method": "GET", "ret": "obj", "paytoqs": "ignore", "url": "https://worldtimeapi.org/api/timezone/America/New_York", "tls": "", "persist": false, "proxy": "", "insecureHTTPParser": false, "authType": "", "senderr": false, "headers": [], "x": 360, "y": 100, "wires": [["ex1_debug"]]},
+    {"id": "ex1_debug", "type": "debug", "z": "ex1_tab", "name": "NY時刻", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "payload.datetime", "statusType": "msg", "x": 550, "y": 100, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習2: POSTリクエストでデータ送信 <span class="difficulty difficulty-easy">初級</span></h3>
+            <p><strong>📋 課題:</strong> httpbin.org の POST エンドポイントに、センサーデータ（温度・湿度）を送信してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>送信データ: <code>{"temperature": 28.5, "humidity": 65}</code></li>
+                <li>Content-Type ヘッダーを設定</li>
+                <li>URL: <code>https://httpbin.org/post</code></li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Inject ノード:</strong></p>
+                <ul>
+                    <li>msg.payload に JSON データを設定</li>
+                    <li>payloadType を「JSON」に設定</li>
+                </ul>
+                <p><strong>Change ノード:</strong> msg.headers を設定</p>
+                <div class="code-block">{"Content-Type": "application/json"}</div>
+                <p><strong>HTTP Request ノード:</strong> Method: POST, Return: JSONオブジェクト</p>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex2_tab", "type": "tab", "label": "演習2"},
+    {"id": "ex2_inject", "type": "inject", "z": "ex2_tab", "name": "センサーデータ", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "{\"temperature\":28.5,\"humidity\":65}", "payloadType": "json", "x": 160, "y": 100, "wires": [["ex2_change"]]},
+    {"id": "ex2_change", "type": "change", "z": "ex2_tab", "name": "ヘッダー設定", "rules": [{"t": "set", "p": "headers", "pt": "msg", "to": "{\"Content-Type\":\"application/json\"}", "tot": "json"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 350, "y": 100, "wires": [["ex2_http"]]},
+    {"id": "ex2_http", "type": "http request", "z": "ex2_tab", "name": "POST送信", "method": "POST", "ret": "obj", "paytoqs": "ignore", "url": "https://httpbin.org/post", "tls": "", "persist": false, "proxy": "", "insecureHTTPParser": false, "authType": "", "senderr": false, "headers": [], "x": 530, "y": 100, "wires": [["ex2_debug"]]},
+    {"id": "ex2_debug", "type": "debug", "z": "ex2_tab", "name": "レスポンス", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload.json", "targetType": "msg", "statusVal": "\"送信成功\"", "statusType": "str", "x": 710, "y": 100, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習3: ステータスコードによる分岐処理 <span class="difficulty difficulty-medium">中級</span></h3>
+            <p><strong>📋 課題:</strong> HTTPリクエストの結果を、ステータスコードに応じて「成功」「クライアントエラー」「サーバーエラー」に分岐させてください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>200-299: 成功として処理</li>
+                <li>400-499: クライアントエラーとして処理</li>
+                <li>500以上: サーバーエラーとして処理</li>
+                <li>テスト用URL: <code>https://httpbin.org/status/200</code>, <code>/status/404</code>, <code>/status/500</code></li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>HTTP Request ノード:</strong> レスポンスの msg.statusCode にHTTPステータスコードが入ります</p>
+                <p><strong>Switch ノード:</strong></p>
+                <ul>
+                    <li>プロパティ: msg.statusCode</li>
+                    <li>条件1: 200〜299の範囲（between）</li>
+                    <li>条件2: 400〜499の範囲</li>
+                    <li>条件3: 500以上（>=）</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex3_tab", "type": "tab", "label": "演習3"},
+    {"id": "ex3_inject1", "type": "inject", "z": "ex3_tab", "name": "200 成功", "props": [{"p": "url", "v": "https://httpbin.org/status/200", "vt": "str"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "x": 140, "y": 80, "wires": [["ex3_http"]]},
+    {"id": "ex3_inject2", "type": "inject", "z": "ex3_tab", "name": "404 エラー", "props": [{"p": "url", "v": "https://httpbin.org/status/404", "vt": "str"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "x": 140, "y": 120, "wires": [["ex3_http"]]},
+    {"id": "ex3_inject3", "type": "inject", "z": "ex3_tab", "name": "500 エラー", "props": [{"p": "url", "v": "https://httpbin.org/status/500", "vt": "str"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "x": 140, "y": 160, "wires": [["ex3_http"]]},
+    {"id": "ex3_http", "type": "http request", "z": "ex3_tab", "name": "HTTPリクエスト", "method": "GET", "ret": "txt", "paytoqs": "ignore", "url": "", "tls": "", "persist": false, "proxy": "", "insecureHTTPParser": false, "authType": "", "senderr": false, "headers": [], "x": 340, "y": 120, "wires": [["ex3_switch"]]},
+    {"id": "ex3_switch", "type": "switch", "z": "ex3_tab", "name": "ステータス判定", "property": "statusCode", "propertyType": "msg", "rules": [{"t": "btwn", "v": "200", "vt": "num", "v2": "299", "v2t": "num"}, {"t": "btwn", "v": "400", "vt": "num", "v2": "499", "v2t": "num"}, {"t": "gte", "v": "500", "vt": "num"}], "checkall": "false", "repair": false, "outputs": 3, "x": 540, "y": 120, "wires": [["ex3_debug1"], ["ex3_debug2"], ["ex3_debug3"]]},
+    {"id": "ex3_debug1", "type": "debug", "z": "ex3_tab", "name": "成功 (2xx)", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "statusCode", "targetType": "msg", "statusVal": "\"成功!\"", "statusType": "str", "x": 750, "y": 80, "wires": []},
+    {"id": "ex3_debug2", "type": "debug", "z": "ex3_tab", "name": "クライアントエラー", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "statusCode", "targetType": "msg", "statusVal": "\"4xx エラー\"", "statusType": "str", "x": 770, "y": 120, "wires": []},
+    {"id": "ex3_debug3", "type": "debug", "z": "ex3_tab", "name": "サーバーエラー", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "statusCode", "targetType": "msg", "statusVal": "\"5xx エラー\"", "statusType": "str", "x": 760, "y": 160, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習4: 複数APIの連携 <span class="difficulty difficulty-hard">上級</span></h3>
+            <p><strong>📋 課題:</strong> JSONPlaceholder API を使って、「ユーザー情報を取得」→「そのユーザーの投稿一覧を取得」という連続したAPI呼び出しを実装してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>まずユーザーID=1の情報を取得: <code>https://jsonplaceholder.typicode.com/users/1</code></li>
+                <li>取得したユーザーIDを使って投稿を取得: <code>https://jsonplaceholder.typicode.com/posts?userId=1</code></li>
+                <li>最終的に「ユーザー名」と「投稿数」を表示</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>フロー構成:</strong></p>
+                <ol>
+                    <li>Inject → HTTP Request (ユーザー取得)</li>
+                    <li>Function (ユーザー情報保存 & 次のURL設定)</li>
+                    <li>HTTP Request (投稿取得)</li>
+                    <li>Function (結果整形)</li>
+                    <li>Debug (結果表示)</li>
+                </ol>
+                <p><strong>ポイント:</strong> 1回目のレスポンスで得た情報を flow.set() で保存し、2回目で使用</p>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex4_tab", "type": "tab", "label": "演習4"},
+    {"id": "ex4_inject", "type": "inject", "z": "ex4_tab", "name": "ユーザー1の投稿取得", "props": [], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "x": 180, "y": 100, "wires": [["ex4_http1"]]},
+    {"id": "ex4_http1", "type": "http request", "z": "ex4_tab", "name": "ユーザー取得", "method": "GET", "ret": "obj", "paytoqs": "ignore", "url": "https://jsonplaceholder.typicode.com/users/1", "tls": "", "persist": false, "proxy": "", "insecureHTTPParser": false, "authType": "", "senderr": false, "headers": [], "x": 390, "y": 100, "wires": [["ex4_func1"]]},
+    {"id": "ex4_func1", "type": "function", "z": "ex4_tab", "name": "ユーザー情報保存", "func": "// ユーザー情報を保存\nflow.set('userName', msg.payload.name);\nflow.set('userId', msg.payload.id);\n\n// 次のAPIのURLを設定\nmsg.url = 'https://jsonplaceholder.typicode.com/posts?userId=' + msg.payload.id;\n\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 590, "y": 100, "wires": [["ex4_http2"]]},
+    {"id": "ex4_http2", "type": "http request", "z": "ex4_tab", "name": "投稿取得", "method": "GET", "ret": "obj", "paytoqs": "ignore", "url": "", "tls": "", "persist": false, "proxy": "", "insecureHTTPParser": false, "authType": "", "senderr": false, "headers": [], "x": 760, "y": 100, "wires": [["ex4_func2"]]},
+    {"id": "ex4_func2", "type": "function", "z": "ex4_tab", "name": "結果整形", "func": "// 保存したユーザー情報と投稿数を組み合わせ\nmsg.payload = {\n    userName: flow.get('userName'),\n    userId: flow.get('userId'),\n    postCount: msg.payload.length,\n    posts: msg.payload.slice(0, 3) // 最初の3件のみ表示\n};\n\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 920, "y": 100, "wires": [["ex4_debug"]]},
+    {"id": "ex4_debug", "type": "debug", "z": "ex4_tab", "name": "結果", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "payload.userName", "statusType": "msg", "x": 1070, "y": 100, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <h2 id="section6">✅ 6. まとめ</h2>
+        
+        <div class="important">
+            <p><strong>🎯 重要ポイント:</strong></p>
+            <ul>
+                <li><strong>GET</strong>: データ取得に使用、ボディなし</li>
+                <li><strong>POST</strong>: データ送信に使用、ボディにJSONなどを含む</li>
+                <li><strong>Return設定</strong>: REST APIには「JSONオブジェクト」が便利</li>
+                <li><strong>msg.statusCode</strong>: レスポンスのHTTPステータスコード</li>
+                <li><strong>msg.headers</strong>: リクエストヘッダーの設定</li>
+                <li><strong>動的URL</strong>: msg.url で実行時にURL指定可能</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <p><strong>⚠️ 注意事項:</strong></p>
+            <ul>
+                <li>外部APIには<strong>レート制限</strong>がある場合が多い（連続呼び出しに注意）</li>
+                <li><strong>タイムアウト</strong>設定を適切に（デフォルト: 120秒）</li>
+                <li><strong>エラーハンドリング</strong>は必須（Catchノードとの組み合わせ推奨）</li>
+                <li>APIキーなど機密情報は<strong>環境変数</strong>で管理</li>
+            </ul>
+        </div>
+        
+        <h2 id="section7">🔧 7. トラブルシューティング</h2>
+        
+        <table>
+            <tr><th>症状</th><th>原因</th><th>解決方法</th></tr>
+            <tr>
+                <td>レスポンスが空</td>
+                <td>URLが間違っている / サーバーダウン</td>
+                <td>URLを確認、ブラウザでアクセスしてみる</td>
+            </tr>
+            <tr>
+                <td>401 Unauthorized</td>
+                <td>認証情報がない/間違い</td>
+                <td>APIキーやトークンを確認</td>
+            </tr>
+            <tr>
+                <td>403 Forbidden</td>
+                <td>アクセス権限がない</td>
+                <td>API利用規約、CORS設定を確認</td>
+            </tr>
+            <tr>
+                <td>404 Not Found</td>
+                <td>URLやエンドポイントが存在しない</td>
+                <td>APIドキュメントでURLを確認</td>
+            </tr>
+            <tr>
+                <td>タイムアウト</td>
+                <td>サーバーの応答が遅い</td>
+                <td>タイムアウト時間を延長</td>
+            </tr>
+            <tr>
+                <td>JSONパースエラー</td>
+                <td>レスポンスがJSONでない</td>
+                <td>Return を「UTF-8文字列」に変更</td>
+            </tr>
+            <tr>
+                <td>文字化け</td>
+                <td>エンコーディングの問題</td>
+                <td>Content-Type ヘッダーを確認</td>
+            </tr>
+        </table>
+        
+        <h2 id="section8">🏭 8. 実務活用例</h2>
+        
+        <h3>ケース1: 天気情報の定期取得</h3>
+        <p>Open-Meteo API を使って、1時間ごとに天気情報を取得し、温度が閾値を超えたら通知</p>
+        
+        <h3>ケース2: センサーデータのクラウド送信</h3>
+        <p>Raspberry Pi で収集したセンサーデータを、AWS IoT や Azure IoT Hub へ HTTP POST で送信</p>
+        
+        <h3>ケース3: Slack/Teams通知</h3>
+        <p>Webhook URL に POST リクエストを送信して、チャットツールに自動通知</p>
+        
+        <h3>ケース4: REST API のモニタリング</h3>
+        <p>定期的にヘルスチェックエンドポイントを呼び出し、異常を検知したらアラート</p>
+        
+        <h3>代替APIリスト</h3>
+        <div class="tip">
+            <p><strong>💡 サンプルAPIが使えない場合の代替:</strong></p>
+            <ul>
+                <li><strong>時刻取得:</strong> <code>https://timeapi.io/api/Time/current/zone?timeZone=Asia/Tokyo</code></li>
+                <li><strong>HTTPテスト:</strong> <code>https://postman-echo.com/get</code>, <code>/post</code></li>
+                <li><strong>天気（認証不要）:</strong> <code>https://api.open-meteo.com/v1/forecast?latitude=35.68&longitude=139.76&current_weather=true</code></li>
+            </ul>
+        </div>
+        
+        <p style="margin-top: 40px;"><a href="https://nodered.org/docs/user-guide/nodes#http-request" target="_blank">📚 Node-RED 公式ドキュメント - HTTP Request</a></p>
+    </div>
+    
+    <script>
+        document.querySelectorAll('.flow-json').forEach(function(block) {
+            var btn = document.createElement('button');
+            btn.className = 'copy-btn';
+            btn.textContent = 'コピー';
+            btn.onclick = function() {
+                navigator.clipboard.writeText(block.textContent).then(function() {
+                    btn.textContent = 'コピー完了!';
+                    setTimeout(function() { btn.textContent = 'コピー'; }, 2000);
+                });
+            };
+            block.style.position = 'relative';
+            block.appendChild(btn);
+        });
+    </script>
+</body>
+</html>
