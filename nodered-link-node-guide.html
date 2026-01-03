@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED Link ノード完全ガイド</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.8; max-width: 1000px; margin: 0 auto; padding: 20px; background-color: #f5f5f5; color: #333; }
+        h1 { color: #b92d5d; border-bottom: 3px solid #b92d5d; padding-bottom: 10px; }
+        h2 { color: #d33682; margin-top: 40px; border-left: 5px solid #d33682; padding-left: 15px; }
+        h3 { color: #555; margin-top: 25px; }
+        .container { background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .node-example { background-color: #2d3133; padding: 20px; border-radius: 5px; margin: 20px 0; color: white; font-family: 'Courier New', monospace; display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
+        .node { display: inline-block; padding: 8px 15px; border-radius: 4px; margin: 5px; font-weight: bold; font-size: 14px; }
+        .node-inject { background-color: #3fadb5; color: white; }
+        .node-debug { background-color: #87a48d; color: white; }
+        .node-function { background-color: #e8a658; color: white; }
+        .node-link-in { background-color: #ddd; color: #333; border-left: 4px solid #3fadb5; }
+        .node-link-out { background-color: #ddd; color: #333; border-right: 4px solid #87a48d; }
+        .node-link-call { background-color: #ddd; color: #333; border: 2px solid #e8a658; }
+        .arrow { color: #999; font-size: 20px; margin: 0 10px; }
+        .arrow-dashed { color: #666; font-size: 16px; margin: 0 10px; font-style: italic; }
+        .important { background-color: #fce4ec; border-left: 4px solid #b92d5d; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .tip { background-color: #e8f5e9; border-left: 4px solid #4caf50; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .warning { background-color: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .code-block { background-color: #2d3133; color: #f8f8f2; padding: 15px; border-radius: 5px; margin: 15px 0; overflow-x: auto; font-family: 'Courier New', Consolas, monospace; font-size: 14px; white-space: pre; }
+        .flow-json { background-color: #1a1a2e; color: #a6e22e; padding: 15px; border-radius: 5px; font-family: 'Courier New', Consolas, monospace; font-size: 12px; overflow-x: auto; white-space: pre; position: relative; max-height: 400px; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #b92d5d; color: white; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .exercise { background-color: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0; border: 2px solid #2196f3; }
+        .exercise h3 { color: #1976d2; margin-top: 0; }
+        .difficulty { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; margin-left: 10px; }
+        .difficulty-easy { background-color: #c8e6c9; color: #2e7d32; }
+        .difficulty-medium { background-color: #fff9c4; color: #f57f17; }
+        .difficulty-hard { background-color: #ffcdd2; color: #c62828; }
+        details { background-color: #f5f5f5; padding: 10px 15px; border-radius: 5px; margin: 10px 0; }
+        details summary { cursor: pointer; font-weight: bold; color: #1976d2; }
+        details[open] summary { margin-bottom: 10px; }
+        .toc { background-color: #fafafa; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .toc h3 { margin-top: 0; color: #b92d5d; }
+        .toc ul { list-style: none; padding-left: 0; }
+        .toc li { padding: 5px 0; }
+        .toc a { color: #1976d2; text-decoration: none; }
+        .toc a:hover { text-decoration: underline; }
+        .copy-btn { position: absolute; top: 5px; right: 5px; background-color: #666; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px; }
+        .copy-btn:hover { background-color: #888; }
+        .node-compare { display: flex; gap: 20px; flex-wrap: wrap; margin: 20px 0; }
+        .node-card { background: #f9f9f9; border: 1px solid #ddd; border-radius: 8px; padding: 15px; flex: 1; min-width: 200px; }
+        .node-card h4 { margin-top: 0; color: #b92d5d; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 Node-RED Link ノード完全ガイド</h1>
+        
+        <div class="toc">
+            <h3>📚 目次</h3>
+            <ul>
+                <li><a href="#section1">1. 概要</a></li>
+                <li><a href="#section2">2. 3種類のLinkノード</a></li>
+                <li><a href="#section3">3. 設定詳細</a></li>
+                <li><a href="#section4">4. 実用的な使用パターン</a></li>
+                <li><a href="#section5">5. サンプルフロー</a></li>
+                <li><a href="#section6">6. 演習問題</a></li>
+                <li><a href="#section7">7. まとめ</a></li>
+                <li><a href="#section8">8. 実務活用例</a></li>
+            </ul>
+        </div>
+        
+        <h2 id="section1">📖 1. 概要</h2>
+        
+        <p><strong>Link ノード</strong>は、フロー内やフロー間で「仮想的なワイヤー」を作成するノードです。物理的なワイヤーを引かずにノード同士を接続でき、複雑なフローを整理するのに役立ちます。</p>
+        
+        <p>📞 <strong>内線電話に例えると</strong>：Link ノードは会社の内線電話システムのようなものです。離れた部署（別のフロータブ）にいる人でも、内線番号（Link名）を使えば直接つながることができます。</p>
+        
+        <div class="tip">
+            <p><strong>💡 Link ノードを使うメリット:</strong></p>
+            <ul>
+                <li>ワイヤーの交差を減らしてフローを見やすくする</li>
+                <li>異なるタブ（フロー）間でメッセージを送受信</li>
+                <li>共通処理を再利用可能にする</li>
+                <li>サブルーチンのような呼び出しが可能（Link Call）</li>
+            </ul>
+        </div>
+        
+        <h2 id="section2">🔧 2. 3種類のLinkノード</h2>
+        
+        <div class="node-compare">
+            <div class="node-card">
+                <h4>📥 Link In</h4>
+                <div class="node-example" style="justify-content: center;">
+                    <span class="node node-link-in">Link In</span>
+                </div>
+                <p><strong>役割:</strong> メッセージの受信口</p>
+                <p><strong>特徴:</strong></p>
+                <ul>
+                    <li>Link Out または Link Call からメッセージを受け取る</li>
+                    <li>複数の Link Out から受信可能</li>
+                </ul>
+            </div>
+            
+            <div class="node-card">
+                <h4>📤 Link Out</h4>
+                <div class="node-example" style="justify-content: center;">
+                    <span class="node node-link-out">Link Out</span>
+                </div>
+                <p><strong>役割:</strong> メッセージの送信口</p>
+                <p><strong>特徴:</strong></p>
+                <ul>
+                    <li>Link In にメッセージを送信</li>
+                    <li>複数の Link In に同時送信可能</li>
+                </ul>
+            </div>
+            
+            <div class="node-card">
+                <h4>📞 Link Call</h4>
+                <div class="node-example" style="justify-content: center;">
+                    <span class="node node-link-call">Link Call</span>
+                </div>
+                <p><strong>役割:</strong> サブフローを呼び出して結果を受け取る</p>
+                <p><strong>特徴:</strong></p>
+                <ul>
+                    <li>Link In を呼び出し、Link Out（return）で結果を受け取る</li>
+                    <li>関数呼び出しのような動作</li>
+                </ul>
+            </div>
+        </div>
+        
+        <h3>Link Out と Link Call の違い</h3>
+        <table>
+            <tr><th>特徴</th><th>Link Out（通常モード）</th><th>Link Call</th></tr>
+            <tr><td>動作</td><td>送りっぱなし（Fire and Forget）</td><td>結果を待って受け取る</td></tr>
+            <tr><td>戻り値</td><td>なし</td><td>あり（Link Out return経由）</td></tr>
+            <tr><td>用途</td><td>通知、ログ記録、分岐</td><td>共通処理の呼び出し</td></tr>
+            <tr><td>接続先</td><td>Link In</td><td>Link In（return用Link Out必須）</td></tr>
+        </table>
+        
+        <h2 id="section3">⚙️ 3. 設定詳細</h2>
+        
+        <h3>Link In プロパティ</h3>
+        <table>
+            <tr><th>プロパティ</th><th>説明</th></tr>
+            <tr><td><strong>Name</strong></td><td>リンクの識別名（他のLinkから参照される）</td></tr>
+        </table>
+        
+        <h3>Link Out プロパティ</h3>
+        <table>
+            <tr><th>プロパティ</th><th>説明</th></tr>
+            <tr><td><strong>Mode</strong></td><td>送信先の Link In を選択 / Return モード（Link Call用）</td></tr>
+            <tr><td><strong>Name</strong></td><td>リンクの識別名</td></tr>
+            <tr><td><strong>Links</strong></td><td>接続先の Link In ノードを選択</td></tr>
+        </table>
+        
+        <h3>Link Call プロパティ</h3>
+        <table>
+            <tr><th>プロパティ</th><th>説明</th></tr>
+            <tr><td><strong>Link</strong></td><td>呼び出す Link In ノードを選択</td></tr>
+            <tr><td><strong>Timeout</strong></td><td>応答待ちタイムアウト（秒）</td></tr>
+            <tr><td><strong>Name</strong></td><td>ノードの識別名</td></tr>
+        </table>
+        
+        <h2 id="section4">🔧 4. 実用的な使用パターン</h2>
+        
+        <h3>パターン1: 基本的な Link Out → Link In</h3>
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-link-out">Link Out</span>
+            <span class="arrow-dashed">- - -</span>
+            <span class="node node-link-in">Link In</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        <p><strong>用途:</strong> フロー内でワイヤーの交差を避ける、別タブへメッセージを送る</p>
+        
+        <h3>パターン2: 複数の送信先</h3>
+        <div class="node-example">
+            <span class="node node-link-out">Link Out</span>
+            <span class="arrow-dashed">- - -</span>
+            <span class="node node-link-in">Log処理</span>
+        </div>
+        <div class="node-example" style="margin-top: -10px;">
+            <span style="width: 100px;"></span>
+            <span class="arrow-dashed">- - -</span>
+            <span class="node node-link-in">DB保存</span>
+        </div>
+        <p><strong>用途:</strong> 1つのメッセージを複数の処理に送る（ログ記録、データ保存など）</p>
+        
+        <h3>パターン3: Link Call（サブルーチン呼び出し）</h3>
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-link-call">Link Call</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">結果</span>
+        </div>
+        <div class="node-example" style="background-color: #1a3a3a;">
+            <span style="color: #888;">【呼び出し先】</span>
+            <span class="node node-link-in">共通処理</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">処理</span>
+            <span class="arrow">→</span>
+            <span class="node node-link-out" style="border: 2px solid #4caf50;">Return</span>
+        </div>
+        <p><strong>用途:</strong> 共通処理を別フローに切り出して再利用</p>
+        
+        <h3>パターン4: クロスタブ通信</h3>
+        <div class="code-block">【タブA: センサー入力】
+  Inject → 処理 → Link Out("sensor-data")
+
+【タブB: データ処理】
+  Link In("sensor-data") → 加工 → Link Out("processed")
+
+【タブC: 表示】
+  Link In("processed") → Dashboard</div>
+        <p><strong>用途:</strong> 機能ごとにタブを分けて、Link で連携</p>
+        
+        <h2 id="section5">📥 5. サンプルフロー</h2>
+        
+        <details>
+            <summary>📥 サンプルフローJSON（クリックで展開）</summary>
+            <div class="flow-json">[
+    {
+        "id": "link_sample_tab",
+        "type": "tab",
+        "label": "Link サンプル",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "link_comment1",
+        "type": "comment",
+        "z": "link_sample_tab",
+        "name": "━━━ 基本: Link Out → Link In ━━━",
+        "info": "",
+        "x": 180,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "inject_basic",
+        "type": "inject",
+        "z": "link_sample_tab",
+        "name": "送信",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "Hello via Link!",
+        "payloadType": "str",
+        "x": 130,
+        "y": 100,
+        "wires": [["link_out_basic"]]
+    },
+    {
+        "id": "link_out_basic",
+        "type": "link out",
+        "z": "link_sample_tab",
+        "name": "送信口",
+        "mode": "link",
+        "links": ["link_in_basic"],
+        "x": 295,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "link_in_basic",
+        "type": "link in",
+        "z": "link_sample_tab",
+        "name": "受信口",
+        "links": ["link_out_basic"],
+        "x": 435,
+        "y": 100,
+        "wires": [["debug_basic"]]
+    },
+    {
+        "id": "debug_basic",
+        "type": "debug",
+        "z": "link_sample_tab",
+        "name": "受信確認",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 590,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "link_comment2",
+        "type": "comment",
+        "z": "link_sample_tab",
+        "name": "━━━ Link Call（サブルーチン呼び出し）━━━",
+        "info": "",
+        "x": 210,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "inject_call",
+        "type": "inject",
+        "z": "link_sample_tab",
+        "name": "数値入力",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "5",
+        "payloadType": "num",
+        "x": 140,
+        "y": 240,
+        "wires": [["link_call_double"]]
+    },
+    {
+        "id": "link_call_double",
+        "type": "link call",
+        "z": "link_sample_tab",
+        "name": "2倍処理を呼び出し",
+        "links": ["link_in_double"],
+        "linkType": "static",
+        "timeout": "30",
+        "x": 350,
+        "y": 240,
+        "wires": [["debug_call_result"]]
+    },
+    {
+        "id": "debug_call_result",
+        "type": "debug",
+        "z": "link_sample_tab",
+        "name": "結果: 10",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 560,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "link_comment3",
+        "type": "comment",
+        "z": "link_sample_tab",
+        "name": "【共通処理】2倍にする",
+        "info": "",
+        "x": 160,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "link_in_double",
+        "type": "link in",
+        "z": "link_sample_tab",
+        "name": "2倍処理入口",
+        "links": [],
+        "x": 155,
+        "y": 360,
+        "wires": [["func_double"]]
+    },
+    {
+        "id": "func_double",
+        "type": "function",
+        "z": "link_sample_tab",
+        "name": "×2",
+        "func": "msg.payload = msg.payload * 2;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 310,
+        "y": 360,
+        "wires": [["link_out_return"]]
+    },
+    {
+        "id": "link_out_return",
+        "type": "link out",
+        "z": "link_sample_tab",
+        "name": "結果を返す",
+        "mode": "return",
+        "links": [],
+        "x": 455,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "link_comment4",
+        "type": "comment",
+        "z": "link_sample_tab",
+        "name": "━━━ 複数の送信先 ━━━",
+        "info": "",
+        "x": 160,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "inject_multi",
+        "type": "inject",
+        "z": "link_sample_tab",
+        "name": "イベント発生",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"event\": \"button_click\", \"time\": \"2024-01-15\"}",
+        "payloadType": "json",
+        "x": 150,
+        "y": 500,
+        "wires": [["link_out_multi"]]
+    },
+    {
+        "id": "link_out_multi",
+        "type": "link out",
+        "z": "link_sample_tab",
+        "name": "複数送信",
+        "mode": "link",
+        "links": ["link_in_log", "link_in_notify"],
+        "x": 315,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "link_in_log",
+        "type": "link in",
+        "z": "link_sample_tab",
+        "name": "ログ処理",
+        "links": ["link_out_multi"],
+        "x": 445,
+        "y": 480,
+        "wires": [["debug_log"]]
+    },
+    {
+        "id": "debug_log",
+        "type": "debug",
+        "z": "link_sample_tab",
+        "name": "📝 ログ記録",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 590,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "link_in_notify",
+        "type": "link in",
+        "z": "link_sample_tab",
+        "name": "通知処理",
+        "links": ["link_out_multi"],
+        "x": 445,
+        "y": 520,
+        "wires": [["debug_notify"]]
+    },
+    {
+        "id": "debug_notify",
+        "type": "debug",
+        "z": "link_sample_tab",
+        "name": "🔔 通知送信",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 590,
+        "y": 520,
+        "wires": []
+    }
+]</div>
+        </details>
+        
+        <h2 id="section6">📝 6. 演習問題</h2>
+        
+        <div class="exercise">
+            <h3>演習1: 基本的なLink接続 <span class="difficulty difficulty-easy">初級</span></h3>
+            <p><strong>📋 課題:</strong> Link Out と Link In を使って、ワイヤーを引かずにメッセージを送信するフローを作成してください。</p>
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>1. Link Out ノードの設定で、接続先の Link In を選択します</p>
+                <p>2. 名前を分かりやすくつけると管理しやすくなります</p>
+            </details>
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex1_tab", "type": "tab", "label": "演習1"},
+    {"id": "ex1_inject", "type": "inject", "z": "ex1_tab", "name": "送信", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "Link経由のメッセージ", "payloadType": "str", "x": 130, "y": 100, "wires": [["ex1_link_out"]]},
+    {"id": "ex1_link_out", "type": "link out", "z": "ex1_tab", "name": "送信口", "mode": "link", "links": ["ex1_link_in"], "x": 275, "y": 100, "wires": []},
+    {"id": "ex1_link_in", "type": "link in", "z": "ex1_tab", "name": "受信口", "links": ["ex1_link_out"], "x": 435, "y": 100, "wires": [["ex1_debug"]]},
+    {"id": "ex1_debug", "type": "debug", "z": "ex1_tab", "name": "確認", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "payload", "statusType": "auto", "x": 570, "y": 100, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習2: 複数の受信先 <span class="difficulty difficulty-easy">初級</span></h3>
+            <p><strong>📋 課題:</strong> 1つの Link Out から2つの Link In にメッセージを送信するフローを作成してください。</p>
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>Link Out ノードの設定で、複数の Link In を選択できます。</p>
+            </details>
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex2_tab", "type": "tab", "label": "演習2"},
+    {"id": "ex2_inject", "type": "inject", "z": "ex2_tab", "name": "イベント", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "共通データ", "payloadType": "str", "x": 140, "y": 140, "wires": [["ex2_link_out"]]},
+    {"id": "ex2_link_out", "type": "link out", "z": "ex2_tab", "name": "分岐送信", "mode": "link", "links": ["ex2_link_in1", "ex2_link_in2"], "x": 295, "y": 140, "wires": []},
+    {"id": "ex2_link_in1", "type": "link in", "z": "ex2_tab", "name": "処理A", "links": ["ex2_link_out"], "x": 435, "y": 100, "wires": [["ex2_debug1"]]},
+    {"id": "ex2_debug1", "type": "debug", "z": "ex2_tab", "name": "処理A実行", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "x": 590, "y": 100, "wires": []},
+    {"id": "ex2_link_in2", "type": "link in", "z": "ex2_tab", "name": "処理B", "links": ["ex2_link_out"], "x": 435, "y": 180, "wires": [["ex2_debug2"]]},
+    {"id": "ex2_debug2", "type": "debug", "z": "ex2_tab", "name": "処理B実行", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "x": 590, "y": 180, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習3: Link Call の基本 <span class="difficulty difficulty-medium">中級</span></h3>
+            <p><strong>📋 課題:</strong> Link Call を使って「入力値を3倍にする」共通処理を作成し、呼び出すフローを作ってください。</p>
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>1. 共通処理: Link In → Function（×3） → Link Out（returnモード）</p>
+                <p>2. 呼び出し側: Inject → Link Call → Debug</p>
+                <p>3. Link Out のモードを「return」に設定することが重要です</p>
+            </details>
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex3_tab", "type": "tab", "label": "演習3"},
+    {"id": "ex3_comment", "type": "comment", "z": "ex3_tab", "name": "━━━ 呼び出し側 ━━━", "info": "", "x": 140, "y": 40, "wires": []},
+    {"id": "ex3_inject", "type": "inject", "z": "ex3_tab", "name": "7を入力", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "7", "payloadType": "num", "x": 140, "y": 100, "wires": [["ex3_call"]]},
+    {"id": "ex3_call", "type": "link call", "z": "ex3_tab", "name": "3倍処理呼び出し", "links": ["ex3_link_in"], "linkType": "static", "timeout": "30", "x": 340, "y": 100, "wires": [["ex3_debug"]]},
+    {"id": "ex3_debug", "type": "debug", "z": "ex3_tab", "name": "結果: 21", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "payload", "statusType": "auto", "x": 530, "y": 100, "wires": []},
+    {"id": "ex3_comment2", "type": "comment", "z": "ex3_tab", "name": "━━━ 共通処理（3倍） ━━━", "info": "", "x": 160, "y": 180, "wires": []},
+    {"id": "ex3_link_in", "type": "link in", "z": "ex3_tab", "name": "3倍処理", "links": [], "x": 135, "y": 240, "wires": [["ex3_func"]]},
+    {"id": "ex3_func", "type": "function", "z": "ex3_tab", "name": "×3", "func": "msg.payload = msg.payload * 3;\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 290, "y": 240, "wires": [["ex3_return"]]},
+    {"id": "ex3_return", "type": "link out", "z": "ex3_tab", "name": "結果を返す", "mode": "return", "links": [], "x": 435, "y": 240, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習4: 再利用可能な検証処理 <span class="difficulty difficulty-hard">上級</span></h3>
+            <p><strong>📋 課題:</strong> 「入力値が正の数かどうかを検証する」共通処理を Link Call で作成し、複数箇所から呼び出せるようにしてください。</p>
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>正の数: msg.valid = true, msg.payload = 元の値</li>
+                <li>負の数または0: msg.valid = false, msg.error = "正の数を入力してください"</li>
+            </ul>
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>Function ノードで条件分岐を行い、結果を msg に設定して返します。</p>
+            </details>
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex4_tab", "type": "tab", "label": "演習4"},
+    {"id": "ex4_comment1", "type": "comment", "z": "ex4_tab", "name": "━━━ テスト呼び出し ━━━", "info": "", "x": 150, "y": 40, "wires": []},
+    {"id": "ex4_inject1", "type": "inject", "z": "ex4_tab", "name": "正の数: 10", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "10", "payloadType": "num", "x": 150, "y": 100, "wires": [["ex4_call"]]},
+    {"id": "ex4_inject2", "type": "inject", "z": "ex4_tab", "name": "負の数: -5", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "-5", "payloadType": "num", "x": 150, "y": 140, "wires": [["ex4_call"]]},
+    {"id": "ex4_call", "type": "link call", "z": "ex4_tab", "name": "正の数チェック", "links": ["ex4_validate_in"], "linkType": "static", "timeout": "30", "x": 360, "y": 120, "wires": [["ex4_debug"]]},
+    {"id": "ex4_debug", "type": "debug", "z": "ex4_tab", "name": "検証結果", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "true", "targetType": "full", "statusVal": "valid", "statusType": "msg", "x": 550, "y": 120, "wires": []},
+    {"id": "ex4_comment2", "type": "comment", "z": "ex4_tab", "name": "━━━ 検証処理（共通） ━━━", "info": "", "x": 160, "y": 220, "wires": []},
+    {"id": "ex4_validate_in", "type": "link in", "z": "ex4_tab", "name": "正の数検証", "links": [], "x": 145, "y": 280, "wires": [["ex4_validate_func"]]},
+    {"id": "ex4_validate_func", "type": "function", "z": "ex4_tab", "name": "検証", "func": "if (msg.payload > 0) {\n    msg.valid = true;\n} else {\n    msg.valid = false;\n    msg.error = \"正の数を入力してください\";\n}\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 310, "y": 280, "wires": [["ex4_return"]]},
+    {"id": "ex4_return", "type": "link out", "z": "ex4_tab", "name": "結果を返す", "mode": "return", "links": [], "x": 455, "y": 280, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <h2 id="section7">✅ 7. まとめ</h2>
+        
+        <div class="important">
+            <p><strong>🎯 重要ポイント:</strong></p>
+            <ul>
+                <li><strong>Link Out → Link In</strong>: ワイヤーなしでメッセージを送信（一方向）</li>
+                <li><strong>Link Call</strong>: サブルーチン呼び出しのように結果を受け取れる</li>
+                <li>異なるタブ間でもメッセージを送受信可能</li>
+                <li>複雑なフローを整理してメンテナンス性を向上</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <p><strong>⚠️ 注意事項:</strong></p>
+            <ul>
+                <li>Link Call を使う場合、呼び出し先に Link Out（returnモード）が必要</li>
+                <li>循環参照（A→B→A）を作らないよう注意</li>
+                <li>タイムアウト設定を適切に行う（デフォルト30秒）</li>
+                <li>名前を分かりやすくつけて管理しやすくする</li>
+            </ul>
+        </div>
+        
+        <h2 id="section8">🏭 8. 実務活用例</h2>
+        
+        <h3>ケース1: ログ記録の共通化</h3>
+        <p>各処理からログ記録用の Link In にメッセージを送信し、ログ処理を一元管理。</p>
+        
+        <h3>ケース2: エラーハンドリング</h3>
+        <p>エラー発生時に共通のエラー処理フローへ Link で転送。</p>
+        
+        <h3>ケース3: 機能別のタブ分割</h3>
+        <p>入力処理、ビジネスロジック、出力処理をタブで分けて Link で連携。</p>
+        
+        <h3>ケース4: 共通バリデーション</h3>
+        <p>Link Call で入力検証を呼び出し、結果に応じて処理を分岐。</p>
+        
+        <p style="margin-top: 40px;"><a href="https://nodered.org/docs/" target="_blank">📚 Node-RED 公式ドキュメント</a></p>
+    </div>
+    
+    <script>
+        document.querySelectorAll('.flow-json').forEach(function(block) {
+            var btn = document.createElement('button');
+            btn.className = 'copy-btn';
+            btn.textContent = 'コピー';
+            btn.onclick = function() {
+                navigator.clipboard.writeText(block.textContent).then(function() {
+                    btn.textContent = 'コピー完了!';
+                    setTimeout(function() { btn.textContent = 'コピー'; }, 2000);
+                });
+            };
+            block.style.position = 'relative';
+            block.appendChild(btn);
+        });
+    </script>
+</body>
+</html>

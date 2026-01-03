@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED Complete / Status ノード完全ガイド</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.8; max-width: 1000px; margin: 0 auto; padding: 20px; background-color: #f5f5f5; color: #333; }
+        h1 { color: #b92d5d; border-bottom: 3px solid #b92d5d; padding-bottom: 10px; }
+        h2 { color: #d33682; margin-top: 40px; border-left: 5px solid #d33682; padding-left: 15px; }
+        h3 { color: #555; margin-top: 25px; }
+        .container { background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .node-example { background-color: #2d3133; padding: 20px; border-radius: 5px; margin: 20px 0; color: white; font-family: 'Courier New', monospace; display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
+        .node { display: inline-block; padding: 8px 15px; border-radius: 4px; margin: 5px; font-weight: bold; font-size: 14px; }
+        .node-inject { background-color: #3fadb5; color: white; }
+        .node-debug { background-color: #87a48d; color: white; }
+        .node-function { background-color: #e8a658; color: white; }
+        .node-complete { background-color: #c0c0c0; color: #333; border-left: 4px solid #4caf50; }
+        .node-status { background-color: #c0c0c0; color: #333; border-left: 4px solid #2196f3; }
+        .node-catch { background-color: #e8967a; color: white; }
+        .node-http { background-color: #e3d176; color: #333; }
+        .arrow { color: #999; font-size: 20px; margin: 0 10px; }
+        .important { background-color: #fce4ec; border-left: 4px solid #b92d5d; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .tip { background-color: #e8f5e9; border-left: 4px solid #4caf50; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .warning { background-color: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .code-block { background-color: #2d3133; color: #f8f8f2; padding: 15px; border-radius: 5px; margin: 15px 0; overflow-x: auto; font-family: 'Courier New', Consolas, monospace; font-size: 14px; white-space: pre; }
+        .flow-json { background-color: #1a1a2e; color: #a6e22e; padding: 15px; border-radius: 5px; font-family: 'Courier New', Consolas, monospace; font-size: 12px; overflow-x: auto; white-space: pre; position: relative; max-height: 400px; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #b92d5d; color: white; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .exercise { background-color: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0; border: 2px solid #2196f3; }
+        .exercise h3 { color: #1976d2; margin-top: 0; }
+        .difficulty { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; margin-left: 10px; }
+        .difficulty-easy { background-color: #c8e6c9; color: #2e7d32; }
+        .difficulty-medium { background-color: #fff9c4; color: #f57f17; }
+        .difficulty-hard { background-color: #ffcdd2; color: #c62828; }
+        details { background-color: #f5f5f5; padding: 10px 15px; border-radius: 5px; margin: 10px 0; }
+        details summary { cursor: pointer; font-weight: bold; color: #1976d2; }
+        details[open] summary { margin-bottom: 10px; }
+        .toc { background-color: #fafafa; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .toc h3 { margin-top: 0; color: #b92d5d; }
+        .toc ul { list-style: none; padding-left: 0; }
+        .toc li { padding: 5px 0; }
+        .toc a { color: #1976d2; text-decoration: none; }
+        .toc a:hover { text-decoration: underline; }
+        .copy-btn { position: absolute; top: 5px; right: 5px; background-color: #666; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px; }
+        .copy-btn:hover { background-color: #888; }
+        .node-compare { display: flex; gap: 20px; flex-wrap: wrap; margin: 20px 0; }
+        .node-card { background: #f9f9f9; border: 1px solid #ddd; border-radius: 8px; padding: 15px; flex: 1; min-width: 280px; }
+        .node-card h4 { margin-top: 0; color: #b92d5d; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✅ Node-RED Complete / Status ノード完全ガイド</h1>
+        
+        <div class="toc">
+            <h3>📚 目次</h3>
+            <ul>
+                <li><a href="#section1">1. 概要</a></li>
+                <li><a href="#section2">2. Complete ノード詳細</a></li>
+                <li><a href="#section3">3. Status ノード詳細</a></li>
+                <li><a href="#section4">4. Catch ノードとの違い</a></li>
+                <li><a href="#section5">5. サンプルフロー</a></li>
+                <li><a href="#section6">6. 演習問題</a></li>
+                <li><a href="#section7">7. まとめ</a></li>
+                <li><a href="#section8">8. 実務活用例</a></li>
+            </ul>
+        </div>
+        
+        <h2 id="section1">📖 1. 概要</h2>
+        
+        <p><strong>Complete ノード</strong>と<strong>Status ノード</strong>は、他のノードの動作状況を監視するためのノードです。Catch ノード（エラー監視）と合わせて、フローの監視に使用します。</p>
+        
+        <div class="node-compare">
+            <div class="node-card">
+                <h4>✅ Complete ノード</h4>
+                <div class="node-example" style="justify-content: center;">
+                    <span class="node node-complete">Complete</span>
+                </div>
+                <p><strong>役割:</strong> 指定ノードの処理完了を検知</p>
+                <p><strong>用途:</strong></p>
+                <ul>
+                    <li>非同期処理の完了検知</li>
+                    <li>処理時間の計測</li>
+                    <li>後続処理のトリガー</li>
+                </ul>
+            </div>
+            
+            <div class="node-card">
+                <h4>📊 Status ノード</h4>
+                <div class="node-example" style="justify-content: center;">
+                    <span class="node node-status">Status</span>
+                </div>
+                <p><strong>役割:</strong> 指定ノードのステータス変化を検知</p>
+                <p><strong>用途:</strong></p>
+                <ul>
+                    <li>接続状態の監視（MQTT等）</li>
+                    <li>処理状況の表示</li>
+                    <li>エラー状態の早期検知</li>
+                </ul>
+            </div>
+        </div>
+        
+        <p>🏭 <strong>工場のラインに例えると</strong>：Complete ノードは「作業完了」のランプ、Status ノードは機械の「状態表示パネル」のようなものです。作業が終わったか、今どんな状態かをリアルタイムで把握できます。</p>
+        
+        <h2 id="section2">⚙️ 2. Complete ノード詳細</h2>
+        
+        <h3>プロパティ</h3>
+        <table>
+            <tr><th>プロパティ</th><th>説明</th></tr>
+            <tr><td><strong>Scope</strong></td><td>監視対象ノードを選択（複数選択可）</td></tr>
+            <tr><td><strong>Name</strong></td><td>ノードの表示名</td></tr>
+        </table>
+        
+        <h3>出力メッセージ</h3>
+        <div class="code-block">{
+    "payload": /* 完了したノードが最後に出力した payload */,
+    "_msgid": "元のメッセージID",
+    /* 元のメッセージの全プロパティを継承 */
+}</div>
+        
+        <h3>Complete が発火するタイミング</h3>
+        <ul>
+            <li>ノードが <code>node.done()</code> を呼び出したとき</li>
+            <li>ノードがメッセージ処理を完了したとき</li>
+            <li>非同期処理（HTTP Request など）が完了したとき</li>
+        </ul>
+        
+        <div class="tip">
+            <p><strong>💡 ポイント:</strong></p>
+            <p>すべてのノードが Complete をサポートしているわけではありません。主に非同期処理を行うノード（HTTP Request、Exec、File など）で有効です。</p>
+        </div>
+        
+        <h2 id="section3">📊 3. Status ノード詳細</h2>
+        
+        <h3>プロパティ</h3>
+        <table>
+            <tr><th>プロパティ</th><th>説明</th></tr>
+            <tr><td><strong>Scope</strong></td><td>監視対象ノードを選択（複数選択可、または全ノード）</td></tr>
+            <tr><td><strong>Name</strong></td><td>ノードの表示名</td></tr>
+        </table>
+        
+        <h3>出力メッセージ</h3>
+        <div class="code-block">{
+    "status": {
+        "fill": "green",      // 色: red, green, yellow, blue, grey
+        "shape": "dot",       // 形状: dot, ring
+        "text": "connected"   // テキスト
+    },
+    "source": {
+        "id": "ノードID",
+        "type": "mqtt in",
+        "name": "MQTT購読"
+    }
+}</div>
+        
+        <h3>よくあるステータスパターン</h3>
+        <table>
+            <tr><th>fill（色）</th><th>shape（形状）</th><th>意味</th></tr>
+            <tr><td>green</td><td>dot（塗りつぶし）</td><td>正常・接続中</td></tr>
+            <tr><td>yellow</td><td>ring（輪）</td><td>待機中・処理中</td></tr>
+            <tr><td>red</td><td>dot</td><td>エラー・切断</td></tr>
+            <tr><td>blue</td><td>dot</td><td>情報・アクティブ</td></tr>
+            <tr><td>grey</td><td>ring</td><td>無効・停止</td></tr>
+        </table>
+        
+        <h2 id="section4">🔄 4. Catch ノードとの違い</h2>
+        
+        <table>
+            <tr><th>ノード</th><th>検知するもの</th><th>発火タイミング</th></tr>
+            <tr><td><strong>Complete</strong></td><td>処理完了</td><td>ノードがメッセージ処理を完了したとき</td></tr>
+            <tr><td><strong>Status</strong></td><td>状態変化</td><td>ノードがステータスを更新したとき</td></tr>
+            <tr><td><strong>Catch</strong></td><td>エラー</td><td>ノードがエラーを投げたとき</td></tr>
+        </table>
+        
+        <div class="node-example">
+            <span class="node node-http">HTTP Request</span>
+            <span class="arrow">→</span>
+            <span style="color: #888;">正常完了</span>
+            <span class="arrow">→</span>
+            <span class="node node-complete">Complete</span>
+        </div>
+        <div class="node-example" style="margin-top: -10px;">
+            <span style="width: 130px;"></span>
+            <span class="arrow">→</span>
+            <span style="color: #888;">ステータス変化</span>
+            <span class="arrow">→</span>
+            <span class="node node-status">Status</span>
+        </div>
+        <div class="node-example" style="margin-top: -10px;">
+            <span style="width: 130px;"></span>
+            <span class="arrow">→</span>
+            <span style="color: #f44;">エラー発生</span>
+            <span class="arrow">→</span>
+            <span class="node node-catch">Catch</span>
+        </div>
+        
+        <h2 id="section5">📥 5. サンプルフロー</h2>
+        
+        <details>
+            <summary>📥 サンプルフローJSON（クリックで展開）</summary>
+            <div class="flow-json">[
+    {
+        "id": "complete_status_tab",
+        "type": "tab",
+        "label": "Complete/Status サンプル",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "cs_comment1",
+        "type": "comment",
+        "z": "complete_status_tab",
+        "name": "━━━ Complete ノード：処理完了の検知 ━━━",
+        "info": "",
+        "x": 210,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "cs_inject1",
+        "type": "inject",
+        "z": "complete_status_tab",
+        "name": "開始",
+        "props": [{"p": "payload"}, {"p": "startTime", "v": "", "vt": "date"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "処理開始",
+        "payloadType": "str",
+        "x": 130,
+        "y": 100,
+        "wires": [["cs_delay"]]
+    },
+    {
+        "id": "cs_delay",
+        "type": "delay",
+        "z": "complete_status_tab",
+        "name": "2秒待機",
+        "pauseType": "delay",
+        "timeout": "2",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 280,
+        "y": 100,
+        "wires": [["cs_debug1"]]
+    },
+    {
+        "id": "cs_debug1",
+        "type": "debug",
+        "z": "complete_status_tab",
+        "name": "メイン出力",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 450,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "cs_complete",
+        "type": "complete",
+        "z": "complete_status_tab",
+        "name": "Delay完了検知",
+        "scope": ["cs_delay"],
+        "uncaught": false,
+        "x": 300,
+        "y": 160,
+        "wires": [["cs_func_time"]]
+    },
+    {
+        "id": "cs_func_time",
+        "type": "function",
+        "z": "complete_status_tab",
+        "name": "処理時間計算",
+        "func": "var elapsed = Date.now() - msg.startTime;\nmsg.payload = \"処理完了！ 経過時間: \" + elapsed + \"ms\";\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 500,
+        "y": 160,
+        "wires": [["cs_debug2"]]
+    },
+    {
+        "id": "cs_debug2",
+        "type": "debug",
+        "z": "complete_status_tab",
+        "name": "完了通知",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 680,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "cs_comment2",
+        "type": "comment",
+        "z": "complete_status_tab",
+        "name": "━━━ Status ノード：ステータス監視 ━━━",
+        "info": "",
+        "x": 200,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "cs_inject2",
+        "type": "inject",
+        "z": "complete_status_tab",
+        "name": "ステータス更新",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "テストデータ",
+        "payloadType": "str",
+        "x": 160,
+        "y": 300,
+        "wires": [["cs_func_status"]]
+    },
+    {
+        "id": "cs_func_status",
+        "type": "function",
+        "z": "complete_status_tab",
+        "name": "処理中表示",
+        "func": "// ステータスを「処理中」に設定\nnode.status({fill:\"yellow\", shape:\"ring\", text:\"処理中...\"});\n\n// 1秒後に「完了」に変更\nsetTimeout(function() {\n    node.status({fill:\"green\", shape:\"dot\", text:\"完了\"});\n}, 1000);\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 360,
+        "y": 300,
+        "wires": [["cs_debug3"]]
+    },
+    {
+        "id": "cs_debug3",
+        "type": "debug",
+        "z": "complete_status_tab",
+        "name": "出力",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 530,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "cs_status",
+        "type": "status",
+        "z": "complete_status_tab",
+        "name": "ステータス監視",
+        "scope": ["cs_func_status"],
+        "x": 300,
+        "y": 360,
+        "wires": [["cs_debug4"]]
+    },
+    {
+        "id": "cs_debug4",
+        "type": "debug",
+        "z": "complete_status_tab",
+        "name": "ステータス出力",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "status",
+        "targetType": "msg",
+        "statusVal": "status.text",
+        "statusType": "msg",
+        "x": 500,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "cs_comment3",
+        "type": "comment",
+        "z": "complete_status_tab",
+        "name": "━━━ 全監視ノードの組み合わせ ━━━",
+        "info": "",
+        "x": 190,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "cs_inject3",
+        "type": "inject",
+        "z": "complete_status_tab",
+        "name": "実行",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "5",
+        "payloadType": "num",
+        "x": 130,
+        "y": 500,
+        "wires": [["cs_func_error"]]
+    },
+    {
+        "id": "cs_func_error",
+        "type": "function",
+        "z": "complete_status_tab",
+        "name": "ランダムエラー",
+        "func": "node.status({fill:\"blue\", shape:\"dot\", text:\"実行中\"});\n\nif (Math.random() < 0.5) {\n    node.status({fill:\"red\", shape:\"dot\", text:\"エラー\"});\n    node.error(\"ランダムエラー発生\", msg);\n    return null;\n}\n\nnode.status({fill:\"green\", shape:\"dot\", text:\"成功\"});\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 300,
+        "y": 500,
+        "wires": [["cs_debug5"]]
+    },
+    {
+        "id": "cs_debug5",
+        "type": "debug",
+        "z": "complete_status_tab",
+        "name": "成功",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 470,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "cs_catch",
+        "type": "catch",
+        "z": "complete_status_tab",
+        "name": "エラー捕捉",
+        "scope": ["cs_func_error"],
+        "uncaught": false,
+        "x": 290,
+        "y": 560,
+        "wires": [["cs_debug6"]]
+    },
+    {
+        "id": "cs_debug6",
+        "type": "debug",
+        "z": "complete_status_tab",
+        "name": "エラー内容",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "error",
+        "targetType": "msg",
+        "x": 490,
+        "y": 560,
+        "wires": []
+    }
+]</div>
+        </details>
+        
+        <h2 id="section6">📝 6. 演習問題</h2>
+        
+        <div class="exercise">
+            <h3>演習1: Complete で処理時間を計測 <span class="difficulty difficulty-easy">初級</span></h3>
+            <p><strong>📋 課題:</strong> Delay ノードの処理完了を Complete ノードで検知し、開始から完了までの時間を表示してください。</p>
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>1. Inject ノードで msg.startTime に現在時刻を設定</p>
+                <p>2. Complete ノードで Delay の完了を検知</p>
+                <p>3. Function ノードで経過時間を計算</p>
+            </details>
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex1_tab", "type": "tab", "label": "演習1"},
+    {"id": "ex1_inject", "type": "inject", "z": "ex1_tab", "name": "開始", "props": [{"p": "payload"}, {"p": "startTime", "v": "", "vt": "date"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "開始", "payloadType": "str", "x": 130, "y": 100, "wires": [["ex1_delay"]]},
+    {"id": "ex1_delay", "type": "delay", "z": "ex1_tab", "name": "3秒待機", "pauseType": "delay", "timeout": "3", "timeoutUnits": "seconds", "rate": "1", "nbRateUnits": "1", "rateUnits": "second", "randomFirst": "1", "randomLast": "5", "randomUnits": "seconds", "drop": false, "allowrate": false, "outputs": 1, "x": 280, "y": 100, "wires": [[]]},
+    {"id": "ex1_complete", "type": "complete", "z": "ex1_tab", "name": "完了検知", "scope": ["ex1_delay"], "uncaught": false, "x": 290, "y": 160, "wires": [["ex1_func"]]},
+    {"id": "ex1_func", "type": "function", "z": "ex1_tab", "name": "経過時間", "func": "var ms = Date.now() - msg.startTime;\nmsg.payload = \"経過時間: \" + ms + \"ms\";\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 460, "y": 160, "wires": [["ex1_debug"]]},
+    {"id": "ex1_debug", "type": "debug", "z": "ex1_tab", "name": "結果", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "payload", "statusType": "auto", "x": 610, "y": 160, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習2: Status でノード状態を監視 <span class="difficulty difficulty-medium">中級</span></h3>
+            <p><strong>📋 課題:</strong> Function ノードでステータスを更新し、Status ノードでその変化を検知してください。</p>
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>Function 内で <code>node.status({fill:"色", shape:"形状", text:"テキスト"})</code> を使用します。</p>
+            </details>
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex2_tab", "type": "tab", "label": "演習2"},
+    {"id": "ex2_inject", "type": "inject", "z": "ex2_tab", "name": "実行", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "test", "payloadType": "str", "x": 130, "y": 100, "wires": [["ex2_func"]]},
+    {"id": "ex2_func", "type": "function", "z": "ex2_tab", "name": "状態変化", "func": "node.status({fill:\"yellow\", shape:\"ring\", text:\"処理中\"});\nsetTimeout(function(){\n    node.status({fill:\"green\", shape:\"dot\", text:\"完了\"});\n}, 1500);\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 300, "y": 100, "wires": [[]]},
+    {"id": "ex2_status", "type": "status", "z": "ex2_tab", "name": "監視", "scope": ["ex2_func"], "x": 270, "y": 160, "wires": [["ex2_debug"]]},
+    {"id": "ex2_debug", "type": "debug", "z": "ex2_tab", "name": "状態", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "status", "targetType": "msg", "statusVal": "status.text", "statusType": "msg", "x": 430, "y": 160, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習3: 3種類の監視ノード組み合わせ <span class="difficulty difficulty-hard">上級</span></h3>
+            <p><strong>📋 課題:</strong> Complete、Status、Catch を組み合わせて、処理の成功/失敗を完全に監視するフローを作成してください。</p>
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>Function ノードで node.error() を使うとエラーを発生させ、Catch で捕捉できます。</p>
+            </details>
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex3_tab", "type": "tab", "label": "演習3"},
+    {"id": "ex3_inject", "type": "inject", "z": "ex3_tab", "name": "実行", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "test", "payloadType": "str", "x": 130, "y": 120, "wires": [["ex3_func"]]},
+    {"id": "ex3_func", "type": "function", "z": "ex3_tab", "name": "ランダム処理", "func": "node.status({fill:\"blue\", shape:\"dot\", text:\"実行中\"});\nif (Math.random() < 0.3) {\n    node.status({fill:\"red\", shape:\"dot\", text:\"エラー\"});\n    node.error(\"失敗\", msg);\n    return null;\n}\nnode.status({fill:\"green\", shape:\"dot\", text:\"成功\"});\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 310, "y": 120, "wires": [["ex3_debug1"]]},
+    {"id": "ex3_debug1", "type": "debug", "z": "ex3_tab", "name": "成功", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "x": 490, "y": 120, "wires": []},
+    {"id": "ex3_catch", "type": "catch", "z": "ex3_tab", "name": "エラー捕捉", "scope": ["ex3_func"], "uncaught": false, "x": 290, "y": 180, "wires": [["ex3_debug2"]]},
+    {"id": "ex3_debug2", "type": "debug", "z": "ex3_tab", "name": "エラー", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "error", "targetType": "msg", "x": 490, "y": 180, "wires": []},
+    {"id": "ex3_status", "type": "status", "z": "ex3_tab", "name": "状態監視", "scope": ["ex3_func"], "x": 280, "y": 240, "wires": [["ex3_debug3"]]},
+    {"id": "ex3_debug3", "type": "debug", "z": "ex3_tab", "name": "状態", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "status.text", "targetType": "msg", "statusVal": "status.text", "statusType": "msg", "x": 490, "y": 240, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <h2 id="section7">✅ 7. まとめ</h2>
+        
+        <div class="important">
+            <p><strong>🎯 重要ポイント:</strong></p>
+            <ul>
+                <li><strong>Complete</strong>: 処理完了の検知（非同期処理の監視に有効）</li>
+                <li><strong>Status</strong>: ステータス変化の検知（接続状態や処理状況の監視）</li>
+                <li>Catch と組み合わせて完全な監視体制を構築</li>
+                <li>Scope で監視対象を絞り込める</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <p><strong>⚠️ 注意事項:</strong></p>
+            <ul>
+                <li>すべてのノードが Complete に対応しているわけではない</li>
+                <li>Status は頻繁に発火する可能性があるので、必要なノードのみ監視</li>
+                <li>無限ループを作らないよう注意（監視ノード自身を監視対象にしない）</li>
+            </ul>
+        </div>
+        
+        <h2 id="section8">🏭 8. 実務活用例</h2>
+        
+        <h3>ケース1: HTTP Request の完了監視</h3>
+        <p>外部API呼び出しの完了をComplete で検知し、後続処理をトリガー。</p>
+        
+        <h3>ケース2: MQTT接続状態の監視</h3>
+        <p>Status ノードでMQTTブローカーへの接続状態を監視し、切断時にアラート。</p>
+        
+        <h3>ケース3: 処理時間の計測</h3>
+        <p>開始時刻を記録し、Complete で完了を検知して処理時間をログ。</p>
+        
+        <h3>ケース4: バッチ処理の進捗監視</h3>
+        <p>各処理ステップの Status を監視してダッシュボードに進捗を表示。</p>
+        
+        <p style="margin-top: 40px;"><a href="https://nodered.org/docs/" target="_blank">📚 Node-RED 公式ドキュメント</a></p>
+    </div>
+    
+    <script>
+        document.querySelectorAll('.flow-json').forEach(function(block) {
+            var btn = document.createElement('button');
+            btn.className = 'copy-btn';
+            btn.textContent = 'コピー';
+            btn.onclick = function() {
+                navigator.clipboard.writeText(block.textContent).then(function() {
+                    btn.textContent = 'コピー完了!';
+                    setTimeout(function() { btn.textContent = 'コピー'; }, 2000);
+                });
+            };
+            block.style.position = 'relative';
+            block.appendChild(btn);
+        });
+    </script>
+</body>
+</html>

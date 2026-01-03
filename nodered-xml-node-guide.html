@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED XML ノード完全ガイド</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.8; max-width: 1000px; margin: 0 auto; padding: 20px; background-color: #f5f5f5; color: #333; }
+        h1 { color: #b92d5d; border-bottom: 3px solid #b92d5d; padding-bottom: 10px; }
+        h2 { color: #d33682; margin-top: 40px; border-left: 5px solid #d33682; padding-left: 15px; }
+        h3 { color: #555; margin-top: 25px; }
+        .container { background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .node-example { background-color: #2d3133; padding: 20px; border-radius: 5px; margin: 20px 0; color: white; font-family: 'Courier New', monospace; display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
+        .node { display: inline-block; padding: 8px 15px; border-radius: 4px; margin: 5px; font-weight: bold; font-size: 14px; }
+        .node-inject { background-color: #3fadb5; color: white; }
+        .node-debug { background-color: #87a48d; color: white; }
+        .node-function { background-color: #e8a658; color: white; }
+        .node-xml { background-color: #ffe4c4; color: #333; }
+        .node-template { background-color: #d4b8a0; color: #333; }
+        .arrow { color: #999; font-size: 20px; margin: 0 10px; }
+        .important { background-color: #fce4ec; border-left: 4px solid #b92d5d; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .tip { background-color: #e8f5e9; border-left: 4px solid #4caf50; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .warning { background-color: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .code-block { background-color: #2d3133; color: #f8f8f2; padding: 15px; border-radius: 5px; margin: 15px 0; overflow-x: auto; font-family: 'Courier New', Consolas, monospace; font-size: 14px; white-space: pre; }
+        .flow-json { background-color: #1a1a2e; color: #a6e22e; padding: 15px; border-radius: 5px; font-family: 'Courier New', Consolas, monospace; font-size: 12px; overflow-x: auto; white-space: pre; position: relative; max-height: 400px; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #b92d5d; color: white; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .exercise { background-color: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0; border: 2px solid #2196f3; }
+        .exercise h3 { color: #1976d2; margin-top: 0; }
+        .difficulty { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; margin-left: 10px; }
+        .difficulty-easy { background-color: #c8e6c9; color: #2e7d32; }
+        .difficulty-medium { background-color: #fff9c4; color: #f57f17; }
+        .difficulty-hard { background-color: #ffcdd2; color: #c62828; }
+        details { background-color: #f5f5f5; padding: 10px 15px; border-radius: 5px; margin: 10px 0; }
+        details summary { cursor: pointer; font-weight: bold; color: #1976d2; }
+        details[open] summary { margin-bottom: 10px; }
+        .toc { background-color: #fafafa; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .toc h3 { margin-top: 0; color: #b92d5d; }
+        .toc ul { list-style: none; padding-left: 0; }
+        .toc li { padding: 5px 0; }
+        .toc a { color: #1976d2; text-decoration: none; }
+        .toc a:hover { text-decoration: underline; }
+        .copy-btn { position: absolute; top: 5px; right: 5px; background-color: #666; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px; }
+        .copy-btn:hover { background-color: #888; }
+        .compare-box { display: flex; gap: 20px; flex-wrap: wrap; }
+        .compare-item { flex: 1; min-width: 300px; background: #f9f9f9; padding: 15px; border-radius: 8px; }
+        .compare-item h4 { margin-top: 0; color: #1976d2; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📄 Node-RED XML ノード完全ガイド</h1>
+        
+        <div class="toc">
+            <h3>📚 目次</h3>
+            <ul>
+                <li><a href="#section1">1. 概要</a></li>
+                <li><a href="#section2">2. 設定詳細</a></li>
+                <li><a href="#section3">3. 変換ルール</a></li>
+                <li><a href="#section4">4. 実用的な使用パターン</a></li>
+                <li><a href="#section5">5. サンプルフロー</a></li>
+                <li><a href="#section6">6. 演習問題</a></li>
+                <li><a href="#section7">7. まとめ</a></li>
+                <li><a href="#section8">8. 実務活用例</a></li>
+            </ul>
+        </div>
+        
+        <h2 id="section1">📖 1. 概要</h2>
+        
+        <p><strong>XML ノード</strong>は、XML文字列とJavaScriptオブジェクトを相互変換するノードです。XML形式のデータを扱うAPIやファイルとの連携に使用します。</p>
+        
+        <p>📚 <strong>翻訳者に例えると</strong>：XML ノードは2つの言語（XML形式とJavaScriptオブジェクト形式）を相互に翻訳する通訳者のようなものです。どちらの形式でデータを受け取っても、もう一方の形式に変換してくれます。</p>
+        
+        <div class="node-example">
+            <span class="node node-template">XML文字列</span>
+            <span class="arrow">→</span>
+            <span class="node node-xml">XML</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">オブジェクト</span>
+        </div>
+        
+        <div class="tip">
+            <p><strong>💡 ポイント:</strong></p>
+            <ul>
+                <li>入力がXML文字列 → オブジェクトに変換</li>
+                <li>入力がオブジェクト → XML文字列に変換</li>
+                <li>自動で変換方向を判定</li>
+                <li>属性やテキストノードも適切に処理</li>
+            </ul>
+        </div>
+        
+        <h2 id="section2">⚙️ 2. 設定詳細</h2>
+        
+        <h3>プロパティ</h3>
+        <table>
+            <tr><th>プロパティ</th><th>説明</th><th>デフォルト</th></tr>
+            <tr><td><strong>Property</strong></td><td>変換対象のプロパティ</td><td>msg.payload</td></tr>
+            <tr><td><strong>Attribute prefix</strong></td><td>属性を表すプレフィックス</td><td>$</td></tr>
+            <tr><td><strong>Text content</strong></td><td>テキストノードのキー名</td><td>_</td></tr>
+            <tr><td><strong>Options</strong></td><td>追加オプション（詳細設定）</td><td>-</td></tr>
+        </table>
+        
+        <h3>追加オプション</h3>
+        <table>
+            <tr><th>オプション</th><th>説明</th></tr>
+            <tr><td><strong>Keep root</strong></td><td>ルート要素を残す（チェック時）</td></tr>
+            <tr><td><strong>Trim whitespace</strong></td><td>前後の空白を除去</td></tr>
+        </table>
+        
+        <h2 id="section3">🔄 3. 変換ルール</h2>
+        
+        <h3>XML → オブジェクト変換</h3>
+        <div class="compare-box">
+            <div class="compare-item">
+                <h4>入力（XML）</h4>
+                <div class="code-block">&lt;person id="1"&gt;
+  &lt;name&gt;田中太郎&lt;/name&gt;
+  &lt;age&gt;30&lt;/age&gt;
+&lt;/person&gt;</div>
+            </div>
+            <div class="compare-item">
+                <h4>出力（オブジェクト）</h4>
+                <div class="code-block">{
+  "person": {
+    "$": { "id": "1" },
+    "name": ["田中太郎"],
+    "age": ["30"]
+  }
+}</div>
+            </div>
+        </div>
+        
+        <h3>オブジェクト → XML変換</h3>
+        <div class="compare-box">
+            <div class="compare-item">
+                <h4>入力（オブジェクト）</h4>
+                <div class="code-block">{
+  "book": {
+    "$": { "isbn": "123" },
+    "title": "Node-RED入門",
+    "price": 2000
+  }
+}</div>
+            </div>
+            <div class="compare-item">
+                <h4>出力（XML）</h4>
+                <div class="code-block">&lt;?xml version="1.0"?&gt;
+&lt;book isbn="123"&gt;
+  &lt;title&gt;Node-RED入門&lt;/title&gt;
+  &lt;price&gt;2000&lt;/price&gt;
+&lt;/book&gt;</div>
+            </div>
+        </div>
+        
+        <h3>属性とテキストの表現</h3>
+        <table>
+            <tr><th>XML要素</th><th>オブジェクト表現</th></tr>
+            <tr><td>属性 <code>&lt;tag attr="value"&gt;</code></td><td><code>{ "$": { "attr": "value" } }</code></td></tr>
+            <tr><td>テキスト <code>&lt;tag&gt;text&lt;/tag&gt;</code></td><td><code>{ "tag": ["text"] }</code> または <code>{ "_": "text" }</code></td></tr>
+            <tr><td>属性+テキスト</td><td><code>{ "$": { "attr": "v" }, "_": "text" }</code></td></tr>
+        </table>
+        
+        <h2 id="section4">🔧 4. 実用的な使用パターン</h2>
+        
+        <h3>パターン1: XMLレスポンスの解析</h3>
+        <div class="node-example">
+            <span class="node node-inject">HTTP Request</span>
+            <span class="arrow">→</span>
+            <span class="node node-xml">XML→Obj</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">データ抽出</span>
+        </div>
+        <p><strong>用途:</strong> SOAP APIやXML形式のWebサービスからのレスポンスを解析</p>
+        
+        <h3>パターン2: XMLリクエストの生成</h3>
+        <div class="node-example">
+            <span class="node node-function">オブジェクト生成</span>
+            <span class="arrow">→</span>
+            <span class="node node-xml">Obj→XML</span>
+            <span class="arrow">→</span>
+            <span class="node node-inject">HTTP Request</span>
+        </div>
+        <p><strong>用途:</strong> XML形式のリクエストを要求するAPIへの送信</p>
+        
+        <h3>パターン3: 設定ファイルの読み書き</h3>
+        <div class="node-example">
+            <span class="node node-inject">File Read</span>
+            <span class="arrow">→</span>
+            <span class="node node-xml">XML</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">設定値取得</span>
+        </div>
+        <p><strong>用途:</strong> XML形式の設定ファイル（config.xml等）の読み込み</p>
+        
+        <h2 id="section5">📥 5. サンプルフロー</h2>
+        
+        <details>
+            <summary>📥 サンプルフローJSON（クリックで展開）</summary>
+            <div class="flow-json">[
+    {
+        "id": "xml_sample_tab",
+        "type": "tab",
+        "label": "XML サンプル",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "xml_comment1",
+        "type": "comment",
+        "z": "xml_sample_tab",
+        "name": "━━━ XML → オブジェクト変換 ━━━",
+        "info": "",
+        "x": 180,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "xml_inject1",
+        "type": "inject",
+        "z": "xml_sample_tab",
+        "name": "実行",
+        "props": [],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 130,
+        "y": 100,
+        "wires": [["xml_template1"]]
+    },
+    {
+        "id": "xml_template1",
+        "type": "template",
+        "z": "xml_sample_tab",
+        "name": "XML文字列",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "text",
+        "syntax": "plain",
+        "template": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<catalog>\n  <book id=\"001\">\n    <title>Node-RED入門</title>\n    <author>山田太郎</author>\n    <price currency=\"JPY\">2500</price>\n  </book>\n  <book id=\"002\">\n    <title>IoT実践ガイド</title>\n    <author>鈴木花子</author>\n    <price currency=\"JPY\">3000</price>\n  </book>\n</catalog>",
+        "output": "str",
+        "x": 290,
+        "y": 100,
+        "wires": [["xml_parse"]]
+    },
+    {
+        "id": "xml_parse",
+        "type": "xml",
+        "z": "xml_sample_tab",
+        "name": "XML→Obj",
+        "property": "payload",
+        "attr": "$",
+        "chr": "_",
+        "x": 450,
+        "y": 100,
+        "wires": [["xml_debug1"]]
+    },
+    {
+        "id": "xml_debug1",
+        "type": "debug",
+        "z": "xml_sample_tab",
+        "name": "オブジェクト出力",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 620,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "xml_comment2",
+        "type": "comment",
+        "z": "xml_sample_tab",
+        "name": "━━━ オブジェクト → XML変換 ━━━",
+        "info": "",
+        "x": 180,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "xml_inject2",
+        "type": "inject",
+        "z": "xml_sample_tab",
+        "name": "実行",
+        "props": [],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 130,
+        "y": 240,
+        "wires": [["xml_func1"]]
+    },
+    {
+        "id": "xml_func1",
+        "type": "function",
+        "z": "xml_sample_tab",
+        "name": "オブジェクト生成",
+        "func": "msg.payload = {\n    \"order\": {\n        \"$\": { \"id\": \"ORD-001\" },\n        \"customer\": \"田中商店\",\n        \"items\": {\n            \"item\": [\n                { \"name\": \"商品A\", \"qty\": \"2\" },\n                { \"name\": \"商品B\", \"qty\": \"1\" }\n            ]\n        },\n        \"total\": \"5000\"\n    }\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 300,
+        "y": 240,
+        "wires": [["xml_build"]]
+    },
+    {
+        "id": "xml_build",
+        "type": "xml",
+        "z": "xml_sample_tab",
+        "name": "Obj→XML",
+        "property": "payload",
+        "attr": "$",
+        "chr": "_",
+        "x": 470,
+        "y": 240,
+        "wires": [["xml_debug2"]]
+    },
+    {
+        "id": "xml_debug2",
+        "type": "debug",
+        "z": "xml_sample_tab",
+        "name": "XML出力",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 620,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "xml_comment3",
+        "type": "comment",
+        "z": "xml_sample_tab",
+        "name": "━━━ データ抽出の例 ━━━",
+        "info": "",
+        "x": 160,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "xml_inject3",
+        "type": "inject",
+        "z": "xml_sample_tab",
+        "name": "実行",
+        "props": [],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 130,
+        "y": 380,
+        "wires": [["xml_template2"]]
+    },
+    {
+        "id": "xml_template2",
+        "type": "template",
+        "z": "xml_sample_tab",
+        "name": "センサーXML",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "text",
+        "syntax": "plain",
+        "template": "<sensors>\n  <sensor id=\"temp01\" type=\"temperature\">\n    <value unit=\"celsius\">25.5</value>\n    <timestamp>2024-01-15T10:30:00</timestamp>\n  </sensor>\n  <sensor id=\"hum01\" type=\"humidity\">\n    <value unit=\"percent\">60</value>\n    <timestamp>2024-01-15T10:30:00</timestamp>\n  </sensor>\n</sensors>",
+        "output": "str",
+        "x": 290,
+        "y": 380,
+        "wires": [["xml_parse2"]]
+    },
+    {
+        "id": "xml_parse2",
+        "type": "xml",
+        "z": "xml_sample_tab",
+        "name": "XML→Obj",
+        "property": "payload",
+        "attr": "$",
+        "chr": "_",
+        "x": 450,
+        "y": 380,
+        "wires": [["xml_func2"]]
+    },
+    {
+        "id": "xml_func2",
+        "type": "function",
+        "z": "xml_sample_tab",
+        "name": "温度抽出",
+        "func": "// センサーデータから温度を抽出\nvar sensors = msg.payload.sensors.sensor;\nvar tempSensor = sensors.find(s => s.$.type === \"temperature\");\n\nmsg.payload = {\n    sensorId: tempSensor.$.id,\n    value: parseFloat(tempSensor.value[0]._),\n    unit: tempSensor.value[0].$.unit,\n    timestamp: tempSensor.timestamp[0]\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 600,
+        "y": 380,
+        "wires": [["xml_debug3"]]
+    },
+    {
+        "id": "xml_debug3",
+        "type": "debug",
+        "z": "xml_sample_tab",
+        "name": "温度データ",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload.value",
+        "statusType": "msg",
+        "x": 770,
+        "y": 380,
+        "wires": []
+    }
+]</div>
+        </details>
+        
+        <h2 id="section6">📝 6. 演習問題</h2>
+        
+        <div class="exercise">
+            <h3>演習1: 基本的なXML変換 <span class="difficulty difficulty-easy">初級</span></h3>
+            <p><strong>📋 課題:</strong> シンプルなXML文字列をオブジェクトに変換してください。</p>
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>Template ノードでXML文字列を作成し、XML ノードで変換します。</p>
+            </details>
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex1_tab", "type": "tab", "label": "演習1"},
+    {"id": "ex1_inject", "type": "inject", "z": "ex1_tab", "name": "実行", "props": [], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "x": 130, "y": 100, "wires": [["ex1_template"]]},
+    {"id": "ex1_template", "type": "template", "z": "ex1_tab", "name": "XML", "field": "payload", "fieldType": "msg", "format": "text", "syntax": "plain", "template": "<user><n>山田太郎</n><email>yamada@example.com</email></user>", "output": "str", "x": 270, "y": 100, "wires": [["ex1_xml"]]},
+    {"id": "ex1_xml", "type": "xml", "z": "ex1_tab", "name": "XML→Obj", "property": "payload", "attr": "$", "chr": "_", "x": 410, "y": 100, "wires": [["ex1_debug"]]},
+    {"id": "ex1_debug", "type": "debug", "z": "ex1_tab", "name": "結果", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "x": 550, "y": 100, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習2: オブジェクトからXML生成 <span class="difficulty difficulty-easy">初級</span></h3>
+            <p><strong>📋 課題:</strong> JavaScriptオブジェクトからXML文字列を生成してください。</p>
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>Function ノードでオブジェクトを作成し、XML ノードで変換します。</p>
+            </details>
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex2_tab", "type": "tab", "label": "演習2"},
+    {"id": "ex2_inject", "type": "inject", "z": "ex2_tab", "name": "実行", "props": [], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "x": 130, "y": 100, "wires": [["ex2_func"]]},
+    {"id": "ex2_func", "type": "function", "z": "ex2_tab", "name": "オブジェクト", "func": "msg.payload = {\n    \"product\": {\n        \"name\": \"ノートPC\",\n        \"price\": \"98000\",\n        \"stock\": \"15\"\n    }\n};\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 280, "y": 100, "wires": [["ex2_xml"]]},
+    {"id": "ex2_xml", "type": "xml", "z": "ex2_tab", "name": "Obj→XML", "property": "payload", "attr": "$", "chr": "_", "x": 430, "y": 100, "wires": [["ex2_debug"]]},
+    {"id": "ex2_debug", "type": "debug", "z": "ex2_tab", "name": "XML出力", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "x": 580, "y": 100, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習3: 属性付きXMLの処理 <span class="difficulty difficulty-medium">中級</span></h3>
+            <p><strong>📋 課題:</strong> 属性を持つXMLを解析し、属性値を取得してください。</p>
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>属性は <code>$</code> プロパティに格納されます。例: <code>msg.payload.tag.$.attrName</code></p>
+            </details>
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex3_tab", "type": "tab", "label": "演習3"},
+    {"id": "ex3_inject", "type": "inject", "z": "ex3_tab", "name": "実行", "props": [], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "x": 130, "y": 100, "wires": [["ex3_template"]]},
+    {"id": "ex3_template", "type": "template", "z": "ex3_tab", "name": "属性付きXML", "field": "payload", "fieldType": "msg", "format": "text", "syntax": "plain", "template": "<item id=\"ITM001\" category=\"electronics\">\n  <n>スマートフォン</n>\n  <price currency=\"JPY\">50000</price>\n</item>", "output": "str", "x": 290, "y": 100, "wires": [["ex3_xml"]]},
+    {"id": "ex3_xml", "type": "xml", "z": "ex3_tab", "name": "XML→Obj", "property": "payload", "attr": "$", "chr": "_", "x": 450, "y": 100, "wires": [["ex3_func"]]},
+    {"id": "ex3_func", "type": "function", "z": "ex3_tab", "name": "属性抽出", "func": "var item = msg.payload.item;\nmsg.payload = {\n    id: item.$.id,\n    category: item.$.category,\n    name: item.name[0],\n    price: item.price[0]._,\n    currency: item.price[0].$.currency\n};\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 600, "y": 100, "wires": [["ex3_debug"]]},
+    {"id": "ex3_debug", "type": "debug", "z": "ex3_tab", "name": "抽出結果", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "x": 750, "y": 100, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習4: 属性付きXMLの生成 <span class="difficulty difficulty-hard">上級</span></h3>
+            <p><strong>📋 課題:</strong> 属性を持つXMLをオブジェクトから生成してください。</p>
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>属性を設定するには <code>"$": { "attrName": "value" }</code> 形式でオブジェクトを作成します。</p>
+            </details>
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex4_tab", "type": "tab", "label": "演習4"},
+    {"id": "ex4_inject", "type": "inject", "z": "ex4_tab", "name": "実行", "props": [], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "x": 130, "y": 100, "wires": [["ex4_func"]]},
+    {"id": "ex4_func", "type": "function", "z": "ex4_tab", "name": "属性付きObj", "func": "msg.payload = {\n    \"response\": {\n        \"$\": { \"status\": \"success\", \"code\": \"200\" },\n        \"data\": {\n            \"user\": {\n                \"$\": { \"id\": \"U001\" },\n                \"name\": \"テストユーザー\"\n            }\n        }\n    }\n};\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 290, "y": 100, "wires": [["ex4_xml"]]},
+    {"id": "ex4_xml", "type": "xml", "z": "ex4_tab", "name": "Obj→XML", "property": "payload", "attr": "$", "chr": "_", "x": 450, "y": 100, "wires": [["ex4_debug"]]},
+    {"id": "ex4_debug", "type": "debug", "z": "ex4_tab", "name": "XML出力", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "x": 600, "y": 100, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <h2 id="section7">✅ 7. まとめ</h2>
+        
+        <div class="important">
+            <p><strong>🎯 重要ポイント:</strong></p>
+            <ul>
+                <li>XML文字列 ↔ オブジェクトの相互変換</li>
+                <li>属性は <code>$</code> プロパティで表現</li>
+                <li>テキストコンテンツは <code>_</code> または配列で表現</li>
+                <li>入力形式を自動判定して変換方向を決定</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <p><strong>⚠️ 注意事項:</strong></p>
+            <ul>
+                <li>不正なXMLはエラーになる（事前にCatch設置を推奨）</li>
+                <li>要素の順序は保持されない場合がある</li>
+                <li>名前空間を持つXMLは追加の考慮が必要</li>
+            </ul>
+        </div>
+        
+        <h2 id="section8">🏭 8. 実務活用例</h2>
+        
+        <h3>ケース1: SOAP API連携</h3>
+        <p>SOAP Webサービスとの通信でXMLリクエスト/レスポンスを処理。</p>
+        
+        <h3>ケース2: 設定ファイル管理</h3>
+        <p>XML形式の設定ファイルを読み込み、設定値をフローで使用。</p>
+        
+        <h3>ケース3: レガシーシステム連携</h3>
+        <p>XML形式でデータ交換を行う古いシステムとの連携。</p>
+        
+        <h3>ケース4: RSS/Atomフィード処理</h3>
+        <p>RSSフィードを解析して最新記事を取得・表示。</p>
+        
+        <p style="margin-top: 40px;"><a href="https://nodered.org/docs/" target="_blank">📚 Node-RED 公式ドキュメント</a></p>
+    </div>
+    
+    <script>
+        document.querySelectorAll('.flow-json').forEach(function(block) {
+            var btn = document.createElement('button');
+            btn.className = 'copy-btn';
+            btn.textContent = 'コピー';
+            btn.onclick = function() {
+                navigator.clipboard.writeText(block.textContent).then(function() {
+                    btn.textContent = 'コピー完了!';
+                    setTimeout(function() { btn.textContent = 'コピー'; }, 2000);
+                });
+            };
+            block.style.position = 'relative';
+            block.appendChild(btn);
+        });
+    </script>
+</body>
+</html>

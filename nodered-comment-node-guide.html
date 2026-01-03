@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED Comment ノード完全ガイド</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        h1 {
+            color: #b92d5d;
+            border-bottom: 3px solid #b92d5d;
+            padding-bottom: 10px;
+        }
+        
+        h2 {
+            color: #d33682;
+            margin-top: 40px;
+            border-left: 5px solid #d33682;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #555;
+            margin-top: 25px;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .node-example {
+            background-color: #2d3133;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            color: white;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        
+        .node {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 4px;
+            margin: 5px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .node-inject { background-color: #3fadb5; color: white; }
+        .node-debug { background-color: #87a48d; color: white; }
+        .node-function { background-color: #e8a658; color: white; }
+        .node-change { background-color: #e7a070; color: white; }
+        .node-switch { background-color: #e2d96e; color: #333; }
+        .node-comment { background-color: #f5f5f5; color: #333; border: 1px dashed #999; }
+        
+        .arrow { color: #999; font-size: 20px; margin: 0 10px; }
+        
+        .important {
+            background-color: #fce4ec;
+            border-left: 4px solid #b92d5d;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 5px 5px 0;
+        }
+        
+        .tip {
+            background-color: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 5px 5px 0;
+        }
+        
+        .warning {
+            background-color: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 5px 5px 0;
+        }
+        
+        .code-block {
+            background-color: #2d3133;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', Consolas, monospace;
+            font-size: 14px;
+            white-space: pre;
+        }
+        
+        .flow-json {
+            background-color: #1a1a2e;
+            color: #a6e22e;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', Consolas, monospace;
+            font-size: 12px;
+            overflow-x: auto;
+            white-space: pre;
+            position: relative;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #b92d5d;
+            color: white;
+        }
+        
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        
+        .exercise {
+            background-color: #e3f2fd;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 2px solid #2196f3;
+        }
+        
+        .exercise h3 { color: #1976d2; margin-top: 0; }
+        
+        .difficulty {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .difficulty-easy { background-color: #c8e6c9; color: #2e7d32; }
+        .difficulty-medium { background-color: #fff9c4; color: #f57f17; }
+        .difficulty-hard { background-color: #ffcdd2; color: #c62828; }
+        
+        details {
+            background-color: #f5f5f5;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        
+        details summary {
+            cursor: pointer;
+            font-weight: bold;
+            color: #1976d2;
+        }
+        
+        details[open] summary { margin-bottom: 10px; }
+        
+        .toc {
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .toc h3 { margin-top: 0; color: #b92d5d; }
+        .toc ul { list-style: none; padding-left: 0; }
+        .toc li { padding: 5px 0; }
+        .toc a { color: #1976d2; text-decoration: none; }
+        .toc a:hover { text-decoration: underline; }
+        
+        .copy-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: #666;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .copy-btn:hover { background-color: #888; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📝 Node-RED Comment ノード完全ガイド</h1>
+        
+        <div class="toc">
+            <h3>📚 目次</h3>
+            <ul>
+                <li><a href="#section1">1. 概要</a></li>
+                <li><a href="#section2">2. 設定詳細</a></li>
+                <li><a href="#section3">3. 実用的な使用パターン</a></li>
+                <li><a href="#section4">4. サンプルフロー</a></li>
+                <li><a href="#section5">5. 演習問題</a></li>
+                <li><a href="#section6">6. まとめ</a></li>
+                <li><a href="#section7">7. ベストプラクティス</a></li>
+                <li><a href="#section8">8. 実務活用例</a></li>
+            </ul>
+        </div>
+        
+        <h2 id="section1">📖 1. 概要</h2>
+        
+        <p><strong>Comment ノード</strong>は、フロー内にコメントやメモを残すためのノードです。プログラムのソースコードにコメントを書くのと同じように、フローの説明、注意事項、TODOなどを記録できます。</p>
+        
+        <p>📚 <strong>本のしおりや付箋に例えると</strong>：Comment ノードは本に貼る付箋のようなものです。本文（フローの処理）には影響を与えませんが、読む人に重要な情報を伝えます。</p>
+        
+        <div class="node-example">
+            <span class="node node-comment">📝 コメント</span>
+            <span style="color: #999; margin-left: 20px;">（他のノードと接続しない独立したノード）</span>
+        </div>
+        
+        <div class="tip">
+            <p><strong>💡 ポイント:</strong></p>
+            <ul>
+                <li>Comment ノードはメッセージを受け取らず、送信もしない</li>
+                <li>フローの実行には一切影響を与えない</li>
+                <li>ドキュメントとしての役割を果たす</li>
+            </ul>
+        </div>
+        
+        <h2 id="section2">⚙️ 2. 設定詳細</h2>
+        
+        <table>
+            <tr><th>プロパティ</th><th>説明</th><th>デフォルト</th></tr>
+            <tr><td><strong>Name</strong></td><td>コメントのタイトル（フロー上に表示）</td><td>（空）</td></tr>
+            <tr><td><strong>Info</strong></td><td>詳細なコメント内容（Markdown対応）</td><td>（空）</td></tr>
+        </table>
+        
+        <h3>Info フィールドの Markdown 記法</h3>
+        <div class="code-block"># 見出し1
+## 見出し2
+**太字** と *斜体*
+- 箇条書き
+1. 番号付きリスト
+`コード` や ```コードブロック```</div>
+        
+        <h2 id="section3">🔧 3. 実用的な使用パターン</h2>
+        
+        <h3>パターン1: フローの説明</h3>
+        <div class="node-example">
+            <span class="node node-comment">📝 センサーデータ処理フロー</span>
+        </div>
+        <p><strong>ポイント:</strong> フロー全体の目的や概要を記述します。</p>
+        
+        <h3>パターン2: セクション区切り</h3>
+        <div class="node-example">
+            <span class="node node-comment">━━━ データ検証 ━━━</span>
+        </div>
+        <p><strong>ポイント:</strong> 処理ブロックの区切りとして使用します。</p>
+        
+        <h3>パターン3: TODO管理</h3>
+        <div class="node-example">
+            <span class="node node-comment">📋 TODO: エラーハンドリング追加</span>
+        </div>
+        
+        <h3>パターン4: 警告・注意</h3>
+        <div class="node-example">
+            <span class="node node-comment">⚠️ 本番環境では要修正</span>
+        </div>
+        
+        <h2 id="section4">📥 4. サンプルフロー</h2>
+        
+        <details>
+            <summary>📥 サンプルフローJSON（クリックで展開）</summary>
+            <div class="flow-json">[
+    {
+        "id": "comment_sample_tab",
+        "type": "tab",
+        "label": "Comment サンプル",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "comment_overview",
+        "type": "comment",
+        "z": "comment_sample_tab",
+        "name": "📚 フロー概要",
+        "info": "# センサーデータ処理フロー\n\n## 目的\nセンサーからのデータを監視し、\n閾値チェックを行います。\n\n## 作成者\n- 開発者: Node-RED学習者\n- 作成日: 2024/01/15",
+        "x": 140,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "comment_section1",
+        "type": "comment",
+        "z": "comment_sample_tab",
+        "name": "━━━ 入力セクション ━━━",
+        "info": "センサーデータの模擬入力",
+        "x": 170,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "inject_sensor",
+        "type": "inject",
+        "z": "comment_sample_tab",
+        "name": "センサーデータ",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"temperature\": 28.5}",
+        "payloadType": "json",
+        "x": 160,
+        "y": 180,
+        "wires": [["debug_output"]]
+    },
+    {
+        "id": "comment_todo",
+        "type": "comment",
+        "z": "comment_sample_tab",
+        "name": "📋 TODO: 閾値チェック追加",
+        "info": "温度が30度以上でアラートを出す機能を追加予定",
+        "x": 440,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "debug_output",
+        "type": "debug",
+        "z": "comment_sample_tab",
+        "name": "結果表示",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 370,
+        "y": 180,
+        "wires": []
+    }
+]</div>
+        </details>
+        
+        <h2 id="section5">📝 5. 演習問題</h2>
+        
+        <div class="exercise">
+            <h3>演習1: 基本的なコメント追加 <span class="difficulty difficulty-easy">初級</span></h3>
+            <p><strong>📋 課題:</strong> Inject → Debug のフローを作成し、フローの説明コメントを追加してください。</p>
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>フローの左上にCommentノードを配置すると見やすくなります。</p>
+            </details>
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex1_tab", "type": "tab", "label": "演習1"},
+    {"id": "ex1_comment", "type": "comment", "z": "ex1_tab", "name": "📚 テストフロー", "info": "メッセージ送信のテスト", "x": 140, "y": 60, "wires": []},
+    {"id": "ex1_inject", "type": "inject", "z": "ex1_tab", "name": "送信", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "Hello!", "payloadType": "str", "x": 130, "y": 120, "wires": [["ex1_debug"]]},
+    {"id": "ex1_debug", "type": "debug", "z": "ex1_tab", "name": "表示", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "x": 290, "y": 120, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習2: セクション分けコメント <span class="difficulty difficulty-easy">初級</span></h3>
+            <p><strong>📋 課題:</strong> 複数のセクションを持つフローを作成し、各セクションにコメントを追加してください。</p>
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>「━━━ セクション名 ━━━」のような区切り線を使うと視認性が向上します。</p>
+            </details>
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex2_tab", "type": "tab", "label": "演習2"},
+    {"id": "ex2_c1", "type": "comment", "z": "ex2_tab", "name": "━━━ 入力 ━━━", "info": "", "x": 140, "y": 60, "wires": []},
+    {"id": "ex2_inject", "type": "inject", "z": "ex2_tab", "name": "入力", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "test", "payloadType": "str", "x": 130, "y": 100, "wires": [["ex2_change"]]},
+    {"id": "ex2_c2", "type": "comment", "z": "ex2_tab", "name": "━━━ 処理 ━━━", "info": "", "x": 140, "y": 160, "wires": []},
+    {"id": "ex2_change", "type": "change", "z": "ex2_tab", "name": "加工", "rules": [{"t": "set", "p": "payload", "pt": "msg", "to": "\"処理済: \" & payload", "tot": "jsonata"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 130, "y": 200, "wires": [["ex2_debug"]]},
+    {"id": "ex2_c3", "type": "comment", "z": "ex2_tab", "name": "━━━ 出力 ━━━", "info": "", "x": 140, "y": 260, "wires": []},
+    {"id": "ex2_debug", "type": "debug", "z": "ex2_tab", "name": "出力", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "x": 130, "y": 300, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習3: Markdown活用 <span class="difficulty difficulty-medium">中級</span></h3>
+            <p><strong>📋 課題:</strong> Markdownを使って、構造化されたドキュメントをCommentノードに作成してください。</p>
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>見出し、箇条書き、番号付きリストを組み合わせて使いましょう。</p>
+            </details>
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex3_tab", "type": "tab", "label": "演習3"},
+    {"id": "ex3_comment", "type": "comment", "z": "ex3_tab", "name": "📖 システム仕様書", "info": "# IoT監視システム\n\n## 概要\nセンサーデータを収集・監視するシステム\n\n## 機能一覧\n1. データ収集\n2. 閾値監視\n3. アラート通知\n\n## 注意事項\n- 本番環境では認証を有効化\n- ログレベルを適切に設定", "x": 160, "y": 80, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習4: プロジェクト管理 <span class="difficulty difficulty-medium">中級</span></h3>
+            <p><strong>📋 課題:</strong> TODO、バージョン履歴、警告を含むコメント体系を作成してください。</p>
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>絵文字（📚 📋 ⚠️ 📌）を使って種類を区別しましょう。</p>
+            </details>
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex4_tab", "type": "tab", "label": "演習4"},
+    {"id": "ex4_c1", "type": "comment", "z": "ex4_tab", "name": "📚 顧客管理 v1.0", "info": "# 顧客管理システム\n作成日: 2024/01/15", "x": 160, "y": 60, "wires": []},
+    {"id": "ex4_c2", "type": "comment", "z": "ex4_tab", "name": "📋 TODO", "info": "- [ ] バリデーション追加\n- [ ] 通知機能", "x": 120, "y": 120, "wires": []},
+    {"id": "ex4_c3", "type": "comment", "z": "ex4_tab", "name": "⚠️ 注意", "info": "本番環境では環境変数を使用", "x": 120, "y": 180, "wires": []},
+    {"id": "ex4_c4", "type": "comment", "z": "ex4_tab", "name": "📌 変更履歴", "info": "## v1.0 (2024/01/15)\n- 初回リリース", "x": 130, "y": 240, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <h2 id="section6">✅ 6. まとめ</h2>
+        
+        <div class="important">
+            <p><strong>🎯 重要ポイント:</strong></p>
+            <ul>
+                <li>Comment ノードはフローの実行に影響を与えない</li>
+                <li>Info フィールドは Markdown 記法に対応</li>
+                <li>絵文字で視認性を向上できる</li>
+                <li>フローの保守性向上に不可欠</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <p><strong>⚠️ 注意事項:</strong></p>
+            <ul>
+                <li>コメントは定期的に更新し、古い情報を残さない</li>
+                <li>過剰なコメントはかえって可読性を下げる</li>
+            </ul>
+        </div>
+        
+        <h2 id="section7">🔧 7. ベストプラクティス</h2>
+        
+        <table>
+            <tr><th>種類</th><th>配置場所</th><th>内容</th></tr>
+            <tr><td>フロー概要</td><td>左上</td><td>目的、作成者、バージョン</td></tr>
+            <tr><td>セクション区切り</td><td>各処理ブロックの上</td><td>セクションの役割</td></tr>
+            <tr><td>TODO</td><td>関連ノードの近く</td><td>未実装機能</td></tr>
+            <tr><td>警告</td><td>注意が必要な箇所</td><td>注意事項</td></tr>
+        </table>
+        
+        <h2 id="section8">🏭 8. 実務活用例</h2>
+        
+        <h3>ケース1: チーム開発</h3>
+        <p>担当者、連絡先、変更履歴を明記してスムーズな引き継ぎを実現。</p>
+        
+        <h3>ケース2: IoTシステム運用</h3>
+        <p>センサー接続情報、閾値設定、トラブルシューティング手順を記載。</p>
+        
+        <h3>ケース3: プロトタイプ記録</h3>
+        <p>実験結果や今後の改善点を記録。</p>
+        
+        <h3>ケース4: コードレビュー</h3>
+        <p>処理の意図や設計判断の理由を記載してレビューを円滑化。</p>
+        
+        <p style="margin-top: 40px;"><a href="https://nodered.org/docs/" target="_blank">📚 Node-RED 公式ドキュメント</a></p>
+    </div>
+    
+    <script>
+        document.querySelectorAll('.flow-json').forEach(function(block) {
+            var btn = document.createElement('button');
+            btn.className = 'copy-btn';
+            btn.textContent = 'コピー';
+            btn.onclick = function() {
+                navigator.clipboard.writeText(block.textContent).then(function() {
+                    btn.textContent = 'コピー完了!';
+                    setTimeout(function() { btn.textContent = 'コピー'; }, 2000);
+                });
+            };
+            block.style.position = 'relative';
+            block.appendChild(btn);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED YAML ノード完全ガイド</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.8; max-width: 1000px; margin: 0 auto; padding: 20px; background-color: #f5f5f5; color: #333; }
+        h1 { color: #b92d5d; border-bottom: 3px solid #b92d5d; padding-bottom: 10px; }
+        h2 { color: #d33682; margin-top: 40px; border-left: 5px solid #d33682; padding-left: 15px; }
+        h3 { color: #555; margin-top: 25px; }
+        .container { background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .node-example { background-color: #2d3133; padding: 20px; border-radius: 5px; margin: 20px 0; color: white; font-family: 'Courier New', monospace; display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
+        .node { display: inline-block; padding: 8px 15px; border-radius: 4px; margin: 5px; font-weight: bold; font-size: 14px; }
+        .node-inject { background-color: #3fadb5; color: white; }
+        .node-debug { background-color: #87a48d; color: white; }
+        .node-function { background-color: #e8a658; color: white; }
+        .node-yaml { background-color: #ffe4c4; color: #333; }
+        .node-template { background-color: #d4b8a0; color: #333; }
+        .node-file { background-color: #d4a0a0; color: #333; }
+        .arrow { color: #999; font-size: 20px; margin: 0 10px; }
+        .important { background-color: #fce4ec; border-left: 4px solid #b92d5d; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .tip { background-color: #e8f5e9; border-left: 4px solid #4caf50; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .warning { background-color: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .code-block { background-color: #2d3133; color: #f8f8f2; padding: 15px; border-radius: 5px; margin: 15px 0; overflow-x: auto; font-family: 'Courier New', Consolas, monospace; font-size: 14px; white-space: pre; }
+        .flow-json { background-color: #1a1a2e; color: #a6e22e; padding: 15px; border-radius: 5px; font-family: 'Courier New', Consolas, monospace; font-size: 12px; overflow-x: auto; white-space: pre; position: relative; max-height: 400px; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #b92d5d; color: white; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .exercise { background-color: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0; border: 2px solid #2196f3; }
+        .exercise h3 { color: #1976d2; margin-top: 0; }
+        .difficulty { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; margin-left: 10px; }
+        .difficulty-easy { background-color: #c8e6c9; color: #2e7d32; }
+        .difficulty-medium { background-color: #fff9c4; color: #f57f17; }
+        .difficulty-hard { background-color: #ffcdd2; color: #c62828; }
+        details { background-color: #f5f5f5; padding: 10px 15px; border-radius: 5px; margin: 10px 0; }
+        details summary { cursor: pointer; font-weight: bold; color: #1976d2; }
+        details[open] summary { margin-bottom: 10px; }
+        .toc { background-color: #fafafa; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .toc h3 { margin-top: 0; color: #b92d5d; }
+        .toc ul { list-style: none; padding-left: 0; }
+        .toc li { padding: 5px 0; }
+        .toc a { color: #1976d2; text-decoration: none; }
+        .toc a:hover { text-decoration: underline; }
+        .copy-btn { position: absolute; top: 5px; right: 5px; background-color: #666; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px; }
+        .copy-btn:hover { background-color: #888; }
+        .compare-box { display: flex; gap: 20px; flex-wrap: wrap; }
+        .compare-item { flex: 1; min-width: 300px; background: #f9f9f9; padding: 15px; border-radius: 8px; }
+        .compare-item h4 { margin-top: 0; color: #1976d2; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📋 Node-RED YAML ノード完全ガイド</h1>
+        
+        <div class="toc">
+            <h3>📚 目次</h3>
+            <ul>
+                <li><a href="#section1">1. 概要</a></li>
+                <li><a href="#section2">2. 設定詳細</a></li>
+                <li><a href="#section3">3. YAML基本文法</a></li>
+                <li><a href="#section4">4. 実用的な使用パターン</a></li>
+                <li><a href="#section5">5. サンプルフロー</a></li>
+                <li><a href="#section6">6. 演習問題</a></li>
+                <li><a href="#section7">7. まとめ</a></li>
+                <li><a href="#section8">8. 実務活用例</a></li>
+            </ul>
+        </div>
+        
+        <h2 id="section1">📖 1. 概要</h2>
+        
+        <p><strong>YAML ノード</strong>は、YAML文字列とJavaScriptオブジェクトを相互変換するノードです。YAML（YAML Ain't Markup Language）は人間が読み書きしやすい設定ファイル形式として広く使われています。</p>
+        
+        <p>📝 <strong>レシピカードに例えると</strong>：YAMLは料理のレシピカードのような形式です。材料と手順が見やすく整理されていて、人間にも読みやすく、コンピュータにも処理できます。YAML ノードはこのレシピカード形式とプログラムで扱える形式を相互変換します。</p>
+        
+        <div class="node-example">
+            <span class="node node-file">設定ファイル読込</span>
+            <span class="arrow">→</span>
+            <span class="node node-yaml">YAML</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">設定値使用</span>
+        </div>
+        
+        <div class="tip">
+            <p><strong>💡 YAMLの特徴:</strong></p>
+            <ul>
+                <li>JSONより人間が読み書きしやすい</li>
+                <li>インデントで構造を表現（括弧不要）</li>
+                <li>コメントが書ける（#で始まる行）</li>
+                <li>Kubernetes、Docker Compose、Ansible等で広く採用</li>
+            </ul>
+        </div>
+        
+        <h2 id="section2">⚙️ 2. 設定詳細</h2>
+        
+        <h3>プロパティ</h3>
+        <table>
+            <tr><th>プロパティ</th><th>説明</th><th>デフォルト</th></tr>
+            <tr><td><strong>Property</strong></td><td>変換対象のプロパティ</td><td>msg.payload</td></tr>
+        </table>
+        
+        <div class="tip">
+            <p><strong>💡 自動変換:</strong></p>
+            <p>入力がYAML文字列の場合 → オブジェクトに変換<br>
+            入力がオブジェクトの場合 → YAML文字列に変換</p>
+        </div>
+        
+        <h2 id="section3">📝 3. YAML基本文法</h2>
+        
+        <h3>基本的な書き方</h3>
+        <div class="compare-box">
+            <div class="compare-item">
+                <h4>YAML形式</h4>
+                <div class="code-block"># コメント
+name: 田中太郎
+age: 30
+active: true
+score: 85.5</div>
+            </div>
+            <div class="compare-item">
+                <h4>対応するJSON</h4>
+                <div class="code-block">{
+  "name": "田中太郎",
+  "age": 30,
+  "active": true,
+  "score": 85.5
+}</div>
+            </div>
+        </div>
+        
+        <h3>ネストした構造</h3>
+        <div class="compare-box">
+            <div class="compare-item">
+                <h4>YAML形式</h4>
+                <div class="code-block">person:
+  name: 山田花子
+  address:
+    city: 東京
+    zip: "100-0001"</div>
+            </div>
+            <div class="compare-item">
+                <h4>対応するJSON</h4>
+                <div class="code-block">{
+  "person": {
+    "name": "山田花子",
+    "address": {
+      "city": "東京",
+      "zip": "100-0001"
+    }
+  }
+}</div>
+            </div>
+        </div>
+        
+        <h3>配列の表現</h3>
+        <div class="compare-box">
+            <div class="compare-item">
+                <h4>YAML形式</h4>
+                <div class="code-block">fruits:
+  - apple
+  - banana
+  - orange
+
+users:
+  - name: 田中
+    role: admin
+  - name: 鈴木
+    role: user</div>
+            </div>
+            <div class="compare-item">
+                <h4>対応するJSON</h4>
+                <div class="code-block">{
+  "fruits": ["apple", "banana", "orange"],
+  "users": [
+    {"name": "田中", "role": "admin"},
+    {"name": "鈴木", "role": "user"}
+  ]
+}</div>
+            </div>
+        </div>
+        
+        <h3>データ型</h3>
+        <table>
+            <tr><th>型</th><th>YAML例</th><th>JavaScript値</th></tr>
+            <tr><td>文字列</td><td><code>name: Hello</code></td><td>"Hello"</td></tr>
+            <tr><td>数値</td><td><code>count: 42</code></td><td>42</td></tr>
+            <tr><td>浮動小数点</td><td><code>pi: 3.14</code></td><td>3.14</td></tr>
+            <tr><td>真偽値</td><td><code>active: true</code></td><td>true</td></tr>
+            <tr><td>null</td><td><code>value: null</code> または <code>value: ~</code></td><td>null</td></tr>
+            <tr><td>日付</td><td><code>date: 2024-01-15</code></td><td>Date オブジェクト</td></tr>
+        </table>
+        
+        <h2 id="section4">🔧 4. 実用的な使用パターン</h2>
+        
+        <h3>パターン1: 設定ファイルの読み込み</h3>
+        <div class="node-example">
+            <span class="node node-file">config.yaml読込</span>
+            <span class="arrow">→</span>
+            <span class="node node-yaml">YAML→Obj</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">設定適用</span>
+        </div>
+        
+        <h3>パターン2: 設定ファイルの生成</h3>
+        <div class="node-example">
+            <span class="node node-function">設定オブジェクト</span>
+            <span class="arrow">→</span>
+            <span class="node node-yaml">Obj→YAML</span>
+            <span class="arrow">→</span>
+            <span class="node node-file">ファイル保存</span>
+        </div>
+        
+        <h3>パターン3: Docker Compose生成</h3>
+        <div class="node-example">
+            <span class="node node-inject">パラメータ</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">構造作成</span>
+            <span class="arrow">→</span>
+            <span class="node node-yaml">YAML化</span>
+        </div>
+        
+        <h2 id="section5">📥 5. サンプルフロー</h2>
+        
+        <details>
+            <summary>📥 サンプルフローJSON（クリックで展開）</summary>
+            <div class="flow-json">[
+    {
+        "id": "yaml_sample_tab",
+        "type": "tab",
+        "label": "YAML サンプル",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "yaml_comment1",
+        "type": "comment",
+        "z": "yaml_sample_tab",
+        "name": "━━━ YAML → オブジェクト変換 ━━━",
+        "info": "",
+        "x": 180,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "yaml_inject1",
+        "type": "inject",
+        "z": "yaml_sample_tab",
+        "name": "実行",
+        "props": [],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 130,
+        "y": 100,
+        "wires": [["yaml_template1"]]
+    },
+    {
+        "id": "yaml_template1",
+        "type": "template",
+        "z": "yaml_sample_tab",
+        "name": "YAML設定",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "yaml",
+        "syntax": "plain",
+        "template": "# アプリケーション設定\napp:\n  name: My Application\n  version: 1.0.0\n  debug: true\n\n# データベース設定\ndatabase:\n  host: localhost\n  port: 5432\n  name: mydb\n\n# 機能フラグ\nfeatures:\n  - auth\n  - logging\n  - cache",
+        "output": "str",
+        "x": 280,
+        "y": 100,
+        "wires": [["yaml_parse"]]
+    },
+    {
+        "id": "yaml_parse",
+        "type": "yaml",
+        "z": "yaml_sample_tab",
+        "property": "payload",
+        "name": "YAML→Obj",
+        "x": 430,
+        "y": 100,
+        "wires": [["yaml_debug1"]]
+    },
+    {
+        "id": "yaml_debug1",
+        "type": "debug",
+        "z": "yaml_sample_tab",
+        "name": "オブジェクト出力",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 600,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "yaml_comment2",
+        "type": "comment",
+        "z": "yaml_sample_tab",
+        "name": "━━━ オブジェクト → YAML変換 ━━━",
+        "info": "",
+        "x": 180,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "yaml_inject2",
+        "type": "inject",
+        "z": "yaml_sample_tab",
+        "name": "実行",
+        "props": [],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 130,
+        "y": 240,
+        "wires": [["yaml_func1"]]
+    },
+    {
+        "id": "yaml_func1",
+        "type": "function",
+        "z": "yaml_sample_tab",
+        "name": "Docker Compose構造",
+        "func": "msg.payload = {\n    \"version\": \"3.8\",\n    \"services\": {\n        \"web\": {\n            \"image\": \"nginx:latest\",\n            \"ports\": [\"80:80\"],\n            \"volumes\": [\"./html:/usr/share/nginx/html\"]\n        },\n        \"db\": {\n            \"image\": \"postgres:14\",\n            \"environment\": {\n                \"POSTGRES_DB\": \"mydb\",\n                \"POSTGRES_USER\": \"user\",\n                \"POSTGRES_PASSWORD\": \"password\"\n            }\n        }\n    }\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 320,
+        "y": 240,
+        "wires": [["yaml_build"]]
+    },
+    {
+        "id": "yaml_build",
+        "type": "yaml",
+        "z": "yaml_sample_tab",
+        "property": "payload",
+        "name": "Obj→YAML",
+        "x": 490,
+        "y": 240,
+        "wires": [["yaml_debug2"]]
+    },
+    {
+        "id": "yaml_debug2",
+        "type": "debug",
+        "z": "yaml_sample_tab",
+        "name": "docker-compose.yml",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 670,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "yaml_comment3",
+        "type": "comment",
+        "z": "yaml_sample_tab",
+        "name": "━━━ 設定値の抽出 ━━━",
+        "info": "",
+        "x": 160,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "yaml_inject3",
+        "type": "inject",
+        "z": "yaml_sample_tab",
+        "name": "実行",
+        "props": [],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 130,
+        "y": 380,
+        "wires": [["yaml_template2"]]
+    },
+    {
+        "id": "yaml_template2",
+        "type": "template",
+        "z": "yaml_sample_tab",
+        "name": "センサー設定YAML",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "yaml",
+        "syntax": "plain",
+        "template": "sensors:\n  temperature:\n    pin: 4\n    interval: 5000\n    threshold:\n      min: 10\n      max: 40\n  humidity:\n    pin: 5\n    interval: 10000\n    threshold:\n      min: 30\n      max: 80",
+        "output": "str",
+        "x": 310,
+        "y": 380,
+        "wires": [["yaml_parse2"]]
+    },
+    {
+        "id": "yaml_parse2",
+        "type": "yaml",
+        "z": "yaml_sample_tab",
+        "property": "payload",
+        "name": "YAML→Obj",
+        "x": 470,
+        "y": 380,
+        "wires": [["yaml_func2"]]
+    },
+    {
+        "id": "yaml_func2",
+        "type": "function",
+        "z": "yaml_sample_tab",
+        "name": "温度センサー設定抽出",
+        "func": "var tempConfig = msg.payload.sensors.temperature;\nmsg.payload = {\n    sensor: \"temperature\",\n    gpioPin: tempConfig.pin,\n    readInterval: tempConfig.interval,\n    alertMin: tempConfig.threshold.min,\n    alertMax: tempConfig.threshold.max\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 660,
+        "y": 380,
+        "wires": [["yaml_debug3"]]
+    },
+    {
+        "id": "yaml_debug3",
+        "type": "debug",
+        "z": "yaml_sample_tab",
+        "name": "温度設定",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload.readInterval",
+        "statusType": "msg",
+        "x": 860,
+        "y": 380,
+        "wires": []
+    }
+]</div>
+        </details>
+        
+        <h2 id="section6">📝 6. 演習問題</h2>
+        
+        <div class="exercise">
+            <h3>演習1: 基本的なYAML変換 <span class="difficulty difficulty-easy">初級</span></h3>
+            <p><strong>📋 課題:</strong> シンプルなYAML文字列をオブジェクトに変換してください。</p>
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>Template ノードでYAML文字列を作成し、YAML ノードで変換します。</p>
+            </details>
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex1_tab", "type": "tab", "label": "演習1"},
+    {"id": "ex1_inject", "type": "inject", "z": "ex1_tab", "name": "実行", "props": [], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "x": 130, "y": 100, "wires": [["ex1_template"]]},
+    {"id": "ex1_template", "type": "template", "z": "ex1_tab", "name": "YAML", "field": "payload", "fieldType": "msg", "format": "yaml", "syntax": "plain", "template": "name: Node-RED\nversion: 3.0\nenabled: true", "output": "str", "x": 270, "y": 100, "wires": [["ex1_yaml"]]},
+    {"id": "ex1_yaml", "type": "yaml", "z": "ex1_tab", "property": "payload", "name": "YAML→Obj", "x": 410, "y": 100, "wires": [["ex1_debug"]]},
+    {"id": "ex1_debug", "type": "debug", "z": "ex1_tab", "name": "結果", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "x": 550, "y": 100, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習2: オブジェクトからYAML生成 <span class="difficulty difficulty-easy">初級</span></h3>
+            <p><strong>📋 課題:</strong> JavaScriptオブジェクトからYAML文字列を生成してください。</p>
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>Function ノードでオブジェクトを作成し、YAML ノードで変換します。</p>
+            </details>
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex2_tab", "type": "tab", "label": "演習2"},
+    {"id": "ex2_inject", "type": "inject", "z": "ex2_tab", "name": "実行", "props": [], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "x": 130, "y": 100, "wires": [["ex2_func"]]},
+    {"id": "ex2_func", "type": "function", "z": "ex2_tab", "name": "オブジェクト", "func": "msg.payload = {\n    server: {\n        host: \"localhost\",\n        port: 8080\n    },\n    logging: true\n};\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 280, "y": 100, "wires": [["ex2_yaml"]]},
+    {"id": "ex2_yaml", "type": "yaml", "z": "ex2_tab", "property": "payload", "name": "Obj→YAML", "x": 430, "y": 100, "wires": [["ex2_debug"]]},
+    {"id": "ex2_debug", "type": "debug", "z": "ex2_tab", "name": "YAML出力", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "x": 580, "y": 100, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習3: ネストした設定の取得 <span class="difficulty difficulty-medium">中級</span></h3>
+            <p><strong>📋 課題:</strong> ネストしたYAML設定から特定の値を抽出してください。</p>
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>オブジェクトのプロパティアクセス: <code>msg.payload.database.host</code></p>
+            </details>
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex3_tab", "type": "tab", "label": "演習3"},
+    {"id": "ex3_inject", "type": "inject", "z": "ex3_tab", "name": "実行", "props": [], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "x": 130, "y": 100, "wires": [["ex3_template"]]},
+    {"id": "ex3_template", "type": "template", "z": "ex3_tab", "name": "設定YAML", "field": "payload", "fieldType": "msg", "format": "yaml", "syntax": "plain", "template": "database:\n  primary:\n    host: db1.example.com\n    port: 5432\n  replica:\n    host: db2.example.com\n    port: 5432", "output": "str", "x": 280, "y": 100, "wires": [["ex3_yaml"]]},
+    {"id": "ex3_yaml", "type": "yaml", "z": "ex3_tab", "property": "payload", "name": "YAML→Obj", "x": 430, "y": 100, "wires": [["ex3_func"]]},
+    {"id": "ex3_func", "type": "function", "z": "ex3_tab", "name": "Primary DB取得", "func": "msg.payload = {\n    host: msg.payload.database.primary.host,\n    port: msg.payload.database.primary.port,\n    connectionString: msg.payload.database.primary.host + \":\" + msg.payload.database.primary.port\n};\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 600, "y": 100, "wires": [["ex3_debug"]]},
+    {"id": "ex3_debug", "type": "debug", "z": "ex3_tab", "name": "DB設定", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "payload.connectionString", "statusType": "msg", "x": 770, "y": 100, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習4: 配列を含むYAML <span class="difficulty difficulty-medium">中級</span></h3>
+            <p><strong>📋 課題:</strong> 配列を含むYAMLを解析し、配列の要素数と内容を取得してください。</p>
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>YAML の配列は JavaScript の配列に変換されます。<code>.length</code> で要素数を取得できます。</p>
+            </details>
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex4_tab", "type": "tab", "label": "演習4"},
+    {"id": "ex4_inject", "type": "inject", "z": "ex4_tab", "name": "実行", "props": [], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "x": 130, "y": 100, "wires": [["ex4_template"]]},
+    {"id": "ex4_template", "type": "template", "z": "ex4_tab", "name": "ユーザーYAML", "field": "payload", "fieldType": "msg", "format": "yaml", "syntax": "plain", "template": "users:\n  - name: 田中\n    role: admin\n  - name: 鈴木\n    role: editor\n  - name: 佐藤\n    role: viewer", "output": "str", "x": 290, "y": 100, "wires": [["ex4_yaml"]]},
+    {"id": "ex4_yaml", "type": "yaml", "z": "ex4_tab", "property": "payload", "name": "YAML→Obj", "x": 450, "y": 100, "wires": [["ex4_func"]]},
+    {"id": "ex4_func", "type": "function", "z": "ex4_tab", "name": "ユーザー情報", "func": "var users = msg.payload.users;\nmsg.payload = {\n    totalUsers: users.length,\n    admins: users.filter(u => u.role === \"admin\").map(u => u.name),\n    allNames: users.map(u => u.name)\n};\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 610, "y": 100, "wires": [["ex4_debug"]]},
+    {"id": "ex4_debug", "type": "debug", "z": "ex4_tab", "name": "ユーザー統計", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "payload.totalUsers", "statusType": "msg", "x": 790, "y": 100, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <h2 id="section7">✅ 7. まとめ</h2>
+        
+        <div class="important">
+            <p><strong>🎯 重要ポイント:</strong></p>
+            <ul>
+                <li>YAML文字列 ↔ オブジェクトの相互変換</li>
+                <li>入力形式を自動判定して変換方向を決定</li>
+                <li>インデントで構造を表現（スペース推奨、タブ非推奨）</li>
+                <li>設定ファイルの読み書きに最適</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <p><strong>⚠️ 注意事項:</strong></p>
+            <ul>
+                <li>インデントの不整合はエラーの原因（スペース2または4で統一）</li>
+                <li>タブ文字は使用しない（YAML仕様で非推奨）</li>
+                <li>コロン(:)の後にはスペースが必要</li>
+                <li>特殊文字を含む文字列は引用符で囲む</li>
+            </ul>
+        </div>
+        
+        <h2 id="section8">🏭 8. 実務活用例</h2>
+        
+        <h3>ケース1: アプリケーション設定管理</h3>
+        <p>config.yaml ファイルからアプリケーション設定を読み込んでフローで使用。</p>
+        
+        <h3>ケース2: Kubernetes マニフェスト生成</h3>
+        <p>パラメータからKubernetes Deployment/Service のYAMLを動的生成。</p>
+        
+        <h3>ケース3: CI/CD パイプライン設定</h3>
+        <p>GitHub Actions や GitLab CI の設定ファイルを生成・更新。</p>
+        
+        <h3>ケース4: IoTデバイス設定</h3>
+        <p>センサーやアクチュエータの設定をYAMLファイルで管理。</p>
+        
+        <p style="margin-top: 40px;"><a href="https://nodered.org/docs/" target="_blank">📚 Node-RED 公式ドキュメント</a></p>
+    </div>
+    
+    <script>
+        document.querySelectorAll('.flow-json').forEach(function(block) {
+            var btn = document.createElement('button');
+            btn.className = 'copy-btn';
+            btn.textContent = 'コピー';
+            btn.onclick = function() {
+                navigator.clipboard.writeText(block.textContent).then(function() {
+                    btn.textContent = 'コピー完了!';
+                    setTimeout(function() { btn.textContent = 'コピー'; }, 2000);
+                });
+            };
+            block.style.position = 'relative';
+            block.appendChild(btn);
+        });
+    </script>
+</body>
+</html>

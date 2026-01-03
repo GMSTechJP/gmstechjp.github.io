@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED Range ノード完全ガイド</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.8; max-width: 1000px; margin: 0 auto; padding: 20px; background-color: #f5f5f5; color: #333; }
+        h1 { color: #b92d5d; border-bottom: 3px solid #b92d5d; padding-bottom: 10px; }
+        h2 { color: #d33682; margin-top: 40px; border-left: 5px solid #d33682; padding-left: 15px; }
+        h3 { color: #555; margin-top: 25px; }
+        .container { background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .node-example { background-color: #2d3133; padding: 20px; border-radius: 5px; margin: 20px 0; color: white; font-family: 'Courier New', monospace; display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
+        .node { display: inline-block; padding: 8px 15px; border-radius: 4px; margin: 5px; font-weight: bold; font-size: 14px; }
+        .node-inject { background-color: #3fadb5; color: white; }
+        .node-debug { background-color: #87a48d; color: white; }
+        .node-function { background-color: #e8a658; color: white; }
+        .node-range { background-color: #e2d96e; color: #333; }
+        .node-change { background-color: #e7a070; color: white; }
+        .arrow { color: #999; font-size: 20px; margin: 0 10px; }
+        .important { background-color: #fce4ec; border-left: 4px solid #b92d5d; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .tip { background-color: #e8f5e9; border-left: 4px solid #4caf50; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .warning { background-color: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .code-block { background-color: #2d3133; color: #f8f8f2; padding: 15px; border-radius: 5px; margin: 15px 0; overflow-x: auto; font-family: 'Courier New', Consolas, monospace; font-size: 14px; white-space: pre; }
+        .flow-json { background-color: #1a1a2e; color: #a6e22e; padding: 15px; border-radius: 5px; font-family: 'Courier New', Consolas, monospace; font-size: 12px; overflow-x: auto; white-space: pre; position: relative; max-height: 400px; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #b92d5d; color: white; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .exercise { background-color: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0; border: 2px solid #2196f3; }
+        .exercise h3 { color: #1976d2; margin-top: 0; }
+        .difficulty { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; margin-left: 10px; }
+        .difficulty-easy { background-color: #c8e6c9; color: #2e7d32; }
+        .difficulty-medium { background-color: #fff9c4; color: #f57f17; }
+        .difficulty-hard { background-color: #ffcdd2; color: #c62828; }
+        details { background-color: #f5f5f5; padding: 10px 15px; border-radius: 5px; margin: 10px 0; }
+        details summary { cursor: pointer; font-weight: bold; color: #1976d2; }
+        details[open] summary { margin-bottom: 10px; }
+        .toc { background-color: #fafafa; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .toc h3 { margin-top: 0; color: #b92d5d; }
+        .toc ul { list-style: none; padding-left: 0; }
+        .toc li { padding: 5px 0; }
+        .toc a { color: #1976d2; text-decoration: none; }
+        .toc a:hover { text-decoration: underline; }
+        .copy-btn { position: absolute; top: 5px; right: 5px; background-color: #666; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px; }
+        .copy-btn:hover { background-color: #888; }
+        .formula { background-color: #f0f0f0; padding: 10px 15px; border-radius: 5px; font-family: 'Courier New', monospace; margin: 10px 0; text-align: center; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📏 Node-RED Range ノード完全ガイド</h1>
+        
+        <div class="toc">
+            <h3>📚 目次</h3>
+            <ul>
+                <li><a href="#section1">1. 概要</a></li>
+                <li><a href="#section2">2. 設定詳細</a></li>
+                <li><a href="#section3">3. 実用的な使用パターン</a></li>
+                <li><a href="#section4">4. サンプルフロー</a></li>
+                <li><a href="#section5">5. 演習問題</a></li>
+                <li><a href="#section6">6. まとめ</a></li>
+                <li><a href="#section7">7. トラブルシューティング</a></li>
+                <li><a href="#section8">8. 実務活用例</a></li>
+            </ul>
+        </div>
+        
+        <h2 id="section1">📖 1. 概要</h2>
+        
+        <p><strong>Range ノード</strong>は、数値を別の範囲にマッピング（変換）するノードです。入力値を指定した入力範囲から出力範囲に線形変換します。</p>
+        
+        <p>🎚️ <strong>ボリュームつまみに例えると</strong>：オーディオ機器のボリュームつまみを考えてください。つまみの物理的な回転角度（0〜270度）を、音量（0〜100%）に変換するようなものです。Rangeノードはこのような「ある範囲の値を別の範囲の値に変換する」処理を行います。</p>
+        
+        <div class="node-example">
+            <span class="node node-inject">数値入力</span>
+            <span class="arrow">→</span>
+            <span class="node node-range">Range</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <div class="tip">
+            <p><strong>💡 ポイント:</strong></p>
+            <ul>
+                <li>入力範囲と出力範囲を指定して線形変換</li>
+                <li>センサー値の正規化に最適</li>
+                <li>範囲外の値の処理方法を選択可能</li>
+                <li>整数への丸め処理も可能</li>
+            </ul>
+        </div>
+        
+        <h3>変換の仕組み</h3>
+        <div class="formula">
+            出力値 = (入力値 - 入力最小) × (出力最大 - 出力最小) ÷ (入力最大 - 入力最小) + 出力最小
+        </div>
+        
+        <h2 id="section2">⚙️ 2. 設定詳細</h2>
+        
+        <h3>主要プロパティ</h3>
+        <table>
+            <tr><th>プロパティ</th><th>説明</th><th>デフォルト</th></tr>
+            <tr><td><strong>Property</strong></td><td>変換対象のプロパティ</td><td>msg.payload</td></tr>
+            <tr><td><strong>Action</strong></td><td>範囲外の値の処理方法</td><td>Scale</td></tr>
+            <tr><td><strong>Input Range</strong></td><td>入力値の範囲（最小〜最大）</td><td>0 - 10</td></tr>
+            <tr><td><strong>Output Range</strong></td><td>出力値の範囲（最小〜最大）</td><td>0 - 100</td></tr>
+            <tr><td><strong>Round</strong></td><td>整数に丸める</td><td>false</td></tr>
+        </table>
+        
+        <h3>Action（範囲外の値の処理）</h3>
+        <table>
+            <tr><th>オプション</th><th>説明</th><th>例（入力0-10→出力0-100で入力15の場合）</th></tr>
+            <tr><td><strong>Scale and limit</strong></td><td>範囲内に制限（クランプ）</td><td>100（上限で制限）</td></tr>
+            <tr><td><strong>Scale and wrap</strong></td><td>範囲を超えたら折り返し</td><td>50（15-10=5 → 50）</td></tr>
+            <tr><td><strong>Scale only</strong></td><td>制限なしで変換継続</td><td>150（そのまま変換）</td></tr>
+        </table>
+        
+        <h3>変換例</h3>
+        <div class="code-block">入力範囲: 0 - 1023（ADC値）
+出力範囲: 0 - 100（パーセント）
+
+入力: 0    → 出力: 0
+入力: 512  → 出力: 50.05
+入力: 1023 → 出力: 100</div>
+        
+        <h2 id="section3">🔧 3. 実用的な使用パターン</h2>
+        
+        <h3>パターン1: センサー値の正規化</h3>
+        <div class="node-example">
+            <span class="node node-inject">ADC値 (0-4095)</span>
+            <span class="arrow">→</span>
+            <span class="node node-range">0-100%</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        <p><strong>用途:</strong> アナログセンサーの生データをパーセンテージに変換</p>
+        
+        <h3>パターン2: 温度スケール変換</h3>
+        <div class="node-example">
+            <span class="node node-inject">摂氏 (°C)</span>
+            <span class="arrow">→</span>
+            <span class="node node-range">華氏 (°F)</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        <p><strong>設定:</strong> 入力 0-100 → 出力 32-212</p>
+        
+        <h3>パターン3: PWM制御値の生成</h3>
+        <div class="node-example">
+            <span class="node node-inject">スライダー (0-100)</span>
+            <span class="arrow">→</span>
+            <span class="node node-range">PWM (0-255)</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">GPIO出力</span>
+        </div>
+        <p><strong>用途:</strong> UI値をマイコンのPWMデューティ比に変換</p>
+        
+        <h3>パターン4: 逆方向変換</h3>
+        <div class="node-example">
+            <span class="node node-inject">入力 (0-100)</span>
+            <span class="arrow">→</span>
+            <span class="node node-range">反転 (100-0)</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        <p><strong>用途:</strong> 値を反転（最大が最小に、最小が最大に）</p>
+        
+        <h2 id="section4">📥 4. サンプルフロー</h2>
+        
+        <details>
+            <summary>📥 サンプルフローJSON（クリックで展開）</summary>
+            <div class="flow-json">[
+    {
+        "id": "range_sample_tab",
+        "type": "tab",
+        "label": "Range サンプル",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "range_comment",
+        "type": "comment",
+        "z": "range_sample_tab",
+        "name": "📏 Range ノード サンプル",
+        "info": "様々なRange変換のデモンストレーション",
+        "x": 160,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "inject_50",
+        "type": "inject",
+        "z": "range_sample_tab",
+        "name": "50を送信",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "50",
+        "payloadType": "num",
+        "x": 140,
+        "y": 100,
+        "wires": [["range_basic"]]
+    },
+    {
+        "id": "range_basic",
+        "type": "range",
+        "z": "range_sample_tab",
+        "minin": "0",
+        "maxin": "100",
+        "minout": "0",
+        "maxout": "255",
+        "action": "scale",
+        "round": true,
+        "property": "payload",
+        "name": "0-100 → 0-255",
+        "x": 340,
+        "y": 100,
+        "wires": [["debug_basic"]]
+    },
+    {
+        "id": "debug_basic",
+        "type": "debug",
+        "z": "range_sample_tab",
+        "name": "基本変換結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 560,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "comment_limit",
+        "type": "comment",
+        "z": "range_sample_tab",
+        "name": "━━━ 範囲制限デモ ━━━",
+        "info": "",
+        "x": 160,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "inject_150",
+        "type": "inject",
+        "z": "range_sample_tab",
+        "name": "150を送信（範囲外）",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "150",
+        "payloadType": "num",
+        "x": 170,
+        "y": 220,
+        "wires": [["range_limit", "range_scale", "range_wrap"]]
+    },
+    {
+        "id": "range_limit",
+        "type": "range",
+        "z": "range_sample_tab",
+        "minin": "0",
+        "maxin": "100",
+        "minout": "0",
+        "maxout": "255",
+        "action": "clamp",
+        "round": true,
+        "property": "payload",
+        "name": "Scale & Limit",
+        "x": 410,
+        "y": 180,
+        "wires": [["debug_limit"]]
+    },
+    {
+        "id": "debug_limit",
+        "type": "debug",
+        "z": "range_sample_tab",
+        "name": "Limit: 255",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 590,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "range_scale",
+        "type": "range",
+        "z": "range_sample_tab",
+        "minin": "0",
+        "maxin": "100",
+        "minout": "0",
+        "maxout": "255",
+        "action": "scale",
+        "round": true,
+        "property": "payload",
+        "name": "Scale Only",
+        "x": 410,
+        "y": 220,
+        "wires": [["debug_scale"]]
+    },
+    {
+        "id": "debug_scale",
+        "type": "debug",
+        "z": "range_sample_tab",
+        "name": "Scale: 382",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 590,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "range_wrap",
+        "type": "range",
+        "z": "range_sample_tab",
+        "minin": "0",
+        "maxin": "100",
+        "minout": "0",
+        "maxout": "255",
+        "action": "roll",
+        "round": true,
+        "property": "payload",
+        "name": "Scale & Wrap",
+        "x": 410,
+        "y": 260,
+        "wires": [["debug_wrap"]]
+    },
+    {
+        "id": "debug_wrap",
+        "type": "debug",
+        "z": "range_sample_tab",
+        "name": "Wrap: 127",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 590,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "comment_temp",
+        "type": "comment",
+        "z": "range_sample_tab",
+        "name": "━━━ 温度変換デモ ━━━",
+        "info": "",
+        "x": 160,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "inject_25c",
+        "type": "inject",
+        "z": "range_sample_tab",
+        "name": "25°C",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "25",
+        "payloadType": "num",
+        "x": 130,
+        "y": 380,
+        "wires": [["range_temp"]]
+    },
+    {
+        "id": "range_temp",
+        "type": "range",
+        "z": "range_sample_tab",
+        "minin": "0",
+        "maxin": "100",
+        "minout": "32",
+        "maxout": "212",
+        "action": "scale",
+        "round": false,
+        "property": "payload",
+        "name": "摂氏→華氏",
+        "x": 310,
+        "y": 380,
+        "wires": [["debug_temp"]]
+    },
+    {
+        "id": "debug_temp",
+        "type": "debug",
+        "z": "range_sample_tab",
+        "name": "77°F",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 490,
+        "y": 380,
+        "wires": []
+    }
+]</div>
+        </details>
+        
+        <h2 id="section5">📝 5. 演習問題</h2>
+        
+        <div class="exercise">
+            <h3>演習1: 基本的な範囲変換 <span class="difficulty difficulty-easy">初級</span></h3>
+            <p><strong>📋 課題:</strong> 0〜100の入力を0〜255のPWM値に変換するフローを作成してください。</p>
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>入力: 0〜100（パーセント）</li>
+                <li>出力: 0〜255（PWM値）</li>
+                <li>整数に丸める</li>
+            </ul>
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>Range ノードで Input Range を 0-100、Output Range を 0-255 に設定し、Round をチェックします。</p>
+            </details>
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex1_tab", "type": "tab", "label": "演習1"},
+    {"id": "ex1_inject", "type": "inject", "z": "ex1_tab", "name": "75%", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "75", "payloadType": "num", "x": 130, "y": 100, "wires": [["ex1_range"]]},
+    {"id": "ex1_range", "type": "range", "z": "ex1_tab", "minin": "0", "maxin": "100", "minout": "0", "maxout": "255", "action": "scale", "round": true, "property": "payload", "name": "0-100 → 0-255", "x": 320, "y": 100, "wires": [["ex1_debug"]]},
+    {"id": "ex1_debug", "type": "debug", "z": "ex1_tab", "name": "PWM値", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "payload", "statusType": "auto", "x": 510, "y": 100, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習2: センサー値の正規化 <span class="difficulty difficulty-easy">初級</span></h3>
+            <p><strong>📋 課題:</strong> 12bit ADC（0〜4095）の値を0〜100%に正規化してください。</p>
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>入力: 0〜4095（12bit ADC値）</li>
+                <li>出力: 0〜100（パーセント）</li>
+                <li>小数点以下1桁で表示</li>
+            </ul>
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>Round をオフにすると小数点以下も保持されます。表示形式の調整には Function ノードを追加できます。</p>
+            </details>
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex2_tab", "type": "tab", "label": "演習2"},
+    {"id": "ex2_inject", "type": "inject", "z": "ex2_tab", "name": "2048 (50%)", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "2048", "payloadType": "num", "x": 150, "y": 100, "wires": [["ex2_range"]]},
+    {"id": "ex2_range", "type": "range", "z": "ex2_tab", "minin": "0", "maxin": "4095", "minout": "0", "maxout": "100", "action": "clamp", "round": false, "property": "payload", "name": "ADC→%", "x": 330, "y": 100, "wires": [["ex2_func"]]},
+    {"id": "ex2_func", "type": "function", "z": "ex2_tab", "name": "小数点1桁", "func": "msg.payload = Math.round(msg.payload * 10) / 10;\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 500, "y": 100, "wires": [["ex2_debug"]]},
+    {"id": "ex2_debug", "type": "debug", "z": "ex2_tab", "name": "%表示", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "payload", "statusType": "auto", "x": 670, "y": 100, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習3: 範囲制限の活用 <span class="difficulty difficulty-medium">中級</span></h3>
+            <p><strong>📋 課題:</strong> モーター制御で、入力が範囲外でも安全な値に制限するフローを作成してください。</p>
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>入力: -100〜100（速度指令）</li>
+                <li>出力: 0〜255（PWM出力）</li>
+                <li>範囲外の値は上限/下限で制限</li>
+            </ul>
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>Action を「Scale and limit」に設定すると、範囲外の値は自動的に制限されます。</p>
+            </details>
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex3_tab", "type": "tab", "label": "演習3"},
+    {"id": "ex3_inject1", "type": "inject", "z": "ex3_tab", "name": "50（正常）", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "50", "payloadType": "num", "x": 150, "y": 80, "wires": [["ex3_range"]]},
+    {"id": "ex3_inject2", "type": "inject", "z": "ex3_tab", "name": "150（範囲外）", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "150", "payloadType": "num", "x": 160, "y": 120, "wires": [["ex3_range"]]},
+    {"id": "ex3_inject3", "type": "inject", "z": "ex3_tab", "name": "-50（負の値）", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "-50", "payloadType": "num", "x": 160, "y": 160, "wires": [["ex3_range"]]},
+    {"id": "ex3_range", "type": "range", "z": "ex3_tab", "minin": "-100", "maxin": "100", "minout": "0", "maxout": "255", "action": "clamp", "round": true, "property": "payload", "name": "速度→PWM（制限付き）", "x": 400, "y": 120, "wires": [["ex3_debug"]]},
+    {"id": "ex3_debug", "type": "debug", "z": "ex3_tab", "name": "PWM出力", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "payload", "statusType": "auto", "x": 620, "y": 120, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習4: 温度スケール変換 <span class="difficulty difficulty-medium">中級</span></h3>
+            <p><strong>📋 課題:</strong> 摂氏温度を華氏温度に変換するフローを作成してください。</p>
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>摂氏 0°C = 華氏 32°F</li>
+                <li>摂氏 100°C = 華氏 212°F</li>
+                <li>負の温度も対応</li>
+            </ul>
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>入力範囲を -40〜100（摂氏）、出力範囲を -40〜212（華氏）に設定。-40度は摂氏と華氏で同じ値です。</p>
+            </details>
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex4_tab", "type": "tab", "label": "演習4"},
+    {"id": "ex4_inject1", "type": "inject", "z": "ex4_tab", "name": "0°C", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "0", "payloadType": "num", "x": 130, "y": 80, "wires": [["ex4_range"]]},
+    {"id": "ex4_inject2", "type": "inject", "z": "ex4_tab", "name": "25°C", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "25", "payloadType": "num", "x": 130, "y": 120, "wires": [["ex4_range"]]},
+    {"id": "ex4_inject3", "type": "inject", "z": "ex4_tab", "name": "100°C", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "100", "payloadType": "num", "x": 140, "y": 160, "wires": [["ex4_range"]]},
+    {"id": "ex4_range", "type": "range", "z": "ex4_tab", "minin": "0", "maxin": "100", "minout": "32", "maxout": "212", "action": "scale", "round": false, "property": "payload", "name": "摂氏→華氏", "x": 330, "y": 120, "wires": [["ex4_debug"]]},
+    {"id": "ex4_debug", "type": "debug", "z": "ex4_tab", "name": "華氏温度", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "payload", "statusType": "auto", "x": 520, "y": 120, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <h2 id="section6">✅ 6. まとめ</h2>
+        
+        <div class="important">
+            <p><strong>🎯 重要ポイント:</strong></p>
+            <ul>
+                <li>Range ノードは数値を線形変換するシンプルなノード</li>
+                <li>センサー値の正規化やスケール変換に最適</li>
+                <li>範囲外の値の処理方法を3種類から選択可能</li>
+                <li>Round オプションで整数化が可能</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <p><strong>⚠️ 注意事項:</strong></p>
+            <ul>
+                <li>入力が数値でない場合はエラーになる</li>
+                <li>非線形な変換が必要な場合は Function ノードを使用</li>
+                <li>範囲外の値の処理方法を用途に応じて適切に選択</li>
+            </ul>
+        </div>
+        
+        <h2 id="section7">🔧 7. トラブルシューティング</h2>
+        
+        <table>
+            <tr><th>問題</th><th>原因</th><th>解決方法</th></tr>
+            <tr><td>出力が NaN になる</td><td>入力が数値でない</td><td>Change ノードで数値型に変換</td></tr>
+            <tr><td>期待通りの値にならない</td><td>範囲設定ミス</td><td>入力/出力範囲を確認</td></tr>
+            <tr><td>小数が出力される</td><td>Round が無効</td><td>Round にチェックを入れる</td></tr>
+            <tr><td>範囲外の値が出力される</td><td>Action が Scale Only</td><td>Scale and Limit に変更</td></tr>
+        </table>
+        
+        <h2 id="section8">🏭 8. 実務活用例</h2>
+        
+        <h3>ケース1: IoTセンサーの値変換</h3>
+        <p>アナログセンサーの生データを人間が理解しやすい単位に変換。例：ADC値→温度、電圧→圧力など。</p>
+        
+        <h3>ケース2: モーター/LED制御</h3>
+        <p>UIのスライダー値（0-100）をPWMデューティ比（0-255）に変換して、モーターやLEDを制御。</p>
+        
+        <h3>ケース3: データの正規化</h3>
+        <p>異なるスケールのセンサーデータを統一した範囲に正規化して、比較や可視化を容易に。</p>
+        
+        <h3>ケース4: プロトコル変換</h3>
+        <p>異なる機器間でのデータ形式変換。例：0-10Vアナログ信号を0-100%のデジタル値に変換。</p>
+        
+        <p style="margin-top: 40px;"><a href="https://nodered.org/docs/" target="_blank">📚 Node-RED 公式ドキュメント</a></p>
+    </div>
+    
+    <script>
+        document.querySelectorAll('.flow-json').forEach(function(block) {
+            var btn = document.createElement('button');
+            btn.className = 'copy-btn';
+            btn.textContent = 'コピー';
+            btn.onclick = function() {
+                navigator.clipboard.writeText(block.textContent).then(function() {
+                    btn.textContent = 'コピー完了!';
+                    setTimeout(function() { btn.textContent = 'コピー'; }, 2000);
+                });
+            };
+            block.style.position = 'relative';
+            block.appendChild(btn);
+        });
+    </script>
+</body>
+</html>

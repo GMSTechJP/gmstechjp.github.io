@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED HTML ノード完全ガイド</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.8; max-width: 1000px; margin: 0 auto; padding: 20px; background-color: #f5f5f5; color: #333; }
+        h1 { color: #b92d5d; border-bottom: 3px solid #b92d5d; padding-bottom: 10px; }
+        h2 { color: #d33682; margin-top: 40px; border-left: 5px solid #d33682; padding-left: 15px; }
+        h3 { color: #555; margin-top: 25px; }
+        .container { background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .node-example { background-color: #2d3133; padding: 20px; border-radius: 5px; margin: 20px 0; color: white; font-family: 'Courier New', monospace; display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
+        .node { display: inline-block; padding: 8px 15px; border-radius: 4px; margin: 5px; font-weight: bold; font-size: 14px; }
+        .node-inject { background-color: #3fadb5; color: white; }
+        .node-debug { background-color: #87a48d; color: white; }
+        .node-function { background-color: #e8a658; color: white; }
+        .node-html { background-color: #ffe4c4; color: #333; }
+        .node-http-request { background-color: #e3d176; color: #333; }
+        .node-template { background-color: #d4b8a0; color: #333; }
+        .arrow { color: #999; font-size: 20px; margin: 0 10px; }
+        .important { background-color: #fce4ec; border-left: 4px solid #b92d5d; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .tip { background-color: #e8f5e9; border-left: 4px solid #4caf50; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .warning { background-color: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .code-block { background-color: #2d3133; color: #f8f8f2; padding: 15px; border-radius: 5px; margin: 15px 0; overflow-x: auto; font-family: 'Courier New', Consolas, monospace; font-size: 14px; white-space: pre; }
+        .flow-json { background-color: #1a1a2e; color: #a6e22e; padding: 15px; border-radius: 5px; font-family: 'Courier New', Consolas, monospace; font-size: 12px; overflow-x: auto; white-space: pre; position: relative; max-height: 400px; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #b92d5d; color: white; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .exercise { background-color: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0; border: 2px solid #2196f3; }
+        .exercise h3 { color: #1976d2; margin-top: 0; }
+        .difficulty { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; margin-left: 10px; }
+        .difficulty-easy { background-color: #c8e6c9; color: #2e7d32; }
+        .difficulty-medium { background-color: #fff9c4; color: #f57f17; }
+        .difficulty-hard { background-color: #ffcdd2; color: #c62828; }
+        details { background-color: #f5f5f5; padding: 10px 15px; border-radius: 5px; margin: 10px 0; }
+        details summary { cursor: pointer; font-weight: bold; color: #1976d2; }
+        details[open] summary { margin-bottom: 10px; }
+        .toc { background-color: #fafafa; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .toc h3 { margin-top: 0; color: #b92d5d; }
+        .toc ul { list-style: none; padding-left: 0; }
+        .toc li { padding: 5px 0; }
+        .toc a { color: #1976d2; text-decoration: none; }
+        .toc a:hover { text-decoration: underline; }
+        .copy-btn { position: absolute; top: 5px; right: 5px; background-color: #666; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px; }
+        .copy-btn:hover { background-color: #888; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌐 Node-RED HTML ノード完全ガイド</h1>
+        
+        <div class="toc">
+            <h3>📚 目次</h3>
+            <ul>
+                <li><a href="#section1">1. 概要</a></li>
+                <li><a href="#section2">2. 設定詳細</a></li>
+                <li><a href="#section3">3. CSSセレクタの基本</a></li>
+                <li><a href="#section4">4. 実用的な使用パターン</a></li>
+                <li><a href="#section5">5. サンプルフロー</a></li>
+                <li><a href="#section6">6. 演習問題</a></li>
+                <li><a href="#section7">7. まとめ</a></li>
+                <li><a href="#section8">8. 実務活用例</a></li>
+            </ul>
+        </div>
+        
+        <h2 id="section1">📖 1. 概要</h2>
+        
+        <p><strong>HTML ノード</strong>は、HTMLドキュメントから特定の要素を抽出するノードです。CSSセレクタを使って、Webページから必要なデータを取り出す「Webスクレイピング」に使用します。</p>
+        
+        <p>🔍 <strong>本から特定の章を探すことに例えると</strong>：HTML ノードは本の目次を使って特定の章を探すようなものです。「第3章」「著者紹介」など、目的の部分をピンポイントで取り出せます。</p>
+        
+        <div class="node-example">
+            <span class="node node-http-request">HTTP Request</span>
+            <span class="arrow">→</span>
+            <span class="node node-html">HTML</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <div class="tip">
+            <p><strong>💡 ポイント:</strong></p>
+            <ul>
+                <li>CSSセレクタでHTML要素を指定</li>
+                <li>複数の要素がマッチした場合は配列で出力</li>
+                <li>Webスクレイピングの基本ツール</li>
+                <li>テキストだけでなく属性値も取得可能</li>
+            </ul>
+        </div>
+        
+        <h2 id="section2">⚙️ 2. 設定詳細</h2>
+        
+        <h3>プロパティ</h3>
+        <table>
+            <tr><th>プロパティ</th><th>説明</th><th>デフォルト</th></tr>
+            <tr><td><strong>Selector</strong></td><td>CSSセレクタ（抽出対象を指定）</td><td>（空）</td></tr>
+            <tr><td><strong>Output</strong></td><td>出力形式（html/text/属性）</td><td>html</td></tr>
+            <tr><td><strong>Property</strong></td><td>入力HTMLのプロパティ</td><td>msg.payload</td></tr>
+        </table>
+        
+        <h3>Output オプション</h3>
+        <table>
+            <tr><th>オプション</th><th>説明</th><th>出力例</th></tr>
+            <tr><td><strong>the html content</strong></td><td>要素の内部HTML</td><td>&lt;b&gt;太字&lt;/b&gt;テキスト</td></tr>
+            <tr><td><strong>only the text content</strong></td><td>テキストのみ</td><td>太字テキスト</td></tr>
+            <tr><td><strong>属性名を指定</strong></td><td>指定した属性の値</td><td>href属性なら URL</td></tr>
+        </table>
+        
+        <h2 id="section3">🎯 3. CSSセレクタの基本</h2>
+        
+        <h3>基本セレクタ</h3>
+        <table>
+            <tr><th>セレクタ</th><th>説明</th><th>例</th></tr>
+            <tr><td><code>要素名</code></td><td>タグ名で選択</td><td><code>p</code>, <code>div</code>, <code>a</code></td></tr>
+            <tr><td><code>.クラス名</code></td><td>class属性で選択</td><td><code>.article</code>, <code>.title</code></td></tr>
+            <tr><td><code>#ID</code></td><td>id属性で選択</td><td><code>#header</code>, <code>#main</code></td></tr>
+            <tr><td><code>[属性]</code></td><td>属性の有無で選択</td><td><code>[href]</code>, <code>[data-id]</code></td></tr>
+            <tr><td><code>[属性=値]</code></td><td>属性値で選択</td><td><code>[type="text"]</code></td></tr>
+        </table>
+        
+        <h3>組み合わせセレクタ</h3>
+        <table>
+            <tr><th>セレクタ</th><th>説明</th><th>例</th></tr>
+            <tr><td><code>A B</code></td><td>Aの子孫のB</td><td><code>div p</code>（div内の全p）</td></tr>
+            <tr><td><code>A > B</code></td><td>Aの直接の子のB</td><td><code>ul > li</code>（ulの直下のli）</td></tr>
+            <tr><td><code>A, B</code></td><td>AまたはB</td><td><code>h1, h2</code>（h1とh2両方）</td></tr>
+            <tr><td><code>A.class</code></td><td>Aでクラスがclass</td><td><code>p.intro</code></td></tr>
+        </table>
+        
+        <h3>便利なセレクタ</h3>
+        <div class="code-block">/* n番目の要素 */
+li:nth-child(1)      /* 1番目のli */
+li:nth-child(odd)    /* 奇数番目のli */
+li:first-child       /* 最初のli */
+li:last-child        /* 最後のli */
+
+/* 属性の部分一致 */
+[href^="https"]      /* httpsで始まる */
+[href$=".pdf"]       /* .pdfで終わる */
+[href*="example"]    /* exampleを含む */</div>
+        
+        <h2 id="section4">🔧 4. 実用的な使用パターン</h2>
+        
+        <h3>パターン1: リンクのURL抽出</h3>
+        <div class="node-example">
+            <span class="node node-template">HTMLサンプル</span>
+            <span class="arrow">→</span>
+            <span class="node node-html">a[href]</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        <p><strong>設定:</strong> Selector: <code>a</code>, Output: <code>href</code></p>
+        
+        <h3>パターン2: 見出しテキスト抽出</h3>
+        <div class="node-example">
+            <span class="node node-http-request">Webページ取得</span>
+            <span class="arrow">→</span>
+            <span class="node node-html">h1, h2</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        <p><strong>設定:</strong> Selector: <code>h1, h2</code>, Output: <code>text</code></p>
+        
+        <h3>パターン3: テーブルデータ抽出</h3>
+        <div class="node-example">
+            <span class="node node-http-request">Webページ取得</span>
+            <span class="arrow">→</span>
+            <span class="node node-html">table tr</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">データ整形</span>
+        </div>
+        <p><strong>設定:</strong> Selector: <code>table tr td</code>, Output: <code>text</code></p>
+        
+        <h3>パターン4: 特定クラスの要素抽出</h3>
+        <div class="node-example">
+            <span class="node node-http-request">ニュースサイト</span>
+            <span class="arrow">→</span>
+            <span class="node node-html">.article-title</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">タイトル一覧</span>
+        </div>
+        <p><strong>設定:</strong> Selector: <code>.article-title</code>, Output: <code>text</code></p>
+        
+        <h2 id="section5">📥 5. サンプルフロー</h2>
+        
+        <details>
+            <summary>📥 サンプルフローJSON（クリックで展開）</summary>
+            <div class="flow-json">[
+    {
+        "id": "html_sample_tab",
+        "type": "tab",
+        "label": "HTML サンプル",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "html_comment1",
+        "type": "comment",
+        "z": "html_sample_tab",
+        "name": "━━━ 基本: HTMLからテキスト抽出 ━━━",
+        "info": "",
+        "x": 190,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "html_template1",
+        "type": "template",
+        "z": "html_sample_tab",
+        "name": "サンプルHTML",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "html",
+        "syntax": "plain",
+        "template": "<html>\n<body>\n  <h1>メインタイトル</h1>\n  <div class=\"content\">\n    <p class=\"intro\">これは紹介文です。</p>\n    <p>本文の段落1です。</p>\n    <p>本文の段落2です。</p>\n  </div>\n  <ul class=\"links\">\n    <li><a href=\"https://example.com/page1\">リンク1</a></li>\n    <li><a href=\"https://example.com/page2\">リンク2</a></li>\n    <li><a href=\"https://example.com/page3\">リンク3</a></li>\n  </ul>\n</body>\n</html>",
+        "output": "str",
+        "x": 160,
+        "y": 100,
+        "wires": [["html_extract_h1", "html_extract_p", "html_extract_links"]]
+    },
+    {
+        "id": "html_inject1",
+        "type": "inject",
+        "z": "html_sample_tab",
+        "name": "実行",
+        "props": [],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 130,
+        "y": 60,
+        "wires": [["html_template1"]]
+    },
+    {
+        "id": "html_extract_h1",
+        "type": "html",
+        "z": "html_sample_tab",
+        "name": "h1抽出",
+        "property": "payload",
+        "outproperty": "payload",
+        "tag": "h1",
+        "ret": "text",
+        "as": "single",
+        "x": 350,
+        "y": 60,
+        "wires": [["html_debug1"]]
+    },
+    {
+        "id": "html_debug1",
+        "type": "debug",
+        "z": "html_sample_tab",
+        "name": "h1: メインタイトル",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 550,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "html_extract_p",
+        "type": "html",
+        "z": "html_sample_tab",
+        "name": "全p抽出",
+        "property": "payload",
+        "outproperty": "payload",
+        "tag": "p",
+        "ret": "text",
+        "as": "multi",
+        "x": 350,
+        "y": 100,
+        "wires": [["html_debug2"]]
+    },
+    {
+        "id": "html_debug2",
+        "type": "debug",
+        "z": "html_sample_tab",
+        "name": "p: 配列で出力",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 540,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "html_extract_links",
+        "type": "html",
+        "z": "html_sample_tab",
+        "name": "リンクURL抽出",
+        "property": "payload",
+        "outproperty": "payload",
+        "tag": "a",
+        "ret": "attr",
+        "as": "multi",
+        "x": 360,
+        "y": 140,
+        "wires": [["html_debug3"]]
+    },
+    {
+        "id": "html_debug3",
+        "type": "debug",
+        "z": "html_sample_tab",
+        "name": "href属性",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 540,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "html_comment2",
+        "type": "comment",
+        "z": "html_sample_tab",
+        "name": "━━━ クラスやIDで絞り込み ━━━",
+        "info": "",
+        "x": 180,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "html_inject2",
+        "type": "inject",
+        "z": "html_sample_tab",
+        "name": "実行",
+        "props": [],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 130,
+        "y": 260,
+        "wires": [["html_template2"]]
+    },
+    {
+        "id": "html_template2",
+        "type": "template",
+        "z": "html_sample_tab",
+        "name": "クラス付きHTML",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "html",
+        "syntax": "plain",
+        "template": "<div id=\"news\">\n  <article class=\"news-item featured\">\n    <h2 class=\"title\">重要ニュース</h2>\n    <p class=\"summary\">重要な出来事の概要</p>\n  </article>\n  <article class=\"news-item\">\n    <h2 class=\"title\">通常ニュース1</h2>\n    <p class=\"summary\">概要1</p>\n  </article>\n  <article class=\"news-item\">\n    <h2 class=\"title\">通常ニュース2</h2>\n    <p class=\"summary\">概要2</p>\n  </article>\n</div>",
+        "output": "str",
+        "x": 170,
+        "y": 300,
+        "wires": [["html_extract_class"]]
+    },
+    {
+        "id": "html_extract_class",
+        "type": "html",
+        "z": "html_sample_tab",
+        "name": ".news-item .title",
+        "property": "payload",
+        "outproperty": "payload",
+        "tag": ".news-item .title",
+        "ret": "text",
+        "as": "multi",
+        "x": 370,
+        "y": 300,
+        "wires": [["html_debug4"]]
+    },
+    {
+        "id": "html_debug4",
+        "type": "debug",
+        "z": "html_sample_tab",
+        "name": "ニュースタイトル",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 570,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "html_comment3",
+        "type": "comment",
+        "z": "html_sample_tab",
+        "name": "━━━ テーブルデータ抽出 ━━━",
+        "info": "",
+        "x": 180,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "html_inject3",
+        "type": "inject",
+        "z": "html_sample_tab",
+        "name": "実行",
+        "props": [],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 130,
+        "y": 420,
+        "wires": [["html_template3"]]
+    },
+    {
+        "id": "html_template3",
+        "type": "template",
+        "z": "html_sample_tab",
+        "name": "テーブルHTML",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "html",
+        "syntax": "plain",
+        "template": "<table>\n  <tr><th>名前</th><th>年齢</th><th>職業</th></tr>\n  <tr><td>田中</td><td>30</td><td>エンジニア</td></tr>\n  <tr><td>鈴木</td><td>25</td><td>デザイナー</td></tr>\n  <tr><td>佐藤</td><td>35</td><td>マネージャー</td></tr>\n</table>",
+        "output": "str",
+        "x": 160,
+        "y": 460,
+        "wires": [["html_extract_table"]]
+    },
+    {
+        "id": "html_extract_table",
+        "type": "html",
+        "z": "html_sample_tab",
+        "name": "td抽出",
+        "property": "payload",
+        "outproperty": "payload",
+        "tag": "table tr td",
+        "ret": "text",
+        "as": "multi",
+        "x": 350,
+        "y": 460,
+        "wires": [["html_debug5"]]
+    },
+    {
+        "id": "html_debug5",
+        "type": "debug",
+        "z": "html_sample_tab",
+        "name": "テーブルデータ",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 540,
+        "y": 460,
+        "wires": []
+    }
+]</div>
+        </details>
+        
+        <h2 id="section6">📝 6. 演習問題</h2>
+        
+        <div class="exercise">
+            <h3>演習1: 見出し抽出 <span class="difficulty difficulty-easy">初級</span></h3>
+            <p><strong>📋 課題:</strong> HTMLから全ての h2 タグのテキストを抽出してください。</p>
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>Selector に <code>h2</code>、Output に <code>text</code> を設定します。</p>
+            </details>
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex1_tab", "type": "tab", "label": "演習1"},
+    {"id": "ex1_inject", "type": "inject", "z": "ex1_tab", "name": "実行", "props": [], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "x": 130, "y": 80, "wires": [["ex1_template"]]},
+    {"id": "ex1_template", "type": "template", "z": "ex1_tab", "name": "HTML", "field": "payload", "fieldType": "msg", "format": "html", "syntax": "plain", "template": "<h1>タイトル</h1>\n<h2>セクション1</h2>\n<p>本文1</p>\n<h2>セクション2</h2>\n<p>本文2</p>\n<h2>セクション3</h2>\n<p>本文3</p>", "output": "str", "x": 270, "y": 80, "wires": [["ex1_html"]]},
+    {"id": "ex1_html", "type": "html", "z": "ex1_tab", "name": "h2抽出", "property": "payload", "outproperty": "payload", "tag": "h2", "ret": "text", "as": "multi", "x": 410, "y": 80, "wires": [["ex1_debug"]]},
+    {"id": "ex1_debug", "type": "debug", "z": "ex1_tab", "name": "結果", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "x": 550, "y": 80, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習2: リンクURL抽出 <span class="difficulty difficulty-easy">初級</span></h3>
+            <p><strong>📋 課題:</strong> HTML内の全ての a タグから href 属性を抽出してください。</p>
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>Output を「属性名を指定」にして <code>href</code> と入力します。</p>
+            </details>
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex2_tab", "type": "tab", "label": "演習2"},
+    {"id": "ex2_inject", "type": "inject", "z": "ex2_tab", "name": "実行", "props": [], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "x": 130, "y": 80, "wires": [["ex2_template"]]},
+    {"id": "ex2_template", "type": "template", "z": "ex2_tab", "name": "リンクHTML", "field": "payload", "fieldType": "msg", "format": "html", "syntax": "plain", "template": "<nav>\n  <a href=\"/home\">ホーム</a>\n  <a href=\"/about\">会社概要</a>\n  <a href=\"/contact\">お問い合わせ</a>\n  <a href=\"https://external.com\">外部リンク</a>\n</nav>", "output": "str", "x": 280, "y": 80, "wires": [["ex2_html"]]},
+    {"id": "ex2_html", "type": "html", "z": "ex2_tab", "name": "href抽出", "property": "payload", "outproperty": "payload", "tag": "a", "ret": "attr", "as": "multi", "x": 430, "y": 80, "wires": [["ex2_debug"]]},
+    {"id": "ex2_debug", "type": "debug", "z": "ex2_tab", "name": "URL一覧", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "x": 570, "y": 80, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習3: クラスで絞り込み <span class="difficulty difficulty-medium">中級</span></h3>
+            <p><strong>📋 課題:</strong> class="highlight" を持つ要素のテキストのみを抽出してください。</p>
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>Selector に <code>.highlight</code> を指定します。</p>
+            </details>
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex3_tab", "type": "tab", "label": "演習3"},
+    {"id": "ex3_inject", "type": "inject", "z": "ex3_tab", "name": "実行", "props": [], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "x": 130, "y": 80, "wires": [["ex3_template"]]},
+    {"id": "ex3_template", "type": "template", "z": "ex3_tab", "name": "HTML", "field": "payload", "fieldType": "msg", "format": "html", "syntax": "plain", "template": "<ul>\n  <li>通常項目1</li>\n  <li class=\"highlight\">重要項目1</li>\n  <li>通常項目2</li>\n  <li class=\"highlight\">重要項目2</li>\n  <li>通常項目3</li>\n</ul>", "output": "str", "x": 270, "y": 80, "wires": [["ex3_html"]]},
+    {"id": "ex3_html", "type": "html", "z": "ex3_tab", "name": ".highlight", "property": "payload", "outproperty": "payload", "tag": ".highlight", "ret": "text", "as": "multi", "x": 420, "y": 80, "wires": [["ex3_debug"]]},
+    {"id": "ex3_debug", "type": "debug", "z": "ex3_tab", "name": "重要項目のみ", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "x": 580, "y": 80, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習4: 複合セレクタ <span class="difficulty difficulty-hard">上級</span></h3>
+            <p><strong>📋 課題:</strong> id="main" の div 内にある、class="item" を持つ要素のテキストを抽出してください。</p>
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>複合セレクタ: <code>#main .item</code></p>
+            </details>
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex4_tab", "type": "tab", "label": "演習4"},
+    {"id": "ex4_inject", "type": "inject", "z": "ex4_tab", "name": "実行", "props": [], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "x": 130, "y": 80, "wires": [["ex4_template"]]},
+    {"id": "ex4_template", "type": "template", "z": "ex4_tab", "name": "HTML", "field": "payload", "fieldType": "msg", "format": "html", "syntax": "plain", "template": "<div id=\"sidebar\">\n  <span class=\"item\">サイドバー項目</span>\n</div>\n<div id=\"main\">\n  <span class=\"item\">メイン項目1</span>\n  <span class=\"item\">メイン項目2</span>\n  <span>その他</span>\n</div>", "output": "str", "x": 270, "y": 80, "wires": [["ex4_html"]]},
+    {"id": "ex4_html", "type": "html", "z": "ex4_tab", "name": "#main .item", "property": "payload", "outproperty": "payload", "tag": "#main .item", "ret": "text", "as": "multi", "x": 420, "y": 80, "wires": [["ex4_debug"]]},
+    {"id": "ex4_debug", "type": "debug", "z": "ex4_tab", "name": "メイン内のみ", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "x": 580, "y": 80, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <h2 id="section7">✅ 7. まとめ</h2>
+        
+        <div class="important">
+            <p><strong>🎯 重要ポイント:</strong></p>
+            <ul>
+                <li>CSSセレクタでHTML要素を指定して抽出</li>
+                <li>text, html, 属性値 の3種類の出力形式</li>
+                <li>複数要素がマッチした場合は配列で出力</li>
+                <li>Webスクレイピングの基本ツール</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <p><strong>⚠️ 注意事項:</strong></p>
+            <ul>
+                <li>Webスクレイピングは対象サイトの利用規約を確認</li>
+                <li>動的に生成されるコンテンツ（JavaScript）は取得できない場合がある</li>
+                <li>サイト構造が変わるとセレクタが機能しなくなる可能性</li>
+            </ul>
+        </div>
+        
+        <h2 id="section8">🏭 8. 実務活用例</h2>
+        
+        <h3>ケース1: ニュースサイトからの情報収集</h3>
+        <p>ニュースサイトから記事タイトルとリンクを定期的に取得してデータベースに保存。</p>
+        
+        <h3>ケース2: 価格監視</h3>
+        <p>ECサイトから商品価格を抽出し、価格変動を監視・通知。</p>
+        
+        <h3>ケース3: データ変換</h3>
+        <p>HTMLレポートから表データを抽出してJSON形式に変換。</p>
+        
+        <h3>ケース4: コンテンツ集約</h3>
+        <p>複数サイトから特定のコンテンツを抽出してダッシュボードに表示。</p>
+        
+        <p style="margin-top: 40px;"><a href="https://nodered.org/docs/" target="_blank">📚 Node-RED 公式ドキュメント</a></p>
+    </div>
+    
+    <script>
+        document.querySelectorAll('.flow-json').forEach(function(block) {
+            var btn = document.createElement('button');
+            btn.className = 'copy-btn';
+            btn.textContent = 'コピー';
+            btn.onclick = function() {
+                navigator.clipboard.writeText(block.textContent).then(function() {
+                    btn.textContent = 'コピー完了!';
+                    setTimeout(function() { btn.textContent = 'コピー'; }, 2000);
+                });
+            };
+            block.style.position = 'relative';
+            block.appendChild(btn);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED File ノード完全ガイド</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.8; max-width: 1000px; margin: 0 auto; padding: 20px; background-color: #f5f5f5; color: #333; }
+        h1 { color: #b92d5d; border-bottom: 3px solid #b92d5d; padding-bottom: 10px; }
+        h2 { color: #d33682; margin-top: 40px; border-left: 5px solid #d33682; padding-left: 15px; }
+        h3 { color: #555; margin-top: 25px; }
+        .container { background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .node-example { background-color: #2d3133; padding: 20px; border-radius: 5px; margin: 20px 0; color: white; font-family: 'Courier New', monospace; display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
+        .node { display: inline-block; padding: 8px 15px; border-radius: 4px; margin: 5px; font-weight: bold; font-size: 14px; }
+        .node-inject { background-color: #3fadb5; color: white; }
+        .node-debug { background-color: #87a48d; color: white; }
+        .node-function { background-color: #e8a658; color: white; }
+        .node-file { background-color: #d4a0a0; color: #333; }
+        .node-file-in { background-color: #d4a0a0; color: #333; }
+        .node-template { background-color: #d4b8a0; color: #333; }
+        .node-catch { background-color: #e8967a; color: white; }
+        .arrow { color: #999; font-size: 20px; margin: 0 10px; }
+        .important { background-color: #fce4ec; border-left: 4px solid #b92d5d; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .tip { background-color: #e8f5e9; border-left: 4px solid #4caf50; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .warning { background-color: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .code-block { background-color: #2d3133; color: #f8f8f2; padding: 15px; border-radius: 5px; margin: 15px 0; overflow-x: auto; font-family: 'Courier New', Consolas, monospace; font-size: 14px; white-space: pre; }
+        .flow-json { background-color: #1a1a2e; color: #a6e22e; padding: 15px; border-radius: 5px; font-family: 'Courier New', Consolas, monospace; font-size: 12px; overflow-x: auto; white-space: pre; position: relative; max-height: 400px; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #b92d5d; color: white; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .exercise { background-color: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0; border: 2px solid #2196f3; }
+        .exercise h3 { color: #1976d2; margin-top: 0; }
+        .difficulty { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; margin-left: 10px; }
+        .difficulty-easy { background-color: #c8e6c9; color: #2e7d32; }
+        .difficulty-medium { background-color: #fff9c4; color: #f57f17; }
+        .difficulty-hard { background-color: #ffcdd2; color: #c62828; }
+        details { background-color: #f5f5f5; padding: 10px 15px; border-radius: 5px; margin: 10px 0; }
+        details summary { cursor: pointer; font-weight: bold; color: #1976d2; }
+        details[open] summary { margin-bottom: 10px; }
+        .toc { background-color: #fafafa; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .toc h3 { margin-top: 0; color: #b92d5d; }
+        .toc ul { list-style: none; padding-left: 0; }
+        .toc li { padding: 5px 0; }
+        .toc a { color: #1976d2; text-decoration: none; }
+        .toc a:hover { text-decoration: underline; }
+        .copy-btn { position: absolute; top: 5px; right: 5px; background-color: #666; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px; }
+        .copy-btn:hover { background-color: #888; }
+        .node-compare { display: flex; gap: 20px; flex-wrap: wrap; margin: 20px 0; }
+        .node-card { background: #f9f9f9; border: 1px solid #ddd; border-radius: 8px; padding: 15px; flex: 1; min-width: 280px; }
+        .node-card h4 { margin-top: 0; color: #b92d5d; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📁 Node-RED File ノード完全ガイド</h1>
+        
+        <div class="toc">
+            <h3>📚 目次</h3>
+            <ul>
+                <li><a href="#section1">1. 概要</a></li>
+                <li><a href="#section2">2. File（書き込み）ノード</a></li>
+                <li><a href="#section3">3. File In（読み込み）ノード</a></li>
+                <li><a href="#section4">4. 実用的な使用パターン</a></li>
+                <li><a href="#section5">5. サンプルフロー</a></li>
+                <li><a href="#section6">6. 演習問題</a></li>
+                <li><a href="#section7">7. まとめ</a></li>
+                <li><a href="#section8">8. 実務活用例</a></li>
+            </ul>
+        </div>
+        
+        <h2 id="section1">📖 1. 概要</h2>
+        
+        <p>Node-RED には2種類のファイル操作ノードがあります：</p>
+        
+        <div class="node-compare">
+            <div class="node-card">
+                <h4>📝 File（書き込み）</h4>
+                <div class="node-example" style="justify-content: center;">
+                    <span class="node node-file">File</span>
+                </div>
+                <p><strong>役割:</strong> ファイルへの書き込み・追記・削除</p>
+                <p><strong>用途:</strong></p>
+                <ul>
+                    <li>ログファイルの作成</li>
+                    <li>データの永続化</li>
+                    <li>設定ファイルの保存</li>
+                </ul>
+            </div>
+            
+            <div class="node-card">
+                <h4>📖 File In（読み込み）</h4>
+                <div class="node-example" style="justify-content: center;">
+                    <span class="node node-file-in">File In</span>
+                </div>
+                <p><strong>役割:</strong> ファイルからの読み込み</p>
+                <p><strong>用途:</strong></p>
+                <ul>
+                    <li>設定ファイルの読み込み</li>
+                    <li>データファイルの処理</li>
+                    <li>テンプレートの読み込み</li>
+                </ul>
+            </div>
+        </div>
+        
+        <p>📂 <strong>ファイルキャビネットに例えると</strong>：File ノードは書類をキャビネットに入れる作業、File In ノードはキャビネットから書類を取り出す作業です。</p>
+        
+        <h2 id="section2">⚙️ 2. File（書き込み）ノード</h2>
+        
+        <h3>プロパティ</h3>
+        <table>
+            <tr><th>プロパティ</th><th>説明</th><th>デフォルト</th></tr>
+            <tr><td><strong>Filename</strong></td><td>書き込み先ファイルパス</td><td>（空）</td></tr>
+            <tr><td><strong>Action</strong></td><td>書き込み動作の種類</td><td>append to file</td></tr>
+            <tr><td><strong>Add newline</strong></td><td>末尾に改行を追加</td><td>true</td></tr>
+            <tr><td><strong>Create directory</strong></td><td>ディレクトリがなければ作成</td><td>false</td></tr>
+            <tr><td><strong>Encoding</strong></td><td>文字エンコーディング</td><td>default</td></tr>
+        </table>
+        
+        <h3>Action（動作）オプション</h3>
+        <table>
+            <tr><th>オプション</th><th>説明</th><th>用途</th></tr>
+            <tr><td><strong>append to file</strong></td><td>ファイル末尾に追記</td><td>ログファイル、時系列データ</td></tr>
+            <tr><td><strong>overwrite file</strong></td><td>ファイルを上書き</td><td>設定ファイル、状態保存</td></tr>
+            <tr><td><strong>delete file</strong></td><td>ファイルを削除</td><td>一時ファイルの削除</td></tr>
+        </table>
+        
+        <h3>動的なファイル名</h3>
+        <p>Filename を空にして、<code>msg.filename</code> でファイルパスを指定できます。</p>
+        <div class="code-block">// Function ノードで動的にファイル名を設定
+msg.filename = "/home/pi/logs/sensor_" + new Date().toISOString().slice(0,10) + ".log";
+msg.payload = "センサーデータ: " + msg.payload;
+return msg;</div>
+        
+        <h2 id="section3">📖 3. File In（読み込み）ノード</h2>
+        
+        <h3>プロパティ</h3>
+        <table>
+            <tr><th>プロパティ</th><th>説明</th><th>デフォルト</th></tr>
+            <tr><td><strong>Filename</strong></td><td>読み込むファイルパス</td><td>（空）</td></tr>
+            <tr><td><strong>Output</strong></td><td>出力形式</td><td>a single utf8 string</td></tr>
+            <tr><td><strong>Encoding</strong></td><td>文字エンコーディング</td><td>utf8</td></tr>
+        </table>
+        
+        <h3>Output（出力形式）オプション</h3>
+        <table>
+            <tr><th>オプション</th><th>説明</th><th>用途</th></tr>
+            <tr><td><strong>a single utf8 string</strong></td><td>ファイル全体を文字列で</td><td>設定ファイル、テンプレート</td></tr>
+            <tr><td><strong>a single Buffer object</strong></td><td>ファイル全体をBufferで</td><td>バイナリファイル、画像</td></tr>
+            <tr><td><strong>a msg per line</strong></td><td>1行ごとにメッセージ出力</td><td>CSVの行処理、ログ解析</td></tr>
+            <tr><td><strong>a single stream</strong></td><td>ストリームとして出力</td><td>大きなファイルの処理</td></tr>
+        </table>
+        
+        <div class="tip">
+            <p><strong>💡 ポイント:</strong></p>
+            <ul>
+                <li><code>msg.filename</code> で動的にファイルを指定可能</li>
+                <li>大きなファイルは「a msg per line」または「stream」を使用</li>
+                <li>読み込み完了時に msg を出力</li>
+            </ul>
+        </div>
+        
+        <h2 id="section4">🔧 4. 実用的な使用パターン</h2>
+        
+        <h3>パターン1: ログファイルへの追記</h3>
+        <div class="node-example">
+            <span class="node node-inject">センサーデータ</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">タイムスタンプ付加</span>
+            <span class="arrow">→</span>
+            <span class="node node-file">追記</span>
+        </div>
+        <p><strong>設定:</strong> Action: append to file, Add newline: ✓</p>
+        
+        <h3>パターン2: 設定ファイルの読み込み</h3>
+        <div class="node-example">
+            <span class="node node-inject">起動時</span>
+            <span class="arrow">→</span>
+            <span class="node node-file-in">config.json</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">JSON解析</span>
+        </div>
+        <p><strong>設定:</strong> Output: a single utf8 string</p>
+        
+        <h3>パターン3: CSVファイルの行処理</h3>
+        <div class="node-example">
+            <span class="node node-inject">読み込み開始</span>
+            <span class="arrow">→</span>
+            <span class="node node-file-in">data.csv</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">各行処理</span>
+        </div>
+        <p><strong>設定:</strong> Output: a msg per line（1行ずつ処理）</p>
+        
+        <h3>パターン4: 日付別ログファイル</h3>
+        <div class="node-example">
+            <span class="node node-inject">データ</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">日付でファイル名生成</span>
+            <span class="arrow">→</span>
+            <span class="node node-file">動的ファイル名</span>
+        </div>
+        <p><strong>設定:</strong> Filename: 空（msg.filename で指定）</p>
+        
+        <h2 id="section5">📥 5. サンプルフロー</h2>
+        
+        <details>
+            <summary>📥 サンプルフローJSON（クリックで展開）</summary>
+            <div class="flow-json">[
+    {
+        "id": "file_sample_tab",
+        "type": "tab",
+        "label": "File サンプル",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "file_comment1",
+        "type": "comment",
+        "z": "file_sample_tab",
+        "name": "━━━ ファイルへの書き込み（追記） ━━━",
+        "info": "",
+        "x": 200,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "file_inject1",
+        "type": "inject",
+        "z": "file_sample_tab",
+        "name": "ログ追記",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "センサー値: 25.5℃",
+        "payloadType": "str",
+        "x": 140,
+        "y": 100,
+        "wires": [["file_func_timestamp"]]
+    },
+    {
+        "id": "file_func_timestamp",
+        "type": "function",
+        "z": "file_sample_tab",
+        "name": "タイムスタンプ追加",
+        "func": "var now = new Date().toISOString();\nmsg.payload = now + \" - \" + msg.payload;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 330,
+        "y": 100,
+        "wires": [["file_write_append"]]
+    },
+    {
+        "id": "file_write_append",
+        "type": "file",
+        "z": "file_sample_tab",
+        "name": "ログ追記",
+        "filename": "/tmp/nodered_sample.log",
+        "filenameType": "str",
+        "appendNewline": true,
+        "createDir": true,
+        "overwriteFile": "false",
+        "encoding": "utf8",
+        "x": 520,
+        "y": 100,
+        "wires": [["file_debug1"]]
+    },
+    {
+        "id": "file_debug1",
+        "type": "debug",
+        "z": "file_sample_tab",
+        "name": "書き込み完了",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "\"書き込み完了\"",
+        "statusType": "str",
+        "x": 690,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "file_comment2",
+        "type": "comment",
+        "z": "file_sample_tab",
+        "name": "━━━ ファイルの読み込み ━━━",
+        "info": "",
+        "x": 180,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "file_inject2",
+        "type": "inject",
+        "z": "file_sample_tab",
+        "name": "ファイル読み込み",
+        "props": [],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 160,
+        "y": 240,
+        "wires": [["file_read"]]
+    },
+    {
+        "id": "file_read",
+        "type": "file in",
+        "z": "file_sample_tab",
+        "name": "ログ読み込み",
+        "filename": "/tmp/nodered_sample.log",
+        "filenameType": "str",
+        "format": "utf8",
+        "chunk": false,
+        "sendError": false,
+        "encoding": "utf8",
+        "allProps": false,
+        "x": 350,
+        "y": 240,
+        "wires": [["file_debug2"]]
+    },
+    {
+        "id": "file_debug2",
+        "type": "debug",
+        "z": "file_sample_tab",
+        "name": "ファイル内容",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 530,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "file_comment3",
+        "type": "comment",
+        "z": "file_sample_tab",
+        "name": "━━━ 上書き保存 ━━━",
+        "info": "",
+        "x": 160,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "file_inject3",
+        "type": "inject",
+        "z": "file_sample_tab",
+        "name": "設定を保存",
+        "props": [],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 150,
+        "y": 380,
+        "wires": [["file_func_config"]]
+    },
+    {
+        "id": "file_func_config",
+        "type": "function",
+        "z": "file_sample_tab",
+        "name": "設定オブジェクト",
+        "func": "msg.payload = JSON.stringify({\n    \"appName\": \"My IoT App\",\n    \"version\": \"1.0.0\",\n    \"settings\": {\n        \"interval\": 5000,\n        \"threshold\": 30\n    },\n    \"updatedAt\": new Date().toISOString()\n}, null, 2);\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 330,
+        "y": 380,
+        "wires": [["file_write_overwrite"]]
+    },
+    {
+        "id": "file_write_overwrite",
+        "type": "file",
+        "z": "file_sample_tab",
+        "name": "設定ファイル保存",
+        "filename": "/tmp/nodered_config.json",
+        "filenameType": "str",
+        "appendNewline": false,
+        "createDir": true,
+        "overwriteFile": "true",
+        "encoding": "utf8",
+        "x": 530,
+        "y": 380,
+        "wires": [["file_debug3"]]
+    },
+    {
+        "id": "file_debug3",
+        "type": "debug",
+        "z": "file_sample_tab",
+        "name": "保存完了",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "\"設定保存完了\"",
+        "statusType": "str",
+        "x": 700,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "file_comment4",
+        "type": "comment",
+        "z": "file_sample_tab",
+        "name": "━━━ 動的ファイル名（日付別ログ） ━━━",
+        "info": "",
+        "x": 210,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "file_inject4",
+        "type": "inject",
+        "z": "file_sample_tab",
+        "name": "イベント発生",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "ボタンが押されました",
+        "payloadType": "str",
+        "x": 150,
+        "y": 520,
+        "wires": [["file_func_dynamic"]]
+    },
+    {
+        "id": "file_func_dynamic",
+        "type": "function",
+        "z": "file_sample_tab",
+        "name": "日付別ファイル名",
+        "func": "var today = new Date().toISOString().slice(0, 10);\nmsg.filename = \"/tmp/events_\" + today + \".log\";\n\nvar timestamp = new Date().toISOString();\nmsg.payload = timestamp + \" | \" + msg.payload;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 330,
+        "y": 520,
+        "wires": [["file_write_dynamic"]]
+    },
+    {
+        "id": "file_write_dynamic",
+        "type": "file",
+        "z": "file_sample_tab",
+        "name": "動的ファイル",
+        "filename": "",
+        "filenameType": "msg",
+        "appendNewline": true,
+        "createDir": true,
+        "overwriteFile": "false",
+        "encoding": "utf8",
+        "x": 520,
+        "y": 520,
+        "wires": [["file_debug4"]]
+    },
+    {
+        "id": "file_debug4",
+        "type": "debug",
+        "z": "file_sample_tab",
+        "name": "ファイル名確認",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "filename",
+        "targetType": "msg",
+        "statusVal": "filename",
+        "statusType": "msg",
+        "x": 700,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "file_comment5",
+        "type": "comment",
+        "z": "file_sample_tab",
+        "name": "━━━ エラーハンドリング ━━━",
+        "info": "",
+        "x": 170,
+        "y": 600,
+        "wires": []
+    },
+    {
+        "id": "file_inject5",
+        "type": "inject",
+        "z": "file_sample_tab",
+        "name": "存在しないファイル",
+        "props": [{"p": "filename", "v": "/nonexistent/path/file.txt", "vt": "str"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 170,
+        "y": 660,
+        "wires": [["file_read_error"]]
+    },
+    {
+        "id": "file_read_error",
+        "type": "file in",
+        "z": "file_sample_tab",
+        "name": "読み込み試行",
+        "filename": "",
+        "filenameType": "msg",
+        "format": "utf8",
+        "chunk": false,
+        "sendError": false,
+        "encoding": "utf8",
+        "allProps": false,
+        "x": 360,
+        "y": 660,
+        "wires": [["file_debug5"]]
+    },
+    {
+        "id": "file_debug5",
+        "type": "debug",
+        "z": "file_sample_tab",
+        "name": "読み込み結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "x": 540,
+        "y": 660,
+        "wires": []
+    },
+    {
+        "id": "file_catch",
+        "type": "catch",
+        "z": "file_sample_tab",
+        "name": "ファイルエラー捕捉",
+        "scope": ["file_read_error"],
+        "uncaught": false,
+        "x": 350,
+        "y": 720,
+        "wires": [["file_debug_error"]]
+    },
+    {
+        "id": "file_debug_error",
+        "type": "debug",
+        "z": "file_sample_tab",
+        "name": "エラー内容",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "error.message",
+        "targetType": "msg",
+        "statusVal": "error.message",
+        "statusType": "msg",
+        "x": 530,
+        "y": 720,
+        "wires": []
+    }
+]</div>
+        </details>
+        
+        <h2 id="section6">📝 6. 演習問題</h2>
+        
+        <div class="exercise">
+            <h3>演習1: 基本的なログ出力 <span class="difficulty difficulty-easy">初級</span></h3>
+            <p><strong>📋 課題:</strong> Inject ノードのボタンを押すたびに、タイムスタンプ付きのメッセージをログファイルに追記してください。</p>
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>File ノードの Action を「append to file」に設定し、「Add newline」をオンにします。</p>
+            </details>
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex1_tab", "type": "tab", "label": "演習1"},
+    {"id": "ex1_inject", "type": "inject", "z": "ex1_tab", "name": "ログ追加", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "イベント発生", "payloadType": "str", "x": 140, "y": 100, "wires": [["ex1_func"]]},
+    {"id": "ex1_func", "type": "function", "z": "ex1_tab", "name": "タイムスタンプ", "func": "msg.payload = new Date().toISOString() + \" - \" + msg.payload;\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 300, "y": 100, "wires": [["ex1_file"]]},
+    {"id": "ex1_file", "type": "file", "z": "ex1_tab", "name": "ログ追記", "filename": "/tmp/exercise1.log", "filenameType": "str", "appendNewline": true, "createDir": true, "overwriteFile": "false", "encoding": "utf8", "x": 460, "y": 100, "wires": [["ex1_debug"]]},
+    {"id": "ex1_debug", "type": "debug", "z": "ex1_tab", "name": "完了", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "\"追記完了\"", "statusType": "str", "x": 610, "y": 100, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習2: ファイルの読み込み <span class="difficulty difficulty-easy">初級</span></h3>
+            <p><strong>📋 課題:</strong> 演習1で作成したログファイルを読み込み、内容をDebugに表示してください。</p>
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>File In ノードを使用し、Output を「a single utf8 string」に設定します。</p>
+            </details>
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex2_tab", "type": "tab", "label": "演習2"},
+    {"id": "ex2_inject", "type": "inject", "z": "ex2_tab", "name": "読み込み", "props": [], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "x": 140, "y": 100, "wires": [["ex2_file_in"]]},
+    {"id": "ex2_file_in", "type": "file in", "z": "ex2_tab", "name": "ログ読み込み", "filename": "/tmp/exercise1.log", "filenameType": "str", "format": "utf8", "chunk": false, "sendError": false, "encoding": "utf8", "allProps": false, "x": 300, "y": 100, "wires": [["ex2_debug"]]},
+    {"id": "ex2_debug", "type": "debug", "z": "ex2_tab", "name": "内容表示", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "x": 470, "y": 100, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習3: JSON設定ファイルの保存と読み込み <span class="difficulty difficulty-medium">中級</span></h3>
+            <p><strong>📋 課題:</strong> 設定オブジェクトをJSONファイルとして保存し、別のフローで読み込んでオブジェクトとして使用してください。</p>
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>保存時: JSON.stringify() で文字列化、読み込み時: JSON ノードで解析</p>
+            </details>
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex3_tab", "type": "tab", "label": "演習3"},
+    {"id": "ex3_inject1", "type": "inject", "z": "ex3_tab", "name": "設定保存", "props": [], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "x": 140, "y": 80, "wires": [["ex3_func1"]]},
+    {"id": "ex3_func1", "type": "function", "z": "ex3_tab", "name": "設定作成", "func": "msg.payload = JSON.stringify({\n    server: \"localhost\",\n    port: 8080,\n    debug: true\n}, null, 2);\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 290, "y": 80, "wires": [["ex3_file_write"]]},
+    {"id": "ex3_file_write", "type": "file", "z": "ex3_tab", "name": "JSON保存", "filename": "/tmp/config.json", "filenameType": "str", "appendNewline": false, "createDir": true, "overwriteFile": "true", "encoding": "utf8", "x": 450, "y": 80, "wires": [["ex3_debug1"]]},
+    {"id": "ex3_debug1", "type": "debug", "z": "ex3_tab", "name": "保存完了", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "\"保存完了\"", "statusType": "str", "x": 620, "y": 80, "wires": []},
+    {"id": "ex3_inject2", "type": "inject", "z": "ex3_tab", "name": "設定読込", "props": [], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "x": 140, "y": 160, "wires": [["ex3_file_read"]]},
+    {"id": "ex3_file_read", "type": "file in", "z": "ex3_tab", "name": "JSON読込", "filename": "/tmp/config.json", "filenameType": "str", "format": "utf8", "chunk": false, "sendError": false, "encoding": "utf8", "allProps": false, "x": 290, "y": 160, "wires": [["ex3_json"]]},
+    {"id": "ex3_json", "type": "json", "z": "ex3_tab", "name": "JSON解析", "property": "payload", "action": "", "pretty": false, "x": 450, "y": 160, "wires": [["ex3_debug2"]]},
+    {"id": "ex3_debug2", "type": "debug", "z": "ex3_tab", "name": "設定オブジェクト", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "payload.server", "statusType": "msg", "x": 630, "y": 160, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習4: 日付別ローテーションログ <span class="difficulty difficulty-hard">上級</span></h3>
+            <p><strong>📋 課題:</strong> センサーデータを日付別のファイルに保存し、7日以上前のファイルを自動削除する仕組みを作成してください。</p>
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>msg.filename で動的にファイル名を指定。削除は Action: delete file を使用。</p>
+            </details>
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex4_tab", "type": "tab", "label": "演習4"},
+    {"id": "ex4_inject", "type": "inject", "z": "ex4_tab", "name": "センサーデータ", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "25.5", "payloadType": "num", "x": 160, "y": 80, "wires": [["ex4_func_write"]]},
+    {"id": "ex4_func_write", "type": "function", "z": "ex4_tab", "name": "日付別ファイル名", "func": "var today = new Date().toISOString().slice(0,10);\nmsg.filename = \"/tmp/sensor_\" + today + \".log\";\nmsg.payload = new Date().toISOString() + \",\" + msg.payload;\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 350, "y": 80, "wires": [["ex4_file_write"]]},
+    {"id": "ex4_file_write", "type": "file", "z": "ex4_tab", "name": "ログ追記", "filename": "", "filenameType": "msg", "appendNewline": true, "createDir": true, "overwriteFile": "false", "encoding": "utf8", "x": 530, "y": 80, "wires": [["ex4_debug1"]]},
+    {"id": "ex4_debug1", "type": "debug", "z": "ex4_tab", "name": "保存先", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "filename", "targetType": "msg", "statusVal": "filename", "statusType": "msg", "x": 690, "y": 80, "wires": []},
+    {"id": "ex4_inject_del", "type": "inject", "z": "ex4_tab", "name": "古いファイル削除", "props": [], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "x": 170, "y": 160, "wires": [["ex4_func_del"]]},
+    {"id": "ex4_func_del", "type": "function", "z": "ex4_tab", "name": "7日前のファイル名", "func": "var d = new Date();\nd.setDate(d.getDate() - 7);\nvar oldDate = d.toISOString().slice(0,10);\nmsg.filename = \"/tmp/sensor_\" + oldDate + \".log\";\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 370, "y": 160, "wires": [["ex4_file_del"]]},
+    {"id": "ex4_file_del", "type": "file", "z": "ex4_tab", "name": "ファイル削除", "filename": "", "filenameType": "msg", "appendNewline": true, "createDir": false, "overwriteFile": "delete", "encoding": "utf8", "x": 550, "y": 160, "wires": [["ex4_debug2"]]},
+    {"id": "ex4_debug2", "type": "debug", "z": "ex4_tab", "name": "削除結果", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "filename", "targetType": "msg", "statusVal": "\"削除試行\"", "statusType": "str", "x": 700, "y": 160, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <h2 id="section7">✅ 7. まとめ</h2>
+        
+        <div class="important">
+            <p><strong>🎯 重要ポイント:</strong></p>
+            <ul>
+                <li><strong>File</strong>: 書き込み・追記・削除（append / overwrite / delete）</li>
+                <li><strong>File In</strong>: 読み込み（文字列 / Buffer / 行ごと / ストリーム）</li>
+                <li><code>msg.filename</code> で動的にファイルパスを指定可能</li>
+                <li>「Create directory」で親ディレクトリを自動作成</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <p><strong>⚠️ 注意事項:</strong></p>
+            <ul>
+                <li>ファイルパスの権限に注意（読み書き権限が必要）</li>
+                <li>大きなファイルは「a msg per line」または「stream」を使用</li>
+                <li>重要なファイル操作には Catch ノードでエラーハンドリング</li>
+                <li>相対パスはNode-REDの作業ディレクトリ基準</li>
+            </ul>
+        </div>
+        
+        <h2 id="section8">🏭 8. 実務活用例</h2>
+        
+        <h3>ケース1: センサーデータのログ記録</h3>
+        <p>IoTセンサーからのデータを時系列でログファイルに記録。日付別ローテーション。</p>
+        
+        <h3>ケース2: 設定ファイルの管理</h3>
+        <p>JSON/YAML形式の設定ファイルを読み込み、フロー起動時に設定を適用。</p>
+        
+        <h3>ケース3: CSVデータのバッチ処理</h3>
+        <p>CSVファイルを1行ずつ読み込み、データベースへのインポート処理。</p>
+        
+        <h3>ケース4: レポート生成</h3>
+        <p>収集したデータからレポートを生成し、ファイルとして保存・メール送信。</p>
+        
+        <p style="margin-top: 40px;"><a href="https://nodered.org/docs/" target="_blank">📚 Node-RED 公式ドキュメント</a></p>
+    </div>
+    
+    <script>
+        document.querySelectorAll('.flow-json').forEach(function(block) {
+            var btn = document.createElement('button');
+            btn.className = 'copy-btn';
+            btn.textContent = 'コピー';
+            btn.onclick = function() {
+                navigator.clipboard.writeText(block.textContent).then(function() {
+                    btn.textContent = 'コピー完了!';
+                    setTimeout(function() { btn.textContent = 'コピー'; }, 2000);
+                });
+            };
+            block.style.position = 'relative';
+            block.appendChild(btn);
+        });
+    </script>
+</body>
+</html>
