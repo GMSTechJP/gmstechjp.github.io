@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED Watch ノード完全ガイド</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.8; max-width: 1000px; margin: 0 auto; padding: 20px; background-color: #f5f5f5; color: #333; }
+        h1 { color: #7b1fa2; border-bottom: 3px solid #7b1fa2; padding-bottom: 10px; }
+        h2 { color: #9c27b0; margin-top: 30px; border-left: 5px solid #9c27b0; padding-left: 15px; }
+        h3 { color: #555; margin-top: 25px; }
+        .container { background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .node-example { background-color: #2d3133; padding: 20px; border-radius: 5px; margin: 20px 0; color: white; font-family: 'Courier New', monospace; }
+        .node { display: inline-block; padding: 8px 15px; border-radius: 4px; margin: 5px; font-weight: bold; font-size: 14px; }
+        .node-inject { background-color: #3fadb5; color: white; }
+        .node-debug { background-color: #87a48d; color: white; }
+        .node-function { background-color: #e8a658; color: white; }
+        .node-watch { background-color: #d4a0a0; color: #333; }
+        .node-file { background-color: #d4a0a0; color: #333; }
+        .node-file-in { background-color: #d4a0a0; color: #333; }
+        .node-switch { background-color: #e2d96e; color: #333; }
+        .node-change { background-color: #e7a070; color: white; }
+        .node-json { background-color: #e8c28b; color: #333; }
+        .node-delay { background-color: #e8a6bf; color: #333; }
+        .arrow { color: #999; font-size: 20px; margin: 0 10px; }
+        .important { background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 15px 0; border-radius: 4px; }
+        .tip { background-color: #d1ecf1; border-left: 4px solid #17a2b8; padding: 15px; margin: 15px 0; border-radius: 4px; }
+        .warning { background-color: #f8d7da; border-left: 4px solid #dc3545; padding: 15px; margin: 15px 0; border-radius: 4px; }
+        .code-block { background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 4px; padding: 15px; margin: 15px 0; overflow-x: auto; font-family: 'Courier New', Consolas, monospace; font-size: 14px; position: relative; white-space: pre-wrap; }
+        .flow-json { background-color: #263238; color: #aed581; padding: 15px; padding-top: 40px; border-radius: 5px; overflow-x: auto; font-family: 'Courier New', monospace; font-size: 12px; max-height: 400px; overflow-y: auto; position: relative; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #d4a0a0; color: #333; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .exercise { background-color: #e8f5e9; border: 2px solid #4caf50; border-radius: 8px; padding: 20px; margin: 25px 0; }
+        .exercise h3 { color: #2e7d32; margin-top: 0; }
+        .difficulty { display: inline-block; padding: 5px 12px; border-radius: 15px; font-size: 12px; font-weight: bold; margin-left: 10px; }
+        .difficulty-easy { background-color: #4caf50; color: white; }
+        .difficulty-medium { background-color: #ff9800; color: white; }
+        .difficulty-hard { background-color: #f44336; color: white; }
+        details { margin: 15px 0; }
+        summary { cursor: pointer; padding: 10px; background-color: #6c757d; color: white; border-radius: 4px; font-weight: bold; }
+        summary:hover { background-color: #5a6268; }
+        .copy-button { position: absolute; top: 8px; right: 8px; padding: 6px 12px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; }
+        .copy-button:hover { background-color: #0056b3; }
+        .copy-button.copied { background-color: #28a745; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>👁️ Node-RED Watch ノード完全ガイド</h1>
+        
+        <p>このガイドでは、Node-REDの<strong>Watchノード</strong>について、初心者の方でも理解できるように詳しく説明します。</p>
+        
+        <h2>📚 1. Watchノードとは?</h2>
+        
+        <h3>🤔 「Watch」って何?</h3>
+        <p>Watchノードは、<strong>ファイルやディレクトリの変更を監視</strong>し、変更があった際にメッセージを出力するノードです。</p>
+        
+        <div class="important">
+            <p><strong>🔔 警備員に例えると:</strong></p>
+            <ul>
+                <li>👮 <strong>警備員を配置</strong> = Watchノードを設定</li>
+                <li>🏢 <strong>監視エリアを指定</strong> = 監視するファイル/フォルダを設定</li>
+                <li>📢 <strong>変化があれば報告</strong> = 変更検知時にメッセージ出力</li>
+                <li>📝 <strong>詳細情報を記録</strong> = ファイル名、サイズ、種類を通知</li>
+            </ul>
+        </div>
+        
+        <h3>📦 基本的な動作</h3>
+        <div class="node-example">
+            <span class="node node-watch">Watch</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <p>Watchノードは、指定したファイルやディレクトリを常時監視し、ファイルの追加・変更・削除があると<strong>自動的にメッセージを送信</strong>します。</p>
+        
+        <div class="tip">
+            <p><strong>💡 主な用途:</strong></p>
+            <ul>
+                <li>ログファイルの更新検知</li>
+                <li>FTPでアップロードされたファイルの処理</li>
+                <li>設定ファイルの変更検知と自動リロード</li>
+                <li>画像・動画ファイルの自動処理</li>
+            </ul>
+        </div>
+        
+        <h2>⚙️ 2. Watchノードの設定</h2>
+        
+        <h3>📋 設定項目</h3>
+        <table>
+            <tr><th>設定項目</th><th>説明</th><th>例</th></tr>
+            <tr><td><strong>Files</strong></td><td>監視するファイル/ディレクトリのパス（カンマ区切りで複数可）</td><td>/home/pi/uploads, /tmp/logs</td></tr>
+            <tr><td><strong>Recursive</strong></td><td>サブディレクトリも再帰的に監視</td><td>true / false</td></tr>
+            <tr><td><strong>Name</strong></td><td>ノードの表示名</td><td>アップロード監視</td></tr>
+        </table>
+        
+        <h3>🔧 パス指定のルール</h3>
+        <table>
+            <tr><th>OS</th><th>パス形式</th><th>例</th></tr>
+            <tr><td>Linux / Mac</td><td>スラッシュ区切り</td><td><code>/home/pi/data</code></td></tr>
+            <tr><td>Windows</td><td>ダブルバックスラッシュ</td><td><code>C:\\Users\\data</code></td></tr>
+            <tr><td>スペースを含むパス</td><td>ダブルクォートで囲む</td><td><code>"/home/pi/my folder"</code></td></tr>
+        </table>
+        
+        <h3>📤 出力メッセージ</h3>
+        <p>ファイルやディレクトリに変更があると、以下のプロパティを持つメッセージが出力されます：</p>
+        <table>
+            <tr><th>プロパティ</th><th>説明</th><th>例</th></tr>
+            <tr><td><strong>msg.payload</strong></td><td>変更されたファイルのフルパス</td><td><code>/home/pi/uploads/image.jpg</code></td></tr>
+            <tr><td><strong>msg.filename</strong></td><td>msg.payload と同じ（フルパス）</td><td><code>/home/pi/uploads/image.jpg</code></td></tr>
+            <tr><td><strong>msg.file</strong></td><td>ファイル名のみ（短縮形）</td><td><code>image.jpg</code></td></tr>
+            <tr><td><strong>msg.type</strong></td><td>変更されたものの種類</td><td><code>file</code> / <code>directory</code></td></tr>
+            <tr><td><strong>msg.size</strong></td><td>ファイルサイズ（バイト）</td><td><code>1024</code></td></tr>
+            <tr><td><strong>msg.topic</strong></td><td>監視リスト（文字列化）</td><td><code>/home/pi/uploads</code></td></tr>
+        </table>
+        
+        <div class="warning">
+            <p><strong>⚠️ 重要な制約:</strong></p>
+            <ul>
+                <li>監視対象のファイル/ディレクトリは<strong>事前に存在している必要</strong>があります</li>
+                <li>削除されたファイル/ディレクトリは、再作成されても監視が復活しない場合があります</li>
+                <li>NFS/SMBなどのネットワークマウントでは正常に動作しない場合があります</li>
+            </ul>
+        </div>
+        
+        <h2>🎯 3. 実用的な使用パターン</h2>
+        
+        <div class="important">
+            <p><strong>📥 サンプルフローのインポート方法:</strong></p>
+            <ol>
+                <li>下のサンプルフローJSONをコピー</li>
+                <li>Node-REDエディタで <strong>メニュー → 読み込み</strong> を選択</li>
+                <li>JSONをペーストして「読み込み」をクリック</li>
+            </ol>
+            <p>このサンプルフローには、以下で説明する全パターンの実例が含まれています。</p>
+        </div>
+        
+        <details>
+            <summary>📋 サンプルフロー（クリックで展開）</summary>
+            <p style="margin: 10px 0; color: #666;"><small>※ 使用前に /tmp/uploads, /tmp/config.json, /tmp/data ディレクトリを作成してください</small></p>
+            <div class="flow-json">[
+    {
+        "id": "watch_sample_tab",
+        "type": "tab",
+        "label": "Watch サンプル",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "watch_comment1",
+        "type": "comment",
+        "z": "watch_sample_tab",
+        "name": "━━━ パターン1: 基本的なファイル監視 ━━━",
+        "info": "",
+        "x": 220,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "watch_basic",
+        "type": "watch",
+        "z": "watch_sample_tab",
+        "name": "uploads監視",
+        "files": "/tmp/uploads",
+        "recursive": true,
+        "x": 140,
+        "y": 100,
+        "wires": [["watch_debug1"]]
+    },
+    {
+        "id": "watch_debug1",
+        "type": "debug",
+        "z": "watch_sample_tab",
+        "name": "変更検知",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "file",
+        "statusType": "msg",
+        "x": 330,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "watch_comment2",
+        "type": "comment",
+        "z": "watch_sample_tab",
+        "name": "━━━ パターン2: ファイル変更 → 内容読み込み ━━━",
+        "info": "",
+        "x": 240,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "watch_read",
+        "type": "watch",
+        "z": "watch_sample_tab",
+        "name": "設定ファイル監視",
+        "files": "/tmp/config.json",
+        "recursive": false,
+        "x": 160,
+        "y": 240,
+        "wires": [["watch_file_read"]]
+    },
+    {
+        "id": "watch_file_read",
+        "type": "file in",
+        "z": "watch_sample_tab",
+        "name": "設定読み込み",
+        "filename": "",
+        "filenameType": "msg",
+        "format": "utf8",
+        "chunk": false,
+        "sendError": false,
+        "encoding": "utf8",
+        "allProps": false,
+        "x": 360,
+        "y": 240,
+        "wires": [["watch_json_parse"]]
+    },
+    {
+        "id": "watch_json_parse",
+        "type": "json",
+        "z": "watch_sample_tab",
+        "name": "JSON解析",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 530,
+        "y": 240,
+        "wires": [["watch_debug2"]]
+    },
+    {
+        "id": "watch_debug2",
+        "type": "debug",
+        "z": "watch_sample_tab",
+        "name": "設定内容",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 690,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "watch_comment3",
+        "type": "comment",
+        "z": "watch_sample_tab",
+        "name": "━━━ パターン3: ファイル種別による振り分け ━━━",
+        "info": "",
+        "x": 240,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "watch_filter",
+        "type": "watch",
+        "z": "watch_sample_tab",
+        "name": "データフォルダ監視",
+        "files": "/tmp/data",
+        "recursive": true,
+        "x": 170,
+        "y": 380,
+        "wires": [["watch_switch"]]
+    },
+    {
+        "id": "watch_switch",
+        "type": "switch",
+        "z": "watch_sample_tab",
+        "name": "拡張子で振り分け",
+        "property": "file",
+        "propertyType": "msg",
+        "rules": [
+            {"t": "regex", "v": "\\.csv$", "vt": "str", "case": true},
+            {"t": "regex", "v": "\\.(jpg|png|gif)$", "vt": "str", "case": true},
+            {"t": "regex", "v": "\\.json$", "vt": "str", "case": true},
+            {"t": "else"}
+        ],
+        "checkall": "false",
+        "repair": false,
+        "outputs": 4,
+        "x": 370,
+        "y": 380,
+        "wires": [["watch_debug_csv"], ["watch_debug_img"], ["watch_debug_json"], ["watch_debug_other"]]
+    },
+    {
+        "id": "watch_debug_csv",
+        "type": "debug",
+        "z": "watch_sample_tab",
+        "name": "CSV処理",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "file",
+        "targetType": "msg",
+        "statusVal": "\"CSV: \" & file",
+        "statusType": "jsonata",
+        "x": 560,
+        "y": 340,
+        "wires": []
+    },
+    {
+        "id": "watch_debug_img",
+        "type": "debug",
+        "z": "watch_sample_tab",
+        "name": "画像処理",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "file",
+        "targetType": "msg",
+        "statusVal": "\"IMG: \" & file",
+        "statusType": "jsonata",
+        "x": 560,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "watch_debug_json",
+        "type": "debug",
+        "z": "watch_sample_tab",
+        "name": "JSON処理",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "file",
+        "targetType": "msg",
+        "statusVal": "\"JSON: \" & file",
+        "statusType": "jsonata",
+        "x": 560,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "watch_debug_other",
+        "type": "debug",
+        "z": "watch_sample_tab",
+        "name": "その他",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "file",
+        "targetType": "msg",
+        "statusVal": "\"OTHER: \" & file",
+        "statusType": "jsonata",
+        "x": 550,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "watch_comment4",
+        "type": "comment",
+        "z": "watch_sample_tab",
+        "name": "━━━ パターン4: ファイルサイズでフィルタ ━━━",
+        "info": "",
+        "x": 230,
+        "y": 540,
+        "wires": []
+    },
+    {
+        "id": "watch_size",
+        "type": "watch",
+        "z": "watch_sample_tab",
+        "name": "サイズ監視",
+        "files": "/tmp/uploads",
+        "recursive": false,
+        "x": 140,
+        "y": 600,
+        "wires": [["watch_size_check"]]
+    },
+    {
+        "id": "watch_size_check",
+        "type": "switch",
+        "z": "watch_sample_tab",
+        "name": "1MB以上?",
+        "property": "size",
+        "propertyType": "msg",
+        "rules": [
+            {"t": "gte", "v": "1048576", "vt": "num"},
+            {"t": "else"}
+        ],
+        "checkall": "false",
+        "repair": false,
+        "outputs": 2,
+        "x": 310,
+        "y": 600,
+        "wires": [["watch_debug_large"], ["watch_debug_small"]]
+    },
+    {
+        "id": "watch_debug_large",
+        "type": "debug",
+        "z": "watch_sample_tab",
+        "name": "大きいファイル",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "\"大: \" & $string(size) & \" bytes\"",
+        "statusType": "jsonata",
+        "x": 500,
+        "y": 580,
+        "wires": []
+    },
+    {
+        "id": "watch_debug_small",
+        "type": "debug",
+        "z": "watch_sample_tab",
+        "name": "小さいファイル",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "\"小: \" & $string(size) & \" bytes\"",
+        "statusType": "jsonata",
+        "x": 500,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "watch_comment5",
+        "type": "comment",
+        "z": "watch_sample_tab",
+        "name": "━━━ テスト用: ファイル作成 ━━━",
+        "info": "Injectボタンを押すとテストファイルが作成されます",
+        "x": 200,
+        "y": 700,
+        "wires": []
+    },
+    {
+        "id": "watch_test_inject",
+        "type": "inject",
+        "z": "watch_sample_tab",
+        "name": "テストファイル作成",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "テストデータ: ",
+        "payloadType": "str",
+        "x": 170,
+        "y": 760,
+        "wires": [["watch_test_func"]]
+    },
+    {
+        "id": "watch_test_func",
+        "type": "function",
+        "z": "watch_sample_tab",
+        "name": "タイムスタンプ追加",
+        "func": "msg.payload = msg.payload + new Date().toISOString();\nmsg.filename = \"/tmp/uploads/test_\" + Date.now() + \".txt\";\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 370,
+        "y": 760,
+        "wires": [["watch_test_write"]]
+    },
+    {
+        "id": "watch_test_write",
+        "type": "file",
+        "z": "watch_sample_tab",
+        "name": "ファイル書き込み",
+        "filename": "",
+        "filenameType": "msg",
+        "appendNewline": true,
+        "createDir": true,
+        "overwriteFile": "true",
+        "encoding": "utf8",
+        "x": 570,
+        "y": 760,
+        "wires": [["watch_test_debug"]]
+    },
+    {
+        "id": "watch_test_debug",
+        "type": "debug",
+        "z": "watch_sample_tab",
+        "name": "作成完了",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "filename",
+        "targetType": "msg",
+        "statusVal": "filename",
+        "statusType": "msg",
+        "x": 740,
+        "y": 760,
+        "wires": []
+    }
+]</div>
+        </details>
+        
+        <h3>パターン1: 基本的なファイル監視</h3>
+        <p><strong>用途:</strong> 特定のディレクトリに新しいファイルが追加されたことを検知</p>
+        
+        <div class="node-example">
+            <span class="node node-watch">Watch<br><small>(/tmp/uploads)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <div class="tip">
+            <p><strong>📌 動作の流れ:</strong></p>
+            <ol>
+                <li>/tmp/uploads フォルダを常時監視</li>
+                <li>ファイルが追加/変更されると検知</li>
+                <li>ファイル情報（パス、名前、サイズ）をDebugに出力</li>
+            </ol>
+        </div>
+        
+        <p><strong>出力例:</strong></p>
+        <div class="code-block">msg.payload = "/tmp/uploads/image.jpg"
+msg.file = "image.jpg"
+msg.type = "file"
+msg.size = 1024</div>
+        
+        <h3>パターン2: ファイル変更 → 内容読み込み</h3>
+        <p><strong>用途:</strong> 設定ファイルが更新されたら内容を自動的に読み込む</p>
+        
+        <div class="node-example">
+            <span class="node node-watch">Watch<br><small>(config.json)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-file-in">Read File</span>
+            <span class="arrow">→</span>
+            <span class="node node-json">JSON</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+        
+        <div class="tip">
+            <p><strong>📌 動作の流れ:</strong></p>
+            <ol>
+                <li>Watch が config.json の変更を検知</li>
+                <li>Read File が msg.filename を使ってファイル内容を読み込み</li>
+                <li>JSON ノードでオブジェクトに変換</li>
+                <li>Debugで設定内容を確認</li>
+            </ol>
+            <p><em>※ Watch が出力する msg.filename を Read File ノードで使用するのがポイント</em></p>
+        </div>
+        
+        <h3>パターン3: ファイル種別による振り分け</h3>
+        <p><strong>用途:</strong> 拡張子によって異なる処理を実行</p>
+        
+        <div class="node-example">
+            <span class="node node-watch">Watch<br><small>(/tmp/data)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-switch">Switch<br><small>(拡張子)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">CSV / 画像 / JSON / その他</span>
+        </div>
+        
+        <div class="tip">
+            <p><strong>📌 動作の流れ:</strong></p>
+            <ol>
+                <li>Watch が /tmp/data フォルダを監視</li>
+                <li>Switch ノードで msg.file を正規表現でマッチング</li>
+                <li>拡張子に応じて4つの出力に振り分け</li>
+            </ol>
+        </div>
+        
+        <p><strong>Switchノードの設定:</strong></p>
+        <div class="code-block">プロパティ: msg.file
+ルール1: 正規表現 \.csv$      → CSV処理へ
+ルール2: 正規表現 \.(jpg|png|gif)$ → 画像処理へ
+ルール3: 正規表現 \.json$     → JSON処理へ
+ルール4: その他              → その他処理へ</div>
+        
+        <h3>パターン4: ファイルサイズでフィルタ</h3>
+        <p><strong>用途:</strong> 大きなファイルと小さなファイルで処理を分ける</p>
+        
+        <div class="node-example">
+            <span class="node node-watch">Watch</span>
+            <span class="arrow">→</span>
+            <span class="node node-switch">Switch<br><small>(size >= 1MB)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">大 / 小</span>
+        </div>
+        
+        <div class="tip">
+            <p><strong>📌 動作の流れ:</strong></p>
+            <ol>
+                <li>Watch が msg.size にファイルサイズを出力</li>
+                <li>Switch ノードで 1MB (1048576 bytes) 以上かを判定</li>
+                <li>大きいファイルと小さいファイルで別々の処理へ</li>
+            </ol>
+        </div>
+        
+        <h2>🏋️ 4. 実践演習</h2>
+        
+        <div class="exercise">
+            <h3>演習1: 基本的なディレクトリ監視<span class="difficulty difficulty-easy">初級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p><code>/tmp/mywatch</code> ディレクトリを監視し、ファイルが追加されたらファイル名とサイズをDebugに表示してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Watch ノードで <code>/tmp/mywatch</code> を監視</li>
+                <li>Debug ノードで変更を表示</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>準備:</strong></p>
+                <ul>
+                    <li>事前に <code>mkdir /tmp/mywatch</code> でディレクトリを作成</li>
+                </ul>
+                <p><strong>Watchノードの設定:</strong></p>
+                <ul>
+                    <li>Files: /tmp/mywatch</li>
+                </ul>
+                <p><strong>Debugノードの設定:</strong></p>
+                <ul>
+                    <li>出力: メッセージ全体</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex1_watch", "type": "watch", "name": "mywatch監視", "files": "/tmp/mywatch", "recursive": false, "x": 160, "y": 100, "wires": [["ex1_debug"]]},
+    {"id": "ex1_debug", "type": "debug", "name": "ファイル情報", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "true", "targetType": "full", "statusVal": "file & \": \" & $string(size) & \" bytes\"", "statusType": "jsonata", "x": 370, "y": 100, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習2: 設定ファイルの自動リロード<span class="difficulty difficulty-medium">中級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>JSONの設定ファイルを監視し、変更があったら内容を読み込んでグローバル変数に保存してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Watch ノードで設定ファイルを監視</li>
+                <li>Read File ノードで内容を読み込み</li>
+                <li>JSON ノードで解析</li>
+                <li>Function ノードでグローバル変数に保存</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Read Fileノードの設定:</strong></p>
+                <ul>
+                    <li>ファイル名: msg.filename を使用（Watch が出力するパス）</li>
+                </ul>
+                <p><strong>Functionノード:</strong></p>
+                <ul>
+                    <li><code>global.set("config", msg.payload);</code></li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex2_watch", "type": "watch", "name": "設定監視", "files": "/tmp/app_config.json", "recursive": false, "x": 140, "y": 100, "wires": [["ex2_read"]]},
+    {"id": "ex2_read", "type": "file in", "name": "読み込み", "filename": "", "filenameType": "msg", "format": "utf8", "chunk": false, "sendError": false, "encoding": "utf8", "allProps": false, "x": 290, "y": 100, "wires": [["ex2_json"]]},
+    {"id": "ex2_json", "type": "json", "name": "JSON解析", "property": "payload", "action": "", "pretty": false, "x": 430, "y": 100, "wires": [["ex2_func"]]},
+    {"id": "ex2_func", "type": "function", "name": "グローバル保存", "func": "global.set(\"config\", msg.payload);\nnode.status({fill:\"green\", shape:\"dot\", text:\"設定更新: \" + new Date().toLocaleTimeString()});\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 590, "y": 100, "wires": [["ex2_debug"]]},
+    {"id": "ex2_debug", "type": "debug", "name": "新設定", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "x": 750, "y": 100, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習3: 画像ファイルの自動検出<span class="difficulty difficulty-medium">中級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>アップロードフォルダを監視し、JPG/PNG画像のみを検出してファイル情報をログに記録してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Watch ノードでフォルダを監視</li>
+                <li>Switch ノードで画像ファイル（.jpg, .png）のみを通過</li>
+                <li>Function ノードでログ情報を整形</li>
+                <li>Write File ノードでログファイルに追記</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Switchノードの設定:</strong></p>
+                <ul>
+                    <li>プロパティ: msg.file</li>
+                    <li>正規表現: <code>\.(jpg|jpeg|png)$</code></li>
+                </ul>
+                <p><strong>Functionノード:</strong></p>
+                <ul>
+                    <li>ログ形式: タイムスタンプ,ファイル名,サイズ</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex3_watch", "type": "watch", "name": "画像フォルダ監視", "files": "/tmp/images", "recursive": true, "x": 170, "y": 100, "wires": [["ex3_switch"]]},
+    {"id": "ex3_switch", "type": "switch", "name": "画像のみ", "property": "file", "propertyType": "msg", "rules": [{"t": "regex", "v": "\\.(jpg|jpeg|png)$", "vt": "str", "case": true}], "checkall": "true", "repair": false, "outputs": 1, "x": 350, "y": 100, "wires": [["ex3_func"]]},
+    {"id": "ex3_func", "type": "function", "name": "ログ整形", "func": "var log = new Date().toISOString() + \",\" + msg.file + \",\" + msg.size;\nmsg.payload = log;\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 510, "y": 100, "wires": [["ex3_write", "ex3_debug"]]},
+    {"id": "ex3_write", "type": "file", "name": "ログ追記", "filename": "/tmp/image_log.csv", "filenameType": "str", "appendNewline": true, "createDir": true, "overwriteFile": "false", "encoding": "utf8", "x": 680, "y": 80, "wires": [[]]},
+    {"id": "ex3_debug", "type": "debug", "name": "画像検出", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "payload", "statusType": "msg", "x": 680, "y": 120, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習4: FTPアップロード処理システム<span class="difficulty difficulty-hard">上級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>FTPフォルダを監視し、CSVファイルがアップロードされたら内容を解析してJSON形式に変換、処理結果を保存してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Watch ノードでFTPフォルダを監視</li>
+                <li>Delay ノードで書き込み完了を待機（2秒）</li>
+                <li>Read File + CSV ノードでデータ読み込み・解析</li>
+                <li>Function ノードでJSON変換</li>
+                <li>処理結果をJSONファイルとして保存</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>なぜDelayが必要?</strong></p>
+                <ul>
+                    <li>FTPアップロード中にWatchが検知することがある</li>
+                    <li>書き込み完了を待ってから読み込むと安全</li>
+                </ul>
+                <p><strong>CSVノードの設定:</strong></p>
+                <ul>
+                    <li>1行目をヘッダーとして使用: ON</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex4_watch", "type": "watch", "name": "FTPフォルダ", "files": "/tmp/ftp_incoming", "recursive": false, "x": 140, "y": 100, "wires": [["ex4_filter"]]},
+    {"id": "ex4_filter", "type": "switch", "name": "CSVのみ", "property": "file", "propertyType": "msg", "rules": [{"t": "regex", "v": "\\.csv$", "vt": "str", "case": true}], "checkall": "true", "repair": false, "outputs": 1, "x": 290, "y": 100, "wires": [["ex4_delay"]]},
+    {"id": "ex4_delay", "type": "delay", "name": "2秒待機", "pauseType": "delay", "timeout": "2", "timeoutUnits": "seconds", "rate": "1", "nbRateUnits": "1", "rateUnits": "second", "randomFirst": "1", "randomLast": "5", "randomUnits": "seconds", "drop": false, "allowrate": false, "outputs": 1, "x": 420, "y": 100, "wires": [["ex4_read"]]},
+    {"id": "ex4_read", "type": "file in", "name": "CSV読み込み", "filename": "", "filenameType": "msg", "format": "utf8", "chunk": false, "sendError": false, "encoding": "utf8", "allProps": false, "x": 560, "y": 100, "wires": [["ex4_csv"]]},
+    {"id": "ex4_csv", "type": "csv", "name": "CSV解析", "sep": ",", "hdrin": true, "hdrout": "none", "multi": "mult", "ret": "\\n", "temp": "", "skip": "0", "strings": true, "include_empty_strings": false, "include_null_values": false, "x": 700, "y": 100, "wires": [["ex4_func"]]},
+    {"id": "ex4_func", "type": "function", "name": "JSON変換", "func": "var baseName = msg.file.replace('.csv', '');\nvar result = {\n    originalFile: msg.filename,\n    processedAt: new Date().toISOString(),\n    recordCount: msg.payload.length,\n    data: msg.payload\n};\nmsg.payload = JSON.stringify(result, null, 2);\nmsg.outputFile = \"/tmp/ftp_processed/\" + baseName + \".json\";\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 150, "y": 180, "wires": [["ex4_write_json"]]},
+    {"id": "ex4_write_json", "type": "file", "name": "JSON保存", "filename": "", "filenameType": "msg", "appendNewline": false, "createDir": true, "overwriteFile": "true", "encoding": "utf8", "x": 310, "y": 180, "wires": [["ex4_debug"]]},
+    {"id": "ex4_debug", "type": "debug", "name": "処理完了", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "outputFile", "targetType": "msg", "statusVal": "\"処理完了: \" & file", "statusType": "jsonata", "x": 470, "y": 180, "wires": []}
+]</div>
+            </details>
+        </div>
+        
+        <h2>🎓 5. まとめ</h2>
+        
+        <div class="important">
+            <h3>Watchノードの重要ポイント</h3>
+            <ul>
+                <li>✅ <strong>ファイル/ディレクトリ監視</strong>: 変更をリアルタイムで検知</li>
+                <li>✅ <strong>msg.filename</strong>: 変更されたファイルのフルパス（Read Fileで使用可能）</li>
+                <li>✅ <strong>msg.file</strong>: ファイル名のみ（拡張子判定に便利）</li>
+                <li>✅ <strong>msg.size</strong>: ファイルサイズ（フィルタリングに使用）</li>
+                <li>✅ <strong>recursive</strong>: サブディレクトリも含めて監視</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <h3>⚠️ よくある間違い</h3>
+            <ul>
+                <li><strong>ディレクトリが存在しない</strong>: 事前にディレクトリを作成しておく</li>
+                <li><strong>パスの書き方</strong>: Windowsはダブルバックスラッシュ（\\）を使用</li>
+                <li><strong>書き込み中の読み込み</strong>: 大きなファイルはDelayで待機してから読む</li>
+                <li><strong>ネットワークドライブ</strong>: NFS/SMBでは動作しない場合あり</li>
+            </ul>
+        </div>
+        
+        <h2>🔧 6. トラブルシューティング</h2>
+        
+        <table>
+            <tr><th>問題</th><th>原因</th><th>解決方法</th></tr>
+            <tr>
+                <td>監視が開始されない</td>
+                <td>ファイル/ディレクトリが存在しない</td>
+                <td>事前にファイル/ディレクトリを作成する</td>
+            </tr>
+            <tr>
+                <td>変更が検知されない</td>
+                <td>NFS/SMBマウント上のファイル</td>
+                <td>ローカルファイルシステムを使用</td>
+            </tr>
+            <tr>
+                <td>削除後に監視復活しない</td>
+                <td>Watchノードの仕様</td>
+                <td>フローを再デプロイする</td>
+            </tr>
+            <tr>
+                <td>読み込みエラー</td>
+                <td>ファイル書き込み完了前に読み込み</td>
+                <td>Delayノードで待機してから読み込み</td>
+            </tr>
+            <tr>
+                <td>Windowsでパスが認識されない</td>
+                <td>シングルバックスラッシュ使用</td>
+                <td>ダブルバックスラッシュ（\\）を使用</td>
+            </tr>
+        </table>
+        
+        <h2>💡 7. 実務での活用例</h2>
+        
+        <h3>ケース1: IoTセンサーデータの自動取り込み</h3>
+        <div class="code-block">センサー機器がCSVファイルを定期出力
+↓
+Watch で検知
+↓
+データ解析・DB登録</div>
+        
+        <h3>ケース2: 監視カメラ画像の処理</h3>
+        <div class="code-block">動体検知カメラが画像を保存
+↓
+Watch で検知
+↓
+画像解析 → 異常時にアラート</div>
+        
+        <h3>ケース3: ログファイル監視</h3>
+        <div class="code-block">アプリケーションログを監視
+↓
+エラーキーワード検出
+↓
+Slack/メールで通知</div>
+        
+        <h3>ケース4: 設定ファイルのホットリロード</h3>
+        <div class="code-block">設定ファイル変更を検知
+↓
+新設定を読み込み
+↓
+アプリケーションに適用（再起動不要）</div>
+        
+        <h2>📗 8. 追加リソース</h2>
+        
+        <ul>
+            <li><a href="https://nodered.org/docs/" target="_blank">Node-RED 公式ドキュメント</a></li>
+            <li><a href="https://cookbook.nodered.org/" target="_blank">Node-RED Cookbook</a></li>
+        </ul>
+        
+        <hr>
+        
+        <p style="text-align: center; color: #999; margin-top: 40px;">
+            <small>このガイドが役に立ちましたら、実際のプロジェクトで練習してみてください!<br>
+            Watchノードはファイル監視の強力なツールです。</small>
+        </p>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var codeBlocks = document.querySelectorAll('.flow-json');
+            codeBlocks.forEach(function(block) {
+                var button = document.createElement('button');
+                button.className = 'copy-button';
+                button.textContent = 'コピー';
+                button.addEventListener('click', function() {
+                    var code = block.textContent.replace(/コピー(しました!)?$/, '').trim();
+                    navigator.clipboard.writeText(code).then(function() {
+                        button.textContent = 'コピーしました!';
+                        button.classList.add('copied');
+                        setTimeout(function() {
+                            button.textContent = 'コピー';
+                            button.classList.remove('copied');
+                        }, 2000);
+                    });
+                });
+                block.style.position = 'relative';
+                block.appendChild(button);
+            });
+        });
+    </script>
+    <a href="index.html" style="position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px; background: linear-gradient(135deg, #42b883 0%, #35495e 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; transition: transform 0.3s, box-shadow 0.3s;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 6px 16px rgba(0,0,0,0.4)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.3)';" title="トップページへ">🏠</a>
+</body>
+</html>
