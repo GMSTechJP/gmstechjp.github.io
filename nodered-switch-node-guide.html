@@ -1174,79 +1174,16 @@
 ルール2: == "humidity" → 出力2
 ルール3: == "pressure" → 出力3</div>
         
-        <h3>パターン3: 全ルール確認（複数出力）</h3>
-        <p><strong>用途:</strong> 複数の条件に一致する場合、すべての出力ポートに送信</p>
-        
-        <div class="node-example">
-            <span class="node node-inject">5</span>
-            <span class="arrow">→</span>
-            <span class="node node-switch">Switch<br><small>(&lt;10, &gt;-10)</small></span>
-            <span class="arrow">→→</span>
-            <span class="node node-debug">両方に出力!</span>
-        </div>
-        
-        <div class="important">
-            <p><strong>⚠️ 「全ルールを確認」の動作:</strong></p>
+        <div class="tip">
+            <p><strong>📌 応用パターン（サンプルフローには含まれていません）:</strong></p>
+            <p>Switchノードは以下のような高度な条件分岐にも活用できます：</p>
             <ul>
-                <li><strong>有効の場合</strong>: すべてのルールを評価し、一致するすべての出力に送信</li>
-                <li><strong>無効の場合</strong>: 最初に一致したルールで終了</li>
+                <li><strong>全ルール確認（複数出力）</strong>: 「全ルールを確認」を有効にすると、複数条件に一致した場合すべての出力ポートに送信</li>
+                <li><strong>otherwiseの使用</strong>: どの条件にも一致しない場合のデフォルト処理を設定</li>
+                <li><strong>範囲チェック</strong>: 「is between」で値が特定範囲内かを判定（温度監視など）</li>
+                <li><strong>正規表現マッチ</strong>: 「matches regex」で文字列パターンを柔軟に判定</li>
             </ul>
-            <p>例: 値が5の場合、「&lt; 10」と「&gt; -10」の両方に一致 → 両方の出力ポートに送信</p>
         </div>
-        
-        <p><strong>設定例:</strong></p>
-        <div class="code-block">プロパティ: msg.payload
-ルール1: &lt; 10 → 出力1
-ルール2: &gt; -10 → 出力2
-全ルールを確認: ✓
-
-入力: 5
-結果: 出力1と出力2の両方に送信（両方の条件に一致）</div>
-        
-        <h3>パターン4: otherwiseの使用</h3>
-        <p><strong>用途:</strong> どの条件にも一致しない場合のデフォルト処理</p>
-        
-        <div class="node-example">
-            <span class="node node-inject">入力</span>
-            <span class="arrow">→</span>
-            <span class="node node-switch">Switch</span>
-            <span class="arrow">→</span>
-            <span class="node node-debug">条件1</span>
-            <br><br>
-            <span style="margin-left: 200px;"></span>
-            <span class="arrow" style="margin-left: 78px;">↘</span>
-            <span class="node node-debug">otherwise</span>
-        </div>
-        
-        <p><strong>設定例:</strong></p>
-        <div class="code-block">プロパティ: msg.payload
-ルール1: == "start" → 出力1
-ルール2: == "stop" → 出力2
-ルール3: otherwise → 出力3（その他すべて）
-
-入力: "pause"
-結果: 出力3に送信（"start"でも"stop"でもないため）</div>
-        
-        <h3>パターン5: 範囲チェック</h3>
-        <p><strong>用途:</strong> 値が特定の範囲内にあるかチェック</p>
-        
-        <div class="node-example">
-            <span class="node node-inject">温度データ</span>
-            <span class="arrow">→</span>
-            <span class="node node-switch">Switch<br><small>(範囲)</small></span>
-            <span class="arrow">→</span>
-            <span class="node node-debug">正常/警告/異常</span>
-        </div>
-        
-        <p><strong>設定例:</strong></p>
-        <div class="code-block">プロパティ: msg.payload
-ルール1: is between 18 and 26 → 出力1（正常）
-ルール2: is between 26 and 30 → 出力2（警告）
-ルール3: &gt; 30 → 出力3（異常）
-ルール4: &lt; 18 → 出力4（低温）
-
-入力: 28
-結果: 出力2（警告範囲）</div>
         
         <h2>🏋️ 4. 実践演習</h2>
         

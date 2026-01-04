@@ -692,114 +692,16 @@
 Functionノードのコード:
   throw new Error("Error Occured!");</div>
         
-        <h3>パターン2: フロー全体のエラーをキャッチ</h3>
-        <p><strong>用途:</strong> タブ内のすべてのノードからエラーを一括でキャッチ</p>
-        
-        <div class="node-example">
-            <span class="node node-inject">Inject</span>
-            <span class="arrow">→</span>
-            <span class="node node-function">処理A</span>
-            <span class="arrow">→</span>
-            <span class="node node-http-request">HTTP</span>
-            <span class="arrow">→</span>
-            <span class="node node-function">処理B</span>
-            <br><br>
-            <span style="margin-left: 120px;" class="node node-catch">Catch<br><small>(全ノード)</small></span>
-            <span class="arrow">→</span>
-            <span class="node node-debug">エラーログ</span>
-        </div>
-        
-        <p><strong>設定例:</strong></p>
-        <div class="code-block">Catchノード設定:
-  エラーをキャッチ: すべてのノード
-
-出力されるmsg:
-  msg.error.message: エラーメッセージ
-  msg.error.source.type: エラー発生ノードの種類
-  msg.error.source.name: エラー発生ノードの名前</div>
-        
-        <h3>パターン3: 未捕捉エラーのフォールバック</h3>
-        <p><strong>用途:</strong> 他のCatchノードで捕捉されなかったエラーを最終的にキャッチ</p>
-        
-        <div class="node-example">
-            <span class="node node-function">処理A</span>
-            <span class="arrow" style="color: #ff6666;">✗</span>
-            <span class="node node-catch">Catch A<br><small>(選択)</small></span>
-            <span class="arrow">→</span>
-            <span class="node node-debug">個別処理</span>
-            <br><br>
-            <span class="node node-function">処理B</span>
-            <span class="arrow" style="color: #ff6666;">✗</span>
-            <span class="node node-catch">Catch<br><small>(未捕捉)</small></span>
-            <span class="arrow">→</span>
-            <span class="node node-debug">共通処理</span>
-        </div>
-        
         <div class="tip">
-            <p><strong>📌 未捕捉モードの使いどころ:</strong></p>
+            <p><strong>📌 応用パターン（サンプルフローには含まれていません）:</strong></p>
+            <p>Catchノードは以下のような高度なエラーハンドリングにも活用できます：</p>
             <ul>
-                <li>重要なノードは個別のCatchで細かく処理</li>
-                <li>その他のエラーは未捕捉Catchで一括処理</li>
-                <li>エラーの取りこぼしを防ぐ最後の砦として機能</li>
+                <li><strong>フロー全体のエラーキャッチ</strong>: 「すべてのノード」を選択して、タブ内の全エラーを一括監視</li>
+                <li><strong>未捕捉エラーのフォールバック</strong>: 「未捕捉のみ」をONにして、他のCatchで捕捉されなかったエラーを最終的にキャッチ</li>
+                <li><strong>エラー通知フロー</strong>: Catch → Template → HTTP Request で、Slack/LINE等に通知</li>
+                <li><strong>リトライ処理</strong>: エラー発生時にカウントを管理し、一定回数まで再試行</li>
             </ul>
         </div>
-        
-        <p><strong>設定例:</strong></p>
-        <div class="code-block">Catch A（個別用）:
-  エラーをキャッチ: 選択したノード
-  対象: 処理Aノードを選択
-  未捕捉のみ: オフ
-
-Catch B（フォールバック用）:
-  エラーをキャッチ: すべてのノード
-  未捕捉のみ: オン ← これが重要!</div>
-        
-        <h3>パターン4: エラー通知フロー</h3>
-        <p><strong>用途:</strong> エラー発生時にメール、Slack、LINEなどに通知</p>
-        
-        <div class="node-example">
-            <span class="node node-catch">Catch<br><small>(全ノード)</small></span>
-            <span class="arrow">→</span>
-            <span class="node node-template">Template<br><small>(通知文作成)</small></span>
-            <span class="arrow">→</span>
-            <span class="node node-http-request">HTTP<br><small>(Slack等)</small></span>
-        </div>
-        
-        <p><strong>設定例:</strong></p>
-        <div class="code-block">Templateノードのテンプレート:
-{
-    "text": "⚠️ エラー発生!\nノード: {{error.source.name}}\nメッセージ: {{error.message}}\n時刻: {{timestamp}}"
-}</div>
-        
-        <h3>パターン5: エラーリカバリ処理</h3>
-        <p><strong>用途:</strong> エラー発生時に代替処理を実行</p>
-        
-        <div class="node-example">
-            <span class="node node-inject">Inject</span>
-            <span class="arrow">→</span>
-            <span class="node node-http-request">API呼出<br><small>(失敗)</small></span>
-            <span class="arrow" style="color: #ff6666;">✗</span>
-            <br><br>
-            <span style="margin-left: 120px;" class="node node-catch">Catch</span>
-            <span class="arrow">→</span>
-            <span class="node node-function">リトライ<br><small>処理</small></span>
-            <span class="arrow">→</span>
-            <span class="node node-http-request">API呼出<br><small>(再試行)</small></span>
-        </div>
-        
-        <p><strong>設定例:</strong></p>
-        <div class="code-block">リトライ用Functionノード:
-// リトライ回数をカウント
-msg.retryCount = (msg.retryCount || 0) + 1;
-
-// 3回までリトライ
-if (msg.retryCount <= 3) {
-    node.warn("リトライ " + msg.retryCount + " 回目");
-    return msg;
-}
-// 3回超えたらエラーとして処理
-node.error("リトライ上限に達しました", msg);
-return null;</div>
         
         <h2>🏋️ 4. 実践演習</h2>
         

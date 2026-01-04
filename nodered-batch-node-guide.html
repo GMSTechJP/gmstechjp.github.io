@@ -929,61 +929,15 @@
 出力: 5秒ごとに
   [0,1,2,3,4] → [5,6,7,8,9] → ...</div>
         
-        <h3>パターン4: シーケンスの連結</h3>
-        <p><strong>用途:</strong> 異なるトピックのシーケンスを順番に結合</p>
-        
-        <div class="node-example">
-            <span class="node node-inject">Inject<br><small>(topic:SEQ)</small></span>
-            <span class="arrow">→</span>
-            <span class="node node-split">Split</span>
-            <span class="arrow">→→→</span>
-            <span class="node node-batch">Batch<br><small>(concat)</small></span>
-            <span class="arrow">→→→</span>
-            <span class="node node-join">Join</span>
-            <span class="arrow">→</span>
-            <span class="node node-debug">Debug</span>
-        </div>
-        
-        <p><strong>設定例:</strong></p>
-        <div class="code-block">モード: 連結
-トピック: SEQ, SEQ（同じトピックを2回指定）
-
-入力: [1,2,3,4,5] を Split で分割
-出力: [1,2,3,4,5,1,2,3,4,5]（2回連結）</div>
-        
-        <h3>パターン5: フィルタリング後の連結</h3>
-        <p><strong>用途:</strong> 条件でフィルタした結果を順番に結合</p>
-        
-        <div class="node-example">
-            <span class="node node-inject">Inject</span>
-            <span class="arrow">→</span>
-            <span class="node node-split">Split</span>
-            <span class="arrow">→</span>
-            <span class="node node-switch">Switch<br><small>(正負判定)</small></span>
-            <span class="arrow">→</span>
-            <span class="node node-change">Change<br><small>(topic設定)</small></span>
-            <span class="arrow">→</span>
-            <span class="node node-batch">Batch<br><small>(concat)</small></span>
-            <span class="arrow">→</span>
-            <span class="node node-debug">Debug</span>
-        </div>
-        
         <div class="tip">
-            <p><strong>📌 連結モードの活用:</strong></p>
+            <p><strong>📌 応用パターン（連結モード）:</strong></p>
+            <p>連結モードは、異なるトピックのシーケンスを順番に結合する高度な機能です。サンプルフローには含まれていませんが、以下のような用途で活用できます：</p>
             <ul>
-                <li>正の数と負の数を分離してそれぞれグループ化</li>
-                <li>トピック順を指定して結合（NEG → POS の順など）</li>
-                <li>データの分類と再構成に便利</li>
+                <li><strong>シーケンスの連結</strong>: 同じトピックの複数シーケンスを順番に結合</li>
+                <li><strong>フィルタリング後の再構成</strong>: Switchで分岐したデータをトピック別に再結合</li>
+                <li><strong>データの分類と統合</strong>: 正負の値を分離して、負→正の順に並べ替え</li>
             </ul>
         </div>
-        
-        <p><strong>設定例:</strong></p>
-        <div class="code-block">モード: 連結
-トピック: NEG, POS（負の数を先、正の数を後に）
-
-入力: [1, -6, -8, 7, 2, -3]
-処理: 正の数にtopic=POS、負の数にtopic=NEG
-出力: [-6, -8, -3, 1, 7, 2]（負→正の順）</div>
         
         <h2>🏋️ 4. 実践演習</h2>
         
