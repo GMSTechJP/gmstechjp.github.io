@@ -90,13 +90,87 @@
             <li><strong>Retain</strong>：最後のメッセージを保持し、新規購読者に配信</li>
         </ul>
         
-        <p>📬 <strong>掲示板に例えると</strong>：MQTTは「テーマ別掲示板」のようなものです。</p>
-        <ul>
-            <li><strong>ブローカー</strong>：掲示板の管理人（メッセージを仲介）</li>
-            <li><strong>トピック</strong>：掲示板のカテゴリ（例：「センサー/温度」「センサー/湿度」）</li>
-            <li><strong>Publish（発行）</strong>：掲示板に投稿</li>
-            <li><strong>Subscribe（購読）</strong>：特定カテゴリの投稿を受け取る</li>
-        </ul>
+        <p>📰 <strong>新聞配達に例えると</strong>：MQTTは「新聞配達システム」のようなものです。</p>
+        
+        <!-- 新聞配達モデル図 -->
+        <div style="margin: 20px 0; padding: 20px; background: #fafafa; border-radius: 8px;">
+            <!-- 発行者（Publisher）層 -->
+            <div style="text-align: center; margin-bottom: 10px;">
+                <span style="background: #e3f2fd; padding: 4px 12px; border-radius: 4px; font-size: 12px; color: #1565c0;">📤 発行者（Publisher）</span>
+            </div>
+            <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-bottom: 15px;">
+                <div style="background: #42a5f5; color: white; padding: 10px 15px; border-radius: 6px; text-align: center; min-width: 80px;">
+                    <div style="font-weight: bold;">A新聞社</div>
+                    <div style="font-size: 11px;">(一般１)</div>
+                </div>
+                <div style="background: #66bb6a; color: white; padding: 10px 15px; border-radius: 6px; text-align: center; min-width: 80px;">
+                    <div style="font-weight: bold;">B新聞社</div>
+                    <div style="font-size: 11px;">(経済)</div>
+                </div>
+                <div style="background: #ffa726; color: white; padding: 10px 15px; border-radius: 6px; text-align: center; min-width: 80px;">
+                    <div style="font-weight: bold;">C新聞社</div>
+                    <div style="font-size: 11px;">(スポーツ)</div>
+                </div>
+                <div style="background: #ab47bc; color: white; padding: 10px 15px; border-radius: 6px; text-align: center; min-width: 80px;">
+                    <div style="font-weight: bold;">D新聞社</div>
+                    <div style="font-size: 11px;">(一般２)</div>
+                </div>
+            </div>
+            
+            <!-- 矢印 -->
+            <div style="text-align: center; font-size: 24px; color: #999; margin: 10px 0;">▼ 新聞を届ける</div>
+            
+            <!-- ブローカー層 -->
+            <div style="text-align: center; margin-bottom: 10px;">
+                <span style="background: #fce4ec; padding: 4px 12px; border-radius: 4px; font-size: 12px; color: #c2185b;">🏪 仲介者（Broker）</span>
+            </div>
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px; text-align: center; max-width: 400px; margin: 0 auto 15px auto;">
+                <div style="font-size: 18px; font-weight: bold;">📦 新聞配達店</div>
+                <div style="font-size: 13px; margin-top: 5px;">各新聞社から届いた新聞を<br>購読者ごとに仕分けして配達</div>
+            </div>
+            
+            <!-- 矢印 -->
+            <div style="text-align: center; font-size: 24px; color: #999; margin: 10px 0;">▼ 購読している新聞を届ける</div>
+            
+            <!-- 購読者（Subscriber）層 -->
+            <div style="text-align: center; margin-bottom: 10px;">
+                <span style="background: #e8f5e9; padding: 4px 12px; border-radius: 4px; font-size: 12px; color: #2e7d32;">📥 購読者（Subscriber）</span>
+            </div>
+            <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+                <div style="background: white; border: 2px solid #ddd; padding: 12px 18px; border-radius: 8px; text-align: center;">
+                    <div style="font-weight: bold;">🏠 田中家</div>
+                    <div style="font-size: 12px; margin-top: 5px;">
+                        <span style="background: #42a5f5; color: white; padding: 2px 6px; border-radius: 3px; margin: 2px;">A</span>
+                        <span style="background: #ffa726; color: white; padding: 2px 6px; border-radius: 3px; margin: 2px;">C</span>
+                    </div>
+                </div>
+                <div style="background: white; border: 2px solid #ddd; padding: 12px 18px; border-radius: 8px; text-align: center;">
+                    <div style="font-weight: bold;">🏠 佐藤家</div>
+                    <div style="font-size: 12px; margin-top: 5px;">
+                        <span style="background: #66bb6a; color: white; padding: 2px 6px; border-radius: 3px; margin: 2px;">B</span>
+                        <span style="background: #ab47bc; color: white; padding: 2px 6px; border-radius: 3px; margin: 2px;">D</span>
+                    </div>
+                </div>
+                <div style="background: white; border: 2px solid #ddd; padding: 12px 18px; border-radius: 8px; text-align: center;">
+                    <div style="font-weight: bold;">🏠 鈴木家</div>
+                    <div style="font-size: 12px; margin-top: 5px;">
+                        <span style="background: #42a5f5; color: white; padding: 2px 6px; border-radius: 3px; margin: 2px;">A</span>
+                        <span style="background: #66bb6a; color: white; padding: 2px 6px; border-radius: 3px; margin: 2px;">B</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <table>
+            <tr><th>MQTTの概念</th><th>新聞配達モデル</th><th>具体例</th></tr>
+            <tr><td><strong>Broker</strong></td><td>新聞配達店</td><td>複数の新聞社から届いた新聞を仕分けして各家庭へ届ける</td></tr>
+            <tr><td><strong>Publisher</strong></td><td>新聞社</td><td>A新聞社、B新聞社、C新聞社...</td></tr>
+            <tr><td><strong>Subscriber</strong></td><td>購読家庭</td><td>田中家、佐藤家、鈴木家...</td></tr>
+            <tr><td><strong>Topic</strong></td><td>新聞の銘柄</td><td>A新聞、B新聞、C新聞、D新聞</td></tr>
+            <tr><td><strong>Publish</strong></td><td>新聞を発行</td><td>A新聞社が朝刊を配達店に届ける</td></tr>
+            <tr><td><strong>Subscribe</strong></td><td>購読申込</td><td>「うちはA新聞とC新聞をお願いします」</td></tr>
+        </table>
+
         
         <div class="node-compare">
             <div class="node-card">
