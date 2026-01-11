@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Node-RED Dashboard 2.0 実践ガイド【応用編】第2部 ui-control & ui-spacer</title>
+    <title>Node-RED Dashboard 2.0 実践ガイド【応用編】第2部 control & spacer</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -297,15 +297,15 @@
 </head>
 <body>
     <div class="container">
-        <h1>🎛️ Node-RED Dashboard 2.0 実践ガイド【応用編】<br>第2部 ui-control & ui-spacer</h1>
+        <h1>🎛️ Node-RED Dashboard 2.0 実践ガイド【応用編】<br>第2部 control & spacer</h1>
         
         <p>この資料では、Dashboard 2.0の<strong>プログラムによるダッシュボード制御</strong>と<strong>レイアウト調整</strong>を学びます。</p>
         
         <div class="important">
             <strong>📚 この資料で学べること</strong>
             <ul>
-                <li><strong>ui-control</strong>: ページ遷移、グループの表示/非表示、接続監視</li>
-                <li><strong>ui-spacer</strong>: グリッドレイアウトでの空白制御</li>
+                <li><strong>control</strong>: ページ遷移、グループの表示/非表示、接続監視</li>
+                <li><strong>spacer</strong>: グリッドレイアウトでの空白制御</li>
                 <li>ユーザー権限に基づく動的UI制御</li>
                 <li>レスポンシブレイアウトの実現</li>
             </ul>
@@ -324,7 +324,7 @@
     <div class="container">
         <h2>🚀 まずサンプルフローをインポートしましょう！</h2>
         
-        <p>以下のサンプルフローには、<strong>ui-control と ui-spacer の実例</strong>が含まれています。<br>
+        <p>以下のサンプルフローには、<strong>control と spacer の実例</strong>が含まれています。<br>
         先にインポートして動作を確認しながら、以降の説明を読むと理解が深まります。</p>
         
         <ol>
@@ -340,14 +340,14 @@
                 <li><strong>🧭 ナビゲーション</strong>: Part2 デモ⇔Part2 設定ページ間のボタン遷移</li>
                 <li><strong>👁️ 表示制御</strong>: 管理者モードON/OFFでパネル切替（青→赤に色が変わる）</li>
                 <li><strong>🔒 有効/無効制御</strong>: メンテナンスモードで設定項目を無効化（グレーアウト）</li>
-                <li><strong>📐 レイアウト</strong>: ui-spacerで左右にボタンを分離配置</li>
+                <li><strong>📐 レイアウト</strong>: spacerで左右にボタンを分離配置</li>
                 <li><strong>📡 接続監視</strong>: 接続クライアント数を表示（テストinjectノードあり）</li>
             </ul>
             <p style="margin-top: 10px; color: #666;"><strong>💡 接続監視のテスト:</strong> エディタの「接続テスト」injectノードをクリックすると、ダッシュボードに接続数が表示されます。実際の接続イベントは、ブラウザでダッシュボードを開く/閉じる/リロード時に発生します。</p>
         </div>
         
         <details open>
-            <summary>📁 ui-control & ui-spacer サンプルフロー（クリックで展開）</summary>
+            <summary>📁 control & spacer サンプルフロー（クリックで展開）</summary>
             <p style="margin: 10px 0; color: #666;"><small>参照元：FlowFuse Dashboard 2.0 公式ドキュメント</small></p>
             <textarea class="flow-json" readonly>[
   {
@@ -1213,17 +1213,17 @@
     
     <!-- ui-control セクション -->
     <div class="container">
-        <h2>🎮 ui-control ノード</h2>
+        <h2>🎮 control ノード</h2>
         
         <h3>概要</h3>
-        <p><code>ui-control</code>は、<strong>プログラムからダッシュボードを制御</strong>するためのノードです。ページ遷移、グループの表示/非表示、クライアント接続の監視などが可能です。</p>
+        <p><code>control</code>は、<strong>プログラムからダッシュボードを制御</strong>するためのノードです。ページ遷移、グループの表示/非表示、クライアント接続の監視などが可能です。</p>
         
         <div class="flow-diagram">
             <span class="node node-inject">inject</span>
             <span class="arrow">→</span>
             <span class="node node-function">function<br><small>制御メッセージ作成</small></span>
             <span class="arrow">→</span>
-            <span class="node node-ui-control">ui-control</span>
+            <span class="node node-ui-control">control</span>
         </div>
         
         <h3>主な機能</h3>
@@ -1319,11 +1319,11 @@
         </div>
         
         <h3>パターン4: 接続監視（出力）</h3>
-        <p><code>ui-control</code>の<strong>出力</strong>からは、クライアントの接続情報が取得できます。</p>
+        <p><code>control</code>の<strong>出力</strong>からは、クライアントの接続情報が取得できます。</p>
         <p><strong>サンプルフロー:</strong> 「📡 接続状態」グループにリアルタイムで接続数が表示されます</p>
         
         <div class="msg-example">
-// ui-controlノードの出力
+// controlノードの出力
 {
     <span class="key">"payload"</span>: {
         <span class="key">"connections"</span>: [
@@ -1364,15 +1364,15 @@
     
     <!-- ui-spacer セクション -->
     <div class="container">
-        <h2>📐 ui-spacer ノード</h2>
+        <h2>📐 spacer ノード</h2>
         
         <h3>概要</h3>
-        <p><code>ui-spacer</code>は、ダッシュボードのグリッドレイアウトで<strong>空白スペースを確保</strong>するためのノードです。ウィジェットの配置を調整し、見やすいレイアウトを実現します。</p>
+        <p><code>spacer</code>は、ダッシュボードのグリッドレイアウトで<strong>空白スペースを確保</strong>するためのノードです。ウィジェットの配置を調整し、見やすいレイアウトを実現します。</p>
         
         <p><strong>サンプルフロー:</strong> 「📐 レイアウトサンプル」グループで、左右に分かれたボタン配置を確認できます</p>
         
         <div class="important">
-            <strong>🎯 ui-spacerの役割</strong>
+            <strong>🎯 spacerの役割</strong>
             <ul>
                 <li>ウィジェット間の余白を確保</li>
                 <li>グリッド上での位置調整</li>
@@ -1471,7 +1471,7 @@
     <div class="container">
         <h2>💡 Tips & ベストプラクティス</h2>
         
-        <h3>ui-control</h3>
+        <h3>control</h3>
         <ul>
             <li>✅ ページ名・グループ名は<strong>正確に一致</strong>させる（絵文字も含む）</li>
             <li>✅ 接続監視を使ってアクセスログを取得</li>
@@ -1479,7 +1479,7 @@
             <li>⚠️ 頻繁なページ遷移はUXを損なう可能性あり</li>
         </ul>
         
-        <h3>ui-spacer</h3>
+        <h3>spacer</h3>
         <ul>
             <li>✅ グリッドの総カラム数を意識して配置</li>
             <li>✅ 視覚的なグループ分けに活用</li>
@@ -1499,8 +1499,8 @@
     <div class="container">
         <h2>🔗 参考リンク</h2>
         <ul>
-            <li><a href="https://dashboard.flowfuse.com/nodes/widgets/ui-control.html" target="_blank">ui-control 公式ドキュメント</a></li>
-            <li><a href="https://dashboard.flowfuse.com/nodes/widgets/ui-spacer.html" target="_blank">ui-spacer 公式ドキュメント</a></li>
+            <li><a href="https://dashboard.flowfuse.com/nodes/widgets/ui-control.html" target="_blank">control 公式ドキュメント</a></li>
+            <li><a href="https://dashboard.flowfuse.com/nodes/widgets/ui-spacer.html" target="_blank">spacer 公式ドキュメント</a></li>
             <li><a href="https://dashboard.flowfuse.com/getting-started.html" target="_blank">Dashboard 2.0 Getting Started</a></li>
         </ul>
     </div>
