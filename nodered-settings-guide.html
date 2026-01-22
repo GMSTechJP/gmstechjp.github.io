@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED settings.js 設定ガイド</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        h1 {
+            color: #8f0000;
+            border-bottom: 3px solid #8f0000;
+            padding-bottom: 10px;
+        }
+        
+        h2 {
+            color: #c00000;
+            margin-top: 40px;
+            border-left: 5px solid #c00000;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #555;
+            margin-top: 25px;
+        }
+        
+        h4 {
+            color: #666;
+            margin-top: 20px;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        /* 目次 */
+        .toc {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px 30px;
+            margin: 20px 0;
+        }
+        
+        .toc h3 {
+            margin-top: 0;
+            color: #8f0000;
+        }
+        
+        .toc ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .toc li {
+            padding: 5px 0;
+        }
+        
+        .toc li.sub {
+            padding-left: 20px;
+        }
+        
+        .toc a {
+            color: #1976d2;
+            text-decoration: none;
+        }
+        
+        .toc a:hover {
+            text-decoration: underline;
+        }
+        
+        /* 情報ボックス */
+        .important {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .tip {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .warning {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .success {
+            background-color: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        /* コードブロック */
+        .code-block {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 14px;
+            position: relative;
+            white-space: pre;
+        }
+        
+        .code-block.powershell {
+            background-color: #012456;
+            color: #ffffff;
+        }
+        
+        .code-block.js {
+            background-color: #1e1e1e;
+        }
+        
+        .comment {
+            color: #6a9955;
+        }
+        
+        .keyword {
+            color: #569cd6;
+        }
+        
+        .string {
+            color: #ce9178;
+        }
+        
+        .property {
+            color: #9cdcfe;
+        }
+        
+        /* コピーボタン */
+        .copy-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 6px 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background-color 0.2s;
+        }
+        
+        .copy-button:hover {
+            background-color: #0056b3;
+        }
+        
+        .copy-button.copied {
+            background-color: #28a745;
+        }
+        
+        /* テーブル */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #8f0000;
+            color: white;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        /* セクションカード */
+        .section-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #8f0000;
+        }
+        
+        .section-card h3 {
+            margin-top: 0;
+            color: #8f0000;
+        }
+        
+        /* 折りたたみ */
+        details {
+            margin: 15px 0;
+        }
+        
+        summary {
+            cursor: pointer;
+            padding: 12px 15px;
+            background-color: #6c757d;
+            color: white;
+            border-radius: 4px;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        
+        summary:hover {
+            background-color: #5a6268;
+        }
+        
+        details[open] summary {
+            border-radius: 4px 4px 0 0;
+        }
+        
+        details .content {
+            padding: 15px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+        }
+        
+        /* ファイルパス */
+        .file-path {
+            background-color: #e9ecef;
+            padding: 10px 15px;
+            border-radius: 4px;
+            font-family: 'Consolas', monospace;
+            margin: 10px 0;
+            display: inline-block;
+        }
+        
+        /* ステップ */
+        .step {
+            background-color: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            position: relative;
+        }
+        
+        .step-number {
+            position: absolute;
+            top: -15px;
+            left: 20px;
+            background: linear-gradient(135deg, #c00000, #8f0000);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .step-content {
+            margin-top: 15px;
+        }
+        
+        /* バッジ */
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+        
+        .badge-main {
+            background-color: #8f0000;
+            color: white;
+        }
+        
+        .badge-sub {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .badge-required {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        /* 図解 */
+        .diagram {
+            background-color: #2d3133;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+            color: white;
+        }
+        
+        .diagram-box {
+            display: inline-block;
+            padding: 15px 20px;
+            margin: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        
+        .diagram-editor {
+            background-color: #3fadb5;
+        }
+        
+        .diagram-dashboard {
+            background-color: #b92d5d;
+        }
+        
+        .diagram-http {
+            background-color: #e8a658;
+        }
+        
+        .diagram-static {
+            background-color: #87a48d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚙️ Node-RED settings.js 設定ガイド</h1>
+        
+        <p>このガイドでは、Node-REDの設定ファイル <code>settings.js</code> について、よく使われる機能を中心に詳しく説明します。</p>
+        
+        <div class="important">
+            <p><strong>📋 このガイドで扱う主な設定</strong></p>
+            <ul>
+                <li><strong>プロジェクト機能</strong> - Git連携によるフロー管理</li>
+                <li><strong>パスワード認証</strong> - エディタ、ダッシュボード、HTTPノードの保護</li>
+                <li><strong>コンテキスト永続化</strong> - 変数をファイルに保存して再起動後も維持</li>
+            </ul>
+        </div>
+        
+        <!-- 目次 -->
+        <div class="toc">
+            <h3>📚 目次</h3>
+            <ul>
+                <li><a href="#section1">1. settings.jsの基本</a></li>
+                <li><a href="#section2">2. プロジェクト機能の有効化</a> <span class="badge badge-main">メイン</span></li>
+                <li><a href="#section3">3. パスワード認証の設定</a> <span class="badge badge-main">メイン</span></li>
+                <li class="sub"><a href="#section3-1">3.1 エディタの認証（adminAuth）</a></li>
+                <li class="sub"><a href="#section3-2">3.2 ダッシュボード・HTTPノードの認証</a></li>
+                <li class="sub"><a href="#section3-3">3.3 パスワードハッシュの生成方法</a></li>
+                <li><a href="#section4">4. コンテキスト永続化の設定</a> <span class="badge badge-main">メイン</span></li>
+                <li><a href="#section5">5. その他の便利な設定</a> <span class="badge badge-sub">サブ</span></li>
+                <li><a href="#section6">6. トラブルシューティング</a></li>
+                <li><a href="#section7">7. 追加リソース</a></li>
+            </ul>
+        </div>
+        
+        <!-- ===== セクション1: settings.jsの基本 ===== -->
+        <h2 id="section1">📁 1. settings.jsの基本</h2>
+        
+        <h3>📍 ファイルの場所</h3>
+        
+        <p>settings.jsは、Node-REDのユーザーディレクトリにあります。</p>
+        
+        <table>
+            <tr>
+                <th>OS</th>
+                <th>デフォルトの場所</th>
+            </tr>
+            <tr>
+                <td>Windows</td>
+                <td><code>C:\Users\<ユーザー名>\.node-red\settings.js</code></td>
+            </tr>
+            <tr>
+                <td>macOS / Linux</td>
+                <td><code>~/.node-red/settings.js</code></td>
+            </tr>
+            <tr>
+                <td>Raspberry Pi</td>
+                <td><code>/home/pi/.node-red/settings.js</code></td>
+            </tr>
+        </table>
+        
+        <div class="tip">
+            <p><strong>💡 ファイルの場所を確認する方法</strong></p>
+            <p>Node-RED起動時のログに表示されます：</p>
+            <div class="code-block">
+22 Jan 12:34:56 - [info] Settings file : /home/user/.node-red/settings.js</div>
+        </div>
+        
+        <h3>📝 ファイルの基本構造</h3>
+        
+        <p>settings.jsは、JavaScriptオブジェクトをエクスポートする形式です。</p>
+        
+        <div class="code-block js">
+            <button class="copy-button" onclick="copyCode(this)">コピー</button>
+module.exports = {
+    // ここに設定を記述
+    
+    uiPort: process.env.PORT || 1880,
+    
+    // コメントアウトされた設定は // を削除して有効化
+    // flowFile: 'flows.json',
+    
+    // 設定項目はカンマで区切る
+}</div>
+        
+        <div class="warning">
+            <p><strong>⚠️ 重要な注意点</strong></p>
+            <ul>
+                <li>設定を変更したら、<strong>Node-REDを再起動</strong>する必要があります</li>
+                <li>各設定項目の末尾には<strong>カンマ（,）</strong>が必要です（最後の項目を除く）</li>
+                <li>編集前に<strong>バックアップ</strong>を取ることをお勧めします</li>
+            </ul>
+        </div>
+        
+        <!-- ===== セクション2: プロジェクト機能 ===== -->
+        <h2 id="section2">📂 2. プロジェクト機能の有効化 <span class="badge badge-main">メイン</span></h2>
+        
+        <h3>🤔 プロジェクト機能とは？</h3>
+        
+        <p>プロジェクト機能を有効にすると、Node-REDのフローをGitで管理できるようになります。</p>
+        
+        <div class="tip">
+            <p><strong>💡 プロジェクト機能のメリット</strong></p>
+            <ul>
+                <li>フローの変更履歴を管理できる</li>
+                <li>GitHubやGitLabと連携してリモートバックアップ</li>
+                <li>複数のプロジェクトを切り替えて使用できる</li>
+                <li>チームでの共同開発が容易になる</li>
+            </ul>
+        </div>
+        
+        <h3>⚙️ 設定方法</h3>
+        
+        <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+                <h4>Gitのインストール確認</h4>
+                <p>プロジェクト機能を使用するには、Gitがインストールされている必要があります。</p>
+                <div class="code-block powershell">
+                    <button class="copy-button" onclick="copyCode(this)">コピー</button>
+git --version</div>
+                <p>バージョンが表示されればOKです。表示されない場合は <a href="https://git-scm.com/" target="_blank">Git公式サイト</a> からインストールしてください。</p>
+            </div>
+        </div>
+        
+        <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+                <h4>settings.jsに設定を追加</h4>
+                <p>settings.jsを開き、以下の設定を追加します。</p>
+                <div class="code-block js">
+                    <button class="copy-button" onclick="copyCode(this)">コピー</button>
+    editorTheme: {
+        projects: {
+            enabled: true
+        }
+    },</div>
+                <div class="important">
+                    <p><strong>📌 設定の配置場所</strong></p>
+                    <p><code>module.exports = { ... }</code> の中括弧内に追加します。既に <code>editorTheme</code> が存在する場合は、その中に <code>projects</code> を追加してください。</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+                <h4>Node-REDを再起動</h4>
+                <p>設定を反映するために、Node-REDを再起動します。</p>
+                <p>起動時のログで以下のような警告が出なければ成功です：</p>
+                <div class="code-block">
+<span style="color: #ff6b6b;">[warn] Projects disabled : editorTheme.projects.enabled=false</span>  ← これが表示されなければOK</div>
+            </div>
+        </div>
+        
+        <div class="step">
+            <div class="step-number">4</div>
+            <div class="step-content">
+                <h4>エディタでプロジェクトを作成</h4>
+                <p>ブラウザでNode-REDエディタを開くと、プロジェクト作成のウィザードが表示されます。</p>
+                <ol>
+                    <li>Gitのユーザー名とメールアドレスを設定</li>
+                    <li>プロジェクト名を入力</li>
+                    <li>フローファイル名を設定（通常は <code>flows.json</code>）</li>
+                    <li>認証情報の暗号化キーを設定</li>
+                </ol>
+            </div>
+        </div>
+        
+        <div class="success">
+            <p><strong>✅ プロジェクト機能の有効化完了！</strong></p>
+            <p>エディタ右上のメニューから「プロジェクト」→「プロジェクト設定」でGitの設定やリモートリポジトリの接続ができます。</p>
+        </div>
+        
+        <!-- ===== セクション3: パスワード認証 ===== -->
+        <h2 id="section3">🔐 3. パスワード認証の設定 <span class="badge badge-main">メイン</span></h2>
+        
+        <h3>🎯 認証の種類と適用範囲</h3>
+        
+        <p>Node-REDには、保護する対象ごとに異なる認証設定があります。</p>
+        
+        <div class="diagram">
+            <p style="margin-bottom: 15px;">【認証設定と保護対象】</p>
+            <div class="diagram-box diagram-editor">adminAuth<br><small>エディタ画面</small></div>
+            <div class="diagram-box diagram-dashboard">httpNodeAuth<br><small>Dashboard / HTTP In</small></div>
+            <div class="diagram-box diagram-static">httpStaticAuth<br><small>静的コンテンツ</small></div>
+        </div>
+        
+        <table>
+            <tr>
+                <th>設定名</th>
+                <th>保護対象</th>
+                <th>URL例</th>
+            </tr>
+            <tr>
+                <td><code>adminAuth</code></td>
+                <td>Node-REDエディタ、管理API</td>
+                <td><code>http://localhost:1880/</code></td>
+            </tr>
+            <tr>
+                <td><code>httpNodeAuth</code></td>
+                <td>Dashboard 2.0、HTTP Inノード</td>
+                <td><code>http://localhost:1880/dashboard/</code><br><code>http://localhost:1880/api/xxx</code></td>
+            </tr>
+            <tr>
+                <td><code>httpStaticAuth</code></td>
+                <td>httpStaticで配信する静的ファイル</td>
+                <td><code>http://localhost:1880/static/</code></td>
+            </tr>
+        </table>
+        
+        <!-- 3.1 エディタの認証 -->
+        <h3 id="section3-1">3.1 エディタの認証（adminAuth）</h3>
+        
+        <p>Node-REDエディタ画面にログインを必須にします。複数のユーザーと権限を設定できます。</p>
+        
+        <div class="code-block js">
+            <button class="copy-button" onclick="copyCode(this)">コピー</button>
+    adminAuth: {
+        type: "credentials",
+        users: [
+            {
+                username: "admin",
+                password: "$2b$08$ここにハッシュ化したパスワード",
+                permissions: "*"
+            },
+            {
+                username: "viewer",
+                password: "$2b$08$ここにハッシュ化したパスワード",
+                permissions: "read"
+            }
+        ]
+    },</div>
+        
+        <h4>📋 permissionsの種類</h4>
+        <table>
+            <tr>
+                <th>権限</th>
+                <th>説明</th>
+            </tr>
+            <tr>
+                <td><code>"*"</code></td>
+                <td>全ての操作が可能（管理者）</td>
+            </tr>
+            <tr>
+                <td><code>"read"</code></td>
+                <td>閲覧のみ（フローの編集・デプロイ不可）</td>
+            </tr>
+        </table>
+        
+        <div class="tip">
+            <p><strong>💡 匿名ユーザーに読み取り権限を与える場合</strong></p>
+            <p>ログインしていないユーザーにも閲覧だけは許可したい場合：</p>
+            <div class="code-block js">
+    adminAuth: {
+        type: "credentials",
+        users: [ /* ユーザー設定 */ ],
+        default: {
+            permissions: "read"
+        }
+    },</div>
+        </div>
+        
+        <!-- 3.2 ダッシュボード・HTTPノードの認証 -->
+        <h3 id="section3-2">3.2 ダッシュボード・HTTPノードの認証（httpNodeAuth）</h3>
+        
+        <p>Dashboard 2.0やHTTP Inノードで作成したAPIを保護します。</p>
+        
+        <div class="code-block js">
+            <button class="copy-button" onclick="copyCode(this)">コピー</button>
+    httpNodeAuth: {
+        user: "dashuser",
+        pass: "$2b$08$ここにハッシュ化したパスワード"
+    },</div>
+        
+        <div class="warning">
+            <p><strong>⚠️ 注意点</strong></p>
+            <ul>
+                <li><code>httpNodeAuth</code>は<strong>1ユーザーのみ</strong>設定可能です</li>
+                <li>プロパティ名が <code>user</code> / <code>pass</code>（adminAuthの <code>username</code> / <code>password</code> とは異なる）</li>
+                <li>ダッシュボードにアクセスすると、HTTP基本認証のダイアログが表示されます</li>
+            </ul>
+        </div>
+        
+        <h4>📋 静的コンテンツの認証（httpStaticAuth）</h4>
+        
+        <p><code>httpStatic</code>で配信する静的ファイルを保護する場合：</p>
+        
+        <div class="code-block js">
+            <button class="copy-button" onclick="copyCode(this)">コピー</button>
+    // 静的ファイルの配信設定
+    httpStatic: '/home/user/.node-red/public/',
+    
+    // 静的ファイルの認証
+    httpStaticAuth: {
+        user: "staticuser",
+        pass: "$2b$08$ここにハッシュ化したパスワード"
+    },</div>
+        
+        <!-- 3.3 パスワードハッシュの生成 -->
+        <h3 id="section3-3">3.3 パスワードハッシュの生成方法</h3>
+        
+        <p>settings.jsに記述するパスワードは、<strong>bcrypt形式でハッシュ化</strong>する必要があります。平文のパスワードを直接書くことはできません。</p>
+        
+        <h4>方法1: node-red-adminコマンド（推奨）</h4>
+        
+        <div class="code-block powershell">
+            <button class="copy-button" onclick="copyCode(this)">コピー</button>
+# node-red-adminをインストール
+npm install -g node-red-admin
+
+# パスワードハッシュを生成
+node-red-admin hash-pw</div>
+        
+        <p>コマンドを実行すると、パスワードの入力を求められます。入力後、ハッシュ化された文字列が表示されます。</p>
+        
+        <div class="code-block">
+Password: <span style="color: #888;">[パスワードを入力（表示されません）]</span>
+$2b$08$M0/GHpeUMO2cR70u3HbUKu9/cZurxUiTRWCe0/vg28WyY16Ez9qlC</div>
+        
+        <h4>方法2: Node.jsで直接生成</h4>
+        
+        <p>node-red-adminをインストールしたくない場合：</p>
+        
+        <div class="code-block powershell">
+            <button class="copy-button" onclick="copyCode(this)">コピー</button>
+node -e "console.log(require('bcryptjs').hashSync(process.argv[1], 8));" your-password-here</div>
+        
+        <p><code>your-password-here</code> の部分を実際のパスワードに置き換えてください。</p>
+        
+        <div class="important">
+            <p><strong>📌 bcryptjsがない場合</strong></p>
+            <p>エラーが出る場合は、先にbcryptjsをインストールしてください：</p>
+            <div class="code-block powershell">
+npm install bcryptjs</div>
+        </div>
+        
+        <div class="success">
+            <p><strong>✅ パスワード認証の設定完了！</strong></p>
+            <p>Node-REDを再起動すると、エディタやダッシュボードにアクセスした際にログイン画面が表示されます。</p>
+        </div>
+        
+        <!-- ===== セクション4: コンテキスト永続化 ===== -->
+        <h2 id="section4">💾 4. コンテキスト永続化の設定 <span class="badge badge-main">メイン</span></h2>
+        
+        <h3>🤔 コンテキスト永続化とは？</h3>
+        
+        <p>Node-REDのコンテキスト変数（flow変数、global変数）は、デフォルトではメモリに保存されるため、<strong>Node-REDを再起動すると消えてしまいます</strong>。</p>
+        
+        <p>コンテキスト永続化を設定すると、変数をファイルに保存し、再起動後も値を維持できます。</p>
+        
+        <div class="tip">
+            <p><strong>💡 こんな場合に便利</strong></p>
+            <ul>
+                <li>カウンター値を再起動後も保持したい</li>
+                <li>ダッシュボードの設定値を保存したい</li>
+                <li>センサーの累積値を失いたくない</li>
+            </ul>
+        </div>
+        
+        <h3>⚙️ 設定パターン</h3>
+        
+        <h4>パターン1: 全てをファイルに保存（シンプル）</h4>
+        
+        <p>全てのコンテキスト変数をファイルに保存します。</p>
+        
+        <div class="code-block js">
+            <button class="copy-button" onclick="copyCode(this)">コピー</button>
+    contextStorage: {
+        default: {
+            module: "localfilesystem"
+        }
+    },</div>
+        
+        <h4>パターン2: メモリとファイルの両方を使い分け（推奨）</h4>
+        
+        <p>一時的なデータはメモリに、永続化したいデータはファイルに保存します。</p>
+        
+        <div class="code-block js">
+            <button class="copy-button" onclick="copyCode(this)">コピー</button>
+    contextStorage: {
+        default: "memoryOnly",
+        memoryOnly: {
+            module: "memory"
+        },
+        file: {
+            module: "localfilesystem"
+        }
+    },</div>
+        
+        <h4>📋 変数の保存先を指定する方法</h4>
+        
+        <p>パターン2の場合、変数を保存・取得する際にストアを指定します。</p>
+        
+        <table>
+            <tr>
+                <th>操作</th>
+                <th>メモリに保存（デフォルト）</th>
+                <th>ファイルに保存</th>
+            </tr>
+            <tr>
+                <td>Changeノード</td>
+                <td><code>flow.myData</code></td>
+                <td><code>flow.myData #file</code></td>
+            </tr>
+            <tr>
+                <td>Functionノード（set）</td>
+                <td><code>flow.set("myData", value)</code></td>
+                <td><code>flow.set("myData", value, "file")</code></td>
+            </tr>
+            <tr>
+                <td>Functionノード（get）</td>
+                <td><code>flow.get("myData")</code></td>
+                <td><code>flow.get("myData", "file")</code></td>
+            </tr>
+        </table>
+        
+        <div class="important">
+            <p><strong>📌 ファイル保存の注意点</strong></p>
+            <ul>
+                <li>データは30秒ごとにファイルに書き込まれます（SDカードの摩耗を防ぐため）</li>
+                <li>Node-REDが予期せず終了した場合、最後の30秒間の変更は失われる可能性があります</li>
+                <li>保存先: <code>~/.node-red/context/</code> フォルダ内にJSONファイルとして保存</li>
+            </ul>
+        </div>
+        
+        <h4>パターン3: ファイル保存の詳細設定</h4>
+        
+        <p>書き込み間隔やキャッシュの設定をカスタマイズできます。</p>
+        
+        <div class="code-block js">
+            <button class="copy-button" onclick="copyCode(this)">コピー</button>
+    contextStorage: {
+        default: "memoryOnly",
+        memoryOnly: {
+            module: "memory"
+        },
+        file: {
+            module: "localfilesystem",
+            config: {
+                dir: "/home/user/.node-red/context",  // 保存先ディレクトリ
+                flushInterval: 30,                    // 書き込み間隔（秒）
+                cache: true                           // キャッシュを有効化
+            }
+        }
+    },</div>
+        
+        <div class="success">
+            <p><strong>✅ コンテキスト永続化の設定完了！</strong></p>
+            <p>Node-REDを再起動した後、エディタの「コンテキストデータ」サイドバーでストアを確認できます。</p>
+        </div>
+        
+        <!-- ===== セクション5: その他の便利な設定 ===== -->
+        <h2 id="section5">🔧 5. その他の便利な設定 <span class="badge badge-sub">サブ</span></h2>
+        
+        <details>
+            <summary>📋 ポート番号の変更（uiPort）</summary>
+            <div class="content">
+                <p>Node-REDのデフォルトポート（1880）を変更します。</p>
+                <div class="code-block js">
+                    <button class="copy-button" onclick="copyCode(this)">コピー</button>
+    uiPort: 1881,  // 新しいポート番号</div>
+                <p>アクセスURL: <code>http://localhost:1881/</code></p>
+            </div>
+        </details>
+        
+        <details>
+            <summary>📋 フローファイル名の変更（flowFile）</summary>
+            <div class="content">
+                <p>フローを保存するファイル名を変更します。</p>
+                <div class="code-block js">
+                    <button class="copy-button" onclick="copyCode(this)">コピー</button>
+    flowFile: 'my-flows.json',</div>
+            </div>
+        </details>
+        
+        <details>
+            <summary>📋 HTTPS（SSL/TLS）の有効化</summary>
+            <div class="content">
+                <p>セキュアな接続を有効にします。証明書ファイルが必要です。</p>
+                <div class="code-block js">
+                    <button class="copy-button" onclick="copyCode(this)">コピー</button>
+    https: {
+        key: require("fs").readFileSync('/path/to/privkey.pem'),
+        cert: require("fs").readFileSync('/path/to/cert.pem')
+    },
+    
+    // HTTPをHTTPSにリダイレクト
+    requireHttps: true,</div>
+            </div>
+        </details>
+        
+        <details>
+            <summary>📋 エディタとノードのURL分離</summary>
+            <div class="content">
+                <p>エディタとHTTPノードのルートURLを分離します。</p>
+                <div class="code-block js">
+                    <button class="copy-button" onclick="copyCode(this)">コピー</button>
+    // エディタのURL: http://localhost:1880/editor/
+    httpAdminRoot: '/editor',
+    
+    // HTTPノードのURL: http://localhost:1880/api/xxx
+    httpNodeRoot: '/api',</div>
+            </div>
+        </details>
+        
+        <details>
+            <summary>📋 Functionノードで外部モジュールを使用</summary>
+            <div class="content">
+                <p>Functionノード内でNode.jsモジュールを使用できるようにします。</p>
+                <div class="code-block js">
+                    <button class="copy-button" onclick="copyCode(this)">コピー</button>
+    // Functionノードの「設定」タブで外部モジュールを追加可能にする
+    functionExternalModules: true,
+    
+    // または、グローバルコンテキストにモジュールを追加
+    functionGlobalContext: {
+        os: require('os'),
+        moment: require('moment')
+    },</div>
+                <p>Functionノード内で使用:</p>
+                <div class="code-block js">
+const os = global.get('os');
+msg.payload = os.hostname();
+return msg;</div>
+            </div>
+        </details>
+        
+        <details>
+            <summary>📋 デバッグ出力の最大長</summary>
+            <div class="content">
+                <p>デバッグサイドバーに表示されるメッセージの最大文字数を設定します。</p>
+                <div class="code-block js">
+                    <button class="copy-button" onclick="copyCode(this)">コピー</button>
+    debugMaxLength: 10000,  // デフォルトは1000</div>
+            </div>
+        </details>
+        
+        <details>
+            <summary>📋 ログレベルの変更</summary>
+            <div class="content">
+                <p>出力するログの詳細度を設定します。</p>
+                <div class="code-block js">
+                    <button class="copy-button" onclick="copyCode(this)">コピー</button>
+    logging: {
+        console: {
+            level: "info",  // fatal, error, warn, info, debug, trace
+            metrics: false,
+            audit: false
+        }
+    },</div>
+            </div>
+        </details>
+        
+        <!-- ===== セクション6: トラブルシューティング ===== -->
+        <h2 id="section6">🔧 6. トラブルシューティング</h2>
+        
+        <table>
+            <tr>
+                <th style="width: 30%;">症状</th>
+                <th style="width: 35%;">原因</th>
+                <th style="width: 35%;">解決方法</th>
+            </tr>
+            <tr>
+                <td>Node-REDが起動しない</td>
+                <td>settings.jsの構文エラー</td>
+                <td>
+                    <ul>
+                        <li>カンマの過不足を確認</li>
+                        <li>括弧の対応を確認</li>
+                        <li>バックアップから復元</li>
+                    </ul>
+                </td>
+            </tr>
+            <tr>
+                <td>「Projects disabled」と表示される</td>
+                <td>Gitがインストールされていない、または設定が正しくない</td>
+                <td>
+                    <ul>
+                        <li><code>git --version</code>で確認</li>
+                        <li>editorTheme.projects.enabled の設定を確認</li>
+                    </ul>
+                </td>
+            </tr>
+            <tr>
+                <td>ログインできない</td>
+                <td>パスワードハッシュが正しくない</td>
+                <td>
+                    <ul>
+                        <li><code>node-red-admin hash-pw</code>で再生成</li>
+                        <li>ハッシュ文字列を正しくコピー</li>
+                    </ul>
+                </td>
+            </tr>
+            <tr>
+                <td>コンテキスト変数が保存されない</td>
+                <td>contextStorageの設定ミス、またはストアの指定漏れ</td>
+                <td>
+                    <ul>
+                        <li>設定の構文を確認</li>
+                        <li>Functionノードで<code>"file"</code>ストアを指定</li>
+                    </ul>
+                </td>
+            </tr>
+            <tr>
+                <td>設定変更が反映されない</td>
+                <td>Node-REDを再起動していない</td>
+                <td>Node-REDを完全に停止してから再起動</td>
+            </tr>
+        </table>
+        
+        <div class="tip">
+            <p><strong>💡 構文エラーのデバッグ方法</strong></p>
+            <p>settings.jsの構文エラーを確認するには：</p>
+            <div class="code-block powershell">
+                <button class="copy-button" onclick="copyCode(this)">コピー</button>
+node -c ~/.node-red/settings.js</div>
+            <p>エラーがなければ何も表示されません。エラーがあれば行番号とともに表示されます。</p>
+        </div>
+        
+        <!-- ===== セクション7: 追加リソース ===== -->
+        <h2 id="section7">📚 7. 追加リソース</h2>
+        
+        <h3>🔗 公式ドキュメント</h3>
+        <ul>
+            <li><a href="https://nodered.org/docs/user-guide/runtime/settings-file" target="_blank">Settings file - Node-RED公式</a></li>
+            <li><a href="https://nodered.org/docs/user-guide/runtime/configuration" target="_blank">Configuration - Node-RED公式</a></li>
+            <li><a href="https://nodered.org/docs/user-guide/runtime/securing-node-red" target="_blank">Securing Node-RED - Node-RED公式</a></li>
+            <li><a href="https://nodered.org/docs/user-guide/context" target="_blank">Working with context - Node-RED公式</a></li>
+            <li><a href="https://nodered.org/docs/user-guide/projects/" target="_blank">Projects - Node-RED公式</a></li>
+        </ul>
+        
+        <h3>📖 デフォルトのsettings.js</h3>
+        <p>まだsettings.jsがない場合や、デフォルトの内容を確認したい場合：</p>
+        <ul>
+            <li><a href="https://github.com/node-red/node-red/blob/master/packages/node_modules/node-red/settings.js" target="_blank">GitHub - Node-RED デフォルト settings.js</a></li>
+        </ul>
+        
+        <hr style="margin: 40px 0;">
+        
+        <p style="text-align: center; color: #999; margin-top: 40px;">
+            <small>このガイドは2025年1月時点の情報に基づいています。</small><br>
+            <small>最新の情報は公式ドキュメントを参照してください。</small>
+        </p>
+    </div>
+    
+    <!-- コピーボタン用JavaScript -->
+    <script>
+        function copyCode(button) {
+            const codeBlock = button.parentElement;
+            // ボタンのテキストを除いたコード部分を取得
+            let code = codeBlock.innerText.replace('コピー', '').trim();
+            
+            navigator.clipboard.writeText(code).then(() => {
+                button.textContent = 'コピーしました!';
+                button.classList.add('copied');
+                setTimeout(() => {
+                    button.textContent = 'コピー';
+                    button.classList.remove('copied');
+                }, 2000);
+            });
+        }
+    </script>
+    
+    <!-- フローティングホームボタン -->
+    <a href="index.html" style="position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px; background: linear-gradient(135deg, #42b883 0%, #35495e 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; transition: transform 0.3s, box-shadow 0.3s;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 6px 16px rgba(0,0,0,0.4)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.3)';" title="トップページへ">🏠</a>
+</body>
+</html>

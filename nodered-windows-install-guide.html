@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED Windows 11 インストールガイド</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        h1 {
+            color: #8f0000;
+            border-bottom: 3px solid #8f0000;
+            padding-bottom: 10px;
+        }
+        
+        h2 {
+            color: #c00000;
+            margin-top: 40px;
+            border-left: 5px solid #c00000;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #555;
+            margin-top: 25px;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        /* 目次 */
+        .toc {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px 30px;
+            margin: 20px 0;
+        }
+        
+        .toc h3 {
+            margin-top: 0;
+            color: #8f0000;
+        }
+        
+        .toc ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .toc li {
+            padding: 5px 0;
+        }
+        
+        .toc a {
+            color: #1976d2;
+            text-decoration: none;
+        }
+        
+        .toc a:hover {
+            text-decoration: underline;
+        }
+        
+        /* インストール手順のステップ */
+        .step {
+            background-color: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            position: relative;
+        }
+        
+        .step-number {
+            position: absolute;
+            top: -15px;
+            left: 20px;
+            background: linear-gradient(135deg, #c00000, #8f0000);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .step-content {
+            margin-top: 15px;
+        }
+        
+        /* 情報ボックス */
+        .important {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .tip {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .warning {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .success {
+            background-color: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        /* コードブロック */
+        .code-block {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 14px;
+            position: relative;
+        }
+        
+        .code-block.cmd {
+            background-color: #012456;
+            color: #ffffff;
+        }
+        
+        .code-block.powershell {
+            background-color: #012456;
+            color: #ffffff;
+        }
+        
+        .prompt {
+            color: #ffcc00;
+            user-select: none;
+        }
+        
+        .output {
+            color: #00ff00;
+        }
+        
+        /* コピーボタン */
+        .copy-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 6px 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background-color 0.2s;
+        }
+        
+        .copy-button:hover {
+            background-color: #0056b3;
+        }
+        
+        .copy-button.copied {
+            background-color: #28a745;
+        }
+        
+        /* テーブル */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #8f0000;
+            color: white;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        /* 図解 */
+        .diagram {
+            background-color: #2d3133;
+            padding: 30px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .diagram-item {
+            display: inline-block;
+            padding: 15px 25px;
+            margin: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .diagram-nodejs {
+            background-color: #68a063;
+        }
+        
+        .diagram-npm {
+            background-color: #cb3837;
+        }
+        
+        .diagram-nodered {
+            background-color: #8f0000;
+        }
+        
+        .diagram-browser {
+            background-color: #4285f4;
+        }
+        
+        .arrow {
+            color: #999;
+            font-size: 24px;
+            margin: 0 10px;
+        }
+        
+        /* 画像プレースホルダ */
+        .screenshot-placeholder {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 15px 0;
+        }
+        
+        .screenshot-placeholder .icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        
+        /* ダウンロードリンク */
+        .download-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #68a063, #3c873a);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 10px 0;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .download-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        /* チェックリスト */
+        .checklist {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .checklist li {
+            padding: 8px 0;
+            padding-left: 35px;
+            position: relative;
+        }
+        
+        .checklist li::before {
+            content: "☐";
+            position: absolute;
+            left: 0;
+            color: #8f0000;
+            font-size: 20px;
+        }
+        
+        /* 折りたたみ */
+        details {
+            margin: 15px 0;
+        }
+        
+        summary {
+            cursor: pointer;
+            padding: 12px 15px;
+            background-color: #6c757d;
+            color: white;
+            border-radius: 4px;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        
+        summary:hover {
+            background-color: #5a6268;
+        }
+        
+        details[open] summary {
+            border-radius: 4px 4px 0 0;
+        }
+        
+        details .content {
+            padding: 15px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+        }
+        
+        /* バージョン情報 */
+        .version-info {
+            background-color: #e3f2fd;
+            border: 1px solid #90caf9;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        
+        /* 要件カード */
+        .requirement-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .requirement-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .requirement-card .icon {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+        
+        .requirement-card h4 {
+            margin: 10px 0;
+            color: #333;
+        }
+        
+        .requirement-card p {
+            color: #666;
+            font-size: 14px;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🖥️ Node-RED Windows 11 インストールガイド</h1>
+        
+        <p>このガイドでは、Windows 11にNode-REDをインストールする手順を、初心者の方でも迷わないように詳しく説明します。</p>
+        
+        <div class="version-info">
+            <strong>📋 このガイドの対象環境</strong>
+            <ul>
+                <li><strong>OS:</strong> Windows 11（Windows 10でも同様の手順で動作します）</li>
+                <li><strong>Node.js:</strong> v24.x LTS（2025年1月時点の推奨）</li>
+                <li><strong>Node-RED:</strong> v4.x</li>
+            </ul>
+        </div>
+        
+        <!-- 目次 -->
+        <div class="toc">
+            <h3>📚 目次</h3>
+            <ul>
+                <li><a href="#section0">0. 事前準備と確認事項</a></li>
+                <li><a href="#section1">1. Node.jsのインストール</a></li>
+                <li><a href="#section2">2. Node-REDのインストール</a></li>
+                <li><a href="#section3">3. Node-REDの起動と確認</a></li>
+                <li><a href="#section4">4. 初めてのフロー作成</a></li>
+                <li><a href="#section5">5. 自動起動の設定（オプション）</a></li>
+                <li><a href="#section6">6. トラブルシューティング</a></li>
+                <li><a href="#section7">7. アンインストール方法</a></li>
+                <li><a href="#section8">8. 次のステップ</a></li>
+            </ul>
+        </div>
+        
+        <!-- ===== セクション0: 事前準備 ===== -->
+        <h2 id="section0">📦 0. 事前準備と確認事項</h2>
+        
+        <h3>🔧 必要な環境</h3>
+        
+        <div class="requirement-cards">
+            <div class="requirement-card">
+                <div class="icon">💻</div>
+                <h4>Windows 11/10</h4>
+                <p>64ビット版を推奨</p>
+            </div>
+            <div class="requirement-card">
+                <div class="icon">🌐</div>
+                <h4>インターネット接続</h4>
+                <p>ダウンロードに必要</p>
+            </div>
+            <div class="requirement-card">
+                <div class="icon">👤</div>
+                <h4>管理者権限</h4>
+                <p>インストール時に必要</p>
+            </div>
+            <div class="requirement-card">
+                <div class="icon">💾</div>
+                <h4>空き容量 500MB以上</h4>
+                <p>Node.js + Node-RED</p>
+            </div>
+        </div>
+        
+        <h3>📊 インストールの流れ</h3>
+        
+        <div class="diagram">
+            <span class="diagram-item diagram-nodejs">① Node.js<br>インストール</span>
+            <span class="arrow">→</span>
+            <span class="diagram-item diagram-npm">② npm で<br>Node-RED導入</span>
+            <span class="arrow">→</span>
+            <span class="diagram-item diagram-nodered">③ Node-RED<br>起動</span>
+            <span class="arrow">→</span>
+            <span class="diagram-item diagram-browser">④ ブラウザで<br>アクセス</span>
+        </div>
+        
+        <div class="tip">
+            <p><strong>💡 Node.jsとは?</strong></p>
+            <p>Node.jsは、JavaScriptをパソコン上で実行するための環境です。Node-REDはNode.js上で動作するため、まずNode.jsのインストールが必要です。Node.jsをインストールすると、<strong>npm</strong>（Node Package Manager）というツールも一緒にインストールされます。npmを使ってNode-REDをインストールします。</p>
+        </div>
+        
+        <!-- ===== セクション1: Node.jsのインストール ===== -->
+        <h2 id="section1">📥 1. Node.jsのインストール</h2>
+        
+        <div class="important">
+            <p><strong>💡 2つのダウンロード方法</strong></p>
+            <p>Node.jsは以下の2つの方法でダウンロードできます。初心者の方には<strong>方法A（直接ダウンロード）</strong>をお勧めします。</p>
+        </div>
+        
+        <h3>方法A: 直接ダウンロード（推奨・簡単）</h3>
+        
+        <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+                <h3>インストーラーを直接ダウンロード</h3>
+                <p>以下のボタンをクリックすると、Windows用のNode.js LTS版インストーラーが直接ダウンロードされます。</p>
+                
+                <p><a href="https://nodejs.org/dist/v24.13.0/node-v24.13.0-x64.msi" class="download-link">⬇️ Node.js v24 LTS (Windows 64bit) をダウンロード</a></p>
+                
+                <p style="margin-top: 10px;"><small>※ 上記リンクは v24.13.0 LTS です。最新版は<a href="https://nodejs.org/en/download" target="_blank">公式ダウンロードページ</a>で確認してください。</small></p>
+            </div>
+        </div>
+        
+        <details style="margin: 20px 0;">
+            <summary>📋 方法B: 公式サイトからダウンロード（クリックで展開）</summary>
+            <div class="content">
+                <ol>
+                    <li>
+                        <strong>Node.js公式サイトにアクセス</strong>
+                        <p><a href="https://nodejs.org/en" target="_blank">https://nodejs.org/en</a> を開きます。</p>
+                    </li>
+                    <li>
+                        <strong>「Get Node.js®」ボタンをクリック</strong>
+                        <p>トップページの「Get Node.js®」ボタンをクリックすると、ダウンロードページに移動します。</p>
+                    </li>
+                    <li>
+                        <strong>バージョンを選択</strong>
+                        <p>ダウンロードページ上部のドロップダウンメニューで <strong>「v24.x.x (LTS)」</strong> が選択されていることを確認します。</p>
+                        <p><small>※ デフォルトでLTS版が選択されています</small></p>
+                    </li>
+                    <li>
+                        <strong>インストール方法を選択</strong>
+                        <p>ページには複数のインストール方法が表示されます。Windows初心者の方は、ページ下部の <strong>「Prebuilt Installer」</strong> セクションから <strong>.msi</strong> ファイルをダウンロードしてください。</p>
+                    </li>
+                </ol>
+            </div>
+        </details>
+        
+        <div class="tip">
+            <p><strong>💡 LTS版を選ぶ理由</strong></p>
+            <p>LTS（Long Term Support）版は、安定性が高く、長期間サポートされるバージョンです。最新機能版（Current）より安定しているため、初心者の方にはLTS版を強くお勧めします。</p>
+        </div>
+        
+        <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+                <h3>インストーラーを実行</h3>
+                <p>ダウンロードした <code>node-v24.13.0-x64.msi</code> ファイルをダブルクリックして実行します。</p>
+                
+                <div class="screenshot-placeholder">
+                    <div class="icon">📁</div>
+                    <p>ダウンロードフォルダにある .msi ファイルをダブルクリック</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+                <h3>インストールウィザードに従う</h3>
+                <p>表示されるウィザードに従ってインストールを進めます。基本的にはデフォルト設定のまま「Next」をクリックしていけばOKです。</p>
+                
+                <ol>
+                    <li><strong>Welcome画面:</strong> 「Next」をクリック</li>
+                    <li><strong>License Agreement:</strong> 「I accept...」にチェックして「Next」</li>
+                    <li><strong>Destination Folder:</strong> そのまま「Next」（インストール先を変更したい場合は変更）</li>
+                    <li><strong>Custom Setup:</strong> そのまま「Next」</li>
+                    <li><strong>Tools for Native Modules:</strong> チェックは<strong>入れなくてOK</strong>（後から必要に応じてインストール可能）</li>
+                    <li><strong>Ready to install:</strong> 「Install」をクリック</li>
+                </ol>
+                
+                <div class="warning">
+                    <p><strong>⚠️ 管理者権限のダイアログ</strong></p>
+                    <p>「このアプリがデバイスに変更を加えることを許可しますか？」というダイアログが表示されたら、「はい」をクリックしてください。</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="step">
+            <div class="step-number">4</div>
+            <div class="step-content">
+                <h3>インストール完了を確認</h3>
+                <p>「Completed」と表示されたら「Finish」をクリックしてインストール完了です。</p>
+                
+                <p><strong>確認作業:</strong> PowerShellまたはコマンドプロンプトを開いて、以下のコマンドを実行してバージョンを確認します。</p>
+                
+                <div class="code-block powershell">
+                    <button class="copy-button" onclick="copyCode(this)">コピー</button>
+                    <span class="prompt">PS C:\Users\YourName&gt;</span> node --version
+<span class="output">v24.13.0</span>
+
+<span class="prompt">PS C:\Users\YourName&gt;</span> npm --version
+<span class="output">11.3.0</span></div>
+                
+                <div class="tip">
+                    <p><strong>💡 PowerShellの開き方</strong></p>
+                    <ol>
+                        <li>キーボードで <kbd>Win</kbd> + <kbd>X</kbd> を押す</li>
+                        <li>表示されたメニューから「ターミナル」または「Windows PowerShell」を選択</li>
+                    </ol>
+                    <p>または、スタートメニューで「powershell」と検索して開くこともできます。</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="success">
+            <p><strong>✅ Node.jsのインストール完了！</strong></p>
+            <p>バージョン番号が表示されればNode.jsのインストールは成功です。次はNode-REDをインストールしましょう。</p>
+        </div>
+        
+        <!-- ===== セクション2: Node-REDのインストール ===== -->
+        <h2 id="section2">🔴 2. Node-REDのインストール</h2>
+        
+        <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+                <h3>PowerShellを開く</h3>
+                <p>PowerShell（またはコマンドプロンプト）を開きます。管理者権限は不要です。</p>
+            </div>
+        </div>
+        
+        <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+                <h3>Node-REDをインストール</h3>
+                <p>以下のコマンドを入力してEnterキーを押します。</p>
+                
+                <div class="code-block powershell">
+                    <button class="copy-button" onclick="copyCode(this)">コピー</button>
+npm install -g --unsafe-perm node-red</div>
+                
+                <div class="important">
+                    <p><strong>📌 コマンドの意味</strong></p>
+                    <ul>
+                        <li><code>npm install</code> - npmを使ってパッケージをインストール</li>
+                        <li><code>-g</code> - グローバルインストール（どこからでも使えるようにする）</li>
+                        <li><code>--unsafe-perm</code> - 権限関連の問題を回避するオプション</li>
+                        <li><code>node-red</code> - インストールするパッケージ名</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+                <h3>インストール完了を待つ</h3>
+                <p>インストールには数分かかることがあります。進行状況が表示され、最後に以下のようなメッセージが表示されれば成功です。</p>
+                
+                <div class="code-block">
+added XXX packages in XXs</div>
+                
+                <div class="warning">
+                    <p><strong>⚠️ WARN メッセージについて</strong></p>
+                    <p>インストール中に「WARN」（警告）メッセージが表示されることがありますが、多くの場合は問題ありません。「ERR!」（エラー）が表示されなければ成功です。</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="success">
+            <p><strong>✅ Node-REDのインストール完了！</strong></p>
+            <p>これでNode-REDがインストールされました。次は実際に起動してみましょう。</p>
+        </div>
+        
+        <!-- ===== セクション3: Node-REDの起動 ===== -->
+        <h2 id="section3">🚀 3. Node-REDの起動と確認</h2>
+        
+        <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+                <h3>Node-REDを起動</h3>
+                <p>PowerShellで以下のコマンドを実行します。</p>
+                
+                <div class="code-block powershell">
+                    <button class="copy-button" onclick="copyCode(this)">コピー</button>
+node-red</div>
+                
+                <p>起動すると、以下のようなメッセージが表示されます。</p>
+                
+                <div class="code-block">
+Welcome to Node-RED
+===================
+
+XX Jan XX:XX:XX - [info] Node-RED version: v4.1.x
+XX Jan XX:XX:XX - [info] Node.js  version: v24.13.0
+XX Jan XX:XX:XX - [info] Windows_NT 10.0.22631 x64 LE
+XX Jan XX:XX:XX - [info] Loading palette nodes
+XX Jan XX:XX:XX - [info] Settings file  : C:\Users\YourName\.node-red\settings.js
+XX Jan XX:XX:XX - [info] Context store  : 'default' [module=memory]
+XX Jan XX:XX:XX - [info] User directory : C:\Users\YourName\.node-red
+XX Jan XX:XX:XX - [warn] Projects disabled : editorTheme.projects.enabled=false
+XX Jan XX:XX:XX - [info] Flows file     : C:\Users\YourName\.node-red\flows.json
+XX Jan XX:XX:XX - [info] Creating new flow file
+XX Jan XX:XX:XX - [info] Server now running at http://127.0.0.1:1880/
+XX Jan XX:XX:XX - [info] Starting flows
+XX Jan XX:XX:XX - [info] Started flows</div>
+                
+                <div class="important">
+                    <p><strong>📌 重要なポイント</strong></p>
+                    <ul>
+                        <li><code>Server now running at http://127.0.0.1:1880/</code> が表示されればOK</li>
+                        <li>このウィンドウは<strong>閉じないでください</strong>（閉じるとNode-REDが停止します）</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+                <h3>ブラウザでアクセス</h3>
+                <p>Webブラウザ（Edge, Chrome, Firefoxなど）を開き、アドレスバーに以下のURLを入力してアクセスします。</p>
+                
+                <div class="code-block">
+                    <button class="copy-button" onclick="copyCode(this)">コピー</button>
+http://localhost:1880</div>
+                
+                <p>または、以下のリンクをクリックしてください。</p>
+                <p><a href="http://localhost:1880" target="_blank" class="download-link" style="background: linear-gradient(135deg, #8f0000, #c00000);">🔴 Node-REDエディタを開く</a></p>
+            </div>
+        </div>
+        
+        <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+                <h3>エディタ画面を確認</h3>
+                
+                <div class="screenshot-placeholder">
+                    <div class="icon">🎨</div>
+                    <p>Node-REDエディタ画面</p>
+                    <p>左側: ノードパレット / 中央: フローエディタ / 右側: 情報パネル</p>
+                </div>
+                
+                <p>この画面が表示されれば、Node-REDのインストールと起動は成功です！</p>
+            </div>
+        </div>
+        
+        <div class="success">
+            <p><strong>🎉 おめでとうございます！</strong></p>
+            <p>Node-REDが正常に起動しました。これで、ビジュアルプログラミングを始める準備が整いました！</p>
+        </div>
+        
+        <h3>🛑 Node-REDを停止するには</h3>
+        <p>Node-REDを停止するには、起動したPowerShellウィンドウで <kbd>Ctrl</kbd> + <kbd>C</kbd> を押します。</p>
+        
+        <!-- ===== セクション4: 初めてのフロー作成 ===== -->
+        <h2 id="section4">✨ 4. 初めてのフロー作成</h2>
+        
+        <p>Node-REDが起動できたら、簡単なフローを作成して動作を確認してみましょう。</p>
+        
+        <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+                <h3>Injectノードを配置</h3>
+                <p>左側のパレットから <strong>「inject」</strong> ノード（水色）を中央のキャンバスにドラッグ＆ドロップします。</p>
+            </div>
+        </div>
+        
+        <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+                <h3>Debugノードを配置</h3>
+                <p>同様に <strong>「debug」</strong> ノード（緑色）をキャンバスに配置します。</p>
+            </div>
+        </div>
+        
+        <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+                <h3>ノードを接続</h3>
+                <p>Injectノードの右側の丸い端子から、Debugノードの左側の端子にドラッグして線で接続します。</p>
+                
+                <div class="diagram">
+                    <span class="diagram-item" style="background-color: #3fadb5;">💉 inject</span>
+                    <span class="arrow">―――→</span>
+                    <span class="diagram-item" style="background-color: #87a48d;">🐛 debug</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="step">
+            <div class="step-number">4</div>
+            <div class="step-content">
+                <h3>デプロイ</h3>
+                <p>右上の <strong>「デプロイ」</strong> ボタン（赤いボタン）をクリックして、フローを有効化します。</p>
+            </div>
+        </div>
+        
+        <div class="step">
+            <div class="step-number">5</div>
+            <div class="step-content">
+                <h3>フローを実行</h3>
+                <p>Injectノードの左側にある四角いボタンをクリックすると、メッセージが送信されます。</p>
+                <p>右側のデバッグタブ（虫のアイコン）に、タイムスタンプが表示されれば成功です！</p>
+            </div>
+        </div>
+        
+        <div class="tip">
+            <p><strong>💡 このフローの動作</strong></p>
+            <ul>
+                <li><strong>Injectノード:</strong> ボタンをクリックするとメッセージを送信</li>
+                <li><strong>Debugノード:</strong> 受け取ったメッセージをデバッグパネルに表示</li>
+            </ul>
+            <p>これが Node-RED の基本的な動作です。様々なノードを組み合わせて、より複雑な処理を作成できます。</p>
+        </div>
+        
+        <!-- ===== セクション5: 自動起動の設定 ===== -->
+        <h2 id="section5">⚙️ 5. 自動起動の設定（オプション）</h2>
+        
+        <p>Windows起動時にNode-REDを自動的に起動したい場合は、タスクスケジューラを使用します。</p>
+        
+        <details>
+            <summary>📋 タスクスケジューラでの設定方法（クリックで展開）</summary>
+            <div class="content">
+                <ol>
+                    <li>
+                        <strong>タスクスケジューラを開く</strong>
+                        <p>スタートメニューで「タスク スケジューラ」と検索して開きます。</p>
+                    </li>
+                    <li>
+                        <strong>「タスクの作成」を選択</strong>
+                        <p>右側のメニューから「タスクの作成...」をクリックします。</p>
+                    </li>
+                    <li>
+                        <strong>全般タブの設定</strong>
+                        <ul>
+                            <li>名前: <code>Node-RED</code></li>
+                            <li>「ユーザーがログオンしているときのみ実行する」を選択</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>トリガータブの設定</strong>
+                        <ul>
+                            <li>「新規」をクリック</li>
+                            <li>「タスクの開始」を「ログオン時」に設定</li>
+                            <li>「OK」をクリック</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>操作タブの設定</strong>
+                        <ul>
+                            <li>「新規」をクリック</li>
+                            <li>操作: 「プログラムの開始」</li>
+                            <li>プログラム/スクリプト: <code>C:\Users\&lt;ユーザー名&gt;\AppData\Roaming\npm\node-red.cmd</code></li>
+                            <li>「OK」をクリック</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>タスクを保存</strong>
+                        <p>「OK」をクリックしてタスクを保存します。</p>
+                    </li>
+                </ol>
+                
+                <div class="warning">
+                    <p><strong>⚠️ 注意</strong></p>
+                    <p><code>&lt;ユーザー名&gt;</code> の部分は、実際のWindowsユーザー名に置き換えてください。</p>
+                </div>
+            </div>
+        </details>
+        
+        <details>
+            <summary>📋 PM2を使用した方法（上級者向け）</summary>
+            <div class="content">
+                <p>PM2はNode.jsのプロセスマネージャーで、自動再起動などの機能を提供します。</p>
+                
+                <div class="code-block powershell">
+                    <button class="copy-button" onclick="copyCode(this)">コピー</button>
+# PM2をインストール
+npm install -g pm2
+
+# Node-REDをPM2で起動
+pm2 start node-red
+
+# Windows起動時に自動起動を設定
+pm2 startup
+pm2 save</div>
+                
+                <p>PM2の詳細は <a href="https://pm2.keymetrics.io/" target="_blank">PM2公式サイト</a> を参照してください。</p>
+            </div>
+        </details>
+        
+        <!-- ===== セクション6: トラブルシューティング ===== -->
+        <h2 id="section6">🔧 6. トラブルシューティング</h2>
+        
+        <table>
+            <tr>
+                <th style="width: 30%;">症状</th>
+                <th style="width: 35%;">原因</th>
+                <th style="width: 35%;">解決方法</th>
+            </tr>
+            <tr>
+                <td><code>node</code> コマンドが認識されない</td>
+                <td>Node.jsのパスが環境変数に設定されていない</td>
+                <td>
+                    <ol>
+                        <li>コマンドプロンプトを一度閉じて再度開く</li>
+                        <li>それでも直らない場合はPCを再起動</li>
+                    </ol>
+                </td>
+            </tr>
+            <tr>
+                <td><code>npm</code> コマンドでエラーが発生</td>
+                <td>ネットワーク接続の問題、またはnpmキャッシュの破損</td>
+                <td>
+                    <code>npm cache clean --force</code> を実行後、再度インストール
+                </td>
+            </tr>
+            <tr>
+                <td>Node-REDが起動しない</td>
+                <td>ポート1880が他のアプリケーションで使用中</td>
+                <td>
+                    <code>node-red -p 1881</code> で別のポートで起動
+                </td>
+            </tr>
+            <tr>
+                <td>ブラウザでアクセスできない</td>
+                <td>ファイアウォールでブロックされている</td>
+                <td>
+                    Windowsファイアウォールの設定でNode.jsを許可
+                </td>
+            </tr>
+            <tr>
+                <td>「EACCES」エラーが表示される</td>
+                <td>権限の問題</td>
+                <td>
+                    管理者権限でPowerShellを開いて再実行
+                </td>
+            </tr>
+            <tr>
+                <td>日本語が文字化けする</td>
+                <td>コンソールの文字コード設定</td>
+                <td>
+                    PowerShellで <code>chcp 65001</code> を実行してUTF-8に変更
+                </td>
+            </tr>
+        </table>
+        
+        <details>
+            <summary>🔍 Node-REDのログを確認する方法</summary>
+            <div class="content">
+                <p>問題が発生した場合、ログを確認すると原因がわかることがあります。</p>
+                
+                <h4>起動時のログ</h4>
+                <p>Node-REDを起動したコンソールにログが表示されます。</p>
+                
+                <h4>ユーザーディレクトリの場所</h4>
+                <p>Node-REDの設定ファイルやフローは以下の場所に保存されます：</p>
+                <div class="code-block">
+C:\Users\&lt;ユーザー名&gt;\.node-red\</div>
+                
+                <p>このフォルダには以下のファイルがあります：</p>
+                <ul>
+                    <li><code>flows.json</code> - 作成したフロー</li>
+                    <li><code>settings.js</code> - Node-REDの設定ファイル</li>
+                    <li><code>package.json</code> - インストールしたノードの情報</li>
+                </ul>
+            </div>
+        </details>
+        
+        <!-- ===== セクション7: アンインストール ===== -->
+        <h2 id="section7">🗑️ 7. アンインストール方法</h2>
+        
+        <p>Node-REDやNode.jsをアンインストールする場合は、以下の手順に従います。</p>
+        
+        <details>
+            <summary>📋 アンインストール手順（クリックで展開）</summary>
+            <div class="content">
+                <h4>Node-REDのアンインストール</h4>
+                <div class="code-block powershell">
+                    <button class="copy-button" onclick="copyCode(this)">コピー</button>
+npm uninstall -g node-red</div>
+                
+                <h4>Node.jsのアンインストール</h4>
+                <ol>
+                    <li>「設定」→「アプリ」→「インストールされているアプリ」を開く</li>
+                    <li>「Node.js」を検索</li>
+                    <li>「アンインストール」をクリック</li>
+                </ol>
+                
+                <h4>ユーザーデータの削除（任意）</h4>
+                <p>作成したフローなどのデータを完全に削除する場合：</p>
+                <div class="code-block powershell">
+                    <button class="copy-button" onclick="copyCode(this)">コピー</button>
+# ユーザーデータフォルダを削除
+Remove-Item -Recurse -Force $env:USERPROFILE\.node-red</div>
+                
+                <div class="warning">
+                    <p><strong>⚠️ 注意</strong></p>
+                    <p>ユーザーデータを削除すると、作成したフローやインストールしたノードがすべて削除されます。必要な場合は事前にバックアップを取ってください。</p>
+                </div>
+            </div>
+        </details>
+        
+        <!-- ===== セクション8: 次のステップ ===== -->
+        <h2 id="section8">📚 8. 次のステップ</h2>
+        
+        <p>Node-REDのインストールが完了したら、以下のリソースで学習を進めましょう。</p>
+        
+        <h3>🎓 学習リソース</h3>
+        <ul>
+            <li><a href="https://nodered.org/docs/tutorials/first-flow" target="_blank">Node-RED公式チュートリアル（英語）</a></li>
+            <li><a href="https://dashboard.flowfuse.com/" target="_blank">Dashboard 2.0 公式ドキュメント</a></li>
+            <li><a href="https://flows.nodered.org/" target="_blank">Node-RED Flow Library</a> - 他のユーザーが作成したフローを参照</li>
+        </ul>
+        
+        <h3>📦 おすすめの追加ノード</h3>
+        <p>Node-REDのパレットマネージャー（右上メニュー →「パレットの管理」）から、以下のノードをインストールするとダッシュボード画面を作成できます：</p>
+        
+        <div class="tip">
+            <p><strong>@flowfuse/node-red-dashboard</strong></p>
+            <p>Webブラウザで表示できるダッシュボード（Dashboard 2.0）を作成するためのノード集です。グラフ、ゲージ、ボタン、スライダーなど、様々なUIウィジェットが含まれています。</p>
+            <p><small>インストール方法: パレットの管理 → ノードを追加 → 「@flowfuse/node-red-dashboard」で検索 → インストール</small></p>
+        </div>
+        
+        <h3>💡 次に学ぶべきトピック</h3>
+        <ul class="checklist">
+            <li>基本ノード（inject, debug, change, switch, function）の使い方</li>
+            <li>HTTPリクエストの送受信</li>
+            <li>MQTTを使ったIoTデバイスとの通信</li>
+            <li>Dashboard 2.0でのUI作成</li>
+            <li>JSONデータの操作</li>
+            <li>Functionノードでのプログラミング</li>
+        </ul>
+        
+        <div class="success">
+            <p><strong>🚀 準備完了！</strong></p>
+            <p>Node-REDの世界へようこそ！ビジュアルプログラミングで、IoTアプリケーションや自動化システムを作成してみましょう。</p>
+        </div>
+        
+        <hr style="margin: 40px 0;">
+        
+        <h3>📗 追加リソース</h3>
+        <ul>
+            <li><a href="https://nodered.org/docs/" target="_blank">Node-RED 公式ドキュメント</a></li>
+            <li><a href="https://nodered.org/docs/getting-started/windows" target="_blank">Node-RED Windows Installation Guide（公式）</a></li>
+            <li><a href="https://nodejs.org/ja" target="_blank">Node.js 公式サイト</a></li>
+        </ul>
+        
+        <p style="text-align: center; color: #999; margin-top: 40px;">
+            <small>このガイドは2025年1月時点の情報に基づいています。</small><br>
+            <small>最新の情報は公式ドキュメントを参照してください。</small>
+        </p>
+    </div>
+    
+    <!-- コピーボタン用JavaScript -->
+    <script>
+        function copyCode(button) {
+            const codeBlock = button.parentElement;
+            // ボタンのテキストを除いたコード部分を取得
+            let code = codeBlock.innerText.replace('コピー', '').trim();
+            // プロンプト部分を除去
+            code = code.replace(/PS C:\\Users\\YourName> /g, '').trim();
+            // 出力行（緑色の部分）を除去
+            const lines = code.split('\n').filter(line => !line.match(/^v\d+\.\d+\.\d+$/));
+            code = lines.join('\n');
+            
+            navigator.clipboard.writeText(code).then(() => {
+                button.textContent = 'コピーしました!';
+                button.classList.add('copied');
+                setTimeout(() => {
+                    button.textContent = 'コピー';
+                    button.classList.remove('copied');
+                }, 2000);
+            });
+        }
+    </script>
+    
+    <!-- フローティングホームボタン -->
+    <a href="index.html" style="position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px; background: linear-gradient(135deg, #42b883 0%, #35495e 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; transition: transform 0.3s, box-shadow 0.3s;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 6px 16px rgba(0,0,0,0.4)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.3)';" title="トップページへ">🏠</a>
+</body>
+</html>
