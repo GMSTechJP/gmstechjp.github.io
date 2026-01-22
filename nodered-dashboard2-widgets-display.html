@@ -1114,9 +1114,9 @@
         "id": "3e84d02bf90fc690",
         "type": "comment",
         "z": "289c4fb42bfdacf9",
-        "name": "パターン3: 確認ダイアログ風通知",
+        "name": "パターン3: 確認ダイアログと結果の処理分岐",
         "info": "",
-        "x": 180,
+        "x": 210,
         "y": 1100,
         "wires": []
     },
@@ -1171,8 +1171,77 @@
         "x": 360,
         "y": 1140,
         "wires": [
-            []
+            [
+                "pattern3_switch"
+            ]
         ]
+    },
+    {
+        "id": "pattern3_switch",
+        "type": "switch",
+        "z": "289c4fb42bfdacf9",
+        "name": "実行/キャンセル判定",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "実行",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "キャンセル",
+                "vt": "str"
+            }
+        ],
+        "checkall": "false",
+        "repair": false,
+        "outputs": 2,
+        "x": 570,
+        "y": 1140,
+        "wires": [
+            [
+                "pattern3_debug_exec"
+            ],
+            [
+                "pattern3_debug_cancel"
+            ]
+        ]
+    },
+    {
+        "id": "pattern3_debug_exec",
+        "type": "debug",
+        "z": "289c4fb42bfdacf9",
+        "name": "実行処理",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "'実行されました'",
+        "statusType": "jsonata",
+        "x": 770,
+        "y": 1120,
+        "wires": []
+    },
+    {
+        "id": "pattern3_debug_cancel",
+        "type": "debug",
+        "z": "289c4fb42bfdacf9",
+        "name": "キャンセル処理",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "'キャンセルされました'",
+        "statusType": "jsonata",
+        "x": 780,
+        "y": 1160,
+        "wires": []
     },
     {
         "id": "5f776d012acd26d3",
@@ -1262,7 +1331,7 @@
         "id": "3511b9fdece8deef",
         "type": "comment",
         "z": "289c4fb42bfdacf9",
-        "name": "━━━ 🔊 ui-audio サンプル ━━━",
+        "name": "━━━ 🔊 ui-audio サンプル（⚠️音が鳴ります）━━━",
         "info": "",
         "x": 170,
         "y": 1320,
@@ -1279,40 +1348,10 @@
         "wires": []
     },
     {
-        "id": "7330d4e44b92a815",
+        "id": "audio_reset_inject",
         "type": "inject",
         "z": "289c4fb42bfdacf9",
-        "name": "再生",
-        "props": [
-            {
-                "p": "payload"
-            },
-            {
-                "p": "ui_update",
-                "v": "{\"autoplay\":\"on\",\"loop\":\"on\"}",
-                "vt": "json"
-            }
-        ],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
-        "payloadType": "str",
-        "x": 110,
-        "y": 1400,
-        "wires": [
-            [
-                "e403d7f609744706"
-            ]
-        ]
-    },
-    {
-        "id": "a2e8b84c99e9f231",
-        "type": "inject",
-        "z": "289c4fb42bfdacf9",
-        "name": "停止",
+        "name": "起動時リセット",
         "props": [
             {
                 "p": "playback",
@@ -1322,9 +1361,34 @@
         ],
         "repeat": "",
         "crontab": "",
+        "once": true,
+        "onceDelay": 0.5,
+        "topic": "",
+        "x": 140,
+        "y": 1400,
+        "wires": [
+            [
+                "e403d7f609744706"
+            ]
+        ]
+    },
+    {
+        "id": "7330d4e44b92a815",
+        "type": "inject",
+        "z": "289c4fb42bfdacf9",
+        "name": "URL設定",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
         "once": false,
         "onceDelay": 0.1,
         "topic": "",
+        "payload": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+        "payloadType": "str",
         "x": 110,
         "y": 1440,
         "wires": [
@@ -1348,7 +1412,7 @@
         "autoplay": false,
         "loop": false,
         "muted": false,
-        "x": 290,
+        "x": 330,
         "y": 1420,
         "wires": [
             []
@@ -1558,7 +1622,7 @@
     {
         "id": "sample_ui_group_audio",
         "type": "ui-group",
-        "name": "🔊 オーディオ",
+        "name": "🔊 オーディオ（⚠️音が鳴ります）",
         "page": "sample_ui_page",
         "width": "6",
         "height": "-1",
@@ -2059,20 +2123,47 @@ pie title 売上構成
 `;
 return msg;</div>
         
-        <h4>パターン3: 確認ダイアログ風通知</h4>
+        <h4>パターン3: 確認ダイアログと結果の処理分岐</h4>
         
-        <div class="code-block">// 確認ボタン付き通知
+        <p>確認ダイアログ（Confirm/Dismiss付き通知）を表示し、ユーザーの選択に応じて<strong>下流の処理を分岐</strong>させることができます。ui-notificationノードの出力を使用すると、ボタンがクリックされたときにメッセージが送信されます。</p>
+        
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-ui-notification">notification</span>
+            <span class="arrow">→</span>
+            <span class="node node-switch">Switch</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug×2</span>
+        </div>
+        
+        <div class="tip">
+            <p><strong>📌 動作の流れ:</strong></p>
+            <ol>
+                <li>Injectノードで確認ダイアログを表示</li>
+                <li>ユーザーが「実行」または「キャンセル」をクリック</li>
+                <li>ui-notificationは<strong>クリックされたボタンのテキスト</strong>をmsg.payloadとして出力</li>
+                <li>Switchノードで「実行」「キャンセル」を判定して処理を分岐</li>
+            </ol>
+        </div>
+        
+        <div class="code-block">// Injectノードの設定
 msg.payload = "この操作を実行しますか？";
 msg.ui_update = {
     allowConfirm: true,
-    confirmText: "実行",
+    confirmText: "実行",      // ← 確認時にこの文字列が出力される
     allowDismiss: true,
-    dismissText: "キャンセル",
-    displayTime: 0,  // 手動で閉じるまで表示
+    dismissText: "キャンセル", // ← 却下時にこの文字列が出力される
+    displayTime: 0,           // 手動で閉じるまで表示
     position: "center center",
-    color: "orange"
+    color: "#2196f3"
 };
 return msg;</div>
+        
+        <div class="code-block">// Switchノードの設定
+プロパティ: msg.payload
+条件1: == "実行"      → 出力1（実行処理へ）
+条件2: == "キャンセル" → 出力2（キャンセル処理へ）</div>
         
         <h4>パターン4: 全クライアントへの一斉通知</h4>
         
@@ -2231,15 +2322,41 @@ msg.playback = "resume";</div>
         
         <h3>🎨 使用パターン</h3>
         
-        <h4>パターン1: BGM再生</h4>
+        <h4>パターン1: BGM再生（Audio Playerモード）</h4>
+        
+        <p>Audio Playerモードでは、ダッシュボード上に<strong>標準のオーディオプレイヤーUI</strong>が表示され、ユーザーが再生/一時停止/シーク/音量を操作できます。</p>
         
         <div class="node-example">
-            <span class="node node-inject">Inject</span>
+            <span class="node node-inject">Inject<br><small>(起動時リセット)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-ui-audio">audio<br><small>(Audio Player)</small></span>
+        </div>
+        <div class="node-example">
+            <span class="node node-inject">Inject<br><small>(URL設定)</small></span>
             <span class="arrow">→</span>
             <span class="node node-ui-audio">audio<br><small>(Audio Player)</small></span>
         </div>
         
-        <div class="code-block">msg.payload = "https://example.com/bgm.mp3";
+        <div class="tip">
+            <p><strong>💡 ポイント:</strong></p>
+            <ul>
+                <li>Injectノードは<strong>音声URLを設定</strong>するためのテスト用です</li>
+                <li>再生/停止はダッシュボード上の<strong>プレイヤーUIで操作</strong>します</li>
+                <li>autoplayを有効にすると、URL受信時に自動再生されます</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <p><strong>⚠️ フロー再起動時の自動再生を防ぐ:</strong></p>
+            <p>Audio Playerはブラウザ側で状態を保持するため、フローの再起動（デプロイ）時に前回の音声が自動再生されることがあります。これを防ぐには、<strong>起動時リセット用のInjectノード</strong>を追加します：</p>
+            <ul>
+                <li><code>once: true</code>（起動後1回だけ実行）</li>
+                <li><code>msg.playback = "stop"</code>（オーディオを停止）</li>
+            </ul>
+        </div>
+        
+        <div class="code-block">// 音声URLを送信（自動再生・ループ有効）
+msg.payload = "https://example.com/bgm.mp3";
 msg.ui_update = {
     autoplay: "on",
     loop: "on"
@@ -2279,307 +2396,410 @@ msg.payload = {
         
         <h2 id="section7">🏋️ 7. 実践演習</h2>
         
+        <p>各表示系ウィジェットの理解を深めるため、ウィジェット別の演習問題を用意しました。初級→中級→上級の順に挑戦してください。</p>
+        
+        <div class="tip">
+            <p><strong>💡 演習の進め方:</strong></p>
+            <ul>
+                <li>まず要求仕様を読んで、自分でフローを考えてみましょう</li>
+                <li>詰まったらヒントを開いて参考にしてください</li>
+                <li>解答例は一例です。同じ結果が得られれば別の方法でもOK！</li>
+            </ul>
+        </div>
+        
+        <!-- ===== text ウィジェット演習 ===== -->
+        <h3>📝 text ウィジェット演習</h3>
+        
         <div class="exercise">
-            <h3>演習1: センサー値の表示<span class="difficulty difficulty-easy">初級</span></h3>
+            <h3>演習 T-1: シンプルなステータス表示<span class="difficulty difficulty-easy">初級</span></h3>
             
             <p><strong>📝 課題:</strong></p>
-            <p>温度センサーの値を色付きで表示するフローを作成してください。</p>
+            <p>「稼働中」というステータスをダッシュボードに表示するフローを作成してください。</p>
             
             <p><strong>🎯 要求仕様:</strong></p>
             <ul>
                 <li>Inject、ui-textノードを使用</li>
-                <li>温度が30℃以上なら赤色、それ以下なら緑色で表示</li>
-                <li>「温度:」というラベル付き</li>
-            </ul>
-            
-            <p><strong>📊 期待される動作:</strong></p>
-            <ul>
-                <li>Injectボタンをクリック → ui-textに温度値が色付きで表示</li>
+                <li>ラベル: 「システム状態:」</li>
+                <li>値: 「稼働中」</li>
+                <li>Layout: row-spread（ラベル左、値右）</li>
             </ul>
             
             <details>
                 <summary>💡 ヒント</summary>
                 <p><strong>Injectノードの設定:</strong></p>
                 <ul>
-                    <li>payload: 数値型で温度値（例: 32）</li>
+                    <li>msg.payload: 「稼働中」（文字列）</li>
                 </ul>
-                <p><strong>Functionノードで動的スタイル設定:</strong></p>
-                <div class="code-block">const temp = msg.payload;
-msg.ui_update = {
-    color: temp >= 30 ? "#ff0000" : "#4caf50",
-    fontSize: "20px"
-};
-msg.payload = temp + " ℃";
-return msg;</div>
                 <p><strong>ui-textノードの設定:</strong></p>
                 <ul>
-                    <li>Label: 温度:</li>
+                    <li>Group: 選択（必須）</li>
+                    <li>Label: 「システム状態:」</li>
                     <li>Layout: row-spread</li>
-                    <li>Style: チェックを入れる</li>
                 </ul>
             </details>
             
             <details>
                 <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[{"id":"t1_inject","type":"inject","name":"稼働中","props":[{"p":"payload"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","payload":"稼働中","payloadType":"str","x":130,"y":100,"wires":[["t1_ui_text"]]},{"id":"t1_ui_text","type":"ui-text","group":"","order":1,"width":0,"height":0,"name":"ステータス表示","label":"システム状態:","format":"{{msg.payload}}","layout":"row-spread","style":false,"font":"","fontSize":16,"color":"#000000","x":330,"y":100,"wires":[]}]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習 T-2: 現在時刻の表示<span class="difficulty difficulty-medium">中級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>現在時刻を「HH:MM:SS」形式で表示するフローを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Inject（1秒間隔で自動送信）、Function、ui-textノードを使用</li>
+                <li>「現在時刻:」というラベル付き</li>
+                <li>Layout: row-spread</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Injectノードの設定:</strong></p>
+                <ul>
+                    <li>繰り返し: 指定した時間間隔 → 1秒</li>
+                    <li>msg.payload: タイムスタンプ（timestamp）</li>
+                </ul>
+                <p><strong>Functionノード:</strong></p>
+                <div class="code-block">const now = new Date(msg.payload);
+const h = String(now.getHours()).padStart(2, '0');
+const m = String(now.getMinutes()).padStart(2, '0');
+const s = String(now.getSeconds()).padStart(2, '0');
+msg.payload = `${h}:${m}:${s}`;
+return msg;</div>
+                <p><strong>ui-textノード:</strong> Label「現在時刻:」、Layout「row-spread」を設定</p>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
-    {
-        "id": "ex1_ui_base",
-        "type": "ui-base",
-        "name": "Dashboard",
-        "path": "/dashboard",
-        "includeClientData": true,
-        "acceptsClientConfig": ["ui-notification", "ui-control"],
-        "showPathInSidebar": false,
-        "navigationStyle": "default"
-    },
-    {
-        "id": "ex1_ui_page",
-        "type": "ui-page",
-        "name": "演習1",
-        "ui": "ex1_ui_base",
-        "path": "/exercise1",
-        "icon": "mdi-thermometer",
-        "layout": "grid",
-        "theme": "ex1_ui_theme",
-        "order": 1,
-        "className": "",
-        "visible": true,
-        "disabled": false
-    },
-    {
-        "id": "ex1_ui_theme",
-        "type": "ui-theme",
-        "name": "Default Theme",
-        "colors": {
-            "surface": "#ffffff",
-            "primary": "#b92d5d",
-            "bgPage": "#eeeeee",
-            "groupBg": "#ffffff",
-            "groupOutline": "#cccccc"
-        },
-        "sizes": {
-            "pagePadding": "12px",
-            "groupGap": "12px",
-            "groupBorderRadius": "4px",
-            "widgetGap": "12px"
-        }
-    },
-    {
-        "id": "ex1_ui_group",
-        "type": "ui-group",
-        "name": "センサー表示",
-        "page": "ex1_ui_page",
-        "width": "6",
-        "height": "-1",
-        "order": 1,
-        "showTitle": true,
-        "className": "",
-        "visible": true,
-        "disabled": false
-    },
-    {
-        "id": "ex1_inject_hot",
-        "type": "inject",
-        "name": "高温 (32℃)",
-        "props": [{"p": "payload"}],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "32",
-        "payloadType": "num",
-        "x": 130,
-        "y": 100,
-        "wires": [["ex1_function"]]
-    },
-    {
-        "id": "ex1_inject_normal",
-        "type": "inject",
-        "name": "通常 (25℃)",
-        "props": [{"p": "payload"}],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "25",
-        "payloadType": "num",
-        "x": 130,
-        "y": 160,
-        "wires": [["ex1_function"]]
-    },
-    {
-        "id": "ex1_function",
-        "type": "function",
-        "name": "色設定",
-        "func": "const temp = msg.payload;\nmsg.ui_update = {\n    color: temp >= 30 ? \"#ff0000\" : \"#4caf50\",\n    fontSize: \"20px\"\n};\nmsg.payload = temp + \" ℃\";\nreturn msg;",
-        "outputs": 1,
-        "timeout": 0,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 320,
-        "y": 130,
-        "wires": [["ex1_ui_text"]]
-    },
-    {
-        "id": "ex1_ui_text",
-        "type": "ui-text",
-        "group": "ex1_ui_group",
-        "order": 1,
-        "width": 0,
-        "height": 0,
-        "name": "温度表示",
-        "label": "温度:",
-        "format": "{{msg.payload}}",
-        "layout": "row-spread",
-        "style": true,
-        "font": "",
-        "fontSize": 16,
-        "color": "#000000",
-        "x": 490,
-        "y": 130,
-        "wires": []
-    }
+    {"id":"t1_inject","type":"inject","name":"1秒間隔","props":[{"p":"payload"}],"repeat":"1","crontab":"","once":true,"onceDelay":0.1,"topic":"","payload":"","payloadType":"date","x":130,"y":100,"wires":[["t1_function"]]},
+    {"id":"t1_function","type":"function","name":"時刻フォーマット","func":"const now = new Date(msg.payload);\nconst h = String(now.getHours()).padStart(2, '0');\nconst m = String(now.getMinutes()).padStart(2, '0');\nconst s = String(now.getSeconds()).padStart(2, '0');\nmsg.payload = `${h}:${m}:${s}`;\nreturn msg;","outputs":1,"x":320,"y":100,"wires":[["t1_ui_text"]]},
+    {"id":"t1_ui_text","type":"ui-text","group":"","order":1,"width":0,"height":0,"name":"時刻表示","label":"現在時刻:","format":"{{msg.payload}}","layout":"row-spread","style":false,"font":"","fontSize":16,"color":"#000000","x":510,"y":100,"wires":[]}
 ]</div>
             </details>
         </div>
         
         <div class="exercise">
-            <h3>演習2: Markdownレポート生成<span class="difficulty difficulty-medium">中級</span></h3>
+            <h3>演習 T-3: 温度による動的スタイル変更<span class="difficulty difficulty-medium">中級</span></h3>
             
             <p><strong>📝 課題:</strong></p>
-            <p>複数のセンサーデータをMarkdown形式のレポートとして表示してください。</p>
+            <p>温度値に応じて文字色を変更するフローを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Inject、Function、ui-textノードを使用</li>
+                <li>温度30℃以上: 赤色（#ff0000）</li>
+                <li>温度30℃未満: 緑色（#4caf50）</li>
+                <li>文字サイズは20pxに設定</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Injectノードの設定:</strong></p>
+                <ul>
+                    <li>高温テスト用: msg.payload に数値 32 を設定</li>
+                    <li>通常テスト用: msg.payload に数値 25 を設定</li>
+                </ul>
+                <p><strong>Functionノード:</strong></p>
+                <div class="code-block">msg.ui_update = {
+    color: msg.payload >= 30 ? "#ff0000" : "#4caf50",
+    fontSize: "20px"
+};
+msg.payload = msg.payload + " ℃";
+return msg;</div>
+                <p><strong>ui-textノード:</strong> Styleチェックボックスを有効化（動的スタイル変更に必須）</p>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id":"t2_inject_hot","type":"inject","name":"高温 (32℃)","props":[{"p":"payload"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","payload":"32","payloadType":"num","x":130,"y":100,"wires":[["t2_function"]]},
+    {"id":"t2_inject_normal","type":"inject","name":"通常 (25℃)","props":[{"p":"payload"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","payload":"25","payloadType":"num","x":130,"y":160,"wires":[["t2_function"]]},
+    {"id":"t2_function","type":"function","name":"色設定","func":"msg.ui_update = {\n    color: msg.payload >= 30 ? \"#ff0000\" : \"#4caf50\",\n    fontSize: \"20px\"\n};\nmsg.payload = msg.payload + \" ℃\";\nreturn msg;","outputs":1,"x":320,"y":130,"wires":[["t2_ui_text"]]},
+    {"id":"t2_ui_text","type":"ui-text","group":"","order":1,"width":0,"height":0,"name":"温度表示","label":"温度:","format":"{{msg.payload}}","layout":"row-spread","style":true,"font":"","fontSize":16,"color":"#000000","x":490,"y":130,"wires":[]}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習 T-4: HTMLリンク付きステータス表示<span class="difficulty difficulty-hard">上級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>システムステータスをHTMLリンク付きで表示するフローを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Inject、Template、ui-textノードを使用</li>
+                <li>ステータス名をクリック可能なリンクとして表示</li>
+                <li>ステータス値は色付き（緑=正常、赤=エラー）</li>
+                <li>リンクは新しいタブで開く（target="_blank"）</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Injectノードの設定:</strong></p>
+                <ul>
+                    <li>msg.payload.name: "サーバーA"</li>
+                    <li>msg.payload.status: "正常"（または"エラー"）</li>
+                    <li>msg.payload.url: "https://example.com/serverA"</li>
+                </ul>
+                <p><strong>Templateノード:</strong></p>
+                <div class="code-block">&lt;a href="{{payload.url}}" target="_blank"&gt;{{payload.name}}&lt;/a&gt;: 
+&lt;span style="color: {{#payload.status}}正常{{/payload.status}}{{^payload.status}}エラー{{/payload.status}} == '正常' ? 'green' : 'red'"&gt;
+  {{payload.status}}
+&lt;/span&gt;</div>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id":"t3_inject_ok","type":"inject","name":"正常ステータス","props":[{"p":"payload.name","v":"サーバーA","vt":"str"},{"p":"payload.status","v":"正常","vt":"str"},{"p":"payload.url","v":"https://example.com/serverA","vt":"str"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","x":140,"y":100,"wires":[["t3_template"]]},
+    {"id":"t3_inject_err","type":"inject","name":"エラーステータス","props":[{"p":"payload.name","v":"サーバーB","vt":"str"},{"p":"payload.status","v":"エラー","vt":"str"},{"p":"payload.url","v":"https://example.com/serverB","vt":"str"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","x":140,"y":160,"wires":[["t3_template"]]},
+    {"id":"t3_template","type":"template","name":"HTML生成","field":"payload","fieldType":"msg","format":"handlebars","syntax":"mustache","template":"<a href=\"{{payload.url}}\" target=\"_blank\">{{payload.name}}</a>: <span style=\"color: {{#eq payload.status '正常'}}green{{else}}red{{/eq}}; font-weight: bold;\">{{payload.status}}</span>","output":"str","x":340,"y":130,"wires":[["t3_ui_text"]]},
+    {"id":"t3_ui_text","type":"ui-text","group":"","order":1,"width":0,"height":0,"name":"ステータス表示","label":"","format":"{{msg.payload}}","layout":"row-left","style":false,"font":"","fontSize":16,"color":"#000000","x":530,"y":130,"wires":[]}
+]</div>
+            </details>
+        </div>
+        
+        <!-- ===== markdown ウィジェット演習 ===== -->
+        <h3>📰 markdown ウィジェット演習</h3>
+        
+        <div class="exercise">
+            <h3>演習 M-1: 静的ヘルプページ<span class="difficulty difficulty-easy">初級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>ダッシュボードの操作説明をMarkdown形式で表示するヘルプページを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>ui-markdownノードを使用（入力接続なし）</li>
+                <li>見出し、箇条書き、強調（太字）を含める</li>
+                <li>外部リンクを1つ以上含める</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>ui-markdownノードの設定:</strong></p>
+                <ul>
+                    <li>Groupを選択（必須）</li>
+                    <li>Contentに直接Markdownを記述</li>
+                </ul>
+                <p><strong>Markdown記法:</strong></p>
+                <div class="code-block">## 見出し2
+### 見出し3
+
+- 箇条書き項目
+- **太字のテキスト**
+
+[リンクテキスト](https://example.com)</div>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id":"m1_markdown","type":"ui-markdown","group":"","name":"ヘルプページ","order":1,"width":0,"height":0,"content":"## 📖 操作ガイド\n\n### 基本操作\n1. **開始ボタン**をクリックして処理を開始\n2. ステータス表示で進捗を確認\n3. **停止ボタン**で終了\n\n### 注意事項\n- 処理中は画面を閉じないでください\n- エラー時は管理者に連絡\n\n---\n*詳細は [公式ドキュメント](https://dashboard.flowfuse.com/) を参照*","x":150,"y":100,"wires":[[]]}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習 M-2: 動的センサーレポート<span class="difficulty difficulty-easy">初級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>複数のセンサーデータをMarkdown形式のテーブルで表示してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Inject、ui-markdownノードを使用</li>
+                <li>温度・湿度・気圧をテーブル形式で表示</li>
+                <li>mustache構文で動的に値を埋め込む</li>
+                <li>プレースホルダー（未取得時の表示）を設定</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Injectノードの設定:</strong></p>
+                <ul>
+                    <li>msg.payload.temperature: 25.5 (数値)</li>
+                    <li>msg.payload.humidity: 60 (数値)</li>
+                    <li>msg.payload.pressure: 1013 (数値)</li>
+                </ul>
+                <p><strong>ui-markdownのContent:</strong></p>
+                <div class="code-block">## 📊 環境レポート
+
+| 項目 | 値 |
+|------|----|
+| 温度 | {{ msg?.payload?.temperature || '--' }} ℃ |
+| 湿度 | {{ msg?.payload?.humidity || '--' }} % |</div>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id":"m2_inject","type":"inject","name":"センサーデータ","props":[{"p":"payload.temperature","v":"25.5","vt":"num"},{"p":"payload.humidity","v":"60","vt":"num"},{"p":"payload.pressure","v":"1013","vt":"num"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","x":140,"y":100,"wires":[["m2_markdown"]]},
+    {"id":"m2_markdown","type":"ui-markdown","group":"","order":1,"width":0,"height":0,"name":"センサーレポート","content":"## 📊 環境モニタリングレポート\n\n| センサー | 値 | 単位 |\n|---------|-----|-----|\n| 🌡️ 温度 | **{{ msg?.payload?.temperature || '--' }}** | ℃ |\n| 💧 湿度 | **{{ msg?.payload?.humidity || '--' }}** | % |\n| 🌀 気圧 | **{{ msg?.payload?.pressure || '--' }}** | hPa |\n\n---\n*データ受信時に自動更新*","x":360,"y":100,"wires":[[]]}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習 M-3: Mermaidシステム構成図<span class="difficulty difficulty-hard">上級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>Mermaidを使ってシステム構成図を動的に生成してください。</p>
             
             <p><strong>🎯 要求仕様:</strong></p>
             <ul>
                 <li>Inject、Function、ui-markdownノードを使用</li>
-                <li>温度、湿度、気圧のデータをテーブル形式で表示</li>
-                <li>更新時刻も表示</li>
-            </ul>
-            
-            <p><strong>📊 期待される動作:</strong></p>
-            <ul>
-                <li>Injectボタンをクリック → ui-markdownに整形されたレポートが表示</li>
+                <li>Mermaidのgraph TD形式でフローチャートを描画</li>
+                <li>ノードの状態（正常/異常）に応じて色を変更</li>
             </ul>
             
             <details>
                 <summary>💡 ヒント</summary>
                 <p><strong>Injectノードの設定:</strong></p>
                 <ul>
-                    <li>複数のプロパティを設定: temperature, humidity, pressure</li>
+                    <li>msg.payload.serverStatus: "正常"または"異常"</li>
+                    <li>msg.payload.dbStatus: "正常"または"異常"</li>
                 </ul>
-                <p><strong>ui-markdownノードのContent:</strong></p>
-                <div class="code-block">## 📊 環境モニタリングレポート
+                <p><strong>Functionノード:</strong></p>
+                <div class="code-block">const serverStyle = msg.payload.serverStatus === "正常" 
+    ? "fill:#4caf50,color:#fff" 
+    : "fill:#f44336,color:#fff";
+const dbStyle = msg.payload.dbStatus === "正常" 
+    ? "fill:#4caf50,color:#fff" 
+    : "fill:#f44336,color:#fff";
 
-| センサー | 値 | 単位 |
-|---------|-----|-----|
-| 🌡️ 温度 | {{ msg?.payload?.temperature || '--' }} | ℃ |
-| 💧 湿度 | {{ msg?.payload?.humidity || '--' }} | % |
-| 🌀 気圧 | {{ msg?.payload?.pressure || '--' }} | hPa |
+msg.payload = {
+    serverStyle: serverStyle,
+    dbStyle: dbStyle,
+    serverStatus: msg.payload.serverStatus,
+    dbStatus: msg.payload.dbStatus
+};
+return msg;</div>
+                <p><strong>ui-markdownのContent:</strong></p>
+                <div class="code-block">## システム状態
 
----
-*最終更新: {{ msg?.payload?.timestamp || '未取得' }}*</div>
+```mermaid
+graph TD;
+    A[センサー] --> B[サーバー];
+    B --> C[データベース];
+    style B {{ msg?.payload?.serverStyle || '' }};
+    style C {{ msg?.payload?.dbStyle || '' }};
+```</div>
             </details>
             
             <details>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
-    {
-        "id": "ex2_ui_base",
-        "type": "ui-base",
-        "name": "Dashboard",
-        "path": "/dashboard",
-        "includeClientData": true,
-        "acceptsClientConfig": ["ui-notification", "ui-control"],
-        "showPathInSidebar": false,
-        "navigationStyle": "default"
-    },
-    {
-        "id": "ex2_ui_page",
-        "type": "ui-page",
-        "name": "演習2",
-        "ui": "ex2_ui_base",
-        "path": "/exercise2",
-        "icon": "mdi-file-document",
-        "layout": "grid",
-        "theme": "ex2_ui_theme",
-        "order": 1,
-        "className": "",
-        "visible": true,
-        "disabled": false
-    },
-    {
-        "id": "ex2_ui_theme",
-        "type": "ui-theme",
-        "name": "Default Theme",
-        "colors": {
-            "surface": "#ffffff",
-            "primary": "#b92d5d",
-            "bgPage": "#eeeeee",
-            "groupBg": "#ffffff",
-            "groupOutline": "#cccccc"
-        },
-        "sizes": {
-            "pagePadding": "12px",
-            "groupGap": "12px",
-            "groupBorderRadius": "4px",
-            "widgetGap": "12px"
-        }
-    },
-    {
-        "id": "ex2_ui_group",
-        "type": "ui-group",
-        "name": "環境レポート",
-        "page": "ex2_ui_page",
-        "width": "6",
-        "height": "-1",
-        "order": 1,
-        "showTitle": true,
-        "className": "",
-        "visible": true,
-        "disabled": false
-    },
-    {
-        "id": "ex2_inject",
-        "type": "inject",
-        "name": "センサーデータ",
-        "props": [
-            {"p": "payload.temperature", "v": "25.5", "vt": "num"},
-            {"p": "payload.humidity", "v": "60", "vt": "num"},
-            {"p": "payload.pressure", "v": "1013", "vt": "num"},
-            {"p": "payload.timestamp", "v": "", "vt": "date"}
-        ],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "x": 140,
-        "y": 100,
-        "wires": [["ex2_markdown"]]
-    },
-    {
-        "id": "ex2_markdown",
-        "type": "ui-markdown",
-        "group": "ex2_ui_group",
-        "order": 1,
-        "width": 0,
-        "height": 0,
-        "name": "環境レポート",
-        "content": "## 📊 環境モニタリングレポート\n\n| センサー | 値 | 単位 |\n|---------|-----|-----|\n| 🌡️ 温度 | **{{ msg?.payload?.temperature || '--' }}** | ℃ |\n| 💧 湿度 | **{{ msg?.payload?.humidity || '--' }}** | % |\n| 🌀 気圧 | **{{ msg?.payload?.pressure || '--' }}** | hPa |\n\n---\n*最終更新: {{ msg?.payload?.timestamp || '未取得' }}*",
-        "x": 360,
-        "y": 100,
-        "wires": []
-    }
+    {"id":"m3_inject_ok","type":"inject","name":"全正常","props":[{"p":"payload.serverStatus","v":"正常","vt":"str"},{"p":"payload.dbStatus","v":"正常","vt":"str"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","x":110,"y":100,"wires":[["m3_function"]]},
+    {"id":"m3_inject_err","type":"inject","name":"DB異常","props":[{"p":"payload.serverStatus","v":"正常","vt":"str"},{"p":"payload.dbStatus","v":"異常","vt":"str"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","x":110,"y":160,"wires":[["m3_function"]]},
+    {"id":"m3_function","type":"function","name":"スタイル生成","func":"const serverStyle = msg.payload.serverStatus === '正常' ? 'fill:#4caf50,color:#fff' : 'fill:#f44336,color:#fff';\nconst dbStyle = msg.payload.dbStatus === '正常' ? 'fill:#4caf50,color:#fff' : 'fill:#f44336,color:#fff';\nmsg.payload = { serverStyle, dbStyle, serverStatus: msg.payload.serverStatus, dbStatus: msg.payload.dbStatus };\nreturn msg;","outputs":1,"x":300,"y":130,"wires":[["m3_markdown"]]},
+    {"id":"m3_markdown","type":"ui-markdown","group":"","order":1,"width":0,"height":0,"name":"システム構成図","content":"## 🔧 システム状態\n\n```mermaid\ngraph TD;\n    A[センサー] --> B[サーバー];\n    B --> C[データベース];\n    B --> D[Dashboard];\n    style B {{ msg?.payload?.serverStyle || '' }};\n    style C {{ msg?.payload?.dbStyle || '' }};\n```\n\n| コンポーネント | 状態 |\n|---------------|------|\n| サーバー | {{ msg?.payload?.serverStatus || '不明' }} |\n| データベース | {{ msg?.payload?.dbStatus || '不明' }} |","x":490,"y":130,"wires":[[]]}
+]</div>
+            </details>
+        </div>
+        
+        <!-- ===== notification ウィジェット演習 ===== -->
+        <h3>🔔 notification ウィジェット演習</h3>
+        
+        <div class="exercise">
+            <h3>演習 N-1: シンプルな通知表示<span class="difficulty difficulty-easy">初級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>ボタンをクリックすると「処理が完了しました」という通知を表示するフローを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Inject、ui-notificationノードを使用</li>
+                <li>通知の表示位置: top right</li>
+                <li>表示時間: 3秒</li>
+                <li>カウントダウンバーを表示</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Injectノードの設定:</strong></p>
+                <ul>
+                    <li>msg.payload: 「処理が完了しました」（文字列）</li>
+                </ul>
+                <p><strong>ui-notificationノードの設定:</strong></p>
+                <ul>
+                    <li>UI: 適切なui-baseを選択（必須）</li>
+                    <li>Position: top right</li>
+                    <li>Timeout: 3</li>
+                    <li>Show Countdown Bar: チェック</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id":"n1_inject","type":"inject","name":"通知送信","props":[{"p":"payload"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","payload":"処理が完了しました","payloadType":"str","x":130,"y":100,"wires":[["n1_notify"]]},
+    {"id":"n1_notify","type":"ui-notification","ui":"","position":"top right","colorDefault":true,"color":"#000000","displayTime":"3","showCountdown":true,"allowDismiss":true,"dismissText":"OK","allowConfirm":false,"confirmText":"","raw":false,"name":"完了通知","x":330,"y":100,"wires":[[]]}
 ]</div>
             </details>
         </div>
         
         <div class="exercise">
-            <h3>演習3: 条件付き通知システム<span class="difficulty difficulty-medium">中級</span></h3>
+            <h3>演習 N-2: 確認ダイアログの結果分岐<span class="difficulty difficulty-medium">中級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>確認ダイアログを表示し、ユーザーの選択（OK/NG）に応じて処理を分岐させるフローを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Inject、ui-notification、Switch、Change、Debugノードを使用</li>
+                <li>notificationで「処理を実行しますか？」と確認ダイアログを表示</li>
+                <li>OKボタン押下時: Debugノードに「処理を実行しました」と表示</li>
+                <li>NGボタン（キャンセル）押下時: 何も表示しない（Debugに出力なし）</li>
+            </ul>
+            
+            <div class="tip">
+                <p><strong>📌 ポイント:</strong> サンプルフローの「パターン3: 確認ダイアログと結果の処理分岐」を参考にしてください。</p>
+            </div>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Injectノードの設定:</strong></p>
+                <ul>
+                    <li>msg.payload: 「処理を実行しますか？」（文字列）</li>
+                </ul>
+                <p><strong>ui-notificationの出力:</strong></p>
+                <ul>
+                    <li>確認ボタンがクリックされると、<strong>confirmTextに設定した文字列</strong>（この場合「OK」）がmsg.payloadに出力されます</li>
+                    <li>却下ボタンがクリックされると、<strong>dismissTextに設定した文字列</strong>（この場合「NG」）がmsg.payloadに出力されます</li>
+                </ul>
+                <p><strong>Switchノードの設定:</strong></p>
+                <ul>
+                    <li>プロパティ: msg.payload</li>
+                    <li>条件: == "OK"（確認ボタンが押された場合のみ出力）</li>
+                </ul>
+                <p><strong>Changeノードの設定:</strong></p>
+                <ul>
+                    <li>msg.payloadを「処理を実行しました」に設定</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id":"n3_inject","type":"inject","name":"確認要求","props":[{"p":"payload"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","payload":"処理を実行しますか？","payloadType":"str","x":140,"y":100,"wires":[["n3_notification"]]},
+    {"id":"n3_notification","type":"ui-notification","ui":"","position":"center center","colorDefault":false,"color":"#2196f3","displayTime":"0","showCountdown":false,"outputs":1,"allowDismiss":true,"dismissText":"NG","allowConfirm":true,"confirmText":"OK","raw":false,"name":"確認ダイアログ","x":350,"y":100,"wires":[["n3_switch"]]},
+    {"id":"n3_switch","type":"switch","name":"OK判定","property":"payload","propertyType":"msg","rules":[{"t":"eq","v":"OK","vt":"str"}],"checkall":"false","repair":false,"outputs":1,"x":520,"y":100,"wires":[["n3_change"]]},
+    {"id":"n3_change","type":"change","name":"メッセージ設定","rules":[{"t":"set","p":"payload","pt":"msg","to":"処理を実行しました","tot":"str"}],"x":680,"y":100,"wires":[["n3_debug"]]},
+    {"id":"n3_debug","type":"debug","name":"結果表示","active":true,"tosidebar":true,"console":false,"tostatus":true,"complete":"payload","targetType":"msg","statusVal":"payload","statusType":"auto","x":850,"y":100,"wires":[]}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習 N-3: 条件付き通知システム<span class="difficulty difficulty-hard">上級</span></h3>
             
             <p><strong>📝 課題:</strong></p>
             <p>温度値に応じて異なる種類の通知を表示するシステムを作成してください。</p>
@@ -2739,8 +2959,107 @@ return msg;</div>
             </details>
         </div>
         
+        <!-- ===== audio ウィジェット演習 ===== -->
+        <h3>🔊 audio ウィジェット演習</h3>
+        
         <div class="exercise">
-            <h3>演習4: 音声アラートシステム<span class="difficulty difficulty-hard">上級</span></h3>
+            <h3>演習 A-1: Audio Playerの基本操作<span class="difficulty difficulty-easy">初級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>ダッシュボード上にオーディオプレイヤーを表示し、BGMを再生できるようにしてください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Inject、ui-audio（Audio Playerモード）ノードを使用</li>
+                <li>Injectで音声URLを送信し、自動再生・ループを有効化</li>
+                <li>再生/停止の操作は<strong>ダッシュボード上のプレイヤーUI</strong>で行う</li>
+            </ul>
+            
+            <div class="tip">
+                <p><strong>💡 Audio Playerモードについて:</strong></p>
+                <p>Audio Playerモードでは、ダッシュボードに標準のオーディオプレイヤーUIが表示されます。ユーザーはこのUIで再生/一時停止/シーク/音量調整を操作できます。Injectノードは音声URLを設定するためのテスト用です。</p>
+            </div>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>起動時リセット用Injectノードの設定:</strong></p>
+                <ul>
+                    <li>繰り返し: なし（once: true - 起動後1回だけ実行）</li>
+                    <li>msg.playback: "stop"（文字列）</li>
+                </ul>
+                <p><strong>URL設定用Injectノードの設定:</strong></p>
+                <ul>
+                    <li>msg.payload: 音声ファイルのURL（例: https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3）</li>
+                    <li>msg.ui_update: {"autoplay":"on", "loop":"on"}</li>
+                </ul>
+                <p><strong>ui-audioノードの設定:</strong></p>
+                <ul>
+                    <li>Mode: Audio Player</li>
+                    <li>Group: 選択（必須 - ダッシュボードにUIを表示するため）</li>
+                    <li>Size: 適切な幅を設定（6など）</li>
+                </ul>
+                <p><strong>❗ ポイント:</strong></p>
+                <ul>
+                    <li>「起動時リセット」はフロー再起動時の自動再生を防ぎます</li>
+                    <li>URL設定Injectをクリック → URLが送信され自動再生開始</li>
+                    <li>一時停止/再開 → ダッシュボードのプレイヤーUIで操作</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id":"a1_reset","type":"inject","name":"起動時リセット","props":[{"p":"playback","v":"stop","vt":"str"}],"repeat":"","crontab":"","once":true,"onceDelay":0.5,"topic":"","x":140,"y":80,"wires":[["a1_audio"]]},
+    {"id":"a1_inject_url","type":"inject","name":"URL設定&再生","props":[{"p":"payload"},{"p":"ui_update","v":"{\"autoplay\":\"on\",\"loop\":\"on\"}","vt":"json"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","payload":"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3","payloadType":"str","x":150,"y":120,"wires":[["a1_audio"]]},
+    {"id":"a1_audio","type":"ui-audio","group":"","name":"BGM Player","order":1,"width":"6","height":"1","mode":"src","voice":"","src":"","autoplay":false,"loop":false,"muted":false,"x":360,"y":100,"wires":[[]]}
+]</div>
+                <p style="margin-top: 10px; color: #666;"><small>※ 再生/一時停止はダッシュボード上のプレイヤーUIで操作します。「起動時リセット」はフロー再起動時の自動再生を防ぎます。</small></p>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習 A-2: TTS音声読み上げ<span class="difficulty difficulty-easy">初級</span></h3>
+            
+            <p><strong>📝 課題:</strong></p>
+            <p>テキストを音声で読み上げるTTS（Text-to-Speech）フローを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>Inject、ui-audio（TTSモード）ノードを使用</li>
+                <li>日本語で「こんにちは、ダッシュボードへようこそ」と読み上げ</li>
+                <li>速度と音量を指定</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Injectノードの設定:</strong></p>
+                <ul>
+                    <li>msg.payloadをJSONオブジェクトとして設定:</li>
+                </ul>
+                <div class="code-block">{
+  "text": "こんにちは、ダッシュボードへようこそ",
+  "rate": 1.0,
+  "volume": 100
+}</div>
+                <p><strong>ui-audioノード:</strong></p>
+                <ul>
+                    <li>Mode: Text-to-Speech</li>
+                    <li>UI: 選択（必須）</li>
+                </ul>
+                <p><strong>❗ 注意:</strong> TTSはユーザーがダッシュボードをクリックした後でないと動作しません</p>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id":"a2_inject","type":"inject","name":"読み上げ","props":[{"p":"payload","v":"{\"text\":\"こんにちは、ダッシュボードへようこそ\",\"rate\":1.0,\"volume\":100}","vt":"json"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","x":130,"y":100,"wires":[["a2_tts"]]},
+    {"id":"a2_tts","type":"ui-audio","ui":"","name":"TTS","mode":"tts","voice":"","src":"","autoplay":false,"loop":false,"muted":false,"x":310,"y":100,"wires":[[]]}
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習 A-3: 音声アラートシステム<span class="difficulty difficulty-hard">上級</span></h3>
             
             <p><strong>📝 課題:</strong></p>
             <p>異常検知時に音声と視覚の両方でアラートを出すシステムを作成してください。</p>
@@ -2926,6 +3245,11 @@ return [notifyMsg, audioMsg];</div>
                 <td>全クライアントに通知されない</td>
                 <td>msg._clientが残っている</td>
                 <td>Changeノードでmsg._clientを削除</td>
+            </tr>
+            <tr>
+                <td>フロー再起動時に音が自動再生される</td>
+                <td>Audio Playerがブラウザ側で状態を保持</td>
+                <td>起動時にmsg.playback="stop"を送信するInjectノードを追加（once: true）</td>
             </tr>
         </table>
         

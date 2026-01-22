@@ -1284,8 +1284,21 @@ payload * 100         // パーセント変換</div>
         
         <h2 id="section7">📝 7. 演習問題</h2>
         
+        <p>各ウィジェットごとに実践的な演習問題を用意しました。段階的に取り組んで、データ可視化の技術を身につけましょう。</p>
+        
+        <div class="tip">
+            <p><strong>💡 演習の進め方:</strong></p>
+            <ul>
+                <li>解答フローをインポートする前に、まず自分で作成してみましょう</li>
+                <li>デプロイ前に、各ノードの「Group」と「UI」を選択してください</li>
+                <li>ヒントは「学習対象外のノード」は詳しく、「学習対象ノード」は最小限にしています</li>
+            </ul>
+        </div>
+        
+        <h3>📈 chart ウィジェット演習</h3>
+        
         <div class="exercise">
-            <h3>演習1: リアルタイム温度モニター <span class="difficulty difficulty-easy">初級</span></h3>
+            <h3>演習 C-1: シンプルな温度グラフ<span class="difficulty difficulty-medium">中級</span></h3>
             
             <p><strong>📋 課題:</strong></p>
             <p>温度センサーの値をリアルタイムで折れ線グラフとゲージに表示するダッシュボードを作成してください。</p>
@@ -1505,7 +1518,7 @@ return msg;</div>
         </div>
         
         <div class="exercise">
-            <h3>演習2: 複数センサー比較チャート <span class="difficulty difficulty-medium">中級</span></h3>
+            <h3>演習 C-2: 複数センサー比較チャート<span class="difficulty difficulty-medium">中級</span></h3>
             
             <p><strong>📋 課題:</strong></p>
             <p>3つのセンサーからのデータを1つのチャートで比較表示するダッシュボードを作成してください。</p>
@@ -1750,7 +1763,645 @@ return msg;</div>
         </div>
         
         <div class="exercise">
-            <h3>演習3: センサーデータテーブル <span class="difficulty difficulty-medium">中級</span></h3>
+            <h3>演習 C-3: カテゴリ別棒グラフとデータクリア<span class="difficulty difficulty-medium">中級</span></h3>
+            
+            <p><strong>📋 課題:</strong></p>
+            <p>月別の売上データを棒グラフで表示し、データの更新・クリア・アニメーションの切替えができるダッシュボードを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>使用ノード: Inject, Function, ui-button, ui-chart</li>
+                <li>ui-chart: カテゴリ別（Categorical）の棒グラフで月別売上を表示</li>
+                <li>ui-button「データ更新」: クリックで新しいランダムデータを生成（replaceで置換）</li>
+                <li>ui-button「クリア」: 空配列を送信してチャートをリセット</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Injectノードの設定:</strong></p>
+                <ul>
+                    <li>起動時に1回だけ実行（once: true）</li>
+                    <li>PayloadはFunctionで生成するため空でOK</li>
+                </ul>
+                <p><strong>Functionノード（データ生成）:</strong></p>
+                <div class="code-block">// 月別売上データを配列で生成
+msg.payload = [
+    { "x": "1月", "y": Math.floor(Math.random() * 50 + 50) },
+    { "x": "2月", "y": Math.floor(Math.random() * 50 + 50) },
+    { "x": "3月", "y": Math.floor(Math.random() * 50 + 50) },
+    { "x": "4月", "y": Math.floor(Math.random() * 50 + 50) },
+    { "x": "5月", "y": Math.floor(Math.random() * 50 + 50) },
+    { "x": "6月", "y": Math.floor(Math.random() * 50 + 50) }
+];
+return msg;</div>
+                <p><strong>ui-button（クリア）:</strong></p>
+                <ul>
+                    <li>Payload: []（空配列）</li>
+                    <li>Payload Type: JSON</li>
+                </ul>
+                <p><strong>ui-chartの設定:</strong></p>
+                <ul>
+                    <li>Chart Type: Bar</li>
+                    <li>X-Axis Type: Categorical</li>
+                    <li>X: property "x", Y: property "y"</li>
+                    <li>Action: replace（データ更新時に置換）</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "c3_tab",
+        "type": "tab",
+        "label": "演習 C-3: カテゴリ別棒グラフ",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "c3_inject",
+        "type": "inject",
+        "z": "c3_tab",
+        "name": "初期データ",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 130,
+        "y": 80,
+        "wires": [["c3_func_data"]]
+    },
+    {
+        "id": "c3_func_data",
+        "type": "function",
+        "z": "c3_tab",
+        "name": "売上データ生成",
+        "func": "msg.payload = [\n    { \"x\": \"1月\", \"y\": Math.floor(Math.random() * 50 + 50) },\n    { \"x\": \"2月\", \"y\": Math.floor(Math.random() * 50 + 50) },\n    { \"x\": \"3月\", \"y\": Math.floor(Math.random() * 50 + 50) },\n    { \"x\": \"4月\", \"y\": Math.floor(Math.random() * 50 + 50) },\n    { \"x\": \"5月\", \"y\": Math.floor(Math.random() * 50 + 50) },\n    { \"x\": \"6月\", \"y\": Math.floor(Math.random() * 50 + 50) }\n];\nreturn msg;",
+        "outputs": 1,
+        "x": 320,
+        "y": 80,
+        "wires": [["c3_chart"]]
+    },
+    {
+        "id": "c3_btn_update",
+        "type": "ui-button",
+        "z": "c3_tab",
+        "group": "",
+        "name": "データ更新",
+        "label": "🔄 データ更新",
+        "order": 1,
+        "width": "3",
+        "height": "1",
+        "emulateClick": false,
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "iconPosition": "left",
+        "payload": "",
+        "payloadType": "date",
+        "topic": "update",
+        "topicType": "str",
+        "buttonColor": "",
+        "x": 130,
+        "y": 140,
+        "wires": [["c3_func_data"]]
+    },
+    {
+        "id": "c3_btn_clear",
+        "type": "ui-button",
+        "z": "c3_tab",
+        "group": "",
+        "name": "クリア",
+        "label": "🗑️ クリア",
+        "order": 2,
+        "width": "3",
+        "height": "1",
+        "emulateClick": false,
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "#f44336",
+        "className": "",
+        "icon": "",
+        "iconPosition": "left",
+        "payload": "[]",
+        "payloadType": "json",
+        "topic": "clear",
+        "topicType": "str",
+        "x": 130,
+        "y": 200,
+        "wires": [["c3_chart"]]
+    },
+    {
+        "id": "c3_chart",
+        "type": "ui-chart",
+        "z": "c3_tab",
+        "group": "",
+        "name": "月別売上",
+        "label": "月別売上（万円）",
+        "order": 3,
+        "chartType": "bar",
+        "category": "",
+        "categoryType": "none",
+        "xAxisProperty": "x",
+        "xAxisPropertyType": "property",
+        "xAxisType": "category",
+        "yAxisProperty": "y",
+        "yAxisPropertyType": "property",
+        "action": "replace",
+        "pointShape": "rect",
+        "pointRadius": 4,
+        "showLegend": false,
+        "removeOlder": 1,
+        "removeOlderUnit": "60",
+        "colors": ["#b92d5d", "#2196f3", "#4caf50"],
+        "textColor": ["#666666"],
+        "textColorDefault": true,
+        "gridColor": ["#e5e5e5"],
+        "gridColorDefault": true,
+        "width": "6",
+        "height": "4",
+        "className": "",
+        "x": 520,
+        "y": 120,
+        "wires": [[]]
+    }
+]</div>
+            </details>
+        </div>
+        
+        <h3>🎯 gauge ウィジェット演習</h3>
+        
+        <div class="exercise">
+            <h3>演習 G-1: シンプルな温度ゲージ<span class="difficulty difficulty-easy">初級</span></h3>
+            
+            <p><strong>📋 課題:</strong></p>
+            <p>2秒ごとにランダムな温度値を生成し、3/4ゲージで表示するフローを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>使用ノード: Inject, Function, ui-gauge</li>
+                <li>Inject: 2秒間隔で繰り返し実行</li>
+                <li>Function: 15～35のランダム値を生成</li>
+                <li>ui-gauge: 3/4ゲージ、4段階のセグメント色分け</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Injectノード:</strong></p>
+                <ul>
+                    <li>繰り返し: 2秒</li>
+                    <li>起動時に1回実行: 有効</li>
+                </ul>
+                <p><strong>Functionノード:</strong></p>
+                <div class="code-block">msg.payload = Math.floor(Math.random() * 21) + 15;
+return msg;</div>
+                <p><strong>ui-gaugeの設定:</strong></p>
+                <ul>
+                    <li>Type: 3/4 Gauge</li>
+                    <li>Min: 0, Max: 50</li>
+                    <li>Units: °C</li>
+                    <li>Segments: 0→青, 20→緑, 30→オレンジ, 35→赤</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "g1_tab",
+        "type": "tab",
+        "label": "演習 G-1: シンプルゲージ",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "g1_inject",
+        "type": "inject",
+        "z": "g1_tab",
+        "name": "2秒毎",
+        "props": [{"p": "payload"}],
+        "repeat": "2",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 130,
+        "y": 100,
+        "wires": [["g1_function"]]
+    },
+    {
+        "id": "g1_function",
+        "type": "function",
+        "z": "g1_tab",
+        "name": "温度生成(15-35)",
+        "func": "msg.payload = Math.floor(Math.random() * 21) + 15;\nreturn msg;",
+        "outputs": 1,
+        "x": 330,
+        "y": 100,
+        "wires": [["g1_gauge"]]
+    },
+    {
+        "id": "g1_gauge",
+        "type": "ui-gauge",
+        "z": "g1_tab",
+        "name": "温度ゲージ",
+        "group": "",
+        "order": 1,
+        "width": "6",
+        "height": "4",
+        "gtype": "gauge-34",
+        "gstyle": "rounded",
+        "title": "室温",
+        "units": "°C",
+        "icon": "mdi-thermometer",
+        "prefix": "",
+        "suffix": "",
+        "segments": [
+            {"from": 0, "color": "#2196f3"},
+            {"from": 20, "color": "#4caf50"},
+            {"from": 30, "color": "#ff9800"},
+            {"from": 35, "color": "#f44336"}
+        ],
+        "min": 0,
+        "max": 50,
+        "sizeThickness": 16,
+        "sizeGap": 4,
+        "sizeKeyThickness": 8,
+        "styleRounded": true,
+        "styleGlow": false,
+        "className": "",
+        "x": 550,
+        "y": 100,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習 G-2: 複数タイプのゲージ比較<span class="difficulty difficulty-medium">中級</span></h3>
+            
+            <p><strong>📋 課題:</strong></p>
+            <p>同じ値を異なるタイプのゲージ（Half, Tile, Battery）で同時に表示し、各タイプの特徴を比較できるダッシュボードを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>使用ノード: Inject, Function, ui-gauge × 3</li>
+                <li>ui-gauge 1: Half Gauge（半円）</li>
+                <li>ui-gauge 2: Tile（タイル）</li>
+                <li>ui-gauge 3: Battery（バッテリー）</li>
+                <li>全てのゲージに同じ値を送信</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Inject/Functionノード:</strong></p>
+                <ul>
+                    <li>C-1と同様の設定でOK</li>
+                    <li>Functionの出力を3つのゲージに接続</li>
+                </ul>
+                <p><strong>ui-gaugeの設定:</strong></p>
+                <ul>
+                    <li>Half: gtype = "gauge-half"</li>
+                    <li>Tile: gtype = "gauge-tile"</li>
+                    <li>Battery: gtype = "gauge-battery"</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "g2_tab",
+        "type": "tab",
+        "label": "演習 G-2: ゲージタイプ比較",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "g2_inject",
+        "type": "inject",
+        "z": "g2_tab",
+        "name": "2秒毎",
+        "props": [{"p": "payload"}],
+        "repeat": "2",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 130,
+        "y": 140,
+        "wires": [["g2_function"]]
+    },
+    {
+        "id": "g2_function",
+        "type": "function",
+        "z": "g2_tab",
+        "name": "値生成(0-100)",
+        "func": "msg.payload = Math.floor(Math.random() * 101);\nreturn msg;",
+        "outputs": 1,
+        "x": 330,
+        "y": 140,
+        "wires": [["g2_half", "g2_tile", "g2_battery"]]
+    },
+    {
+        "id": "g2_half",
+        "type": "ui-gauge",
+        "z": "g2_tab",
+        "name": "Half Gauge",
+        "group": "",
+        "order": 1,
+        "width": "4",
+        "height": "3",
+        "gtype": "gauge-half",
+        "gstyle": "rounded",
+        "title": "Half Gauge",
+        "units": "%",
+        "icon": "",
+        "segments": [
+            {"from": 0, "color": "#2196f3"},
+            {"from": 50, "color": "#4caf50"},
+            {"from": 80, "color": "#f44336"}
+        ],
+        "min": 0,
+        "max": 100,
+        "x": 550,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "g2_tile",
+        "type": "ui-gauge",
+        "z": "g2_tab",
+        "name": "Tile Gauge",
+        "group": "",
+        "order": 2,
+        "width": "4",
+        "height": "3",
+        "gtype": "gauge-tile",
+        "gstyle": "rounded",
+        "title": "Tile Gauge",
+        "units": "%",
+        "icon": "mdi-percent",
+        "segments": [
+            {"from": 0, "color": "#2196f3"},
+            {"from": 50, "color": "#4caf50"},
+            {"from": 80, "color": "#f44336"}
+        ],
+        "min": 0,
+        "max": 100,
+        "x": 550,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "g2_battery",
+        "type": "ui-gauge",
+        "z": "g2_tab",
+        "name": "Battery Gauge",
+        "group": "",
+        "order": 3,
+        "width": "4",
+        "height": "3",
+        "gtype": "gauge-battery",
+        "gstyle": "rounded",
+        "title": "Battery Gauge",
+        "units": "%",
+        "icon": "",
+        "segments": [
+            {"from": 0, "color": "#f44336"},
+            {"from": 20, "color": "#ff9800"},
+            {"from": 50, "color": "#4caf50"}
+        ],
+        "min": 0,
+        "max": 100,
+        "x": 550,
+        "y": 200,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習 G-3: 動的プロパティ更新ゲージ<span class="difficulty difficulty-hard">上級</span></h3>
+            
+            <p><strong>📋 課題:</strong></p>
+            <p>msg.ui_updateを使って、値に応じてゲージのラベルやセグメント色を動的に変更するフローを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>使用ノード: Inject, Function, ui-gauge</li>
+                <li>値が30未満: ラベル「低温」、青系のセグメント</li>
+                <li>値が30～60: ラベル「正常」、緑系のセグメント</li>
+                <li>値が60以上: ラベル「高温警告」、赤系のセグメント</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Inject/Functionノード:</strong></p>
+                <ul>
+                    <li>前の演習と同様</li>
+                </ul>
+                <p><strong>Functionノード（動的更新）:</strong></p>
+                <div class="code-block">let value = Math.floor(Math.random() * 81) + 10;  // 10-90
+msg.payload = value;
+
+if (value < 30) {
+    msg.ui_update = {
+        "label": "低温",
+        "segments": [
+            { "from": 0, "color": "#90caf9" },
+            { "from": 20, "color": "#2196f3" }
+        ]
+    };
+} else if (value < 60) {
+    msg.ui_update = {
+        "label": "正常",
+        "segments": [
+            { "from": 0, "color": "#a5d6a7" },
+            { "from": 40, "color": "#4caf50" }
+        ]
+    };
+} else {
+    msg.ui_update = {
+        "label": "高温警告",
+        "segments": [
+            { "from": 0, "color": "#ffcc80" },
+            { "from": 60, "color": "#f44336" }
+        ]
+    };
+}
+return msg;</div>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "g3_tab",
+        "type": "tab",
+        "label": "演習 G-3: 動的ゲージ",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "g3_inject",
+        "type": "inject",
+        "z": "g3_tab",
+        "name": "2秒毎",
+        "props": [{"p": "payload"}],
+        "repeat": "2",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 130,
+        "y": 100,
+        "wires": [["g3_function"]]
+    },
+    {
+        "id": "g3_function",
+        "type": "function",
+        "z": "g3_tab",
+        "name": "動的プロパティ設定",
+        "func": "let value = Math.floor(Math.random() * 81) + 10;\nmsg.payload = value;\n\nif (value < 30) {\n    msg.ui_update = {\n        \"label\": \"低温\",\n        \"segments\": [\n            { \"from\": 0, \"color\": \"#90caf9\" },\n            { \"from\": 20, \"color\": \"#2196f3\" }\n        ]\n    };\n} else if (value < 60) {\n    msg.ui_update = {\n        \"label\": \"正常\",\n        \"segments\": [\n            { \"from\": 0, \"color\": \"#a5d6a7\" },\n            { \"from\": 40, \"color\": \"#4caf50\" }\n        ]\n    };\n} else {\n    msg.ui_update = {\n        \"label\": \"高温警告\",\n        \"segments\": [\n            { \"from\": 0, \"color\": \"#ffcc80\" },\n            { \"from\": 60, \"color\": \"#f44336\" }\n        ]\n    };\n}\nreturn msg;",
+        "outputs": 1,
+        "x": 350,
+        "y": 100,
+        "wires": [["g3_gauge"]]
+    },
+    {
+        "id": "g3_gauge",
+        "type": "ui-gauge",
+        "z": "g3_tab",
+        "name": "動的ゲージ",
+        "group": "",
+        "order": 1,
+        "width": "6",
+        "height": "4",
+        "gtype": "gauge-34",
+        "gstyle": "rounded",
+        "title": "状態",
+        "units": "°C",
+        "icon": "mdi-thermometer",
+        "segments": [
+            {"from": 0, "color": "#4caf50"}
+        ],
+        "min": 0,
+        "max": 100,
+        "x": 570,
+        "y": 100,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+        
+        <h3>📋 table ウィジェット演習</h3>
+        
+        <div class="exercise">
+            <h3>演習 TB-1: シンプルなデータ一覧<span class="difficulty difficulty-easy">初級</span></h3>
+            
+            <p><strong>📋 課題:</strong></p>
+            <p>センサー情報をテーブルで表示するシンプルなフローを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>使用ノード: Inject, ui-table</li>
+                <li>Inject: JSON配列データを4件以上</li>
+                <li>ui-table: 自動列生成（Auto Columns）で表示</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Injectノード:</strong></p>
+                <ul>
+                    <li>Payload Type: JSON</li>
+                    <li>起動時に1回実行</li>
+                </ul>
+                <div class="code-block">[
+    {"id": 1, "name": "温度センサー", "value": 25.5, "status": "正常"},
+    {"id": 2, "name": "湿度センサー", "value": 60, "status": "正常"},
+    {"id": 3, "name": "圧力センサー", "value": 1013, "status": "警告"},
+    {"id": 4, "name": "照度センサー", "value": 500, "status": "正常"}
+]</div>
+                <p><strong>ui-tableの設定:</strong></p>
+                <ul>
+                    <li>Auto Columns: 有効</li>
+                    <li>Max Rows: 10</li>
+                    <li>Action: replace</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "tb1_tab",
+        "type": "tab",
+        "label": "演習 TB-1: シンプルテーブル",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "tb1_inject",
+        "type": "inject",
+        "z": "tb1_tab",
+        "name": "センサーデータ",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[{\"id\":1,\"name\":\"温度センサー\",\"value\":25.5,\"status\":\"正常\"},{\"id\":2,\"name\":\"湿度センサー\",\"value\":60,\"status\":\"正常\"},{\"id\":3,\"name\":\"圧力センサー\",\"value\":1013,\"status\":\"警告\"},{\"id\":4,\"name\":\"照度センサー\",\"value\":500,\"status\":\"正常\"}]",
+        "payloadType": "json",
+        "x": 150,
+        "y": 100,
+        "wires": [["tb1_table"]]
+    },
+    {
+        "id": "tb1_table",
+        "type": "ui-table",
+        "z": "tb1_tab",
+        "group": "",
+        "name": "センサー一覧",
+        "label": "",
+        "order": 1,
+        "width": "0",
+        "height": "0",
+        "maxrows": 10,
+        "autocols": true,
+        "showSearch": true,
+        "deselect": true,
+        "selectionType": "none",
+        "columns": [],
+        "mobileBreakpoint": "sm",
+        "mobileBreakpointType": "defaults",
+        "action": "replace",
+        "x": 370,
+        "y": 100,
+        "wires": [[]]
+    }
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習 TB-2: 行選択と詳細表示<span class="difficulty difficulty-medium">中級</span></h3>
             
             <p><strong>📋 課題:</strong></p>
             <p>複数センサーの状態を一覧表示し、行を選択すると詳細が表示されるダッシュボードを作成してください。</p>
@@ -1951,6 +2602,546 @@ return msg;</div>
 ]</div>
             </details>
         </div>
+        
+        <div class="exercise">
+            <h3>演習 TB-3: カスタム列定義とソート<span class="difficulty difficulty-hard">上級</span></h3>
+            
+            <p><strong>📋 課題:</strong></p>
+            <p>テーブルの列を手動定義し、列幅・表示順序・ソート機能をカスタマイズしたダッシュボードを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>使用ノード: Inject, Function, ui-table, ui-button</li>
+                <li>ui-table: カスタム列定義（ID、名前、値、状態の順）</li>
+                <li>列幅をそれぞれ指定（ID: 60px、名前: 150px、値: 100px、状態: 80px）</li>
+                <li>ui-button「値でソート」: 値の昇順/降順を切替え</li>
+                <li>ui-button「データ追加」: 新しい行を追加（append）</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>カスタム列定義（Columnsプロパティ）:</strong></p>
+                <div class="code-block">[
+    { "key": "id", "label": "ID", "width": "60px" },
+    { "key": "name", "label": "センサー名", "width": "150px" },
+    { "key": "value", "label": "現在値", "width": "100px", "align": "right" },
+    { "key": "status", "label": "状態", "width": "80px" }
+]</div>
+                <p><strong>ソート用Functionノード:</strong></p>
+                <div class="code-block">// フロー変数でソート順を管理
+let sortAsc = flow.get("sortAsc") || true;
+let data = flow.get("tableData") || [];
+
+data.sort((a, b) => sortAsc ? a.value - b.value : b.value - a.value);
+flow.set("sortAsc", !sortAsc);
+
+msg.payload = data;
+return msg;</div>
+                <p><strong>データ追加用Functionノード:</strong></p>
+                <div class="code-block">// 新しいデータを1件追加
+let data = flow.get("tableData") || [];
+let newId = data.length > 0 ? Math.max(...data.map(d => d.id)) + 1 : 1;
+
+msg.payload = [{
+    "id": newId,
+    "name": "センサー" + newId,
+    "value": Math.floor(Math.random() * 50 + 10),
+    "status": Math.random() > 0.3 ? "正常" : "警告"
+}];
+msg.action = "append";
+return msg;</div>
+                <p><strong>ui-tableの設定:</strong></p>
+                <ul>
+                    <li>Auto Columns: 無効（手動定義を使用）</li>
+                    <li>Columns: 上記のカスタム定義を設定</li>
+                    <li>Max Rows: 10</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "tb3_tab",
+        "type": "tab",
+        "label": "演習 TB-3: カスタムテーブル",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "tb3_inject_init",
+        "type": "inject",
+        "z": "tb3_tab",
+        "name": "初期データ",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 130,
+        "y": 80,
+        "wires": [["tb3_func_init"]]
+    },
+    {
+        "id": "tb3_func_init",
+        "type": "function",
+        "z": "tb3_tab",
+        "name": "初期データ生成",
+        "func": "let data = [\n    { \"id\": 1, \"name\": \"温度センサー\", \"value\": 25.5, \"status\": \"正常\" },\n    { \"id\": 2, \"name\": \"湿度センサー\", \"value\": 60, \"status\": \"正常\" },\n    { \"id\": 3, \"name\": \"圧力センサー\", \"value\": 45, \"status\": \"警告\" },\n    { \"id\": 4, \"name\": \"照度センサー\", \"value\": 30, \"status\": \"正常\" }\n];\nflow.set(\"tableData\", data);\nflow.set(\"sortAsc\", true);\nmsg.payload = data;\nreturn msg;",
+        "outputs": 1,
+        "x": 330,
+        "y": 80,
+        "wires": [["tb3_table"]]
+    },
+    {
+        "id": "tb3_btn_sort",
+        "type": "ui-button",
+        "z": "tb3_tab",
+        "group": "",
+        "name": "値でソート",
+        "label": "🔄 値でソート",
+        "order": 1,
+        "width": "3",
+        "height": "1",
+        "emulateClick": false,
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "",
+        "payloadType": "date",
+        "topic": "sort",
+        "x": 130,
+        "y": 140,
+        "wires": [["tb3_func_sort"]]
+    },
+    {
+        "id": "tb3_func_sort",
+        "type": "function",
+        "z": "tb3_tab",
+        "name": "ソート処理",
+        "func": "let sortAsc = flow.get(\"sortAsc\") || true;\nlet data = flow.get(\"tableData\") || [];\n\ndata.sort((a, b) => sortAsc ? a.value - b.value : b.value - a.value);\nflow.set(\"sortAsc\", !sortAsc);\nflow.set(\"tableData\", data);\n\nmsg.payload = data;\nreturn msg;",
+        "outputs": 1,
+        "x": 330,
+        "y": 140,
+        "wires": [["tb3_table"]]
+    },
+    {
+        "id": "tb3_btn_add",
+        "type": "ui-button",
+        "z": "tb3_tab",
+        "group": "",
+        "name": "データ追加",
+        "label": "➕ データ追加",
+        "order": 2,
+        "width": "3",
+        "height": "1",
+        "emulateClick": false,
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "#4caf50",
+        "className": "",
+        "icon": "",
+        "payload": "",
+        "payloadType": "date",
+        "topic": "add",
+        "x": 130,
+        "y": 200,
+        "wires": [["tb3_func_add"]]
+    },
+    {
+        "id": "tb3_func_add",
+        "type": "function",
+        "z": "tb3_tab",
+        "name": "データ追加処理",
+        "func": "let data = flow.get(\"tableData\") || [];\nlet newId = data.length > 0 ? Math.max(...data.map(d => d.id)) + 1 : 1;\n\nlet newItem = {\n    \"id\": newId,\n    \"name\": \"センサー\" + newId,\n    \"value\": Math.floor(Math.random() * 50 + 10),\n    \"status\": Math.random() > 0.3 ? \"正常\" : \"警告\"\n};\n\ndata.push(newItem);\nflow.set(\"tableData\", data);\n\nmsg.payload = [newItem];\nmsg.action = \"append\";\nreturn msg;",
+        "outputs": 1,
+        "x": 330,
+        "y": 200,
+        "wires": [["tb3_table"]]
+    },
+    {
+        "id": "tb3_table",
+        "type": "ui-table",
+        "z": "tb3_tab",
+        "group": "",
+        "name": "カスタムテーブル",
+        "label": "",
+        "order": 3,
+        "width": "6",
+        "height": "5",
+        "maxrows": 10,
+        "autocols": false,
+        "showSearch": true,
+        "deselect": true,
+        "selectionType": "none",
+        "columns": [
+            { "key": "id", "label": "ID", "width": "60px" },
+            { "key": "name", "label": "センサー名", "width": "150px" },
+            { "key": "value", "label": "現在値", "width": "100px", "align": "right" },
+            { "key": "status", "label": "状態", "width": "80px" }
+        ],
+        "mobileBreakpoint": "sm",
+        "mobileBreakpointType": "defaults",
+        "action": "replace",
+        "x": 540,
+        "y": 140,
+        "wires": [[]]
+    }
+]</div>
+            </details>
+        </div>
+        
+        <h3>📊 progress ウィジェット演習</h3>
+        
+        <div class="exercise">
+            <h3>演習 P-1: シンプルなプログレスバー<span class="difficulty difficulty-easy">初級</span></h3>
+            
+            <p><strong>📋 課題:</strong></p>
+            <p>スライダーで値を変更すると、リニア（横棒）プログレスバーに反映されるフローを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>使用ノード: ui-slider, ui-progress</li>
+                <li>ui-slider: 0〜100の範囲</li>
+                <li>ui-progress: リニアスタイル、値表示あり</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>ui-sliderの設定:</strong></p>
+                <ul>
+                    <li>Min: 0, Max: 100</li>
+                    <li>Step: 1</li>
+                    <li>Label: 進捗率</li>
+                </ul>
+                <p><strong>ui-progressの設定:</strong></p>
+                <ul>
+                    <li>Style: Linear（直線）</li>
+                    <li>Show Value: 有効</li>
+                    <li>Min: 0, Max: 100</li>
+                    <li>Color: 任意（例: #b92d5d）</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "p1_tab",
+        "type": "tab",
+        "label": "演習 P-1: シンプルプログレス",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "p1_slider",
+        "type": "ui-slider",
+        "z": "p1_tab",
+        "group": "",
+        "name": "進捗スライダー",
+        "label": "進捗率",
+        "tooltip": "",
+        "order": 1,
+        "width": "6",
+        "height": "1",
+        "passthru": true,
+        "outs": "all",
+        "topic": "",
+        "topicType": "str",
+        "min": 0,
+        "max": 100,
+        "step": 1,
+        "className": "",
+        "x": 150,
+        "y": 100,
+        "wires": [["p1_progress"]]
+    },
+    {
+        "id": "p1_progress",
+        "type": "ui-progress",
+        "z": "p1_tab",
+        "group": "",
+        "name": "進捗バー",
+        "order": 2,
+        "width": "6",
+        "height": "1",
+        "style": "linear",
+        "showValue": true,
+        "color": "#b92d5d",
+        "min": 0,
+        "max": 100,
+        "x": 370,
+        "y": 100,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習 P-2: 円形プログレスと自動更新<span class="difficulty difficulty-medium">中級</span></h3>
+            
+            <p><strong>📋 課題:</strong></p>
+            <p>処理進捗をシミュレートし、円形プログレスバーで0%から100%まで自動的に進行するフローを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>使用ノード: Inject, Function, ui-progress, ui-button</li>
+                <li>ui-button「開始」: クリックで進捗開始</li>
+                <li>ui-progress: 円形スタイル、値表示あり</li>
+                <li>Function: 0.5秒ごとに10%ずつ増加、100%で停止</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>ui-buttonの設定:</strong></p>
+                <ul>
+                    <li>Label: 🚀 開始</li>
+                    <li>Payload: 0（初期値）</li>
+                    <li>Payload Type: num</li>
+                </ul>
+                <p><strong>Functionノード（進捗制御）:</strong></p>
+                <div class="code-block">// 現在の進捗を取得
+let progress = flow.get("progress") || 0;
+
+// 初期化（ボタンから0が来た場合）
+if (msg.payload === 0) {
+    progress = 0;
+}
+
+// 10%増加
+progress += 10;
+if (progress > 100) progress = 100;
+
+flow.set("progress", progress);
+msg.payload = progress;
+
+// 100%未満なら次のトリガーを送信
+if (progress < 100) {
+    node.send([msg, { payload: true }]);
+} else {
+    node.send([msg, null]);
+}
+return null;</div>
+                <p><strong>Triggerノード（遅延）:</strong></p>
+                <ul>
+                    <li>Action: 0.5秒後にメッセージを送信</li>
+                    <li>出力をFunctionノードに接続（ループ）</li>
+                </ul>
+                <p><strong>ui-progressの設定:</strong></p>
+                <ul>
+                    <li>Style: Circular（円形）</li>
+                    <li>Show Value: 有効</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "p2_tab",
+        "type": "tab",
+        "label": "演習 P-2: 円形プログレス",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "p2_btn_start",
+        "type": "ui-button",
+        "z": "p2_tab",
+        "group": "",
+        "name": "開始",
+        "label": "🚀 開始",
+        "order": 1,
+        "width": "3",
+        "height": "1",
+        "emulateClick": false,
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "#4caf50",
+        "className": "",
+        "icon": "",
+        "payload": "0",
+        "payloadType": "num",
+        "topic": "start",
+        "x": 130,
+        "y": 100,
+        "wires": [["p2_func"]]
+    },
+    {
+        "id": "p2_func",
+        "type": "function",
+        "z": "p2_tab",
+        "name": "進捗制御",
+        "func": "let progress = flow.get(\"progress\") || 0;\n\nif (msg.payload === 0) {\n    progress = 0;\n}\n\nprogress += 10;\nif (progress > 100) progress = 100;\n\nflow.set(\"progress\", progress);\nmsg.payload = progress;\n\nif (progress < 100) {\n    return [msg, { payload: true }];\n} else {\n    return [msg, null];\n}",
+        "outputs": 2,
+        "x": 310,
+        "y": 100,
+        "wires": [["p2_progress"], ["p2_trigger"]]
+    },
+    {
+        "id": "p2_trigger",
+        "type": "trigger",
+        "z": "p2_tab",
+        "name": "0.5秒待機",
+        "op1": "",
+        "op2": "true",
+        "op1type": "nul",
+        "op2type": "bool",
+        "duration": "500",
+        "extend": false,
+        "overrideDelay": false,
+        "units": "ms",
+        "reset": "",
+        "bytopic": "all",
+        "topic": "topic",
+        "outputs": 1,
+        "x": 320,
+        "y": 160,
+        "wires": [["p2_func"]]
+    },
+    {
+        "id": "p2_progress",
+        "type": "ui-progress",
+        "z": "p2_tab",
+        "group": "",
+        "name": "処理進捗",
+        "order": 2,
+        "width": "3",
+        "height": "3",
+        "style": "circular",
+        "showValue": true,
+        "color": "#2196f3",
+        "min": 0,
+        "max": 100,
+        "x": 510,
+        "y": 100,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+        
+        <div class="exercise">
+            <h3>演習 P-3: 動的色変更プログレス<span class="difficulty difficulty-hard">上級</span></h3>
+            
+            <p><strong>📋 課題:</strong></p>
+            <p>値に応じてプログレスバーの色が動的に変化するダッシュボードを作成してください。</p>
+            
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>使用ノード: Inject, Function, ui-progress</li>
+                <li>0〜30%: 赤色（危険）</li>
+                <li>31〜70%: オレンジ色（注意）</li>
+                <li>71〜100%: 緑色（正常）</li>
+                <li>msg.ui_updateで色を動的に変更</li>
+            </ul>
+            
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Injectノード:</strong></p>
+                <ul>
+                    <li>繰り返し: 2秒</li>
+                    <li>起動時に1回実行</li>
+                </ul>
+                <p><strong>Functionノード（色制御）:</strong></p>
+                <div class="code-block">let value = Math.floor(Math.random() * 101);
+msg.payload = value;
+
+let color;
+let label;
+
+if (value <= 30) {
+    color = "#f44336";  // 赤
+    label = "危険";
+} else if (value <= 70) {
+    color = "#ff9800";  // オレンジ
+    label = "注意";
+} else {
+    color = "#4caf50";  // 緑
+    label = "正常";
+}
+
+msg.ui_update = {
+    "color": color,
+    "label": label + " (" + value + "%)"
+};
+
+return msg;</div>
+                <p><strong>ui-progressの設定:</strong></p>
+                <ul>
+                    <li>Style: Linear</li>
+                    <li>Show Value: 有効</li>
+                    <li>初期色: 任意（動的に変更される）</li>
+                </ul>
+            </details>
+            
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "p3_tab",
+        "type": "tab",
+        "label": "演習 P-3: 動的色プログレス",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "p3_inject",
+        "type": "inject",
+        "z": "p3_tab",
+        "name": "2秒毎",
+        "props": [{"p": "payload"}],
+        "repeat": "2",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 130,
+        "y": 100,
+        "wires": [["p3_func"]]
+    },
+    {
+        "id": "p3_func",
+        "type": "function",
+        "z": "p3_tab",
+        "name": "色動的変更",
+        "func": "let value = Math.floor(Math.random() * 101);\nmsg.payload = value;\n\nlet color;\nlet label;\n\nif (value <= 30) {\n    color = \"#f44336\";\n    label = \"危険\";\n} else if (value <= 70) {\n    color = \"#ff9800\";\n    label = \"注意\";\n} else {\n    color = \"#4caf50\";\n    label = \"正常\";\n}\n\nmsg.ui_update = {\n    \"color\": color,\n    \"label\": label + \" (\" + value + \"%)\"\n};\n\nreturn msg;",
+        "outputs": 1,
+        "x": 310,
+        "y": 100,
+        "wires": [["p3_progress"]]
+    },
+    {
+        "id": "p3_progress",
+        "type": "ui-progress",
+        "z": "p3_tab",
+        "group": "",
+        "name": "動的プログレス",
+        "order": 1,
+        "width": "6",
+        "height": "1",
+        "style": "linear",
+        "showValue": true,
+        "color": "#4caf50",
+        "min": 0,
+        "max": 100,
+        "x": 510,
+        "y": 100,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+        
+        <h3>🏆 総合演習</h3>
         
         <div class="exercise">
             <h3>演習4: 総合ダッシュボード <span class="difficulty difficulty-hard">上級</span></h3>
