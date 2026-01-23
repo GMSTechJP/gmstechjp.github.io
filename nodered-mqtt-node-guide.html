@@ -364,12 +364,33 @@ home/bedroom/temperature     → 22.0</div>
         "name": "Public Broker",
         "broker": "test.mosquitto.org",
         "port": "1883",
+        "tls": "",
         "clientid": "",
         "autoConnect": true,
         "usetls": false,
+        "verifyservercert": false,
+        "compatmode": false,
         "protocolVersion": "4",
         "keepalive": "60",
-        "cleansession": true
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": 0
     },
     {
         "id": "mqtt_comment1",
@@ -423,6 +444,11 @@ home/bedroom/temperature     → 22.0</div>
         "topic": "",
         "qos": "1",
         "retain": "false",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
         "broker": "mqtt_broker_public",
         "x": 420,
         "y": 120,
@@ -556,6 +582,11 @@ home/bedroom/temperature     → 22.0</div>
         "topic": "",
         "qos": "1",
         "retain": "false",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
         "broker": "mqtt_broker_public",
         "x": 590,
         "y": 460,
@@ -647,6 +678,11 @@ home/bedroom/temperature     → 22.0</div>
         "topic": "nodered-guide/control/led",
         "qos": "1",
         "retain": "true",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
         "broker": "mqtt_broker_public",
         "x": 360,
         "y": 680,
@@ -817,9 +853,9 @@ home/bedroom/temperature     → 22.0</div>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
     {"id": "ex1_tab", "type": "tab", "label": "演習1"},
-    {"id": "ex1_broker", "type": "mqtt-broker", "name": "Public Broker", "broker": "test.mosquitto.org", "port": "1883", "clientid": "", "autoConnect": true, "usetls": false, "protocolVersion": "4", "keepalive": "60", "cleansession": true},
+    {"id": "ex1_broker", "type": "mqtt-broker", "name": "Public Broker", "broker": "test.mosquitto.org", "port": "1883", "tls": "", "clientid": "", "autoConnect": true, "usetls": false, "verifyservercert": false, "compatmode": false, "protocolVersion": "4", "keepalive": "60", "cleansession": true, "autoUnsubscribe": true, "birthTopic": "", "birthQos": "0", "birthRetain": "false", "birthPayload": "", "birthMsg": {}, "closeTopic": "", "closeQos": "0", "closeRetain": "false", "closePayload": "", "closeMsg": {}, "willTopic": "", "willQos": "0", "willRetain": "false", "willPayload": "", "willMsg": {}, "userProps": "", "sessionExpiry": 0},
     {"id": "ex1_inject", "type": "inject", "z": "ex1_tab", "name": "Hello送信", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "Hello MQTT!", "payloadType": "str", "x": 160, "y": 100, "wires": [["ex1_mqtt_out"]]},
-    {"id": "ex1_mqtt_out", "type": "mqtt out", "z": "ex1_tab", "name": "Publish", "topic": "yourname/test/hello", "qos": "1", "retain": "false", "broker": "ex1_broker", "x": 350, "y": 100, "wires": []}
+    {"id": "ex1_mqtt_out", "type": "mqtt out", "z": "ex1_tab", "name": "Publish", "topic": "yourname/test/hello", "qos": "1", "retain": "false", "respTopic": "", "contentType": "", "userProps": "", "correl": "", "expiry": "", "broker": "ex1_broker", "x": 350, "y": 100, "wires": []}
 ]</div>
             </details>
         </div>
@@ -849,7 +885,7 @@ home/bedroom/temperature     → 22.0</div>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
     {"id": "ex2_tab", "type": "tab", "label": "演習2"},
-    {"id": "ex2_broker", "type": "mqtt-broker", "name": "Public Broker", "broker": "test.mosquitto.org", "port": "1883", "clientid": "", "autoConnect": true, "usetls": false, "protocolVersion": "4", "keepalive": "60", "cleansession": true},
+    {"id": "ex2_broker", "type": "mqtt-broker", "name": "Public Broker", "broker": "test.mosquitto.org", "port": "1883", "tls": "", "clientid": "", "autoConnect": true, "usetls": false, "verifyservercert": false, "compatmode": false, "protocolVersion": "4", "keepalive": "60", "cleansession": true, "autoUnsubscribe": true, "birthTopic": "", "birthQos": "0", "birthRetain": "false", "birthPayload": "", "birthMsg": {}, "closeTopic": "", "closeQos": "0", "closeRetain": "false", "closePayload": "", "closeMsg": {}, "willTopic": "", "willQos": "0", "willRetain": "false", "willPayload": "", "willMsg": {}, "userProps": "", "sessionExpiry": 0},
     {"id": "ex2_mqtt_in", "type": "mqtt in", "z": "ex2_tab", "name": "Subscribe", "topic": "yourname/test/hello", "qos": "1", "datatype": "auto", "broker": "ex2_broker", "nl": false, "rap": true, "rh": 0, "inputs": 0, "x": 160, "y": 100, "wires": [["ex2_debug"]]},
     {"id": "ex2_debug", "type": "debug", "z": "ex2_tab", "name": "受信メッセージ", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "payload", "statusType": "msg", "x": 380, "y": 100, "wires": []}
 ]</div>
@@ -881,10 +917,10 @@ home/bedroom/temperature     → 22.0</div>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
     {"id": "ex3_tab", "type": "tab", "label": "演習3"},
-    {"id": "ex3_broker", "type": "mqtt-broker", "name": "Public Broker", "broker": "test.mosquitto.org", "port": "1883", "clientid": "", "autoConnect": true, "usetls": false, "protocolVersion": "4", "keepalive": "60", "cleansession": true},
+    {"id": "ex3_broker", "type": "mqtt-broker", "name": "Public Broker", "broker": "test.mosquitto.org", "port": "1883", "tls": "", "clientid": "", "autoConnect": true, "usetls": false, "verifyservercert": false, "compatmode": false, "protocolVersion": "4", "keepalive": "60", "cleansession": true, "autoUnsubscribe": true, "birthTopic": "", "birthQos": "0", "birthRetain": "false", "birthPayload": "", "birthMsg": {}, "closeTopic": "", "closeQos": "0", "closeRetain": "false", "closePayload": "", "closeMsg": {}, "willTopic": "", "willQos": "0", "willRetain": "false", "willPayload": "", "willMsg": {}, "userProps": "", "sessionExpiry": 0},
     {"id": "ex3_inject_temp", "type": "inject", "z": "ex3_tab", "name": "温度送信", "props": [{"p": "payload"}, {"p": "topic", "vt": "str"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "yourname/sensors/temperature", "payload": "25.5", "payloadType": "num", "x": 160, "y": 80, "wires": [["ex3_mqtt_out"]]},
     {"id": "ex3_inject_humidity", "type": "inject", "z": "ex3_tab", "name": "湿度送信", "props": [{"p": "payload"}, {"p": "topic", "vt": "str"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "yourname/sensors/humidity", "payload": "60", "payloadType": "num", "x": 160, "y": 120, "wires": [["ex3_mqtt_out"]]},
-    {"id": "ex3_mqtt_out", "type": "mqtt out", "z": "ex3_tab", "name": "Publish", "topic": "", "qos": "1", "retain": "false", "broker": "ex3_broker", "x": 350, "y": 100, "wires": []},
+    {"id": "ex3_mqtt_out", "type": "mqtt out", "z": "ex3_tab", "name": "Publish", "topic": "", "qos": "1", "retain": "false", "respTopic": "", "contentType": "", "userProps": "", "correl": "", "expiry": "", "broker": "ex3_broker", "x": 350, "y": 100, "wires": []},
     {"id": "ex3_mqtt_in", "type": "mqtt in", "z": "ex3_tab", "name": "Subscribe +", "topic": "yourname/sensors/+", "qos": "1", "datatype": "auto", "broker": "ex3_broker", "nl": false, "rap": true, "rh": 0, "inputs": 0, "x": 170, "y": 200, "wires": [["ex3_switch"]]},
     {"id": "ex3_switch", "type": "switch", "z": "ex3_tab", "name": "トピック分岐", "property": "topic", "propertyType": "msg", "rules": [{"t": "cont", "v": "temperature", "vt": "str"}, {"t": "cont", "v": "humidity", "vt": "str"}], "checkall": "false", "repair": false, "outputs": 2, "x": 370, "y": 200, "wires": [["ex3_debug_temp"], ["ex3_debug_humidity"]]},
     {"id": "ex3_debug_temp", "type": "debug", "z": "ex3_tab", "name": "温度データ", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "\"🌡️\"", "statusType": "str", "x": 570, "y": 180, "wires": []},
@@ -919,10 +955,10 @@ return msg;</div>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
     {"id": "ex4_tab", "type": "tab", "label": "演習4"},
-    {"id": "ex4_broker", "type": "mqtt-broker", "name": "Public Broker", "broker": "test.mosquitto.org", "port": "1883", "clientid": "", "autoConnect": true, "usetls": false, "protocolVersion": "4", "keepalive": "60", "cleansession": true},
+    {"id": "ex4_broker", "type": "mqtt-broker", "name": "Public Broker", "broker": "test.mosquitto.org", "port": "1883", "tls": "", "clientid": "", "autoConnect": true, "usetls": false, "verifyservercert": false, "compatmode": false, "protocolVersion": "4", "keepalive": "60", "cleansession": true, "autoUnsubscribe": true, "birthTopic": "", "birthQos": "0", "birthRetain": "false", "birthPayload": "", "birthMsg": {}, "closeTopic": "", "closeQos": "0", "closeRetain": "false", "closePayload": "", "closeMsg": {}, "willTopic": "", "willQos": "0", "willRetain": "false", "willPayload": "", "willMsg": {}, "userProps": "", "sessionExpiry": 0},
     {"id": "ex4_inject", "type": "inject", "z": "ex4_tab", "name": "10秒ごと", "props": [{"p": "payload"}], "repeat": "10", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "", "payloadType": "date", "x": 160, "y": 100, "wires": [["ex4_func_sensor"]]},
     {"id": "ex4_func_sensor", "type": "function", "z": "ex4_tab", "name": "センサー値生成", "func": "var temp = 20 + Math.random() * 10;\nvar humidity = 40 + Math.random() * 40;\nmsg.payload = JSON.stringify({deviceId: \"device001\", temperature: parseFloat(temp.toFixed(1)), humidity: Math.floor(humidity), timestamp: new Date().toISOString()});\nmsg.topic = \"yourname/device001/telemetry\";\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 370, "y": 100, "wires": [["ex4_mqtt_out", "ex4_debug_send"]]},
-    {"id": "ex4_mqtt_out", "type": "mqtt out", "z": "ex4_tab", "name": "Publish Telemetry", "topic": "", "qos": "1", "retain": "false", "broker": "ex4_broker", "x": 590, "y": 100, "wires": []},
+    {"id": "ex4_mqtt_out", "type": "mqtt out", "z": "ex4_tab", "name": "Publish Telemetry", "topic": "", "qos": "1", "retain": "false", "respTopic": "", "contentType": "", "userProps": "", "correl": "", "expiry": "", "broker": "ex4_broker", "x": 590, "y": 100, "wires": []},
     {"id": "ex4_debug_send", "type": "debug", "z": "ex4_tab", "name": "送信データ", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "\"送信\"", "statusType": "str", "x": 570, "y": 140, "wires": []},
     {"id": "ex4_mqtt_in", "type": "mqtt in", "z": "ex4_tab", "name": "Subscribe Command", "topic": "yourname/device001/command", "qos": "1", "datatype": "utf8", "broker": "ex4_broker", "nl": false, "rap": true, "rh": 0, "inputs": 0, "x": 190, "y": 220, "wires": [["ex4_debug_cmd"]]},
     {"id": "ex4_debug_cmd", "type": "debug", "z": "ex4_tab", "name": "コマンド受信", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "payload", "statusType": "msg", "x": 430, "y": 220, "wires": []}
