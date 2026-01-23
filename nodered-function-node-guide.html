@@ -474,6 +474,16 @@
                 <td>終了処理コード</td>
                 <td>console.log("終了");</td>
             </tr>
+            <tr>
+                <td><strong>Timeout</strong></td>
+                <td>実行タイムアウト（ミリ秒、0=無制限）</td>
+                <td>0（デフォルト）</td>
+            </tr>
+            <tr>
+                <td><strong>Libraries</strong></td>
+                <td>使用する外部モジュールのリスト</td>
+                <td>[]（設定で許可が必要）</td>
+            </tr>
         </table>
         
         <h3>🎯 利用可能な組み込みオブジェクト</h3>
@@ -612,9 +622,11 @@ node.status({...})</div>
         "name": "return a message",
         "func": "// returning message send it to output port\nmsg.payload = \"Hello, \"+msg.payload +\"!\";\nreturn msg;",
         "outputs": 1,
+        "timeout": "",
         "noerr": 0,
         "initialize": "",
         "finalize": "",
+        "libs": [],
         "x": 470,
         "y": 140,
         "wires": [
@@ -685,9 +697,11 @@ node.status({...})</div>
         "name": "return array of messages",
         "func": "// returning array of message send elements to output ports\nvar msg1 = { payload:\"first out of output 1\" };\nvar msg2 = { payload:\"second out of output 1\" };\nvar msg3 = { payload:\"third out of output 1\" };\nvar msg4 = { payload:\"only message from output 2\" };\nreturn [ [ msg1, msg2, msg3 ], msg4 ];",
         "outputs": 2,
+        "timeout": "",
         "noerr": 0,
         "initialize": "",
         "finalize": "",
+        "libs": [],
         "x": 510,
         "y": 280,
         "wires": [
@@ -777,9 +791,11 @@ node.status({...})</div>
         "name": "wait 2s then send message",
         "func": "// setTimeout calls calls specified callback function asynchronously after a specified time\nsetTimeout(function () {\n    node.send(msg);\n}, 2*1000);\n",
         "outputs": 1,
+        "timeout": "",
         "noerr": 0,
         "initialize": "",
         "finalize": "",
+        "libs": [],
         "x": 540,
         "y": 420,
         "wires": [
@@ -850,9 +866,11 @@ node.status({...})</div>
         "name": "report error",
         "func": "// In function node, calling node.error functions with the original input message as its second argument triggers catch node\n// See debug sidebar and console output\nnode.error(\"Oh no, something bad happened\", msg);\n// execution should stops here",
         "outputs": 1,
+        "timeout": "",
         "noerr": 0,
         "initialize": "",
         "finalize": "",
+        "libs": [],
         "x": 470,
         "y": 660,
         "wires": [
@@ -967,9 +985,11 @@ node.status({...})</div>
         "name": "log events",
         "func": "// In function node, node.log, node.warn, and node.error functions can be used for logging\n// See debug sidebar and console output\nnode.log(\"Something happened\");\nnode.warn(\"Something happened you should know about\");\nnode.error(\"Oh no, something bad happened\");\nreturn msg;",
         "outputs": 1,
+        "timeout": "",
         "noerr": 0,
         "initialize": "",
         "finalize": "",
+        "libs": [],
         "x": 470,
         "y": 540,
         "wires": [
@@ -1040,9 +1060,11 @@ node.status({...})</div>
         "name": "counter",
         "func": "// initialise the counter to 0 if it doesn't exist already\nvar count = context.get('count')||0;\ncount += 1;\n// store the value back\ncontext.set('count',count);\n// make it part of the outgoing msg object\nmsg.payload = count;\nreturn msg;",
         "outputs": 1,
+        "timeout": "",
         "noerr": 0,
         "initialize": "",
         "finalize": "",
+        "libs": [],
         "x": 460,
         "y": 860,
         "wires": [
@@ -1097,9 +1119,11 @@ node.status({...})</div>
         "name": "show status",
         "func": "// calling node.status show status information below the function node\nswitch (msg.payload) {\n    case \"red\":\n        node.status({fill:\"red\",shape:\"ring\",text:\"disconnected\"});\n        break;\n    case \"green\":\n        node.status({fill:\"green\",shape:\"dot\",text:\"connected\"});\n        break;\n    case \"text\":\n        node.status({text:\"Just text status\"});\n        break;\n    case \"clear\":\n        node.status({});   // to clear the status    \n        break;\n}\n\n",
         "outputs": 0,
+        "timeout": "",
         "noerr": 0,
         "initialize": "",
         "finalize": "",
+        "libs": [],
         "x": 470,
         "y": 1000,
         "wires": []
@@ -1253,9 +1277,11 @@ node.status({...})</div>
         "name": "use os module",
         "func": "// use external os module to access OS information\nvar os = global.get(\"os\");\nmsg.payload = { \n    hostname: os.hostname(),\n    arch: os.arch(),\n    platform: os.platform(),\n    release: os.release(),\n    free: os.freemem()\n};\nreturn msg;",
         "outputs": 1,
+        "timeout": "",
         "noerr": 0,
         "initialize": "",
         "finalize": "",
+        "libs": [],
         "x": 560,
         "y": 1240,
         "wires": [
@@ -1326,9 +1352,11 @@ node.status({...})</div>
         "name": "counter",
         "func": "// get value of global counter\nvar count = global.get('count');\ncount += 1;\n// store the value back\nglobal.set('count',count);\n// make it part of the outgoing msg object\nmsg.payload = count;\nreturn msg;\n",
         "outputs": 1,
+        "timeout": "",
         "noerr": 0,
         "initialize": "// initialize global counter\nglobal.set('count', 0);",
         "finalize": "// report current counter to console\nvar count = global.get('count');\nconsole.log(\"count:\", count);",
+        "libs": [],
         "x": 460,
         "y": 1380,
         "wires": [
@@ -1400,9 +1428,11 @@ node.status({...})</div>
         "name": "async. setup",
         "func": "// retrieve message value\nmsg.payload = global.get('message');\nreturn msg;",
         "outputs": 1,
+        "timeout": "",
         "noerr": 0,
         "initialize": "// set initial value of message\nglobal.set(\"message\", \"Initializing, World!\");\n// create promise for async work\nvar promise = new Promise((resolve, reject) => {\n    // async work: wait 1s, then set message\n    setTimeout(() => {\n        global.set(\"message\", \"Hello, World!\");\n        // report this work successfuly ended\n        resolve();\n    }, 1000);\n});\n// return the promise that should be executed before function code\nreturn promise;",
         "finalize": "",
+        "libs": [],
         "x": 490,
         "y": 1520,
         "wires": [
@@ -1733,6 +1763,7 @@ return msg;</div>
         "noerr": 0,
         "initialize": "",
         "finalize": "",
+        "libs": [],
         "x": 290,
         "y": 100,
         "wires": [["ex1_debug"]]
@@ -1816,6 +1847,7 @@ return msg;</div>
         "noerr": 0,
         "initialize": "",
         "finalize": "",
+        "libs": [],
         "x": 310,
         "y": 100,
         "wires": [["ex2_debug"]]
@@ -1932,6 +1964,7 @@ return msg;</div>
         "noerr": 0,
         "initialize": "",
         "finalize": "",
+        "libs": [],
         "x": 330,
         "y": 120,
         "wires": [["ex3_debug"]]
@@ -2032,6 +2065,7 @@ return msg;</div>
         "noerr": 0,
         "initialize": "",
         "finalize": "",
+        "libs": [],
         "x": 330,
         "y": 100,
         "wires": [["ex4_debug"]]
