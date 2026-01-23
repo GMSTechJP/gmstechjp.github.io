@@ -1584,7 +1584,8 @@
         "showTitle": true,
         "className": "",
         "visible": true,
-        "disabled": false
+        "disabled": false,
+        "groupType": "default"
     },
     {
         "id": "sample_ui_group_markdown",
@@ -1597,7 +1598,8 @@
         "showTitle": true,
         "className": "",
         "visible": true,
-        "disabled": false
+        "disabled": false,
+        "groupType": "default"
     },
     {
         "id": "6692685697ac2af1",
@@ -1614,6 +1616,7 @@
         "headerContent": "page",
         "navigationStyle": "default",
         "titleBarStyle": "default",
+        "showPageTitle": true,
         "showReconnectNotification": true,
         "notificationDisplayTime": 1,
         "showDisconnectNotification": true,
@@ -1630,7 +1633,8 @@
         "showTitle": true,
         "className": "",
         "visible": true,
-        "disabled": false
+        "disabled": false,
+        "groupType": "default"
     },
     {
         "id": "sample_ui_page",
@@ -1683,7 +1687,8 @@
             "pagePadding": "12px",
             "groupGap": "12px",
             "groupBorderRadius": "4px",
-            "widgetGap": "12px"
+            "widgetGap": "12px",
+            "density": "default"
         }
     },
     {
@@ -2569,7 +2574,7 @@ return msg;</div>
                 <div class="flow-json">[
     {"id":"t1_inject","type":"inject","name":"1秒間隔","props":[{"p":"payload"}],"repeat":"1","crontab":"","once":true,"onceDelay":0.1,"topic":"","payload":"","payloadType":"date","x":130,"y":100,"wires":[["t1_function"]]},
     {"id":"t1_function","type":"function","name":"時刻フォーマット","func":"const now = new Date(msg.payload);\nconst h = String(now.getHours()).padStart(2, '0');\nconst m = String(now.getMinutes()).padStart(2, '0');\nconst s = String(now.getSeconds()).padStart(2, '0');\nmsg.payload = `${h}:${m}:${s}`;\nreturn msg;","outputs":1,"x":320,"y":100,"wires":[["t1_ui_text"]]},
-    {"id":"t1_ui_text","type":"ui-text","group":"","order":1,"width":0,"height":0,"name":"時刻表示","label":"現在時刻:","format":"{{msg.payload}}","layout":"row-spread","style":false,"font":"","fontSize":16,"color":"#000000","x":510,"y":100,"wires":[]}
+    {"id":"t1_ui_text","type":"ui-text","group":"","order":1,"width":0,"height":0,"name":"時刻表示","label":"現在時刻:","format":"{{msg.payload}}","layout":"row-spread","style":false,"font":"","fontSize":16,"color":"#000000","wrapText":false,"className":"","value":"payload","valueType":"msg","x":510,"y":100,"wires":[]}
 ]</div>
             </details>
         </div>
@@ -2611,7 +2616,7 @@ return msg;</div>
     {"id":"t2_inject_hot","type":"inject","name":"高温 (32℃)","props":[{"p":"payload"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","payload":"32","payloadType":"num","x":130,"y":100,"wires":[["t2_function"]]},
     {"id":"t2_inject_normal","type":"inject","name":"通常 (25℃)","props":[{"p":"payload"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","payload":"25","payloadType":"num","x":130,"y":160,"wires":[["t2_function"]]},
     {"id":"t2_function","type":"function","name":"色設定","func":"msg.ui_update = {\n    color: msg.payload >= 30 ? \"#ff0000\" : \"#4caf50\",\n    fontSize: \"20px\"\n};\nmsg.payload = msg.payload + \" ℃\";\nreturn msg;","outputs":1,"x":320,"y":130,"wires":[["t2_ui_text"]]},
-    {"id":"t2_ui_text","type":"ui-text","group":"","order":1,"width":0,"height":0,"name":"温度表示","label":"温度:","format":"{{msg.payload}}","layout":"row-spread","style":true,"font":"","fontSize":16,"color":"#000000","x":490,"y":130,"wires":[]}
+    {"id":"t2_ui_text","type":"ui-text","group":"","order":1,"width":0,"height":0,"name":"温度表示","label":"温度:","format":"{{msg.payload}}","layout":"row-spread","style":true,"font":"","fontSize":16,"color":"#000000","wrapText":false,"className":"","value":"payload","valueType":"msg","x":490,"y":130,"wires":[]}
 ]</div>
             </details>
         </div>
@@ -2651,7 +2656,7 @@ return msg;</div>
     {"id":"t3_inject_ok","type":"inject","name":"正常ステータス","props":[{"p":"payload.name","v":"サーバーA","vt":"str"},{"p":"payload.status","v":"正常","vt":"str"},{"p":"payload.url","v":"https://example.com/serverA","vt":"str"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","x":140,"y":100,"wires":[["t3_template"]]},
     {"id":"t3_inject_err","type":"inject","name":"エラーステータス","props":[{"p":"payload.name","v":"サーバーB","vt":"str"},{"p":"payload.status","v":"エラー","vt":"str"},{"p":"payload.url","v":"https://example.com/serverB","vt":"str"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","x":140,"y":160,"wires":[["t3_template"]]},
     {"id":"t3_template","type":"template","name":"HTML生成","field":"payload","fieldType":"msg","format":"handlebars","syntax":"mustache","template":"<a href=\"{{payload.url}}\" target=\"_blank\">{{payload.name}}</a>: <span style=\"color: {{#eq payload.status '正常'}}green{{else}}red{{/eq}}; font-weight: bold;\">{{payload.status}}</span>","output":"str","x":340,"y":130,"wires":[["t3_ui_text"]]},
-    {"id":"t3_ui_text","type":"ui-text","group":"","order":1,"width":0,"height":0,"name":"ステータス表示","label":"","format":"{{msg.payload}}","layout":"row-left","style":false,"font":"","fontSize":16,"color":"#000000","x":530,"y":130,"wires":[]}
+    {"id":"t3_ui_text","type":"ui-text","group":"","order":1,"width":0,"height":0,"name":"ステータス表示","label":"","format":"{{msg.payload}}","layout":"row-left","style":false,"font":"","fontSize":16,"color":"#000000","wrapText":false,"className":"","value":"payload","valueType":"msg","x":530,"y":130,"wires":[]}
 ]</div>
             </details>
         </div>
@@ -2692,7 +2697,7 @@ return msg;</div>
             <details>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
-    {"id":"m1_markdown","type":"ui-markdown","group":"","name":"ヘルプページ","order":1,"width":0,"height":0,"content":"## 📖 操作ガイド\n\n### 基本操作\n1. **開始ボタン**をクリックして処理を開始\n2. ステータス表示で進捗を確認\n3. **停止ボタン**で終了\n\n### 注意事項\n- 処理中は画面を閉じないでください\n- エラー時は管理者に連絡\n\n---\n*詳細は [公式ドキュメント](https://dashboard.flowfuse.com/) を参照*","x":150,"y":100,"wires":[[]]}
+    {"id":"m1_markdown","type":"ui-markdown","group":"","name":"ヘルプページ","order":1,"width":0,"height":0,"content":"## 📖 操作ガイド\n\n### 基本操作\n1. **開始ボタン**をクリックして処理を開始\n2. ステータス表示で進捗を確認\n3. **停止ボタン**で終了\n\n### 注意事項\n- 処理中は画面を閉じないでください\n- エラー時は管理者に連絡\n\n---\n*詳細は [公式ドキュメント](https://dashboard.flowfuse.com/) を参照*","className":"","x":150,"y":100,"wires":[[]]}
 ]</div>
             </details>
         </div>
@@ -2732,7 +2737,7 @@ return msg;</div>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
     {"id":"m2_inject","type":"inject","name":"センサーデータ","props":[{"p":"payload.temperature","v":"25.5","vt":"num"},{"p":"payload.humidity","v":"60","vt":"num"},{"p":"payload.pressure","v":"1013","vt":"num"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","x":140,"y":100,"wires":[["m2_markdown"]]},
-    {"id":"m2_markdown","type":"ui-markdown","group":"","order":1,"width":0,"height":0,"name":"センサーレポート","content":"## 📊 環境モニタリングレポート\n\n| センサー | 値 | 単位 |\n|---------|-----|-----|\n| 🌡️ 温度 | **{{ msg?.payload?.temperature || '--' }}** | ℃ |\n| 💧 湿度 | **{{ msg?.payload?.humidity || '--' }}** | % |\n| 🌀 気圧 | **{{ msg?.payload?.pressure || '--' }}** | hPa |\n\n---\n*データ受信時に自動更新*","x":360,"y":100,"wires":[[]]}
+    {"id":"m2_markdown","type":"ui-markdown","group":"","order":1,"width":0,"height":0,"name":"センサーレポート","content":"## 📊 環境モニタリングレポート\n\n| センサー | 値 | 単位 |\n|---------|-----|-----|\n| 🌡️ 温度 | **{{ msg?.payload?.temperature || '--' }}** | ℃ |\n| 💧 湿度 | **{{ msg?.payload?.humidity || '--' }}** | % |\n| 🌀 気圧 | **{{ msg?.payload?.pressure || '--' }}** | hPa |\n\n---\n*データ受信時に自動更新*","className":"","x":360,"y":100,"wires":[[]]}
 ]</div>
             </details>
         </div>
@@ -2880,7 +2885,7 @@ graph TD;
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
     {"id":"n3_inject","type":"inject","name":"確認要求","props":[{"p":"payload"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","payload":"処理を実行しますか？","payloadType":"str","x":140,"y":100,"wires":[["n3_notification"]]},
-    {"id":"n3_notification","type":"ui-notification","ui":"","position":"center center","colorDefault":false,"color":"#2196f3","displayTime":"0","showCountdown":false,"outputs":1,"allowDismiss":true,"dismissText":"NG","allowConfirm":true,"confirmText":"OK","raw":false,"name":"確認ダイアログ","x":350,"y":100,"wires":[["n3_switch"]]},
+    {"id":"n3_notification","type":"ui-notification","ui":"","position":"center center","colorDefault":false,"color":"#2196f3","displayTime":"0","showCountdown":false,"outputs":1,"allowDismiss":true,"dismissText":"NG","allowConfirm":true,"confirmText":"OK","raw":false,"className":"","name":"確認ダイアログ","x":350,"y":100,"wires":[["n3_switch"]]},
     {"id":"n3_switch","type":"switch","name":"OK判定","property":"payload","propertyType":"msg","rules":[{"t":"eq","v":"OK","vt":"str"}],"checkall":"false","repair":false,"outputs":1,"x":520,"y":100,"wires":[["n3_change"]]},
     {"id":"n3_change","type":"change","name":"メッセージ設定","rules":[{"t":"set","p":"payload","pt":"msg","to":"処理を実行しました","tot":"str"}],"x":680,"y":100,"wires":[["n3_debug"]]},
     {"id":"n3_debug","type":"debug","name":"結果表示","active":true,"tosidebar":true,"console":false,"tostatus":true,"complete":"payload","targetType":"msg","statusVal":"payload","statusType":"auto","x":850,"y":100,"wires":[]}
@@ -2925,10 +2930,18 @@ graph TD;
         "type": "ui-base",
         "name": "Dashboard",
         "path": "/dashboard",
+        "appIcon": "",
         "includeClientData": true,
         "acceptsClientConfig": ["ui-notification", "ui-control"],
         "showPathInSidebar": false,
-        "navigationStyle": "default"
+        "headerContent": "page",
+        "navigationStyle": "default",
+        "titleBarStyle": "default",
+        "showPageTitle": true,
+        "showReconnectNotification": true,
+        "notificationDisplayTime": 1,
+        "showDisconnectNotification": true,
+        "allowInstall": false
     },
     {
         "id": "ex3_inject_high",
@@ -3040,6 +3053,8 @@ graph TD;
         "allowConfirm": false,
         "confirmText": "",
         "raw": false,
+        "outputs": 1,
+        "className": "",
         "name": "通知",
         "x": 670,
         "y": 160,
@@ -3101,7 +3116,7 @@ graph TD;
                 <div class="flow-json">[
     {"id":"a1_reset","type":"inject","name":"起動時リセット","props":[{"p":"playback","v":"stop","vt":"str"}],"repeat":"","crontab":"","once":true,"onceDelay":0.5,"topic":"","x":140,"y":80,"wires":[["a1_audio"]]},
     {"id":"a1_inject_url","type":"inject","name":"URL設定&再生","props":[{"p":"payload"},{"p":"ui_update","v":"{\"autoplay\":\"on\",\"loop\":\"on\"}","vt":"json"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","payload":"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3","payloadType":"str","x":150,"y":120,"wires":[["a1_audio"]]},
-    {"id":"a1_audio","type":"ui-audio","group":"","name":"BGM Player","order":1,"width":"6","height":"1","mode":"src","voice":"","src":"","autoplay":false,"loop":false,"muted":false,"x":360,"y":100,"wires":[[]]}
+    {"id":"a1_audio","type":"ui-audio","group":"","name":"BGM Player","order":1,"width":"6","height":"1","mode":"src","voice":"","src":"","autoplay":false,"loop":false,"muted":false,"className":"","x":360,"y":100,"wires":[[]]}
 ]</div>
                 <p style="margin-top: 10px; color: #666;"><small>※ 再生/一時停止はダッシュボード上のプレイヤーUIで操作します。「起動時リセット」はフロー再起動時の自動再生を防ぎます。</small></p>
             </details>
@@ -3143,7 +3158,7 @@ graph TD;
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
     {"id":"a2_inject","type":"inject","name":"読み上げ","props":[{"p":"payload","v":"{\"text\":\"こんにちは、ダッシュボードへようこそ\",\"rate\":1.0,\"volume\":100}","vt":"json"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","x":130,"y":100,"wires":[["a2_tts"]]},
-    {"id":"a2_tts","type":"ui-audio","ui":"","name":"TTS","mode":"tts","voice":"","src":"","autoplay":false,"loop":false,"muted":false,"x":310,"y":100,"wires":[[]]}
+    {"id":"a2_tts","type":"ui-audio","ui":"","name":"TTS","mode":"tts","voice":"","src":"","autoplay":false,"loop":false,"muted":false,"className":"","x":310,"y":100,"wires":[[]]}
 ]</div>
             </details>
         </div>
@@ -3196,10 +3211,18 @@ return [notifyMsg, audioMsg];</div>
         "type": "ui-base",
         "name": "Dashboard",
         "path": "/dashboard",
+        "appIcon": "",
         "includeClientData": true,
         "acceptsClientConfig": ["ui-notification", "ui-control"],
         "showPathInSidebar": false,
-        "navigationStyle": "default"
+        "headerContent": "page",
+        "navigationStyle": "default",
+        "titleBarStyle": "default",
+        "showPageTitle": true,
+        "showReconnectNotification": true,
+        "notificationDisplayTime": 1,
+        "showDisconnectNotification": true,
+        "allowInstall": false
     },
     {
         "id": "ex4_inject",
@@ -3246,6 +3269,8 @@ return [notifyMsg, audioMsg];</div>
         "allowConfirm": false,
         "confirmText": "",
         "raw": true,
+        "outputs": 1,
+        "className": "",
         "name": "警告通知",
         "x": 510,
         "y": 80,
@@ -3262,6 +3287,7 @@ return [notifyMsg, audioMsg];</div>
         "loop": false,
         "muted": false,
         "voice": "",
+        "className": "",
         "x": 510,
         "y": 120,
         "wires": []
