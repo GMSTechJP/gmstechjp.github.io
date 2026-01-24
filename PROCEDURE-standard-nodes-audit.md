@@ -1,76 +1,98 @@
-# Node-RED 標準ノード プロパティ監査手順書
+# Node-RED ノードガイド プロパティ監査手順書
 
 ## 概要
 
-Dashboard 2.0ウィジェットガイドで実施したプロパティ監査と同じ原則を、Node-RED標準ノードガイドに適用するための手順書。
+Node-REDノードガイド（標準ノードおよびDashboard 2.0ウィジェット）のプロパティ表・フローJSONを、ソースコードの`defaults`オブジェクトおよびエディタHTMLテンプレートを基準に監査・修正するための手順書。
+
+---
 
 ## 対象ファイル一覧
 
-### コアノード
-| ファイル | ノード |
-|---------|--------|
-| `nodered-inject-node-guide.html` | inject |
-| `nodered-debug-node-guide.html` | debug |
-| `nodered-function-node-guide.html` | function |
-| `nodered-switch-node-guide.html` | switch |
-| `nodered-change-node-guide.html` | change |
-| `nodered-template-node-guide.html` | template |
+### 標準ノード（32ガイド）
 
-### HTTP・ネットワーク
-| ファイル | ノード |
-|---------|--------|
-| `nodered-http-request-node-guide.html` | http request |
-| `nodered-http-in-response-node-guide.html` | http in / http response |
-| `nodered-mqtt-node-guide.html` | mqtt in / mqtt out / mqtt-broker |
-| `nodered-tcp-node-guide.html` | tcp in / tcp out / tcp request |
-| `nodered-udp-node-guide.html` | udp in / udp out |
-| `nodered-websocket-node-guide.html` | websocket in / websocket out / websocket-listener / websocket-client |
+#### Common（共通）— 6ノード
 
-### データ変換
 | ファイル | ノード |
 |---------|--------|
-| `nodered-json-node-guide.html` | json |
-| `nodered-xml-node-guide.html` | xml |
-| `nodered-yaml-node-guide.html` | yaml |
-| `nodered-csv-node-guide.html` | csv |
-| `nodered-html-node-guide.html` | html |
+| `nodered-inject-node-guide.html` | Inject |
+| `nodered-debug-node-guide.html` | Debug |
+| `nodered-comment-node-guide.html` | Comment |
+| `nodered-complete-status-node-guide.html` | Complete / Status |
+| `nodered-link-node-guide.html` | Link In / Out / Call |
+| `nodered-catch-node-guide.html` | Catch |
 
-### フロー制御
-| ファイル | ノード |
-|---------|--------|
-| `nodered-split-node-guide.html` | split |
-| `nodered-join-node-guide.html` | join |
-| `nodered-filter-node-guide.html` | rbe (filter) |
-| `nodered-batch-node-guide.html` | batch |
-| `nodered-sort-node-guide.html` | sort |
-| `nodered-range-node-guide.html` | range |
-| `nodered-trigger-node-guide.html` | trigger |
-| `nodered-delay-node-guide.html` | delay |
-| `nodered-catch-node-guide.html` | catch |
-| `nodered-complete-status-node-guide.html` | complete / status |
-| `nodered-link-node-guide.html` | link in / link out / link call |
+#### Function（機能）— 9ノード
 
-### ファイル・システム
 | ファイル | ノード |
 |---------|--------|
-| `nodered-file-node-guide.html` | file / file in |
-| `nodered-exec-node-guide.html` | exec |
-| `nodered-watch-node-guide.html` | watch |
+| `nodered-change-node-guide.html` | Change |
+| `nodered-switch-node-guide.html` | Switch |
+| `nodered-delay-node-guide.html` | Delay |
+| `nodered-function-node-guide.html` | Function |
+| `nodered-template-node-guide.html` | Template |
+| `nodered-trigger-node-guide.html` | Trigger |
+| `nodered-range-node-guide.html` | Range |
+| `nodered-exec-node-guide.html` | Exec |
+| `nodered-filter-node-guide.html` | Filter (RBE) |
 
-### その他
+#### Sequence（シーケンス）— 4ノード
+
 | ファイル | ノード |
 |---------|--------|
-| `nodered-comment-node-guide.html` | comment |
+| `nodered-split-node-guide.html` | Split |
+| `nodered-join-node-guide.html` | Join |
+| `nodered-sort-node-guide.html` | Sort |
+| `nodered-batch-node-guide.html` | Batch |
+
+#### Parser（パーサー）— 5ノード
+
+| ファイル | ノード |
+|---------|--------|
+| `nodered-json-node-guide.html` | JSON |
+| `nodered-csv-node-guide.html` | CSV |
+| `nodered-html-node-guide.html` | HTML |
+| `nodered-xml-node-guide.html` | XML |
+| `nodered-yaml-node-guide.html` | YAML |
+
+#### Storage（ストレージ）— 2ノード
+
+| ファイル | ノード |
+|---------|--------|
+| `nodered-file-node-guide.html` | Write File / Read File |
+| `nodered-watch-node-guide.html` | Watch |
+
+#### Network（ネットワーク）— 6ノード
+
+| ファイル | ノード |
+|---------|--------|
+| `nodered-http-request-node-guide.html` | HTTP Request |
+| `nodered-http-in-response-node-guide.html` | HTTP In / Response |
+| `nodered-websocket-node-guide.html` | WebSocket |
+| `nodered-mqtt-node-guide.html` | MQTT |
+| `nodered-tcp-node-guide.html` | TCP |
+| `nodered-udp-node-guide.html` | UDP |
+
+---
+
+### Dashboard 2.0（7ガイド）
+
+| ファイル | 内容 |
+|---------|------|
+| `nodered-dashboard2-overview.html` | Dashboard 2.0 概要 |
+| `nodered-dashboard2-widgets-display.html` | 表示系ウィジェット（ui-text, ui-markdown, ui-notification, ui-audio） |
+| `nodered-dashboard2-widgets-input.html` | 入力系ウィジェット（ui-button, ui-switch, ui-slider, ui-dropdown, ui-text-input, ui-form, ui-radio-group, ui-button-group） |
+| `nodered-dashboard2-widgets-visualization.html` | 可視化ウィジェット（ui-chart, ui-gauge, ui-table, ui-progress） |
+| `nodered-dashboard2-widgets-advanced-part1-template.html` | 上級編 Part1（ui-template） |
+| `nodered-dashboard2-widgets-advanced-part2-control-spacer.html` | 上級編 Part2（ui-control, ui-spacer） |
+| `nodered-dashboard2-layout.html` | レイアウト（Grid, Tabs, Notebook） |
 
 ---
 
 ## ソースコード参照先
 
-Node-RED標準ノードのソースコードは以下のGitHubリポジトリにある：
+### 標準ノード
 
-```
-https://github.com/node-red/node-red
-```
+**リポジトリ**: https://github.com/node-red/node-red
 
 各ノードのエディタ定義HTMLファイルの場所：
 
@@ -78,16 +100,65 @@ https://github.com/node-red/node-red
 packages/node_modules/@node-red/nodes/core/<カテゴリ>/<ノード名>.html
 ```
 
-### カテゴリ別パス
+#### カテゴリ別パス
 
 | カテゴリ | パス | 含まれるノード |
 |---------|------|--------------|
 | common | `core/common/` | inject, debug, complete, status, catch, link-*, comment |
-| function | `core/function/` | function, switch, change, template, delay, trigger, range, filter(rbe) |
-| network | `core/network/` | http-in, http-response, http-request, websocket-*, mqtt-*, tcp-*, udp-* |
-| parsers | `core/parsers/` | json, xml, yaml, csv, html |
+| function | `core/function/` | function, switch, change, template, delay, trigger, range, filter(rbe), exec |
 | sequence | `core/sequence/` | split, join, sort, batch |
+| parsers | `core/parsers/` | json, xml, yaml, csv, html |
 | storage | `core/storage/` | file, file-in, watch |
+| network | `core/network/` | http-in, http-response, http-request, websocket-*, mqtt-*, tcp-*, udp-* |
+
+#### ソースコード取得例
+
+```bash
+# Raw URLパターン（例：injectノード）
+https://raw.githubusercontent.com/node-red/node-red/master/packages/node_modules/@node-red/nodes/core/common/20-inject.html
+
+# GitHub Web UI
+https://github.com/node-red/node-red/blob/master/packages/node_modules/@node-red/nodes/core/common/20-inject.html
+```
+
+---
+
+### Dashboard 2.0
+
+**リポジトリ**: https://github.com/FlowFuse/node-red-dashboard.git
+
+各ウィジェット/設定ノードのエディタHTMLの場所：
+
+```
+nodes/config/ui_<name>.html   （Config Nodes: ui-base, ui-theme, ui-group, ui-page）
+nodes/widgets/ui_<name>.html  （Widgets: ui-text, ui-button, ui-chart 等）
+```
+
+#### ソースコード取得例
+
+```bash
+# Config Node（例：ui-base）
+https://raw.githubusercontent.com/FlowFuse/node-red-dashboard/main/nodes/config/ui_base.html
+
+# Widget（例：ui-button）
+https://raw.githubusercontent.com/FlowFuse/node-red-dashboard/main/nodes/widgets/ui_button.html
+```
+
+---
+
+### サードパーティノード（パッケージ）
+
+サードパーティノードの場合は、各パッケージのGitHubリポジトリを参照する。
+
+**特定方法：**
+1. npmjs.com で当該パッケージを検索
+2. パッケージページのリポジトリリンクからGitHubリポジトリを確認
+3. リポジトリ内のノード定義HTML（通常 `nodes/` や `src/` 配下）を参照
+
+```bash
+# 例: node-red-contrib-xxx パッケージ
+https://github.com/<owner>/node-red-contrib-xxx
+```
 
 ---
 
@@ -135,9 +206,12 @@ RED.nodes.registerType('ノード名', {
 | **エディタ非表示** | defaults内 だがフォーム要素が存在しない | ❌ 削除 | ✅ 含める |
 | **存在しない** | defaultsに定義なし | ❌ 削除 | ❌ 削除 |
 
-> **注意**: 標準ノードでは「コメントアウト済み」のケースはほぼ存在しない。
+> **標準ノードの場合**: 「コメントアウト済み」のケースはほぼ存在しない。
 > Dashboard 2.0と異なり、標準ノードは成熟しているため「存在しない」プロパティが
 > ガイドに誤記されているケースが主な修正対象となる。
+
+> **Dashboard 2.0の場合**: 「コメントアウト済み」のケースが多く存在する（例：tooltip）。
+> 開発途中のプロパティがエディタHTMLに残されているため、これらの判定が重要。
 
 ---
 
@@ -145,11 +219,11 @@ RED.nodes.registerType('ノード名', {
 
 ### Step 1: ソースコードの取得
 
-```bash
-# ノードのエディタHTMLを取得（例：injectノード）
-# ブラウザまたはWebFetchで以下URLを確認：
-https://raw.githubusercontent.com/node-red/node-red/master/packages/node_modules/@node-red/nodes/core/common/20-inject.html
-```
+対象ノードのGitHubリポジトリから、エディタHTMLファイルを取得する。
+
+- **標準ノード**: `https://github.com/node-red/node-red` → `packages/node_modules/@node-red/nodes/core/<category>/<node>.html`
+- **Dashboard 2.0**: `https://github.com/FlowFuse/node-red-dashboard.git` → `nodes/widgets/ui_<name>.html` または `nodes/config/ui_<name>.html`
+- **サードパーティ**: 各パッケージのGitHubリポジトリを参照
 
 ### Step 2: `defaults`オブジェクトの抽出
 
@@ -181,6 +255,7 @@ defaults: {
 **確認ポイント：**
 - プロパティ表にdefaultsに存在しないプロパティがないか
 - エディタ非表示のプロパティがテーブルに含まれていないか
+- コメントアウト済みのプロパティがテーブルに含まれていないか（Dashboard 2.0）
 
 ### Step 5: サンプルフローの監査
 
@@ -201,14 +276,16 @@ defaults: {
 
 ---
 
-## 標準ノード特有の注意事項
+## ノードタイプ別の注意事項
 
-### 1. ノードバージョンによるプロパティ差異
+### 標準ノード特有の注意事項
+
+#### 1. ノードバージョンによるプロパティ差異
 
 Node-RED のバージョンによってプロパティが追加・変更されることがある。
 最新の `master` ブランチのソースを参照すること。
 
-### 2. 設定ノード（config node）のパターン
+#### 2. 設定ノード（config node）のパターン
 
 標準ノードにも設定ノードがある（例：`mqtt-broker`, `websocket-listener`）。
 設定ノードはフロー上にx/y座標を持たない：
@@ -224,7 +301,7 @@ Node-RED のバージョンによってプロパティが追加・変更され�
 }
 ```
 
-### 3. 複数出力ノード
+#### 3. 複数出力ノード
 
 switch、split等は `outputs` プロパティで出力ポート数を制御する。
 `wires` 配列のサイズが `outputs` と一致していることを確認する：
@@ -237,7 +314,7 @@ switch、split等は `outputs` プロパティで出力ポート数を制御す�
 }
 ```
 
-### 4. `propertyType` 系プロパティ
+#### 4. `propertyType` 系プロパティ
 
 標準ノードでは TypedInput ウィジェットを多用する。
 `property` と `propertyType` がペアで存在することが多い：
@@ -250,10 +327,37 @@ switch、split等は `outputs` プロパティで出力ポート数を制御す�
 }
 ```
 
-### 5. 動的に生成されるプロパティ
+#### 5. 動的に生成されるプロパティ
 
 一部のノードはエディタで動的にプロパティを生成する（例：switchの `rules`、changeの `rules`）。
 これらは `defaults` に配列として定義されるが、フォーム要素は動的に生成される。
+
+---
+
+### Dashboard 2.0 特有の注意事項
+
+#### 1. Config Nodes の不足プロパティ
+
+Dashboard 2.0のフローJSONには以下のConfig Nodesが頻出する。これらの不足プロパティに注意：
+
+| Config Node | よく不足するプロパティ |
+|-------------|---------------------|
+| ui-base | `headerContent`, `navigationStyle`, `titleBarStyle`, `showPageTitle` |
+| ui-theme | `density`（sizes内） |
+| ui-group | `groupType` |
+| ui-page | `className`, `visible`, `disabled` |
+
+#### 2. コメントアウト済みプロパティの典型例
+
+| ウィジェット | コメントアウト済みプロパティ |
+|-------------|--------------------------|
+| ui-button | tooltip |
+| ui-slider | tooltip |
+| ui-dropdown | tooltip |
+
+#### 3. topicType に関する注意
+
+`topicType` がソースdefaultsでは `"msg"` だがフロー内で `"str"` になっているケースがある。これは実際の使い方次第で正しい可能性があるため、修正は保留とする。
 
 ---
 
@@ -313,50 +417,148 @@ switch、split等は `outputs` プロパティで出力ポート数を制御す�
   }
 ```
 
+### パターン4: Dashboard Config Nodeのプロパティ補完
+
+```
+修正前:
+  {
+    "id": "group1",
+    "type": "ui-group",
+    "name": "グループ1"
+  }
+
+修正後:
+  {
+    "id": "group1",
+    "type": "ui-group",
+    "name": "グループ1",
+    "groupType": "default"
+  }
+```
+
 ---
 
 ## 効率的な作業順序（推奨）
 
-同じカテゴリのノードはソースコードの確認をまとめて行うと効率が良い。
+### Phase 1: 標準ノード — Common（6ファイル）
 
-### Phase 1: コアノード（6ファイル）
 最も使用頻度が高く、影響範囲が大きい。
-1. inject
-2. debug
-3. function
-4. switch
-5. change
-6. template
 
-### Phase 2: データ変換（5ファイル）
+1. Inject
+2. Debug
+3. Comment
+4. Complete / Status
+5. Link In / Out / Call
+6. Catch
+
+### Phase 2: 標準ノード — Function（9ファイル）
+
+最もノード数が多いカテゴリ。
+
+1. Change
+2. Switch
+3. Delay
+4. Function
+5. Template
+6. Trigger
+7. Range
+8. Exec
+9. Filter (RBE)
+
+### Phase 3: 標準ノード — Sequence（4ファイル）
+
 構造が類似しており、まとめて作業しやすい。
-1. json
-2. xml
-3. yaml
-4. csv
-5. html
 
-### Phase 3: フロー制御（11ファイル）
-ノード数が最も多いカテゴリ。
-1. split / join（ペアで確認）
-2. filter / batch / sort
-3. range / trigger / delay
-4. catch / complete-status / link
+1. Split
+2. Join
+3. Sort
+4. Batch
 
-### Phase 4: ネットワーク（6ファイル）
+### Phase 4: 標準ノード — Parser（5ファイル）
+
+構造が類似しており、まとめて作業しやすい。
+
+1. JSON
+2. CSV
+3. HTML
+4. XML
+5. YAML
+
+### Phase 5: 標準ノード — Storage（2ファイル）
+
+1. Write File / Read File
+2. Watch
+
+### Phase 6: 標準ノード — Network（6ファイル）
+
 設定ノードが多く、確認項目が多い。
-1. http-request
-2. http-in-response
-3. mqtt
-4. tcp
-5. udp
-6. websocket
 
-### Phase 5: ファイル・その他（4ファイル）
-1. file
-2. exec
-3. watch
-4. comment
+1. HTTP Request
+2. HTTP In / Response
+3. WebSocket
+4. MQTT
+5. TCP
+6. UDP
+
+### Phase 7: Dashboard 2.0（7ファイル）
+
+1. Display（表示系ウィジェット）
+2. Input（入力系ウィジェット）
+3. Visualization（可視化ウィジェット）
+4. Advanced Part1（ui-template）
+5. Advanced Part2（ui-control, ui-spacer）
+6. Layout（レイアウト）
+7. Overview（概要）
+
+---
+
+## 完了済み作業記録
+
+### 標準ノード — 完了済み
+
+| コミット | ファイル | 内容 |
+|---------|--------|------|
+| `9c58033` | inject, sort, range | プロパティ表・サンプルフロー修正 |
+| `28fc236` | delay, filter, debug, http-request | プロパティ表修正 |
+| `a6955f7` | json, yaml, template | プロパティ表にname行追加 |
+| `86e852c` | html | プロパティ表修正 |
+
+### Dashboard 2.0 — 完了済み
+
+#### Display（nodered-dashboard2-widgets-display.html）✅
+
+- サンプルフロー: ui-text/markdown/audioの不足プロパティ追加
+- 演習フロー: Config Nodes + 全ウィジェットの不足プロパティ追加
+- プロパティ表: 問題なし
+
+#### Input（nodered-dashboard2-widgets-input.html）✅
+
+- サンプルフロー: 不足プロパティ追加 + tooltip削除
+- 演習フロー: Config Nodes + 全ウィジェットの不足プロパティ追加
+- プロパティ表から削除: ui-button/slider/dropdown のTooltip、ui-switch のStyle、ui-form のPass Through、ui-button-group のAppearance/Selection
+
+#### Visualization（nodered-dashboard2-widgets-visualization.html）✅
+
+- サンプルフロー: 不足プロパティ追加
+- 演習フロー: Config Nodes + 全ウィジェットの不足プロパティ追加
+- プロパティ表から削除: ui-gauge のStyle Rounded/Glow、ui-table のPass Through、ui-progress のStyle/Show Value/Min/Max
+
+### Dashboard 2.0 — 未完了
+
+#### Advanced Part1（nodered-dashboard2-widgets-advanced-part1-template.html）
+
+- [ ] プロパティ表の調査
+- [ ] フロー修正（ui-group groupType追加、ui-base/theme/page/template 不足プロパティ追加）
+
+#### Advanced Part2（nodered-dashboard2-widgets-advanced-part2-control-spacer.html）
+
+- [ ] プロパティ表の調査
+- [ ] フロー修正（ui-group groupType追加、ui-base/theme/page/control/spacer 不足プロパティ追加）
+
+#### Layout（nodered-dashboard2-layout.html）
+
+- [ ] プロパティ表の調査
+- [ ] フロー修正（ui-group groupType追加、ui-theme/base/page 不足プロパティ追加）
 
 ---
 
@@ -388,6 +590,24 @@ injectガイドのプロパティ表・サンプルフローを修正
 - [ ] サンプルフローの不足プロパティを追加した
 - [ ] 演習フローの不要プロパティを削除した
 - [ ] 演習フローの不足プロパティを追加した
-- [ ] 設定ノードのプロパティを確認した
+- [ ] 設定ノードのプロパティを確認した（該当する場合）
 - [ ] JSONの構文が正しいことを確認した（カンマ、括弧）
 - [ ] コミットしてプッシュした
+
+---
+
+## 技術的な注意事項
+
+### JSON修正時のパターン
+
+1. **ウィジェットノード（x, y, wiresあり）**: プロパティは `"x":` の直前に追加
+2. **Config Nodes（x, y, wiresなし）**: プロパティは閉じ括弧 `}` の前に追加
+3. **コンパクト形式（1行JSON）**: 既存プロパティの後に `,` で区切って挿入
+4. **replace_all活用**: 同一パターンのConfig Nodes（ui-base, ui-theme等）は `replace_all` で一括修正可能
+
+### フロー内の値の修正事項
+
+| プロパティ | 誤った値 | 正しい値 | 対象 |
+|-----------|---------|---------|------|
+| removeOlderUnit | `"60"` | `"3600"` | ui-chart |
+| tooltip | `""` (存在) | (削除) | ui-button, ui-slider, ui-dropdown |
