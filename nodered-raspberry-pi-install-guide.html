@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED Raspberry Pi インストールガイド</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        h1 {
+            color: #8f0000;
+            border-bottom: 3px solid #8f0000;
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            color: #c00000;
+            margin-top: 40px;
+            border-left: 5px solid #c00000;
+            padding-left: 15px;
+        }
+
+        h3 {
+            color: #555;
+            margin-top: 25px;
+        }
+
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        /* 目次 */
+        .toc {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px 30px;
+            margin: 20px 0;
+        }
+
+        .toc h3 {
+            margin-top: 0;
+            color: #8f0000;
+        }
+
+        .toc ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .toc li {
+            padding: 5px 0;
+        }
+
+        .toc a {
+            color: #1976d2;
+            text-decoration: none;
+        }
+
+        .toc a:hover {
+            text-decoration: underline;
+        }
+
+        /* インストール手順のステップ */
+        .step {
+            background-color: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            position: relative;
+        }
+
+        .step-number {
+            position: absolute;
+            top: -15px;
+            left: 20px;
+            background: linear-gradient(135deg, #c00000, #8f0000);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .step-content {
+            margin-top: 15px;
+        }
+
+        /* 情報ボックス */
+        .important {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .tip {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .warning {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .success {
+            background-color: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        /* コードブロック */
+        .code-block {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 14px;
+            position: relative;
+        }
+
+        .prompt {
+            color: #4ec9b0;
+            user-select: none;
+        }
+
+        .output {
+            color: #00ff00;
+        }
+
+        /* コピーボタン */
+        .copy-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 6px 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background-color 0.2s;
+        }
+
+        .copy-button:hover {
+            background-color: #0056b3;
+        }
+
+        .copy-button.copied {
+            background-color: #28a745;
+        }
+
+        /* テーブル */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #8f0000;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        /* 図解 */
+        .diagram {
+            background-color: #2d3133;
+            padding: 30px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .diagram-item {
+            display: inline-block;
+            padding: 15px 25px;
+            margin: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .diagram-script {
+            background-color: #e84d31;
+        }
+
+        .diagram-nodejs {
+            background-color: #68a063;
+        }
+
+        .diagram-nodered {
+            background-color: #8f0000;
+        }
+
+        .diagram-browser {
+            background-color: #4285f4;
+        }
+
+        .arrow {
+            color: #999;
+            font-size: 24px;
+            margin: 0 10px;
+        }
+
+        /* 折りたたみ */
+        details {
+            margin: 15px 0;
+        }
+
+        summary {
+            cursor: pointer;
+            padding: 12px 15px;
+            background-color: #6c757d;
+            color: white;
+            border-radius: 4px;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+
+        summary:hover {
+            background-color: #5a6268;
+        }
+
+        details[open] summary {
+            border-radius: 4px 4px 0 0;
+        }
+
+        details .content {
+            padding: 15px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+        }
+
+        /* バージョン情報 */
+        .version-info {
+            background-color: #e3f2fd;
+            border: 1px solid #90caf9;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        /* 要件カード */
+        .requirement-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .requirement-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .requirement-card .icon {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .requirement-card h4 {
+            margin: 10px 0;
+            color: #333;
+        }
+
+        .requirement-card p {
+            color: #666;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        /* チェックリスト */
+        .checklist {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .checklist li {
+            padding: 8px 0;
+            padding-left: 35px;
+            position: relative;
+        }
+
+        .checklist li::before {
+            content: "\2610";
+            position: absolute;
+            left: 0;
+            color: #8f0000;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍓 Node-RED Raspberry Pi インストールガイド</h1>
+
+        <p>このガイドでは、Raspberry PiにNode-REDをインストールする手順を、初心者の方でも迷わないように詳しく説明します。Raspberry Piの公式インストールスクリプトを使用した方法を解説します。</p>
+
+        <div class="version-info">
+            <strong>📋 このガイドの対象環境</strong>
+            <ul>
+                <li><strong>ハードウェア:</strong> Raspberry Pi 3 / 4 / 5（Pi Zero 2 Wも対応）</li>
+                <li><strong>OS:</strong> Raspberry Pi OS（Bookworm / Bullseye）</li>
+                <li><strong>Node.js:</strong> v20.x LTS（インストールスクリプトで自動導入）</li>
+                <li><strong>Node-RED:</strong> v4.x</li>
+            </ul>
+        </div>
+
+        <!-- 目次 -->
+        <div class="toc">
+            <h3>📚 目次</h3>
+            <ul>
+                <li><a href="#section0">0. 事前準備と確認事項</a></li>
+                <li><a href="#section1">1. Raspberry Pi OSのセットアップ</a></li>
+                <li><a href="#section2">2. Node-REDのインストール</a></li>
+                <li><a href="#section3">3. Node-REDの起動と確認</a></li>
+                <li><a href="#section4">4. 自動起動の設定</a></li>
+                <li><a href="#section5">5. ネットワークからのアクセス</a></li>
+                <li><a href="#section6">6. セキュリティ設定</a></li>
+                <li><a href="#section7">7. 初めてのフロー作成</a></li>
+                <li><a href="#section8">8. トラブルシューティング</a></li>
+                <li><a href="#section9">9. 次のステップ</a></li>
+            </ul>
+        </div>
+
+        <!-- ===== セクション0: 事前準備 ===== -->
+        <h2 id="section0">📦 0. 事前準備と確認事項</h2>
+
+        <h3>🔧 必要なもの</h3>
+
+        <div class="requirement-cards">
+            <div class="requirement-card">
+                <div class="icon">🍓</div>
+                <h4>Raspberry Pi</h4>
+                <p>Pi 3 / 4 / 5 推奨</p>
+            </div>
+            <div class="requirement-card">
+                <div class="icon">💾</div>
+                <h4>microSDカード</h4>
+                <p>16GB以上推奨</p>
+            </div>
+            <div class="requirement-card">
+                <div class="icon">🔌</div>
+                <h4>電源アダプター</h4>
+                <p>Pi 4/5: USB-C 5V/3A</p>
+            </div>
+            <div class="requirement-card">
+                <div class="icon">🌐</div>
+                <h4>ネットワーク接続</h4>
+                <p>有線LAN または Wi-Fi</p>
+            </div>
+        </div>
+
+        <h3>📊 インストールの流れ</h3>
+
+        <div class="diagram">
+            <span class="diagram-item diagram-script">① OS<br>セットアップ</span>
+            <span class="arrow">→</span>
+            <span class="diagram-item diagram-nodejs">② スクリプトで<br>Node.js + Node-RED導入</span>
+            <span class="arrow">→</span>
+            <span class="diagram-item diagram-nodered">③ Node-RED<br>起動</span>
+            <span class="arrow">→</span>
+            <span class="diagram-item diagram-browser">④ ブラウザで<br>アクセス</span>
+        </div>
+
+        <div class="tip">
+            <p><strong>💡 Raspberry Pi版のメリット</strong></p>
+            <p>Raspberry Pi向けには公式のインストールスクリプトが用意されており、Node.jsとNode-REDを一度にインストールできます。また、GPIOピンを使ったハードウェア制御が簡単に行えるのがRaspberry Piの大きな特徴です。</p>
+        </div>
+
+        <!-- ===== セクション1: OSセットアップ ===== -->
+        <h2 id="section1">💻 1. Raspberry Pi OSのセットアップ</h2>
+
+        <p>既にRaspberry Pi OSが動作している場合は、<a href="#section2">セクション2</a>に進んでください。</p>
+
+        <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+                <h3>Raspberry Pi Imagerをダウンロード</h3>
+                <p>PCで <a href="https://www.raspberrypi.com/software/" target="_blank">Raspberry Pi公式サイト</a> から「Raspberry Pi Imager」をダウンロードしてインストールします。</p>
+                <p>Windows / macOS / Ubuntu 用が用意されています。</p>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+                <h3>OSをmicroSDカードに書き込む</h3>
+                <p>Raspberry Pi Imagerを起動し、以下の設定で書き込みます。</p>
+                <ol>
+                    <li><strong>デバイス:</strong> 使用するRaspberry Piのモデルを選択</li>
+                    <li><strong>OS:</strong> 「Raspberry Pi OS (64-bit)」を選択（推奨）</li>
+                    <li><strong>ストレージ:</strong> microSDカードを選択</li>
+                </ol>
+
+                <div class="important">
+                    <p><strong>📌 カスタマイズ設定（推奨）</strong></p>
+                    <p>書き込み前に「設定を編集する」をクリックして、以下を事前に設定しておくと便利です。</p>
+                    <ul>
+                        <li><strong>ホスト名:</strong> 例）<code>raspberrypi</code></li>
+                        <li><strong>ユーザー名とパスワード:</strong> ログイン用の認証情報</li>
+                        <li><strong>Wi-Fi設定:</strong> SSIDとパスワード（Wi-Fi使用時）</li>
+                        <li><strong>SSHを有効化:</strong> リモートアクセスに必要</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+                <h3>Raspberry Piを起動</h3>
+                <p>書き込んだmicroSDカードをRaspberry Piに挿入し、電源を接続して起動します。初回起動時は自動的にセットアップが行われるため、数分かかることがあります。</p>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">4</div>
+            <div class="step-content">
+                <h3>SSHで接続（ヘッドレス環境の場合）</h3>
+                <p>モニターを接続しない場合は、PCからSSHで接続します。</p>
+
+                <div class="code-block">
+                    <button class="copy-button" onclick="copyCode(this)">コピー</button>
+ssh ユーザー名@raspberrypi.local</div>
+
+                <div class="tip">
+                    <p><strong>💡 接続できない場合</strong></p>
+                    <p>ホスト名で接続できない場合は、ルーターの管理画面などでRaspberry PiのIPアドレスを確認し、<code>ssh ユーザー名@192.168.x.x</code> のようにIPアドレスで接続してください。</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">5</div>
+            <div class="step-content">
+                <h3>システムを最新状態に更新</h3>
+                <p>インストール前にシステムを最新の状態にしておきます。</p>
+
+                <div class="code-block">
+                    <button class="copy-button" onclick="copyCode(this)">コピー</button>
+sudo apt update && sudo apt upgrade -y</div>
+
+                <p>この処理には数分かかることがあります。完了するまで待ちましょう。</p>
+            </div>
+        </div>
+
+        <div class="success">
+            <p><strong>✅ Raspberry Pi OSの準備完了！</strong></p>
+            <p>次のステップでNode-REDをインストールします。</p>
+        </div>
+
+        <!-- ===== セクション2: Node-REDのインストール ===== -->
+        <h2 id="section2">🔴 2. Node-REDのインストール</h2>
+
+        <p>Raspberry Pi向けに公式のインストールスクリプトが用意されています。このスクリプトを使うと、Node.jsとNode-REDを一括でインストールできます。</p>
+
+        <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+                <h3>インストールスクリプトを実行</h3>
+                <p>ターミナルで以下のコマンドを実行します。</p>
+
+                <div class="code-block">
+                    <button class="copy-button" onclick="copyCode(this)">コピー</button>
+bash &lt;(curl -sL https://raw.githubusercontent.com/node-red/linux-installers/master/deb/update-nodejs-and-nodered)</div>
+
+                <div class="important">
+                    <p><strong>📌 スクリプトの内容</strong></p>
+                    <p>このスクリプトは以下の処理を自動で行います。</p>
+                    <ul>
+                        <li>Node.js LTS版のインストール（または既存版のアップデート）</li>
+                        <li>Node-REDのインストール（または既存版のアップデート）</li>
+                        <li>npm のグローバルパッケージの更新</li>
+                        <li>Raspberry Pi用の追加ノード（GPIOノードなど）のインストール</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+                <h3>対話式の質問に回答</h3>
+                <p>スクリプト実行中に以下の質問が表示されます。</p>
+
+                <table>
+                    <tr>
+                        <th>質問</th>
+                        <th>推奨回答</th>
+                        <th>説明</th>
+                    </tr>
+                    <tr>
+                        <td>Are you really sure you want to install as root?</td>
+                        <td><code>n</code>（rootでない場合は表示されません）</td>
+                        <td>root以外のユーザーでの実行を推奨</td>
+                    </tr>
+                    <tr>
+                        <td>Would you like to install the Pi-specific nodes?</td>
+                        <td><code>y</code></td>
+                        <td>GPIO制御ノードなどがインストールされます</td>
+                    </tr>
+                    <tr>
+                        <td>Would you like to customise the settings now?</td>
+                        <td><code>n</code>（後で設定可能）</td>
+                        <td>settings.jsの編集は後から行えます</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+                <h3>インストール完了を確認</h3>
+                <p>インストールが完了すると、以下のようなメッセージが表示されます。</p>
+
+                <div class="code-block">
+All done.
+  You can now start Node-RED with the command  node-red-start
+  or using the shortcut in the Desktop menu</div>
+
+                <p>バージョンを確認してみましょう。</p>
+
+                <div class="code-block">
+                    <button class="copy-button" onclick="copyCode(this)">コピー</button>
+<span class="prompt">$ </span>node --version
+<span class="output">v20.x.x</span>
+
+<span class="prompt">$ </span>node-red --version
+<span class="output">4.x.x</span></div>
+            </div>
+        </div>
+
+        <div class="success">
+            <p><strong>✅ Node-REDのインストール完了！</strong></p>
+            <p>Node.jsとNode-REDが正常にインストールされました。次は起動してみましょう。</p>
+        </div>
+
+        <!-- ===== セクション3: Node-REDの起動 ===== -->
+        <h2 id="section3">🚀 3. Node-REDの起動と確認</h2>
+
+        <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+                <h3>Node-REDを起動</h3>
+                <p>以下のコマンドでNode-REDを起動します。</p>
+
+                <div class="code-block">
+                    <button class="copy-button" onclick="copyCode(this)">コピー</button>
+node-red-start</div>
+
+                <p>起動すると、以下のようなメッセージが表示されます。</p>
+
+                <div class="code-block">
+Start Node-RED
+
+Once Node-RED has started, point a browser at http://192.168.x.x:1880
+On Pi Node-RED works better with the Firefox or Chrome browser
+
+XX Jan XX:XX:XX - [info] Node-RED version: v4.x.x
+XX Jan XX:XX:XX - [info] Node.js  version: v20.x.x
+XX Jan XX:XX:XX - [info] Linux 6.x.x arm64 LE
+XX Jan XX:XX:XX - [info] Loading palette nodes
+XX Jan XX:XX:XX - [info] Settings file  : /home/ユーザー名/.node-red/settings.js
+XX Jan XX:XX:XX - [info] User directory : /home/ユーザー名/.node-red
+XX Jan XX:XX:XX - [info] Flows file     : /home/ユーザー名/.node-red/flows.json
+XX Jan XX:XX:XX - [info] Server now running at http://127.0.0.1:1880/
+XX Jan XX:XX:XX - [info] Starting flows
+XX Jan XX:XX:XX - [info] Started flows</div>
+
+                <div class="important">
+                    <p><strong>📌 コマンドの違い</strong></p>
+                    <ul>
+                        <li><code>node-red-start</code> - バックグラウンドで起動（ターミナルを閉じても動作継続）</li>
+                        <li><code>node-red</code> - フォアグラウンドで起動（ターミナルを閉じると停止）</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+                <h3>ブラウザでアクセス</h3>
+                <p>Raspberry Piにデスクトップ環境がある場合は、ブラウザで以下のURLにアクセスします。</p>
+
+                <div class="code-block">
+                    <button class="copy-button" onclick="copyCode(this)">コピー</button>
+http://localhost:1880</div>
+
+                <p>別のPCからアクセスする場合は、Raspberry PiのIPアドレスを使用します（<a href="#section5">セクション5</a>で詳しく説明）。</p>
+            </div>
+        </div>
+
+        <div class="success">
+            <p><strong>🎉 おめでとうございます！</strong></p>
+            <p>Node-REDエディタが表示されれば、インストールと起動は成功です！</p>
+        </div>
+
+        <h3>🛑 Node-REDを停止するには</h3>
+        <p>以下のコマンドでNode-REDを停止できます。</p>
+
+        <div class="code-block">
+            <button class="copy-button" onclick="copyCode(this)">コピー</button>
+node-red-stop</div>
+
+        <!-- ===== セクション4: 自動起動設定 ===== -->
+        <h2 id="section4">⚙️ 4. 自動起動の設定</h2>
+
+        <p>Raspberry Piの電源を入れた時にNode-REDを自動的に起動するよう設定します。IoTデバイスとして常時稼働させる場合に必須の設定です。</p>
+
+        <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+                <h3>systemdサービスを有効化</h3>
+                <p>以下のコマンドを実行して、OS起動時にNode-REDが自動的に起動するようにします。</p>
+
+                <div class="code-block">
+                    <button class="copy-button" onclick="copyCode(this)">コピー</button>
+sudo systemctl enable nodered.service</div>
+
+                <div class="code-block">
+<span class="output">Created symlink /etc/systemd/system/multi-user.target.wants/nodered.service → /lib/systemd/system/nodered.service.</span></div>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+                <h3>サービスの操作コマンド</h3>
+                <p>systemctlを使った各種操作は以下のとおりです。</p>
+
+                <table>
+                    <tr>
+                        <th>操作</th>
+                        <th>コマンド</th>
+                    </tr>
+                    <tr>
+                        <td>起動</td>
+                        <td><code>sudo systemctl start nodered.service</code></td>
+                    </tr>
+                    <tr>
+                        <td>停止</td>
+                        <td><code>sudo systemctl stop nodered.service</code></td>
+                    </tr>
+                    <tr>
+                        <td>再起動</td>
+                        <td><code>sudo systemctl restart nodered.service</code></td>
+                    </tr>
+                    <tr>
+                        <td>状態確認</td>
+                        <td><code>sudo systemctl status nodered.service</code></td>
+                    </tr>
+                    <tr>
+                        <td>自動起動を無効化</td>
+                        <td><code>sudo systemctl disable nodered.service</code></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+                <h3>動作確認</h3>
+                <p>設定が正しく行われたか確認します。</p>
+
+                <div class="code-block">
+                    <button class="copy-button" onclick="copyCode(this)">コピー</button>
+sudo systemctl status nodered.service</div>
+
+                <div class="code-block">
+<span class="output">● nodered.service - Node-RED graphical event wiring tool
+     Loaded: loaded (/lib/systemd/system/nodered.service; enabled; ...)
+     Active: active (running) since ...</span></div>
+
+                <p><code>enabled</code> と <code>active (running)</code> が表示されていれば正常です。</p>
+            </div>
+        </div>
+
+        <div class="tip">
+            <p><strong>💡 ログの確認</strong></p>
+            <p>サービスとして実行中のNode-REDのログを確認するには、以下のコマンドを使用します。</p>
+            <div class="code-block">
+                <button class="copy-button" onclick="copyCode(this)">コピー</button>
+sudo journalctl -u nodered.service -f</div>
+            <p><code>-f</code> オプションでリアルタイムにログを追跡できます。終了するには <kbd>Ctrl</kbd> + <kbd>C</kbd> を押します。</p>
+        </div>
+
+        <!-- ===== セクション5: ネットワークアクセス ===== -->
+        <h2 id="section5">🌐 5. ネットワークからのアクセス</h2>
+
+        <p>Raspberry Pi上のNode-REDに、同じネットワーク内の別のPC・スマートフォンからアクセスする方法を説明します。</p>
+
+        <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+                <h3>Raspberry PiのIPアドレスを確認</h3>
+                <p>以下のコマンドでRaspberry PiのIPアドレスを確認します。</p>
+
+                <div class="code-block">
+                    <button class="copy-button" onclick="copyCode(this)">コピー</button>
+hostname -I</div>
+
+                <div class="code-block">
+<span class="output">192.168.1.100 ...</span></div>
+
+                <p>表示された最初のIPアドレス（例: <code>192.168.1.100</code>）を使用します。</p>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+                <h3>別のPCからブラウザでアクセス</h3>
+                <p>同じネットワーク内のPC・スマートフォンのブラウザで、以下のURLにアクセスします。</p>
+
+                <div class="code-block">
+http://192.168.x.x:1880</div>
+
+                <p><code>192.168.x.x</code> の部分は、手順1で確認したIPアドレスに置き換えてください。</p>
+
+                <div class="tip">
+                    <p><strong>💡 ホスト名でのアクセス</strong></p>
+                    <p>mDNS（Avahi）が有効な場合は、ホスト名でもアクセスできます。</p>
+                    <div class="code-block">
+http://raspberrypi.local:1880</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+                <h3>IPアドレスを固定する（推奨）</h3>
+                <p>DHCPではIPアドレスが変わることがあるため、固定IPアドレスの設定を推奨します。</p>
+
+                <details>
+                    <summary>📋 固定IPアドレスの設定方法（クリックで展開）</summary>
+                    <div class="content">
+                        <p><code>/etc/dhcpcd.conf</code> を編集します。</p>
+                        <div class="code-block">
+                            <button class="copy-button" onclick="copyCode(this)">コピー</button>
+sudo nano /etc/dhcpcd.conf</div>
+                        <p>ファイル末尾に以下を追加します（値は環境に合わせて変更してください）。</p>
+                        <div class="code-block">
+                            <button class="copy-button" onclick="copyCode(this)">コピー</button>
+interface eth0
+static ip_address=192.168.1.100/24
+static routers=192.168.1.1
+static domain_name_servers=192.168.1.1 8.8.8.8</div>
+                        <p>Wi-Fiの場合は <code>interface eth0</code> を <code>interface wlan0</code> に変更します。</p>
+                        <p>保存後、ネットワークを再起動します。</p>
+                        <div class="code-block">
+                            <button class="copy-button" onclick="copyCode(this)">コピー</button>
+sudo systemctl restart dhcpcd</div>
+
+                        <div class="warning">
+                            <p><strong>⚠️ NetworkManagerを使用するOS（Bookworm以降）</strong></p>
+                            <p>Raspberry Pi OS Bookworm以降ではNetworkManagerが使用されている場合があります。その場合は <code>nmcli</code> コマンドまたはデスクトップのネットワーク設定から固定IPを設定してください。</p>
+                            <div class="code-block">
+                                <button class="copy-button" onclick="copyCode(this)">コピー</button>
+sudo nmcli con mod "有線接続 1" ipv4.addresses 192.168.1.100/24
+sudo nmcli con mod "有線接続 1" ipv4.gateway 192.168.1.1
+sudo nmcli con mod "有線接続 1" ipv4.dns "192.168.1.1 8.8.8.8"
+sudo nmcli con mod "有線接続 1" ipv4.method manual
+sudo nmcli con up "有線接続 1"</div>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </div>
+
+        <!-- ===== セクション6: セキュリティ設定 ===== -->
+        <h2 id="section6">🔒 6. セキュリティ設定</h2>
+
+        <p>Node-REDをネットワークに公開する場合、パスワード認証を設定してエディタへの不正アクセスを防止しましょう。</p>
+
+        <div class="warning">
+            <p><strong>⚠️ セキュリティに関する重要な注意</strong></p>
+            <p>デフォルトではNode-REDエディタにパスワードは設定されていません。同じネットワーク内の誰でもアクセスできる状態のため、必ずパスワード認証を設定してください。</p>
+        </div>
+
+        <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+                <h3>パスワードのハッシュ値を生成</h3>
+                <p>以下のコマンドでパスワードのハッシュ値を生成します。</p>
+
+                <div class="code-block">
+                    <button class="copy-button" onclick="copyCode(this)">コピー</button>
+node-red admin hash-pw</div>
+
+                <p>プロンプトが表示されるので、設定したいパスワードを入力します。</p>
+
+                <div class="code-block">
+<span class="prompt">Password: </span>
+<span class="output">$2b$08$xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</span></div>
+
+                <p>表示されたハッシュ値（<code>$2b$08$...</code>で始まる文字列）をコピーしておきます。</p>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+                <h3>settings.jsを編集</h3>
+                <p>Node-REDの設定ファイルを開きます。</p>
+
+                <div class="code-block">
+                    <button class="copy-button" onclick="copyCode(this)">コピー</button>
+nano ~/.node-red/settings.js</div>
+
+                <p><code>adminAuth</code> の設定を探して、コメントアウトを解除し編集します。</p>
+
+                <div class="code-block">
+                    <button class="copy-button" onclick="copyCode(this)">コピー</button>
+    adminAuth: {
+        type: "credentials",
+        users: [{
+            username: "admin",
+            password: "$2b$08$xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+            permissions: "*"
+        }]
+    },</div>
+
+                <p><code>password</code> の値を、手順1で生成したハッシュ値に置き換えてください。</p>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+                <h3>Node-REDを再起動</h3>
+                <p>設定を反映するためにNode-REDを再起動します。</p>
+
+                <div class="code-block">
+                    <button class="copy-button" onclick="copyCode(this)">コピー</button>
+sudo systemctl restart nodered.service</div>
+
+                <p>再起動後、ブラウザでアクセスするとログイン画面が表示されます。設定したユーザー名とパスワードでログインしてください。</p>
+            </div>
+        </div>
+
+        <div class="tip">
+            <p><strong>💡 settings.jsの詳細</strong></p>
+            <p>settings.jsの各設定項目について詳しくは、<a href="nodered-settings-guide.html">settings.js 設定ファイルガイド</a>を参照してください。</p>
+        </div>
+
+        <!-- ===== セクション7: 初めてのフロー ===== -->
+        <h2 id="section7">✨ 7. 初めてのフロー作成</h2>
+
+        <p>Node-REDが起動できたら、Raspberry PiのGPIOピンを使った簡単なフローを作成してみましょう。</p>
+
+        <h3>例1: 基本的なフロー（inject → debug）</h3>
+
+        <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+                <h3>Injectノードを配置</h3>
+                <p>左側のパレットから <strong>「inject」</strong> ノード（水色）を中央のキャンバスにドラッグ＆ドロップします。</p>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+                <h3>Debugノードを配置して接続</h3>
+                <p>同様に <strong>「debug」</strong> ノード（緑色）をキャンバスに配置し、injectノードの出力端子からdebugノードの入力端子に線を引いて接続します。</p>
+
+                <div class="diagram">
+                    <span class="diagram-item" style="background-color: #3fadb5;">💉 inject</span>
+                    <span class="arrow">―――→</span>
+                    <span class="diagram-item" style="background-color: #87a48d;">🐛 debug</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+                <h3>デプロイして実行</h3>
+                <p>右上の <strong>「デプロイ」</strong> ボタンをクリックし、injectノードの左側のボタンを押してメッセージを送信します。右側のデバッグタブにタイムスタンプが表示されれば成功です。</p>
+            </div>
+        </div>
+
+        <h3>例2: GPIOでLED制御</h3>
+
+        <div class="important">
+            <p><strong>📌 必要なハードウェア</strong></p>
+            <ul>
+                <li>LED 1個</li>
+                <li>抵抗（330Ω程度） 1個</li>
+                <li>ブレッドボードとジャンパーワイヤー</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+                <h3>回路を接続</h3>
+                <p>以下のように接続します。</p>
+                <ul>
+                    <li>GPIO 17（物理ピン11番）→ 抵抗 → LED（アノード/長い足）</li>
+                    <li>LED（カソード/短い足）→ GND（物理ピン6番）</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+                <h3>フローを作成</h3>
+                <p>Node-REDエディタで以下のノードを配置・接続します。</p>
+
+                <div class="diagram">
+                    <span class="diagram-item" style="background-color: #3fadb5;">💉 inject<br>(1/0を切替)</span>
+                    <span class="arrow">―――→</span>
+                    <span class="diagram-item" style="background-color: #cd67a0;">🍓 rpi gpio<br>(GPIO 17 出力)</span>
+                </div>
+
+                <ol>
+                    <li>「inject」ノードを2つ配置（1つは payload を <code>1</code>、もう1つを <code>0</code> に設定）</li>
+                    <li>パレットの「Raspberry Pi」カテゴリから <strong>「rpi gpio」</strong> 出力ノードを配置</li>
+                    <li>rpi gpioノードをダブルクリックし、ピン番号を <strong>GPIO 17</strong> に設定</li>
+                    <li>injectノードをrpi gpioノードに接続</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+                <h3>動作確認</h3>
+                <p>デプロイ後、payload <code>1</code> のinjectを押すとLEDが点灯、<code>0</code> のinjectを押すとLEDが消灯します。</p>
+            </div>
+        </div>
+
+        <div class="tip">
+            <p><strong>💡 GPIOノードについて</strong></p>
+            <p>Pi固有ノードをインストール時に選択した場合、パレットの「Raspberry Pi」カテゴリに以下のノードが表示されます。</p>
+            <ul>
+                <li><strong>rpi gpio（入力）:</strong> GPIOピンの状態を読み取り（ボタンやセンサー）</li>
+                <li><strong>rpi gpio（出力）:</strong> GPIOピンに出力（LEDやリレー制御）</li>
+            </ul>
+        </div>
+
+        <!-- ===== セクション8: トラブルシューティング ===== -->
+        <h2 id="section8">🔧 8. トラブルシューティング</h2>
+
+        <table>
+            <tr>
+                <th style="width: 30%;">症状</th>
+                <th style="width: 35%;">原因</th>
+                <th style="width: 35%;">解決方法</th>
+            </tr>
+            <tr>
+                <td>インストールスクリプトが失敗する</td>
+                <td>ネットワーク接続の問題</td>
+                <td>
+                    <code>ping google.com</code> で接続確認後、再度実行
+                </td>
+            </tr>
+            <tr>
+                <td>ブラウザでアクセスできない</td>
+                <td>Node-REDが起動していない</td>
+                <td>
+                    <code>sudo systemctl status nodered.service</code> で状態を確認
+                </td>
+            </tr>
+            <tr>
+                <td>ポート1880に接続できない</td>
+                <td>ファイアウォールでブロックされている</td>
+                <td>
+                    <code>sudo ufw allow 1880</code> でポートを開放（ufwを使用している場合）
+                </td>
+            </tr>
+            <tr>
+                <td>GPIOノードが表示されない</td>
+                <td>Pi固有ノードが未インストール</td>
+                <td>
+                    インストールスクリプトを再実行し、Pi固有ノードのインストールで <code>y</code> を選択
+                </td>
+            </tr>
+            <tr>
+                <td>GPIOアクセスが「Permission denied」</td>
+                <td>ユーザーがgpioグループに属していない</td>
+                <td>
+                    <code>sudo usermod -aG gpio $USER</code> を実行後、再ログイン
+                </td>
+            </tr>
+            <tr>
+                <td>メモリ不足でクラッシュする</td>
+                <td>Raspberry Piのメモリが不足</td>
+                <td>
+                    スワップ領域を増やす：<code>sudo dphys-swapfile swapoff && sudo nano /etc/dphys-swapfile</code> で CONF_SWAPSIZE を 1024 に変更後再起動
+                </td>
+            </tr>
+            <tr>
+                <td>Node-REDが起動時にエラー</td>
+                <td>settings.jsの文法エラー</td>
+                <td>
+                    <code>node -c ~/.node-red/settings.js</code> で構文チェック
+                </td>
+            </tr>
+        </table>
+
+        <details>
+            <summary>🔍 ログの確認方法</summary>
+            <div class="content">
+                <h4>systemdサービスのログ</h4>
+                <div class="code-block">
+                    <button class="copy-button" onclick="copyCode(this)">コピー</button>
+sudo journalctl -u nodered.service --since "10 minutes ago"</div>
+
+                <h4>Node-REDのユーザーディレクトリ</h4>
+                <p>設定ファイルやフローは以下の場所に保存されています。</p>
+                <div class="code-block">
+/home/ユーザー名/.node-red/</div>
+
+                <ul>
+                    <li><code>flows.json</code> - 作成したフロー</li>
+                    <li><code>settings.js</code> - Node-REDの設定ファイル</li>
+                    <li><code>package.json</code> - インストールしたノードの情報</li>
+                    <li><code>node_modules/</code> - インストールしたノードの実体</li>
+                </ul>
+            </div>
+        </details>
+
+        <details>
+            <summary>📋 Node-REDの再インストール方法</summary>
+            <div class="content">
+                <p>問題が解決しない場合は、再インストールを試みてください。インストールスクリプトは既存のインストールをアップデートする形で動作します。</p>
+                <div class="code-block">
+                    <button class="copy-button" onclick="copyCode(this)">コピー</button>
+bash &lt;(curl -sL https://raw.githubusercontent.com/node-red/linux-installers/master/deb/update-nodejs-and-nodered)</div>
+
+                <div class="warning">
+                    <p><strong>⚠️ 注意</strong></p>
+                    <p>再インストールしてもフローデータ（<code>~/.node-red/flows.json</code>）は保持されます。完全に初期化したい場合は、事前に <code>~/.node-red</code> フォルダをバックアップ後削除してください。</p>
+                </div>
+            </div>
+        </details>
+
+        <!-- ===== セクション9: 次のステップ ===== -->
+        <h2 id="section9">📚 9. 次のステップ</h2>
+
+        <p>Node-REDのインストールが完了したら、以下のリソースで学習を進めましょう。</p>
+
+        <h3>🎓 学習リソース</h3>
+        <ul>
+            <li><a href="https://nodered.org/docs/getting-started/raspberrypi" target="_blank">Node-RED公式 Raspberry Piガイド（英語）</a></li>
+            <li><a href="https://nodered.org/docs/tutorials/first-flow" target="_blank">Node-RED公式チュートリアル（英語）</a></li>
+            <li><a href="https://flows.nodered.org/" target="_blank">Node-RED Flow Library</a> - 他のユーザーが作成したフローを参照</li>
+        </ul>
+
+        <h3>📦 おすすめの追加ノード</h3>
+
+        <div class="tip">
+            <p><strong>@flowfuse/node-red-dashboard</strong></p>
+            <p>Webブラウザで表示できるダッシュボード（Dashboard 2.0）を作成するためのノード集です。センサーデータの可視化に最適です。</p>
+            <p><small>インストール方法: パレットの管理 → ノードを追加 → 「@flowfuse/node-red-dashboard」で検索 → インストール</small></p>
+        </div>
+
+        <h3>💡 Raspberry Piならではの活用例</h3>
+        <ul class="checklist">
+            <li>温湿度センサー（DHT11/DHT22）でデータ収集・グラフ表示</li>
+            <li>人感センサー（PIR）で動体検知と通知</li>
+            <li>MQTTを使ったIoTデバイス間の通信</li>
+            <li>カメラモジュールで定期撮影・監視</li>
+            <li>リレーモジュールで家電の制御</li>
+            <li>Dashboard 2.0でセンサーデータの可視化</li>
+        </ul>
+
+        <div class="success">
+            <p><strong>🚀 準備完了！</strong></p>
+            <p>Raspberry Pi + Node-REDで、IoTプロジェクトを始めましょう！GPIOピンを活用したハードウェア制御から、ネットワークを使ったデータ収集まで、様々なプロジェクトが実現できます。</p>
+        </div>
+
+        <hr style="margin: 40px 0;">
+
+        <h3>📗 追加リソース</h3>
+        <ul>
+            <li><a href="https://nodered.org/docs/" target="_blank">Node-RED 公式ドキュメント</a></li>
+            <li><a href="https://nodered.org/docs/getting-started/raspberrypi" target="_blank">Node-RED Raspberry Pi Installation Guide（公式）</a></li>
+            <li><a href="https://www.raspberrypi.com/documentation/" target="_blank">Raspberry Pi 公式ドキュメント</a></li>
+            <li><a href="https://pinout.xyz/" target="_blank">Raspberry Pi GPIO Pinout</a> - ピン配置リファレンス</li>
+        </ul>
+
+        <p style="text-align: center; color: #999; margin-top: 40px;">
+            <small>このガイドは2025年1月時点の情報に基づいています。</small><br>
+            <small>最新の情報は公式ドキュメントを参照してください。</small>
+        </p>
+    </div>
+
+    <!-- コピーボタン用JavaScript -->
+    <script>
+        function copyCode(button) {
+            const codeBlock = button.parentElement;
+            let code = codeBlock.innerText.replace('コピー', '').trim();
+            // プロンプト部分を除去
+            code = code.replace(/^\$ /gm, '').trim();
+            // 出力行を除去（バージョン番号やシステムメッセージ）
+            const lines = code.split('\n').filter(line => {
+                return !line.match(/^v\d+\.\d+\.\d+$/) &&
+                       !line.match(/^\d+\.\d+\.\d+$/) &&
+                       !line.match(/^Password:/) &&
+                       !line.match(/^\$2[aby]\$/) &&
+                       !line.match(/^●/) &&
+                       !line.match(/^Created symlink/) &&
+                       !line.match(/^192\.168\./);
+            });
+            code = lines.join('\n').trim();
+
+            navigator.clipboard.writeText(code).then(() => {
+                button.textContent = 'コピーしました!';
+                button.classList.add('copied');
+                setTimeout(() => {
+                    button.textContent = 'コピー';
+                    button.classList.remove('copied');
+                }, 2000);
+            });
+        }
+    </script>
+
+    <!-- フローティングホームボタン -->
+    <a href="index.html" style="position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px; background: linear-gradient(135deg, #42b883 0%, #35495e 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; transition: transform 0.3s, box-shadow 0.3s;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 6px 16px rgba(0,0,0,0.4)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.3)';" title="トップページへ">🏠</a>
+</body>
+</html>
