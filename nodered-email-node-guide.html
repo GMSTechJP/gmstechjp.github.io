@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED e-mail ノードガイド</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.8; max-width: 1000px; margin: 0 auto; padding: 20px; background-color: #f5f5f5; color: #333; }
+        h1 { color: #b92d5d; border-bottom: 3px solid #b92d5d; padding-bottom: 10px; }
+        h2 { color: #d33682; margin-top: 40px; border-left: 5px solid #d33682; padding-left: 15px; }
+        h3 { color: #555; margin-top: 25px; }
+        h4 { color: #666; margin-top: 20px; }
+        .container { background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .node-example { background-color: #2d3133; padding: 20px; border-radius: 5px; margin: 20px 0; color: white; font-family: 'Courier New', monospace; display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
+        .node { display: inline-block; padding: 8px 15px; border-radius: 4px; margin: 5px; font-weight: bold; font-size: 14px; }
+        .node-inject { background-color: #3fadb5; color: white; }
+        .node-debug { background-color: #87a48d; color: white; }
+        .node-function { background-color: #e8a658; color: white; }
+        .node-change { background-color: #e7a070; color: white; }
+        .node-switch { background-color: #e2d96e; color: #333; }
+        .node-email-out { background-color: #c7b299; color: #333; }
+        .node-email-in { background-color: #c7b299; color: #333; }
+        .node-template { background-color: #e8a658; color: white; }
+        .node-catch { background-color: #e8967a; color: white; }
+        .arrow { color: #999; font-size: 20px; margin: 0 10px; }
+        .important { background-color: #fce4ec; border-left: 4px solid #b92d5d; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .tip { background-color: #e8f5e9; border-left: 4px solid #4caf50; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .warning { background-color: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .code-block { background-color: #2d3133; color: #f8f8f2; padding: 15px; border-radius: 5px; margin: 15px 0; overflow-x: auto; font-family: 'Courier New', Consolas, monospace; font-size: 14px; white-space: pre; }
+        .flow-json { background-color: #1a1a2e; color: #a6e22e; padding: 15px; border-radius: 5px; font-family: 'Courier New', Consolas, monospace; font-size: 12px; overflow-x: auto; white-space: pre; position: relative; max-height: 400px; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #b92d5d; color: white; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .exercise { background-color: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0; border: 2px solid #2196f3; }
+        .exercise h3 { color: #1976d2; margin-top: 0; }
+        .difficulty { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; margin-left: 10px; }
+        .difficulty-easy { background-color: #c8e6c9; color: #2e7d32; }
+        .difficulty-medium { background-color: #fff9c4; color: #f57f17; }
+        .difficulty-hard { background-color: #ffcdd2; color: #c62828; }
+        details { background-color: #f5f5f5; padding: 10px 15px; border-radius: 5px; margin: 10px 0; }
+        details summary { cursor: pointer; font-weight: bold; color: #1976d2; }
+        details[open] summary { margin-bottom: 10px; }
+        .toc { background-color: #fafafa; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .toc h3 { margin-top: 0; color: #b92d5d; }
+        .toc ul { list-style: none; padding-left: 0; }
+        .toc li { padding: 5px 0; }
+        .toc a { color: #1976d2; text-decoration: none; }
+        .toc a:hover { text-decoration: underline; }
+        .copy-btn { position: absolute; top: 5px; right: 5px; background-color: #666; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px; }
+        .copy-btn:hover { background-color: #888; }
+        .node-compare { display: flex; gap: 20px; flex-wrap: wrap; margin: 20px 0; }
+        .node-card { background: #f9f9f9; border: 1px solid #ddd; border-radius: 8px; padding: 15px; flex: 1; min-width: 280px; }
+        .node-card h4 { margin-top: 0; color: #b92d5d; }
+        .copy-button { position: absolute; top: 8px; right: 8px; padding: 6px 12px; background-color: #b92d5d; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-family: 'Segoe UI', sans-serif; transition: background-color 0.2s; z-index: 10; display: flex; align-items: center; gap: 4px; }
+        .copy-button:hover { background-color: #9a2550; }
+        .copy-button.copied { background-color: #28a745; }
+        .copy-button svg { width: 14px; height: 14px; fill: currentColor; }
+        .protocol-box { background: linear-gradient(135deg, #1976d2 0%, #0d47a1 100%); color: white; padding: 15px 20px; border-radius: 8px; margin: 10px 0; }
+        .protocol-box h4 { margin: 0 0 10px 0; color: white; }
+        .protocol-box code { background: rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📧 Node-RED e-mail ノードガイド</h1>
+
+        <div class="toc">
+            <h3>📚 目次</h3>
+            <ul>
+                <li><a href="#section1">1. 概要</a></li>
+                <li><a href="#section2">2. インストール</a></li>
+                <li><a href="#section3">3. e-mail（送信）ノード</a></li>
+                <li><a href="#section4">4. e-mail in（受信）ノード</a></li>
+                <li><a href="#section5">5. 認証設定</a></li>
+                <li><a href="#section6">6. 実用的な使用パターン</a></li>
+                <li><a href="#section7">7. 演習問題</a></li>
+                <li><a href="#section8">8. トラブルシューティング</a></li>
+                <li><a href="#section9">9. ベストプラクティス</a></li>
+                <li><a href="#section10">10. 追加リソース</a></li>
+            </ul>
+        </div>
+
+        <div class="important">
+            <p><strong>📦 パッケージ情報:</strong></p>
+            <ul>
+                <li><strong>パッケージ名:</strong> node-red-node-email</li>
+                <li><strong>種別:</strong> Node-RED公式アドオンノード（node-red-nodesコレクション）</li>
+                <li><strong>ライセンス:</strong> Apache-2.0</li>
+                <li><strong>内部利用ライブラリ:</strong> nodemailer</li>
+                <li><strong>Node.js要件:</strong> v18以上（v3.x以降）</li>
+            </ul>
+        </div>
+
+        <h2 id="section1">📖 1. 概要</h2>
+
+        <p><code>node-red-node-email</code>は、Node-REDからメールを<strong>送信・受信</strong>するための公式アドオンノードです。SMTP/IMAP/POP3プロトコルに対応し、IoTアラート通知からメール自動処理まで幅広い用途に利用できます。</p>
+
+        <h3>パッケージに含まれるノード</h3>
+
+        <div class="node-compare">
+            <div class="node-card">
+                <h4>📤 e-mail（出力ノード）</h4>
+                <p>SMTPを使ってメールを送信します。HTML形式のメール、添付ファイル付きメールにも対応しています。</p>
+            </div>
+            <div class="node-card">
+                <h4>📥 e-mail in（入力ノード）</h4>
+                <p>IMAP4またはPOP3でメールを受信し、新着メールをフローに渡します。定期的なポーリングで監視します。</p>
+            </div>
+        </div>
+
+        <h3>郵便システムに例えると</h3>
+        <p>e-mailノードは「郵便局」のようなものです。</p>
+        <ul>
+            <li><strong>e-mail（送信）</strong>= 窓口から手紙を投函する（SMTPサーバーに依頼）</li>
+            <li><strong>e-mail in（受信）</strong>= 自分の郵便受けを定期的にチェックする（IMAP/POP3で確認）</li>
+        </ul>
+
+        <div class="node-example">
+            <span class="node node-inject">inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">本文作成</span>
+            <span class="arrow">→</span>
+            <span class="node node-email-out">e-mail</span>
+        </div>
+
+        <div class="node-example">
+            <span class="node node-email-in">e-mail in</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">解析処理</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">debug</span>
+        </div>
+
+        <h2 id="section2">🔧 2. インストール</h2>
+
+        <h3>方法1: パレットマネージャー（推奨）</h3>
+        <ol>
+            <li>Node-REDエディタのメニュー → <strong>パレットの管理</strong></li>
+            <li><strong>ノードを追加</strong>タブを選択</li>
+            <li><code>node-red-node-email</code> を検索</li>
+            <li><strong>ノードを追加</strong>ボタンをクリック</li>
+        </ol>
+
+        <h3>方法2: コマンドライン</h3>
+        <div class="code-block">cd ~/.node-red
+npm install node-red-node-email</div>
+
+        <p>インストール後、Node-REDを再起動するとパレットの<strong>「Social」</strong>カテゴリにノードが追加されます。</p>
+
+        <div class="tip">
+            <p><strong>💡 ヒント:</strong> Node-RED v2.0以降ではパレットマネージャーからのインストールが最も簡単です。Node-REDの再起動も自動的に処理されます。</p>
+        </div>
+
+        <h2 id="section3">📤 3. e-mail（送信）ノード</h2>
+
+        <p>SMTPプロトコルを使用してメールを送信する出力ノードです。</p>
+
+        <h3>ノード設定プロパティ</h3>
+
+        <table>
+            <tr>
+                <th>プロパティ</th>
+                <th>型</th>
+                <th>説明</th>
+            </tr>
+            <tr>
+                <td><strong>To</strong></td>
+                <td>string</td>
+                <td>宛先メールアドレス（カンマ区切りで複数指定可）</td>
+            </tr>
+            <tr>
+                <td><strong>Server</strong></td>
+                <td>string</td>
+                <td>SMTPサーバーのホスト名（例: smtp.gmail.com）</td>
+            </tr>
+            <tr>
+                <td><strong>Port</strong></td>
+                <td>number</td>
+                <td>SMTPポート番号（465: SSL, 587: STARTTLS, 25: 非暗号化）</td>
+            </tr>
+            <tr>
+                <td><strong>Use Secure Connection</strong></td>
+                <td>boolean</td>
+                <td>SSL/TLS接続を使用（ポート465の場合はオン）</td>
+            </tr>
+            <tr>
+                <td><strong>Userid</strong></td>
+                <td>string</td>
+                <td>SMTP認証のユーザーID</td>
+            </tr>
+            <tr>
+                <td><strong>Password</strong></td>
+                <td>string</td>
+                <td>SMTP認証のパスワード</td>
+            </tr>
+            <tr>
+                <td><strong>Name</strong></td>
+                <td>string</td>
+                <td>エディタ上での表示名</td>
+            </tr>
+        </table>
+
+        <h3>入力メッセージプロパティ</h3>
+
+        <table>
+            <tr>
+                <th>プロパティ</th>
+                <th>型</th>
+                <th>説明</th>
+            </tr>
+            <tr>
+                <td><strong>msg.to</strong></td>
+                <td>string</td>
+                <td>宛先アドレス（ノード設定の値を上書き）</td>
+            </tr>
+            <tr>
+                <td><strong>msg.cc</strong></td>
+                <td>string</td>
+                <td>CCアドレス</td>
+            </tr>
+            <tr>
+                <td><strong>msg.bcc</strong></td>
+                <td>string</td>
+                <td>BCCアドレス</td>
+            </tr>
+            <tr>
+                <td><strong>msg.from</strong></td>
+                <td>string</td>
+                <td>送信元アドレス（認証ユーザーと一致する必要がある場合が多い）</td>
+            </tr>
+            <tr>
+                <td><strong>msg.topic</strong></td>
+                <td>string</td>
+                <td>メールの件名（Subject）</td>
+            </tr>
+            <tr>
+                <td><strong>msg.payload</strong></td>
+                <td>string / Buffer</td>
+                <td>メール本文（HTML可）。Bufferの場合は添付ファイルとして送信</td>
+            </tr>
+            <tr>
+                <td><strong>msg.plaintext</strong></td>
+                <td>string</td>
+                <td>payloadがHTMLの場合のプレーンテキスト代替版</td>
+            </tr>
+            <tr>
+                <td><strong>msg.replyTo</strong></td>
+                <td>string</td>
+                <td>返信先アドレス</td>
+            </tr>
+            <tr>
+                <td><strong>msg.inReplyTo</strong></td>
+                <td>string</td>
+                <td>返信元メッセージID</td>
+            </tr>
+            <tr>
+                <td><strong>msg.references</strong></td>
+                <td>string</td>
+                <td>スレッドの参照メッセージID</td>
+            </tr>
+            <tr>
+                <td><strong>msg.headers</strong></td>
+                <td>object</td>
+                <td>カスタムメールヘッダー</td>
+            </tr>
+            <tr>
+                <td><strong>msg.priority</strong></td>
+                <td>string</td>
+                <td>メールの優先度</td>
+            </tr>
+            <tr>
+                <td><strong>msg.attachments</strong></td>
+                <td>array</td>
+                <td>添付ファイル（nodemailer形式）</td>
+            </tr>
+            <tr>
+                <td><strong>msg.envelope</strong></td>
+                <td>object</td>
+                <td>SMTP envelope（拡張アドレス指定用）</td>
+            </tr>
+        </table>
+
+        <h3>基本的な送信フロー例</h3>
+
+        <div class="node-example">
+            <span class="node node-inject">テスト送信</span>
+            <span class="arrow">→</span>
+            <span class="node node-change">件名・本文設定</span>
+            <span class="arrow">→</span>
+            <span class="node node-email-out">e-mail</span>
+        </div>
+
+        <h4>テキストメール送信</h4>
+        <div class="code-block">// Functionノードで本文を設定
+msg.to = "recipient@example.com";
+msg.topic = "Node-REDからのテスト通知";
+msg.payload = "これはNode-REDから送信されたテストメールです。";
+return msg;</div>
+
+        <h4>HTMLメール送信</h4>
+        <div class="code-block">// HTMLメールを送信
+msg.to = "recipient@example.com";
+msg.topic = "センサーアラート通知";
+msg.payload = "&lt;h2&gt;温度アラート&lt;/h2&gt;" +
+    "&lt;p&gt;センサーの温度が閾値を超えました。&lt;/p&gt;" +
+    "&lt;ul&gt;" +
+    "  &lt;li&gt;現在値: &lt;strong&gt;" + msg.temperature + "°C&lt;/strong&gt;&lt;/li&gt;" +
+    "  &lt;li&gt;閾値: 50°C&lt;/li&gt;" +
+    "  &lt;li&gt;時刻: " + new Date().toLocaleString('ja-JP') + "&lt;/li&gt;" +
+    "&lt;/ul&gt;";
+msg.plaintext = "温度アラート: 現在値 " + msg.temperature + "°C（閾値: 50°C）";
+return msg;</div>
+
+        <h4>添付ファイル付きメール送信</h4>
+        <div class="code-block">// 添付ファイル付きメール
+msg.to = "recipient@example.com";
+msg.topic = "レポート添付";
+msg.payload = "日次レポートを添付します。";
+msg.attachments = [
+    {
+        filename: "report.csv",
+        content: "日時,温度,湿度\n2025-01-01 10:00,25.3,60\n2025-01-01 11:00,26.1,58",
+        contentType: "text/csv"
+    }
+];
+return msg;</div>
+
+        <div class="tip">
+            <p><strong>💡 ヒント:</strong> <code>msg.payload</code>にBuffer（バイナリデータ）を設定すると、自動的に添付ファイルとして送信されます。その場合、<code>msg.filename</code>でファイル名を指定できます。</p>
+        </div>
+
+        <h2 id="section4">📥 4. e-mail in（受信）ノード</h2>
+
+        <p>IMAP4またはPOP3プロトコルを使用してメールを受信する入力ノードです。定期的にサーバーをポーリングし、新着メールをメッセージとして出力します。</p>
+
+        <h3>ノード設定プロパティ</h3>
+
+        <table>
+            <tr>
+                <th>プロパティ</th>
+                <th>型</th>
+                <th>説明</th>
+            </tr>
+            <tr>
+                <td><strong>Protocol</strong></td>
+                <td>select</td>
+                <td>受信プロトコル（IMAP4またはPOP3）</td>
+            </tr>
+            <tr>
+                <td><strong>Server</strong></td>
+                <td>string</td>
+                <td>受信サーバーのホスト名（例: imap.gmail.com）</td>
+            </tr>
+            <tr>
+                <td><strong>Port</strong></td>
+                <td>number</td>
+                <td>ポート番号（IMAP: 993, POP3: 995）</td>
+            </tr>
+            <tr>
+                <td><strong>Use Secure Connection</strong></td>
+                <td>boolean</td>
+                <td>SSL/TLS接続を使用</td>
+            </tr>
+            <tr>
+                <td><strong>Userid</strong></td>
+                <td>string</td>
+                <td>メールアカウントのユーザーID</td>
+            </tr>
+            <tr>
+                <td><strong>Password</strong></td>
+                <td>string</td>
+                <td>メールアカウントのパスワード</td>
+            </tr>
+            <tr>
+                <td><strong>Folder</strong></td>
+                <td>string</td>
+                <td>監視するフォルダ（IMAP4の場合。デフォルト: INBOX）</td>
+            </tr>
+            <tr>
+                <td><strong>Disposition</strong></td>
+                <td>select</td>
+                <td>受信後のメール処理（None / Mark Read / Delete）</td>
+            </tr>
+            <tr>
+                <td><strong>Name</strong></td>
+                <td>string</td>
+                <td>エディタ上での表示名</td>
+            </tr>
+        </table>
+
+        <h3>出力メッセージプロパティ</h3>
+
+        <table>
+            <tr>
+                <th>プロパティ</th>
+                <th>型</th>
+                <th>説明</th>
+            </tr>
+            <tr>
+                <td><strong>msg.payload</strong></td>
+                <td>string</td>
+                <td>メール本文（プレーンテキスト）</td>
+            </tr>
+            <tr>
+                <td><strong>msg.html</strong></td>
+                <td>string</td>
+                <td>HTML形式の本文（存在する場合）</td>
+            </tr>
+            <tr>
+                <td><strong>msg.topic</strong></td>
+                <td>string</td>
+                <td>メールの件名</td>
+            </tr>
+            <tr>
+                <td><strong>msg.from</strong></td>
+                <td>string</td>
+                <td>送信者アドレス</td>
+            </tr>
+            <tr>
+                <td><strong>msg.date</strong></td>
+                <td>string</td>
+                <td>メールの日時</td>
+            </tr>
+            <tr>
+                <td><strong>msg.header</strong></td>
+                <td>object</td>
+                <td>完全なヘッダーオブジェクト（to, cc等を含む）</td>
+            </tr>
+            <tr>
+                <td><strong>msg.attachments</strong></td>
+                <td>array</td>
+                <td>添付ファイルの配列</td>
+            </tr>
+        </table>
+
+        <h4>添付ファイルオブジェクトの構造</h4>
+        <div class="code-block">// msg.attachments[0] の例
+{
+    "contentType": "application/pdf",
+    "fileName": "document.pdf",
+    "contentDisposition": "attachment",
+    "transferEncoding": "base64",
+    "length": 102400,
+    "generatedFileName": "document.pdf",
+    "content": &lt;Buffer&gt;  // バイナリデータ
+}</div>
+
+        <h3>受信フロー例</h3>
+
+        <div class="node-example">
+            <span class="node node-email-in">e-mail in</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">debug</span>
+        </div>
+
+        <div class="node-example">
+            <span class="node node-email-in">e-mail in</span>
+            <span class="arrow">→</span>
+            <span class="node node-switch">件名フィルタ</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">処理</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">debug</span>
+        </div>
+
+        <h4>受信メールの解析</h4>
+        <div class="code-block">// Functionノードで受信メールを解析
+var subject = msg.topic;
+var from = msg.from;
+var body = msg.payload;
+var date = msg.date;
+
+node.warn("件名: " + subject);
+node.warn("送信者: " + from);
+node.warn("日時: " + date);
+
+// 添付ファイルがある場合
+if (msg.attachments &amp;&amp; msg.attachments.length > 0) {
+    msg.attachments.forEach(function(att) {
+        node.warn("添付: " + att.fileName + " (" + att.contentType + ")");
+    });
+}
+
+return msg;</div>
+
+        <h2 id="section5">🔐 5. 認証設定</h2>
+
+        <h3>主要メールサービスの設定</h3>
+
+        <div class="protocol-box">
+            <h4>📧 Gmail</h4>
+            <p>送信: <code>smtp.gmail.com</code> ポート: <code>465</code>（SSL）</p>
+            <p>受信: <code>imap.gmail.com</code> ポート: <code>993</code>（SSL）</p>
+            <p>認証: アプリパスワードが必要（2段階認証を有効化した上で生成）</p>
+        </div>
+
+        <div class="protocol-box">
+            <h4>📧 Outlook / Office 365</h4>
+            <p>送信: <code>smtp.office365.com</code> ポート: <code>587</code>（STARTTLS）</p>
+            <p>受信: <code>outlook.office365.com</code> ポート: <code>993</code>（SSL）</p>
+            <p>認証: OAuth2.0が必要な場合あり</p>
+        </div>
+
+        <div class="protocol-box">
+            <h4>📧 Yahoo! Mail</h4>
+            <p>送信: <code>smtp.mail.yahoo.co.jp</code> ポート: <code>465</code>（SSL）</p>
+            <p>受信: <code>imap.mail.yahoo.co.jp</code> ポート: <code>993</code>（SSL）</p>
+        </div>
+
+        <div class="warning">
+            <p><strong>⚠️ Gmailのアプリパスワード設定手順:</strong></p>
+            <ol>
+                <li>Googleアカウント設定 → <strong>セキュリティ</strong></li>
+                <li><strong>2段階認証プロセス</strong>を有効化</li>
+                <li>セキュリティ → <strong>アプリパスワード</strong>を選択</li>
+                <li>アプリ名を入力して<strong>作成</strong>をクリック</li>
+                <li>生成された16文字のパスワードをNode-REDのPassword欄に入力</li>
+            </ol>
+            <p><strong>注意:</strong> 通常のGmailパスワードは使用できません。必ずアプリパスワードを使用してください。</p>
+        </div>
+
+        <h3>IMAP vs POP3 の比較</h3>
+
+        <table>
+            <tr>
+                <th>項目</th>
+                <th>IMAP4</th>
+                <th>POP3</th>
+            </tr>
+            <tr>
+                <td>メール保管</td>
+                <td>サーバーに残る</td>
+                <td>ダウンロード後に削除可能</td>
+            </tr>
+            <tr>
+                <td>フォルダ管理</td>
+                <td>対応（INBOX以外も指定可）</td>
+                <td>非対応（INBOXのみ）</td>
+            </tr>
+            <tr>
+                <td>複数デバイス</td>
+                <td>同期される</td>
+                <td>同期されない</td>
+            </tr>
+            <tr>
+                <td>推奨用途</td>
+                <td>一般的な監視用途</td>
+                <td>ダウンロード後に処理する場合</td>
+            </tr>
+            <tr>
+                <td>デフォルトポート</td>
+                <td>993（SSL）</td>
+                <td>995（SSL）</td>
+            </tr>
+        </table>
+
+        <div class="tip">
+            <p><strong>💡 推奨:</strong> 特別な理由がない限り<strong>IMAP4</strong>を使用してください。サーバー上のメール状態管理が容易で、フォルダ指定も可能です。</p>
+        </div>
+
+        <h2 id="section6">🛠️ 6. 実用的な使用パターン</h2>
+
+        <h3>パターン1: IoTセンサーアラート通知</h3>
+        <p>センサーの値が閾値を超えた場合にメールで通知します。</p>
+
+        <div class="node-example">
+            <span class="node node-inject">センサー値</span>
+            <span class="arrow">→</span>
+            <span class="node node-switch">閾値チェック</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">アラート作成</span>
+            <span class="arrow">→</span>
+            <span class="node node-email-out">e-mail</span>
+        </div>
+
+        <div class="code-block">// Functionノード: アラートメール作成
+msg.to = "admin@example.com";
+msg.topic = "[ALERT] 温度異常検知 - " + new Date().toLocaleString('ja-JP');
+msg.payload = "&lt;h2 style='color:red'&gt;温度アラート&lt;/h2&gt;" +
+    "&lt;p&gt;検知時刻: " + new Date().toLocaleString('ja-JP') + "&lt;/p&gt;" +
+    "&lt;p&gt;センサーID: sensor-01&lt;/p&gt;" +
+    "&lt;p&gt;現在温度: &lt;strong&gt;" + msg.payload + "°C&lt;/strong&gt;&lt;/p&gt;" +
+    "&lt;p&gt;閾値: 50°C&lt;/p&gt;" +
+    "&lt;hr&gt;" +
+    "&lt;p style='color:gray'&gt;このメールはNode-REDから自動送信されています。&lt;/p&gt;";
+return msg;</div>
+
+        <h3>パターン2: 定期レポート送信</h3>
+        <p>定期的にデータを収集し、レポートとしてメール送信します。</p>
+
+        <div class="node-example">
+            <span class="node node-inject">毎日9:00</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">データ収集</span>
+            <span class="arrow">→</span>
+            <span class="node node-template">レポート生成</span>
+            <span class="arrow">→</span>
+            <span class="node node-email-out">e-mail</span>
+        </div>
+
+        <div class="code-block">// Functionノード: 日次レポートデータの整形
+var now = new Date();
+var dateStr = now.toLocaleDateString('ja-JP');
+
+msg.to = "team@example.com";
+msg.topic = "日次レポート - " + dateStr;
+
+// CSV添付ファイルを作成
+var csvData = "時刻,温度,湿度,気圧\n";
+// flow.get("dailyData") からデータを取得する例
+var data = flow.get("dailyData") || [];
+data.forEach(function(row) {
+    csvData += row.time + "," + row.temp + "," + row.humidity + "," + row.pressure + "\n";
+});
+
+msg.payload = "本日（" + dateStr + "）の計測レポートを添付します。";
+msg.attachments = [{
+    filename: "report_" + dateStr.replace(/\//g, '-') + ".csv",
+    content: csvData,
+    contentType: "text/csv"
+}];
+
+return msg;</div>
+
+        <h3>パターン3: メール受信によるコマンド実行</h3>
+        <p>特定の件名のメールを受信してアクションを実行します。</p>
+
+        <div class="node-example">
+            <span class="node node-email-in">e-mail in</span>
+            <span class="arrow">→</span>
+            <span class="node node-switch">件名判定</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">コマンド実行</span>
+            <span class="arrow">→</span>
+            <span class="node node-email-out">結果返信</span>
+        </div>
+
+        <div class="code-block">// Switchノードの設定:
+// msg.topic が "STATUS" を含む → 出力1
+// msg.topic が "RESTART" を含む → 出力2
+// それ以外 → 出力3
+
+// Functionノード: ステータス確認コマンド
+var status = {
+    uptime: process.uptime(),
+    memory: process.memoryUsage(),
+    timestamp: new Date().toLocaleString('ja-JP')
+};
+
+msg.to = msg.from;  // 送信者に返信
+msg.topic = "Re: " + msg.topic;
+msg.payload = "システムステータス:\n" +
+    "稼働時間: " + Math.floor(status.uptime / 3600) + "時間\n" +
+    "メモリ使用量: " + Math.floor(status.memory.heapUsed / 1024 / 1024) + "MB\n" +
+    "確認時刻: " + status.timestamp;
+return msg;</div>
+
+        <h3>パターン4: 連続送信制限（レートリミット）</h3>
+        <p>短時間に大量のアラートが発生しても、メール送信を一定間隔に制限します。</p>
+
+        <div class="node-example">
+            <span class="node node-inject">アラート</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">重複チェック</span>
+            <span class="arrow">→</span>
+            <span class="node node-email-out">e-mail</span>
+        </div>
+
+        <div class="code-block">// Functionノード: 5分間に1回のみ送信
+var lastSent = context.get("lastSent") || 0;
+var now = Date.now();
+var interval = 5 * 60 * 1000; // 5分
+
+if (now - lastSent > interval) {
+    context.set("lastSent", now);
+    msg.to = "admin@example.com";
+    msg.topic = "[ALERT] 異常検知";
+    msg.payload = "異常が検知されました。\n時刻: " + new Date().toLocaleString('ja-JP');
+    return msg;
+} else {
+    // 制限中は送信しない
+    return null;
+}</div>
+
+        <h2 id="section7">📝 7. 演習問題</h2>
+
+        <div class="exercise">
+            <h3>演習1: テストメール送信<span class="difficulty difficulty-easy">初級</span></h3>
+
+            <p><strong>課題:</strong></p>
+            <p>Injectノードのボタンクリックで、テストメールを送信するフローを作成してください。</p>
+
+            <p><strong>要件:</strong></p>
+            <ul>
+                <li>Changeノードで件名と本文を設定する</li>
+                <li>件名: 「Node-RED テストメール」</li>
+                <li>本文: 「このメールはNode-REDから送信されたテストです。送信時刻: [現在時刻]」</li>
+                <li>宛先はe-mailノードの設定画面で指定する</li>
+            </ul>
+
+            <details>
+                <summary>💡 ヒント</summary>
+                <ul>
+                    <li>Changeノードで<code>msg.topic</code>に件名を設定</li>
+                    <li>Changeノードで<code>msg.payload</code>に本文を設定</li>
+                    <li>e-mailノードのTo欄に宛先を設定</li>
+                    <li>Server, Port, Userid, Passwordを正しく設定</li>
+                </ul>
+            </details>
+
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json"><button class="copy-button" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>Copy</button>[
+    {
+        "id": "email_ex1_inject",
+        "type": "inject",
+        "name": "テスト送信",
+        "props": [],
+        "repeat": "",
+        "wires": [["email_ex1_change"]]
+    },
+    {
+        "id": "email_ex1_change",
+        "type": "change",
+        "name": "件名・本文設定",
+        "rules": [
+            {
+                "t": "set",
+                "p": "topic",
+                "pt": "msg",
+                "to": "Node-RED テストメール",
+                "tot": "str"
+            },
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "$join(['このメールはNode-REDから送信されたテストです。送信時刻: ', $now()])",
+                "tot": "jsonata"
+            }
+        ],
+        "wires": [["email_ex1_send"]]
+    },
+    {
+        "id": "email_ex1_send",
+        "type": "e-mail",
+        "name": "テストメール送信",
+        "server": "smtp.gmail.com",
+        "port": "465",
+        "secure": true,
+        "tls": true,
+        "dname": "",
+        "to": "your-email@example.com",
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+
+        <div class="exercise">
+            <h3>演習2: 閾値アラート通知<span class="difficulty difficulty-medium">中級</span></h3>
+
+            <p><strong>課題:</strong></p>
+            <p>温度センサーの値が設定した閾値を超えた場合にHTMLメールで通知するフローを作成してください。</p>
+
+            <p><strong>要件:</strong></p>
+            <ul>
+                <li>Injectノードでランダムな温度値（20〜60）を生成</li>
+                <li>Switchノードで50°C以上を検知</li>
+                <li>FunctionノードでHTMLメール本文を生成</li>
+                <li>メール本文に温度値と検知時刻を含める</li>
+                <li>5分間に1回のみ送信するレートリミットを実装</li>
+            </ul>
+
+            <details>
+                <summary>💡 ヒント</summary>
+                <ul>
+                    <li>Injectノードの<code>msg.payload</code>をJSONata式で<code>$floor($random() * 40 + 20)</code>に設定</li>
+                    <li>Switchノードで<code>msg.payload >= 50</code>を条件にする</li>
+                    <li>Functionノードで<code>context.get("lastSent")</code>でレートリミット制御</li>
+                    <li>HTML本文では<code>&lt;h2&gt;</code>や<code>&lt;strong&gt;</code>タグで視認性を高める</li>
+                </ul>
+            </details>
+
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json"><button class="copy-button" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>Copy</button>[
+    {
+        "id": "email_ex2_inject",
+        "type": "inject",
+        "name": "ランダム温度",
+        "props": [{"p": "payload"}],
+        "payload": "$floor($random() * 40 + 20)",
+        "payloadType": "jsonata",
+        "repeat": "10",
+        "wires": [["email_ex2_switch"]]
+    },
+    {
+        "id": "email_ex2_switch",
+        "type": "switch",
+        "name": "50°C以上?",
+        "property": "payload",
+        "rules": [{"t": "gte", "v": "50", "vt": "num"}],
+        "wires": [["email_ex2_func"]]
+    },
+    {
+        "id": "email_ex2_func",
+        "type": "function",
+        "name": "アラートメール作成",
+        "func": "var lastSent = context.get('lastSent') || 0;\nvar now = Date.now();\nvar interval = 5 * 60 * 1000;\n\nif (now - lastSent > interval) {\n    context.set('lastSent', now);\n    var temp = msg.payload;\n    msg.to = 'admin@example.com';\n    msg.topic = '[ALERT] 温度異常: ' + temp + '°C';\n    msg.payload = '<h2 style=\"color:red\">温度アラート</h2>' +\n        '<p>センサーの温度が閾値を超えました。</p>' +\n        '<ul>' +\n        '<li>現在温度: <strong>' + temp + '°C</strong></li>' +\n        '<li>閾値: 50°C</li>' +\n        '<li>検知時刻: ' + new Date().toLocaleString('ja-JP') + '</li>' +\n        '</ul>' +\n        '<hr><p style=\"color:gray\">このメールはNode-REDから自動送信されています。</p>';\n    return msg;\n}\nreturn null;",
+        "outputs": 1,
+        "wires": [["email_ex2_send"]]
+    },
+    {
+        "id": "email_ex2_send",
+        "type": "e-mail",
+        "name": "アラート送信",
+        "server": "smtp.gmail.com",
+        "port": "465",
+        "secure": true,
+        "tls": true,
+        "to": "admin@example.com",
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+
+        <div class="exercise">
+            <h3>演習3: メール受信による機器制御<span class="difficulty difficulty-hard">上級</span></h3>
+
+            <p><strong>課題:</strong></p>
+            <p>特定の件名のメールを受信して機器の操作コマンドとして処理し、結果を返信するフローを作成してください。</p>
+
+            <p><strong>要件:</strong></p>
+            <ul>
+                <li>e-mail inノードでメールを受信</li>
+                <li>件名に「STATUS」を含むメールを受信したらシステム情報を返信</li>
+                <li>件名に「REPORT」を含むメールを受信したら保存データをCSVで返信</li>
+                <li>上記以外のメールは無視する</li>
+                <li>返信先は受信メールの送信者アドレスにする</li>
+            </ul>
+
+            <details>
+                <summary>💡 ヒント</summary>
+                <ul>
+                    <li>Switchノードで<code>msg.topic</code>に対して「contains」条件を使用</li>
+                    <li><code>msg.from</code>を<code>msg.to</code>にコピーして返信先を設定</li>
+                    <li>CSVデータは<code>msg.attachments</code>に設定する</li>
+                    <li><code>process.uptime()</code>や<code>process.memoryUsage()</code>でシステム情報を取得</li>
+                </ul>
+            </details>
+
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json"><button class="copy-button" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>Copy</button>[
+    {
+        "id": "email_ex3_in",
+        "type": "e-mail in",
+        "name": "コマンド受信",
+        "protocol": "IMAP",
+        "server": "imap.gmail.com",
+        "port": "993",
+        "secure": true,
+        "useSSL": true,
+        "disposition": "Read",
+        "wires": [["email_ex3_switch"]]
+    },
+    {
+        "id": "email_ex3_switch",
+        "type": "switch",
+        "name": "コマンド判定",
+        "property": "topic",
+        "rules": [
+            {"t": "cont", "v": "STATUS", "vt": "str"},
+            {"t": "cont", "v": "REPORT", "vt": "str"}
+        ],
+        "checkall": "false",
+        "wires": [["email_ex3_status"], ["email_ex3_report"]]
+    },
+    {
+        "id": "email_ex3_status",
+        "type": "function",
+        "name": "ステータス返信",
+        "func": "var uptime = process.uptime();\nvar hours = Math.floor(uptime / 3600);\nvar mins = Math.floor((uptime % 3600) / 60);\nvar mem = process.memoryUsage();\n\nmsg.to = msg.from;\nmsg.topic = 'Re: ' + msg.topic;\nmsg.payload = 'システムステータスレポート\\n' +\n    '========================\\n' +\n    '稼働時間: ' + hours + '時間' + mins + '分\\n' +\n    'メモリ使用量: ' + Math.floor(mem.heapUsed / 1024 / 1024) + 'MB / ' + Math.floor(mem.heapTotal / 1024 / 1024) + 'MB\\n' +\n    '確認時刻: ' + new Date().toLocaleString('ja-JP');\nreturn msg;",
+        "wires": [["email_ex3_send"]]
+    },
+    {
+        "id": "email_ex3_report",
+        "type": "function",
+        "name": "レポート返信",
+        "func": "var data = flow.get('sensorData') || [\n    {time: '10:00', temp: 25.3, humidity: 60},\n    {time: '11:00', temp: 26.1, humidity: 58},\n    {time: '12:00', temp: 27.5, humidity: 55}\n];\n\nvar csv = '時刻,温度,湿度\\n';\ndata.forEach(function(row) {\n    csv += row.time + ',' + row.temp + ',' + row.humidity + '\\n';\n});\n\nmsg.to = msg.from;\nmsg.topic = 'Re: ' + msg.topic;\nmsg.payload = '計測データレポートを添付します。';\nmsg.attachments = [{\n    filename: 'report_' + new Date().toISOString().slice(0,10) + '.csv',\n    content: csv,\n    contentType: 'text/csv'\n}];\nreturn msg;",
+        "wires": [["email_ex3_send"]]
+    },
+    {
+        "id": "email_ex3_send",
+        "type": "e-mail",
+        "name": "返信送信",
+        "server": "smtp.gmail.com",
+        "port": "465",
+        "secure": true,
+        "tls": true,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+
+        <h2 id="section8">🔧 8. トラブルシューティング</h2>
+
+        <table>
+            <tr>
+                <th>問題</th>
+                <th>原因</th>
+                <th>解決方法</th>
+            </tr>
+            <tr>
+                <td>メールが送信されない</td>
+                <td>SMTP認証エラー</td>
+                <td>アプリパスワード（Gmail）を使用する。ユーザーIDとパスワードを再確認する</td>
+            </tr>
+            <tr>
+                <td>「Connection refused」エラー</td>
+                <td>サーバーアドレスまたはポート番号が間違い</td>
+                <td>正しいサーバー名・ポート番号を設定する（Gmail送信: smtp.gmail.com:465）</td>
+            </tr>
+            <tr>
+                <td>「Authentication failed」エラー</td>
+                <td>パスワードが通常のパスワード</td>
+                <td>Gmailの場合はアプリパスワードを生成して使用する</td>
+            </tr>
+            <tr>
+                <td>メール受信が動作しない</td>
+                <td>IMAPが無効化されている</td>
+                <td>メールサービスの設定でIMAP/POP3アクセスを有効化する</td>
+            </tr>
+            <tr>
+                <td>SSL/TLS接続エラー</td>
+                <td>ポートとSSL設定の不一致</td>
+                <td>ポート465はSSL=ON、ポート587はSSL=OFF（STARTTLSが自動使用される）</td>
+            </tr>
+            <tr>
+                <td>添付ファイルが届かない</td>
+                <td>attachmentsの形式が不正</td>
+                <td>nodemailer形式（filename, content, contentType）で指定する</td>
+            </tr>
+            <tr>
+                <td>HTMLメールがテキストで表示される</td>
+                <td>Content-Typeが設定されていない</td>
+                <td>msg.payloadにHTMLを設定すると自動的にHTML形式で送信される</td>
+            </tr>
+            <tr>
+                <td>受信ポーリングが頻繁すぎる</td>
+                <td>デフォルト設定</td>
+                <td>e-mail inノードの設定でポーリング間隔を調整する</td>
+            </tr>
+            <tr>
+                <td>ノードがパレットに表示されない</td>
+                <td>インストール失敗またはNode-RED未再起動</td>
+                <td>npm installのエラーログを確認し、Node-REDを再起動する</td>
+            </tr>
+            <tr>
+                <td>OAuth2エラー（Outlook）</td>
+                <td>基本認証が無効化されている</td>
+                <td>OAuth2.0認証トークンをmsg経由で渡す設定を行う</td>
+            </tr>
+        </table>
+
+        <h2 id="section9">📝 9. ベストプラクティス</h2>
+
+        <div class="tip">
+            <p><strong>✅ 推奨事項:</strong></p>
+            <ul>
+                <li><strong>アプリパスワードの使用:</strong> Gmail等では通常パスワードではなくアプリパスワードを使用する</li>
+                <li><strong>レートリミットの実装:</strong> アラート通知には必ず送信間隔制限を設けて大量送信を防ぐ</li>
+                <li><strong>エラーハンドリング:</strong> Catchノードを接続してメール送信失敗時のリトライや通知を実装する</li>
+                <li><strong>件名の明確化:</strong> 自動送信メールには[NODE-RED]等の接頭辞を付けて識別しやすくする</li>
+                <li><strong>HTMLとプレーンテキストの両方:</strong> HTMLメール送信時は<code>msg.plaintext</code>も設定してテキストのみ対応のクライアントに配慮する</li>
+                <li><strong>IMAPの使用:</strong> 受信にはPOP3よりIMAPを推奨（フォルダ管理、状態同期が可能）</li>
+            </ul>
+        </div>
+
+        <div class="warning">
+            <p><strong>⚠️ 注意事項:</strong></p>
+            <ul>
+                <li><strong>セキュリティ:</strong> パスワードはNode-REDの認証情報管理（credentials）で安全に保管される。フローのエクスポート時にパスワードは含まれない</li>
+                <li><strong>送信制限:</strong> GmailのSMTPには1日あたりの送信数制限（500通/日）があるため、大量送信には向かない</li>
+                <li><strong>ポーリング負荷:</strong> e-mail inノードのポーリング間隔を短くしすぎるとサーバーに負荷がかかる。最低30秒以上を推奨</li>
+                <li><strong>添付ファイルサイズ:</strong> 大きな添付ファイルはメールサーバーの制限（通常25MB）に注意する</li>
+                <li><strong>スパム判定:</strong> 自動送信メールはスパムフィルターに引っかかる場合がある。送信元アドレスとSPF/DKIM設定を確認する</li>
+            </ul>
+        </div>
+
+        <h2 id="section10">🔗 10. 追加リソース</h2>
+
+        <ul>
+            <li><a href="https://flows.nodered.org/node/node-red-node-email" target="_blank">Node-RED Flow Library: node-red-node-email</a></li>
+            <li><a href="https://github.com/node-red/node-red-nodes/tree/master/social/email" target="_blank">GitHub リポジトリ（node-red-nodes/social/email）</a></li>
+            <li><a href="https://www.npmjs.com/package/node-red-node-email" target="_blank">npm: node-red-node-email</a></li>
+            <li><a href="https://nodemailer.com/" target="_blank">Nodemailer ドキュメント（内部利用ライブラリ）</a></li>
+            <li><a href="nodered-function-node-guide.html">Function ノードガイド</a></li>
+            <li><a href="nodered-inject-node-guide.html">Inject ノードガイド</a></li>
+            <li><a href="nodered-catch-node-guide.html">Catch ノードガイド</a></li>
+        </ul>
+
+        <a href="index.html" style="position: fixed; bottom: 20px; right: 20px; background-color: #b92d5d; color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); z-index: 1000;" title="ホームに戻る">🏠</a>
+    </div>
+
+    <script>
+        function copyCode(button) {
+            const codeBlock = button.parentElement;
+            const code = codeBlock.textContent.replace('Copy', '').trim();
+
+            navigator.clipboard.writeText(code).then(function() {
+                button.classList.add('copied');
+                button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>Copied!';
+                setTimeout(function() {
+                    button.classList.remove('copied');
+                    button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>Copy';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
