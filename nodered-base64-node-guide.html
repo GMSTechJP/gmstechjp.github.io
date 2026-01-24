@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED base64 ノードガイド</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.8; max-width: 1000px; margin: 0 auto; padding: 20px; background-color: #f5f5f5; color: #333; }
+        h1 { color: #b92d5d; border-bottom: 3px solid #b92d5d; padding-bottom: 10px; }
+        h2 { color: #d33682; margin-top: 40px; border-left: 5px solid #d33682; padding-left: 15px; }
+        h3 { color: #555; margin-top: 25px; }
+        h4 { color: #666; margin-top: 20px; }
+        .container { background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .node-example { background-color: #2d3133; padding: 20px; border-radius: 5px; margin: 20px 0; color: white; font-family: 'Courier New', monospace; display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
+        .node { display: inline-block; padding: 8px 15px; border-radius: 4px; margin: 5px; font-weight: bold; font-size: 14px; }
+        .node-inject { background-color: #3fadb5; color: white; }
+        .node-debug { background-color: #87a48d; color: white; }
+        .node-function { background-color: #e8a658; color: white; }
+        .node-change { background-color: #e7a070; color: white; }
+        .node-base64 { background-color: #DEBD5C; color: #333; }
+        .node-http-request { background-color: #e8d44d; color: #333; }
+        .node-file { background-color: #d4b8a0; color: #333; }
+        .node-template { background-color: #e8a658; color: white; }
+        .arrow { color: #999; font-size: 20px; margin: 0 10px; }
+        .important { background-color: #fce4ec; border-left: 4px solid #b92d5d; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .tip { background-color: #e8f5e9; border-left: 4px solid #4caf50; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .warning { background-color: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .code-block { background-color: #2d3133; color: #f8f8f2; padding: 15px; border-radius: 5px; margin: 15px 0; overflow-x: auto; font-family: 'Courier New', Consolas, monospace; font-size: 14px; white-space: pre; }
+        .flow-json { background-color: #1a1a2e; color: #a6e22e; padding: 15px; border-radius: 5px; font-family: 'Courier New', Consolas, monospace; font-size: 12px; overflow-x: auto; white-space: pre; position: relative; max-height: 400px; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #b92d5d; color: white; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .exercise { background-color: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0; border: 2px solid #2196f3; }
+        .exercise h3 { color: #1976d2; margin-top: 0; }
+        .difficulty { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; margin-left: 10px; }
+        .difficulty-easy { background-color: #c8e6c9; color: #2e7d32; }
+        .difficulty-medium { background-color: #fff9c4; color: #f57f17; }
+        .difficulty-hard { background-color: #ffcdd2; color: #c62828; }
+        details { background-color: #f5f5f5; padding: 10px 15px; border-radius: 5px; margin: 10px 0; }
+        details summary { cursor: pointer; font-weight: bold; color: #1976d2; }
+        details[open] summary { margin-bottom: 10px; }
+        .toc { background-color: #fafafa; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .toc h3 { margin-top: 0; color: #b92d5d; }
+        .toc ul { list-style: none; padding-left: 0; }
+        .toc li { padding: 5px 0; }
+        .toc a { color: #1976d2; text-decoration: none; }
+        .toc a:hover { text-decoration: underline; }
+        .copy-button { position: absolute; top: 8px; right: 8px; padding: 6px 12px; background-color: #b92d5d; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-family: 'Segoe UI', sans-serif; transition: background-color 0.2s; z-index: 10; display: flex; align-items: center; gap: 4px; }
+        .copy-button:hover { background-color: #9a2550; }
+        .copy-button.copied { background-color: #28a745; }
+        .copy-button svg { width: 14px; height: 14px; fill: currentColor; }
+        .node-compare { display: flex; gap: 20px; flex-wrap: wrap; margin: 20px 0; }
+        .node-card { background: #f9f9f9; border: 1px solid #ddd; border-radius: 8px; padding: 15px; flex: 1; min-width: 280px; }
+        .node-card h4 { margin-top: 0; color: #b92d5d; }
+        .conversion-diagram { background: #f8f9fa; border: 2px solid #DEBD5C; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center; }
+        .conversion-diagram .arrow-down { font-size: 24px; color: #DEBD5C; margin: 10px 0; }
+        .conversion-diagram .data-box { display: inline-block; padding: 10px 20px; border-radius: 6px; margin: 5px; font-family: 'Courier New', monospace; font-size: 13px; }
+        .data-box.buffer { background: #e3f2fd; border: 1px solid #2196f3; color: #1565c0; }
+        .data-box.base64-str { background: #fff8e1; border: 1px solid #ffc107; color: #e65100; }
+        .data-box.plain-str { background: #e8f5e9; border: 1px solid #4caf50; color: #2e7d32; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 Node-RED base64 ノードガイド</h1>
+
+        <div class="toc">
+            <h3>📚 目次</h3>
+            <ul>
+                <li><a href="#section1">1. 概要</a></li>
+                <li><a href="#section2">2. インストール</a></li>
+                <li><a href="#section3">3. ノード設定プロパティ</a></li>
+                <li><a href="#section4">4. 変換動作の詳細</a></li>
+                <li><a href="#section5">5. 実用的な使用パターン</a></li>
+                <li><a href="#section6">6. 演習問題</a></li>
+                <li><a href="#section7">7. トラブルシューティング</a></li>
+                <li><a href="#section8">8. ベストプラクティス</a></li>
+                <li><a href="#section9">9. 追加リソース</a></li>
+            </ul>
+        </div>
+
+        <div class="important">
+            <p><strong>📦 パッケージ情報:</strong></p>
+            <ul>
+                <li><strong>パッケージ名:</strong> node-red-node-base64</li>
+                <li><strong>種別:</strong> Node-RED公式アドオンノード（node-red-nodesコレクション）</li>
+                <li><strong>カテゴリ:</strong> parser</li>
+                <li><strong>ライセンス:</strong> Apache-2.0</li>
+            </ul>
+        </div>
+
+        <h2 id="section1">📖 1. 概要</h2>
+
+        <p><code>node-red-node-base64</code>は、<strong>Base64エンコード/デコード</strong>を行うパーサーノードです。バイナリデータ（Buffer）とBase64文字列を相互変換します。</p>
+
+        <h3>Base64とは</h3>
+        <p>Base64は、バイナリデータを<strong>ASCII文字列に変換</strong>するエンコード方式です。画像やファイルなどのバイナリデータを、テキストベースのプロトコル（JSON、HTTP、MQTT等）で安全に送受信するために使用されます。</p>
+
+        <div class="conversion-diagram">
+            <div>
+                <span class="data-box buffer">Buffer（バイナリ）</span>
+            </div>
+            <div class="arrow-down">⇅ base64ノード</div>
+            <div>
+                <span class="data-box base64-str">Base64文字列</span>
+            </div>
+        </div>
+
+        <h3>荷物の梱包に例えると</h3>
+        <ul>
+            <li><strong>エンコード（Buffer → Base64）</strong>= 壊れやすい荷物を緩衝材で包んで安全に送れる形にする</li>
+            <li><strong>デコード（Base64 → Buffer）</strong>= 届いた荷物から緩衝材を外して中身を取り出す</li>
+        </ul>
+
+        <div class="node-example">
+            <span class="node node-inject">バイナリデータ</span>
+            <span class="arrow">→</span>
+            <span class="node node-base64">base64</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">debug</span>
+        </div>
+
+        <h2 id="section2">🔧 2. インストール</h2>
+
+        <h3>方法1: パレットマネージャー（推奨）</h3>
+        <ol>
+            <li>Node-REDエディタのメニュー → <strong>パレットの管理</strong></li>
+            <li><strong>ノードを追加</strong>タブを選択</li>
+            <li><code>node-red-node-base64</code> を検索</li>
+            <li><strong>ノードを追加</strong>ボタンをクリック</li>
+        </ol>
+
+        <h3>方法2: コマンドライン</h3>
+        <div class="code-block">cd ~/.node-red
+npm install node-red-node-base64</div>
+
+        <p>インストール後、Node-REDを再起動するとパレットの<strong>「parser」</strong>カテゴリにノードが追加されます。</p>
+
+        <h2 id="section3">⚙️ 3. ノード設定プロパティ</h2>
+
+        <table>
+            <tr>
+                <th>プロパティ</th>
+                <th>型</th>
+                <th>デフォルト</th>
+                <th>説明</th>
+            </tr>
+            <tr>
+                <td><strong>Action</strong></td>
+                <td>select</td>
+                <td>Convert to/from buffer</td>
+                <td>変換モード（自動判定 / エンコード / デコード）</td>
+            </tr>
+            <tr>
+                <td><strong>Property</strong></td>
+                <td>typedInput</td>
+                <td>msg.payload</td>
+                <td>操作対象のメッセージプロパティ</td>
+            </tr>
+            <tr>
+                <td><strong>Name</strong></td>
+                <td>string</td>
+                <td>（空）</td>
+                <td>エディタ上での表示名</td>
+            </tr>
+        </table>
+
+        <h3>Actionモードの詳細</h3>
+
+        <table>
+            <tr>
+                <th>モード</th>
+                <th>動作</th>
+                <th>用途</th>
+            </tr>
+            <tr>
+                <td><strong>Convert to/from buffer</strong>（自動判定）</td>
+                <td>入力の型に応じてエンコードまたはデコードを自動選択</td>
+                <td>汎用的な変換処理</td>
+            </tr>
+            <tr>
+                <td><strong>Encode to base64</strong></td>
+                <td>入力を常にBase64文字列にエンコード</td>
+                <td>確実にBase64化したい場合</td>
+            </tr>
+            <tr>
+                <td><strong>Decode from base64</strong></td>
+                <td>入力を常にBase64からデコード</td>
+                <td>確実にデコードしたい場合</td>
+            </tr>
+        </table>
+
+        <h2 id="section4">🔀 4. 変換動作の詳細</h2>
+
+        <h3>自動判定モード（デフォルト）の動作</h3>
+
+        <table>
+            <tr>
+                <th>入力データの型</th>
+                <th>出力結果</th>
+                <th>説明</th>
+            </tr>
+            <tr>
+                <td>Buffer（バイナリ）</td>
+                <td>Base64文字列</td>
+                <td>バイナリデータをBase64にエンコード</td>
+            </tr>
+            <tr>
+                <td>有効なBase64文字列</td>
+                <td>Buffer（バイナリ）</td>
+                <td>Base64文字列をバイナリにデコード</td>
+            </tr>
+            <tr>
+                <td>通常の文字列</td>
+                <td>Base64文字列</td>
+                <td>文字列をBase64にエンコード</td>
+            </tr>
+        </table>
+
+        <div class="tip">
+            <p><strong>💡 有効なBase64文字列の判定条件:</strong></p>
+            <ul>
+                <li>使用文字: <code>A-Z</code>, <code>a-z</code>, <code>0-9</code>, <code>+</code>, <code>/</code>, <code>=</code> のみ</li>
+                <li>文字列長が4の倍数であること</li>
+                <li>入力前にスペース・改行等の空白文字は自動的に除去される</li>
+            </ul>
+        </div>
+
+        <h3>変換の具体例</h3>
+
+        <h4>エンコード（文字列 → Base64）</h4>
+        <div class="code-block">入力: "Hello, Node-RED!"
+出力: "SGVsbG8sIE5vZGUtUkVEIQ=="</div>
+
+        <h4>エンコード（Buffer → Base64）</h4>
+        <div class="code-block">入力: Buffer.from([0x89, 0x50, 0x4E, 0x47])  // PNGヘッダー
+出力: "iVBORw=="</div>
+
+        <h4>デコード（Base64 → Buffer）</h4>
+        <div class="code-block">入力: "SGVsbG8sIE5vZGUtUkVEIQ=="
+出力: Buffer &lt;48 65 6c 6c 6f 2c 20 4e 6f 64 65 2d 52 45 44 21&gt;
+     （"Hello, Node-RED!" のバイナリ表現）</div>
+
+        <h3>Propertyの設定</h3>
+        <p>デフォルトでは<code>msg.payload</code>を変換しますが、任意のプロパティを指定できます。</p>
+
+        <div class="code-block">// 例: msg.data.image を変換対象に設定
+// Property欄に "msg.data.image" を指定
+
+// 入力
+msg.data = {
+    image: Buffer.from(imageData),
+    name: "photo.png"
+};
+
+// base64ノード通過後
+msg.data = {
+    image: "iVBORw0KGgoAAAANSUhEUg...",  // Base64文字列に変換
+    name: "photo.png"                      // 他のプロパティはそのまま
+};</div>
+
+        <h2 id="section5">🛠️ 5. 実用的な使用パターン</h2>
+
+        <h3>パターン1: 画像ファイルをBase64に変換してAPI送信</h3>
+        <p>画像ファイルを読み込み、Base64に変換してREST APIに送信します。</p>
+
+        <div class="node-example">
+            <span class="node node-file">file read</span>
+            <span class="arrow">→</span>
+            <span class="node node-base64">base64</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">JSON作成</span>
+            <span class="arrow">→</span>
+            <span class="node node-http-request">http request</span>
+        </div>
+
+        <div class="code-block">// Functionノード: Base64画像をJSON APIに送信
+msg.payload = {
+    "image": msg.payload,  // base64ノードで変換済み
+    "filename": msg.filename || "image.png",
+    "timestamp": new Date().toISOString()
+};
+msg.headers = { "Content-Type": "application/json" };
+return msg;</div>
+
+        <h3>パターン2: HTMLに画像を埋め込む（Data URI）</h3>
+        <p>画像をBase64に変換し、Data URIとしてHTMLに直接埋め込みます。</p>
+
+        <div class="node-example">
+            <span class="node node-file">file read</span>
+            <span class="arrow">→</span>
+            <span class="node node-base64">base64</span>
+            <span class="arrow">→</span>
+            <span class="node node-template">HTML生成</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">debug</span>
+        </div>
+
+        <div class="code-block">// Functionノード: Data URI形式に変換
+var mimeType = "image/png";  // 画像の種類に応じて変更
+var dataUri = "data:" + mimeType + ";base64," + msg.payload;
+
+msg.payload = '&lt;img src="' + dataUri + '" alt="embedded image"&gt;';
+return msg;</div>
+
+        <h3>パターン3: MQTTでバイナリデータを送受信</h3>
+        <p>バイナリデータをBase64にエンコードしてMQTTで送信し、受信側でデコードします。</p>
+
+        <h4>送信側</h4>
+        <div class="node-example">
+            <span class="node node-function">バイナリ生成</span>
+            <span class="arrow">→</span>
+            <span class="node node-base64">base64</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">MQTT out</span>
+        </div>
+
+        <h4>受信側</h4>
+        <div class="node-example">
+            <span class="node node-function">MQTT in</span>
+            <span class="arrow">→</span>
+            <span class="node node-base64">base64</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">バイナリ処理</span>
+        </div>
+
+        <div class="code-block">// 送信側Functionノード: センサーデータをバイナリパケットに
+var buf = Buffer.alloc(8);
+buf.writeFloatLE(25.5, 0);   // 温度
+buf.writeFloatLE(60.2, 4);   // 湿度
+msg.payload = buf;
+// → base64ノードでエンコードされてMQTTで送信
+
+return msg;</div>
+
+        <div class="code-block">// 受信側Functionノード: デコード後のバイナリパケットを解析
+// base64ノードでBuffer化済み
+var buf = msg.payload;
+var temp = buf.readFloatLE(0);
+var humidity = buf.readFloatLE(4);
+
+msg.payload = {
+    temperature: Math.round(temp * 10) / 10,
+    humidity: Math.round(humidity * 10) / 10
+};
+return msg;</div>
+
+        <h3>パターン4: メール添付画像のデコード</h3>
+        <p>受信メールの添付ファイル（Base64）をデコードしてファイルに保存します。</p>
+
+        <div class="node-example">
+            <span class="node node-function">添付取得</span>
+            <span class="arrow">→</span>
+            <span class="node node-base64">base64</span>
+            <span class="arrow">→</span>
+            <span class="node node-file">file write</span>
+        </div>
+
+        <div class="code-block">// Functionノード: メール添付ファイルの処理
+if (msg.attachments &amp;&amp; msg.attachments.length > 0) {
+    var att = msg.attachments[0];
+    msg.payload = att.content;  // Base64文字列
+    msg.filename = "/tmp/" + att.fileName;
+    return msg;
+}
+return null;</div>
+
+        <h3>パターン5: カメラ画像のダッシュボード表示</h3>
+        <p>HTTPリクエストで取得した画像をBase64に変換し、ダッシュボードのTemplateノードで表示します。</p>
+
+        <div class="node-example">
+            <span class="node node-inject">定期取得</span>
+            <span class="arrow">→</span>
+            <span class="node node-http-request">カメラ画像取得</span>
+            <span class="arrow">→</span>
+            <span class="node node-base64">base64</span>
+            <span class="arrow">→</span>
+            <span class="node node-template">ui-template</span>
+        </div>
+
+        <div class="code-block">// http requestノードの設定:
+//   URL: http://camera-ip/snapshot.jpg
+//   Method: GET
+//   Return: a binary buffer
+
+// base64ノードで自動的にBufferからBase64文字列に変換される
+
+// ui-templateノード:
+// &lt;img src="data:image/jpeg;base64,{{msg.payload}}"
+//      style="width:100%; max-width:640px;"&gt;</div>
+
+        <h2 id="section6">📝 6. 演習問題</h2>
+
+        <div class="exercise">
+            <h3>演習1: テキストのBase64変換<span class="difficulty difficulty-easy">初級</span></h3>
+
+            <p><strong>課題:</strong></p>
+            <p>テキスト文字列をBase64にエンコードし、さらにデコードして元に戻るフローを作成してください。</p>
+
+            <p><strong>要件:</strong></p>
+            <ul>
+                <li>Injectノードで「Node-RED Base64 テスト」というテキストを送信</li>
+                <li>1つ目のbase64ノードでエンコード</li>
+                <li>2つ目のbase64ノードでデコード</li>
+                <li>各段階でDebugノードに出力して変換結果を確認</li>
+            </ul>
+
+            <details>
+                <summary>💡 ヒント</summary>
+                <ul>
+                    <li>Injectノードの<code>msg.payload</code>を文字列型で設定</li>
+                    <li>base64ノードはデフォルト（自動判定）モードで動作する</li>
+                    <li>1つ目のDebugではBase64文字列が表示される</li>
+                    <li>2つ目のDebugではBufferが表示される（<code>.toString()</code>で文字列に戻る）</li>
+                </ul>
+            </details>
+
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json"><button class="copy-button" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>Copy</button>[
+    {
+        "id": "b64_ex1_inject",
+        "type": "inject",
+        "name": "テスト文字列",
+        "props": [{"p": "payload"}],
+        "payload": "Node-RED Base64 テスト",
+        "payloadType": "str",
+        "wires": [["b64_ex1_encode"]]
+    },
+    {
+        "id": "b64_ex1_encode",
+        "type": "base64",
+        "name": "エンコード",
+        "action": "",
+        "property": "payload",
+        "wires": [["b64_ex1_debug1", "b64_ex1_decode"]]
+    },
+    {
+        "id": "b64_ex1_debug1",
+        "type": "debug",
+        "name": "Base64文字列",
+        "active": true,
+        "complete": "payload",
+        "wires": []
+    },
+    {
+        "id": "b64_ex1_decode",
+        "type": "base64",
+        "name": "デコード",
+        "action": "",
+        "property": "payload",
+        "wires": [["b64_ex1_func"]]
+    },
+    {
+        "id": "b64_ex1_func",
+        "type": "function",
+        "name": "Buffer→文字列",
+        "func": "msg.payload = msg.payload.toString();\nreturn msg;",
+        "wires": [["b64_ex1_debug2"]]
+    },
+    {
+        "id": "b64_ex1_debug2",
+        "type": "debug",
+        "name": "復元結果",
+        "active": true,
+        "complete": "payload",
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+
+        <div class="exercise">
+            <h3>演習2: 画像ファイルのBase64変換<span class="difficulty difficulty-medium">中級</span></h3>
+
+            <p><strong>課題:</strong></p>
+            <p>画像ファイルを読み込んでBase64に変換し、Data URI形式のHTMLを生成するフローを作成してください。</p>
+
+            <p><strong>要件:</strong></p>
+            <ul>
+                <li>Read Fileノードで画像ファイル（PNG/JPEG）をバイナリとして読み込み</li>
+                <li>base64ノードでBuffer→Base64文字列に変換</li>
+                <li>Functionノードで<code>data:image/png;base64,...</code>形式のHTMLを生成</li>
+                <li>Debugノードで生成されたHTMLを確認</li>
+            </ul>
+
+            <details>
+                <summary>💡 ヒント</summary>
+                <ul>
+                    <li>Read Fileノードの出力を「a binary buffer」に設定</li>
+                    <li>base64ノードは自動判定モードでBufferを検知してエンコードする</li>
+                    <li>Data URIの形式: <code>data:[MIME型];base64,[Base64文字列]</code></li>
+                    <li>PNGは<code>image/png</code>、JPEGは<code>image/jpeg</code></li>
+                </ul>
+            </details>
+
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json"><button class="copy-button" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>Copy</button>[
+    {
+        "id": "b64_ex2_inject",
+        "type": "inject",
+        "name": "読み込み開始",
+        "props": [{"p": "filename", "v": "/tmp/test.png", "vt": "str"}],
+        "wires": [["b64_ex2_file"]]
+    },
+    {
+        "id": "b64_ex2_file",
+        "type": "file in",
+        "name": "画像読み込み",
+        "filename": "",
+        "filenameType": "msg",
+        "format": "",
+        "allProps": true,
+        "wires": [["b64_ex2_base64"]]
+    },
+    {
+        "id": "b64_ex2_base64",
+        "type": "base64",
+        "name": "Base64変換",
+        "action": "",
+        "property": "payload",
+        "wires": [["b64_ex2_func"]]
+    },
+    {
+        "id": "b64_ex2_func",
+        "type": "function",
+        "name": "Data URI HTML生成",
+        "func": "var ext = (msg.filename || '').split('.').pop().toLowerCase();\nvar mimeMap = { 'png': 'image/png', 'jpg': 'image/jpeg', 'jpeg': 'image/jpeg', 'gif': 'image/gif' };\nvar mime = mimeMap[ext] || 'image/png';\n\nvar dataUri = 'data:' + mime + ';base64,' + msg.payload;\nmsg.payload = '<html><body><h2>Base64埋め込み画像</h2><img src=\"' + dataUri + '\" style=\"max-width:400px\"></body></html>';\nreturn msg;",
+        "wires": [["b64_ex2_debug"]]
+    },
+    {
+        "id": "b64_ex2_debug",
+        "type": "debug",
+        "name": "HTML出力",
+        "active": true,
+        "complete": "payload",
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+
+        <div class="exercise">
+            <h3>演習3: MQTTによるバイナリデータ送受信<span class="difficulty difficulty-hard">上級</span></h3>
+
+            <p><strong>課題:</strong></p>
+            <p>バイナリ構造体データをBase64エンコードしてMQTTで送信し、受信側でデコードして解析するフローを作成してください。</p>
+
+            <p><strong>要件:</strong></p>
+            <ul>
+                <li>送信側: Functionノードでセンサーデータ（温度・湿度・気圧）をバイナリパケットに変換</li>
+                <li>送信側: base64ノードでエンコード後にMQTT outで送信</li>
+                <li>受信側: MQTT inで受信後にbase64ノードでデコード</li>
+                <li>受信側: Functionノードでバイナリパケットを解析してJSON形式に変換</li>
+                <li>Debugノードで解析結果を確認</li>
+            </ul>
+
+            <details>
+                <summary>💡 ヒント</summary>
+                <ul>
+                    <li><code>Buffer.alloc(12)</code>で12バイトのバッファを作成（Float32×3）</li>
+                    <li><code>buf.writeFloatLE(value, offset)</code>で浮動小数点数を書き込み</li>
+                    <li><code>buf.readFloatLE(offset)</code>で読み取り</li>
+                    <li>オフセット: 温度=0, 湿度=4, 気圧=8</li>
+                </ul>
+            </details>
+
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json"><button class="copy-button" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>Copy</button>[
+    {
+        "id": "b64_ex3_inject",
+        "type": "inject",
+        "name": "センサー送信",
+        "props": [],
+        "repeat": "",
+        "wires": [["b64_ex3_pack"]]
+    },
+    {
+        "id": "b64_ex3_pack",
+        "type": "function",
+        "name": "バイナリパック",
+        "func": "var buf = Buffer.alloc(12);\nbuf.writeFloatLE(25.5, 0);    // 温度\nbuf.writeFloatLE(60.2, 4);    // 湿度\nbuf.writeFloatLE(1013.25, 8); // 気圧\nmsg.payload = buf;\nreturn msg;",
+        "wires": [["b64_ex3_encode"]]
+    },
+    {
+        "id": "b64_ex3_encode",
+        "type": "base64",
+        "name": "エンコード",
+        "action": "",
+        "property": "payload",
+        "wires": [["b64_ex3_debug_enc", "b64_ex3_decode"]]
+    },
+    {
+        "id": "b64_ex3_debug_enc",
+        "type": "debug",
+        "name": "Base64パケット",
+        "active": true,
+        "complete": "payload",
+        "wires": []
+    },
+    {
+        "id": "b64_ex3_decode",
+        "type": "base64",
+        "name": "デコード",
+        "action": "",
+        "property": "payload",
+        "wires": [["b64_ex3_unpack"]]
+    },
+    {
+        "id": "b64_ex3_unpack",
+        "type": "function",
+        "name": "バイナリ解析",
+        "func": "var buf = msg.payload;\nmsg.payload = {\n    temperature: Math.round(buf.readFloatLE(0) * 10) / 10,\n    humidity: Math.round(buf.readFloatLE(4) * 10) / 10,\n    pressure: Math.round(buf.readFloatLE(8) * 100) / 100\n};\nreturn msg;",
+        "wires": [["b64_ex3_debug_dec"]]
+    },
+    {
+        "id": "b64_ex3_debug_dec",
+        "type": "debug",
+        "name": "解析結果",
+        "active": true,
+        "complete": "payload",
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+
+        <h2 id="section7">🔧 7. トラブルシューティング</h2>
+
+        <table>
+            <tr>
+                <th>問題</th>
+                <th>原因</th>
+                <th>解決方法</th>
+            </tr>
+            <tr>
+                <td>デコード結果が文字化けする</td>
+                <td>元データの文字エンコーディングが異なる</td>
+                <td>デコード後に<code>buf.toString('utf-8')</code>で正しいエンコーディングを指定する</td>
+            </tr>
+            <tr>
+                <td>「Not a valid base64 string」エラー</td>
+                <td>入力がBase64形式ではない、または不正な文字を含む</td>
+                <td>入力データが有効なBase64か確認する。改行やスペースは自動除去されるが、不正文字は除去されない</td>
+            </tr>
+            <tr>
+                <td>エンコードされずにそのまま通過する</td>
+                <td>入力が有効なBase64文字列と判定されデコードされた</td>
+                <td>Actionを「Encode to base64」に明示的に設定する</td>
+            </tr>
+            <tr>
+                <td>出力がBufferになってしまう</td>
+                <td>Base64文字列がデコードされてBufferになった</td>
+                <td>文字列が必要な場合は後段のFunctionノードで<code>.toString()</code>を実行する</td>
+            </tr>
+            <tr>
+                <td>ノードがパレットに表示されない</td>
+                <td>インストール失敗またはNode-RED未再起動</td>
+                <td>npm installのエラーログを確認し、Node-REDを再起動する</td>
+            </tr>
+            <tr>
+                <td>大きなファイルで処理が遅い</td>
+                <td>Base64変換はデータサイズが約33%増加する</td>
+                <td>大きなバイナリデータは直接Bufferで処理し、Base64は転送時のみ使用する</td>
+            </tr>
+        </table>
+
+        <h2 id="section8">📝 8. ベストプラクティス</h2>
+
+        <div class="tip">
+            <p><strong>✅ 推奨事項:</strong></p>
+            <ul>
+                <li><strong>Actionモードの明示的設定:</strong> 意図した変換方向が決まっている場合は自動判定ではなく明示的にEncode/Decodeを指定する</li>
+                <li><strong>データサイズの考慮:</strong> Base64はデータを約33%増加させるため、大量のバイナリデータには不向き。必要な場合のみ使用する</li>
+                <li><strong>MIME型の管理:</strong> 画像をBase64化する際はMIME型（image/png等）を別プロパティで保持しておく</li>
+                <li><strong>Bufferの文字列化:</strong> デコード後のBufferを文字列として使う場合は<code>toString('utf-8')</code>を明示する</li>
+                <li><strong>用途の明確化:</strong> Base64は「テキストチャネルでバイナリを送る」ための手段。バイナリ対応プロトコルではそのままBufferを使うほうが効率的</li>
+            </ul>
+        </div>
+
+        <div class="warning">
+            <p><strong>⚠️ 注意事項:</strong></p>
+            <ul>
+                <li><strong>自動判定の罠:</strong> 偶然Base64パターンに一致する通常文字列（英数字のみ＋長さが4の倍数）は誤ってデコードされる可能性がある</li>
+                <li><strong>メモリ使用量:</strong> 大きなファイル（数十MB以上）のBase64変換はNode.jsのメモリを圧迫する可能性がある</li>
+                <li><strong>セキュリティ:</strong> Base64は暗号化ではなくエンコードに過ぎない。機密データの保護には別途暗号化が必要</li>
+            </ul>
+        </div>
+
+        <h2 id="section9">🔗 9. 追加リソース</h2>
+
+        <ul>
+            <li><a href="https://flows.nodered.org/node/node-red-node-base64" target="_blank">Node-RED Flow Library: node-red-node-base64</a></li>
+            <li><a href="https://github.com/node-red/node-red-nodes/tree/master/parsers/base64" target="_blank">GitHub リポジトリ（node-red-nodes/parsers/base64）</a></li>
+            <li><a href="https://www.npmjs.com/package/node-red-node-base64" target="_blank">npm: node-red-node-base64</a></li>
+            <li><a href="nodered-function-node-guide.html">Function ノードガイド</a>（Buffer操作の参考）</li>
+            <li><a href="nodered-file-node-guide.html">File ノードガイド</a>（バイナリファイル読み書き）</li>
+            <li><a href="nodered-http-request-node-guide.html">HTTP Request ノードガイド</a>（バイナリレスポンス取得）</li>
+        </ul>
+
+        <a href="index.html" style="position: fixed; bottom: 20px; right: 20px; background-color: #b92d5d; color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); z-index: 1000;" title="ホームに戻る">🏠</a>
+    </div>
+
+    <script>
+        function copyCode(button) {
+            const codeBlock = button.parentElement;
+            const code = codeBlock.textContent.replace('Copy', '').trim();
+
+            navigator.clipboard.writeText(code).then(function() {
+                button.classList.add('copied');
+                button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>Copied!';
+                setTimeout(function() {
+                    button.classList.remove('copied');
+                    button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>Copy';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
