@@ -637,10 +637,13 @@ msg.size = 1024</div>
             
             <details>
                 <summary>✅ 解答例フロー</summary>
-                <div class="flow-json">[
-    {"id": "ex1_watch", "type": "watch", "name": "mywatch監視", "files": "/tmp/mywatch", "recursive": false, "x": 160, "y": 100, "wires": [["ex1_debug"]]},
-    {"id": "ex1_debug", "type": "debug", "name": "ファイル情報", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "true", "targetType": "full", "statusVal": "file & \": \" & $string(size) & \" bytes\"", "statusType": "jsonata", "x": 370, "y": 100, "wires": []}
-]</div>
+                <div class="flow-json">
+[
+    {"id": "ex1_tab", "type": "tab", "label": "演習1", "disabled": false, "info": ""},
+    {"id": "ex1_watch", "type": "watch", "name": "mywatch監視", "files": "/tmp/mywatch", "recursive": false, "x": 160, "y": 100, "wires": [["ex1_debug"]], "z": "ex1_tab"},
+    {"id": "ex1_debug", "type": "debug", "name": "ファイル情報", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "true", "targetType": "full", "statusVal": "file & \": \" & $string(size) & \" bytes\"", "statusType": "jsonata", "x": 370, "y": 100, "wires": [], "z": "ex1_tab"}
+]
+</div>
             </details>
         </div>
         
@@ -672,13 +675,16 @@ msg.size = 1024</div>
             
             <details>
                 <summary>✅ 解答例フロー</summary>
-                <div class="flow-json">[
-    {"id": "ex2_watch", "type": "watch", "name": "設定監視", "files": "/tmp/app_config.json", "recursive": false, "x": 140, "y": 100, "wires": [["ex2_read"]]},
-    {"id": "ex2_read", "type": "file in", "name": "読み込み", "filename": "", "filenameType": "msg", "format": "utf8", "chunk": false, "sendError": false, "encoding": "utf8", "allProps": false, "x": 290, "y": 100, "wires": [["ex2_json"]]},
-    {"id": "ex2_json", "type": "json", "name": "JSON解析", "property": "payload", "action": "", "pretty": false, "x": 430, "y": 100, "wires": [["ex2_func"]]},
-    {"id": "ex2_func", "type": "function", "name": "グローバル保存", "func": "global.set(\"config\", msg.payload);\nnode.status({fill:\"green\", shape:\"dot\", text:\"設定更新: \" + new Date().toLocaleTimeString()});\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 590, "y": 100, "wires": [["ex2_debug"]]},
-    {"id": "ex2_debug", "type": "debug", "name": "新設定", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "x": 750, "y": 100, "wires": []}
-]</div>
+                <div class="flow-json">
+[
+    {"id": "ex2_tab", "type": "tab", "label": "演習2", "disabled": false, "info": ""},
+    {"id": "ex2_watch", "type": "watch", "name": "設定監視", "files": "/tmp/app_config.json", "recursive": false, "x": 140, "y": 100, "wires": [["ex2_read"]], "z": "ex2_tab"},
+    {"id": "ex2_read", "type": "file in", "name": "読み込み", "filename": "", "filenameType": "msg", "format": "utf8", "chunk": false, "sendError": false, "encoding": "utf8", "allProps": false, "x": 290, "y": 100, "wires": [["ex2_json"]], "z": "ex2_tab"},
+    {"id": "ex2_json", "type": "json", "name": "JSON解析", "property": "payload", "action": "", "pretty": false, "x": 430, "y": 100, "wires": [["ex2_func"]], "z": "ex2_tab"},
+    {"id": "ex2_func", "type": "function", "name": "グローバル保存", "func": "global.set(\"config\", msg.payload);\nnode.status({fill:\"green\", shape:\"dot\", text:\"設定更新: \" + new Date().toLocaleTimeString()});\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 590, "y": 100, "wires": [["ex2_debug"]], "z": "ex2_tab"},
+    {"id": "ex2_debug", "type": "debug", "name": "新設定", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "x": 750, "y": 100, "wires": [], "z": "ex2_tab"}
+]
+</div>
             </details>
         </div>
         
@@ -711,13 +717,16 @@ msg.size = 1024</div>
             
             <details>
                 <summary>✅ 解答例フロー</summary>
-                <div class="flow-json">[
-    {"id": "ex3_watch", "type": "watch", "name": "画像フォルダ監視", "files": "/tmp/images", "recursive": true, "x": 170, "y": 100, "wires": [["ex3_switch"]]},
-    {"id": "ex3_switch", "type": "switch", "name": "画像のみ", "property": "file", "propertyType": "msg", "rules": [{"t": "regex", "v": "\\.(jpg|jpeg|png)$", "vt": "str", "case": true}], "checkall": "true", "repair": false, "outputs": 1, "x": 350, "y": 100, "wires": [["ex3_func"]]},
-    {"id": "ex3_func", "type": "function", "name": "ログ整形", "func": "var log = new Date().toISOString() + \",\" + msg.file + \",\" + msg.size;\nmsg.payload = log;\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 510, "y": 100, "wires": [["ex3_write", "ex3_debug"]]},
-    {"id": "ex3_write", "type": "file", "name": "ログ追記", "filename": "/tmp/image_log.csv", "filenameType": "str", "appendNewline": true, "createDir": true, "overwriteFile": "false", "encoding": "utf8", "x": 680, "y": 80, "wires": [[]]},
-    {"id": "ex3_debug", "type": "debug", "name": "画像検出", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "payload", "statusType": "msg", "x": 680, "y": 120, "wires": []}
-]</div>
+                <div class="flow-json">
+[
+    {"id": "ex3_tab", "type": "tab", "label": "演習3", "disabled": false, "info": ""},
+    {"id": "ex3_watch", "type": "watch", "name": "画像フォルダ監視", "files": "/tmp/images", "recursive": true, "x": 170, "y": 100, "wires": [["ex3_switch"]], "z": "ex3_tab"},
+    {"id": "ex3_switch", "type": "switch", "name": "画像のみ", "property": "file", "propertyType": "msg", "rules": [{"t": "regex", "v": "\\.(jpg|jpeg|png)$", "vt": "str", "case": true}], "checkall": "true", "repair": false, "outputs": 1, "x": 350, "y": 100, "wires": [["ex3_func"]], "z": "ex3_tab"},
+    {"id": "ex3_func", "type": "function", "name": "ログ整形", "func": "var log = new Date().toISOString() + \",\" + msg.file + \",\" + msg.size;\nmsg.payload = log;\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 510, "y": 100, "wires": [["ex3_write", "ex3_debug"]], "z": "ex3_tab"},
+    {"id": "ex3_write", "type": "file", "name": "ログ追記", "filename": "/tmp/image_log.csv", "filenameType": "str", "appendNewline": true, "createDir": true, "overwriteFile": "false", "encoding": "utf8", "x": 680, "y": 80, "wires": [[]], "z": "ex3_tab"},
+    {"id": "ex3_debug", "type": "debug", "name": "画像検出", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "payload", "statusType": "msg", "x": 680, "y": 120, "wires": [], "z": "ex3_tab"}
+]
+</div>
             </details>
         </div>
         
@@ -751,16 +760,19 @@ msg.size = 1024</div>
             
             <details>
                 <summary>✅ 解答例フロー</summary>
-                <div class="flow-json">[
-    {"id": "ex4_watch", "type": "watch", "name": "FTPフォルダ", "files": "/tmp/ftp_incoming", "recursive": false, "x": 140, "y": 100, "wires": [["ex4_filter"]]},
-    {"id": "ex4_filter", "type": "switch", "name": "CSVのみ", "property": "file", "propertyType": "msg", "rules": [{"t": "regex", "v": "\\.csv$", "vt": "str", "case": true}], "checkall": "true", "repair": false, "outputs": 1, "x": 290, "y": 100, "wires": [["ex4_delay"]]},
-    {"id": "ex4_delay", "type": "delay", "name": "2秒待機", "pauseType": "delay", "timeout": "2", "timeoutUnits": "seconds", "rate": "1", "nbRateUnits": "1", "rateUnits": "second", "randomFirst": "1", "randomLast": "5", "randomUnits": "seconds", "drop": false, "allowrate": false, "outputs": 1, "x": 420, "y": 100, "wires": [["ex4_read"]]},
-    {"id": "ex4_read", "type": "file in", "name": "CSV読み込み", "filename": "", "filenameType": "msg", "format": "utf8", "chunk": false, "sendError": false, "encoding": "utf8", "allProps": false, "x": 560, "y": 100, "wires": [["ex4_csv"]]},
-    {"id": "ex4_csv", "type": "csv", "name": "CSV解析", "sep": ",", "hdrin": true, "hdrout": "none", "multi": "mult", "ret": "\\n", "temp": "", "skip": "0", "strings": true, "include_empty_strings": false, "include_null_values": false, "x": 700, "y": 100, "wires": [["ex4_func"]]},
-    {"id": "ex4_func", "type": "function", "name": "JSON変換", "func": "var baseName = msg.file.replace('.csv', '');\nvar result = {\n    originalFile: msg.filename,\n    processedAt: new Date().toISOString(),\n    recordCount: msg.payload.length,\n    data: msg.payload\n};\nmsg.payload = JSON.stringify(result, null, 2);\nmsg.outputFile = \"/tmp/ftp_processed/\" + baseName + \".json\";\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 150, "y": 180, "wires": [["ex4_write_json"]]},
-    {"id": "ex4_write_json", "type": "file", "name": "JSON保存", "filename": "", "filenameType": "msg", "appendNewline": false, "createDir": true, "overwriteFile": "true", "encoding": "utf8", "x": 310, "y": 180, "wires": [["ex4_debug"]]},
-    {"id": "ex4_debug", "type": "debug", "name": "処理完了", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "outputFile", "targetType": "msg", "statusVal": "\"処理完了: \" & file", "statusType": "jsonata", "x": 470, "y": 180, "wires": []}
-]</div>
+                <div class="flow-json">
+[
+    {"id": "ex4_tab", "type": "tab", "label": "演習4", "disabled": false, "info": ""},
+    {"id": "ex4_watch", "type": "watch", "name": "FTPフォルダ", "files": "/tmp/ftp_incoming", "recursive": false, "x": 140, "y": 100, "wires": [["ex4_filter"]], "z": "ex4_tab"},
+    {"id": "ex4_filter", "type": "switch", "name": "CSVのみ", "property": "file", "propertyType": "msg", "rules": [{"t": "regex", "v": "\\.csv$", "vt": "str", "case": true}], "checkall": "true", "repair": false, "outputs": 1, "x": 290, "y": 100, "wires": [["ex4_delay"]], "z": "ex4_tab"},
+    {"id": "ex4_delay", "type": "delay", "name": "2秒待機", "pauseType": "delay", "timeout": "2", "timeoutUnits": "seconds", "rate": "1", "nbRateUnits": "1", "rateUnits": "second", "randomFirst": "1", "randomLast": "5", "randomUnits": "seconds", "drop": false, "allowrate": false, "outputs": 1, "x": 420, "y": 100, "wires": [["ex4_read"]], "z": "ex4_tab"},
+    {"id": "ex4_read", "type": "file in", "name": "CSV読み込み", "filename": "", "filenameType": "msg", "format": "utf8", "chunk": false, "sendError": false, "encoding": "utf8", "allProps": false, "x": 560, "y": 100, "wires": [["ex4_csv"]], "z": "ex4_tab"},
+    {"id": "ex4_csv", "type": "csv", "name": "CSV解析", "sep": ",", "hdrin": true, "hdrout": "none", "multi": "mult", "ret": "\\n", "temp": "", "skip": "0", "strings": true, "include_empty_strings": false, "include_null_values": false, "x": 700, "y": 100, "wires": [["ex4_func"]], "z": "ex4_tab"},
+    {"id": "ex4_func", "type": "function", "name": "JSON変換", "func": "var baseName = msg.file.replace('.csv', '');\nvar result = {\n    originalFile: msg.filename,\n    processedAt: new Date().toISOString(),\n    recordCount: msg.payload.length,\n    data: msg.payload\n};\nmsg.payload = JSON.stringify(result, null, 2);\nmsg.outputFile = \"/tmp/ftp_processed/\" + baseName + \".json\";\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 150, "y": 180, "wires": [["ex4_write_json"]], "z": "ex4_tab"},
+    {"id": "ex4_write_json", "type": "file", "name": "JSON保存", "filename": "", "filenameType": "msg", "appendNewline": false, "createDir": true, "overwriteFile": "true", "encoding": "utf8", "x": 310, "y": 180, "wires": [["ex4_debug"]], "z": "ex4_tab"},
+    {"id": "ex4_debug", "type": "debug", "name": "処理完了", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "outputFile", "targetType": "msg", "statusVal": "\"処理完了: \" & file", "statusType": "jsonata", "x": 470, "y": 180, "wires": [], "z": "ex4_tab"}
+]
+</div>
             </details>
         </div>
         
