@@ -347,7 +347,7 @@
             <strong>📋 このガイドの対象環境</strong>
             <ul>
                 <li><strong>ハードウェア:</strong> Raspberry Pi 3 / 4 / 5（Pi Zero 2 Wも対応）</li>
-                <li><strong>OS:</strong> Raspberry Pi OS（Bookworm / Bullseye）</li>
+                <li><strong>OS:</strong> Raspberry Pi OS（最新版推奨、Bookworm以前にも対応）</li>
                 <li><strong>Node.js:</strong> v20.x LTS（インストールスクリプトで自動導入）</li>
                 <li><strong>Node-RED:</strong> v4.x</li>
             </ul>
@@ -786,33 +786,39 @@ http://raspberrypi.local:1880</div>
                 <details>
                     <summary>📋 固定IPアドレスの設定方法（クリックで展開）</summary>
                     <div class="content">
-                        <p><code>/etc/dhcpcd.conf</code> を編集します。</p>
-                        <div class="code-block">
-                            <button class="copy-button" onclick="copyCode(this)">コピー</button>
-sudo nano /etc/dhcpcd.conf</div>
-                        <p>ファイル末尾に以下を追加します（値は環境に合わせて変更してください）。</p>
-                        <div class="code-block">
-                            <button class="copy-button" onclick="copyCode(this)">コピー</button>
-interface eth0
-static ip_address=192.168.1.100/24
-static routers=192.168.1.1
-static domain_name_servers=192.168.1.1 8.8.8.8</div>
-                        <p>Wi-Fiの場合は <code>interface eth0</code> を <code>interface wlan0</code> に変更します。</p>
-                        <p>保存後、ネットワークを再起動します。</p>
-                        <div class="code-block">
-                            <button class="copy-button" onclick="copyCode(this)">コピー</button>
-sudo systemctl restart dhcpcd</div>
+                        <p>現在のRaspberry Pi OS（Bookworm以降）ではNetworkManager（<code>nmcli</code>）でネットワークを管理します。</p>
 
-                        <div class="warning">
-                            <p><strong>⚠️ NetworkManagerを使用するOS（Bookworm以降）</strong></p>
-                            <p>Raspberry Pi OS Bookworm以降ではNetworkManagerが使用されている場合があります。その場合は <code>nmcli</code> コマンドまたはデスクトップのネットワーク設定から固定IPを設定してください。</p>
-                            <div class="code-block">
-                                <button class="copy-button" onclick="copyCode(this)">コピー</button>
+                        <p>まず、現在の接続名を確認します。</p>
+                        <div class="code-block">
+                            <button class="copy-button" onclick="copyCode(this)">コピー</button>
+nmcli con show</div>
+                        <p>表示された接続名（例: 「有線接続 1」「Wired connection 1」など）を使って、固定IPを設定します（値は環境に合わせて変更してください）。</p>
+                        <div class="code-block">
+                            <button class="copy-button" onclick="copyCode(this)">コピー</button>
 sudo nmcli con mod "有線接続 1" ipv4.addresses 192.168.1.100/24
 sudo nmcli con mod "有線接続 1" ipv4.gateway 192.168.1.1
 sudo nmcli con mod "有線接続 1" ipv4.dns "192.168.1.1 8.8.8.8"
 sudo nmcli con mod "有線接続 1" ipv4.method manual
 sudo nmcli con up "有線接続 1"</div>
+                        <p>Wi-Fiの場合は接続名がWi-Fiのプロファイル名（例: 「自宅WiFi」など）になります。<code>nmcli con show</code> で確認してください。</p>
+
+                        <div class="tip">
+                            <p><strong>📝 古いOS（Bullseye以前）を使用する場合</strong></p>
+                            <p>Raspberry Pi OS Bullseye以前では <code>dhcpcd</code> でネットワークを管理しています。その場合は以下の方法で固定IPを設定してください。</p>
+                            <div class="code-block">
+                                <button class="copy-button" onclick="copyCode(this)">コピー</button>
+sudo nano /etc/dhcpcd.conf</div>
+                            <p>ファイル末尾に以下を追加します。</p>
+                            <div class="code-block">
+                                <button class="copy-button" onclick="copyCode(this)">コピー</button>
+interface eth0
+static ip_address=192.168.1.100/24
+static routers=192.168.1.1
+static domain_name_servers=192.168.1.1 8.8.8.8</div>
+                            <p>Wi-Fiの場合は <code>interface eth0</code> を <code>interface wlan0</code> に変更します。保存後、再起動します。</p>
+                            <div class="code-block">
+                                <button class="copy-button" onclick="copyCode(this)">コピー</button>
+sudo systemctl restart dhcpcd</div>
                         </div>
                     </div>
                 </details>
