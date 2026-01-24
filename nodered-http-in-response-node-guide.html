@@ -272,6 +272,7 @@
         "url": "/api/hello",
         "method": "get",
         "upload": false,
+        "skipBodyParsing": false,
         "swaggerDoc": "",
         "x": 160,
         "y": 100,
@@ -342,6 +343,7 @@
         "url": "/api/data",
         "method": "post",
         "upload": false,
+        "skipBodyParsing": false,
         "swaggerDoc": "",
         "x": 160,
         "y": 260,
@@ -409,6 +411,7 @@
         "url": "/api/users/:id",
         "method": "get",
         "upload": false,
+        "skipBodyParsing": false,
         "swaggerDoc": "",
         "x": 170,
         "y": 420,
@@ -476,6 +479,7 @@
         "url": "/api/search",
         "method": "get",
         "upload": false,
+        "skipBodyParsing": false,
         "swaggerDoc": "",
         "x": 160,
         "y": 580,
@@ -543,6 +547,7 @@
         "url": "/page",
         "method": "get",
         "upload": false,
+        "skipBodyParsing": false,
         "swaggerDoc": "",
         "x": 140,
         "y": 740,
@@ -691,7 +696,7 @@
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
     {"id": "ex1_tab", "type": "tab", "label": "演習1"},
-    {"id": "ex1_http_in", "type": "http in", "z": "ex1_tab", "name": "GET /api/status", "url": "/api/status", "method": "get", "upload": false, "swaggerDoc": "", "x": 170, "y": 100, "wires": [["ex1_change"]]},
+    {"id": "ex1_http_in", "type": "http in", "z": "ex1_tab", "name": "GET /api/status", "url": "/api/status", "method": "get", "upload": false, "skipBodyParsing": false, "swaggerDoc": "", "x": 170, "y": 100, "wires": [["ex1_change"]]},
     {"id": "ex1_change", "type": "change", "z": "ex1_tab", "name": "レスポンス設定", "rules": [{"t": "set", "p": "payload", "pt": "msg", "to": "{\"status\":\"running\",\"version\":\"1.0.0\"}", "tot": "json"}, {"t": "set", "p": "headers", "pt": "msg", "to": "{\"Content-Type\":\"application/json\"}", "tot": "json"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 390, "y": 100, "wires": [["ex1_response"]]},
     {"id": "ex1_response", "type": "http response", "z": "ex1_tab", "name": "Response", "statusCode": "200", "headers": {}, "x": 580, "y": 100, "wires": []}
 ]</div>
@@ -729,7 +734,7 @@ return msg;</div>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
     {"id": "ex2_tab", "type": "tab", "label": "演習2"},
-    {"id": "ex2_http_in", "type": "http in", "z": "ex2_tab", "name": "POST /api/sensor", "url": "/api/sensor", "method": "post", "upload": false, "swaggerDoc": "", "x": 170, "y": 100, "wires": [["ex2_func"]]},
+    {"id": "ex2_http_in", "type": "http in", "z": "ex2_tab", "name": "POST /api/sensor", "url": "/api/sensor", "method": "post", "upload": false, "skipBodyParsing": false, "swaggerDoc": "", "x": 170, "y": 100, "wires": [["ex2_func"]]},
     {"id": "ex2_func", "type": "function", "z": "ex2_tab", "name": "レスポンス作成", "func": "var receivedData = msg.payload;\n\nmsg.payload = {\n    received: true,\n    data: receivedData,\n    timestamp: new Date().toISOString()\n};\nmsg.headers = {\"Content-Type\": \"application/json\"};\nmsg.statusCode = 201;\n\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 380, "y": 100, "wires": [["ex2_response"]]},
     {"id": "ex2_response", "type": "http response", "z": "ex2_tab", "name": "Response", "statusCode": "", "headers": {}, "x": 560, "y": 100, "wires": []}
 ]</div>
@@ -759,7 +764,7 @@ return msg;</div>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
     {"id": "ex3_tab", "type": "tab", "label": "演習3"},
-    {"id": "ex3_http_in", "type": "http in", "z": "ex3_tab", "name": "GET /api/items/:id", "url": "/api/items/:id", "method": "get", "upload": false, "swaggerDoc": "", "x": 180, "y": 100, "wires": [["ex3_func"]]},
+    {"id": "ex3_http_in", "type": "http in", "z": "ex3_tab", "name": "GET /api/items/:id", "url": "/api/items/:id", "method": "get", "upload": false, "skipBodyParsing": false, "swaggerDoc": "", "x": 180, "y": 100, "wires": [["ex3_func"]]},
     {"id": "ex3_func", "type": "function", "z": "ex3_tab", "name": "商品検索", "func": "var itemId = msg.req.params.id;\n\nvar items = {\n    \"1\": {name: \"りんご\", price: 150},\n    \"2\": {name: \"みかん\", price: 100},\n    \"3\": {name: \"バナナ\", price: 120}\n};\n\nif (items[itemId]) {\n    msg.payload = {\n        success: true,\n        item: {id: itemId, ...items[itemId]}\n    };\n    msg.statusCode = 200;\n} else {\n    msg.payload = {\n        success: false,\n        error: \"商品が見つかりません\",\n        requestedId: itemId\n    };\n    msg.statusCode = 404;\n}\n\nmsg.headers = {\"Content-Type\": \"application/json\"};\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 400, "y": 100, "wires": [["ex3_response"]]},
     {"id": "ex3_response", "type": "http response", "z": "ex3_tab", "name": "Response", "statusCode": "", "headers": {}, "x": 580, "y": 100, "wires": []}
 ]</div>
@@ -791,13 +796,13 @@ return msg;</div>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
     {"id": "ex4_tab", "type": "tab", "label": "演習4"},
-    {"id": "ex4_get_all", "type": "http in", "z": "ex4_tab", "name": "GET /api/notes", "url": "/api/notes", "method": "get", "upload": false, "swaggerDoc": "", "x": 160, "y": 80, "wires": [["ex4_func_get_all"]]},
+    {"id": "ex4_get_all", "type": "http in", "z": "ex4_tab", "name": "GET /api/notes", "url": "/api/notes", "method": "get", "upload": false, "skipBodyParsing": false, "swaggerDoc": "", "x": 160, "y": 80, "wires": [["ex4_func_get_all"]]},
     {"id": "ex4_func_get_all", "type": "function", "z": "ex4_tab", "name": "全件取得", "func": "var notes = flow.get('notes') || [];\nmsg.payload = {notes: notes, count: notes.length};\nmsg.headers = {\"Content-Type\": \"application/json\"};\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 370, "y": 80, "wires": [["ex4_response"]]},
-    {"id": "ex4_post", "type": "http in", "z": "ex4_tab", "name": "POST /api/notes", "url": "/api/notes", "method": "post", "upload": false, "swaggerDoc": "", "x": 170, "y": 140, "wires": [["ex4_func_post"]]},
+    {"id": "ex4_post", "type": "http in", "z": "ex4_tab", "name": "POST /api/notes", "url": "/api/notes", "method": "post", "upload": false, "skipBodyParsing": false, "swaggerDoc": "", "x": 170, "y": 140, "wires": [["ex4_func_post"]]},
     {"id": "ex4_func_post", "type": "function", "z": "ex4_tab", "name": "新規作成", "func": "var notes = flow.get('notes') || [];\nvar newNote = {\n    id: Date.now(),\n    text: msg.payload.text || \"(内容なし)\",\n    createdAt: new Date().toISOString()\n};\nnotes.push(newNote);\nflow.set('notes', notes);\nmsg.payload = {success: true, note: newNote};\nmsg.statusCode = 201;\nmsg.headers = {\"Content-Type\": \"application/json\"};\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 370, "y": 140, "wires": [["ex4_response"]]},
-    {"id": "ex4_get_one", "type": "http in", "z": "ex4_tab", "name": "GET /api/notes/:id", "url": "/api/notes/:id", "method": "get", "upload": false, "swaggerDoc": "", "x": 180, "y": 200, "wires": [["ex4_func_get_one"]]},
+    {"id": "ex4_get_one", "type": "http in", "z": "ex4_tab", "name": "GET /api/notes/:id", "url": "/api/notes/:id", "method": "get", "upload": false, "skipBodyParsing": false, "swaggerDoc": "", "x": 180, "y": 200, "wires": [["ex4_func_get_one"]]},
     {"id": "ex4_func_get_one", "type": "function", "z": "ex4_tab", "name": "1件取得", "func": "var notes = flow.get('notes') || [];\nvar noteId = parseInt(msg.req.params.id);\nvar note = notes.find(n => n.id === noteId);\nif (note) {\n    msg.payload = {success: true, note: note};\n    msg.statusCode = 200;\n} else {\n    msg.payload = {success: false, error: \"Not found\"};\n    msg.statusCode = 404;\n}\nmsg.headers = {\"Content-Type\": \"application/json\"};\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 370, "y": 200, "wires": [["ex4_response"]]},
-    {"id": "ex4_delete", "type": "http in", "z": "ex4_tab", "name": "DELETE /api/notes/:id", "url": "/api/notes/:id", "method": "delete", "upload": false, "swaggerDoc": "", "x": 190, "y": 260, "wires": [["ex4_func_delete"]]},
+    {"id": "ex4_delete", "type": "http in", "z": "ex4_tab", "name": "DELETE /api/notes/:id", "url": "/api/notes/:id", "method": "delete", "upload": false, "skipBodyParsing": false, "swaggerDoc": "", "x": 190, "y": 260, "wires": [["ex4_func_delete"]]},
     {"id": "ex4_func_delete", "type": "function", "z": "ex4_tab", "name": "削除", "func": "var notes = flow.get('notes') || [];\nvar noteId = parseInt(msg.req.params.id);\nvar originalLength = notes.length;\nnotes = notes.filter(n => n.id !== noteId);\nflow.set('notes', notes);\nif (notes.length < originalLength) {\n    msg.payload = {success: true, message: \"Deleted\"};\n    msg.statusCode = 200;\n} else {\n    msg.payload = {success: false, error: \"Not found\"};\n    msg.statusCode = 404;\n}\nmsg.headers = {\"Content-Type\": \"application/json\"};\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 370, "y": 260, "wires": [["ex4_response"]]},
     {"id": "ex4_response", "type": "http response", "z": "ex4_tab", "name": "Response", "statusCode": "", "headers": {}, "x": 560, "y": 160, "wires": []}
 ]</div>
