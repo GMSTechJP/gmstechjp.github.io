@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED Dashboard 2.0 ui-led ガイド</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        h1 {
+            color: #b92d5d;
+            border-bottom: 3px solid #b92d5d;
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            color: #d33682;
+            margin-top: 40px;
+            border-left: 5px solid #d33682;
+            padding-left: 15px;
+        }
+
+        h3 {
+            color: #555;
+            margin-top: 25px;
+        }
+
+        h4 {
+            color: #666;
+            margin-top: 20px;
+        }
+
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .node-example {
+            background-color: #2d3133;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            color: white;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .node {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 4px;
+            margin: 5px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .node-inject {
+            background-color: #3fadb5;
+            color: white;
+        }
+
+        .node-debug {
+            background-color: #87a48d;
+            color: white;
+        }
+
+        .node-function {
+            background-color: #e8a658;
+            color: white;
+        }
+
+        .node-change {
+            background-color: #e7a070;
+            color: white;
+        }
+
+        .node-switch {
+            background-color: #e2d96e;
+            color: #333;
+        }
+
+        .node-ui-led {
+            background-color: #b92d5d;
+            color: white;
+        }
+
+        .arrow {
+            color: #999;
+            font-size: 20px;
+            margin: 0 10px;
+        }
+
+        .important {
+            background-color: #fce4ec;
+            border-left: 4px solid #b92d5d;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .tip {
+            background-color: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .warning {
+            background-color: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .code-block {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            position: relative;
+            white-space: pre-wrap;
+        }
+
+        .js-code {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            border: none;
+            padding: 15px;
+            padding-top: 40px;
+            border-radius: 5px;
+            position: relative;
+            white-space: pre;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+        }
+
+        .copy-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 6px 12px;
+            background-color: #b92d5d;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: 'Segoe UI', sans-serif;
+            transition: background-color 0.2s;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .copy-button:hover {
+            background-color: #9a2550;
+        }
+
+        .copy-button.copied {
+            background-color: #28a745;
+        }
+
+        .copy-button svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+        }
+
+        .exercise {
+            background-color: #f3e5f5;
+            border: 2px solid #9c27b0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .exercise h3 {
+            color: #7b1fa2;
+            margin-top: 0;
+        }
+
+        .difficulty {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .difficulty-easy {
+            background-color: #4caf50;
+            color: white;
+        }
+
+        .difficulty-medium {
+            background-color: #ff9800;
+            color: white;
+        }
+
+        .difficulty-hard {
+            background-color: #f44336;
+            color: white;
+        }
+
+        ul, ol {
+            padding-left: 25px;
+        }
+
+        li {
+            margin: 8px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #b92d5d;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .flow-json {
+            background-color: #263238;
+            color: #aed581;
+            padding: 15px;
+            padding-top: 40px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        details {
+            margin: 15px 0;
+        }
+
+        summary {
+            cursor: pointer;
+            padding: 10px;
+            background-color: #b92d5d;
+            color: white;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        summary:hover {
+            background-color: #9a2550;
+        }
+
+        .widget-card {
+            background: linear-gradient(135deg, #fce4ec 0%, #f3e5f5 100%);
+            border: 2px solid #b92d5d;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .widget-card h3 {
+            color: #b92d5d;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .led-demo {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            background-color: #1a1a2e;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .led-indicator {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid #555;
+        }
+
+        .led-on-green {
+            background-color: #00FF00;
+            box-shadow: 0 0 10px #00FF00, 0 0 20px #00FF00;
+        }
+
+        .led-on-red {
+            background-color: #FF0000;
+            box-shadow: 0 0 10px #FF0000, 0 0 20px #FF0000;
+        }
+
+        .led-on-yellow {
+            background-color: #FFFF00;
+            box-shadow: 0 0 10px #FFFF00, 0 0 20px #FFFF00;
+        }
+
+        .led-on-blue {
+            background-color: #0088FF;
+            box-shadow: 0 0 10px #0088FF, 0 0 20px #0088FF;
+        }
+
+        .led-off {
+            background-color: #666;
+        }
+
+        .led-square {
+            border-radius: 4px;
+        }
+
+        .led-label {
+            color: #ccc;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💡 Node-RED Dashboard 2.0 ui-led ガイド</h1>
+
+        <p>このガイドでは、Dashboard 2.0のサードパーティウィジェット<strong>ui-led</strong>について解説します。
+        ui-ledは、ダッシュボード上にLEDインジケーターを表示し、デバイスやシステムの状態を視覚的に示すウィジェットです。</p>
+
+        <div class="important">
+            <p><strong>📦 パッケージ情報:</strong></p>
+            <ul>
+                <li><strong>パッケージ名:</strong> <code>@flowfuse/node-red-dashboard-2-ui-led</code></li>
+                <li><strong>リポジトリ:</strong> <a href="https://github.com/FlowFuse/node-red-dashboard-2-ui-led" target="_blank">GitHub</a></li>
+                <li><strong>前提条件:</strong> Dashboard 2.0 (<code>@flowfuse/node-red-dashboard</code>) がインストール済みであること</li>
+            </ul>
+        </div>
+
+        <h2>📚 1. ui-ledとは?</h2>
+
+        <h3>🤔 どんなウィジェット?</h3>
+        <p>ui-ledは、物理的なLED（発光ダイオード）をダッシュボード上に再現するウィジェットです。
+        <code>msg.payload</code>の値に応じて色が変化し、機器の状態やセンサーの閾値超過などを一目で確認できます。</p>
+
+        <div class="tip">
+            <p><strong>💡 活用シーン:</strong></p>
+            <ul>
+                <li>🏭 工場の機器稼働状態（正常=緑、異常=赤）</li>
+                <li>🌡️ センサー値の閾値監視（正常=緑、警告=黄、危険=赤）</li>
+                <li>🔌 デバイスのオンライン/オフライン表示</li>
+                <li>📡 通信接続の確認インジケーター</li>
+            </ul>
+        </div>
+
+        <h3>🎨 見た目のイメージ</h3>
+        <div class="led-demo">
+            <div>
+                <div class="led-indicator led-on-green"></div>
+                <div class="led-label">正常</div>
+            </div>
+            <div>
+                <div class="led-indicator led-on-yellow"></div>
+                <div class="led-label">警告</div>
+            </div>
+            <div>
+                <div class="led-indicator led-on-red"></div>
+                <div class="led-label">異常</div>
+            </div>
+            <div>
+                <div class="led-indicator led-off"></div>
+                <div class="led-label">未接続</div>
+            </div>
+            <div>
+                <div class="led-indicator led-square led-on-blue"></div>
+                <div class="led-label">四角形</div>
+            </div>
+        </div>
+
+        <h2>📥 2. インストール</h2>
+
+        <h3>パレットマネージャーからインストール</h3>
+        <ol>
+            <li>Node-REDエディタの右上メニュー → <strong>パレットの管理</strong></li>
+            <li><strong>ノードを追加</strong>タブを選択</li>
+            <li>検索欄に <code>@flowfuse/node-red-dashboard-2-ui-led</code> と入力</li>
+            <li><strong>ノードを追加</strong>ボタンをクリック</li>
+        </ol>
+
+        <h3>コマンドラインからインストール</h3>
+        <div class="code-block">cd ~/.node-red
+npm install @flowfuse/node-red-dashboard-2-ui-led</div>
+
+        <div class="warning">
+            <p><strong>⚠️ 前提条件:</strong> このノードを使用するには、先に <code>@flowfuse/node-red-dashboard</code>（Dashboard 2.0）がインストールされている必要があります。</p>
+        </div>
+
+        <h2>⚙️ 3. プロパティ（設定項目）</h2>
+
+        <h3>📋 基本設定</h3>
+        <table>
+            <tr>
+                <th>プロパティ</th>
+                <th>型</th>
+                <th>デフォルト</th>
+                <th>説明</th>
+            </tr>
+            <tr>
+                <td><strong>name</strong></td>
+                <td>文字列</td>
+                <td>（空）</td>
+                <td>エディタ上でのノード表示名</td>
+            </tr>
+            <tr>
+                <td><strong>Group</strong></td>
+                <td>ui-group</td>
+                <td>（必須）</td>
+                <td>ウィジェットを配置するダッシュボードグループ</td>
+            </tr>
+            <tr>
+                <td><strong>Size</strong></td>
+                <td>数値×数値</td>
+                <td>自動</td>
+                <td>ウィジェットの幅×高さ（グリッド単位）</td>
+            </tr>
+        </table>
+
+        <h3>🏷️ ラベル設定</h3>
+        <table>
+            <tr>
+                <th>プロパティ</th>
+                <th>型</th>
+                <th>デフォルト</th>
+                <th>説明</th>
+            </tr>
+            <tr>
+                <td><strong>Label</strong></td>
+                <td>文字列</td>
+                <td>（空）</td>
+                <td>LEDの横に表示するラベルテキスト</td>
+            </tr>
+            <tr>
+                <td><strong>Placement</strong></td>
+                <td>選択</td>
+                <td>left</td>
+                <td>ラベルの位置（left: LED左側 / right: LED右側）</td>
+            </tr>
+            <tr>
+                <td><strong>Alignment</strong></td>
+                <td>選択</td>
+                <td>left</td>
+                <td>ラベルの垂直方向の配置（left / center / right）</td>
+            </tr>
+        </table>
+
+        <h3>🔴 LED外観設定</h3>
+        <table>
+            <tr>
+                <th>プロパティ</th>
+                <th>型</th>
+                <th>デフォルト</th>
+                <th>説明</th>
+            </tr>
+            <tr>
+                <td><strong>Shape</strong></td>
+                <td>選択</td>
+                <td>circle</td>
+                <td>LEDの形状（circle: 円形 / square: 四角形）</td>
+            </tr>
+            <tr>
+                <td><strong>Show Border</strong></td>
+                <td>真偽値</td>
+                <td>true</td>
+                <td>物理LEDのような枠線を表示する</td>
+            </tr>
+            <tr>
+                <td><strong>Show Glow</strong></td>
+                <td>真偽値</td>
+                <td>true</td>
+                <td>発光（グロー）エフェクトを表示する</td>
+            </tr>
+        </table>
+
+        <h3>🎨 値と色のマッピング（States）</h3>
+
+        <p><code>msg.payload</code>の値に対応する色を定義します。一致する値がない場合はグレーで表示されます。</p>
+
+        <table>
+            <tr>
+                <th>プロパティ</th>
+                <th>型</th>
+                <th>説明</th>
+            </tr>
+            <tr>
+                <td><strong>Value</strong></td>
+                <td>各種（str/num/bool/json/bin）</td>
+                <td>msg.payloadと照合する値</td>
+            </tr>
+            <tr>
+                <td><strong>Value Type</strong></td>
+                <td>選択</td>
+                <td>値のデータ型を指定</td>
+            </tr>
+            <tr>
+                <td><strong>Color</strong></td>
+                <td>カラーコード</td>
+                <td>一致した場合に表示する色（例: #FF0000）</td>
+            </tr>
+        </table>
+
+        <div class="tip">
+            <p><strong>📌 デフォルトのマッピング:</strong></p>
+            <ul>
+                <li><code>false</code> → 🔴 赤（#FF0000）</li>
+                <li><code>true</code> → 🟢 緑（#00FF00）</li>
+            </ul>
+            <p>複数のマッピングを追加して、多段階の状態表示が可能です。</p>
+        </div>
+
+        <h3>🔧 高度な設定</h3>
+        <table>
+            <tr>
+                <th>プロパティ</th>
+                <th>型</th>
+                <th>デフォルト</th>
+                <th>説明</th>
+            </tr>
+            <tr>
+                <td><strong>Allow Color for Value in Message</strong></td>
+                <td>真偽値</td>
+                <td>false</td>
+                <td>msg.payloadから直接色を指定可能にする</td>
+            </tr>
+        </table>
+
+        <h2>📨 4. 入力メッセージ</h2>
+
+        <h3>基本的な入力</h3>
+        <p>ui-ledノードは <code>msg.payload</code> を受け取り、Statesで定義したマッピングに基づいてLEDの色を変更します。</p>
+
+        <div class="code-block">// 例1: 真偽値で制御（デフォルト設定）
+msg.payload = true;   // → 緑に点灯
+msg.payload = false;  // → 赤に点灯
+
+// 例2: 文字列で制御（カスタムマッピング時）
+msg.payload = "normal";   // → 設定した色で点灯
+msg.payload = "warning";  // → 設定した色で点灯
+msg.payload = "error";    // → 設定した色で点灯
+
+// 例3: 数値で制御
+msg.payload = 0;  // → 設定した色で点灯
+msg.payload = 1;  // → 設定した色で点灯
+msg.payload = 2;  // → 設定した色で点灯</div>
+
+        <div class="important">
+            <p><strong>⚠️ 注意:</strong> Statesに定義されていない値を受け取った場合、LEDはグレー（消灯状態）で表示されます。</p>
+        </div>
+
+        <h2>🛠️ 5. 使用パターン</h2>
+
+        <h3>パターン1: ON/OFF状態の表示</h3>
+        <p>最もシンプルな使い方です。真偽値でLEDのON（緑）/OFF（赤）を切り替えます。</p>
+
+        <div class="node-example">
+            <span class="node node-inject">inject (true)</span>
+            <span class="arrow">→</span>
+            <span class="node node-ui-led">ui-led</span>
+        </div>
+
+        <p><strong>設定例:</strong></p>
+        <ul>
+            <li>States: <code>false</code> → #FF0000（赤）、<code>true</code> → #00FF00（緑）</li>
+        </ul>
+
+        <h3>パターン2: 多段階ステータス表示</h3>
+        <p>Functionノードでセンサー値を判定し、3段階のステータスをLEDで表示します。</p>
+
+        <div class="node-example">
+            <span class="node node-inject">sensor data</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">判定ロジック</span>
+            <span class="arrow">→</span>
+            <span class="node node-ui-led">ui-led</span>
+        </div>
+
+        <p><strong>Functionノードの例:</strong></p>
+        <div class="js-code" data-copy="true"><button class="copy-button" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>Copy</button>// センサー値を3段階に変換
+const value = msg.payload;
+
+if (value < 30) {
+    msg.payload = "normal";
+} else if (value < 70) {
+    msg.payload = "warning";
+} else {
+    msg.payload = "error";
+}
+return msg;</div>
+
+        <p><strong>ui-led States設定:</strong></p>
+        <table>
+            <tr>
+                <th>Value</th>
+                <th>Type</th>
+                <th>Color</th>
+                <th>意味</th>
+            </tr>
+            <tr>
+                <td>"normal"</td>
+                <td>str</td>
+                <td>#00FF00</td>
+                <td>正常（緑）</td>
+            </tr>
+            <tr>
+                <td>"warning"</td>
+                <td>str</td>
+                <td>#FFFF00</td>
+                <td>警告（黄）</td>
+            </tr>
+            <tr>
+                <td>"error"</td>
+                <td>str</td>
+                <td>#FF0000</td>
+                <td>異常（赤）</td>
+            </tr>
+        </table>
+
+        <h3>パターン3: MQTT経由のデバイス監視</h3>
+        <p>MQTTで受信したデバイスの状態をLEDで表示します。</p>
+
+        <div class="node-example">
+            <span class="node node-inject">mqtt in</span>
+            <span class="arrow">→</span>
+            <span class="node node-change">change</span>
+            <span class="arrow">→</span>
+            <span class="node node-ui-led">ui-led</span>
+        </div>
+
+        <p><strong>Changeノードの設定:</strong></p>
+        <div class="code-block">// MQTTメッセージが "online" ならtrue、それ以外はfalseに変換
+msg.payload を次の値に設定:
+  JSONata式: payload = "online"</div>
+
+        <h3>パターン4: 複数LEDで機器一覧を表示</h3>
+        <p>複数のui-ledノードを並べて、複数デバイスの状態を一括表示します。</p>
+
+        <div class="node-example">
+            <span class="node node-inject">device status</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">振り分け</span>
+            <span class="arrow">→</span>
+            <span class="node node-ui-led">LED #1</span>
+        </div>
+        <div class="node-example">
+            <span class="node" style="visibility:hidden">device status</span>
+            <span class="arrow" style="visibility:hidden">→</span>
+            <span class="node" style="visibility:hidden">振り分け</span>
+            <span class="arrow">→</span>
+            <span class="node node-ui-led">LED #2</span>
+        </div>
+        <div class="node-example">
+            <span class="node" style="visibility:hidden">device status</span>
+            <span class="arrow" style="visibility:hidden">→</span>
+            <span class="node" style="visibility:hidden">振り分け</span>
+            <span class="arrow">→</span>
+            <span class="node node-ui-led">LED #3</span>
+        </div>
+
+        <h2>🏋️ 6. 実践演習</h2>
+
+        <div class="exercise">
+            <h3>演習1: 基本的なON/OFF LED<span class="difficulty difficulty-easy">初級</span></h3>
+
+            <p><strong>📝 課題:</strong></p>
+            <p>Injectノードで<code>true</code>/<code>false</code>を送信し、LEDの色を緑/赤に切り替えるフローを作成してください。</p>
+
+            <p><strong>要件:</strong></p>
+            <ul>
+                <li>Injectノード2つ（true送信用、false送信用）</li>
+                <li>ui-ledノード1つ（デフォルト設定でOK）</li>
+                <li>ラベルに「電源」と表示</li>
+            </ul>
+
+            <details>
+                <summary>💡 ヒント</summary>
+                <ul>
+                    <li>Injectノードのpayload型を「真偽値」に設定</li>
+                    <li>ui-ledのLabel欄に「電源」を入力</li>
+                    <li>Statesはデフォルト（false=赤、true=緑）のまま使用</li>
+                </ul>
+            </details>
+
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json"><button class="copy-button" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>Copy</button>[
+    {
+        "id": "led_ex1_inject_on",
+        "type": "inject",
+        "name": "ON",
+        "props": [{"p": "payload"}],
+        "payload": "true",
+        "payloadType": "bool",
+        "repeat": "",
+        "wires": [["led_ex1_led"]]
+    },
+    {
+        "id": "led_ex1_inject_off",
+        "type": "inject",
+        "name": "OFF",
+        "props": [{"p": "payload"}],
+        "payload": "false",
+        "payloadType": "bool",
+        "repeat": "",
+        "wires": [["led_ex1_led"]]
+    },
+    {
+        "id": "led_ex1_led",
+        "type": "ui-led",
+        "name": "",
+        "group": "",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "label": "電源",
+        "labelPlacement": "left",
+        "labelAlignment": "left",
+        "shape": "circle",
+        "showBorder": true,
+        "showGlow": true,
+        "allowColorForValueInMessage": false,
+        "states": [
+            {"value": "false", "valueType": "bool", "color": "#FF0000"},
+            {"value": "true", "valueType": "bool", "color": "#00FF00"}
+        ],
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+
+        <div class="exercise">
+            <h3>演習2: 温度センサーの3段階表示<span class="difficulty difficulty-medium">中級</span></h3>
+
+            <p><strong>📝 課題:</strong></p>
+            <p>温度値（0〜100）を受け取り、3段階（正常/警告/危険）でLEDの色を変化させるフローを作成してください。</p>
+
+            <p><strong>要件:</strong></p>
+            <ul>
+                <li>30未満: 緑（正常）</li>
+                <li>30以上70未満: 黄（警告）</li>
+                <li>70以上: 赤（危険）</li>
+                <li>ラベルに「温度」と表示</li>
+                <li>グローエフェクトを有効にする</li>
+            </ul>
+
+            <details>
+                <summary>💡 ヒント</summary>
+                <ul>
+                    <li>Functionノードで温度値を文字列ステータスに変換する</li>
+                    <li>ui-ledのStatesに3つのマッピングを追加</li>
+                    <li>テスト用にInjectノードで様々な数値を送信して確認</li>
+                </ul>
+            </details>
+
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json"><button class="copy-button" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>Copy</button>[
+    {
+        "id": "led_ex2_inject_normal",
+        "type": "inject",
+        "name": "温度: 20",
+        "props": [{"p": "payload"}],
+        "payload": "20",
+        "payloadType": "num",
+        "wires": [["led_ex2_func"]]
+    },
+    {
+        "id": "led_ex2_inject_warn",
+        "type": "inject",
+        "name": "温度: 50",
+        "props": [{"p": "payload"}],
+        "payload": "50",
+        "payloadType": "num",
+        "wires": [["led_ex2_func"]]
+    },
+    {
+        "id": "led_ex2_inject_danger",
+        "type": "inject",
+        "name": "温度: 85",
+        "props": [{"p": "payload"}],
+        "payload": "85",
+        "payloadType": "num",
+        "wires": [["led_ex2_func"]]
+    },
+    {
+        "id": "led_ex2_func",
+        "type": "function",
+        "name": "温度判定",
+        "func": "const temp = msg.payload;\nif (temp < 30) {\n    msg.payload = \"normal\";\n} else if (temp < 70) {\n    msg.payload = \"warning\";\n} else {\n    msg.payload = \"danger\";\n}\nreturn msg;",
+        "wires": [["led_ex2_led"]]
+    },
+    {
+        "id": "led_ex2_led",
+        "type": "ui-led",
+        "name": "",
+        "group": "",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "label": "温度",
+        "labelPlacement": "left",
+        "labelAlignment": "left",
+        "shape": "circle",
+        "showBorder": true,
+        "showGlow": true,
+        "allowColorForValueInMessage": false,
+        "states": [
+            {"value": "normal", "valueType": "str", "color": "#00FF00"},
+            {"value": "warning", "valueType": "str", "color": "#FFFF00"},
+            {"value": "danger", "valueType": "str", "color": "#FF0000"}
+        ],
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+
+        <div class="exercise">
+            <h3>演習3: 数値マッピングによるバッテリー残量LED<span class="difficulty difficulty-medium">中級</span></h3>
+
+            <p><strong>📝 課題:</strong></p>
+            <p>バッテリー残量を4段階の数値で受け取り、残量に応じたLED色で表示するフローを作成してください。</p>
+
+            <p><strong>要件:</strong></p>
+            <ul>
+                <li>0: 消灯（グレー）- バッテリー切れ</li>
+                <li>1: 赤 - 残量わずか</li>
+                <li>2: 黄 - 残量少</li>
+                <li>3: 緑 - 十分</li>
+                <li>四角形のLEDを使用</li>
+                <li>ボーダーあり、グローなし</li>
+            </ul>
+
+            <details>
+                <summary>💡 ヒント</summary>
+                <ul>
+                    <li>Statesに数値型（num）のマッピングを3つ追加（1, 2, 3）</li>
+                    <li>0は定義しないことでグレー表示になる</li>
+                    <li>Shapeを「square」に設定</li>
+                    <li>Show Glowをオフに設定</li>
+                </ul>
+            </details>
+
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json"><button class="copy-button" onclick="copyCode(this)"><svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>Copy</button>[
+    {
+        "id": "led_ex3_inject0",
+        "type": "inject",
+        "name": "バッテリー切れ (0)",
+        "props": [{"p": "payload"}],
+        "payload": "0",
+        "payloadType": "num",
+        "wires": [["led_ex3_led"]]
+    },
+    {
+        "id": "led_ex3_inject1",
+        "type": "inject",
+        "name": "残量わずか (1)",
+        "props": [{"p": "payload"}],
+        "payload": "1",
+        "payloadType": "num",
+        "wires": [["led_ex3_led"]]
+    },
+    {
+        "id": "led_ex3_inject2",
+        "type": "inject",
+        "name": "残量少 (2)",
+        "props": [{"p": "payload"}],
+        "payload": "2",
+        "payloadType": "num",
+        "wires": [["led_ex3_led"]]
+    },
+    {
+        "id": "led_ex3_inject3",
+        "type": "inject",
+        "name": "十分 (3)",
+        "props": [{"p": "payload"}],
+        "payload": "3",
+        "payloadType": "num",
+        "wires": [["led_ex3_led"]]
+    },
+    {
+        "id": "led_ex3_led",
+        "type": "ui-led",
+        "name": "",
+        "group": "",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "label": "バッテリー",
+        "labelPlacement": "left",
+        "labelAlignment": "left",
+        "shape": "square",
+        "showBorder": true,
+        "showGlow": false,
+        "allowColorForValueInMessage": false,
+        "states": [
+            {"value": "1", "valueType": "num", "color": "#FF0000"},
+            {"value": "2", "valueType": "num", "color": "#FFFF00"},
+            {"value": "3", "valueType": "num", "color": "#00FF00"}
+        ],
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+
+        <h2>🔧 7. トラブルシューティング</h2>
+
+        <table>
+            <tr>
+                <th>問題</th>
+                <th>原因</th>
+                <th>解決方法</th>
+            </tr>
+            <tr>
+                <td>LEDが常にグレーのまま</td>
+                <td>msg.payloadの値がStatesのどのマッピングにも一致しない</td>
+                <td>Statesの値と型（str/num/bool）がmsg.payloadと一致しているか確認する</td>
+            </tr>
+            <tr>
+                <td>LEDが表示されない</td>
+                <td>Groupが未設定、またはDashboard 2.0がインストールされていない</td>
+                <td>Groupプロパティを設定し、Dashboard 2.0パッケージがインストール済みか確認する</td>
+            </tr>
+            <tr>
+                <td>色が変化しない</td>
+                <td>Value Typeが一致していない（例: 数値の1を文字列"1"で定義）</td>
+                <td>StatesのValue Typeを送信するmsg.payloadの型に合わせる</td>
+            </tr>
+            <tr>
+                <td>グローが表示されない</td>
+                <td>Show Glowが無効になっている</td>
+                <td>ノード設定でShow Glowをオンにする</td>
+            </tr>
+            <tr>
+                <td>ラベルが表示されない</td>
+                <td>Label欄が空、またはサイズが小さすぎる</td>
+                <td>Label欄にテキストを入力し、Sizeを適切に設定する</td>
+            </tr>
+            <tr>
+                <td>ノードがパレットに表示されない</td>
+                <td>インストール失敗、またはNode-RED再起動が必要</td>
+                <td>npm installのエラーを確認し、Node-REDを再起動する</td>
+            </tr>
+        </table>
+
+        <h2>📝 8. ベストプラクティス</h2>
+
+        <div class="tip">
+            <p><strong>✅ 推奨事項:</strong></p>
+            <ul>
+                <li><strong>型の統一:</strong> msg.payloadの型とStatesのValue Typeを必ず合わせる</li>
+                <li><strong>デフォルト状態の考慮:</strong> 未知の値を受け取った場合のグレー表示を意図的に活用する</li>
+                <li><strong>ラベルの活用:</strong> 複数のLEDを並べる場合は必ずラベルを設定して識別しやすくする</li>
+                <li><strong>グループ配置:</strong> 関連するLEDは同一グループに配置してまとめて表示する</li>
+                <li><strong>色の選択:</strong> 信号機の色（緑=正常、黄=注意、赤=異常）に従うと直感的</li>
+            </ul>
+        </div>
+
+        <div class="warning">
+            <p><strong>⚠️ 注意事項:</strong></p>
+            <ul>
+                <li>States定義が多すぎると管理が複雑になるため、5〜6段階程度に抑えることを推奨</li>
+                <li>高頻度のメッセージ（毎秒10回以上）を送信するとダッシュボードの描画に負荷がかかる可能性がある</li>
+                <li><code>allowColorForValueInMessage</code>を有効にする場合はセキュリティに注意（外部入力から直接色を指定できるため）</li>
+            </ul>
+        </div>
+
+        <h2>🔗 9. 追加リソース</h2>
+
+        <ul>
+            <li><a href="https://github.com/FlowFuse/node-red-dashboard-2-ui-led" target="_blank">GitHub リポジトリ（FlowFuse/node-red-dashboard-2-ui-led）</a></li>
+            <li><a href="https://dashboard.flowfuse.com/" target="_blank">Dashboard 2.0 公式ドキュメント</a></li>
+            <li><a href="nodered-dashboard2-overview.html">Dashboard 2.0 概要ガイド</a></li>
+            <li><a href="nodered-dashboard2-widgets-display.html">表示系ウィジェットガイド</a></li>
+        </ul>
+
+        <a href="index.html" style="position: fixed; bottom: 20px; right: 20px; background-color: #b92d5d; color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); z-index: 1000;" title="ホームに戻る">🏠</a>
+    </div>
+
+    <script>
+        function copyCode(button) {
+            const codeBlock = button.parentElement;
+            const code = codeBlock.textContent.replace('Copy', '').trim();
+
+            navigator.clipboard.writeText(code).then(function() {
+                button.classList.add('copied');
+                button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>Copied!';
+                setTimeout(function() {
+                    button.classList.remove('copied');
+                    button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>Copy';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
