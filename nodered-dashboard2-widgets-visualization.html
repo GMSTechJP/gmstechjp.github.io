@@ -1210,14 +1210,14 @@ msg.topic = "センサーA";</div>
                 <th>説明</th>
             </tr>
             <tr>
-                <td>Type</td>
+                <td>Type (gtype)</td>
                 <td>✓</td>
                 <td>gauge-34 / gauge-half / gauge-tile / gauge-battery / gauge-tank</td>
             </tr>
             <tr>
-                <td>Style</td>
+                <td>Style (gstyle)</td>
                 <td>✓</td>
-                <td>Rounded（丸）/ Needle（針）</td>
+                <td>rounded（丸）/ needle（針）</td>
             </tr>
             <tr>
                 <td>Range (min/max)</td>
@@ -1230,7 +1230,7 @@ msg.topic = "センサーA";</div>
                 <td>色分けするセグメントの定義</td>
             </tr>
             <tr>
-                <td>Label</td>
+                <td>Label (title)</td>
                 <td>✓</td>
                 <td>ゲージの上部に表示するラベル</td>
             </tr>
@@ -1503,25 +1503,24 @@ payload * 100         // パーセント変換</div>
             <p><strong>💡 演習の進め方:</strong></p>
             <ul>
                 <li>解答フローをインポートする前に、まず自分で作成してみましょう</li>
-                <li>デプロイ前に、各ノードの「Group」と「UI」を選択してください</li>
+                <li>解答フローには完全なダッシュボード構成が含まれているため、インポート後すぐにデプロイして動作確認できます</li>
                 <li>ヒントは「学習対象外のノード」は詳しく、「学習対象ノード」は最小限にしています</li>
             </ul>
         </div>
-        
+
         <h3>📈 chart ウィジェット演習</h3>
         
         <div class="exercise">
-            <h3>演習 C-1: シンプルな温度グラフ<span class="difficulty difficulty-medium">中級</span></h3>
+            <h3>演習 C-1: シンプルな温度グラフ<span class="difficulty difficulty-easy">初級</span></h3>
             
             <p><strong>📋 課題:</strong></p>
-            <p>温度センサーの値をリアルタイムで折れ線グラフとゲージに表示するダッシュボードを作成してください。</p>
+            <p>温度センサーの値をリアルタイムで折れ線グラフに表示するダッシュボードを作成してください。</p>
             
             <p><strong>🎯 要求仕様:</strong></p>
             <ul>
                 <li>Injectノード: 2秒ごとにトリガー</li>
                 <li>Functionノード: 20〜40の範囲でランダムな温度値を生成</li>
                 <li>ui-chart: 折れ線グラフで温度推移を表示（過去60秒分）</li>
-                <li>ui-gauge: 3/4ゲージで現在温度を表示（セグメント色分け付き）</li>
             </ul>
             
             <details>
@@ -1537,13 +1536,6 @@ return msg;</div>
                     <li>X-Axis Type: Timescale</li>
                     <li>X-Axis Limit: 1分</li>
                     <li>Series: msg.topic</li>
-                </ul>
-                <p><strong>ui-gaugeの設定:</strong></p>
-                <ul>
-                    <li>Type: 3/4 Gauge</li>
-                    <li>Min: 0, Max: 50</li>
-                    <li>Units: °C</li>
-                    <li>Segments: 0→青, 25→緑, 35→オレンジ, 40→赤</li>
                 </ul>
             </details>
             
@@ -1659,7 +1651,7 @@ return msg;</div>
         "libs": [],
         "x": 280,
         "y": 100,
-        "wires": [["ex1_chart", "ex1_gauge"]]
+        "wires": [["ex1_chart"]]
     },
     {
         "id": "ex1_chart",
@@ -1697,38 +1689,6 @@ return msg;</div>
         "x": 450,
         "y": 80,
         "wires": [[]]
-    },
-    {
-        "id": "ex1_gauge",
-        "type": "ui-gauge",
-        "z": "ex1_tab",
-        "name": "現在温度",
-        "group": "ex1_ui_group",
-        "order": 2,
-        "width": "0",
-        "height": "0",
-        "gtype": "gauge-34",
-        "gstyle": "rounded",
-        "title": "現在温度",
-        "units": "°C",
-        "icon": "mdi-thermometer",
-        "prefix": "",
-        "suffix": "",
-        "segments": [
-            {"from": 0, "color": "#2196f3"},
-            {"from": 25, "color": "#4caf50"},
-            {"from": 35, "color": "#ff9800"},
-            {"from": 40, "color": "#f44336"}
-        ],
-        "min": 0,
-        "max": 50,
-        "sizeThickness": 16,
-        "sizeGap": 4,
-        "sizeKeyThickness": 8,
-        "className": "",
-        "x": 450,
-        "y": 120,
-        "wires": []
     }
 ]</div>
             </details>
@@ -1986,7 +1946,7 @@ return msg;</div>
         </div>
         
         <div class="exercise">
-            <h3>演習 C-3: カテゴリ別棒グラフとデータクリア<span class="difficulty difficulty-medium">中級</span></h3>
+            <h3>演習 C-3: カテゴリ別棒グラフとデータクリア<span class="difficulty difficulty-hard">上級</span></h3>
             
             <p><strong>📋 課題:</strong></p>
             <p>月別の売上データを棒グラフで表示し、データの更新・クリア・アニメーションの切替えができるダッシュボードを作成してください。</p>
@@ -2202,6 +2162,50 @@ return msg;</div>
         "info": ""
     },
     {
+        "id": "g1_ui_base",
+        "type": "ui-base",
+        "name": "Dashboard",
+        "path": "/dashboard",
+        "includeClientData": true,
+        "acceptsClientConfig": ["ui-notification", "ui-control"],
+        "showPathInSidebar": false
+    },
+    {
+        "id": "g1_ui_page",
+        "type": "ui-page",
+        "name": "演習G-1",
+        "ui": "g1_ui_base",
+        "path": "/g1",
+        "icon": "home",
+        "layout": "grid",
+        "theme": "g1_ui_theme",
+        "order": 1,
+        "visible": true,
+        "disabled": false
+    },
+    {
+        "id": "g1_ui_theme",
+        "type": "ui-theme",
+        "name": "Default Theme",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#0094ce",
+            "bgPage": "#eeeeee",
+            "groupBg": "#ffffff",
+            "groupOutline": "#cccccc"
+        }
+    },
+    {
+        "id": "g1_ui_group",
+        "type": "ui-group",
+        "name": "温度ゲージ",
+        "page": "g1_ui_page",
+        "width": "6",
+        "height": "1",
+        "order": 1,
+        "showTitle": true
+    },
+    {
         "id": "g1_inject",
         "type": "inject",
         "z": "g1_tab",
@@ -2234,7 +2238,7 @@ return msg;</div>
         "type": "ui-gauge",
         "z": "g1_tab",
         "name": "温度ゲージ",
-        "group": "",
+        "group": "g1_ui_group",
         "order": 1,
         "width": "6",
         "height": "4",
@@ -2306,6 +2310,50 @@ return msg;</div>
         "info": ""
     },
     {
+        "id": "g2_ui_base",
+        "type": "ui-base",
+        "name": "Dashboard",
+        "path": "/dashboard",
+        "includeClientData": true,
+        "acceptsClientConfig": ["ui-notification", "ui-control"],
+        "showPathInSidebar": false
+    },
+    {
+        "id": "g2_ui_page",
+        "type": "ui-page",
+        "name": "演習G-2",
+        "ui": "g2_ui_base",
+        "path": "/g2",
+        "icon": "home",
+        "layout": "grid",
+        "theme": "g2_ui_theme",
+        "order": 1,
+        "visible": true,
+        "disabled": false
+    },
+    {
+        "id": "g2_ui_theme",
+        "type": "ui-theme",
+        "name": "Default Theme",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#0094ce",
+            "bgPage": "#eeeeee",
+            "groupBg": "#ffffff",
+            "groupOutline": "#cccccc"
+        }
+    },
+    {
+        "id": "g2_ui_group",
+        "type": "ui-group",
+        "name": "ゲージ比較",
+        "page": "g2_ui_page",
+        "width": "6",
+        "height": "1",
+        "order": 1,
+        "showTitle": true
+    },
+    {
         "id": "g2_inject",
         "type": "inject",
         "z": "g2_tab",
@@ -2338,7 +2386,7 @@ return msg;</div>
         "type": "ui-gauge",
         "z": "g2_tab",
         "name": "Half Gauge",
-        "group": "",
+        "group": "g2_ui_group",
         "order": 1,
         "width": "4",
         "height": "3",
@@ -2364,7 +2412,7 @@ return msg;</div>
         "type": "ui-gauge",
         "z": "g2_tab",
         "name": "Tile Gauge",
-        "group": "",
+        "group": "g2_ui_group",
         "order": 2,
         "width": "4",
         "height": "3",
@@ -2390,7 +2438,7 @@ return msg;</div>
         "type": "ui-gauge",
         "z": "g2_tab",
         "name": "Battery Gauge",
-        "group": "",
+        "group": "g2_ui_group",
         "order": 3,
         "width": "4",
         "height": "3",
@@ -2478,6 +2526,50 @@ return msg;</div>
         "info": ""
     },
     {
+        "id": "g3_ui_base",
+        "type": "ui-base",
+        "name": "Dashboard",
+        "path": "/dashboard",
+        "includeClientData": true,
+        "acceptsClientConfig": ["ui-notification", "ui-control"],
+        "showPathInSidebar": false
+    },
+    {
+        "id": "g3_ui_page",
+        "type": "ui-page",
+        "name": "演習G-3",
+        "ui": "g3_ui_base",
+        "path": "/g3",
+        "icon": "home",
+        "layout": "grid",
+        "theme": "g3_ui_theme",
+        "order": 1,
+        "visible": true,
+        "disabled": false
+    },
+    {
+        "id": "g3_ui_theme",
+        "type": "ui-theme",
+        "name": "Default Theme",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#0094ce",
+            "bgPage": "#eeeeee",
+            "groupBg": "#ffffff",
+            "groupOutline": "#cccccc"
+        }
+    },
+    {
+        "id": "g3_ui_group",
+        "type": "ui-group",
+        "name": "動的ゲージ",
+        "page": "g3_ui_page",
+        "width": "6",
+        "height": "1",
+        "order": 1,
+        "showTitle": true
+    },
+    {
         "id": "g3_inject",
         "type": "inject",
         "z": "g3_tab",
@@ -2510,7 +2602,7 @@ return msg;</div>
         "type": "ui-gauge",
         "z": "g3_tab",
         "name": "動的ゲージ",
-        "group": "",
+        "group": "g3_ui_group",
         "order": 1,
         "width": "6",
         "height": "4",
@@ -2580,6 +2672,50 @@ return msg;</div>
         "info": ""
     },
     {
+        "id": "tb1_ui_base",
+        "type": "ui-base",
+        "name": "Dashboard",
+        "path": "/dashboard",
+        "includeClientData": true,
+        "acceptsClientConfig": ["ui-notification", "ui-control"],
+        "showPathInSidebar": false
+    },
+    {
+        "id": "tb1_ui_page",
+        "type": "ui-page",
+        "name": "演習TB-1",
+        "ui": "tb1_ui_base",
+        "path": "/tb1",
+        "icon": "home",
+        "layout": "grid",
+        "theme": "tb1_ui_theme",
+        "order": 1,
+        "visible": true,
+        "disabled": false
+    },
+    {
+        "id": "tb1_ui_theme",
+        "type": "ui-theme",
+        "name": "Default Theme",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#0094ce",
+            "bgPage": "#eeeeee",
+            "groupBg": "#ffffff",
+            "groupOutline": "#cccccc"
+        }
+    },
+    {
+        "id": "tb1_ui_group",
+        "type": "ui-group",
+        "name": "センサー一覧",
+        "page": "tb1_ui_page",
+        "width": "6",
+        "height": "1",
+        "order": 1,
+        "showTitle": true
+    },
+    {
         "id": "tb1_inject",
         "type": "inject",
         "z": "tb1_tab",
@@ -2600,7 +2736,7 @@ return msg;</div>
         "id": "tb1_table",
         "type": "ui-table",
         "z": "tb1_tab",
-        "group": "",
+        "group": "tb1_ui_group",
         "name": "センサー一覧",
         "label": "",
         "order": 1,
@@ -3066,10 +3202,54 @@ return msg;</div>
         "info": ""
     },
     {
+        "id": "p1_ui_base",
+        "type": "ui-base",
+        "name": "Dashboard",
+        "path": "/dashboard",
+        "includeClientData": true,
+        "acceptsClientConfig": ["ui-notification", "ui-control"],
+        "showPathInSidebar": false
+    },
+    {
+        "id": "p1_ui_page",
+        "type": "ui-page",
+        "name": "演習P-1",
+        "ui": "p1_ui_base",
+        "path": "/p1",
+        "icon": "home",
+        "layout": "grid",
+        "theme": "p1_ui_theme",
+        "order": 1,
+        "visible": true,
+        "disabled": false
+    },
+    {
+        "id": "p1_ui_theme",
+        "type": "ui-theme",
+        "name": "Default Theme",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#0094ce",
+            "bgPage": "#eeeeee",
+            "groupBg": "#ffffff",
+            "groupOutline": "#cccccc"
+        }
+    },
+    {
+        "id": "p1_ui_group",
+        "type": "ui-group",
+        "name": "プログレス",
+        "page": "p1_ui_page",
+        "width": "6",
+        "height": "1",
+        "order": 1,
+        "showTitle": true
+    },
+    {
         "id": "p1_slider",
         "type": "ui-slider",
         "z": "p1_tab",
-        "group": "",
+        "group": "p1_ui_group",
         "name": "進捗スライダー",
         "label": "進捗率",
         "order": 1,
@@ -3090,7 +3270,7 @@ return msg;</div>
         "id": "p1_progress",
         "type": "ui-progress",
         "z": "p1_tab",
-        "group": "",
+        "group": "p1_ui_group",
         "name": "進捗バー",
         "order": 2,
         "width": "6",
@@ -3172,10 +3352,54 @@ return null;</div>
         "info": ""
     },
     {
+        "id": "p2_ui_base",
+        "type": "ui-base",
+        "name": "Dashboard",
+        "path": "/dashboard",
+        "includeClientData": true,
+        "acceptsClientConfig": ["ui-notification", "ui-control"],
+        "showPathInSidebar": false
+    },
+    {
+        "id": "p2_ui_page",
+        "type": "ui-page",
+        "name": "演習P-2",
+        "ui": "p2_ui_base",
+        "path": "/p2",
+        "icon": "home",
+        "layout": "grid",
+        "theme": "p2_ui_theme",
+        "order": 1,
+        "visible": true,
+        "disabled": false
+    },
+    {
+        "id": "p2_ui_theme",
+        "type": "ui-theme",
+        "name": "Default Theme",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#0094ce",
+            "bgPage": "#eeeeee",
+            "groupBg": "#ffffff",
+            "groupOutline": "#cccccc"
+        }
+    },
+    {
+        "id": "p2_ui_group",
+        "type": "ui-group",
+        "name": "円形プログレス",
+        "page": "p2_ui_page",
+        "width": "6",
+        "height": "1",
+        "order": 1,
+        "showTitle": true
+    },
+    {
         "id": "p2_btn_start",
         "type": "ui-button",
         "z": "p2_tab",
-        "group": "",
+        "group": "p2_ui_group",
         "name": "開始",
         "label": "🚀 開始",
         "order": 1,
@@ -3229,7 +3453,7 @@ return null;</div>
         "id": "p2_progress",
         "type": "ui-progress",
         "z": "p2_tab",
-        "group": "",
+        "group": "p2_ui_group",
         "name": "処理進捗",
         "order": 2,
         "width": "3",

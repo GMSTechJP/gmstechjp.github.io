@@ -2521,6 +2521,7 @@ msg.payload = {
                 <li>まず要求仕様を読んで、自分でフローを考えてみましょう</li>
                 <li>詰まったらヒントを開いて参考にしてください</li>
                 <li>解答例は一例です。同じ結果が得られれば別の方法でもOK！</li>
+                <li>解答フローには完全なダッシュボード構成が含まれているため、インポート後すぐにデプロイして動作確認できます</li>
             </ul>
         </div>
         
@@ -2557,7 +2558,7 @@ msg.payload = {
             
             <details>
                 <summary>✅ 解答例フロー</summary>
-                <div class="flow-json">[{"id":"t1_inject","type":"inject","name":"稼働中","props":[{"p":"payload"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","payload":"稼働中","payloadType":"str","x":130,"y":100,"wires":[["t1_ui_text"]]},{"id":"t1_ui_text","type":"ui-text","group":"","order":1,"width":0,"height":0,"name":"ステータス表示","label":"システム状態:","format":"{{msg.payload}}","layout":"row-spread","style":false,"font":"","fontSize":16,"color":"#000000","x":330,"y":100,"wires":[]}]</div>
+                <div class="flow-json">[{"id":"t1_ui_base","type":"ui-base","name":"Dashboard","path":"/dashboard","includeClientData":true,"acceptsClientConfig":["ui-notification","ui-control"],"showPathInSidebar":false},{"id":"t1_ui_page","type":"ui-page","name":"演習T-1","ui":"t1_ui_base","path":"/t1","icon":"home","layout":"grid","theme":"t1_ui_theme","order":1,"visible":true,"disabled":false},{"id":"t1_ui_theme","type":"ui-theme","name":"Default Theme","colors":{"surface":"#ffffff","primary":"#0094ce","bgPage":"#eeeeee","groupBg":"#ffffff","groupOutline":"#cccccc"}},{"id":"t1_ui_group","type":"ui-group","name":"ステータス","page":"t1_ui_page","width":"6","height":"1","order":1,"showTitle":true},{"id":"t1_inject","type":"inject","name":"稼働中","props":[{"p":"payload"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","payload":"稼働中","payloadType":"str","x":130,"y":100,"wires":[["t1_ui_text"]]},{"id":"t1_ui_text","type":"ui-text","group":"t1_ui_group","order":1,"width":0,"height":0,"name":"ステータス表示","label":"システム状態:","format":"{{msg.payload}}","layout":"row-spread","style":false,"font":"","fontSize":16,"color":"#000000","x":330,"y":100,"wires":[]}]</div>
             </details>
         </div>
         
@@ -2594,9 +2595,13 @@ return msg;</div>
             <details>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
-    {"id":"t1_inject","type":"inject","name":"1秒間隔","props":[{"p":"payload"}],"repeat":"1","crontab":"","once":true,"onceDelay":0.1,"topic":"","payload":"","payloadType":"date","x":130,"y":100,"wires":[["t1_function"]]},
-    {"id":"t1_function","type":"function","name":"時刻フォーマット","func":"const now = new Date(msg.payload);\nconst h = String(now.getHours()).padStart(2, '0');\nconst m = String(now.getMinutes()).padStart(2, '0');\nconst s = String(now.getSeconds()).padStart(2, '0');\nmsg.payload = `${h}:${m}:${s}`;\nreturn msg;","outputs":1,"x":320,"y":100,"wires":[["t1_ui_text"]]},
-    {"id":"t1_ui_text","type":"ui-text","group":"","order":1,"width":0,"height":0,"name":"時刻表示","label":"現在時刻:","format":"{{msg.payload}}","layout":"row-spread","style":false,"font":"","fontSize":16,"color":"#000000","wrapText":false,"className":"","value":"payload","valueType":"msg","x":510,"y":100,"wires":[]}
+    {"id":"t2_ui_base","type":"ui-base","name":"Dashboard","path":"/dashboard","includeClientData":true,"acceptsClientConfig":["ui-notification","ui-control"],"showPathInSidebar":false},
+    {"id":"t2_ui_page","type":"ui-page","name":"演習T-2","ui":"t2_ui_base","path":"/t2","icon":"home","layout":"grid","theme":"t2_ui_theme","order":1,"visible":true,"disabled":false},
+    {"id":"t2_ui_theme","type":"ui-theme","name":"Default Theme","colors":{"surface":"#ffffff","primary":"#0094ce","bgPage":"#eeeeee","groupBg":"#ffffff","groupOutline":"#cccccc"}},
+    {"id":"t2_ui_group","type":"ui-group","name":"時刻表示","page":"t2_ui_page","width":"6","height":"1","order":1,"showTitle":true},
+    {"id":"t2_inject","type":"inject","name":"1秒間隔","props":[{"p":"payload"}],"repeat":"1","crontab":"","once":true,"onceDelay":0.1,"topic":"","payload":"","payloadType":"date","x":130,"y":100,"wires":[["t2_function"]]},
+    {"id":"t2_function","type":"function","name":"時刻フォーマット","func":"const now = new Date(msg.payload);\nconst h = String(now.getHours()).padStart(2, '0');\nconst m = String(now.getMinutes()).padStart(2, '0');\nconst s = String(now.getSeconds()).padStart(2, '0');\nmsg.payload = `${h}:${m}:${s}`;\nreturn msg;","outputs":1,"x":320,"y":100,"wires":[["t2_ui_text"]]},
+    {"id":"t2_ui_text","type":"ui-text","group":"t2_ui_group","order":1,"width":0,"height":0,"name":"時刻表示","label":"現在時刻:","format":"{{msg.payload}}","layout":"row-spread","style":false,"font":"","fontSize":16,"color":"#000000","wrapText":false,"className":"","value":"payload","valueType":"msg","x":510,"y":100,"wires":[]}
 ]</div>
             </details>
         </div>
@@ -2635,10 +2640,14 @@ return msg;</div>
             <details>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
-    {"id":"t2_inject_hot","type":"inject","name":"高温 (32℃)","props":[{"p":"payload"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","payload":"32","payloadType":"num","x":130,"y":100,"wires":[["t2_function"]]},
-    {"id":"t2_inject_normal","type":"inject","name":"通常 (25℃)","props":[{"p":"payload"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","payload":"25","payloadType":"num","x":130,"y":160,"wires":[["t2_function"]]},
-    {"id":"t2_function","type":"function","name":"色設定","func":"msg.ui_update = {\n    color: msg.payload >= 30 ? \"#ff0000\" : \"#4caf50\",\n    fontSize: \"20px\"\n};\nmsg.payload = msg.payload + \" ℃\";\nreturn msg;","outputs":1,"x":320,"y":130,"wires":[["t2_ui_text"]]},
-    {"id":"t2_ui_text","type":"ui-text","group":"","order":1,"width":0,"height":0,"name":"温度表示","label":"温度:","format":"{{msg.payload}}","layout":"row-spread","style":true,"font":"","fontSize":16,"color":"#000000","wrapText":false,"className":"","value":"payload","valueType":"msg","x":490,"y":130,"wires":[]}
+    {"id":"t3_ui_base","type":"ui-base","name":"Dashboard","path":"/dashboard","includeClientData":true,"acceptsClientConfig":["ui-notification","ui-control"],"showPathInSidebar":false},
+    {"id":"t3_ui_page","type":"ui-page","name":"演習T-3","ui":"t3_ui_base","path":"/t3","icon":"home","layout":"grid","theme":"t3_ui_theme","order":1,"visible":true,"disabled":false},
+    {"id":"t3_ui_theme","type":"ui-theme","name":"Default Theme","colors":{"surface":"#ffffff","primary":"#0094ce","bgPage":"#eeeeee","groupBg":"#ffffff","groupOutline":"#cccccc"}},
+    {"id":"t3_ui_group","type":"ui-group","name":"温度モニター","page":"t3_ui_page","width":"6","height":"1","order":1,"showTitle":true},
+    {"id":"t3_inject_hot","type":"inject","name":"高温 (32℃)","props":[{"p":"payload"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","payload":"32","payloadType":"num","x":130,"y":100,"wires":[["t3_function"]]},
+    {"id":"t3_inject_normal","type":"inject","name":"通常 (25℃)","props":[{"p":"payload"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","payload":"25","payloadType":"num","x":130,"y":160,"wires":[["t3_function"]]},
+    {"id":"t3_function","type":"function","name":"色設定","func":"msg.ui_update = {\n    color: msg.payload >= 30 ? \"#ff0000\" : \"#4caf50\",\n    fontSize: \"20px\"\n};\nmsg.payload = msg.payload + \" ℃\";\nreturn msg;","outputs":1,"x":320,"y":130,"wires":[["t3_ui_text"]]},
+    {"id":"t3_ui_text","type":"ui-text","group":"t3_ui_group","order":1,"width":0,"height":0,"name":"温度表示","label":"温度:","format":"{{msg.payload}}","layout":"row-spread","style":true,"font":"","fontSize":16,"color":"#000000","wrapText":false,"className":"","value":"payload","valueType":"msg","x":490,"y":130,"wires":[]}
 ]</div>
             </details>
         </div>
@@ -2675,10 +2684,14 @@ return msg;</div>
             <details>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
-    {"id":"t3_inject_ok","type":"inject","name":"正常ステータス","props":[{"p":"payload.name","v":"サーバーA","vt":"str"},{"p":"payload.status","v":"正常","vt":"str"},{"p":"payload.url","v":"https://example.com/serverA","vt":"str"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","x":140,"y":100,"wires":[["t3_template"]]},
-    {"id":"t3_inject_err","type":"inject","name":"エラーステータス","props":[{"p":"payload.name","v":"サーバーB","vt":"str"},{"p":"payload.status","v":"エラー","vt":"str"},{"p":"payload.url","v":"https://example.com/serverB","vt":"str"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","x":140,"y":160,"wires":[["t3_template"]]},
-    {"id":"t3_template","type":"template","name":"HTML生成","field":"payload","fieldType":"msg","format":"handlebars","syntax":"mustache","template":"<a href=\"{{payload.url}}\" target=\"_blank\">{{payload.name}}</a>: <span style=\"color: {{#eq payload.status '正常'}}green{{else}}red{{/eq}}; font-weight: bold;\">{{payload.status}}</span>","output":"str","x":340,"y":130,"wires":[["t3_ui_text"]]},
-    {"id":"t3_ui_text","type":"ui-text","group":"","order":1,"width":0,"height":0,"name":"ステータス表示","label":"","format":"{{msg.payload}}","layout":"row-left","style":false,"font":"","fontSize":16,"color":"#000000","wrapText":false,"className":"","value":"payload","valueType":"msg","x":530,"y":130,"wires":[]}
+    {"id":"t4_ui_base","type":"ui-base","name":"Dashboard","path":"/dashboard","includeClientData":true,"acceptsClientConfig":["ui-notification","ui-control"],"showPathInSidebar":false},
+    {"id":"t4_ui_page","type":"ui-page","name":"演習T-4","ui":"t4_ui_base","path":"/t4","icon":"home","layout":"grid","theme":"t4_ui_theme","order":1,"visible":true,"disabled":false},
+    {"id":"t4_ui_theme","type":"ui-theme","name":"Default Theme","colors":{"surface":"#ffffff","primary":"#0094ce","bgPage":"#eeeeee","groupBg":"#ffffff","groupOutline":"#cccccc"}},
+    {"id":"t4_ui_group","type":"ui-group","name":"サーバーステータス","page":"t4_ui_page","width":"6","height":"1","order":1,"showTitle":true},
+    {"id":"t4_inject_ok","type":"inject","name":"正常ステータス","props":[{"p":"payload.name","v":"サーバーA","vt":"str"},{"p":"payload.status","v":"正常","vt":"str"},{"p":"payload.url","v":"https://example.com/serverA","vt":"str"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","x":140,"y":100,"wires":[["t4_template"]]},
+    {"id":"t4_inject_err","type":"inject","name":"エラーステータス","props":[{"p":"payload.name","v":"サーバーB","vt":"str"},{"p":"payload.status","v":"エラー","vt":"str"},{"p":"payload.url","v":"https://example.com/serverB","vt":"str"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","x":140,"y":160,"wires":[["t4_template"]]},
+    {"id":"t4_template","type":"template","name":"HTML生成","field":"payload","fieldType":"msg","format":"handlebars","syntax":"mustache","template":"<a href=\"{{payload.url}}\" target=\"_blank\">{{payload.name}}</a>: <span style=\"color: {{#eq payload.status '正常'}}green{{else}}red{{/eq}}; font-weight: bold;\">{{payload.status}}</span>","output":"str","x":340,"y":130,"wires":[["t4_ui_text"]]},
+    {"id":"t4_ui_text","type":"ui-text","group":"t4_ui_group","order":1,"width":0,"height":0,"name":"ステータス表示","label":"","format":"{{msg.payload}}","layout":"row-left","style":false,"font":"","fontSize":16,"color":"#000000","wrapText":false,"className":"","value":"payload","valueType":"msg","x":530,"y":130,"wires":[]}
 ]</div>
             </details>
         </div>
@@ -2719,7 +2732,11 @@ return msg;</div>
             <details>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
-    {"id":"m1_markdown","type":"ui-markdown","group":"","name":"ヘルプページ","order":1,"width":0,"height":0,"content":"## 📖 操作ガイド\n\n### 基本操作\n1. **開始ボタン**をクリックして処理を開始\n2. ステータス表示で進捗を確認\n3. **停止ボタン**で終了\n\n### 注意事項\n- 処理中は画面を閉じないでください\n- エラー時は管理者に連絡\n\n---\n*詳細は [公式ドキュメント](https://dashboard.flowfuse.com/) を参照*","className":"","x":150,"y":100,"wires":[[]]}
+    {"id":"m1_ui_base","type":"ui-base","name":"Dashboard","path":"/dashboard","includeClientData":true,"acceptsClientConfig":["ui-notification","ui-control"],"showPathInSidebar":false},
+    {"id":"m1_ui_page","type":"ui-page","name":"演習M-1","ui":"m1_ui_base","path":"/m1","icon":"home","layout":"grid","theme":"m1_ui_theme","order":1,"visible":true,"disabled":false},
+    {"id":"m1_ui_theme","type":"ui-theme","name":"Default Theme","colors":{"surface":"#ffffff","primary":"#0094ce","bgPage":"#eeeeee","groupBg":"#ffffff","groupOutline":"#cccccc"}},
+    {"id":"m1_ui_group","type":"ui-group","name":"ヘルプ","page":"m1_ui_page","width":"6","height":"1","order":1,"showTitle":true},
+    {"id":"m1_markdown","type":"ui-markdown","group":"m1_ui_group","name":"ヘルプページ","order":1,"width":0,"height":0,"content":"## 📖 操作ガイド\n\n### 基本操作\n1. **開始ボタン**をクリックして処理を開始\n2. ステータス表示で進捗を確認\n3. **停止ボタン**で終了\n\n### 注意事項\n- 処理中は画面を閉じないでください\n- エラー時は管理者に連絡\n\n---\n*詳細は [公式ドキュメント](https://dashboard.flowfuse.com/) を参照*","className":"","x":150,"y":100,"wires":[[]]}
 ]</div>
             </details>
         </div>
@@ -2758,8 +2775,12 @@ return msg;</div>
             <details>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
+    {"id":"m2_ui_base","type":"ui-base","name":"Dashboard","path":"/dashboard","includeClientData":true,"acceptsClientConfig":["ui-notification","ui-control"],"showPathInSidebar":false},
+    {"id":"m2_ui_page","type":"ui-page","name":"演習M-2","ui":"m2_ui_base","path":"/m2","icon":"home","layout":"grid","theme":"m2_ui_theme","order":1,"visible":true,"disabled":false},
+    {"id":"m2_ui_theme","type":"ui-theme","name":"Default Theme","colors":{"surface":"#ffffff","primary":"#0094ce","bgPage":"#eeeeee","groupBg":"#ffffff","groupOutline":"#cccccc"}},
+    {"id":"m2_ui_group","type":"ui-group","name":"センサーデータ","page":"m2_ui_page","width":"6","height":"1","order":1,"showTitle":true},
     {"id":"m2_inject","type":"inject","name":"センサーデータ","props":[{"p":"payload.temperature","v":"25.5","vt":"num"},{"p":"payload.humidity","v":"60","vt":"num"},{"p":"payload.pressure","v":"1013","vt":"num"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","x":140,"y":100,"wires":[["m2_markdown"]]},
-    {"id":"m2_markdown","type":"ui-markdown","group":"","order":1,"width":0,"height":0,"name":"センサーレポート","content":"## 📊 環境モニタリングレポート\n\n| センサー | 値 | 単位 |\n|---------|-----|-----|\n| 🌡️ 温度 | **{{ msg?.payload?.temperature || '--' }}** | ℃ |\n| 💧 湿度 | **{{ msg?.payload?.humidity || '--' }}** | % |\n| 🌀 気圧 | **{{ msg?.payload?.pressure || '--' }}** | hPa |\n\n---\n*データ受信時に自動更新*","className":"","x":360,"y":100,"wires":[[]]}
+    {"id":"m2_markdown","type":"ui-markdown","group":"m2_ui_group","order":1,"width":0,"height":0,"name":"センサーレポート","content":"## 📊 環境モニタリングレポート\n\n| センサー | 値 | 単位 |\n|---------|-----|-----|\n| 🌡️ 温度 | **{{ msg?.payload?.temperature || '--' }}** | ℃ |\n| 💧 湿度 | **{{ msg?.payload?.humidity || '--' }}** | % |\n| 🌀 気圧 | **{{ msg?.payload?.pressure || '--' }}** | hPa |\n\n---\n*データ受信時に自動更新*","className":"","x":360,"y":100,"wires":[[]]}
 ]</div>
             </details>
         </div>
@@ -2814,10 +2835,14 @@ graph TD;
             <details>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
+    {"id":"m3_ui_base","type":"ui-base","name":"Dashboard","path":"/dashboard","includeClientData":true,"acceptsClientConfig":["ui-notification","ui-control"],"showPathInSidebar":false},
+    {"id":"m3_ui_page","type":"ui-page","name":"演習M-3","ui":"m3_ui_base","path":"/m3","icon":"home","layout":"grid","theme":"m3_ui_theme","order":1,"visible":true,"disabled":false},
+    {"id":"m3_ui_theme","type":"ui-theme","name":"Default Theme","colors":{"surface":"#ffffff","primary":"#0094ce","bgPage":"#eeeeee","groupBg":"#ffffff","groupOutline":"#cccccc"}},
+    {"id":"m3_ui_group","type":"ui-group","name":"システム構成","page":"m3_ui_page","width":"6","height":"1","order":1,"showTitle":true},
     {"id":"m3_inject_ok","type":"inject","name":"全正常","props":[{"p":"payload.serverStatus","v":"正常","vt":"str"},{"p":"payload.dbStatus","v":"正常","vt":"str"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","x":110,"y":100,"wires":[["m3_function"]]},
     {"id":"m3_inject_err","type":"inject","name":"DB異常","props":[{"p":"payload.serverStatus","v":"正常","vt":"str"},{"p":"payload.dbStatus","v":"異常","vt":"str"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","x":110,"y":160,"wires":[["m3_function"]]},
     {"id":"m3_function","type":"function","name":"スタイル生成","func":"const serverStyle = msg.payload.serverStatus === '正常' ? 'fill:#4caf50,color:#fff' : 'fill:#f44336,color:#fff';\nconst dbStyle = msg.payload.dbStatus === '正常' ? 'fill:#4caf50,color:#fff' : 'fill:#f44336,color:#fff';\nmsg.payload = { serverStyle, dbStyle, serverStatus: msg.payload.serverStatus, dbStatus: msg.payload.dbStatus };\nreturn msg;","outputs":1,"x":300,"y":130,"wires":[["m3_markdown"]]},
-    {"id":"m3_markdown","type":"ui-markdown","group":"","order":1,"width":0,"height":0,"name":"システム構成図","content":"## 🔧 システム状態\n\n```mermaid\ngraph TD;\n    A[センサー] --> B[サーバー];\n    B --> C[データベース];\n    B --> D[Dashboard];\n    style B {{ msg?.payload?.serverStyle || '' }};\n    style C {{ msg?.payload?.dbStyle || '' }};\n```\n\n| コンポーネント | 状態 |\n|---------------|------|\n| サーバー | {{ msg?.payload?.serverStatus || '不明' }} |\n| データベース | {{ msg?.payload?.dbStatus || '不明' }} |","x":490,"y":130,"wires":[[]]}
+    {"id":"m3_markdown","type":"ui-markdown","group":"m3_ui_group","order":1,"width":0,"height":0,"name":"システム構成図","content":"## 🔧 システム状態\n\n```mermaid\ngraph TD;\n    A[センサー] --> B[サーバー];\n    B --> C[データベース];\n    B --> D[Dashboard];\n    style B {{ msg?.payload?.serverStyle || '' }};\n    style C {{ msg?.payload?.dbStyle || '' }};\n```\n\n| コンポーネント | 状態 |\n|---------------|------|\n| サーバー | {{ msg?.payload?.serverStatus || '不明' }} |\n| データベース | {{ msg?.payload?.dbStatus || '不明' }} |","x":490,"y":130,"wires":[[]]}
 ]</div>
             </details>
         </div>
@@ -2857,8 +2882,9 @@ graph TD;
             <details>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
+    {"id":"n1_ui_base","type":"ui-base","name":"Dashboard","path":"/dashboard","includeClientData":true,"acceptsClientConfig":["ui-notification","ui-control"],"showPathInSidebar":false},
     {"id":"n1_inject","type":"inject","name":"通知送信","props":[{"p":"payload"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","payload":"処理が完了しました","payloadType":"str","x":130,"y":100,"wires":[["n1_notify"]]},
-    {"id":"n1_notify","type":"ui-notification","ui":"","position":"top right","colorDefault":true,"color":"#000000","displayTime":"3","showCountdown":true,"allowDismiss":true,"dismissText":"OK","allowConfirm":false,"confirmText":"","raw":false,"name":"完了通知","x":330,"y":100,"wires":[[]]}
+    {"id":"n1_notify","type":"ui-notification","ui":"n1_ui_base","position":"top right","colorDefault":true,"color":"#000000","displayTime":"3","showCountdown":true,"allowDismiss":true,"dismissText":"OK","allowConfirm":false,"confirmText":"","raw":false,"name":"完了通知","x":330,"y":100,"wires":[[]]}
 ]</div>
             </details>
         </div>
@@ -2906,11 +2932,12 @@ graph TD;
             <details>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
-    {"id":"n3_inject","type":"inject","name":"確認要求","props":[{"p":"payload"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","payload":"処理を実行しますか？","payloadType":"str","x":140,"y":100,"wires":[["n3_notification"]]},
-    {"id":"n3_notification","type":"ui-notification","ui":"","position":"center center","colorDefault":false,"color":"#2196f3","displayTime":"0","showCountdown":false,"outputs":1,"allowDismiss":true,"dismissText":"NG","allowConfirm":true,"confirmText":"OK","raw":false,"className":"","name":"確認ダイアログ","x":350,"y":100,"wires":[["n3_switch"]]},
-    {"id":"n3_switch","type":"switch","name":"OK判定","property":"payload","propertyType":"msg","rules":[{"t":"eq","v":"OK","vt":"str"}],"checkall":"false","repair":false,"outputs":1,"x":520,"y":100,"wires":[["n3_change"]]},
-    {"id":"n3_change","type":"change","name":"メッセージ設定","rules":[{"t":"set","p":"payload","pt":"msg","to":"処理を実行しました","tot":"str"}],"x":680,"y":100,"wires":[["n3_debug"]]},
-    {"id":"n3_debug","type":"debug","name":"結果表示","active":true,"tosidebar":true,"console":false,"tostatus":true,"complete":"payload","targetType":"msg","statusVal":"payload","statusType":"auto","x":850,"y":100,"wires":[]}
+    {"id":"n2_ui_base","type":"ui-base","name":"Dashboard","path":"/dashboard","includeClientData":true,"acceptsClientConfig":["ui-notification","ui-control"],"showPathInSidebar":false},
+    {"id":"n2_inject","type":"inject","name":"確認要求","props":[{"p":"payload"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","payload":"処理を実行しますか？","payloadType":"str","x":140,"y":100,"wires":[["n2_notification"]]},
+    {"id":"n2_notification","type":"ui-notification","ui":"n2_ui_base","position":"center center","colorDefault":false,"color":"#2196f3","displayTime":"0","showCountdown":false,"outputs":1,"allowDismiss":true,"dismissText":"NG","allowConfirm":true,"confirmText":"OK","raw":false,"className":"","name":"確認ダイアログ","x":350,"y":100,"wires":[["n2_switch"]]},
+    {"id":"n2_switch","type":"switch","name":"OK判定","property":"payload","propertyType":"msg","rules":[{"t":"eq","v":"OK","vt":"str"}],"checkall":"false","repair":false,"outputs":1,"x":520,"y":100,"wires":[["n2_change"]]},
+    {"id":"n2_change","type":"change","name":"メッセージ設定","rules":[{"t":"set","p":"payload","pt":"msg","to":"処理を実行しました","tot":"str"}],"x":680,"y":100,"wires":[["n2_debug"]]},
+    {"id":"n2_debug","type":"debug","name":"結果表示","active":true,"tosidebar":true,"console":false,"tostatus":true,"complete":"payload","targetType":"msg","statusVal":"payload","statusType":"auto","x":850,"y":100,"wires":[]}
 ]</div>
             </details>
         </div>
@@ -3136,9 +3163,13 @@ graph TD;
             <details>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
+    {"id":"a1_ui_base","type":"ui-base","name":"Dashboard","path":"/dashboard","includeClientData":true,"acceptsClientConfig":["ui-notification","ui-control"],"showPathInSidebar":false},
+    {"id":"a1_ui_page","type":"ui-page","name":"演習A-1","ui":"a1_ui_base","path":"/a1","icon":"home","layout":"grid","theme":"a1_ui_theme","order":1,"visible":true,"disabled":false},
+    {"id":"a1_ui_theme","type":"ui-theme","name":"Default Theme","colors":{"surface":"#ffffff","primary":"#0094ce","bgPage":"#eeeeee","groupBg":"#ffffff","groupOutline":"#cccccc"}},
+    {"id":"a1_ui_group","type":"ui-group","name":"Audio Player","page":"a1_ui_page","width":"6","height":"1","order":1,"showTitle":true},
     {"id":"a1_reset","type":"inject","name":"起動時リセット","props":[{"p":"playback","v":"stop","vt":"str"}],"repeat":"","crontab":"","once":true,"onceDelay":0.5,"topic":"","x":140,"y":80,"wires":[["a1_audio"]]},
     {"id":"a1_inject_url","type":"inject","name":"URL設定&再生","props":[{"p":"payload"},{"p":"ui_update","v":"{\"autoplay\":\"on\",\"loop\":\"on\"}","vt":"json"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","payload":"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3","payloadType":"str","x":150,"y":120,"wires":[["a1_audio"]]},
-    {"id":"a1_audio","type":"ui-audio","group":"","name":"BGM Player","order":1,"width":"6","height":"1","mode":"src","voice":"","src":"","autoplay":false,"loop":false,"muted":false,"className":"","x":360,"y":100,"wires":[[]]}
+    {"id":"a1_audio","type":"ui-audio","group":"a1_ui_group","name":"BGM Player","order":1,"width":"6","height":"1","mode":"src","voice":"","src":"","autoplay":false,"loop":false,"muted":false,"className":"","x":360,"y":100,"wires":[[]]}
 ]</div>
                 <p style="margin-top: 10px; color: #666;"><small>※ 再生/一時停止はダッシュボード上のプレイヤーUIで操作します。「起動時リセット」はフロー再起動時の自動再生を防ぎます。</small></p>
             </details>
@@ -3179,8 +3210,9 @@ graph TD;
             <details>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
+    {"id":"a2_ui_base","type":"ui-base","name":"Dashboard","path":"/dashboard","includeClientData":true,"acceptsClientConfig":["ui-notification","ui-control"],"showPathInSidebar":false},
     {"id":"a2_inject","type":"inject","name":"読み上げ","props":[{"p":"payload","v":"{\"text\":\"こんにちは、ダッシュボードへようこそ\",\"rate\":1.0,\"volume\":100}","vt":"json"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","x":130,"y":100,"wires":[["a2_tts"]]},
-    {"id":"a2_tts","type":"ui-audio","ui":"","name":"TTS","mode":"tts","voice":"","src":"","autoplay":false,"loop":false,"muted":false,"className":"","x":310,"y":100,"wires":[[]]}
+    {"id":"a2_tts","type":"ui-audio","ui":"a2_ui_base","name":"TTS","mode":"tts","voice":"","src":"","autoplay":false,"loop":false,"muted":false,"className":"","x":310,"y":100,"wires":[[]]}
 ]</div>
             </details>
         </div>
