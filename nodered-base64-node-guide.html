@@ -406,6 +406,14 @@ return null;</div>
                 <li>各段階でDebugノードに出力して変換結果を確認</li>
             </ul>
 
+            <p><strong>✅ 成功の条件:</strong></p>
+            <ul>
+                <li>エンコード後のDebugノードに「Tm9kZS1SRUQgQmFzZTY0IO...」のようなBase64文字列（英数字と+/=のみで構成）が表示される</li>
+                <li>Base64文字列の末尾が<code>=</code>または<code>==</code>でパディングされている（元の文字数によって異なる）</li>
+                <li>デコード後のDebugノードに「Node-RED Base64 テスト」という元の文字列が表示される</li>
+                <li>エンコード→デコードの往復で元のテキストと完全に一致する</li>
+            </ul>
+
             <details>
                 <summary>💡 ヒント</summary>
                 <ul>
@@ -485,6 +493,14 @@ return null;</div>
                 <li>Debugノードで生成されたHTMLを確認</li>
             </ul>
 
+            <p><strong>✅ 成功の条件:</strong></p>
+            <ul>
+                <li>Debugノードに<code>data:image/png;base64,iVBORw0KGgo...</code>のようなData URI形式の文字列が表示される</li>
+                <li>出力文字列が<code>&lt;html&gt;&lt;body&gt;</code>で始まり、<code>&lt;img src="data:image/...;base64,</code>を含むHTMLになっている</li>
+                <li>生成されたHTMLをブラウザで開くと、外部ファイル参照なしに画像が表示される</li>
+                <li>Base64文字列部分が英数字と<code>+/=</code>のみで構成された有効なBase64形式になっている</li>
+            </ul>
+
             <details>
                 <summary>💡 ヒント</summary>
                 <ul>
@@ -555,6 +571,14 @@ return null;</div>
                 <li>受信側: MQTT inで受信後にbase64ノードでデコード</li>
                 <li>受信側: Functionノードでバイナリパケットを解析してJSON形式に変換</li>
                 <li>Debugノードで解析結果を確認</li>
+            </ul>
+
+            <p><strong>✅ 成功の条件:</strong></p>
+            <ul>
+                <li>「Base64パケット」Debugノードに16文字程度の有効なBase64文字列（英数字と<code>+/=</code>のみ）が表示される</li>
+                <li>「解析結果」Debugノードに<code>{"temperature": 25.5, "humidity": 60.2, "pressure": 1013.25}</code>のようなJSONオブジェクトが表示される</li>
+                <li>デコード後の各値（temperature/humidity/pressure）が元のバイナリパックの値と一致する（浮動小数点の誤差は許容範囲内）</li>
+                <li>Base64エンコード→デコード→バイナリ解析の全工程でエラーが発生しない</li>
             </ul>
 
             <details>

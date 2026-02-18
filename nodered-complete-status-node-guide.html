@@ -492,6 +492,13 @@
         <div class="exercise">
             <h3>演習1: Complete で処理時間を計測 <span class="difficulty difficulty-easy">初級</span></h3>
             <p><strong>📋 課題:</strong> Delay ノードの処理完了を Complete ノードで検知し、開始から完了までの時間を表示してください。</p>
+            <p><strong>✅ 成功の条件:</strong></p>
+            <ul>
+                <li>Injectボタンをクリックしてから約3秒後にデバッグサイドバーへ出力が表示される（即座には表示されない）</li>
+                <li>出力の <code>msg.payload</code> が <code>"経過時間: 3000ms"</code> のような文字列になっている（数値は設定した遅延時間に近い値）</li>
+                <li>Debugノードのステータス欄にも経過時間が表示される</li>
+                <li>Delayノードへの通常出力（メイン出力）とCompleteノードからの完了通知が別々に処理されている</li>
+            </ul>
             <details>
                 <summary>💡 ヒント</summary>
                 <p>1. Inject ノードで msg.startTime に現在時刻を設定</p>
@@ -514,6 +521,13 @@
         <div class="exercise">
             <h3>演習2: Status でノード状態を監視 <span class="difficulty difficulty-medium">中級</span></h3>
             <p><strong>📋 課題:</strong> Function ノードでステータスを更新し、Status ノードでその変化を検知してください。</p>
+            <p><strong>✅ 成功の条件:</strong></p>
+            <ul>
+                <li>Injectボタンをクリックした直後にFunctionノードの下に黄色の「処理中」ステータスが表示される</li>
+                <li>約1.5秒後にFunctionノードの下が緑の「完了」ステータスに変化する</li>
+                <li>デバッグサイドバーにStatusノードから <code>msg.status</code> オブジェクト（fill、shape、textを含む）が出力される</li>
+                <li>Debugノードのステータス欄にステータスのテキスト（「処理中」→「完了」）が表示される</li>
+            </ul>
             <details>
                 <summary>💡 ヒント</summary>
                 <p>Function 内で <code>node.status({fill:"色", shape:"形状", text:"テキスト"})</code> を使用します。</p>
@@ -533,6 +547,13 @@
         <div class="exercise">
             <h3>演習3: 3種類の監視ノード組み合わせ <span class="difficulty difficulty-hard">上級</span></h3>
             <p><strong>📋 課題:</strong> Complete、Status、Catch を組み合わせて、処理の成功/失敗を完全に監視するフローを作成してください。</p>
+            <p><strong>✅ 成功の条件:</strong></p>
+            <ul>
+                <li>Injectボタンをクリックするたびに、FunctionノードのステータスがStatusノード経由でデバッグサイドバーに出力される</li>
+                <li>処理が成功したとき（約70%の確率）は「成功」Debugに <code>msg.payload</code> が出力される</li>
+                <li>処理が失敗したとき（約30%の確率）は「エラー」Debugに <code>msg.error</code> オブジェクトが出力される</li>
+                <li>どちらの場合でも「状態監視」のStatusノードがFunctionノードのステータス変化（実行中/成功/エラー）を検知して出力する</li>
+            </ul>
             <details>
                 <summary>💡 ヒント</summary>
                 <p>Function ノードで node.error() を使うとエラーを発生させ、Catch で捕捉できます。</p>

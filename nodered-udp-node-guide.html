@@ -770,7 +770,14 @@ nc -ul 8000</div>
                 <li>UDP In: ポート 9000 で待ち受け</li>
                 <li>UDP Out: localhost:9000 にテストメッセージ送信</li>
             </ul>
-            
+
+            <p><strong>✅ 成功の条件:</strong></p>
+            <ul>
+                <li>Inject ボタンを押すとデバッグパネルに「Hello UDP!」が表示される</li>
+                <li>デバッグパネルのノードステータスに送信元のIPアドレスが表示される</li>
+                <li><code>echo "test" | nc -u localhost 9000</code> を実行してもデバッグパネルに受信データが表示される</li>
+            </ul>
+
             <details>
                 <summary>💡 ヒント</summary>
                 <p><strong>UDP In ノード:</strong></p>
@@ -808,7 +815,14 @@ nc -ul 8000</div>
                 <li>受信: <code>Hello</code></li>
                 <li>返信: <code>[REPLY] Hello</code></li>
             </ul>
-            
+
+            <p><strong>✅ 成功の条件:</strong></p>
+            <ul>
+                <li><code>echo "Hello" | nc -u localhost 9001</code> を実行すると「[REPLY] Hello」が返ってくる</li>
+                <li>異なるメッセージを送っても、常に「[REPLY] 」が先頭に付いて返ってくる</li>
+                <li>返信が送信元の IP アドレスとポートに対して送られている（送信元に届く）</li>
+            </ul>
+
             <details>
                 <summary>💡 ヒント</summary>
                 <p><strong>Function ノード:</strong></p>
@@ -843,7 +857,14 @@ return msg;</div>
                 <li>受信データ: <code>{"deviceId":"dev-001","value":25}</code></li>
                 <li>デバイスごとの最新値を flow コンテキストに保存</li>
             </ul>
-            
+
+            <p><strong>✅ 成功の条件:</strong></p>
+            <ul>
+                <li>「dev-001」ボタンと「dev-002」ボタンをそれぞれ押すとデバッグパネルに最新のデバイス一覧が表示される</li>
+                <li>データ集約ノードのステータスに「N devices」（N=登録済みデバイス数）が表示される</li>
+                <li>同じデバイスIDで複数回送信すると、一覧では重複せず最新値に更新される</li>
+            </ul>
+
             <details>
                 <summary>💡 ヒント</summary>
                 <p><strong>Function ノード:</strong></p>
@@ -885,7 +906,15 @@ return msg;</div>
                 <li>デバイス側: 「DISCOVER」受信時に自デバイス情報を返信</li>
                 <li>発見側: 応答を収集して一覧表示</li>
             </ul>
-            
+
+            <p><strong>✅ 成功の条件:</strong></p>
+            <ul>
+                <li>「DISCOVER送信」ボタンを押すと自デバイスからの応答がデバッグパネルに表示される</li>
+                <li>受信した応答メッセージに <code>deviceId</code> やデバイス情報が含まれている</li>
+                <li>「DISCOVER」メッセージは Switch ノードで振り分けられ、応答メッセージは発見リストに蓄積される</li>
+                <li>ボタンを押すたびに発見リストがリセットされ、再収集が行われる</li>
+            </ul>
+
             <details>
                 <summary>💡 ヒント</summary>
                 <p>「発見側」と「デバイス側」両方の機能を同一フローに実装します。</p>

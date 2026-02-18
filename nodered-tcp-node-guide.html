@@ -682,7 +682,14 @@ Hello Server!
                 <li>TCP In ノード: Listen on ポート 9100</li>
                 <li>受信したデータをそのまま TCP Out で返信</li>
             </ul>
-            
+
+            <p><strong>✅ 成功の条件:</strong></p>
+            <ul>
+                <li><code>echo "Hello" | nc localhost 9100</code> を実行すると「Hello」がそのまま返ってくる</li>
+                <li>デバッグパネルに受信データとクライアントのIPアドレスが表示される</li>
+                <li>複数回接続しても毎回正常にエコー応答が返ってくる</li>
+            </ul>
+
             <details>
                 <summary>💡 ヒント</summary>
                 <p><strong>TCP In ノード:</strong></p>
@@ -719,7 +726,14 @@ Hello Server!
                 <li>受信: <code>Hello</code></li>
                 <li>返信: <code>[2024-01-01T12:00:00] Hello</code></li>
             </ul>
-            
+
+            <p><strong>✅ 成功の条件:</strong></p>
+            <ul>
+                <li><code>echo "Hello" | nc localhost 9101</code> を実行すると <code>[ISO日時] Hello</code> 形式のレスポンスが返ってくる</li>
+                <li>異なるメッセージを送っても、常に現在時刻が先頭に付いて返ってくる</li>
+                <li>返答内の日時がリクエストを送った時刻と一致している</li>
+            </ul>
+
             <details>
                 <summary>💡 ヒント</summary>
                 <p><strong>Function ノード:</strong></p>
@@ -751,7 +765,15 @@ return msg;</div>
                 <li><code>HELLO 名前</code> → <code>Hello, 名前!</code>を返す</li>
                 <li>その他 → <code>Unknown command</code>を返す</li>
             </ul>
-            
+
+            <p><strong>✅ 成功の条件:</strong></p>
+            <ul>
+                <li><code>echo "PING" | nc localhost 9102</code> を実行すると「PONG」が返ってくる</li>
+                <li><code>echo "TIME" | nc localhost 9102</code> を実行するとISO 8601形式の現在時刻が返ってくる</li>
+                <li><code>echo "HELLO Alice" | nc localhost 9102</code> を実行すると「Hello, Alice!」が返ってくる</li>
+                <li>未定義のコマンドを送ると「Unknown command」が返ってくる</li>
+            </ul>
+
             <details>
                 <summary>💡 ヒント</summary>
                 <p><strong>Function ノード:</strong></p>
@@ -793,7 +815,15 @@ return msg;</div>
                 <li>クライアント: 5秒ごとにランダムなセンサーデータを送信</li>
                 <li>送信データ: <code>{"sensor":"temp","value":25.5}</code></li>
             </ul>
-            
+
+            <p><strong>✅ 成功の条件:</strong></p>
+            <ul>
+                <li>デプロイ後、5秒ごとにクライアント側のデバッグパネルにサーバーからの応答が表示される</li>
+                <li>サーバー側のデバッグパネルに受信した温度データが表示される</li>
+                <li>サーバーノードのステータスに「sensor: XX.X」形式で最新値が表示される</li>
+                <li>クライアントのデバッグパネルに「送受信完了」ステータスが表示される</li>
+            </ul>
+
             <details>
                 <summary>💡 ヒント</summary>
                 <p><strong>クライアント側:</strong> Inject（5秒repeat）→ Function（JSON生成）→ TCP Request</p>

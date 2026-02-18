@@ -899,6 +899,13 @@ return msg;</div>
                 <li>Content-Type: application/json</li>
             </ul>
 
+            <p><strong>✅ 成功の条件:</strong></p>
+            <ul>
+                <li><code>curl http://localhost:1880/api/status</code> を実行すると <code>{"status":"running","version":"1.0.0"}</code> が返ってくる</li>
+                <li>ブラウザで <code>http://localhost:1880/api/status</code> にアクセスするとJSONが表示される</li>
+                <li>レスポンスヘッダーの Content-Type が <code>application/json</code> である</li>
+            </ul>
+
             <details>
                 <summary>&#128161; ヒント</summary>
                 <p><strong>HTTP In ノード:</strong></p>
@@ -937,6 +944,13 @@ return msg;</div>
                 <li>レスポンスをJSONオブジェクトとして受信</li>
             </ul>
 
+            <p><strong>✅ 成功の条件:</strong></p>
+            <ul>
+                <li>Inject ボタンを押すとデバッグパネルに外部APIのレスポンスが表示される</li>
+                <li>デバッグパネルに <code>datetime</code> フィールドを含むJavaScriptオブジェクトが表示される</li>
+                <li>ノードステータスにニューヨークの現在日時が表示される</li>
+            </ul>
+
             <details>
                 <summary>&#128161; ヒント</summary>
                 <p><strong>Inject ノード:</strong> デフォルト設定でOK（タイムスタンプを送信）</p>
@@ -972,6 +986,13 @@ return msg;</div>
                 <li>存在しない場合: 404 + エラーメッセージ</li>
             </ul>
 
+            <p><strong>✅ 成功の条件:</strong></p>
+            <ul>
+                <li><code>curl http://localhost:1880/api/items/1</code> を実行すると <code>{"success":true,"item":{"id":"1","name":"りんご","price":150}}</code> が返ってくる</li>
+                <li><code>curl http://localhost:1880/api/items/99</code> を実行すると HTTPステータス404と「商品が見つかりません」エラーが返ってくる</li>
+                <li>id=1, 2, 3 のいずれでもアクセスすると対応する商品名と価格が返ってくる</li>
+            </ul>
+
             <details>
                 <summary>&#128161; ヒント</summary>
                 <p><strong>URLパラメータの取得:</strong> <code>msg.req.params.id</code></p>
@@ -1001,6 +1022,14 @@ return msg;</div>
                 <li><code>GET /api/notes/:id</code> - 特定メモ取得</li>
                 <li><code>DELETE /api/notes/:id</code> - メモ削除</li>
                 <li>データはflow変数に保存</li>
+            </ul>
+
+            <p><strong>✅ 成功の条件:</strong></p>
+            <ul>
+                <li><code>curl -X POST -H "Content-Type: application/json" -d '{"text":"テストメモ"}' http://localhost:1880/api/notes</code> でメモが作成されHTTPステータス201が返ってくる</li>
+                <li><code>curl http://localhost:1880/api/notes</code> で作成済みのメモ一覧が返ってくる</li>
+                <li>取得したメモIDを使って <code>DELETE /api/notes/:id</code> を実行するとメモが削除され、その後の一覧に含まれない</li>
+                <li>存在しないIDへの GET/DELETE で HTTPステータス404が返ってくる</li>
             </ul>
 
             <details>

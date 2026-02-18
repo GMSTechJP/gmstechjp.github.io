@@ -1121,7 +1121,14 @@ msg.payloadを追加: チェックON（スクリプトへの引数として）
                 <li>Injectボタンをクリック → Debugに入力したメッセージが表示</li>
                 <li>終了コードが 0（成功）であることを確認</li>
             </ul>
-            
+
+            <p><strong>✅ 成功の条件:</strong></p>
+            <ul>
+                <li>Injectボタンを押すと、標準出力Debugノードに <code>"Node-REDからこんにちは！"</code>（末尾に改行が含まれる場合あり）が表示される</li>
+                <li>終了コードDebugノードに <code>{"code": 0}</code> が表示される（成功を示す）</li>
+                <li>Execノードの第2出力（stderr）には何も届かない</li>
+            </ul>
+
             <details>
                 <summary>💡 ヒント</summary>
                 <p><strong>Injectノードの設定:</strong></p>
@@ -1224,7 +1231,14 @@ msg.payloadを追加: チェックON（スクリプトへの引数として）
             <ul>
                 <li>Injectボタンをクリック → 現在日時が改行なしで表示</li>
             </ul>
-            
+
+            <p><strong>✅ 成功の条件:</strong></p>
+            <ul>
+                <li>Injectボタンを押すと、デバッグパネルに現在の日時文字列（例: <code>"Tue Feb 18 12:00:00 JST 2026"</code>）が表示される</li>
+                <li>表示された文字列の末尾に改行文字（<code>\n</code>）が含まれていない（<code>.trim()</code> が効いている）</li>
+                <li>ボタンを押すたびに日時が更新される</li>
+            </ul>
+
             <details>
                 <summary>💡 ヒント</summary>
                 <p><strong>Injectノードの設定:</strong></p>
@@ -1327,7 +1341,15 @@ msg.payloadを追加: チェックON（スクリプトへの引数として）
                 <li>正常なコマンド実行 → 「成功」側のDebugに出力</li>
                 <li>エラーになるコマンド実行 → 「失敗」側のDebugに出力</li>
             </ul>
-            
+
+            <p><strong>✅ 成功の条件:</strong></p>
+            <ul>
+                <li>「成功テスト」Injectを押すと、「成功」Debugノードにのみメッセージが届き、「失敗」Debugには届かない</li>
+                <li>「失敗テスト」Injectを押すと、「失敗」Debugノードにのみメッセージが届き、「成功」Debugには届かない</li>
+                <li>成功時の終了コードが <code>{"code": 0}</code>、失敗時が <code>{"code": 127}</code> など0以外になっている</li>
+                <li>Switchノードが <code>msg.payload.code</code> を参照してルーティングしている</li>
+            </ul>
+
             <details>
                 <summary>💡 ヒント</summary>
                 <p><strong>Execノードの第3出力（終了コード）を使用</strong></p>
@@ -1476,7 +1498,15 @@ msg.payloadを追加: チェックON（スクリプトへの引数として）
                 <li>開始ボタンをクリック → 2秒ごとに時刻が出力される</li>
                 <li>停止ボタンをクリック → プロセスが終了する</li>
             </ul>
-            
+
+            <p><strong>✅ 成功の条件:</strong></p>
+            <ul>
+                <li>「開始」Injectを押すと、デバッグパネルに約2秒ごとに日時文字列が継続的に表示される</li>
+                <li>「停止」Injectを押すと、デバッグパネルへの出力が止まる（プロセスが終了している）</li>
+                <li>停止後に再度「開始」を押すと、新たなプロセスが起動して出力が再開される</li>
+                <li>Execノードが「Spawnモード」で動作しており、コマンド完了を待たずにリアルタイムで出力を受け取っている</li>
+            </ul>
+
             <details>
                 <summary>💡 ヒント</summary>
                 <p><strong>Execノードの設定:</strong></p>

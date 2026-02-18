@@ -699,6 +699,14 @@ if (now - lastSent > interval) {
                 <li>宛先はe-mailノードの設定画面で指定する</li>
             </ul>
 
+            <p><strong>✅ 成功の条件:</strong></p>
+            <ul>
+                <li>Injectノードのボタンをクリックすると、e-mailノードが正常に動作してエラーが表示されない</li>
+                <li>指定した宛先メールアドレスに「Node-RED テストメール」という件名のメールが届く</li>
+                <li>メール本文に送信時刻が含まれ、正しい内容で届いている（実際の送信テストはSMTPサーバー設定が必要なため省略可）</li>
+                <li>デバッグノードを接続した場合、Changeノード出力の<code>msg.topic</code>が「Node-RED テストメール」、<code>msg.payload</code>に時刻文字列が含まれていることを確認できる</li>
+            </ul>
+
             <details>
                 <summary>💡 ヒント</summary>
                 <ul>
@@ -773,6 +781,14 @@ if (now - lastSent > interval) {
                 <li>5分間に1回のみ送信するレートリミットを実装</li>
             </ul>
 
+            <p><strong>✅ 成功の条件:</strong></p>
+            <ul>
+                <li>温度値が50以上の場合のみe-mailノードが実行され、50未満の場合はフローが止まる</li>
+                <li>「[ALERT] 温度異常: XX°C」という件名のアラートメールが指定アドレスに届く（実際の送信テストはSMTPサーバー設定が必要なため省略可）</li>
+                <li>5分以内に複数回50°C以上を検知しても、2回目以降のメール送信はスキップされる（レートリミットが機能している）</li>
+                <li>Functionノードにデバッグノードを接続した場合、<code>msg.payload</code>にHTMLタグを含む本文文字列が出力される</li>
+            </ul>
+
             <details>
                 <summary>💡 ヒント</summary>
                 <ul>
@@ -840,6 +856,14 @@ if (now - lastSent > interval) {
                 <li>件名に「REPORT」を含むメールを受信したら保存データをCSVで返信</li>
                 <li>上記以外のメールは無視する</li>
                 <li>返信先は受信メールの送信者アドレスにする</li>
+            </ul>
+
+            <p><strong>✅ 成功の条件:</strong></p>
+            <ul>
+                <li>件名に「STATUS」を含むメールを受信すると、差出人に稼働時間・メモリ使用量を含む返信メールが届く（実際のメール送受信テストはサーバー設定が必要なため省略可）</li>
+                <li>件名に「REPORT」を含むメールを受信すると、差出人に.csvファイルが添付された返信メールが届く</li>
+                <li>上記以外の件名のメールを受信しても何も起こらない（Switchノードのマッチなし）</li>
+                <li>返信先（<code>msg.to</code>）が受信メールの<code>msg.from</code>と同じアドレスになっている</li>
             </ul>
 
             <details>

@@ -1209,7 +1209,14 @@
             <ul>
                 <li>連続する同じ状態は1回だけ出力される</li>
             </ul>
-            
+
+            <p><strong>✅ 成功の条件:</strong></p>
+            <ul>
+                <li>入力5件に対して、デバッグパネルには3件のみ表示される（<code>"ON"</code>、<code>"OFF"</code>、<code>"ON"</code>）</li>
+                <li>連続する同じ値（<code>"ON"、"ON"</code>や<code>"OFF"、"OFF"</code>）が1件に圧縮されている</li>
+                <li>出力の順番が <code>"ON" → "OFF" → "ON"</code> になっている</li>
+            </ul>
+
             <details>
                 <summary>💡 ヒント</summary>
                 <p><strong>Injectノードの設定:</strong></p>
@@ -1312,7 +1319,15 @@
             <ul>
                 <li>微小変動は無視され、大きな変化のみ出力</li>
             </ul>
-            
+
+            <p><strong>✅ 成功の条件:</strong></p>
+            <ul>
+                <li>入力6件（20, 21, 22, 25, 24, 30）に対して、デバッグパネルには3件以下しか表示されない</li>
+                <li>20→21（1度差）と20→22（2度差ちょうど、境界のためブロック）は出力されない</li>
+                <li>20→25（5度差）と25→30（5度差）の大きな変化は出力される</li>
+                <li>デバッグパネルに表示された値が <code>20</code>、<code>25</code>、<code>30</code> になっている</li>
+            </ul>
+
             <details>
                 <summary>💡 ヒント</summary>
                 <p><strong>Injectノードの設定:</strong></p>
@@ -1418,7 +1433,15 @@
             <ul>
                 <li>25〜30度の範囲内の値のみ出力</li>
             </ul>
-            
+
+            <p><strong>✅ 成功の条件:</strong></p>
+            <ul>
+                <li>入力6件（20, 25, 27, 30, 35, 28）に対して、デバッグパネルには4件が表示される</li>
+                <li>範囲外の値（<code>20</code> と <code>35</code>）がデバッグパネルに表示されない</li>
+                <li>範囲内の値（<code>25</code>、<code>27</code>、<code>30</code>、<code>28</code>）がデバッグパネルに表示される</li>
+                <li>ナローバンドモードが機能しており、指定した範囲（25〜30度）に入ったときだけ通過している</li>
+            </ul>
+
             <details>
                 <summary>💡 ヒント</summary>
                 <p><strong>Filterノードの設定:</strong></p>
@@ -1520,7 +1543,15 @@
                 <li>温度の変化は温度の前回値と比較</li>
                 <li>湿度の変化は湿度の前回値と比較</li>
             </ul>
-            
+
+            <p><strong>✅ 成功の条件:</strong></p>
+            <ul>
+                <li>入力6件（temp:25, humidity:60, temp:25, humidity:65, temp:26, humidity:65）に対して、デバッグパネルには4件が表示される</li>
+                <li>2回目のtemp:25（温度変化なし）と3回目のhumidity:65（湿度変化なし）が出力されない</li>
+                <li>各メッセージのトピック（<code>msg.topic</code>）が <code>"temp"</code> または <code>"humidity"</code> になっており、センサーを識別できる</li>
+                <li>温度と湿度が独立して比較されている（温度の変化が湿度の判定に影響しない）</li>
+            </ul>
+
             <details>
                 <summary>💡 ヒント</summary>
                 <p><strong>Injectノードの設定:</strong></p>

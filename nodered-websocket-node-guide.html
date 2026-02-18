@@ -587,7 +587,14 @@ ws.send("テストメッセージ");</div>
                 <li>エンドポイント: <code>/ws/myecho</code></li>
                 <li>受信したデータをそのまま返信</li>
             </ul>
-            
+
+            <p><strong>✅ 成功の条件:</strong></p>
+            <ul>
+                <li>ブラウザのコンソールやWebSocketクライアントで <code>ws://localhost:1880/ws/myecho</code> に接続できる</li>
+                <li>送信したメッセージがそのまま同じ内容で返ってくる（エコー）</li>
+                <li>デバッグパネルに受信メッセージが表示され、ステータスが「受信」になる</li>
+            </ul>
+
             <details>
                 <summary>💡 ヒント</summary>
                 <p><strong>WebSocket In ノード:</strong></p>
@@ -620,7 +627,14 @@ ws.send("テストメッセージ");</div>
                 <li>受信: <code>"こんにちは"</code></li>
                 <li>返信: <code>{"message": "こんにちは", "receivedAt": "2024-01-01T12:00:00.000Z"}</code></li>
             </ul>
-            
+
+            <p><strong>✅ 成功の条件:</strong></p>
+            <ul>
+                <li><code>ws://localhost:1880/ws/time</code> に接続してメッセージを送信すると、JSONオブジェクトが返ってくる</li>
+                <li>返信に <code>message</code>（送信した内容）と <code>receivedAt</code>（ISO 8601形式の日時）が含まれている</li>
+                <li>複数のメッセージを送るたびに <code>receivedAt</code> の値が更新される</li>
+            </ul>
+
             <details>
                 <summary>💡 ヒント</summary>
                 <p><strong>Function ノード:</strong></p>
@@ -653,7 +667,14 @@ return msg;</div>
                 <li>送信メッセージ: <code>{"type": "broadcast", "content": "全員へのお知らせ"}</code></li>
                 <li>全クライアントに配信</li>
             </ul>
-            
+
+            <p><strong>✅ 成功の条件:</strong></p>
+            <ul>
+                <li>複数のブラウザタブで <code>ws://localhost:1880/ws/broadcast</code> に接続できる</li>
+                <li>Inject ボタンを押すとすべての接続済みクライアントに同じメッセージが届く</li>
+                <li>後から接続したクライアントも次の Inject 実行時にメッセージを受信できる</li>
+            </ul>
+
             <details>
                 <summary>💡 ヒント</summary>
                 <p><strong>ブロードキャストのポイント:</strong></p>
@@ -687,7 +708,15 @@ return msg;</div>
                 <li>全員に配信する形式: <code>{"type": "chat", "name": "...", "message": "...", "timestamp": "..."}</code></li>
                 <li>接続/切断時も通知（任意）</li>
             </ul>
-            
+
+            <p><strong>✅ 成功の条件:</strong></p>
+            <ul>
+                <li>複数のクライアントが <code>ws://localhost:1880/ws/chatroom</code> に同時接続できる</li>
+                <li>あるクライアントが送信したメッセージが全ての接続中クライアントに届く</li>
+                <li>デバッグパネルに <code>type</code>, <code>name</code>, <code>message</code>, <code>timestamp</code> を含むJSONが表示される</li>
+                <li>JSON 以外の文字列を送信しても「匿名」として正常に処理される</li>
+            </ul>
+
             <details>
                 <summary>💡 ヒント</summary>
                 <p><strong>処理の流れ:</strong></p>

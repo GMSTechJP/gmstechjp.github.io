@@ -612,13 +612,20 @@ msg.size = 1024</div>
             
             <p><strong>📝 課題:</strong></p>
             <p><code>/tmp/mywatch</code> ディレクトリを監視し、ファイルが追加されたらファイル名とサイズをDebugに表示してください。</p>
-            
+
             <p><strong>🎯 要求仕様:</strong></p>
             <ul>
                 <li>Watch ノードで <code>/tmp/mywatch</code> を監視</li>
                 <li>Debug ノードで変更を表示</li>
             </ul>
-            
+
+            <p><strong>✅ 成功の条件:</strong></p>
+            <ul>
+                <li><code>/tmp/mywatch</code> にファイルを作成・変更した直後にデバッグパネルにイベントが表示される</li>
+                <li>デバッグパネルに <code>msg.file</code>（ファイル名）と <code>msg.size</code>（サイズ）が確認できる</li>
+                <li>ノードステータスにファイル名とバイト数が表示される</li>
+            </ul>
+
             <details>
                 <summary>💡 ヒント</summary>
                 <p><strong>準備:</strong></p>
@@ -652,7 +659,7 @@ msg.size = 1024</div>
             
             <p><strong>📝 課題:</strong></p>
             <p>JSONの設定ファイルを監視し、変更があったら内容を読み込んでグローバル変数に保存してください。</p>
-            
+
             <p><strong>🎯 要求仕様:</strong></p>
             <ul>
                 <li>Watch ノードで設定ファイルを監視</li>
@@ -660,7 +667,15 @@ msg.size = 1024</div>
                 <li>JSON ノードで解析</li>
                 <li>Function ノードでグローバル変数に保存</li>
             </ul>
-            
+
+            <p><strong>✅ 成功の条件:</strong></p>
+            <ul>
+                <li><code>/tmp/app_config.json</code> を編集・保存した直後にフローが自動的に起動する</li>
+                <li>デバッグパネルに読み込んだ設定がJavaScriptオブジェクト形式で表示される</li>
+                <li>Function ノードのステータスに「設定更新: HH:MM:SS」と表示される</li>
+                <li>別のフローから <code>global.get("config")</code> で最新の設定値を取得できる</li>
+            </ul>
+
             <details>
                 <summary>💡 ヒント</summary>
                 <p><strong>Read Fileノードの設定:</strong></p>
@@ -693,7 +708,7 @@ msg.size = 1024</div>
             
             <p><strong>📝 課題:</strong></p>
             <p>アップロードフォルダを監視し、JPG/PNG画像のみを検出してファイル情報をログに記録してください。</p>
-            
+
             <p><strong>🎯 要求仕様:</strong></p>
             <ul>
                 <li>Watch ノードでフォルダを監視</li>
@@ -701,7 +716,14 @@ msg.size = 1024</div>
                 <li>Function ノードでログ情報を整形</li>
                 <li>Write File ノードでログファイルに追記</li>
             </ul>
-            
+
+            <p><strong>✅ 成功の条件:</strong></p>
+            <ul>
+                <li><code>/tmp/images</code> フォルダに .jpg または .png ファイルをコピーすると検出される</li>
+                <li>.txt や .pdf など画像以外のファイルを追加してもデバッグパネルに表示されない</li>
+                <li><code>/tmp/image_log.csv</code> にタイムスタンプ・ファイル名・サイズが追記される</li>
+            </ul>
+
             <details>
                 <summary>💡 ヒント</summary>
                 <p><strong>Switchノードの設定:</strong></p>
@@ -735,7 +757,7 @@ msg.size = 1024</div>
             
             <p><strong>📝 課題:</strong></p>
             <p>FTPフォルダを監視し、CSVファイルがアップロードされたら内容を解析してJSON形式に変換、処理結果を保存してください。</p>
-            
+
             <p><strong>🎯 要求仕様:</strong></p>
             <ul>
                 <li>Watch ノードでFTPフォルダを監視</li>
@@ -744,7 +766,15 @@ msg.size = 1024</div>
                 <li>Function ノードでJSON変換</li>
                 <li>処理結果をJSONファイルとして保存</li>
             </ul>
-            
+
+            <p><strong>✅ 成功の条件:</strong></p>
+            <ul>
+                <li><code>/tmp/ftp_incoming</code> に CSV ファイルをコピーすると 2 秒後に自動的に処理が開始される</li>
+                <li>.csv 以外のファイル（例: .txt）を配置してもフローが反応しない</li>
+                <li><code>/tmp/ftp_processed/</code> フォルダに同名の .json ファイルが生成される</li>
+                <li>生成された JSON ファイルに <code>recordCount</code> や <code>processedAt</code> フィールドが含まれている</li>
+            </ul>
+
             <details>
                 <summary>💡 ヒント</summary>
                 <p><strong>なぜDelayが必要?</strong></p>
