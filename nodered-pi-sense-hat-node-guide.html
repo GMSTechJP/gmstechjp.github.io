@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED Pi Sense HATノード ガイド</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        h1 {
+            color: #a7001e;
+            border-bottom: 3px solid #a7001e;
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            color: #c51a4a;
+            margin-top: 30px;
+            border-left: 5px solid #c51a4a;
+            padding-left: 15px;
+        }
+
+        h3 {
+            color: #555;
+            margin-top: 25px;
+        }
+
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .node-example {
+            background-color: #2d3133;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            color: white;
+            font-family: 'Courier New', monospace;
+        }
+
+        .node {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 4px;
+            margin: 5px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .node-sensehat {
+            background-color: #c6dbef;
+            color: #333;
+            border: 2px solid #9bbedd;
+        }
+
+        .node-debug {
+            background-color: #87a48d;
+            color: white;
+        }
+
+        .node-inject {
+            background-color: #3fadb5;
+            color: white;
+        }
+
+        .node-function {
+            background-color: #e8a658;
+            color: white;
+        }
+
+        .arrow {
+            color: #999;
+            font-size: 20px;
+            margin: 0 10px;
+        }
+
+        .important {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .tip {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .warning {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .hardware-req {
+            background-color: #e8d5f5;
+            border-left: 4px solid #9c27b0;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .code-block {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            position: relative;
+            white-space: pre-wrap;
+        }
+
+        .copy-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 6px 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: 'Segoe UI', sans-serif;
+            transition: background-color 0.2s;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .copy-button:hover {
+            background-color: #0056b3;
+        }
+
+        .copy-button.copied {
+            background-color: #28a745;
+        }
+
+        .copy-button svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+        }
+
+        .exercise {
+            background-color: #e8f5e9;
+            border: 2px solid #4caf50;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .exercise h3 {
+            color: #2e7d32;
+            margin-top: 0;
+        }
+
+        .difficulty {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .difficulty-easy {
+            background-color: #4caf50;
+            color: white;
+        }
+
+        .difficulty-medium {
+            background-color: #ff9800;
+            color: white;
+        }
+
+        .difficulty-hard {
+            background-color: #f44336;
+            color: white;
+        }
+
+        ul, ol {
+            padding-left: 25px;
+        }
+
+        li {
+            margin: 8px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #c51a4a;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .flow-json {
+            background-color: #263238;
+            color: #aed581;
+            padding: 15px;
+            padding-top: 40px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        details {
+            margin: 15px 0;
+        }
+
+        summary {
+            cursor: pointer;
+            padding: 10px;
+            background-color: #6c757d;
+            color: white;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        summary:hover {
+            background-color: #5a6268;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .feature-card {
+            background-color: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .feature-card h4 {
+            color: #a7001e;
+            margin-top: 0;
+        }
+
+        .sensor-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            margin: 2px;
+        }
+
+        .badge-motion {
+            background-color: #3f51b5;
+            color: white;
+        }
+
+        .badge-env {
+            background-color: #4caf50;
+            color: white;
+        }
+
+        .badge-joystick {
+            background-color: #ff9800;
+            color: white;
+        }
+
+        .badge-led {
+            background-color: #e91e63;
+            color: white;
+        }
+
+        .led-demo {
+            display: inline-grid;
+            grid-template-columns: repeat(8, 24px);
+            gap: 2px;
+            background-color: #111;
+            padding: 8px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+
+        .led-cell {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: #222;
+        }
+
+        .led-on {
+            box-shadow: 0 0 6px 2px currentColor;
+        }
+
+        .home-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #a7001e;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: background-color 0.2s;
+            z-index: 100;
+        }
+
+        .home-button:hover {
+            background-color: #c51a4a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍓 Node-RED Pi Sense HATノード ガイド</h1>
+
+        <p>このガイドでは、Node-REDの<strong>Pi Sense HATノード</strong>について、初心者の方でも理解できるように詳しく説明します。</p>
+
+        <div class="hardware-req">
+            <p><strong>⚠️ ハードウェア要件（必ずお読みください）</strong></p>
+            <ul>
+                <li>🍓 <strong>Raspberry Pi専用ノードです。</strong> Windows/macOS/通常のLinux環境では動作しません。</li>
+                <li>🔌 <strong>Raspberry Pi Sense HATが必要です。</strong> Sense HATをRaspberry PiのGPIOピンヘッダに接続した状態で使用してください。</li>
+                <li>📦 インストールは <code>npm install node-red-node-pi-sense-hat</code> で行います。</li>
+                <li>🐍 内部的にPythonを使用するため、Raspberry Pi OSの標準Python環境が必要です。</li>
+            </ul>
+        </div>
+
+        <h2>📚 1. Pi Sense HATノードとは?</h2>
+
+        <p>
+            Raspberry Pi Sense HATは、Raspberry Piに接続できる多機能センサーボードです。
+            Pi Sense HATノードを使うと、このボードのセンサーデータを読み取ったり、LEDディスプレイを制御したりできます。
+        </p>
+
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h4>📡 センサー読み取り（入力ノード）</h4>
+                <p><span class="sensor-badge badge-motion">モーション</span> 加速度計・ジャイロ・磁力計</p>
+                <p><span class="sensor-badge badge-env">環境</span> 温度・湿度・気圧</p>
+                <p><span class="sensor-badge badge-joystick">ジョイスティック</span> 5方向入力</p>
+            </div>
+            <div class="feature-card">
+                <h4>💡 LED制御（出力ノード）</h4>
+                <p><span class="sensor-badge badge-led">8×8マトリックス</span> 64個のフルカラーLED</p>
+                <p>ピクセル単位・テキストスクロール・回転・反転に対応</p>
+            </div>
+        </div>
+
+        <h3>📦 ノードの構成</h3>
+        <div class="node-example">
+            <span class="node node-sensehat">rpi-sensehat in</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+            <br><br>
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-sensehat">rpi-sensehat out</span>
+        </div>
+
+        <p>このパッケージは2種類のノードで構成されています：</p>
+        <ul>
+            <li><strong>rpi-sensehat in</strong> — センサーからデータを読み取り、メッセージとして出力する入力ノード</li>
+            <li><strong>rpi-sensehat out</strong> — LEDディスプレイを制御する出力ノード</li>
+        </ul>
+
+        <h2>⚙️ 2. 設定項目一覧</h2>
+
+        <h3>rpi-sensehat in（入力ノード）</h3>
+
+        <table>
+            <tr>
+                <th>設定項目</th>
+                <th>説明</th>
+                <th>デフォルト</th>
+            </tr>
+            <tr>
+                <td><strong>モーションイベント</strong></td>
+                <td>加速度計、ジャイロスコープ、磁力計、方位計からのデータを取得する</td>
+                <td>有効（チェックあり）</td>
+            </tr>
+            <tr>
+                <td><strong>環境イベント</strong></td>
+                <td>温度、湿度、気圧センサーからのデータを取得する</td>
+                <td>有効（チェックあり）</td>
+            </tr>
+            <tr>
+                <td><strong>ジョイスティックイベント</strong></td>
+                <td>ジョイスティック（UP/DOWN/LEFT/RIGHT/ENTER）の操作を検出する</td>
+                <td>有効（チェックあり）</td>
+            </tr>
+            <tr>
+                <td><strong>名前</strong></td>
+                <td>ノードの表示名</td>
+                <td>空（"Sense HAT" と表示）</td>
+            </tr>
+        </table>
+
+        <h3>rpi-sensehat out（出力ノード）</h3>
+
+        <table>
+            <tr>
+                <th>設定項目</th>
+                <th>説明</th>
+                <th>デフォルト</th>
+            </tr>
+            <tr>
+                <td><strong>名前</strong></td>
+                <td>ノードの表示名</td>
+                <td>空（"Sense HAT" と表示）</td>
+            </tr>
+        </table>
+
+        <div class="tip">
+            <p><strong>💡 ポイント:</strong> rpi-sensehat out は設定項目が名前のみです。LEDへの出力内容はすべて <code>msg.payload</code> で制御します。</p>
+        </div>
+
+        <h2>📤 3. 入力ノードの出力データ</h2>
+
+        <p>rpi-sensehat in は、各イベントが発生するたびにメッセージを出力します。<code>msg.topic</code> でイベントの種類を判別できます。</p>
+
+        <h3><span class="sensor-badge badge-motion">モーションイベント</span> topic: "motion"</h3>
+        <p>約10回/秒の頻度で送信されます。<code>msg.payload</code> に以下のデータが含まれます：</p>
+        <table>
+            <tr>
+                <th>プロパティ</th>
+                <th>内容</th>
+                <th>単位</th>
+            </tr>
+            <tr>
+                <td><code>acceleration.x/y/z</code></td>
+                <td>加速度計（X/Y/Z軸）</td>
+                <td>G（重力加速度）</td>
+            </tr>
+            <tr>
+                <td><code>gyroscope.x/y/z</code></td>
+                <td>ジャイロスコープ（X/Y/Z軸）</td>
+                <td>ラジアン/秒</td>
+            </tr>
+            <tr>
+                <td><code>orientation.roll/pitch/yaw</code></td>
+                <td>向き角度（ロール/ピッチ/ヨー）</td>
+                <td>度</td>
+            </tr>
+            <tr>
+                <td><code>compass</code></td>
+                <td>磁方位</td>
+                <td>度</td>
+            </tr>
+        </table>
+
+        <div class="code-block">// msg.payloadの例（モーションイベント）
+{
+  "acceleration": { "x": 0.01, "y": -0.02, "z": 1.00 },
+  "gyroscope":    { "x": 0.001, "y": 0.002, "z": -0.001 },
+  "orientation":  { "roll": 2.1, "pitch": -1.5, "yaw": 180.3 },
+  "compass": 180.3
+}</div>
+
+        <h3><span class="sensor-badge badge-env">環境イベント</span> topic: "environment"</h3>
+        <p>約1回/秒の頻度で送信されます。<code>msg.payload</code> に以下のデータが含まれます：</p>
+        <table>
+            <tr>
+                <th>プロパティ</th>
+                <th>内容</th>
+                <th>単位</th>
+            </tr>
+            <tr>
+                <td><code>temperature</code></td>
+                <td>温度（Sense HAT基板上の温度センサーのため、CPUの熱影響を受ける場合あり）</td>
+                <td>℃</td>
+            </tr>
+            <tr>
+                <td><code>humidity</code></td>
+                <td>湿度</td>
+                <td>%</td>
+            </tr>
+            <tr>
+                <td><code>pressure</code></td>
+                <td>気圧</td>
+                <td>ミリバール（hPa）</td>
+            </tr>
+        </table>
+
+        <div class="code-block">// msg.payloadの例（環境イベント）
+{
+  "temperature": 32.5,
+  "humidity": 45.2,
+  "pressure": 1013.25
+}</div>
+
+        <div class="warning">
+            <p><strong>⚠️ 温度精度について:</strong> Sense HATの温度センサーはRaspberry PiのCPUに近いため、実際の室温より5〜10℃高く表示されることがあります。補正が必要な場合は <code>msg.payload.temperature - 5</code> のように差し引いて使用してください。</p>
+        </div>
+
+        <h3><span class="sensor-badge badge-joystick">ジョイスティックイベント</span> topic: "joystick"</h3>
+        <p>ジョイスティックの操作時に送信されます。<code>msg.payload</code> に以下のデータが含まれます：</p>
+        <table>
+            <tr>
+                <th>プロパティ</th>
+                <th>内容</th>
+                <th>値</th>
+            </tr>
+            <tr>
+                <td><code>key</code></td>
+                <td>押されたキーの方向</td>
+                <td>"UP" / "DOWN" / "LEFT" / "RIGHT" / "ENTER"</td>
+            </tr>
+            <tr>
+                <td><code>state</code></td>
+                <td>キーの状態</td>
+                <td>0 = 解放、1 = 押下、2 = 保持（長押し）</td>
+            </tr>
+        </table>
+
+        <div class="code-block">// msg.payloadの例（ジョイスティックイベント）
+{
+  "key": "ENTER",
+  "state": 1
+}</div>
+
+        <h2>📥 4. 出力ノードへの入力コマンド</h2>
+
+        <p>rpi-sensehat out は <code>msg.payload</code> に文字列でコマンドを送ることで、8×8 LEDマトリックスを制御します。</p>
+
+        <h3>💡 ピクセル設定</h3>
+        <p>形式: <code>x,y,色</code></p>
+        <table>
+            <tr>
+                <th>書式</th>
+                <th>内容</th>
+                <th>例</th>
+            </tr>
+            <tr>
+                <td><code>x,y,色</code></td>
+                <td>指定座標のピクセルを点灯（x/y: 0〜7）</td>
+                <td><code>3,3,red</code></td>
+            </tr>
+            <tr>
+                <td><code>*,y,色</code></td>
+                <td>指定行の全ピクセルを点灯</td>
+                <td><code>*,0,blue</code></td>
+            </tr>
+            <tr>
+                <td><code>x-x,y-y,色</code></td>
+                <td>指定範囲のピクセルを点灯</td>
+                <td><code>0-3,0-3,green</code></td>
+            </tr>
+            <tr>
+                <td><code>x,y,off</code></td>
+                <td>指定座標のピクセルを消灯</td>
+                <td><code>3,3,off</code></td>
+            </tr>
+        </table>
+
+        <p><strong>色の指定方法:</strong></p>
+        <ul>
+            <li>HTML色名: <code>red</code>, <code>blue</code>, <code>green</code>, <code>white</code> など</li>
+            <li>16進数: <code>#ff0000</code></li>
+            <li>RGB: <code>255,0,0</code>（ピクセル設定では使用不可）</li>
+            <li>CheerLights色名: <code>warmwhite</code> など</li>
+            <li>消灯: <code>off</code></li>
+        </ul>
+
+        <h3>🔄 回転・反転</h3>
+        <table>
+            <tr>
+                <th>コマンド</th>
+                <th>内容</th>
+            </tr>
+            <tr>
+                <td><code>R0</code> / <code>R90</code> / <code>R180</code> / <code>R270</code></td>
+                <td>ディスプレイを指定角度で回転</td>
+            </tr>
+            <tr>
+                <td><code>FH</code></td>
+                <td>水平方向に反転（左右反転）</td>
+            </tr>
+            <tr>
+                <td><code>FV</code></td>
+                <td>垂直方向に反転（上下反転）</td>
+            </tr>
+        </table>
+
+        <h3>📝 テキストスクロール</h3>
+        <p><code>msg.payload</code> に通常の文字列を送ると、8×8 LEDに自動スクロール表示されます。</p>
+        <table>
+            <tr>
+                <th>プロパティ</th>
+                <th>内容</th>
+                <th>デフォルト</th>
+            </tr>
+            <tr>
+                <td><code>msg.payload</code></td>
+                <td>スクロール表示するテキスト</td>
+                <td>-</td>
+            </tr>
+            <tr>
+                <td><code>msg.color</code></td>
+                <td>テキストの色</td>
+                <td>white</td>
+            </tr>
+            <tr>
+                <td><code>msg.background</code></td>
+                <td>背景色</td>
+                <td>off（消灯）</td>
+            </tr>
+            <tr>
+                <td><code>msg.speed</code></td>
+                <td>スクロール速度（1〜10）</td>
+                <td>3</td>
+            </tr>
+        </table>
+
+        <h3>🔆 明るさ調整</h3>
+        <table>
+            <tr>
+                <th>コマンド</th>
+                <th>内容</th>
+            </tr>
+            <tr>
+                <td><code>D0</code></td>
+                <td>LEDの明るさを低く設定（暗い環境向け）</td>
+            </tr>
+            <tr>
+                <td><code>D1</code></td>
+                <td>LEDの明るさを高く設定（通常）</td>
+            </tr>
+        </table>
+
+        <h2>🎯 5. 実用的な使用パターン</h2>
+
+        <div class="important">
+            <p><strong>📥 サンプルフローのインポート方法:</strong></p>
+            <ol>
+                <li>下のサンプルフローJSONをコピー</li>
+                <li>Node-REDエディタで <strong>メニュー → 読み込み</strong> を選択</li>
+                <li>JSONをペーストして「読み込み」をクリック</li>
+            </ol>
+            <p>⚠️ このノードはRaspberry Pi + Sense HATがある環境のみで実際に動作します。</p>
+        </div>
+
+        <h3>パターン1: センサーデータの読み取りと確認</h3>
+        <p>Sense HATの全センサーデータをデバッグパネルで確認する基本パターンです。</p>
+
+        <details>
+            <summary>📋 サンプルフロー（クリックで展開）</summary>
+            <p style="margin: 10px 0; color: #666;"><small>全センサーデータをデバッグパネルに表示します</small></p>
+            <div class="flow-json">
+                <button class="copy-button" onclick="copyFlow(this)">
+                    <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                    コピー
+                </button>
+[
+    {
+        "id": "tab_sensehat_01",
+        "type": "tab",
+        "label": "Sense HAT センサー読み取り",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "sensehat_in_01",
+        "type": "rpi-sensehat in",
+        "z": "tab_sensehat_01",
+        "name": "Sense HAT 入力",
+        "motion": true,
+        "env": true,
+        "stick": true,
+        "x": 160,
+        "y": 200,
+        "wires": [["debug_all_01"]]
+    },
+    {
+        "id": "debug_all_01",
+        "type": "debug",
+        "z": "tab_sensehat_01",
+        "name": "センサーデータ確認",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 400,
+        "y": 200,
+        "wires": []
+    }
+]
+            </div>
+        </details>
+
+        <h3>パターン2: 環境データのみ取得してLEDに温度表示</h3>
+        <p>環境センサーのデータを取得し、温度に応じてLEDの色を変えるパターンです。</p>
+
+        <details>
+            <summary>📋 サンプルフロー（クリックで展開）</summary>
+            <p style="margin: 10px 0; color: #666;"><small>温度が30℃以上なら赤、25℃以上なら橙、それ以外は青でLEDを点灯します</small></p>
+            <div class="flow-json">
+                <button class="copy-button" onclick="copyFlow(this)">
+                    <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                    コピー
+                </button>
+[
+    {
+        "id": "tab_sensehat_02",
+        "type": "tab",
+        "label": "Sense HAT 温度表示",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "sensehat_in_02",
+        "type": "rpi-sensehat in",
+        "z": "tab_sensehat_02",
+        "name": "環境センサー",
+        "motion": false,
+        "env": true,
+        "stick": false,
+        "x": 160,
+        "y": 200,
+        "wires": [["func_temp_color_02"]]
+    },
+    {
+        "id": "func_temp_color_02",
+        "type": "function",
+        "z": "tab_sensehat_02",
+        "name": "温度→LED色変換",
+        "func": "if (msg.topic !== 'environment') return null;\nvar temp = msg.payload.temperature;\nvar color;\nif (temp >= 30) {\n    color = 'red';\n} else if (temp >= 25) {\n    color = 'orange';\n} else {\n    color = 'blue';\n}\nmsg.payload = '*,*,' + color;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 360,
+        "y": 200,
+        "wires": [["sensehat_out_02"]]
+    },
+    {
+        "id": "sensehat_out_02",
+        "type": "rpi-sensehat out",
+        "z": "tab_sensehat_02",
+        "name": "LED表示",
+        "x": 560,
+        "y": 200,
+        "wires": []
+    }
+]
+            </div>
+        </details>
+
+        <h3>パターン3: ジョイスティックでLEDを制御</h3>
+        <p>ジョイスティックの操作に応じてLEDにメッセージをスクロール表示するパターンです。</p>
+
+        <details>
+            <summary>📋 サンプルフロー（クリックで展開）</summary>
+            <p style="margin: 10px 0; color: #666;"><small>ENTERキーを押すと "Hello!" をスクロール表示します</small></p>
+            <div class="flow-json">
+                <button class="copy-button" onclick="copyFlow(this)">
+                    <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                    コピー
+                </button>
+[
+    {
+        "id": "tab_sensehat_03",
+        "type": "tab",
+        "label": "Sense HAT ジョイスティック制御",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "sensehat_in_03",
+        "type": "rpi-sensehat in",
+        "z": "tab_sensehat_03",
+        "name": "ジョイスティック入力",
+        "motion": false,
+        "env": false,
+        "stick": true,
+        "x": 160,
+        "y": 200,
+        "wires": [["switch_03"]]
+    },
+    {
+        "id": "switch_03",
+        "type": "switch",
+        "z": "tab_sensehat_03",
+        "name": "ENTER押下のみ通過",
+        "property": "payload.key",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "ENTER",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 360,
+        "y": 200,
+        "wires": [["func_scroll_03"]]
+    },
+    {
+        "id": "func_scroll_03",
+        "type": "function",
+        "z": "tab_sensehat_03",
+        "name": "スクロールメッセージ設定",
+        "func": "if (msg.payload.state !== 1) return null;\nmsg.payload = 'Hello!';\nmsg.color = 'yellow';\nmsg.speed = 5;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 580,
+        "y": 200,
+        "wires": [["sensehat_out_03"]]
+    },
+    {
+        "id": "sensehat_out_03",
+        "type": "rpi-sensehat out",
+        "z": "tab_sensehat_03",
+        "name": "LEDスクロール",
+        "x": 800,
+        "y": 200,
+        "wires": []
+    }
+]
+            </div>
+        </details>
+
+        <h3>パターン4: LED全面制御とテキスト表示</h3>
+        <p>InjectノードからLEDの各種コントロールコマンドを手動で送信するパターンです。</p>
+
+        <details>
+            <summary>📋 サンプルフロー（クリックで展開）</summary>
+            <p style="margin: 10px 0; color: #666;"><small>各種コマンドの動作確認に使用できます</small></p>
+            <div class="flow-json">
+                <button class="copy-button" onclick="copyFlow(this)">
+                    <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                    コピー
+                </button>
+[
+    {
+        "id": "tab_sensehat_04",
+        "type": "tab",
+        "label": "Sense HAT LED制御コマンド",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "inject_scroll_04",
+        "type": "inject",
+        "z": "tab_sensehat_04",
+        "name": "テキストスクロール",
+        "props": [
+            {"p": "payload"},
+            {"p": "color", "v": "cyan", "vt": "str"},
+            {"p": "speed", "v": "5", "vt": "num"}
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "Hello Node-RED!",
+        "payloadType": "str",
+        "x": 160,
+        "y": 120,
+        "wires": [["sensehat_out_04"]]
+    },
+    {
+        "id": "inject_pixel_04",
+        "type": "inject",
+        "z": "tab_sensehat_04",
+        "name": "中心ピクセル赤点灯",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "3,3,red",
+        "payloadType": "str",
+        "x": 170,
+        "y": 180,
+        "wires": [["sensehat_out_04"]]
+    },
+    {
+        "id": "inject_alloff_04",
+        "type": "inject",
+        "z": "tab_sensehat_04",
+        "name": "全消灯",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "*,*,off",
+        "payloadType": "str",
+        "x": 130,
+        "y": 240,
+        "wires": [["sensehat_out_04"]]
+    },
+    {
+        "id": "inject_rotate_04",
+        "type": "inject",
+        "z": "tab_sensehat_04",
+        "name": "90度回転",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "R90",
+        "payloadType": "str",
+        "x": 130,
+        "y": 300,
+        "wires": [["sensehat_out_04"]]
+    },
+    {
+        "id": "inject_bright_04",
+        "type": "inject",
+        "z": "tab_sensehat_04",
+        "name": "明るさ低",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "D0",
+        "payloadType": "str",
+        "x": 130,
+        "y": 360,
+        "wires": [["sensehat_out_04"]]
+    },
+    {
+        "id": "sensehat_out_04",
+        "type": "rpi-sensehat out",
+        "z": "tab_sensehat_04",
+        "name": "LED制御",
+        "x": 420,
+        "y": 240,
+        "wires": []
+    }
+]
+            </div>
+        </details>
+
+        <h2>📝 6. 演習問題</h2>
+
+        <div class="exercise">
+            <h3>演習1: センサーデータのフィルタリング <span class="difficulty difficulty-easy">初級</span></h3>
+            <p><strong>課題:</strong> rpi-sensehat in から来るメッセージをtopicで振り分け、環境データのみデバッグに表示するフローを作成してください。</p>
+            <p><strong>✅ 成功の条件:</strong></p>
+            <ul>
+                <li>デバッグパネルに <code>msg.topic: "environment"</code> のメッセージのみが約1秒ごとに表示される</li>
+                <li><code>motion</code> や <code>joystick</code> のメッセージはデバッグパネルに一切表示されない</li>
+                <li>デバッグパネルのペイロードに <code>temperature</code>・<code>humidity</code>・<code>pressure</code> の3つのキーが含まれている</li>
+            </ul>
+            <p><strong>ヒント:</strong> SwitchノードでSwitchの条件を <code>msg.topic == "environment"</code> にします。</p>
+            <details>
+                <summary>📋 解答フロー（クリックで展開）</summary>
+                <div class="flow-json">
+                    <button class="copy-button" onclick="copyFlow(this)">
+                        <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                        コピー
+                    </button>
+[
+    {
+        "id": "tab_ex1",
+        "type": "tab",
+        "label": "演習1: 環境データフィルタ",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "sensehat_in_ex1",
+        "type": "rpi-sensehat in",
+        "z": "tab_ex1",
+        "name": "Sense HAT",
+        "motion": true,
+        "env": true,
+        "stick": true,
+        "x": 160,
+        "y": 200,
+        "wires": [["switch_ex1"]]
+    },
+    {
+        "id": "switch_ex1",
+        "type": "switch",
+        "z": "tab_ex1",
+        "name": "環境データのみ通過",
+        "property": "topic",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "environment",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 370,
+        "y": 200,
+        "wires": [["debug_ex1"]]
+    },
+    {
+        "id": "debug_ex1",
+        "type": "debug",
+        "z": "tab_ex1",
+        "name": "環境データ",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 570,
+        "y": 200,
+        "wires": []
+    }
+]
+                </div>
+            </details>
+        </div>
+
+        <div class="exercise">
+            <h3>演習2: ジョイスティックでLED色変更 <span class="difficulty difficulty-medium">中級</span></h3>
+            <p><strong>課題:</strong> ジョイスティックの各方向（UP/DOWN/LEFT/RIGHT）に対応した色でLED全面を点灯させるフローを作成してください。</p>
+            <ul>
+                <li>UP → 赤（red）</li>
+                <li>DOWN → 青（blue）</li>
+                <li>LEFT → 緑（green）</li>
+                <li>RIGHT → 黄（yellow）</li>
+            </ul>
+            <p><strong>✅ 成功の条件:</strong></p>
+            <ul>
+                <li>ジョイスティックを上（UP）に倒すと、8×8 LED 64個が<strong>すべて赤</strong>に点灯する</li>
+                <li>下（DOWN）は青、左（LEFT）は緑、右（RIGHT）は黄色に、それぞれ全面点灯する</li>
+                <li>ENTER キーや長押し（state: 2）では何も起きない（余分な反応がない）</li>
+                <li>方向を変えるたびに即座に色が切り替わる（前の色が残らない）</li>
+            </ul>
+            <p><strong>ヒント:</strong> Functionノードで <code>msg.payload.key</code> を参照し、対応する色で <code>*,*,色</code> コマンドを組み立てます。</p>
+            <details>
+                <summary>📋 解答フロー（クリックで展開）</summary>
+                <div class="flow-json">
+                    <button class="copy-button" onclick="copyFlow(this)">
+                        <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                        コピー
+                    </button>
+[
+    {
+        "id": "tab_ex2",
+        "type": "tab",
+        "label": "演習2: ジョイスティックLED色変更",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "sensehat_in_ex2",
+        "type": "rpi-sensehat in",
+        "z": "tab_ex2",
+        "name": "ジョイスティック入力",
+        "motion": false,
+        "env": false,
+        "stick": true,
+        "x": 160,
+        "y": 200,
+        "wires": [["func_ex2"]]
+    },
+    {
+        "id": "func_ex2",
+        "type": "function",
+        "z": "tab_ex2",
+        "name": "方向→LED色変換",
+        "func": "if (msg.payload.state !== 1) return null;\nvar colorMap = {\n    'UP':    'red',\n    'DOWN':  'blue',\n    'LEFT':  'green',\n    'RIGHT': 'yellow'\n};\nvar color = colorMap[msg.payload.key];\nif (!color) return null;\nmsg.payload = '*,*,' + color;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 370,
+        "y": 200,
+        "wires": [["sensehat_out_ex2"]]
+    },
+    {
+        "id": "sensehat_out_ex2",
+        "type": "rpi-sensehat out",
+        "z": "tab_ex2",
+        "name": "LED全面表示",
+        "x": 580,
+        "y": 200,
+        "wires": []
+    }
+]
+                </div>
+            </details>
+        </div>
+
+        <div class="exercise">
+            <h3>演習3: 傾き検知アラート <span class="difficulty difficulty-hard">上級</span></h3>
+            <p><strong>課題:</strong> モーションセンサーの傾き（orientation）を監視し、Sense HATが水平から30度以上傾いたときにLEDを点灯させるフローを作成してください。元に戻したら3秒後に自動消灯します。</p>
+            <p><strong>✅ 成功の条件:</strong></p>
+            <ul>
+                <li>Sense HAT が水平（机の上など）に置かれている間は、LED は<strong>消灯したまま</strong>変化しない</li>
+                <li>前後または左右に<strong>30度以上傾ける</strong>と、LED 全面が<strong>オレンジ色</strong>に点灯する</li>
+                <li>傾けている間は LED が<strong>点灯し続ける</strong></li>
+                <li>水平に戻してから<strong>3秒後</strong>に LED が自動的に消灯する（手動操作不要）</li>
+            </ul>
+            <div class="tip">
+                <p><strong>💡 なぜ傾きを使うのか:</strong> <code>orientation.roll</code>（左右の傾き）と <code>orientation.pitch</code>（前後の傾き）は、ボードを手で傾けるだけで確実に大きく変化します。実際に手に持って試してみましょう。</p>
+            </div>
+            <p><strong>ヒント:</strong></p>
+            <ul>
+                <li>Functionノードで <code>msg.topic === 'motion'</code> のときのみ処理し、<code>msg.payload.orientation.roll</code> と <code>msg.payload.orientation.pitch</code> を確認します</li>
+                <li>Triggerノードの「延長」を有効にすると、傾けている間は消灯タイマーがリセットされ続け、戻したときだけカウントが始まります</li>
+            </ul>
+            <details>
+                <summary>📋 解答フロー（クリックで展開）</summary>
+                <div class="flow-json">
+                    <button class="copy-button" onclick="copyFlow(this)">
+                        <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                        コピー
+                    </button>
+[
+    {
+        "id": "tab_ex3",
+        "type": "tab",
+        "label": "演習3: 傾き検知アラート",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "sensehat_in_ex3",
+        "type": "rpi-sensehat in",
+        "z": "tab_ex3",
+        "name": "モーションセンサー",
+        "motion": true,
+        "env": false,
+        "stick": false,
+        "x": 160,
+        "y": 200,
+        "wires": [["func_tilt_ex3"]]
+    },
+    {
+        "id": "func_tilt_ex3",
+        "type": "function",
+        "z": "tab_ex3",
+        "name": "傾き検知",
+        "func": "if (msg.topic !== 'motion') return null;\nvar roll = Math.abs(msg.payload.orientation.roll);\nvar pitch = Math.abs(msg.payload.orientation.pitch);\nif (roll > 30 || pitch > 30) {\n    msg.payload = '*,*,orange';\n    return msg;\n}\nreturn null;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 370,
+        "y": 200,
+        "wires": [["trigger_ex3"]]
+    },
+    {
+        "id": "trigger_ex3",
+        "type": "trigger",
+        "z": "tab_ex3",
+        "name": "戻してから3秒で消灯",
+        "op1": "",
+        "op2": "*,*,off",
+        "op1type": "pay",
+        "op2type": "str",
+        "duration": "3",
+        "extend": true,
+        "overrideDelay": false,
+        "units": "s",
+        "reset": "",
+        "bytopic": "all",
+        "topic": "topic",
+        "outputs": 1,
+        "x": 590,
+        "y": 200,
+        "wires": [["sensehat_out_ex3"]]
+    },
+    {
+        "id": "sensehat_out_ex3",
+        "type": "rpi-sensehat out",
+        "z": "tab_ex3",
+        "name": "LEDアラート",
+        "x": 800,
+        "y": 200,
+        "wires": []
+    }
+]
+                </div>
+            </details>
+        </div>
+
+        <h2>🔧 7. トラブルシューティング</h2>
+
+        <table>
+            <tr>
+                <th>症状</th>
+                <th>原因</th>
+                <th>解決方法</th>
+            </tr>
+            <tr>
+                <td>ノードが「赤いエラー」状態になる</td>
+                <td>Raspberry Pi以外の環境で実行している</td>
+                <td>Raspberry Pi上のNode-REDで実行してください</td>
+            </tr>
+            <tr>
+                <td>ノードが起動しない / Sense HATが応答しない</td>
+                <td>Sense HATが正しく接続されていない</td>
+                <td>電源を切ってから再接続し、<code>sudo apt install sense-hat</code> を実行</td>
+            </tr>
+            <tr>
+                <td>温度が実際より高く表示される</td>
+                <td>CPUの熱がSense HATの温度センサーに影響している</td>
+                <td>Functionノードで補正値を引く（例: <code>temp - 5</code>）</td>
+            </tr>
+            <tr>
+                <td>モーションデータが多すぎる</td>
+                <td>約10回/秒で送信されるため過負荷になることがある</td>
+                <td>Switchノードやフローコンテキストを使い、一定間隔でのみ処理する</td>
+            </tr>
+            <tr>
+                <td>LEDにコマンドが効かない</td>
+                <td><code>msg.payload</code> の書式が間違っている</td>
+                <td>座標は <code>x,y,色</code>（スペースなし）、色はHTML色名かHEXで指定</td>
+            </tr>
+        </table>
+
+        <h2>📖 8. まとめ</h2>
+
+        <div class="tip">
+            <p><strong>💡 Pi Sense HATノードのポイント:</strong></p>
+            <ul>
+                <li>🍓 <strong>Raspberry Pi + Sense HATが必須</strong> — 他の環境では動作しません</li>
+                <li>📡 <strong>入力ノード</strong>: モーション/環境/ジョイスティックの3種類のセンサーをまとめて読み取り</li>
+                <li>💡 <strong>出力ノード</strong>: <code>msg.payload</code> の文字列コマンドで8×8 LEDを制御</li>
+                <li>🌡️ <strong>温度補正に注意</strong>: CPUの熱影響を受けるため、必要に応じて補正値を引く</li>
+                <li>⚡ <strong>モーションデータは高頻度</strong>: 約10回/秒のため、フィルタリングして使用する</li>
+            </ul>
+        </div>
+
+        <h3>🔗 参考リンク</h3>
+        <ul>
+            <li><a href="https://flows.nodered.org/node/node-red-node-pi-sense-hat" target="_blank">node-red-node-pi-sense-hat — Node-RED Library</a></li>
+            <li><a href="https://github.com/node-red/node-red-nodes/tree/master/hardware/sensehat" target="_blank">ソースコード (GitHub)</a></li>
+            <li><a href="https://www.raspberrypi.com/documentation/accessories/sense-hat.html" target="_blank">Raspberry Pi Sense HAT 公式ドキュメント</a></li>
+        </ul>
+    </div>
+
+    <a href="index.html" class="home-button">🏠 ホームへ</a>
+
+    <script>
+        function copyFlow(btn) {
+            const container = btn.closest('.flow-json');
+            const text = container.innerText.replace(/^コピー\n?/, '').replace(/^[\s\S]*?\[/, '[');
+            const match = container.innerText.match(/\[[\s\S]*\]/);
+            if (match) {
+                navigator.clipboard.writeText(match[0]).then(() => {
+                    btn.classList.add('copied');
+                    btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> コピー済み';
+                    setTimeout(() => {
+                        btn.classList.remove('copied');
+                        btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg> コピー';
+                    }, 2000);
+                });
+            }
+        }
+    </script>
+</body>
+</html>
