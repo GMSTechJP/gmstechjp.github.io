@@ -384,7 +384,7 @@
             <div class="requirement-card">
                 <div class="icon">💾</div>
                 <h4>microSDカード</h4>
-                <p>16GB以上推奨</p>
+                <p>16GB以上 Class10推奨</p>
             </div>
             <div class="requirement-card">
                 <div class="icon">🔌</div>
@@ -395,6 +395,16 @@
                 <div class="icon">🌐</div>
                 <h4>ネットワーク接続</h4>
                 <p>有線LAN または Wi-Fi</p>
+            </div>
+            <div class="requirement-card">
+                <div class="icon">💳</div>
+                <h4>SDカードリーダー</h4>
+                <p>PCにスロットがない場合</p>
+            </div>
+            <div class="requirement-card">
+                <div class="icon">🖥️</div>
+                <h4>モニター + キーボード</h4>
+                <p>初回セットアップ用（SSH利用なら不要）</p>
             </div>
         </div>
 
@@ -440,14 +450,70 @@
                     <li><strong>ストレージ:</strong> microSDカードを選択</li>
                 </ol>
 
+                <div class="warning">
+                    <p><strong>⚠️ ストレージ選択の注意</strong></p>
+                    <p>書き込み先のドライブを間違えると、PC内のデータが消去される恐れがあります。microSDカードのドライブを慎重に確認してから選択してください。</p>
+                </div>
+
                 <div class="important">
                     <p><strong>📌 カスタマイズ設定（推奨）</strong></p>
-                    <p>書き込み前に「設定を編集する」をクリックして、以下を事前に設定しておくと便利です。</p>
+                    <p>「次へ」をクリック後に表示される「設定を編集する」画面で、以下を事前に設定しておくと便利です。</p>
                     <ul>
                         <li><strong>ホスト名:</strong> 例）<code>raspberrypi</code></li>
                         <li><strong>ユーザー名とパスワード:</strong> ログイン用の認証情報</li>
                         <li><strong>Wi-Fi設定:</strong> SSIDとパスワード（Wi-Fi使用時）</li>
+                        <li><strong>ロケール設定:</strong> タイムゾーン、キーボードレイアウト</li>
                         <li><strong>SSHを有効化:</strong> リモートアクセスに必要</li>
+                    </ul>
+                </div>
+
+                <details>
+                    <summary>📋 カスタマイズ設定の詳細（クリックで展開）</summary>
+                    <div class="content">
+                        <h4>① ホスト名</h4>
+                        <p>Raspberry Pi のネットワーク上の名前を設定します。例: <code>raspberrypi</code></p>
+                        <div class="warning">
+                            <p><strong>⚠️ 使用可能な文字</strong></p>
+                            <p>アルファベットと数字のみ使用可能です。日本語や記号（ハイフン以外）は使えません。</p>
+                        </div>
+
+                        <h4>② ユーザーアカウント</h4>
+                        <p>ログイン用のユーザー名とパスワードを設定します。</p>
+                        <div class="tip">
+                            <p><strong>💡 SSH接続でも使用</strong></p>
+                            <p>ここで設定したユーザー名とパスワードは、SSH接続時のログインにも使用します。忘れないようにメモしておきましょう。</p>
+                        </div>
+
+                        <h4>③ Wi-Fi設定（Wi-Fi使用時）</h4>
+                        <p>接続先のSSID（ネットワーク名）とパスワードを入力します。</p>
+
+                        <h4>④ ロケール設定</h4>
+                        <ul>
+                            <li><strong>タイムゾーン:</strong> <code>Asia/Tokyo</code> を選択</li>
+                            <li><strong>キーボードレイアウト:</strong> <code>jp</code>（日本語キーボード）を選択</li>
+                        </ul>
+
+                        <h4>⑤ SSH設定</h4>
+                        <p>「SSHを有効化する」をオンにします。パスワード認証を使用します。</p>
+                        <div class="tip">
+                            <p><strong>💡 SSHとは？</strong></p>
+                            <p>SSH (Secure Shell) は、ネットワーク経由で別のコンピュータに安全に接続するための仕組みです。モニターやキーボードを直接つながなくても、自分のPCからRaspberry Piをリモート操作できます。通信はすべて暗号化されるため、パスワードが盗み見られる心配はありません。</p>
+                        </div>
+
+                        <h4>⑥ Raspberry Pi Connect</h4>
+                        <p>今回は使用しないため、何も設定せず「次へ」に進みます。</p>
+                    </div>
+                </details>
+
+                <h4>書き込みの実行</h4>
+                <p>設定が完了したら「WRITE」ボタンをクリックして書き込みを開始します。</p>
+                <div class="important">
+                    <p><strong>📌 書き込みの流れ</strong></p>
+                    <p>「SDカードのデータがすべて消去されます」という確認ダイアログが表示されます。内容を確認して「I UNDERSTAND, ERASE AND WRITE」をクリックしてください。</p>
+                    <ul>
+                        <li>書き込みには <strong>約5〜15分</strong> かかります</li>
+                        <li>書き込み完了後、自動的にデータの検証が行われます</li>
+                        <li>「CONTINUE」をクリックして完了。SDカードを安全に取り外します</li>
                     </ul>
                 </div>
             </div>
@@ -466,10 +532,17 @@
             <div class="step-content">
                 <h3>SSHで接続（ヘッドレス環境の場合）</h3>
                 <p>モニターを接続しない場合は、PCからSSHで接続します。</p>
+                <p><strong>Windows PCの場合:</strong> スタートメニューから「PowerShell」または「ターミナル」を起動して、以下のコマンドを入力します。<strong>macOS / Linuxの場合:</strong> ターミナルを開いて実行します。</p>
 
                 <div class="code-block">
                     <button class="copy-button" onclick="copyCode(this)">コピー</button>
 ssh ユーザー名@raspberrypi.local</div>
+
+                <div class="important">
+                    <p><strong>📌 初回接続時の確認</strong></p>
+                    <p>初めて接続する際は <code>Are you sure you want to continue connecting (yes/no)?</code> と表示されます。<code>yes</code> と入力して Enter を押してください。</p>
+                    <p>続いてパスワードの入力を求められます。<strong>パスワードは入力しても画面に表示されません</strong>が、正常に入力されています。Imagerで設定したパスワードを入力して Enter を押してください。</p>
+                </div>
 
                 <div class="tip">
                     <p><strong>💡 接続できない場合</strong></p>
@@ -500,6 +573,12 @@ sudo apt update && sudo apt upgrade -y</div>
         <!-- ===== セクション2: Node-REDのインストール ===== -->
         <h2 id="section2">🔴 2. Node-REDのインストール</h2>
 
+        <div class="tip">
+            <p><strong>💡 Node-REDとは？</strong></p>
+            <p>Node-REDは、ブラウザ上でノード（機能ブロック）をつなげてプログラムを作る「フロー型プログラミングツール」です。ドラッグ＆ドロップで IoT システムやデータ処理の仕組みを構築でき、GPIO、MQTT、HTTP など豊富なノードが用意されています。</p>
+            <p>詳しくは <a href="nodered-overview.html">Node-RED概要ガイド</a> を参照してください。</p>
+        </div>
+
         <p>Raspberry Pi向けに公式のインストールスクリプトが用意されています。このスクリプトを使うと、Node.jsとNode-REDを一括でインストールできます。</p>
 
         <div class="step">
@@ -510,7 +589,7 @@ sudo apt update && sudo apt upgrade -y</div>
 
                 <div class="code-block">
                     <button class="copy-button" onclick="copyCode(this)">コピー</button>
-bash &lt;(curl -sL https://raw.githubusercontent.com/node-red/linux-installers/master/deb/update-nodejs-and-nodered)</div>
+bash &lt;(curl -sL https://github.com/node-red/linux-installers/releases/latest/download/update-nodejs-and-nodered-deb)</div>
 
                 <div class="important">
                     <p><strong>📌 スクリプトの内容</strong></p>
@@ -718,15 +797,18 @@ All done.
   You can now start Node-RED with the command  node-red-start
   or using the shortcut in the Desktop menu</div>
 
-                <p>バージョンを確認してみましょう。</p>
+                <p>Node.jsのバージョンを確認してみましょう。</p>
 
                 <div class="code-block">
                     <button class="copy-button" onclick="copyCode(this)">コピー</button>
-<span class="prompt">$ </span>node --version
-<span class="output">v20.x.x</span>
+node --version</div>
 
-<span class="prompt">$ </span>node-red --version
-<span class="output">4.x.x</span></div>
+                <p><code>v20.x.x</code> のようにバージョン番号が表示されれば、Node.jsは正常にインストールされています。</p>
+
+                <div class="tip">
+                    <p><strong>💡 Node-REDのバージョン確認</strong></p>
+                    <p>Node-REDのバージョンは、起動時のログに <code>Node-RED version: v4.x.x</code> と表示されます。次のセクションでNode-REDを起動する際に確認できます。</p>
+                </div>
             </div>
         </div>
 
@@ -807,6 +889,11 @@ node-red-stop</div>
         <h2 id="section4">⚙️ 4. 自動起動の設定</h2>
 
         <p>Raspberry Piの電源を入れた時にNode-REDを自動的に起動するよう設定します。IoTデバイスとして常時稼働させる場合に必須の設定です。</p>
+
+        <div class="tip">
+            <p><strong>💡 systemdとは？</strong></p>
+            <p>systemd は Linux の「サービス管理システム」です。どのプログラムをいつ起動・停止するかを管理しています。<code>systemctl enable</code> で登録すると、Raspberry Pi の電源を入れたときに Node-RED が自動で起動するようになります。</p>
+        </div>
 
         <div class="step">
             <div class="step-number">1</div>
@@ -943,7 +1030,14 @@ http://raspberrypi.local:1880</div>
                         <div class="code-block">
                             <button class="copy-button" onclick="copyCode(this)">コピー</button>
 nmcli con show</div>
-                        <p>表示された接続名（例: 「有線接続 1」「Wired connection 1」など）を使って、固定IPを設定します（値は環境に合わせて変更してください）。</p>
+                        <p>表示された接続名を使って、固定IPを設定します（値は環境に合わせて変更してください）。</p>
+
+                        <div class="tip">
+                            <p><strong>💡 Wi-Fiの接続名について</strong></p>
+                            <p>Raspberry Pi Imager で Wi-Fi を設定した場合、接続名は <code>preconfigured</code> になっていることがあります。有線LANの場合は <code>Wired connection 1</code> や <code>有線接続 1</code> などです。<code>nmcli con show</code> の出力で確認してください。</p>
+                        </div>
+
+                        <h4>有線LANの固定IP設定例</h4>
                         <div class="code-block">
                             <button class="copy-button" onclick="copyCode(this)">コピー</button>
 sudo nmcli con mod "有線接続 1" ipv4.addresses 192.168.1.100/24
@@ -951,7 +1045,15 @@ sudo nmcli con mod "有線接続 1" ipv4.gateway 192.168.1.1
 sudo nmcli con mod "有線接続 1" ipv4.dns "192.168.1.1 8.8.8.8"
 sudo nmcli con mod "有線接続 1" ipv4.method manual
 sudo nmcli con up "有線接続 1"</div>
-                        <p>Wi-Fiの場合は接続名がWi-Fiのプロファイル名（例: 「自宅WiFi」など）になります。<code>nmcli con show</code> で確認してください。</p>
+
+                        <h4>Wi-Fiの固定IP設定例</h4>
+                        <div class="code-block">
+                            <button class="copy-button" onclick="copyCode(this)">コピー</button>
+sudo nmcli con mod "preconfigured" ipv4.addresses 192.168.1.100/24
+sudo nmcli con mod "preconfigured" ipv4.gateway 192.168.1.1
+sudo nmcli con mod "preconfigured" ipv4.dns "192.168.1.1 8.8.8.8"
+sudo nmcli con mod "preconfigured" ipv4.method manual
+sudo nmcli con up "preconfigured"</div>
 
                         <div class="tip">
                             <p><strong>📝 古いOS（Bullseye以前）を使用する場合</strong></p>
@@ -970,6 +1072,41 @@ static domain_name_servers=192.168.1.1 8.8.8.8</div>
                             <div class="code-block">
                                 <button class="copy-button" onclick="copyCode(this)">コピー</button>
 sudo systemctl restart dhcpcd</div>
+                        </div>
+                    </div>
+                </details>
+
+                <details>
+                    <summary>📋 有線LANの固定IP設定（IoT機器との1対1接続）（クリックで展開）</summary>
+                    <div class="content">
+                        <p>Raspberry PiとIoT機器（PLC、センサーなど）を有線LANで直接接続する場合、有線LAN側にも固定IPアドレスを設定します。Wi-Fiでインターネット接続を維持しながら、有線LANでIoT機器と通信できます。</p>
+
+                        <div class="important">
+                            <p><strong>📌 事前準備</strong></p>
+                            <p>Raspberry PiのLANポートとIoT機器をLANケーブルで接続しておいてください。</p>
+                        </div>
+
+                        <p>まず有線LANの接続名を確認します。</p>
+                        <div class="code-block">
+                            <button class="copy-button" onclick="copyCode(this)">コピー</button>
+nmcli con show</div>
+
+                        <p>有線接続名（例: <code>Wired connection 1</code>）を確認して設定します（IPアドレスは環境に合わせて変更してください）。IoT機器との1対1接続ではゲートウェイやDNSの設定は不要です。</p>
+                        <div class="code-block">
+                            <button class="copy-button" onclick="copyCode(this)">コピー</button>
+sudo nmcli con mod "Wired connection 1" ipv4.addresses 192.168.10.1/24
+sudo nmcli con mod "Wired connection 1" ipv4.method manual
+sudo nmcli con up "Wired connection 1"</div>
+
+                        <p>設定が反映されたか確認します。</p>
+                        <div class="code-block">
+                            <button class="copy-button" onclick="copyCode(this)">コピー</button>
+ip addr show</div>
+                        <p><code>wlan0</code>（Wi-Fi側IP）と <code>eth0</code>（有線側の固定IP）の両方が表示されていればOKです。</p>
+
+                        <div class="tip">
+                            <p><strong>💡 IoT機器側の設定</strong></p>
+                            <p>接続先のIoT機器側も同じサブネット内のIPアドレス（例: <code>192.168.10.2/24</code>）に設定してください。</p>
                         </div>
                     </div>
                 </details>
@@ -1238,7 +1375,7 @@ sudo journalctl -u nodered.service --since "10 minutes ago"</div>
                 <p>問題が解決しない場合は、再インストールを試みてください。インストールスクリプトは既存のインストールをアップデートする形で動作します。</p>
                 <div class="code-block">
                     <button class="copy-button" onclick="copyCode(this)">コピー</button>
-bash &lt;(curl -sL https://raw.githubusercontent.com/node-red/linux-installers/master/deb/update-nodejs-and-nodered)</div>
+bash &lt;(curl -sL https://github.com/node-red/linux-installers/releases/latest/download/update-nodejs-and-nodered-deb)</div>
 
                 <div class="warning">
                     <p><strong>⚠️ 注意</strong></p>
@@ -1293,7 +1430,7 @@ bash &lt;(curl -sL https://raw.githubusercontent.com/node-red/linux-installers/m
         </ul>
 
         <p style="text-align: center; color: #999; margin-top: 40px;">
-            <small>このガイドは2025年1月時点の情報に基づいています。</small><br>
+            <small>このガイドは2026年2月時点の情報に基づいています。</small><br>
             <small>最新の情報は公式ドキュメントを参照してください。</small>
         </p>
     </div>
