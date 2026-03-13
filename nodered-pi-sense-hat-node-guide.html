@@ -1097,7 +1097,7 @@
                 <li>ENTER キーや長押し（state: 2）では何も起きない（余分な反応がない）</li>
                 <li>方向を変えるたびに即座に色が切り替わる（前の色が残らない）</li>
             </ul>
-            <p><strong>ヒント:</strong> Functionノードで <code>msg.payload.key</code> を参照し、対応する色で <code>*,*,色</code> コマンドを組み立てます。</p>
+            <p><strong>ヒント:</strong> Switchノードで <code>msg.payload.key</code> の値（UP/DOWN/LEFT/RIGHT）ごとに出力を分岐し、各Changeノードで <code>msg.payload</code> を <code>*,*,色</code> に設定します。</p>
             <details>
                 <summary>📋 解答フロー（クリックで展開）</summary>
                 <div class="flow-json">
@@ -1122,24 +1122,96 @@
         "motion": false,
         "env": false,
         "stick": true,
-        "x": 160,
-        "y": 200,
-        "wires": [["func_ex2"]]
+        "x": 100,
+        "y": 400,
+        "wires": [["switch_ex2"]]
     },
     {
-        "id": "func_ex2",
-        "type": "function",
+        "id": "switch_ex2",
+        "type": "switch",
         "z": "tab_ex2",
-        "name": "方向→LED色変換",
-        "func": "if (msg.payload.state !== 1) return null;\nvar colorMap = {\n    'UP':    'red',\n    'DOWN':  'blue',\n    'LEFT':  'green',\n    'RIGHT': 'yellow'\n};\nvar color = colorMap[msg.payload.key];\nif (!color) return null;\nmsg.payload = '*,*,' + color;\nreturn msg;",
-        "outputs": 1,
-        "timeout": 0,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 370,
-        "y": 200,
+        "name": "payload.key?",
+        "property": "payload.key",
+        "propertyType": "msg",
+        "rules": [
+            {"t": "eq", "v": "UP", "vt": "str"},
+            {"t": "eq", "v": "DOWN", "vt": "str"},
+            {"t": "eq", "v": "LEFT", "vt": "str"},
+            {"t": "eq", "v": "RIGHT", "vt": "str"}
+        ],
+        "checkall": "false",
+        "repair": false,
+        "outputs": 4,
+        "x": 310,
+        "y": 400,
+        "wires": [["change_up_ex2"], ["change_down_ex2"], ["change_left_ex2"], ["change_right_ex2"]]
+    },
+    {
+        "id": "change_up_ex2",
+        "type": "change",
+        "z": "tab_ex2",
+        "name": "UP: red",
+        "rules": [{"t": "set", "p": "payload", "pt": "msg", "to": "*,*,red", "tot": "str"}],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 500,
+        "y": 340,
+        "wires": [["junction_ex2"]]
+    },
+    {
+        "id": "change_down_ex2",
+        "type": "change",
+        "z": "tab_ex2",
+        "name": "DOWN: blue",
+        "rules": [{"t": "set", "p": "payload", "pt": "msg", "to": "*,*,blue", "tot": "str"}],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 510,
+        "y": 380,
+        "wires": [["junction_ex2"]]
+    },
+    {
+        "id": "change_left_ex2",
+        "type": "change",
+        "z": "tab_ex2",
+        "name": "LEFT: green",
+        "rules": [{"t": "set", "p": "payload", "pt": "msg", "to": "*,*,green", "tot": "str"}],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 510,
+        "y": 420,
+        "wires": [["junction_ex2"]]
+    },
+    {
+        "id": "change_right_ex2",
+        "type": "change",
+        "z": "tab_ex2",
+        "name": "RIGHT: yellow",
+        "rules": [{"t": "set", "p": "payload", "pt": "msg", "to": "*,*,yellow", "tot": "str"}],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 520,
+        "y": 460,
+        "wires": [["junction_ex2"]]
+    },
+    {
+        "id": "junction_ex2",
+        "type": "junction",
+        "z": "tab_ex2",
+        "x": 660,
+        "y": 400,
         "wires": [["sensehat_out_ex2"]]
     },
     {
@@ -1147,8 +1219,8 @@
         "type": "rpi-sensehat out",
         "z": "tab_ex2",
         "name": "LED全面表示",
-        "x": 580,
-        "y": 200,
+        "x": 770,
+        "y": 400,
         "wires": []
     }
 ]
