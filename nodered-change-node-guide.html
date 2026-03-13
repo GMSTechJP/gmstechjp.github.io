@@ -2023,63 +2023,338 @@ Changeノード:
         
         <h2>📖 8. JSONata活用テクニック</h2>
         
-        <h3>よく使うJSONata式</h3>
-        
+        <p>JSONata は、JSONデータを変換・問い合わせするための軽量な式言語です。Changeノードの値タイプで <strong>「J:」（JSONata式）</strong> を選択すると、動的な値の計算やデータ変換を1つのルールで実現できます。</p>
+
+        <div class="tip">
+            <strong>JSONataの基本ルール:</strong>
+            <ul>
+                <li>ChangeノードのJSONata式では <code>msg.</code> を省略して <code>payload</code> と書きます（<code>msg.payload</code> ではなく <code>payload</code>）</li>
+                <li>値タイプの「J:」ボタンをクリックすると、JSONataエディタが開きテスト実行できます</li>
+                <li><a href="https://try.jsonata.org/" target="_blank">JSONata Exerciser</a> でブラウザ上から式を試すこともできます</li>
+            </ul>
+        </div>
+
+        <p>以下では、このサイトの各ノードガイドの演習問題で実際に使われているJSONata式をカテゴリ別に紹介します。</p>
+
+        <!-- 8.1 文字列操作 -->
+        <h3>8.1 文字列操作</h3>
+
         <table>
             <tr>
-                <th>目的</th>
-                <th>JSONata式</th>
+                <th>関数 / 演算子</th>
                 <th>説明</th>
+                <th>実用例</th>
+                <th>使用箇所</th>
             </tr>
             <tr>
-                <td>文字列結合</td>
-                <td><code>payload & " suffix"</code></td>
-                <td>+ではなく&を使用</td>
+                <td><code>&amp;</code>（結合）</td>
+                <td>文字列を連結する演算子。<code>+</code> ではなく <code>&amp;</code> を使う</td>
+                <td><code>"処理済: " &amp; payload</code></td>
+                <td><a href="nodered-comment-node-guide.html">Commentガイド</a>演習2、<a href="nodered-udp-node-guide.html">UDPガイド</a>演習2</td>
             </tr>
             <tr>
-                <td>数値計算</td>
-                <td><code>payload * 1.1</code></td>
-                <td>四則演算が可能</td>
+                <td><code>$string()</code></td>
+                <td>数値やその他の型を文字列に変換する</td>
+                <td><code>payload.host &amp; ":" &amp; $string(payload.port)</code></td>
+                <td><a href="nodered-yaml-node-guide.html">YAMLガイド</a>演習3、<a href="nodered-watch-node-guide.html">Watchガイド</a>演習3、<a href="nodered-split-node-guide.html">Splitガイド</a>演習3、<a href="nodered-debug-node-guide.html">Debugガイド</a>演習3</td>
             </tr>
             <tr>
-                <td>現在時刻</td>
-                <td><code>$now()</code></td>
-                <td>ISO形式の現在時刻</td>
-            </tr>
-            <tr>
-                <td>大文字変換</td>
+                <td><code>$uppercase()</code></td>
+                <td>文字列をすべて大文字に変換する</td>
                 <td><code>$uppercase(payload)</code></td>
-                <td>文字列を大文字に</td>
+                <td><a href="nodered-split-node-guide.html">Splitガイド</a>演習4</td>
             </tr>
             <tr>
-                <td>配列の長さ</td>
-                <td><code>$count(payload)</code></td>
-                <td>配列の要素数</td>
+                <td><code>$trim()</code></td>
+                <td>文字列の前後の空白・改行を除去する</td>
+                <td><code>$trim(payload)</code></td>
+                <td><a href="nodered-exec-node-guide.html">Execガイド</a>演習2</td>
             </tr>
             <tr>
-                <td>条件分岐</td>
-                <td><code>payload > 30 ? "高" : "低"</code></td>
-                <td>三項演算子</td>
+                <td><code>$join()</code></td>
+                <td>配列の要素を結合して1つの文字列にする</td>
+                <td><code>$join(['テストメール送信時刻: ', $now()])</code></td>
+                <td><a href="nodered-email-node-guide.html">Emailガイド</a>演習1</td>
+            </tr>
+        </table>
+
+        <div class="tip">
+            <strong>文字列結合のポイント:</strong> JSONataでは文字列結合に <code>+</code> ではなく <code>&amp;</code> を使います。<code>+</code> は数値の加算専用です。数値を文字列に結合する場合は <code>$string()</code> で明示的に変換してください。
+            <br><br>
+            <strong>例:</strong> <code>topic &amp; ": " &amp; $string(payload) &amp; "円"</code>（<a href="nodered-split-node-guide.html">Splitガイド</a>演習3で使用）
+        </div>
+
+        <!-- 8.2 数値計算 -->
+        <h3>8.2 数値計算</h3>
+
+        <table>
+            <tr>
+                <th>関数 / 演算子</th>
+                <th>説明</th>
+                <th>実用例</th>
+                <th>使用箇所</th>
             </tr>
             <tr>
-                <td>flow変数参照</td>
-                <td><code>$flowContext("count")</code></td>
-                <td>フローコンテキスト取得</td>
+                <td>四則演算<br><code>+ - * /</code></td>
+                <td>加算・減算・乗算・除算</td>
+                <td><code>payload.raw_temp / 100</code></td>
+                <td>本ガイド演習4</td>
             </tr>
             <tr>
-                <td>global変数参照</td>
+                <td><code>$floor()</code></td>
+                <td>小数点以下を切り捨てて整数にする</td>
+                <td><code>$floor($random() * 40 + 20)</code></td>
+                <td><a href="nodered-dashboard2-layout.html">Dashboard2 Layoutガイド</a>サンプル</td>
+            </tr>
+            <tr>
+                <td><code>$random()</code></td>
+                <td>0以上1未満のランダムな数値を返す</td>
+                <td><code>$floor($random() * 100)</code></td>
+                <td><a href="nodered-dashboard2-layout.html">Dashboard2 Layoutガイド</a>サンプル</td>
+            </tr>
+            <tr>
+                <td><code>$round()</code></td>
+                <td>指定した桁数に四捨五入する</td>
+                <td><code>$round(payload, 1)</code></td>
+                <td><a href="nodered-sort-node-guide.html">Sortガイド</a>演習</td>
+            </tr>
+            <tr>
+                <td><code>$count()</code></td>
+                <td>配列の要素数を返す</td>
+                <td><code>$count(payload.users)</code></td>
+                <td><a href="nodered-yaml-node-guide.html">YAMLガイド</a>演習4</td>
+            </tr>
+        </table>
+
+        <div class="tip">
+            <strong>ランダム整数の生成パターン:</strong> <code>$floor($random() * N)</code> で0からN-1のランダム整数を生成できます。テストデータの生成に便利です。
+            <br><br>
+            <strong>例:</strong> <code>$floor($random() * 30 + 10)</code> → 10から39のランダム整数
+        </div>
+
+        <!-- 8.3 日時関数 -->
+        <h3>8.3 日時関数</h3>
+
+        <p><code>$now()</code> は現在の日時を返す関数です。オプションでフォーマットパターンを指定できます。</p>
+
+        <table>
+            <tr>
+                <th>式</th>
+                <th>出力例</th>
+                <th>使用箇所</th>
+            </tr>
+            <tr>
+                <td><code>$now()</code></td>
+                <td><code>2024-12-16T10:30:00.000Z</code></td>
+                <td>本ガイド演習4</td>
+            </tr>
+            <tr>
+                <td><code>$now('[Y0001]-[M01]-[D01]')</code></td>
+                <td><code>2024-12-16</code></td>
+                <td>（参考）</td>
+            </tr>
+            <tr>
+                <td><code>$now('[Y0001]-[M01]-[D01]T[H01]:[m01]:[s01].[f001]Z')</code></td>
+                <td><code>2024-12-16T10:30:00.000Z</code></td>
+                <td><a href="nodered-watch-node-guide.html">Watchガイド</a>演習3</td>
+            </tr>
+            <tr>
+                <td><code>$now('[D01]/[M01]/[Y0001] [H01]:[m01]')</code></td>
+                <td><code>16/12/2024 10:30</code></td>
+                <td>（参考）</td>
+            </tr>
+        </table>
+
+        <div class="tip">
+            <strong>フォーマットパターンの記号:</strong>
+            <code>[Y0001]</code>=年4桁、<code>[M01]</code>=月2桁、<code>[D01]</code>=日2桁、<code>[H01]</code>=時2桁、<code>[m01]</code>=分2桁、<code>[s01]</code>=秒2桁、<code>[f001]</code>=ミリ秒3桁
+        </div>
+
+        <!-- 8.4 オブジェクト操作 -->
+        <h3>8.4 オブジェクト操作</h3>
+
+        <table>
+            <tr>
+                <th>パターン</th>
+                <th>説明</th>
+                <th>実用例</th>
+                <th>使用箇所</th>
+            </tr>
+            <tr>
+                <td>オブジェクト構築</td>
+                <td>新しいオブジェクトを組み立てる</td>
+                <td><code>{"host": payload.database.primary.host, "port": payload.database.primary.port}</code></td>
+                <td><a href="nodered-yaml-node-guide.html">YAMLガイド</a>演習3、<a href="nodered-xml-node-guide.html">XMLガイド</a>演習3</td>
+            </tr>
+            <tr>
+                <td>ネストアクセス</td>
+                <td>深い階層のプロパティにドットでアクセス</td>
+                <td><code>payload.database.primary.host</code></td>
+                <td><a href="nodered-yaml-node-guide.html">YAMLガイド</a>演習3</td>
+            </tr>
+            <tr>
+                <td>バッククォート</td>
+                <td>特殊文字を含むプロパティ名をエスケープ</td>
+                <td><code>payload.item.`$`.id</code></td>
+                <td><a href="nodered-xml-node-guide.html">XMLガイド</a>演習3</td>
+            </tr>
+        </table>
+
+        <div class="important">
+            <strong>XMLノードとバッククォート:</strong> XMLノードの出力では、属性は <code>$</code>、テキストコンテンツは <code>_</code> というプロパティ名に格納されます。JSONataでこれらにアクセスするには、バッククォート（<code>`</code>）で囲む必要があります。
+            <br><br>
+            <strong>例:</strong> <code>{"id": payload.item.`$`.id, "name": payload.item.name[0], "price": payload.item.price[0].`_`}</code>
+            <br>（<a href="nodered-xml-node-guide.html">XMLガイド</a>演習3で使用）
+        </div>
+
+        <!-- 8.5 配列操作 -->
+        <h3>8.5 配列操作</h3>
+
+        <table>
+            <tr>
+                <th>パターン</th>
+                <th>説明</th>
+                <th>実用例</th>
+                <th>使用箇所</th>
+            </tr>
+            <tr>
+                <td>フィルタリング</td>
+                <td>条件に合う要素だけを抽出する</td>
+                <td><code>payload.users[role="admin"].name</code></td>
+                <td><a href="nodered-yaml-node-guide.html">YAMLガイド</a>演習4</td>
+            </tr>
+            <tr>
+                <td>プロパティ抽出</td>
+                <td>配列の各要素から特定のプロパティを取り出す</td>
+                <td><code>payload.users.name</code></td>
+                <td><a href="nodered-yaml-node-guide.html">YAMLガイド</a>演習4</td>
+            </tr>
+            <tr>
+                <td><code>$append()</code></td>
+                <td>配列に要素を追加する</td>
+                <td><code>$append($A, [payload])</code></td>
+                <td><a href="nodered-join-node-guide.html">Joinガイド</a>サンプル</td>
+            </tr>
+        </table>
+
+        <div class="tip">
+            <strong>配列フィルタリングの構文:</strong> <code>配列[条件]</code> で条件に合う要素を抽出し、<code>.プロパティ名</code> を続けることで特定のフィールドだけを取り出せます。SQLの <code>SELECT name FROM users WHERE role = 'admin'</code> に近い感覚で使えます。
+        </div>
+
+        <!-- 8.6 コンテキスト・環境変数 -->
+        <h3>8.6 コンテキスト・環境変数</h3>
+
+        <table>
+            <tr>
+                <th>関数</th>
+                <th>説明</th>
+                <th>実用例</th>
+            </tr>
+            <tr>
+                <td><code>$flowContext("変数名")</code></td>
+                <td>フローコンテキストの値を取得</td>
+                <td><code>$flowContext("count") + 1</code></td>
+            </tr>
+            <tr>
+                <td><code>$globalContext("変数名")</code></td>
+                <td>グローバルコンテキストの値を取得</td>
                 <td><code>$globalContext("config")</code></td>
-                <td>グローバルコンテキスト取得</td>
             </tr>
             <tr>
-                <td>オブジェクト生成</td>
-                <td><code>{"temp": payload.t, "hum": payload.h}</code></td>
-                <td>新しいオブジェクト作成</td>
+                <td><code>$env("変数名")</code></td>
+                <td>環境変数の値を取得</td>
+                <td><code>$env("API_KEY")</code></td>
+            </tr>
+        </table>
+
+        <div class="tip">
+            <strong>使い分け:</strong> Changeノードの「Set」ルールでは、対象に <code>flow.変数名</code> や <code>global.変数名</code> を直接指定する方法もあります。<code>$flowContext()</code> などの関数は、JSONata式の中で他の計算と組み合わせたい場合に使います（例: <code>$flowContext("count") + 1</code>）。
+        </div>
+
+        <!-- 8.7 条件式 -->
+        <h3>8.7 条件式</h3>
+
+        <table>
+            <tr>
+                <th>パターン</th>
+                <th>説明</th>
+                <th>実用例</th>
             </tr>
             <tr>
-                <td>配列フィルタ</td>
-                <td><code>payload[value > 10]</code></td>
-                <td>条件に合う要素を抽出</td>
+                <td>三項演算子</td>
+                <td>条件に応じて異なる値を返す</td>
+                <td><code>payload > 30 ? "高温" : "正常"</code></td>
+            </tr>
+            <tr>
+                <td>複合条件</td>
+                <td><code>and</code> / <code>or</code> で複数条件を組み合わせ</td>
+                <td><code>payload >= 20 and payload <= 30 ? "適温" : "注意"</code></td>
+            </tr>
+        </table>
+
+        <div class="tip">
+            <strong>SwitchノードとJSONata条件式の使い分け:</strong> 単純な条件分岐（メッセージを振り分ける）には <a href="nodered-switch-node-guide.html">Switchノード</a> が適しています。JSONataの条件式は、1つのChangeノード内で値を動的に切り替えたい場合に便利です。
+        </div>
+
+        <!-- 8.8 早見表 -->
+        <h3>8.8 よく使うパターン早見表</h3>
+
+        <table>
+            <tr>
+                <th>やりたいこと</th>
+                <th>JSONata式</th>
+            </tr>
+            <tr>
+                <td>文字列を結合する</td>
+                <td><code>"prefix: " &amp; payload</code></td>
+            </tr>
+            <tr>
+                <td>数値を文字列にする</td>
+                <td><code>$string(payload)</code></td>
+            </tr>
+            <tr>
+                <td>大文字に変換する</td>
+                <td><code>$uppercase(payload)</code></td>
+            </tr>
+            <tr>
+                <td>空白を除去する</td>
+                <td><code>$trim(payload)</code></td>
+            </tr>
+            <tr>
+                <td>現在時刻を取得する</td>
+                <td><code>$now()</code></td>
+            </tr>
+            <tr>
+                <td>小数を切り捨てる</td>
+                <td><code>$floor(payload)</code></td>
+            </tr>
+            <tr>
+                <td>四捨五入する</td>
+                <td><code>$round(payload, 2)</code></td>
+            </tr>
+            <tr>
+                <td>ランダムな整数を生成する</td>
+                <td><code>$floor($random() * 100)</code></td>
+            </tr>
+            <tr>
+                <td>配列の要素数を数える</td>
+                <td><code>$count(payload)</code></td>
+            </tr>
+            <tr>
+                <td>配列を条件で絞り込む</td>
+                <td><code>payload[price > 1000]</code></td>
+            </tr>
+            <tr>
+                <td>新しいオブジェクトを作る</td>
+                <td><code>{"key1": payload.a, "key2": payload.b}</code></td>
+            </tr>
+            <tr>
+                <td>条件で値を切り替える</td>
+                <td><code>payload > 30 ? "高" : "低"</code></td>
+            </tr>
+            <tr>
+                <td>フロー変数を参照する</td>
+                <td><code>$flowContext("変数名")</code></td>
             </tr>
         </table>
         
