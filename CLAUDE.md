@@ -21,9 +21,6 @@
 gmstechjp.github.io/
 ├── README.md                           # プロジェクト概要
 ├── CLAUDE.md                          # 開発ガイド（本ファイル）
-├── PROCEDURE-standard-nodes-audit.md   # 監査手順書
-├── AUDIT-REPORT.md                     # 監査結果レポート
-├── IMPLEMENTATION-PLAN.md              # 改善実装計画
 ├── index.html                          # トップページ
 ├── nodered-*-node-guide.html          # 各ノードのガイド（50+件）
 ├── img/                                # 画像ディレクトリ
@@ -42,8 +39,6 @@ gmstechjp.github.io/
 ## 開発ワークフロー
 
 ### 新規ガイドの作成手順
-
-詳細は `PROCEDURE-standard-nodes-audit.md` のセクション1を参照してください。
 
 #### 1. 対象ノードの特定
 
@@ -186,11 +181,9 @@ curl https://raw.githubusercontent.com/node-red/node-red/master/packages/node_mo
 
 ### 既存ガイドの修正手順
 
-詳細は `PROCEDURE-standard-nodes-audit.md` のセクション2を参照してください。
-
 #### 1. 問題の特定
 
-`AUDIT-REPORT.md` で問題を確認：
+問題を重大度で分類：
 - CRITICAL：JSON構文エラー → 最優先
 - HIGH：Config Node不完全 → 高優先
 - MEDIUM：プロパティ不足・非推奨 → 中優先
@@ -319,23 +312,9 @@ done
 ```
 CLAUDE.md（本ファイル）
 ├── プロジェクト全体の開発ガイド
+├── ガイド作成・修正の手順
 ├── 品質基準の定義
 └── トラブルシューティング
-
-PROCEDURE-standard-nodes-audit.md
-├── ガイド作成の詳細手順
-├── 監査作業の手順
-└── プロパティ分類の基準
-
-AUDIT-REPORT.md
-├── 監査結果の記録
-├── 問題一覧（27件）
-└── 修正状況のトラッキング
-
-IMPLEMENTATION-PLAN.md
-├── 改善計画（Phase 1〜5）
-├── 検証方法
-└── 成功基準
 
 README.md
 ├── プロジェクト概要
@@ -347,9 +326,8 @@ README.md
 
 | 状況 | 参照するドキュメント |
 |------|---------------------|
-| 新規ガイドを作成したい | PROCEDURE → CLAUDE.md（品質基準） |
-| 既存ガイドに問題を発見 | AUDIT-REPORT で確認 → PROCEDURE で修正 |
-| プロジェクト全体の改善計画 | IMPLEMENTATION-PLAN |
+| 新規ガイドを作成したい | CLAUDE.md（開発ワークフロー・品質基準） |
+| 既存ガイドに問題を発見 | CLAUDE.md（既存ガイドの修正手順） |
 | 開発の基本方針を知りたい | CLAUDE.md |
 | プロジェクトの概要を知りたい | README.md |
 
@@ -378,7 +356,7 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 **Type一覧**:
 - `feat`: 新機能（新規ガイド追加）
 - `fix`: バグ修正（JSON構文エラー、プロパティ不一致）
-- `docs`: ドキュメント（README、PROCEDURE更新）
+- `docs`: ドキュメント（README、CLAUDE.md更新）
 - `refactor`: リファクタリング（プロパティ表の整理）
 - `test`: テスト追加・修正
 - `chore`: その他の作業
@@ -517,13 +495,13 @@ grep -A 20 '"type": "ui-base"' nodered-dashboard2-widgets-display.html
 - [ ] 全ガイドファイルのJSON検証
 - [ ] プロパティ表とソースコードの照合（サンプリング20%）
 - [ ] Node-REDエディターでインポートテスト（サンプリング10%）
-- [ ] 新規発見問題をAUDIT-REPORTに追記
+- [ ] 新規発見問題を記録し対応
 
 **年次（1年に1回）**:
 - [ ] 全ガイドファイルの完全監査
 - [ ] Node-REDバージョンアップ対応
 - [ ] Dashboard 2.0更新対応
-- [ ] ドキュメント（README、PROCEDURE、CLAUDE.md）の見直し
+- [ ] ドキュメント（README、CLAUDE.md）の見直し
 
 ### Node-REDバージョンアップ時の対応
 
@@ -560,7 +538,7 @@ curl https://api.github.com/repos/FlowFuse/node-red-dashboard/releases/latest
 ```
 問題発見
   ↓
-AUDIT-REPORTに記録（重大度を付与）
+重大度を判定
   ↓
 優先度に応じて対応
   ├── CRITICAL: 即座に修正
@@ -568,11 +546,9 @@ AUDIT-REPORTに記録（重大度を付与）
   ├── MEDIUM: 1ヶ月以内に修正
   └── LOW: 次回監査時に修正
   ↓
-修正実施（PROCEDUREに従う）
+修正実施（本ガイドの手順に従う）
   ↓
 検証（JSON、ソースコード照合、インポートテスト）
-  ↓
-AUDIT-REPORTの問題ステータスを更新
   ↓
 コミット・デプロイ
 ```
