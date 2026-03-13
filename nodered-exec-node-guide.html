@@ -1222,7 +1222,7 @@ msg.payloadを追加: チェックON（スクリプトへの引数として）
             
             <p><strong>🎯 要求仕様:</strong></p>
             <ul>
-                <li>Inject、Exec、Function、Debugノードを使用</li>
+                <li>Inject、Exec、Change、Debugノードを使用</li>
                 <li>dateコマンドを実行</li>
                 <li>出力の末尾の改行を除去</li>
             </ul>
@@ -1235,7 +1235,7 @@ msg.payloadを追加: チェックON（スクリプトへの引数として）
             <p><strong>✅ 成功の条件:</strong></p>
             <ul>
                 <li>Injectボタンを押すと、デバッグパネルに現在の日時文字列（例: <code>"Tue Feb 18 12:00:00 JST 2026"</code>）が表示される</li>
-                <li>表示された文字列の末尾に改行文字（<code>\n</code>）が含まれていない（<code>.trim()</code> が効いている）</li>
+                <li>表示された文字列の末尾に改行文字（<code>\n</code>）が含まれていない（<code>$trim()</code> が効いている）</li>
                 <li>ボタンを押すたびに日時が更新される</li>
             </ul>
 
@@ -1250,10 +1250,10 @@ msg.payloadを追加: チェックON（スクリプトへの引数として）
                     <li>コマンド: <code>date</code></li>
                     <li>msg.payloadを追加: チェックOFF</li>
                 </ul>
-                <p><strong>Functionノードの設定:</strong></p>
+                <p><strong>Changeノードの設定:</strong></p>
                 <ul>
-                    <li>末尾の改行を除去: <code>msg.payload = msg.payload.trim();</code></li>
-                    <li><code>return msg;</code></li>
+                    <li>ルール: <code>msg.payload</code> に代入</li>
+                    <li>値: JSONata式 <code>$trim(payload)</code> で末尾の改行を除去</li>
                 </ul>
             </details>
             
@@ -1289,18 +1289,18 @@ msg.payloadを追加: チェックON（スクリプトへの引数として）
         "oldrc": false,
         "x": 260,
         "y": 100,
-        "wires": [["ex2_function"], [], []]
+        "wires": [["ex2_change"], [], []]
     },
     {
-        "id": "ex2_function",
-        "type": "function",
+        "id": "ex2_change",
+        "type": "change",
         "name": "改行除去",
-        "func": "msg.payload = msg.payload.trim();\nreturn msg;",
-        "outputs": 1,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
+        "rules": [{"t": "set", "p": "payload", "pt": "msg", "to": "$trim(payload)", "tot": "jsonata"}],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
         "x": 420,
         "y": 100,
         "wires": [["ex2_debug"]]

@@ -512,14 +512,14 @@ users:
             </ul>
             <details>
                 <summary>💡 ヒント</summary>
-                <p>Function ノードでオブジェクトを作成し、YAML ノードで変換します。</p>
+                <p>Change ノードの「値の代入」で、型を「JSON」に設定してオブジェクトを作成し、YAML ノードで変換します。</p>
             </details>
             <details>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
     {"id": "ex2_tab", "type": "tab", "label": "演習2"},
-    {"id": "ex2_inject", "type": "inject", "z": "ex2_tab", "name": "実行", "props": [], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "x": 130, "y": 100, "wires": [["ex2_func"]]},
-    {"id": "ex2_func", "type": "function", "z": "ex2_tab", "name": "オブジェクト", "func": "msg.payload = {\n    server: {\n        host: \"localhost\",\n        port: 8080\n    },\n    logging: true\n};\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 280, "y": 100, "wires": [["ex2_yaml"]]},
+    {"id": "ex2_inject", "type": "inject", "z": "ex2_tab", "name": "実行", "props": [], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "x": 130, "y": 100, "wires": [["ex2_change"]]},
+    {"id": "ex2_change", "type": "change", "z": "ex2_tab", "name": "オブジェクト", "rules": [{"t": "set", "p": "payload", "pt": "msg", "to": "{\"server\":{\"host\":\"localhost\",\"port\":8080},\"logging\":true}", "tot": "json"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 280, "y": 100, "wires": [["ex2_yaml"]]},
     {"id": "ex2_yaml", "type": "yaml", "z": "ex2_tab", "property": "payload", "name": "Obj→YAML", "x": 430, "y": 100, "wires": [["ex2_debug"]]},
     {"id": "ex2_debug", "type": "debug", "z": "ex2_tab", "name": "YAML出力", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "x": 580, "y": 100, "wires": []}
 ]</div>
@@ -538,7 +538,7 @@ users:
             </ul>
             <details>
                 <summary>💡 ヒント</summary>
-                <p>オブジェクトのプロパティアクセス: <code>msg.payload.database.host</code></p>
+                <p>Change ノードの「値の代入」で、型を「JSONata」に設定し、<code>payload.database.primary</code> のようにネストしたプロパティにアクセスします。JSONata式で文字列連結には <code>&amp;</code> 演算子を使います。</p>
             </details>
             <details>
                 <summary>✅ 解答例フロー</summary>
@@ -546,8 +546,8 @@ users:
     {"id": "ex3_tab", "type": "tab", "label": "演習3"},
     {"id": "ex3_inject", "type": "inject", "z": "ex3_tab", "name": "実行", "props": [], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "x": 130, "y": 100, "wires": [["ex3_template"]]},
     {"id": "ex3_template", "type": "template", "z": "ex3_tab", "name": "設定YAML", "field": "payload", "fieldType": "msg", "format": "yaml", "syntax": "plain", "template": "database:\n  primary:\n    host: db1.example.com\n    port: 5432\n  replica:\n    host: db2.example.com\n    port: 5432", "output": "str", "x": 280, "y": 100, "wires": [["ex3_yaml"]]},
-    {"id": "ex3_yaml", "type": "yaml", "z": "ex3_tab", "property": "payload", "name": "YAML→Obj", "x": 430, "y": 100, "wires": [["ex3_func"]]},
-    {"id": "ex3_func", "type": "function", "z": "ex3_tab", "name": "Primary DB取得", "func": "msg.payload = {\n    host: msg.payload.database.primary.host,\n    port: msg.payload.database.primary.port,\n    connectionString: msg.payload.database.primary.host + \":\" + msg.payload.database.primary.port\n};\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 600, "y": 100, "wires": [["ex3_debug"]]},
+    {"id": "ex3_yaml", "type": "yaml", "z": "ex3_tab", "property": "payload", "name": "YAML→Obj", "x": 430, "y": 100, "wires": [["ex3_change"]]},
+    {"id": "ex3_change", "type": "change", "z": "ex3_tab", "name": "Primary DB取得", "rules": [{"t": "set", "p": "payload", "pt": "msg", "to": "{\"host\": payload.database.primary.host, \"port\": payload.database.primary.port, \"connectionString\": payload.database.primary.host & \":\" & $string(payload.database.primary.port)}", "tot": "jsonata"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 600, "y": 100, "wires": [["ex3_debug"]]},
     {"id": "ex3_debug", "type": "debug", "z": "ex3_tab", "name": "DB設定", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "payload.connectionString", "statusType": "msg", "x": 770, "y": 100, "wires": []}
 ]</div>
             </details>
@@ -565,7 +565,7 @@ users:
             </ul>
             <details>
                 <summary>💡 ヒント</summary>
-                <p>YAML の配列は JavaScript の配列に変換されます。<code>.length</code> で要素数を取得できます。</p>
+                <p>Change ノードの「値の代入」で、型を「JSONata」に設定します。配列の要素数は <code>$count()</code> 関数、フィルタリングは <code>[role="admin"]</code> のようなフィルタ式、名前の抽出は <code>.name</code> で取得できます。</p>
             </details>
             <details>
                 <summary>✅ 解答例フロー</summary>
@@ -573,8 +573,8 @@ users:
     {"id": "ex4_tab", "type": "tab", "label": "演習4"},
     {"id": "ex4_inject", "type": "inject", "z": "ex4_tab", "name": "実行", "props": [], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "x": 130, "y": 100, "wires": [["ex4_template"]]},
     {"id": "ex4_template", "type": "template", "z": "ex4_tab", "name": "ユーザーYAML", "field": "payload", "fieldType": "msg", "format": "yaml", "syntax": "plain", "template": "users:\n  - name: 田中\n    role: admin\n  - name: 鈴木\n    role: editor\n  - name: 佐藤\n    role: viewer", "output": "str", "x": 290, "y": 100, "wires": [["ex4_yaml"]]},
-    {"id": "ex4_yaml", "type": "yaml", "z": "ex4_tab", "property": "payload", "name": "YAML→Obj", "x": 450, "y": 100, "wires": [["ex4_func"]]},
-    {"id": "ex4_func", "type": "function", "z": "ex4_tab", "name": "ユーザー情報", "func": "var users = msg.payload.users;\nmsg.payload = {\n    totalUsers: users.length,\n    admins: users.filter(u => u.role === \"admin\").map(u => u.name),\n    allNames: users.map(u => u.name)\n};\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 610, "y": 100, "wires": [["ex4_debug"]]},
+    {"id": "ex4_yaml", "type": "yaml", "z": "ex4_tab", "property": "payload", "name": "YAML→Obj", "x": 450, "y": 100, "wires": [["ex4_change"]]},
+    {"id": "ex4_change", "type": "change", "z": "ex4_tab", "name": "ユーザー情報", "rules": [{"t": "set", "p": "payload", "pt": "msg", "to": "{\"totalUsers\": $count(payload.users), \"admins\": payload.users[role=\"admin\"].name, \"allNames\": payload.users.name}", "tot": "jsonata"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 610, "y": 100, "wires": [["ex4_debug"]]},
     {"id": "ex4_debug", "type": "debug", "z": "ex4_tab", "name": "ユーザー統計", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "payload.totalUsers", "statusType": "msg", "x": 790, "y": 100, "wires": []}
 ]</div>
             </details>

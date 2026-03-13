@@ -680,18 +680,19 @@ return msg;</div>
                 <p><strong>ブロードキャストのポイント:</strong></p>
                 <ul>
                     <li>WebSocket Out に渡す msg に <code>_session</code> がないと全員に送信されます</li>
-                    <li>Inject ノードから生成した msg には _session がないので、そのまま送信可能</li>
+                    <li>Changeノードの「削除」ルールで <code>msg._session</code> を削除すると、ブロードキャスト送信になります</li>
+                    <li>Inject ノードから生成した msg には _session がないので、そのまま送信可能です</li>
                 </ul>
             </details>
-            
+
             <details>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
     {"id": "ex3_tab", "type": "tab", "label": "演習3"},
     {"id": "ex3_ws_listener", "type": "websocket-listener", "path": "/ws/broadcast", "wholemsg": "false"},
-    {"id": "ex3_inject", "type": "inject", "z": "ex3_tab", "name": "ブロードキャスト", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "{\"type\":\"broadcast\",\"content\":\"全員へのお知らせ\"}", "payloadType": "json", "x": 170, "y": 100, "wires": [["ex3_func"]]},
-    {"id": "ex3_func", "type": "function", "z": "ex3_tab", "name": "JSON化", "func": "msg.payload = JSON.stringify(msg.payload);\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 350, "y": 100, "wires": [["ex3_ws_out"]]},
-    {"id": "ex3_ws_out", "type": "websocket out", "z": "ex3_tab", "name": "WS Out (全員)", "server": "ex3_ws_listener", "client": "", "x": 540, "y": 100, "wires": []},
+    {"id": "ex3_inject", "type": "inject", "z": "ex3_tab", "name": "ブロードキャスト", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "{\"type\":\"broadcast\",\"content\":\"全員へのお知らせ\"}", "payloadType": "json", "x": 170, "y": 100, "wires": [["ex3_change"]]},
+    {"id": "ex3_change", "type": "change", "z": "ex3_tab", "name": "_session削除", "rules": [{"t": "delete", "p": "_session", "pt": "msg"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 370, "y": 100, "wires": [["ex3_ws_out"]]},
+    {"id": "ex3_ws_out", "type": "websocket out", "z": "ex3_tab", "name": "WS Out (全員)", "server": "ex3_ws_listener", "client": "", "x": 560, "y": 100, "wires": []},
     {"id": "ex3_ws_in", "type": "websocket in", "z": "ex3_tab", "name": "WS In (接続確認用)", "server": "ex3_ws_listener", "client": "", "x": 190, "y": 180, "wires": [["ex3_debug"]]},
     {"id": "ex3_debug", "type": "debug", "z": "ex3_tab", "name": "接続ログ", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "\"クライアント接続\"", "statusType": "str", "x": 410, "y": 180, "wires": []}
 ]</div>

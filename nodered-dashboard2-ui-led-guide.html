@@ -802,7 +802,8 @@ msg.payload を次の値に設定:
             <details>
                 <summary>💡 ヒント</summary>
                 <ul>
-                    <li>Functionノードで温度値を文字列ステータスに変換する</li>
+                    <li>Switchノードで温度値を3つの範囲に分岐する（< 30、30〜70、>= 70）</li>
+                    <li>各出力にChangeノードを接続し、payloadを文字列ステータスに設定する</li>
                     <li>ui-ledのStatesに3つのマッピングを追加</li>
                     <li>テスト用にInjectノードで様々な数値を送信して確認</li>
                 </ul>
@@ -818,7 +819,7 @@ msg.payload を次の値に設定:
         "props": [{"p": "payload"}],
         "payload": "20",
         "payloadType": "num",
-        "wires": [["led_ex2_func"]]
+        "wires": [["led_ex2_switch"]]
     },
     {
         "id": "led_ex2_inject_warn",
@@ -827,7 +828,7 @@ msg.payload を次の値に設定:
         "props": [{"p": "payload"}],
         "payload": "50",
         "payloadType": "num",
-        "wires": [["led_ex2_func"]]
+        "wires": [["led_ex2_switch"]]
     },
     {
         "id": "led_ex2_inject_danger",
@@ -836,13 +837,49 @@ msg.payload を次の値に設定:
         "props": [{"p": "payload"}],
         "payload": "85",
         "payloadType": "num",
-        "wires": [["led_ex2_func"]]
+        "wires": [["led_ex2_switch"]]
     },
     {
-        "id": "led_ex2_func",
-        "type": "function",
+        "id": "led_ex2_switch",
+        "type": "switch",
         "name": "温度判定",
-        "func": "const temp = msg.payload;\nif (temp < 30) {\n    msg.payload = \"normal\";\n} else if (temp < 70) {\n    msg.payload = \"warning\";\n} else {\n    msg.payload = \"danger\";\n}\nreturn msg;",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {"t": "lt", "v": "30", "vt": "num"},
+            {"t": "btwn", "v": "30", "vt": "num", "v2": "70", "v2t": "num"},
+            {"t": "gte", "v": "70", "vt": "num"}
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 3,
+        "wires": [["led_ex2_change_normal"], ["led_ex2_change_warning"], ["led_ex2_change_danger"]]
+    },
+    {
+        "id": "led_ex2_change_normal",
+        "type": "change",
+        "name": "正常",
+        "rules": [
+            {"t": "set", "p": "payload", "pt": "msg", "to": "normal", "tot": "str"}
+        ],
+        "wires": [["led_ex2_led"]]
+    },
+    {
+        "id": "led_ex2_change_warning",
+        "type": "change",
+        "name": "警告",
+        "rules": [
+            {"t": "set", "p": "payload", "pt": "msg", "to": "warning", "tot": "str"}
+        ],
+        "wires": [["led_ex2_led"]]
+    },
+    {
+        "id": "led_ex2_change_danger",
+        "type": "change",
+        "name": "危険",
+        "rules": [
+            {"t": "set", "p": "payload", "pt": "msg", "to": "danger", "tot": "str"}
+        ],
         "wires": [["led_ex2_led"]]
     },
     {

@@ -1297,12 +1297,12 @@ Buffer(4) → Buffer(4) → Buffer(4)</div>
                 <ul>
                     <li>キー追加先: msg.topic</li>
                 </ul>
-                <p><strong>Functionノード:</strong></p>
+                <p><strong>Changeノード（JSONata式）:</strong></p>
                 <ul>
                     <li>msg.topicにキー名(商品名)が入る</li>
                     <li>msg.payloadに値(価格)が入る</li>
-                    <li>これらを組み合わせて文字列を作成</li>
-                    <li><code>msg.payload = msg.topic + ": " + msg.paylaod + "円";</code></li>
+                    <li>JSONata式でこれらを組み合わせて文字列を作成</li>
+                    <li><code>topic & ": " & $string(payload) & "円"</code></li>
                 </ul>
             </details>
             
@@ -1339,18 +1339,26 @@ Buffer(4) → Buffer(4) → Buffer(4)</div>
         "property": "payload",
         "x": 290,
         "y": 100,
-        "wires": [["ex3_function"]]
+        "wires": [["ex3_change"]]
     },
     {
-        "id": "ex3_function",
-        "type": "function",
+        "id": "ex3_change",
+        "type": "change",
         "name": "整形",
-        "func": "// 商品名と価格を整形する\n\nvar name = msg.topic;\nvar price = msg.payload;\n\nmsg.payload = name + \": \" + price + \"円\";\n\nreturn msg;",
-        "outputs": 1,
-        "timeout": "",
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "topic & \": \" & $string(payload) & \"円\"",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
         "x": 430,
         "y": 100,
         "wires": [["ex3_debug"]]
@@ -1404,9 +1412,9 @@ Buffer(4) → Buffer(4) → Buffer(4)</div>
 
             <details>
                 <summary>💡 ヒント</summary>
-                <p><strong>Functionノード:</strong></p>
+                <p><strong>Changeノード（JSONata式）:</strong></p>
                 <ul>
-                    <li><code>msg.payload = msg.payload.toUpperCase();</code></li>
+                    <li>msg.payloadに <code>$uppercase(payload)</code> をセット</li>
                 </ul>
                 <p><strong>Joinノード:</strong></p>
                 <ul>
@@ -1448,18 +1456,26 @@ Buffer(4) → Buffer(4) → Buffer(4)</div>
         "property": "payload",
         "x": 270,
         "y": 100,
-        "wires": [["ex4_function"]]
+        "wires": [["ex4_change"]]
     },
     {
-        "id": "ex4_function",
-        "type": "function",
+        "id": "ex4_change",
+        "type": "change",
         "name": "大文字変換",
-        "func": "// 文字列を大文字に変換\n\nmsg.payload = msg.payload.toUpperCase();\n\nreturn msg;",
-        "outputs": 1,
-        "timeout": "",
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "$uppercase(payload)",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
         "x": 410,
         "y": 100,
         "wires": [["ex4_join"]]

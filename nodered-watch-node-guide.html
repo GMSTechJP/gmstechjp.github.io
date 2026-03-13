@@ -713,7 +713,7 @@ msg.size = 1024</div>
             <ul>
                 <li>Watch ノードでフォルダを監視</li>
                 <li>Switch ノードで画像ファイル（.jpg, .png）のみを通過</li>
-                <li>Function ノードでログ情報を整形</li>
+                <li>Change ノードでログ情報を整形</li>
                 <li>Write File ノードでログファイルに追記</li>
             </ul>
 
@@ -731,9 +731,11 @@ msg.size = 1024</div>
                     <li>プロパティ: msg.file</li>
                     <li>正規表現: <code>\.(jpg|jpeg|png)$</code></li>
                 </ul>
-                <p><strong>Functionノード:</strong></p>
+                <p><strong>Changeノードの設定:</strong></p>
                 <ul>
+                    <li>JSONata式を使って msg.payload にログ文字列を設定</li>
                     <li>ログ形式: タイムスタンプ,ファイル名,サイズ</li>
+                    <li>式の例: <code>$now('[Y0001]-[M01]-[D01]T[H01]:[m01]:[s01].[f001]Z') & "," & file & "," & $string(size)</code></li>
                 </ul>
             </details>
             
@@ -743,8 +745,8 @@ msg.size = 1024</div>
 [
     {"id": "ex3_tab", "type": "tab", "label": "演習3", "disabled": false, "info": ""},
     {"id": "ex3_watch", "type": "watch", "name": "画像フォルダ監視", "files": "/tmp/images", "recursive": true, "x": 170, "y": 100, "wires": [["ex3_switch"]], "z": "ex3_tab"},
-    {"id": "ex3_switch", "type": "switch", "name": "画像のみ", "property": "file", "propertyType": "msg", "rules": [{"t": "regex", "v": "\\.(jpg|jpeg|png)$", "vt": "str", "case": true}], "checkall": "true", "repair": false, "outputs": 1, "x": 350, "y": 100, "wires": [["ex3_func"]], "z": "ex3_tab"},
-    {"id": "ex3_func", "type": "function", "name": "ログ整形", "func": "var log = new Date().toISOString() + \",\" + msg.file + \",\" + msg.size;\nmsg.payload = log;\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 510, "y": 100, "wires": [["ex3_write", "ex3_debug"]], "z": "ex3_tab"},
+    {"id": "ex3_switch", "type": "switch", "name": "画像のみ", "property": "file", "propertyType": "msg", "rules": [{"t": "regex", "v": "\\.(jpg|jpeg|png)$", "vt": "str", "case": true}], "checkall": "true", "repair": false, "outputs": 1, "x": 350, "y": 100, "wires": [["ex3_change"]], "z": "ex3_tab"},
+    {"id": "ex3_change", "type": "change", "name": "ログ整形", "rules": [{"t": "set", "p": "payload", "pt": "msg", "to": "$now('[Y0001]-[M01]-[D01]T[H01]:[m01]:[s01].[f001]Z') & \",\" & file & \",\" & $string(size)", "tot": "jsonata"}], "x": 510, "y": 100, "wires": [["ex3_write", "ex3_debug"]], "z": "ex3_tab"},
     {"id": "ex3_write", "type": "file", "name": "ログ追記", "filename": "/tmp/image_log.csv", "filenameType": "str", "appendNewline": true, "createDir": true, "overwriteFile": "false", "encoding": "utf8", "x": 680, "y": 80, "wires": [[]], "z": "ex3_tab"},
     {"id": "ex3_debug", "type": "debug", "name": "画像検出", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "payload", "statusType": "msg", "x": 680, "y": 120, "wires": [], "z": "ex3_tab"}
 ]

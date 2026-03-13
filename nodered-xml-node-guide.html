@@ -485,14 +485,14 @@
             </ul>
             <details>
                 <summary>💡 ヒント</summary>
-                <p>Function ノードでオブジェクトを作成し、XML ノードで変換します。</p>
+                <p>Change ノードで JSON 値型を使ってオブジェクトを設定し、XML ノードで変換します。</p>
             </details>
             <details>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
     {"id": "ex2_tab", "type": "tab", "label": "演習2"},
-    {"id": "ex2_inject", "type": "inject", "z": "ex2_tab", "name": "実行", "props": [], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "x": 130, "y": 100, "wires": [["ex2_func"]]},
-    {"id": "ex2_func", "type": "function", "z": "ex2_tab", "name": "オブジェクト", "func": "msg.payload = {\n    \"product\": {\n        \"name\": \"ノートPC\",\n        \"price\": \"98000\",\n        \"stock\": \"15\"\n    }\n};\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 280, "y": 100, "wires": [["ex2_xml"]]},
+    {"id": "ex2_inject", "type": "inject", "z": "ex2_tab", "name": "実行", "props": [], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "x": 130, "y": 100, "wires": [["ex2_change"]]},
+    {"id": "ex2_change", "type": "change", "z": "ex2_tab", "name": "オブジェクト", "rules": [{"t": "set", "p": "payload", "pt": "msg", "to": "{\"product\":{\"name\":\"ノートPC\",\"price\":\"98000\",\"stock\":\"15\"}}", "tot": "json"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 280, "y": 100, "wires": [["ex2_xml"]]},
     {"id": "ex2_xml", "type": "xml", "z": "ex2_tab", "name": "Obj→XML", "property": "payload", "attr": "", "chr": "", "x": 430, "y": 100, "wires": [["ex2_debug"]]},
     {"id": "ex2_debug", "type": "debug", "z": "ex2_tab", "name": "XML出力", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "x": 580, "y": 100, "wires": []}
 ]</div>
@@ -511,7 +511,7 @@
             </ul>
             <details>
                 <summary>💡 ヒント</summary>
-                <p>属性は <code>$</code> プロパティに格納されます。例: <code>msg.payload.tag.$.attrName</code></p>
+                <p>属性は <code>$</code> プロパティに格納されます。Change ノードの JSONata 式を使って、ネストしたプロパティから値を抽出できます。</p>
             </details>
             <details>
                 <summary>✅ 解答例フロー</summary>
@@ -519,8 +519,8 @@
     {"id": "ex3_tab", "type": "tab", "label": "演習3"},
     {"id": "ex3_inject", "type": "inject", "z": "ex3_tab", "name": "実行", "props": [], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "x": 130, "y": 100, "wires": [["ex3_template"]]},
     {"id": "ex3_template", "type": "template", "z": "ex3_tab", "name": "属性付きXML", "field": "payload", "fieldType": "msg", "format": "text", "syntax": "plain", "template": "<item id=\"ITM001\" category=\"electronics\">\n  <name>スマートフォン</name>\n  <price currency=\"JPY\">50000</price>\n</item>", "output": "str", "x": 290, "y": 100, "wires": [["ex3_xml"]]},
-    {"id": "ex3_xml", "type": "xml", "z": "ex3_tab", "name": "XML→Obj", "property": "payload", "attr": "", "chr": "", "x": 450, "y": 100, "wires": [["ex3_func"]]},
-    {"id": "ex3_func", "type": "function", "z": "ex3_tab", "name": "属性抽出", "func": "var item = msg.payload.item;\nmsg.payload = {\n    id: item.$.id,\n    category: item.$.category,\n    name: item.name[0],\n    price: item.price[0]._,\n    currency: item.price[0].$.currency\n};\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 600, "y": 100, "wires": [["ex3_debug"]]},
+    {"id": "ex3_xml", "type": "xml", "z": "ex3_tab", "name": "XML→Obj", "property": "payload", "attr": "", "chr": "", "x": 450, "y": 100, "wires": [["ex3_change"]]},
+    {"id": "ex3_change", "type": "change", "z": "ex3_tab", "name": "属性抽出", "rules": [{"t": "set", "p": "payload", "pt": "msg", "to": "{\n    \"id\": payload.item.`$`.id,\n    \"category\": payload.item.`$`.category,\n    \"name\": payload.item.name[0],\n    \"price\": payload.item.price[0].`_`,\n    \"currency\": payload.item.price[0].`$`.currency\n}", "tot": "jsonata"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 600, "y": 100, "wires": [["ex3_debug"]]},
     {"id": "ex3_debug", "type": "debug", "z": "ex3_tab", "name": "抽出結果", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "x": 750, "y": 100, "wires": []}
 ]</div>
             </details>

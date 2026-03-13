@@ -825,10 +825,12 @@ nc -ul 8000</div>
 
             <details>
                 <summary>💡 ヒント</summary>
-                <p><strong>Function ノード:</strong></p>
-                <div class="code-block">// msg.ip と msg.port はそのまま保持される
-msg.payload = "[REPLY] " + msg.payload;
-return msg;</div>
+                <p><strong>Change ノード:</strong></p>
+                <div class="code-block">// msg.payload に「[REPLY] 」を先頭に付ける
+// ルール: msg.payload を「値の代入」で設定
+// 型: JSONata式
+// 式: "[REPLY] " & msg.payload
+// ※ msg.ip と msg.port はそのまま保持される</div>
                 <p><strong>UDP Out ノード:</strong></p>
                 <ul>
                     <li>to: 空欄（msg.ip を使用）</li>
@@ -840,8 +842,8 @@ return msg;</div>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
     {"id": "ex2_tab", "type": "tab", "label": "演習2"},
-    {"id": "ex2_udp_in", "type": "udp in", "z": "ex2_tab", "name": "UDP In :9001", "iface": "", "port": "9001", "ipv": "udp4", "multicast": "false", "group": "", "datatype": "utf8", "x": 170, "y": 100, "wires": [["ex2_func"]]},
-    {"id": "ex2_func", "type": "function", "z": "ex2_tab", "name": "返信作成", "func": "msg.payload = \"[REPLY] \" + msg.payload;\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 370, "y": 100, "wires": [["ex2_udp_out"]]},
+    {"id": "ex2_udp_in", "type": "udp in", "z": "ex2_tab", "name": "UDP In :9001", "iface": "", "port": "9001", "ipv": "udp4", "multicast": "false", "group": "", "datatype": "utf8", "x": 170, "y": 100, "wires": [["ex2_change"]]},
+    {"id": "ex2_change", "type": "change", "z": "ex2_tab", "name": "返信作成", "rules": [{"t": "set", "p": "payload", "pt": "msg", "to": "\"[REPLY] \" & msg.payload", "tot": "jsonata"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 370, "y": 100, "wires": [["ex2_udp_out"]]},
     {"id": "ex2_udp_out", "type": "udp out", "z": "ex2_tab", "name": "UDP Reply", "addr": "", "iface": "", "port": "", "ipv": "udp4", "outport": "", "base64": false, "multicast": "false", "x": 560, "y": 100, "wires": []}
 ]</div>
             </details>
