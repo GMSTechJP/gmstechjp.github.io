@@ -1,0 +1,1955 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED 変数タイプガイド Part 2：context系変数</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        h1 {
+            color: #8f0000;
+            border-bottom: 3px solid #8f0000;
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            color: #c00000;
+            margin-top: 30px;
+            border-left: 5px solid #c00000;
+            padding-left: 15px;
+        }
+
+        h3 {
+            color: #555;
+            margin-top: 25px;
+        }
+
+        h4 {
+            color: #666;
+            margin-top: 20px;
+        }
+
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .code-block {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+        }
+
+        .dark-code {
+            background-color: #263238;
+            color: #aed581;
+            border: none;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+        }
+
+        .important {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .tip {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .warning {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #e2d96e;
+            color: #333;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        ul, ol {
+            padding-left: 25px;
+        }
+
+        li {
+            margin: 8px 0;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .feature-card {
+            background-color: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .feature-card h4 {
+            color: #555;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        .example-box {
+            background: #f0f0f0;
+            border-left: 4px solid #c00000;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .scope-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .scope-card {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .scope-card.context {
+            border-color: #9C27B0;
+            background: #faf5fc;
+        }
+
+        .scope-card.flow {
+            border-color: #2196F3;
+            background: #f0f7ff;
+        }
+
+        .scope-card.global {
+            border-color: #7f8c8d;
+            background: #f8f9fa;
+        }
+
+        .scope-card h4 {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-radius: 5px;
+            color: white;
+        }
+
+        .scope-card.context h4 {
+            background: #9C27B0;
+        }
+
+        .scope-card.flow h4 {
+            background: #2196F3;
+        }
+
+        .scope-card.global h4 {
+            background: #7f8c8d;
+        }
+
+        .node-example {
+            background-color: #2d3133;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            color: white;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+        }
+
+        .node {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 4px;
+            margin: 5px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .node-inject {
+            background-color: #3fadb5;
+            color: white;
+        }
+
+        .node-change {
+            background-color: #e7a070;
+            color: white;
+        }
+
+        .node-debug {
+            background-color: #87a48d;
+            color: white;
+        }
+
+        .node-function {
+            background-color: #e8a658;
+            color: white;
+        }
+
+        .arrow {
+            color: #999;
+            font-size: 20px;
+            margin: 0 10px;
+        }
+
+        .flow-json {
+            background-color: #263238;
+            color: #aed581;
+            padding: 15px;
+            padding-top: 40px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            position: relative;
+            white-space: pre;
+        }
+
+        .copy-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 6px 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: 'Segoe UI', sans-serif;
+            transition: background-color 0.2s;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .copy-button:hover {
+            background-color: #0056b3;
+        }
+
+        .copy-button.copied {
+            background-color: #28a745;
+        }
+
+        .copy-button svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+        }
+
+        details {
+            margin: 15px 0;
+        }
+
+        summary {
+            cursor: pointer;
+            padding: 10px;
+            background-color: #6c757d;
+            color: white;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        summary:hover {
+            background-color: #5a6268;
+        }
+
+        .exercise {
+            background-color: #e8f5e9;
+            border: 2px solid #4caf50;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .exercise h3 {
+            color: #2e7d32;
+            margin-top: 0;
+        }
+
+        .difficulty {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+            color: white;
+        }
+
+        .difficulty-easy {
+            background-color: #4caf50;
+        }
+
+        .difficulty-medium {
+            background-color: #ff9800;
+        }
+
+        .difficulty-hard {
+            background-color: #f44336;
+        }
+
+        .practical-example {
+            background-color: #fff8e1;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .practical-example h3 {
+            color: #ef6c00;
+            margin-top: 0;
+        }
+
+        .three-types-map {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+            padding: 20px;
+            background: #f0f7ff;
+            border: 2px solid #1976d2;
+            border-radius: 12px;
+        }
+
+        .type-map-card {
+            background: white;
+            border-radius: 8px;
+            padding: 18px;
+            border-top: 6px solid;
+            position: relative;
+        }
+
+        .type-map-card.msg {
+            border-top-color: #4caf50;
+        }
+
+        .type-map-card.context {
+            border-top-color: #9C27B0;
+        }
+
+        .type-map-card.js {
+            border-top-color: #ff9800;
+        }
+
+        .type-map-card.current {
+            box-shadow: 0 0 0 3px #ffd54f;
+        }
+
+        .type-map-card h4 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 1.15em;
+            color: #333;
+        }
+
+        .type-map-card .badge-current {
+            position: absolute;
+            top: -12px;
+            right: 12px;
+            background: #ffd54f;
+            color: #333;
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-weight: bold;
+        }
+
+        .type-map-card .type-link {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 5px 12px;
+            background: #1976d2;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .type-map-card .type-link:hover {
+            background: #1565c0;
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: space-between;
+            margin: 30px 0;
+            padding: 15px;
+            background: #eceff1;
+            border-radius: 8px;
+        }
+
+        .nav-links a {
+            color: #1976d2;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 Node-RED 変数タイプガイド Part 2<br><span style="font-size: 0.6em; color: #666;">context系変数（記憶するデータ）</span></h1>
+
+        <p>このページは <a href="nodered-variable-types-guide.html">Part 1（msg編）</a> の続編です。msgオブジェクトがノード間を流れる「一時的なデータ」だったのに対して、ここで扱う <strong>context系変数</strong> は、<strong>フローが終わっても値を保持し続ける「記憶するデータ」</strong>を扱います。</p>
+
+        <h2>🗺️ Node-REDの3種類の変数（マップ再掲）</h2>
+        <p>Node-REDで使う変数は大きく3種類に分けられます。このページでは <strong>②context系変数</strong> を詳しく扱います。</p>
+
+        <div class="three-types-map">
+            <div class="type-map-card msg">
+                <h4>① msgオブジェクト</h4>
+                <p><strong>流れるデータ</strong></p>
+                <p>ノード間を1回だけ流れて、使い終わったら消える。payload、topicなどのプロパティを持つ。</p>
+                <a href="nodered-variable-types-guide.html" class="type-link">Part 1 で解説 →</a>
+            </div>
+
+            <div class="type-map-card context current">
+                <span class="badge-current">このページ</span>
+                <h4>② context系変数</h4>
+                <p><strong>記憶するデータ</strong></p>
+                <p>フローが終わっても値が残る。context / flow / global の3スコープで共有範囲を選べる。</p>
+                <span style="display: inline-block; margin-top: 8px; padding: 5px 12px; background: #9C27B0; color: white; border-radius: 4px; font-size: 13px;">Part 2 で解説中</span>
+            </div>
+
+            <div class="type-map-card js">
+                <h4>③ JavaScript変数</h4>
+                <p><strong>Function内の計算用</strong></p>
+                <p>Functionノード内でのみ使う let / const / var の変数。処理が終わると消える。</p>
+                <a href="nodered-function-node2-javascript-guide.html" class="type-link">JSガイドへ →</a>
+            </div>
+        </div>
+
+        <h2>📖 1. なぜcontext系変数が必要か？</h2>
+        <p>msgオブジェクトは「ノードからノードへ流れる荷物」のようなもので、<strong>1本のフローの中でしか値を共有できません</strong>。しかし実際にアプリを作ると、msgだけでは解決できない場面に必ずぶつかります。</p>
+
+        <h3>🤔 msgだけでは困る3つの典型例</h3>
+
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h4>🔢 場面A: 前回の値と比べたい</h4>
+                <p>温度センサーが値を送ってきたとき、「前回より上昇したか下降したか」を判定したい。でも msg には<strong>今回の値しか入っていない</strong>。前回値をどこかに覚えておく必要がある。</p>
+            </div>
+
+            <div class="feature-card">
+                <h4>🔀 場面B: 複数の入力経路を合わせたい</h4>
+                <p>センサーAとセンサーBが<strong>バラバラのタイミング</strong>で別々のInjectから値を送ってくる。両方の最新値を使って合計や平均を計算したいが、msg.payload だけでは片方しか伝わらない。</p>
+            </div>
+
+            <div class="feature-card">
+                <h4>🌍 場面C: 全タブで同じ設定を使いたい</h4>
+                <p>APIキー、警告閾値、デバイス名などの<strong>設定値を複数のタブから参照</strong>したい。各フローに同じ値を書くとメンテナンスが大変。</p>
+            </div>
+        </div>
+
+        <div class="tip">
+            <strong>💡 context系変数の役割：</strong>
+            <p>これら3つの場面で必要になるのが「フローを超えて値を覚えておく仕組み」です。それが <strong>context / flow / global</strong> の3つのスコープを持つ context系変数です。「どこまでの範囲で共有したいか」によって、使い分けます。</p>
+        </div>
+
+        <h2>🌐 2. context / flow / global の3つのスコープ</h2>
+        <p>context系変数は、<strong>宣言の仕方（APIの呼び分け）</strong>によってスコープ（共有範囲）が変わります。どの範囲まで値を共有したいかによって使い分けましょう。</p>
+
+        <div class="scope-container">
+            <div class="scope-card context">
+                <h4>context（ノード）</h4>
+                <p><strong>範囲：</strong>定義されたノード内のみ</p>
+                <p><strong>有効期限：</strong>Node-REDを再起動するまで</p>
+                <p><strong>宣言方法：</strong>context.set() / context.get()</p>
+                <div class="dark-code">context.set('lastValue', 25);
+let val = context.get('lastValue');</div>
+                <div class="example-box">
+                    <strong>📝 例：</strong><br>
+                    特定のFunctionノード内でのみ使用する前回値や状態を保存
+                </div>
+            </div>
+
+            <div class="scope-card flow">
+                <h4>flow（フロー）</h4>
+                <p><strong>範囲：</strong>同じフロー（タブ）内のすべてのノード</p>
+                <p><strong>有効期限：</strong>Node-REDを再起動するまで</p>
+                <p><strong>宣言方法：</strong>flow.set() / flow.get()</p>
+                <div class="dark-code">flow.set('counter', 0);
+let count = flow.get('counter');</div>
+                <div class="example-box">
+                    <strong>📝 例：</strong><br>
+                    同じフロー内の複数ノードで共有するカウンター値や設定値
+                </div>
+            </div>
+
+            <div class="scope-card global">
+                <h4>global（グローバル）</h4>
+                <p><strong>範囲：</strong>すべてのフロー（全タブ）</p>
+                <p><strong>有効期限：</strong>Node-REDを再起動するまで</p>
+                <p><strong>宣言方法：</strong>global.set() / global.get()</p>
+                <div class="dark-code">global.set('apiKey', 'xxx');
+let key = global.get('apiKey');</div>
+                <div class="example-box">
+                    <strong>📝 例：</strong><br>
+                    全フローで共有するAPIキーやユーザー設定
+                </div>
+            </div>
+        </div>
+
+        <div class="tip">
+            <strong>💡 使い分けの3原則：</strong>
+            <ul>
+                <li><strong>context</strong>: そのノードだけで覚えておきたいデータ（前回値、内部状態）</li>
+                <li><strong>flow</strong>: 同じタブ内の複数ノードで共有したいデータ（カウンター、中継値）</li>
+                <li><strong>global</strong>: すべてのタブで共有したいデータ（設定値、APIキー）— 使いすぎ注意</li>
+            </ul>
+        </div>
+
+        <div class="warning">
+            <strong>⚠️ 共通の注意点：</strong>
+            <ul>
+                <li>いずれも値はメモリ上にのみ保持される。<strong>Node-REDを再起動すると消える</strong>（永続化するには設定が別途必要）</li>
+                <li>global を乱用すると「どこから変更されているか」が追いにくくなる。本当に必要な時だけ使う</li>
+            </ul>
+        </div>
+
+        <h2>🔧 3. context系変数の使い方</h2>
+        <p>context系変数は、<strong>ChangeノードのGUI操作</strong>と <strong>Functionノード内のJavaScript</strong> のどちらでも読み書きできます。目的と好みに応じて使い分けましょう。</p>
+
+        <h3>🎨 Changeノードで読み書きする（JavaScript不要）</h3>
+        <p>Changeノードの「値の代入」ルールで、対象や値のタイプとして <code>flow</code> / <code>global</code> を選べます。<strong>JavaScriptを書かなくてもGUI操作だけで</strong>context系変数を操作できます。</p>
+
+        <table>
+            <tr>
+                <th>やりたいこと</th>
+                <th>Changeノードの設定</th>
+            </tr>
+            <tr>
+                <td><strong>msg.payload の値を flow.x に保存</strong></td>
+                <td>ルール: Set → <code>flow.x</code> を <code>msg.payload</code> に設定</td>
+            </tr>
+            <tr>
+                <td><strong>global.y の値を msg.payload に読み込む</strong></td>
+                <td>ルール: Set → <code>msg.payload</code> を <code>global.y</code> に設定</td>
+            </tr>
+            <tr>
+                <td><strong>flow.counter に固定値 0 を入れる</strong></td>
+                <td>ルール: Set → <code>flow.counter</code> を 数値 <code>0</code> に設定</td>
+            </tr>
+            <tr>
+                <td><strong>flow.counter を +1 する</strong></td>
+                <td>ルール: Set → <code>flow.counter</code> を JSONata式 <code>($flowContext("counter") ? $flowContext("counter") : 0) + 1</code></td>
+            </tr>
+        </table>
+
+        <div class="important">
+            <strong>📌 JSONata関数で context系変数を読む：</strong>
+            <ul>
+                <li><code>$flowContext("キー名")</code> : flow変数の値を取得</li>
+                <li><code>$globalContext("キー名")</code> : global変数の値を取得</li>
+                <li>これらは Changeノードの JSONata式フィールドや、Switchノード、Templateノードなどで使える</li>
+            </ul>
+        </div>
+
+        <h3>💻 Functionノードで読み書きする（JavaScript）</h3>
+        <p>Functionノード内では、<code>context</code> / <code>flow</code> / <code>global</code> の3つのオブジェクトが使えます。条件分岐や計算ロジックが複雑な場合は、こちらのほうが柔軟です。</p>
+
+        <table>
+            <tr>
+                <th>操作</th>
+                <th>API</th>
+                <th>例</th>
+            </tr>
+            <tr>
+                <td>値を保存</td>
+                <td><code>xxx.set(キー, 値)</code></td>
+                <td><code>flow.set('counter', 5)</code></td>
+            </tr>
+            <tr>
+                <td>値を取得</td>
+                <td><code>xxx.get(キー)</code></td>
+                <td><code>let n = flow.get('counter')</code></td>
+            </tr>
+            <tr>
+                <td>未設定時のデフォルト</td>
+                <td><code>xxx.get(キー) || 既定値</code></td>
+                <td><code>let n = flow.get('counter') || 0</code></td>
+            </tr>
+            <tr>
+                <td>値を削除</td>
+                <td><code>xxx.set(キー, undefined)</code></td>
+                <td><code>flow.set('counter', undefined)</code></td>
+            </tr>
+        </table>
+
+        <div class="code-block">// Functionノード内のコード例
+// 現在の flow.counter を取得し、+1 して保存
+let count = flow.get('counter') || 0;
+count += 1;
+flow.set('counter', count);
+
+// 取得した値を msg.payload に入れて次のノードに渡す
+msg.payload = count;
+return msg;</div>
+
+        <div class="tip">
+            <strong>💡 どちらを使うか迷ったら：</strong>
+            <ul>
+                <li><strong>単純な保存・参照・代入だけ</strong> → Changeノード（コーディング不要）</li>
+                <li><strong>条件分岐、ループ、配列操作</strong> → Functionノード（JavaScriptの柔軟性）</li>
+                <li><strong>どちらで書いた変数でも</strong>、互いに読み書きできる（相互運用性あり）</li>
+            </ul>
+        </div>
+
+        <h2>🚀 4. 実用フロー例</h2>
+        <p>ここでは、context系変数がよく使われる場面を、実際にNode-REDにインポートして動かせるフロー付きで紹介します。各例のサンプルフローをコピーしてエディターに読み込み、手を動かしながら動作を確認してみてください。</p>
+
+        <div class="tip">
+            <strong>📥 サンプルフローの使い方：</strong>
+            <ol>
+                <li>下のJSONの「コピー」ボタンでクリップボードにコピー</li>
+                <li>Node-REDエディターのメニュー → 「読み込み」 → 「クリップボード」に貼り付け</li>
+                <li>「新しいフローとして」を選んで読み込み → デプロイして動作確認</li>
+            </ol>
+        </div>
+
+        <div class="practical-example">
+            <h3>💡 例1: flow変数で「ボタン押下回数」をカウントする</h3>
+            <p><strong>よくある場面：</strong> 同じタブ内で「実行回数を数える」「前回の値を保持する」「2つのボタン（カウント／リセット）で同じ変数を操作する」など。</p>
+
+            <p>この例では、<strong>同じ処理を2つの方法</strong>で実装したフローを用意しています。Functionノードが難しく感じる方は、まずパターンB（Changeノードだけで実装）から試してください。動作結果はどちらも同じです。</p>
+
+            <h4>🅰️ パターンA: Functionノードを使う方法</h4>
+            <p>Functionノードの中でJavaScriptを書き、<code>flow.get()</code> / <code>flow.set()</code> で flow変数を読み書きする方法です。JavaScriptに慣れていると、こちらのほうが短く書けます。</p>
+
+            <p><strong>フロー構成：</strong></p>
+            <div class="node-example">
+                <span class="node node-inject">カウント</span>
+                <span class="arrow">→</span>
+                <span class="node node-function">カウント+1</span>
+                <span class="arrow">→</span>
+                <span class="node node-debug">表示</span>
+                <br>
+                <span class="node node-inject">リセット</span>
+                <span class="arrow">→</span>
+                <span class="node node-change">flow.counter=0</span>
+                <span class="arrow">→</span>
+                <span class="node node-debug">表示</span>
+            </div>
+
+            <p><strong>Functionノードのコード：</strong></p>
+            <div class="code-block">let count = flow.get('counter') || 0;
+count += 1;
+flow.set('counter', count);
+msg.payload = `カウント: ${count}回`;
+return msg;</div>
+
+            <details>
+                <summary>📋 パターンA サンプルフロー（Function版）</summary>
+                <div class="flow-json">[
+    {
+        "id": "tab_flow_ex1a",
+        "type": "tab",
+        "label": "flow変数カウンター(Function版)",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "ex1a_inject_count",
+        "type": "inject",
+        "z": "tab_flow_ex1a",
+        "name": "カウント",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 120,
+        "y": 100,
+        "wires": [["ex1a_func_count"]]
+    },
+    {
+        "id": "ex1a_func_count",
+        "type": "function",
+        "z": "tab_flow_ex1a",
+        "name": "カウント+1",
+        "func": "let count = flow.get('counter') || 0;\ncount += 1;\nflow.set('counter', count);\nmsg.payload = `カウント: ${count}回`;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 310,
+        "y": 100,
+        "wires": [["ex1a_debug"]]
+    },
+    {
+        "id": "ex1a_inject_reset",
+        "type": "inject",
+        "z": "tab_flow_ex1a",
+        "name": "リセット",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 120,
+        "y": 180,
+        "wires": [["ex1a_change_reset"]]
+    },
+    {
+        "id": "ex1a_change_reset",
+        "type": "change",
+        "z": "tab_flow_ex1a",
+        "name": "カウンターを0に",
+        "rules": [
+            {"t": "set", "p": "counter", "pt": "flow", "to": "0", "tot": "num"},
+            {"t": "set", "p": "payload", "pt": "msg", "to": "リセットしました", "tot": "str"}
+        ],
+        "x": 320,
+        "y": 180,
+        "wires": [["ex1a_debug"]]
+    },
+    {
+        "id": "ex1a_debug",
+        "type": "debug",
+        "z": "tab_flow_ex1a",
+        "name": "表示",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 510,
+        "y": 140,
+        "wires": []
+    }
+]</div>
+            </details>
+
+            <h4 style="margin-top: 30px;">🅱️ パターンB: Changeノードだけで実現する方法（JavaScript不要）</h4>
+            <p>Functionノードを使わず、<strong>Changeノード1つで</strong> 同じ処理を実現できます。JSONata式を使って「flow.counter を取り出して +1 した値を、再び flow.counter に保存」します。JavaScriptを書かなくてよいので、プログラミング初心者に優しい方法です。</p>
+
+            <p><strong>フロー構成：</strong></p>
+            <div class="node-example">
+                <span class="node node-inject">カウント</span>
+                <span class="arrow">→</span>
+                <span class="node node-change">+1して保存</span>
+                <span class="arrow">→</span>
+                <span class="node node-debug">表示</span>
+                <br>
+                <span class="node node-inject">リセット</span>
+                <span class="arrow">→</span>
+                <span class="node node-change">flow.counter=0</span>
+                <span class="arrow">→</span>
+                <span class="node node-debug">表示</span>
+            </div>
+
+            <p><strong>Changeノード「+1して保存」の設定（2ルール）：</strong></p>
+            <div class="code-block">ルール1: flow.counter を JSONata式 に設定
+  式: ($flowContext("counter") ? $flowContext("counter") : 0) + 1
+  （解説: 現在値が存在すればその値、無ければ0 として +1 し、flow.counter に書き戻す）
+
+ルール2: msg.payload を JSONata式 に設定
+  式: "カウント: " & $flowContext("counter") & "回"
+  （解説: ルール1で更新済みの flow.counter を読んで文字列連結）</div>
+
+            <div class="important">
+                <strong>📌 Changeノード版の仕組み：</strong>
+                <ul>
+                    <li>ルールは<strong>上から順に</strong>実行される</li>
+                    <li>ルール1で flow.counter を更新 → ルール2で更新後の値を使える</li>
+                    <li><code>$flowContext("counter")</code> はChangeノード内でも使える JSONata関数</li>
+                    <li><code>&amp;</code> は JSONata の文字列連結演算子（JavaScriptの <code>+</code> に相当）</li>
+                </ul>
+            </div>
+
+            <details>
+                <summary>📋 パターンB サンプルフロー（Changeのみ版）</summary>
+                <div class="flow-json">[
+    {
+        "id": "tab_flow_ex1b",
+        "type": "tab",
+        "label": "flow変数カウンター(Change版)",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "ex1b_inject_count",
+        "type": "inject",
+        "z": "tab_flow_ex1b",
+        "name": "カウント",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 120,
+        "y": 100,
+        "wires": [["ex1b_change_count"]]
+    },
+    {
+        "id": "ex1b_change_count",
+        "type": "change",
+        "z": "tab_flow_ex1b",
+        "name": "+1して保存",
+        "rules": [
+            {"t": "set", "p": "counter", "pt": "flow", "to": "($flowContext(\"counter\") ? $flowContext(\"counter\") : 0) + 1", "tot": "jsonata"},
+            {"t": "set", "p": "payload", "pt": "msg", "to": "\"カウント: \" & $flowContext(\"counter\") & \"回\"", "tot": "jsonata"}
+        ],
+        "x": 320,
+        "y": 100,
+        "wires": [["ex1b_debug"]]
+    },
+    {
+        "id": "ex1b_inject_reset",
+        "type": "inject",
+        "z": "tab_flow_ex1b",
+        "name": "リセット",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 120,
+        "y": 180,
+        "wires": [["ex1b_change_reset"]]
+    },
+    {
+        "id": "ex1b_change_reset",
+        "type": "change",
+        "z": "tab_flow_ex1b",
+        "name": "カウンターを0に",
+        "rules": [
+            {"t": "set", "p": "counter", "pt": "flow", "to": "0", "tot": "num"},
+            {"t": "set", "p": "payload", "pt": "msg", "to": "リセットしました", "tot": "str"}
+        ],
+        "x": 320,
+        "y": 180,
+        "wires": [["ex1b_debug"]]
+    },
+    {
+        "id": "ex1b_debug",
+        "type": "debug",
+        "z": "tab_flow_ex1b",
+        "name": "表示",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 510,
+        "y": 140,
+        "wires": []
+    }
+]</div>
+            </details>
+
+            <div class="tip">
+                <strong>💡 どちらを選ぶべき？</strong>
+                <ul>
+                    <li><strong>パターンA（Function）</strong>：複雑な条件分岐やループが必要な場合、JavaScriptに慣れている方向け</li>
+                    <li><strong>パターンB（Change）</strong>：シンプルな計算・代入だけで済む場合、GUI中心で完結させたい方向け</li>
+                    <li><strong>共通のポイント</strong>：どちらの方式で保存した flow変数も、お互いに読み書きできる（相互運用性あり）</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="practical-example">
+            <h3>💡 例2: global変数で「設定値」を全フローから参照する</h3>
+            <p><strong>よくある場面：</strong> 温度の警告閾値、デバイス名、APIエンドポイントなど、<strong>複数のタブ（フロー）から同じ設定値を参照</strong>したいケース。global変数は全タブから参照できるので、このような「設定値の共有」に最適です。</p>
+
+            <p><strong>フロー構成：</strong></p>
+            <div class="node-example">
+                <span class="node node-inject">設定登録</span>
+                <span class="arrow">→</span>
+                <span class="node node-change">global.threshold=30</span>
+                <span class="arrow">→</span>
+                <span class="node node-debug">登録確認</span>
+                <br>
+                <span class="node node-inject">温度=35</span>
+                <span class="arrow">→</span>
+                <span class="node node-change">判定</span>
+                <span class="arrow">→</span>
+                <span class="node node-debug">結果表示</span>
+            </div>
+
+            <p><strong>ポイント：</strong></p>
+            <ul>
+                <li>最初に「設定登録」Injectを押して <code>global.threshold = 30</code> を保存</li>
+                <li>次に「温度=35」Injectを押すと、Changeノードが <code>global.threshold</code> を取り出して比較</li>
+                <li>JSONata式で、現在温度・閾値・超過判定を1つのJSONにまとめて出力</li>
+                <li>実運用では「設定登録」と「温度判定」は<strong>別タブに配置</strong>しても同じように動く</li>
+            </ul>
+
+            <p><strong>判定Changeノードの設定（2ルール）：</strong></p>
+            <div class="code-block">ルール1: msg.threshold を global.threshold に設定（値の代入）
+ルール2: msg.payload を JSONata に設定
+  式: {
+    "現在温度": payload,
+    "閾値": $globalContext("threshold"),
+    "警告": payload > $globalContext("threshold")
+  }</div>
+
+            <details>
+                <summary>📋 サンプルフロー（クリックで展開）</summary>
+                <div class="flow-json">[
+    {
+        "id": "tab_global_ex2",
+        "type": "tab",
+        "label": "global変数で設定共有",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "ex2_inject_set",
+        "type": "inject",
+        "z": "tab_global_ex2",
+        "name": "設定登録",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "30",
+        "payloadType": "num",
+        "x": 120,
+        "y": 100,
+        "wires": [["ex2_change_set"]]
+    },
+    {
+        "id": "ex2_change_set",
+        "type": "change",
+        "z": "tab_global_ex2",
+        "name": "global.threshold=30",
+        "rules": [
+            {"t": "set", "p": "threshold", "pt": "global", "to": "30", "tot": "num"},
+            {"t": "set", "p": "payload", "pt": "msg", "to": "閾値を30に設定しました", "tot": "str"}
+        ],
+        "x": 330,
+        "y": 100,
+        "wires": [["ex2_debug"]]
+    },
+    {
+        "id": "ex2_inject_temp",
+        "type": "inject",
+        "z": "tab_global_ex2",
+        "name": "温度=35",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "35",
+        "payloadType": "num",
+        "x": 120,
+        "y": 180,
+        "wires": [["ex2_change_check"]]
+    },
+    {
+        "id": "ex2_change_check",
+        "type": "change",
+        "z": "tab_global_ex2",
+        "name": "閾値と比較",
+        "rules": [
+            {"t": "set", "p": "threshold", "pt": "msg", "to": "threshold", "tot": "global"},
+            {"t": "set", "p": "payload", "pt": "msg", "to": "{\"現在温度\": payload, \"閾値\": $globalContext(\"threshold\"), \"警告\": payload > $globalContext(\"threshold\")}", "tot": "jsonata"}
+        ],
+        "x": 330,
+        "y": 180,
+        "wires": [["ex2_debug"]]
+    },
+    {
+        "id": "ex2_debug",
+        "type": "debug",
+        "z": "tab_global_ex2",
+        "name": "結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 530,
+        "y": 140,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+
+        <div class="practical-example">
+            <h3>💡 例3: context変数で「前回値」を覚えて差分を計算する</h3>
+            <p><strong>よくある場面：</strong> センサーの温度変化量を計算する、前回のAPIレスポンスと比較する、電力量計の増分を求めるなど。<strong>そのノード専用の記憶域</strong>としてcontext変数が役立ちます。</p>
+
+            <p><strong>フロー構成：</strong></p>
+            <div class="node-example">
+                <span class="node node-inject">温度=25</span>
+                <span class="arrow">→</span>
+                <span class="node node-function">差分計算</span>
+                <span class="arrow">→</span>
+                <span class="node node-debug">結果</span>
+            </div>
+
+            <p><strong>ポイント：</strong></p>
+            <ul>
+                <li>Injectノードには異なる温度値を持つボタンを複数用意（25℃／28℃／23℃）</li>
+                <li>Functionノード内で <code>context.get('lastValue')</code> で前回値を取り出す</li>
+                <li>現在値と前回値の差分を計算し、上昇／下降／変化なしを判定</li>
+                <li><code>context.set('lastValue', ...)</code> で今回の値を次回のために保存</li>
+                <li>context変数は<strong>このFunctionノード専用</strong>なので、他のノードからは見えない</li>
+            </ul>
+
+            <p><strong>Functionノードのコード：</strong></p>
+            <div class="code-block">let previous = context.get('lastValue');
+let current = msg.payload;
+
+if (previous === undefined) {
+    msg.payload = { current: current, message: "初回測定です" };
+} else {
+    let diff = current - previous;
+    msg.payload = {
+        current: current,
+        previous: previous,
+        difference: diff,
+        trend: diff > 0 ? "上昇" : diff < 0 ? "下降" : "変化なし"
+    };
+}
+
+context.set('lastValue', current);
+return msg;</div>
+
+            <details>
+                <summary>📋 サンプルフロー（クリックで展開）</summary>
+                <div class="flow-json">[
+    {
+        "id": "tab_ctx_ex3",
+        "type": "tab",
+        "label": "context変数で差分計算",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "ex3_inject_25",
+        "type": "inject",
+        "z": "tab_ctx_ex3",
+        "name": "温度=25",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "25",
+        "payloadType": "num",
+        "x": 120,
+        "y": 80,
+        "wires": [["ex3_func_diff"]]
+    },
+    {
+        "id": "ex3_inject_28",
+        "type": "inject",
+        "z": "tab_ctx_ex3",
+        "name": "温度=28",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "28",
+        "payloadType": "num",
+        "x": 120,
+        "y": 140,
+        "wires": [["ex3_func_diff"]]
+    },
+    {
+        "id": "ex3_inject_23",
+        "type": "inject",
+        "z": "tab_ctx_ex3",
+        "name": "温度=23",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "23",
+        "payloadType": "num",
+        "x": 120,
+        "y": 200,
+        "wires": [["ex3_func_diff"]]
+    },
+    {
+        "id": "ex3_func_diff",
+        "type": "function",
+        "z": "tab_ctx_ex3",
+        "name": "差分計算",
+        "func": "let previous = context.get('lastValue');\nlet current = msg.payload;\n\nif (previous === undefined) {\n    msg.payload = { current: current, message: \"初回測定です\" };\n} else {\n    let diff = current - previous;\n    msg.payload = {\n        current: current,\n        previous: previous,\n        difference: diff,\n        trend: diff > 0 ? \"上昇\" : diff < 0 ? \"下降\" : \"変化なし\"\n    };\n}\n\ncontext.set('lastValue', current);\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 320,
+        "y": 140,
+        "wires": [["ex3_debug"]]
+    },
+    {
+        "id": "ex3_debug",
+        "type": "debug",
+        "z": "tab_ctx_ex3",
+        "name": "結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 510,
+        "y": 140,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+
+        <div class="tip">
+            <strong>💡 3つの例の使い分けまとめ：</strong>
+            <ul>
+                <li><strong>flow（例1）</strong>：同じタブ内の複数ノードで共有（カウンター、状態フラグなど）</li>
+                <li><strong>global（例2）</strong>：すべてのタブで共有（設定値、APIキーなど）</li>
+                <li><strong>context（例3）</strong>：そのノード内だけで完結（前回値、ノード固有の状態）</li>
+            </ul>
+        </div>
+
+        <h2>📊 5. よくある使い方のパターン</h2>
+
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h4>パターン1: ノード内での記憶 → context</h4>
+                <p>そのノード内だけで使う一時データや状態。Functionノード内でのカウンターや前回値の保存など</p>
+            </div>
+
+            <div class="feature-card">
+                <h4>パターン2: フロー内で共有 → flow</h4>
+                <p>同じタブ内の複数ノードで使いたいデータ。カウンター、最後の値、設定値など</p>
+            </div>
+
+            <div class="feature-card">
+                <h4>パターン3: 全体で共有 → global</h4>
+                <p>すべてのフローで使いたいデータ。APIキー、ユーザー設定、共通の定数など</p>
+            </div>
+
+            <div class="feature-card">
+                <h4>パターン4: 独立フロー間の中継 → flow</h4>
+                <p>別々のタイミング・入力経路で来るセンサー値を、1本のフローで合算したい時の中継点</p>
+            </div>
+        </div>
+
+        <div class="warning">
+            <strong>⚠️ 注意：</strong> global変数は便利ですが、使いすぎるとフローが複雑になります。本当に必要な場合だけ使用しましょう。まずは flow変数で足りないか検討してください。
+        </div>
+
+        <h2>🏋️ 6. 演習問題</h2>
+        <p>実際に手を動かして、flow / context / global 変数の使い方を身につけましょう。各問題には難易度・要求仕様・ヒント・解答例フローが用意されています。</p>
+
+        <div class="exercise">
+            <h3>演習1: flow変数で訪問カウンターを作る<span class="difficulty difficulty-easy">初級</span></h3>
+
+            <p><strong>📝 課題：</strong></p>
+            <p>Injectノードを押すたびに、flow変数 <code>visitCount</code> を +1 して、「◯回目の訪問です」というメッセージを Debug に表示してください。</p>
+
+            <p><strong>🎯 要求仕様：</strong></p>
+            <ul>
+                <li>Inject、Change、Debug の3ノードを使用(Functionノードは使わない)</li>
+                <li>flow変数名：<code>visitCount</code></li>
+                <li>ChangeノードのJSONata機能を使って、flow変数を +1 する</li>
+                <li>msg.payload を「1回目の訪問です」のような文字列にする</li>
+            </ul>
+
+            <p><strong>✅ 成功の条件：</strong></p>
+            <ul>
+                <li>1回目のInject：Debug に「1回目の訪問です」と表示される</li>
+                <li>2回目のInject：「2回目の訪問です」と表示される</li>
+                <li>何度押しても順番にカウントアップしていく</li>
+                <li>Node-REDを再起動すると 1 から再スタートする</li>
+            </ul>
+
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Changeノードの設定（2ルール）：</strong></p>
+                <ul>
+                    <li>ルール1: 値の代入（Set）
+                        <ul>
+                            <li>対象: <code>flow.visitCount</code></li>
+                            <li>値のタイプ: <code>JSONata式</code></li>
+                            <li>値: <code>($flowContext("visitCount") ? $flowContext("visitCount") : 0) + 1</code></li>
+                        </ul>
+                    </li>
+                    <li>ルール2: 値の代入（Set）
+                        <ul>
+                            <li>対象: <code>msg.payload</code></li>
+                            <li>値のタイプ: <code>JSONata式</code></li>
+                            <li>値: <code>$flowContext("visitCount") &amp; "回目の訪問です"</code></li>
+                        </ul>
+                    </li>
+                </ul>
+                <p>※ JSONataの <code>&amp;</code> は文字列連結演算子です。</p>
+            </details>
+
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "tab_q1",
+        "type": "tab",
+        "label": "演習1 訪問カウンター",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "q1_inject",
+        "type": "inject",
+        "z": "tab_q1",
+        "name": "訪問",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 120,
+        "y": 100,
+        "wires": [["q1_change"]]
+    },
+    {
+        "id": "q1_change",
+        "type": "change",
+        "z": "tab_q1",
+        "name": "カウント+1",
+        "rules": [
+            {"t": "set", "p": "visitCount", "pt": "flow", "to": "($flowContext(\"visitCount\") ? $flowContext(\"visitCount\") : 0) + 1", "tot": "jsonata"},
+            {"t": "set", "p": "payload", "pt": "msg", "to": "$flowContext(\"visitCount\") & \"回目の訪問です\"", "tot": "jsonata"}
+        ],
+        "x": 310,
+        "y": 100,
+        "wires": [["q1_debug"]]
+    },
+    {
+        "id": "q1_debug",
+        "type": "debug",
+        "z": "tab_q1",
+        "name": "結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 490,
+        "y": 100,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+
+        <div class="exercise">
+            <h3>演習2: 独立した2つのフローの値を合算する<span class="difficulty difficulty-easy">初級</span></h3>
+
+            <p><strong>📝 課題：</strong></p>
+            <p>センサーAとセンサーBの値を、それぞれ<strong>独立したフロー（別々のInjectチェーン）</strong>で受け取り、<strong>3つ目のフロー</strong>で両方の最新値を使って合計と平均を計算してください。実運用では「センサーAとBはバラバラのタイミングで値が更新されるが、計算時には両方の最新値が必要」という場面がよくあります。</p>
+
+            <p><strong>🎯 要求仕様：</strong></p>
+            <ul>
+                <li>3つの独立したフロー（すべて同じタブ内）を作成
+                    <ul>
+                        <li>フロー1: Inject「センサーA=20」→ Change（flow.sensorA に保存）→ Debug</li>
+                        <li>フロー2: Inject「センサーB=60」→ Change（flow.sensorB に保存）→ Debug</li>
+                        <li>フロー3: Inject「計算実行」→ Change（flow.sensorA と flow.sensorB から合計・平均を計算）→ Debug</li>
+                    </ul>
+                </li>
+                <li>センサーA と センサーB は<strong>別々のタイミングで押しても動作</strong>する（= flow変数で値が保持される）</li>
+                <li>計算実行時の出力は <code>{ "A": 20, "B": 60, "合計": 80, "平均": 40 }</code> のJSON</li>
+                <li>Functionノードは使わず、Changeノードだけで実装</li>
+            </ul>
+
+            <p><strong>✅ 成功の条件：</strong></p>
+            <ul>
+                <li>センサーAを押す → Debug に「センサーA=20 を保存しました」と表示</li>
+                <li>センサーBを押す → Debug に「センサーB=60 を保存しました」と表示</li>
+                <li>計算実行を押す → Debug に <code>{A: 20, B: 60, 合計: 80, 平均: 40}</code> が表示</li>
+                <li>センサーAの値を別の数値に変えて先に更新 → 計算実行すると最新値で計算される</li>
+                <li>ABの取得順番（A→B でも B→A でも、片方だけ更新してから計算してもOK）に依存しない</li>
+            </ul>
+
+            <div class="tip">
+                <strong>💡 なぜ flow変数なのか？</strong>
+                <p>msg.payload だけで受け渡そうとすると、AとBが「同じ1本のフロー」に並んでいないと値が揃いません。ところがAとBは<strong>別々のタイミング・別々の入力経路</strong>から来るので、それぞれの値を「どこかに置いておく」必要があります。ここで <strong>flow変数が中継地点</strong>の役割を果たします。</p>
+            </div>
+
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>センサーA保存のChangeノード（2ルール）：</strong></p>
+                <ul>
+                    <li>ルール1: flow.sensorA を msg.payload に設定（型: msg）</li>
+                    <li>ルール2: msg.payload を JSONata <code>"センサーA=" &amp; $flowContext("sensorA") &amp; " を保存しました"</code></li>
+                </ul>
+                <p><strong>センサーB保存のChangeノード：</strong>同上で sensorA → sensorB に読み替え</p>
+                <p><strong>計算のChangeノード（1ルール）：</strong></p>
+                <ul>
+                    <li>ルール: msg.payload を JSONata式 に設定</li>
+                    <li>式:
+                        <div class="code-block">{
+  "A": $flowContext("sensorA"),
+  "B": $flowContext("sensorB"),
+  "合計": $flowContext("sensorA") + $flowContext("sensorB"),
+  "平均": ($flowContext("sensorA") + $flowContext("sensorB")) / 2
+}</div>
+                    </li>
+                </ul>
+                <p><strong>Injectノードの設定：</strong></p>
+                <ul>
+                    <li>センサーA: payload = 20（数値型）</li>
+                    <li>センサーB: payload = 60（数値型）</li>
+                    <li>計算実行: payload = 空（タイムスタンプでOK）</li>
+                </ul>
+            </details>
+
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "tab_q2b",
+        "type": "tab",
+        "label": "演習2 独立フローで値を合算",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "q2b_inject_a",
+        "type": "inject",
+        "z": "tab_q2b",
+        "name": "センサーA=20",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "20",
+        "payloadType": "num",
+        "x": 130,
+        "y": 80,
+        "wires": [["q2b_change_a"]]
+    },
+    {
+        "id": "q2b_change_a",
+        "type": "change",
+        "z": "tab_q2b",
+        "name": "flow.sensorAに保存",
+        "rules": [
+            {"t": "set", "p": "sensorA", "pt": "flow", "to": "payload", "tot": "msg"},
+            {"t": "set", "p": "payload", "pt": "msg", "to": "\"センサーA=\" & $flowContext(\"sensorA\") & \" を保存しました\"", "tot": "jsonata"}
+        ],
+        "x": 340,
+        "y": 80,
+        "wires": [["q2b_debug"]]
+    },
+    {
+        "id": "q2b_inject_b",
+        "type": "inject",
+        "z": "tab_q2b",
+        "name": "センサーB=60",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "60",
+        "payloadType": "num",
+        "x": 130,
+        "y": 160,
+        "wires": [["q2b_change_b"]]
+    },
+    {
+        "id": "q2b_change_b",
+        "type": "change",
+        "z": "tab_q2b",
+        "name": "flow.sensorBに保存",
+        "rules": [
+            {"t": "set", "p": "sensorB", "pt": "flow", "to": "payload", "tot": "msg"},
+            {"t": "set", "p": "payload", "pt": "msg", "to": "\"センサーB=\" & $flowContext(\"sensorB\") & \" を保存しました\"", "tot": "jsonata"}
+        ],
+        "x": 340,
+        "y": 160,
+        "wires": [["q2b_debug"]]
+    },
+    {
+        "id": "q2b_inject_calc",
+        "type": "inject",
+        "z": "tab_q2b",
+        "name": "計算実行",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 120,
+        "y": 240,
+        "wires": [["q2b_change_calc"]]
+    },
+    {
+        "id": "q2b_change_calc",
+        "type": "change",
+        "z": "tab_q2b",
+        "name": "合計・平均を計算",
+        "rules": [
+            {"t": "set", "p": "payload", "pt": "msg", "to": "{\"A\": $flowContext(\"sensorA\"), \"B\": $flowContext(\"sensorB\"), \"合計\": $flowContext(\"sensorA\") + $flowContext(\"sensorB\"), \"平均\": ($flowContext(\"sensorA\") + $flowContext(\"sensorB\")) / 2}", "tot": "jsonata"}
+        ],
+        "x": 340,
+        "y": 240,
+        "wires": [["q2b_debug"]]
+    },
+    {
+        "id": "q2b_debug",
+        "type": "debug",
+        "z": "tab_q2b",
+        "name": "結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 550,
+        "y": 160,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+
+        <div class="exercise">
+            <h3>演習3: global変数でユーザー設定を保存・参照する<span class="difficulty difficulty-medium">中級</span></h3>
+
+            <p><strong>📝 課題：</strong></p>
+            <p>Injectで送った「ユーザー名」をglobal変数に保存し、別のInjectで挨拶メッセージを作るフローを作成してください。global変数を使うことで、<strong>設定値がフロー全体で共有される</strong>ことを体験します。</p>
+
+            <p><strong>🎯 要求仕様：</strong></p>
+            <ul>
+                <li>Injectノード2つ、Changeノード2つ、Debugノード1つ（または複数）を使用</li>
+                <li>1つ目のフロー：Inject「名前を設定」→ Change → Debug
+                    <ul>
+                        <li>msg.payload に入った文字列「Alice」を <code>global.userName</code> に保存</li>
+                    </ul>
+                </li>
+                <li>2つ目のフロー：Inject「挨拶」→ Change → Debug
+                    <ul>
+                        <li><code>global.userName</code> を取り出して、「こんにちは、Alice さん！」を msg.payload に設定</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <p><strong>✅ 成功の条件：</strong></p>
+            <ul>
+                <li>「名前を設定」Injectを押す → Debug に「名前 Alice を保存しました」と表示</li>
+                <li>「挨拶」Injectを押す → Debug に「こんにちは、Alice さん！」と表示</li>
+                <li>別のタブ（フロー）に「挨拶」フローを移しても同じように動作する（= global変数の恩恵）</li>
+            </ul>
+
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>1つ目のChangeノード（名前保存）：</strong></p>
+                <ul>
+                    <li>ルール1: global.userName を msg.payload に設定（型: msg）</li>
+                    <li>ルール2: msg.payload を JSONata <code>"名前 " &amp; $globalContext("userName") &amp; " を保存しました"</code></li>
+                </ul>
+                <p><strong>2つ目のChangeノード（挨拶生成）：</strong></p>
+                <ul>
+                    <li>ルール: msg.payload を JSONata <code>"こんにちは、" &amp; $globalContext("userName") &amp; " さん！"</code></li>
+                </ul>
+                <p><strong>Injectノードの設定：</strong></p>
+                <ul>
+                    <li>1つ目: payload = "Alice"（文字列型）</li>
+                    <li>2つ目: payload は空（タイムスタンプでOK）</li>
+                </ul>
+            </details>
+
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "tab_q3",
+        "type": "tab",
+        "label": "演習3 global変数で設定共有",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "q3_inject_set",
+        "type": "inject",
+        "z": "tab_q3",
+        "name": "名前を設定",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "Alice",
+        "payloadType": "str",
+        "x": 130,
+        "y": 100,
+        "wires": [["q3_change_set"]]
+    },
+    {
+        "id": "q3_change_set",
+        "type": "change",
+        "z": "tab_q3",
+        "name": "global.userNameに保存",
+        "rules": [
+            {"t": "set", "p": "userName", "pt": "global", "to": "payload", "tot": "msg"},
+            {"t": "set", "p": "payload", "pt": "msg", "to": "\"名前 \" & $globalContext(\"userName\") & \" を保存しました\"", "tot": "jsonata"}
+        ],
+        "x": 340,
+        "y": 100,
+        "wires": [["q3_debug"]]
+    },
+    {
+        "id": "q3_inject_greet",
+        "type": "inject",
+        "z": "tab_q3",
+        "name": "挨拶",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 120,
+        "y": 180,
+        "wires": [["q3_change_greet"]]
+    },
+    {
+        "id": "q3_change_greet",
+        "type": "change",
+        "z": "tab_q3",
+        "name": "挨拶メッセージ生成",
+        "rules": [
+            {"t": "set", "p": "payload", "pt": "msg", "to": "\"こんにちは、\" & $globalContext(\"userName\") & \" さん！\"", "tot": "jsonata"}
+        ],
+        "x": 330,
+        "y": 180,
+        "wires": [["q3_debug"]]
+    },
+    {
+        "id": "q3_debug",
+        "type": "debug",
+        "z": "tab_q3",
+        "name": "結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 530,
+        "y": 140,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+
+        <div class="exercise">
+            <h3>演習4: context変数で直近3回の移動平均を計算する<span class="difficulty difficulty-hard">上級</span></h3>
+
+            <p><strong>📝 課題：</strong></p>
+            <p>Functionノード内でcontext変数を使って、直近3回の値の平均（移動平均）を計算するフローを作成してください。ノイズの多いセンサー値をなめらかにする実用的な処理です。</p>
+
+            <p><strong>🎯 要求仕様：</strong></p>
+            <ul>
+                <li>Inject（数値送信）→ Function（移動平均） → Debug の構成</li>
+                <li>Functionノード内で <code>context.get('history')</code> / <code>context.set('history', ...)</code> を使用</li>
+                <li>直近3回までの値を配列で保持する（3回を超えたら古いものを削除）</li>
+                <li>出力は <code>{ current: 現在値, history: 履歴配列, average: 平均値 }</code> のJSON</li>
+                <li>Injectは3つ以上用意（例：10, 20, 30, 40, 50）</li>
+            </ul>
+
+            <p><strong>✅ 成功の条件：</strong></p>
+            <ul>
+                <li>1回目のInject(10)：history=[10]、average=10</li>
+                <li>2回目のInject(20)：history=[10, 20]、average=15</li>
+                <li>3回目のInject(30)：history=[10, 20, 30]、average=20</li>
+                <li>4回目のInject(40)：history=[20, 30, 40]（10が押し出される）、average=30</li>
+                <li>5回目のInject(50)：history=[30, 40, 50]、average=40</li>
+            </ul>
+
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>Functionノードの実装手順：</strong></p>
+                <ol>
+                    <li><code>context.get('history') || []</code> で履歴配列を取得（無ければ空配列）</li>
+                    <li><code>history.push(msg.payload)</code> で現在値を追加</li>
+                    <li><code>if (history.length &gt; 3) history.shift()</code> で4件目以降は先頭を削除</li>
+                    <li><code>history.reduce((a, b) =&gt; a + b, 0) / history.length</code> で平均を計算</li>
+                    <li><code>context.set('history', history)</code> で次回用に保存</li>
+                    <li>msg.payload に結果JSONをセットして return</li>
+                </ol>
+                <p><strong>注意：</strong> context.get で取得した配列を直接 push で変更しても、context.set で明示的に保存し直すのが安全です。</p>
+            </details>
+
+            <details>
+                <summary>✅ 解答例フロー</summary>
+                <div class="flow-json">[
+    {
+        "id": "tab_q4",
+        "type": "tab",
+        "label": "演習4 context移動平均",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "q4_inject_10",
+        "type": "inject",
+        "z": "tab_q4",
+        "name": "値=10",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "10",
+        "payloadType": "num",
+        "x": 120,
+        "y": 60,
+        "wires": [["q4_func"]]
+    },
+    {
+        "id": "q4_inject_20",
+        "type": "inject",
+        "z": "tab_q4",
+        "name": "値=20",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "20",
+        "payloadType": "num",
+        "x": 120,
+        "y": 110,
+        "wires": [["q4_func"]]
+    },
+    {
+        "id": "q4_inject_30",
+        "type": "inject",
+        "z": "tab_q4",
+        "name": "値=30",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "30",
+        "payloadType": "num",
+        "x": 120,
+        "y": 160,
+        "wires": [["q4_func"]]
+    },
+    {
+        "id": "q4_inject_40",
+        "type": "inject",
+        "z": "tab_q4",
+        "name": "値=40",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "40",
+        "payloadType": "num",
+        "x": 120,
+        "y": 210,
+        "wires": [["q4_func"]]
+    },
+    {
+        "id": "q4_inject_50",
+        "type": "inject",
+        "z": "tab_q4",
+        "name": "値=50",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "50",
+        "payloadType": "num",
+        "x": 120,
+        "y": 260,
+        "wires": [["q4_func"]]
+    },
+    {
+        "id": "q4_func",
+        "type": "function",
+        "z": "tab_q4",
+        "name": "移動平均(直近3件)",
+        "func": "let history = context.get('history') || [];\nhistory.push(msg.payload);\nif (history.length > 3) history.shift();\nlet average = history.reduce((a, b) => a + b, 0) / history.length;\ncontext.set('history', history);\nmsg.payload = {\n    current: msg.payload,\n    history: history,\n    average: average\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 330,
+        "y": 160,
+        "wires": [["q4_debug"]]
+    },
+    {
+        "id": "q4_debug",
+        "type": "debug",
+        "z": "tab_q4",
+        "name": "結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 530,
+        "y": 160,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+
+        <div class="tip">
+            <strong>🎯 演習のチェックポイント：</strong>
+            <ul>
+                <li>演習1で<strong>flow変数のスコープ</strong>（同じタブ内で共有）と累積更新を体感</li>
+                <li>演習2で<strong>独立した複数フローの橋渡し</strong>としての flow変数の使い方を習得</li>
+                <li>演習3で<strong>global変数の広い共有範囲</strong>（別タブでも参照可能）を確認</li>
+                <li>演習4で<strong>context変数のノード独立性</strong>（Functionノード専用の状態管理）を習得</li>
+                <li>サイドバーの「コンテキストデータ」タブで、保存されている各変数の中身を確認できます</li>
+            </ul>
+        </div>
+
+        <h2>📋 7. チートシート</h2>
+
+        <table>
+            <tr>
+                <th>変数の種類</th>
+                <th>スコープ（共有範囲）</th>
+                <th>Changeノードでの指定</th>
+                <th>Functionノードでの指定</th>
+                <th>典型的な用途</th>
+            </tr>
+            <tr>
+                <td><strong>context</strong></td>
+                <td>そのノード内のみ</td>
+                <td><code>context.xxx</code></td>
+                <td><code>context.get() / set()</code></td>
+                <td>前回値、ノード内カウンター</td>
+            </tr>
+            <tr>
+                <td><strong>flow</strong></td>
+                <td>同じタブ内のすべてのノード</td>
+                <td><code>flow.xxx</code></td>
+                <td><code>flow.get() / set()</code></td>
+                <td>共有カウンター、センサー値中継</td>
+            </tr>
+            <tr>
+                <td><strong>global</strong></td>
+                <td>すべてのタブ（フロー）</td>
+                <td><code>global.xxx</code></td>
+                <td><code>global.get() / set()</code></td>
+                <td>APIキー、全体設定</td>
+            </tr>
+        </table>
+
+        <h3>JSONata関数（Changeノード等で使用）</h3>
+
+        <table>
+            <tr>
+                <th>関数</th>
+                <th>用途</th>
+                <th>例</th>
+            </tr>
+            <tr>
+                <td><code>$flowContext("キー")</code></td>
+                <td>flow変数の値を読み取る</td>
+                <td><code>$flowContext("counter") + 1</code></td>
+            </tr>
+            <tr>
+                <td><code>$globalContext("キー")</code></td>
+                <td>global変数の値を読み取る</td>
+                <td><code>$globalContext("threshold")</code></td>
+            </tr>
+            <tr>
+                <td><code>&amp;</code></td>
+                <td>文字列連結（JavaScriptの + に相当）</td>
+                <td><code>"カウント: " &amp; $flowContext("counter")</code></td>
+            </tr>
+        </table>
+
+        <h2>🎓 まとめ</h2>
+
+        <div class="important">
+            <strong>📌 Part 2 の要点：</strong>
+            <ul>
+                <li><strong>context系変数 = フローを超えて値を覚えておく仕組み</strong></li>
+                <li>スコープは <strong>context（ノード） / flow（タブ） / global（全体）</strong> の3種類</li>
+                <li>読み書きは <strong>Changeノード（GUI）</strong>でも <strong>Functionノード（JavaScript）</strong>でも可能</li>
+                <li><strong>迷ったら flow</strong> を使う。global は本当に全タブで共有が必要な時だけ</li>
+                <li>Node-RED再起動で消える。永続化したい場合は別途設定が必要</li>
+            </ul>
+        </div>
+
+        <p style="margin-top: 20px;">Part 1（msg編）と合わせて、Node-REDの変数の全体像が掴めたはずです。実際のプロジェクトでこれらを組み合わせて、より複雑なアプリケーションに挑戦してみてください！</p>
+
+        <div class="nav-links">
+            <a href="nodered-variable-types-guide.html">← Part 1（msg編）に戻る</a>
+            <a href="nodered-function-node2-javascript-guide.html">Function JavaScript ガイド →</a>
+        </div>
+
+        <hr style="margin-top: 40px;">
+
+        <p style="text-align: center; color: #999; margin-top: 20px;">
+            <small>Node-RED Variable Types Guide Part 2: context系変数</small><br>
+            <small>💻 Happy Coding with Node-RED! 🚀</small>
+        </p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var codeBlocks = document.querySelectorAll('.flow-json');
+
+            codeBlocks.forEach(function(block) {
+                var originalText = block.textContent;
+
+                var button = document.createElement('button');
+                button.className = 'copy-button';
+                button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+
+                button.addEventListener('click', function() {
+                    navigator.clipboard.writeText(originalText.trim()).then(function() {
+                        button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>コピーしました!';
+                        button.classList.add('copied');
+                        setTimeout(function() {
+                            button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                            button.classList.remove('copied');
+                        }, 2000);
+                    }).catch(function(err) {
+                        console.error('コピーに失敗しました:', err);
+                        button.textContent = 'エラー';
+                        setTimeout(function() {
+                            button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                        }, 2000);
+                    });
+                });
+
+                block.appendChild(button);
+            });
+        });
+    </script>
+    <!-- フローティングホームボタン -->
+    <a href="index.html" style="position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px; background: linear-gradient(135deg, #42b883 0%, #35495e 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; transition: transform 0.3s, box-shadow 0.3s;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 6px 16px rgba(0,0,0,0.4)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.3)';" title="トップページへ">🏠</a>
+</body>
+</html>

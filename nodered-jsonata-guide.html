@@ -1,0 +1,1432 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED JSONata式ガイド</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        h1 {
+            color: #8f0000;
+            border-bottom: 3px solid #8f0000;
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            color: #c00000;
+            margin-top: 30px;
+            border-left: 5px solid #c00000;
+            padding-left: 15px;
+        }
+
+        h3 {
+            color: #555;
+            margin-top: 25px;
+        }
+
+        h4 {
+            color: #666;
+            margin-top: 20px;
+        }
+
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .code-block {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+        }
+
+        .dark-code {
+            background-color: #263238;
+            color: #aed581;
+            border: none;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+        }
+
+        .important {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .tip {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .warning {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background-color: #e2d96e;
+            color: #333;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        ul, ol {
+            padding-left: 25px;
+        }
+
+        li {
+            margin: 6px 0;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .feature-card {
+            background-color: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .feature-card h4 {
+            color: #555;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        .node-example {
+            background-color: #2d3133;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            color: white;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+        }
+
+        .node {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 4px;
+            margin: 5px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .node-inject {
+            background-color: #3fadb5;
+            color: white;
+        }
+
+        .node-change {
+            background-color: #e7a070;
+            color: white;
+        }
+
+        .node-debug {
+            background-color: #87a48d;
+            color: white;
+        }
+
+        .node-switch {
+            background-color: #e6e0b0;
+            color: #333;
+        }
+
+        .node-template {
+            background-color: #c0c0c0;
+            color: #333;
+        }
+
+        .arrow {
+            color: #999;
+            font-size: 20px;
+            margin: 0 10px;
+        }
+
+        .flow-json {
+            background-color: #263238;
+            color: #aed581;
+            padding: 15px;
+            padding-top: 40px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            position: relative;
+            white-space: pre;
+        }
+
+        .copy-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 6px 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: 'Segoe UI', sans-serif;
+            transition: background-color 0.2s;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .copy-button:hover {
+            background-color: #0056b3;
+        }
+
+        .copy-button.copied {
+            background-color: #28a745;
+        }
+
+        .copy-button svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+        }
+
+        details {
+            margin: 15px 0;
+        }
+
+        summary {
+            cursor: pointer;
+            padding: 10px;
+            background-color: #6c757d;
+            color: white;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        summary:hover {
+            background-color: #5a6268;
+        }
+
+        .example-io {
+            display: grid;
+            grid-template-columns: 1fr 40px 1fr;
+            gap: 10px;
+            margin: 10px 0;
+            align-items: center;
+        }
+
+        .example-io-box {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            padding: 10px 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+
+        .example-io-arrow {
+            text-align: center;
+            color: #666;
+            font-size: 20px;
+        }
+
+        .expr-box {
+            background-color: #fef5e0;
+            border: 2px solid #f5b041;
+            border-radius: 6px;
+            padding: 12px 15px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+
+        .expr-box::before {
+            content: "JSONata式";
+            display: inline-block;
+            background: #f5b041;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-family: 'Segoe UI', sans-serif;
+            margin-right: 10px;
+            margin-bottom: 6px;
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: space-between;
+            margin: 30px 0;
+            padding: 15px;
+            background: #eceff1;
+            border-radius: 8px;
+        }
+
+        .nav-links a {
+            color: #1976d2;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+
+        .toc {
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .toc h3 {
+            margin-top: 0;
+        }
+
+        .toc ol {
+            margin: 0;
+        }
+
+        .toc a {
+            color: #1976d2;
+            text-decoration: none;
+        }
+
+        .toc a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧮 Node-RED JSONata式ガイド</h1>
+
+        <p><strong>JSONata</strong> は、Node-REDで「値を動的に計算・加工」するために使う式言語です。Changeノードで式を書くときに出てくる「J:」アイコンで選択できます。このガイドでは、<strong>Changeノードを中心に</strong>、JSONataの基本から実践パターンまでを日本語で解説します。</p>
+
+        <div class="tip">
+            <strong>💡 前提知識：</strong> このガイドは <a href="nodered-change-node-guide.html">Changeノードガイド</a> と <a href="nodered-variable-types-guide.html">変数ガイド Part 1</a> の内容を把握している読者を想定しています。まだの方はそちらを先にご覧ください。
+        </div>
+
+        <div class="toc">
+            <h3>📑 目次</h3>
+            <ol>
+                <li><a href="#ch1">JSONataとは？ どこで使える？</a></li>
+                <li><a href="#ch2">最初のJSONata（Changeノードで試す）</a></li>
+                <li><a href="#ch3">文字列の操作</a></li>
+                <li><a href="#ch4">計算・数値操作</a></li>
+                <li><a href="#ch5">配列・オブジェクト操作</a></li>
+                <li><a href="#ch6">context変数の読み書き</a></li>
+                <li><a href="#ch7">日時・環境変数</a></li>
+                <li><a href="#ch8">Change以外のノードでの使い方</a></li>
+                <li><a href="#ch9">実践パターン集</a></li>
+                <li><a href="#ch10">チートシート</a></li>
+            </ol>
+        </div>
+
+        <h2 id="ch1">📖 1. JSONataとは？ どこで使える？</h2>
+
+        <h3>🤔 JSONataはなぜ必要か</h3>
+        <p>Changeノードの「値の代入」で、文字列や数値を<strong>固定値で入れるだけ</strong>なら JSONata は不要です。しかし実務では、「現在時刻を付ける」「payload を 2 倍する」「文字列を連結する」「前回値と比較する」など、<strong>動的に計算した値</strong>を入れたい場面が頻繁に出てきます。これを実現するのが JSONata 式です。</p>
+
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h4>❌ JSONataなし（固定値）</h4>
+                <div class="code-block">msg.payload = "Hello"
+msg.topic = "greeting"</div>
+                <p>同じ値しか出せない</p>
+            </div>
+            <div class="feature-card">
+                <h4>✅ JSONataあり（動的）</h4>
+                <div class="code-block">msg.payload = "Hello, " &amp; msg.user &amp; "!"
+msg.topic = "greeting-" &amp; $now()</div>
+                <p>入力や状況に応じて値を計算できる</p>
+            </div>
+        </div>
+
+        <h3>🎯 Node-REDでJSONataが使えるノード</h3>
+        <p>Changeノード以外にも「J:」アイコン（式セレクタ）が出る場所では同じ JSONata 文法が使えます。このガイドでは<strong>主にChangeノード</strong>を題材にしますが、文法は共通なので他ノードでも応用できます。</p>
+
+        <table>
+            <tr>
+                <th>ノード</th>
+                <th>JSONataが使える場所</th>
+                <th>用途</th>
+            </tr>
+            <tr>
+                <td><strong>Change</strong> ← 主役</td>
+                <td>値の代入の「値のタイプ」で選択</td>
+                <td>動的に値を計算して設定</td>
+            </tr>
+            <tr>
+                <td>Switch</td>
+                <td>条件の「値の型」で選択</td>
+                <td>式で条件判定（例: <code>payload &gt; 30</code>）</td>
+            </tr>
+            <tr>
+                <td>Template</td>
+                <td>テンプレートモードを「JSONata」に</td>
+                <td>テンプレート全体を式として評価</td>
+            </tr>
+            <tr>
+                <td>Debug</td>
+                <td>「対象」で式を選択</td>
+                <td>特定の計算結果だけをデバッグ表示</td>
+            </tr>
+            <tr>
+                <td>Inject</td>
+                <td>payloadの「値のタイプ」で選択</td>
+                <td>起動時に式で値を生成</td>
+            </tr>
+        </table>
+
+        <div class="important">
+            <strong>📌 このガイドの方針：</strong>
+            <ul>
+                <li>第2〜7章は<strong>Changeノード内で JSONata</strong> を使う前提で解説</li>
+                <li>第8章で<strong>他ノードでの使い方</strong>の違いを補足</li>
+                <li>第9章に<strong>実践パターン集</strong>（インポート可能なフロー付き）</li>
+                <li>第10章に<strong>チートシート</strong>（リファレンス用）</li>
+            </ul>
+        </div>
+
+        <h2 id="ch2">🚀 2. 最初のJSONata（Changeノードで試す）</h2>
+
+        <p>いきなり難しい関数から入らず、まずは「payload を参照する」「+1 する」「文字列を連結する」の3ステップで JSONata の雰囲気に慣れましょう。</p>
+
+        <h3>ステップ1: payload をそのまま取り出す</h3>
+        <p>Changeノードの「値の代入」で、値のタイプを <strong>J: 式</strong> にすると、式の中では <code>payload</code> と書くだけで <code>msg.payload</code> を参照できます（<code>msg.</code> は省略される）。</p>
+
+        <div class="example-io">
+            <div class="example-io-box">msg.payload = 25</div>
+            <div class="example-io-arrow">→</div>
+            <div class="example-io-box">JSONata式: <strong>payload</strong> → 25</div>
+        </div>
+
+        <h3>ステップ2: 計算する</h3>
+        <p>JavaScriptと同じ四則演算が使えます。</p>
+
+        <div class="expr-box">payload * 2</div>
+
+        <div class="example-io">
+            <div class="example-io-box">msg.payload = 25</div>
+            <div class="example-io-arrow">→</div>
+            <div class="example-io-box">式の結果: <strong>50</strong></div>
+        </div>
+
+        <h3>ステップ3: 文字列を連結する</h3>
+        <p>JavaScriptでは <code>+</code> を使いますが、<strong>JSONataでは <code>&amp;</code> を使います</strong>。ここが最初の落とし穴です。</p>
+
+        <div class="expr-box">"温度は " &amp; payload &amp; "℃ です"</div>
+
+        <div class="example-io">
+            <div class="example-io-box">msg.payload = 25</div>
+            <div class="example-io-arrow">→</div>
+            <div class="example-io-box">式の結果: <strong>"温度は 25℃ です"</strong></div>
+        </div>
+
+        <div class="warning">
+            <strong>⚠️ JavaScriptとの違い（最重要）：</strong>
+            <ul>
+                <li>文字列連結は <code>+</code> ではなく <code>&amp;</code></li>
+                <li>比較は <code>===</code> ではなく <code>=</code>（1文字）</li>
+                <li>不等価は <code>!==</code> ではなく <code>!=</code></li>
+                <li>論理演算子は <code>&amp;&amp;</code> / <code>||</code> ではなく <code>and</code> / <code>or</code></li>
+            </ul>
+        </div>
+
+        <details>
+            <summary>📋 事始めサンプルフロー（Changeノードで3パターン試す）</summary>
+            <div class="flow-json">[
+    {
+        "id": "tab_jsonata_intro",
+        "type": "tab",
+        "label": "JSONata事始め",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "intro_inject",
+        "type": "inject",
+        "z": "tab_jsonata_intro",
+        "name": "温度=25を送信",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "25",
+        "payloadType": "num",
+        "x": 130,
+        "y": 100,
+        "wires": [["intro_change1", "intro_change2", "intro_change3"]]
+    },
+    {
+        "id": "intro_change1",
+        "type": "change",
+        "z": "tab_jsonata_intro",
+        "name": "そのまま参照",
+        "rules": [
+            {"t": "set", "p": "payload", "pt": "msg", "to": "payload", "tot": "jsonata"}
+        ],
+        "x": 330,
+        "y": 60,
+        "wires": [["intro_debug"]]
+    },
+    {
+        "id": "intro_change2",
+        "type": "change",
+        "z": "tab_jsonata_intro",
+        "name": "2倍する",
+        "rules": [
+            {"t": "set", "p": "payload", "pt": "msg", "to": "payload * 2", "tot": "jsonata"}
+        ],
+        "x": 320,
+        "y": 120,
+        "wires": [["intro_debug"]]
+    },
+    {
+        "id": "intro_change3",
+        "type": "change",
+        "z": "tab_jsonata_intro",
+        "name": "文字列連結",
+        "rules": [
+            {"t": "set", "p": "payload", "pt": "msg", "to": "\"温度は \" & payload & \"℃ です\"", "tot": "jsonata"}
+        ],
+        "x": 330,
+        "y": 180,
+        "wires": [["intro_debug"]]
+    },
+    {
+        "id": "intro_debug",
+        "type": "debug",
+        "z": "tab_jsonata_intro",
+        "name": "結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 530,
+        "y": 120,
+        "wires": []
+    }
+]</div>
+        </details>
+
+        <h2 id="ch3">📝 3. 文字列の操作</h2>
+        <p>JSONataには文字列を操作する豊富な関数が用意されています。ここでは Changeノードでよく使うものを紹介します。</p>
+
+        <h3>🔗 文字列の連結</h3>
+        <table>
+            <tr>
+                <th>式</th>
+                <th>意味</th>
+                <th>結果（payload="Alice" の場合）</th>
+            </tr>
+            <tr>
+                <td><code>"Hello, " &amp; payload</code></td>
+                <td>前に固定文字列を連結</td>
+                <td>"Hello, Alice"</td>
+            </tr>
+            <tr>
+                <td><code>payload &amp; " さん"</code></td>
+                <td>後ろに固定文字列を連結</td>
+                <td>"Alice さん"</td>
+            </tr>
+            <tr>
+                <td><code>"[" &amp; topic &amp; "] " &amp; payload</code></td>
+                <td>複数プロパティを連結</td>
+                <td>"[greeting] Alice"（topicが"greeting"の場合）</td>
+            </tr>
+        </table>
+
+        <h3>🔤 よく使う文字列関数</h3>
+        <table>
+            <tr>
+                <th>関数</th>
+                <th>意味</th>
+                <th>例と結果</th>
+            </tr>
+            <tr>
+                <td><code>$length(str)</code></td>
+                <td>文字数を返す</td>
+                <td><code>$length("Hello")</code> → 5</td>
+            </tr>
+            <tr>
+                <td><code>$uppercase(str)</code></td>
+                <td>大文字化</td>
+                <td><code>$uppercase("abc")</code> → "ABC"</td>
+            </tr>
+            <tr>
+                <td><code>$lowercase(str)</code></td>
+                <td>小文字化</td>
+                <td><code>$lowercase("ABC")</code> → "abc"</td>
+            </tr>
+            <tr>
+                <td><code>$trim(str)</code></td>
+                <td>前後の空白を削除</td>
+                <td><code>$trim("  hi  ")</code> → "hi"</td>
+            </tr>
+            <tr>
+                <td><code>$substring(str, start, len)</code></td>
+                <td>部分文字列を取得</td>
+                <td><code>$substring("Hello", 0, 3)</code> → "Hel"</td>
+            </tr>
+            <tr>
+                <td><code>$substringBefore(str, sep)</code></td>
+                <td>区切り文字の前を取得</td>
+                <td><code>$substringBefore("a.b.c", ".")</code> → "a"</td>
+            </tr>
+            <tr>
+                <td><code>$substringAfter(str, sep)</code></td>
+                <td>区切り文字の後を取得</td>
+                <td><code>$substringAfter("a.b.c", ".")</code> → "b.c"</td>
+            </tr>
+            <tr>
+                <td><code>$split(str, sep)</code></td>
+                <td>区切って配列化</td>
+                <td><code>$split("a,b,c", ",")</code> → ["a","b","c"]</td>
+            </tr>
+            <tr>
+                <td><code>$join(arr, sep)</code></td>
+                <td>配列を文字列に結合</td>
+                <td><code>$join(["a","b"], "-")</code> → "a-b"</td>
+            </tr>
+            <tr>
+                <td><code>$replace(str, old, new)</code></td>
+                <td>置換</td>
+                <td><code>$replace("abc", "b", "X")</code> → "aXc"</td>
+            </tr>
+            <tr>
+                <td><code>$contains(str, sub)</code></td>
+                <td>含まれるか（真偽値）</td>
+                <td><code>$contains("Hello", "ell")</code> → true</td>
+            </tr>
+            <tr>
+                <td><code>$string(value)</code></td>
+                <td>数値などを文字列に変換</td>
+                <td><code>$string(25)</code> → "25"</td>
+            </tr>
+            <tr>
+                <td><code>$pad(str, width)</code></td>
+                <td>指定幅に空白でパディング</td>
+                <td><code>$pad("5", 3)</code> → "  5"</td>
+            </tr>
+        </table>
+
+        <div class="tip">
+            <strong>💡 よくある実例：</strong>
+            <div class="expr-box">$uppercase($substringBefore(payload, "@"))</div>
+            <p>メールアドレスのローカルパートを大文字化。<code>"alice@example.com"</code> → <code>"ALICE"</code></p>
+        </div>
+
+        <h2 id="ch4">🔢 4. 計算・数値操作</h2>
+
+        <h3>🧮 四則演算と基本演算子</h3>
+        <table>
+            <tr>
+                <th>演算子</th>
+                <th>意味</th>
+                <th>例</th>
+            </tr>
+            <tr>
+                <td><code>+</code> <code>-</code> <code>*</code> <code>/</code></td>
+                <td>四則演算</td>
+                <td><code>payload * 1.8 + 32</code>（摂氏→華氏）</td>
+            </tr>
+            <tr>
+                <td><code>%</code></td>
+                <td>剰余</td>
+                <td><code>payload % 10</code></td>
+            </tr>
+            <tr>
+                <td><code>=</code> <code>!=</code></td>
+                <td>等価・不等価（1文字）</td>
+                <td><code>payload = 100</code></td>
+            </tr>
+            <tr>
+                <td><code>&lt;</code> <code>&gt;</code> <code>&lt;=</code> <code>&gt;=</code></td>
+                <td>大小比較</td>
+                <td><code>payload &gt;= 30</code></td>
+            </tr>
+            <tr>
+                <td><code>and</code> <code>or</code></td>
+                <td>論理演算（&amp;&amp;/||ではない）</td>
+                <td><code>payload &gt; 0 and payload &lt; 100</code></td>
+            </tr>
+            <tr>
+                <td><code>? :</code></td>
+                <td>三項演算子（JavaScriptと同じ）</td>
+                <td><code>payload &gt; 30 ? "高温" : "正常"</code></td>
+            </tr>
+        </table>
+
+        <h3>📐 よく使う数値関数</h3>
+        <table>
+            <tr>
+                <th>関数</th>
+                <th>意味</th>
+                <th>例と結果</th>
+            </tr>
+            <tr>
+                <td><code>$number(value)</code></td>
+                <td>文字列→数値変換</td>
+                <td><code>$number("25")</code> → 25</td>
+            </tr>
+            <tr>
+                <td><code>$abs(n)</code></td>
+                <td>絶対値</td>
+                <td><code>$abs(-5)</code> → 5</td>
+            </tr>
+            <tr>
+                <td><code>$floor(n)</code></td>
+                <td>切り下げ</td>
+                <td><code>$floor(3.7)</code> → 3</td>
+            </tr>
+            <tr>
+                <td><code>$ceil(n)</code></td>
+                <td>切り上げ</td>
+                <td><code>$ceil(3.2)</code> → 4</td>
+            </tr>
+            <tr>
+                <td><code>$round(n, precision)</code></td>
+                <td>四捨五入（precision省略可）</td>
+                <td><code>$round(3.456, 1)</code> → 3.5</td>
+            </tr>
+            <tr>
+                <td><code>$power(base, exp)</code></td>
+                <td>累乗</td>
+                <td><code>$power(2, 10)</code> → 1024</td>
+            </tr>
+            <tr>
+                <td><code>$sqrt(n)</code></td>
+                <td>平方根</td>
+                <td><code>$sqrt(9)</code> → 3</td>
+            </tr>
+            <tr>
+                <td><code>$sum(arr)</code></td>
+                <td>配列の合計</td>
+                <td><code>$sum([1,2,3])</code> → 6</td>
+            </tr>
+            <tr>
+                <td><code>$average(arr)</code></td>
+                <td>配列の平均</td>
+                <td><code>$average([1,2,3])</code> → 2</td>
+            </tr>
+            <tr>
+                <td><code>$max(arr)</code> / <code>$min(arr)</code></td>
+                <td>最大値 / 最小値</td>
+                <td><code>$max([3,1,5,2])</code> → 5</td>
+            </tr>
+            <tr>
+                <td><code>$random()</code></td>
+                <td>0〜1の乱数</td>
+                <td><code>$random()</code> → 0.42...</td>
+            </tr>
+        </table>
+
+        <div class="tip">
+            <strong>💡 よくある実例（温度変換）：</strong>
+            <div class="expr-box">$round(payload * 1.8 + 32, 1)</div>
+            <p>摂氏→華氏に変換して小数1桁に丸める。<code>25</code> → <code>77</code>、<code>20.5</code> → <code>68.9</code></p>
+        </div>
+
+        <h2 id="ch5">📦 5. 配列・オブジェクト操作</h2>
+
+        <h3>配列の基本</h3>
+        <table>
+            <tr>
+                <th>式</th>
+                <th>意味</th>
+                <th>例（payload=[10,20,30]の場合）</th>
+            </tr>
+            <tr>
+                <td><code>payload[0]</code></td>
+                <td>最初の要素</td>
+                <td>10</td>
+            </tr>
+            <tr>
+                <td><code>payload[-1]</code></td>
+                <td>最後の要素（便利！）</td>
+                <td>30</td>
+            </tr>
+            <tr>
+                <td><code>$count(payload)</code></td>
+                <td>要素数</td>
+                <td>3</td>
+            </tr>
+            <tr>
+                <td><code>$reverse(payload)</code></td>
+                <td>逆順</td>
+                <td>[30, 20, 10]</td>
+            </tr>
+            <tr>
+                <td><code>$sort(payload)</code></td>
+                <td>昇順ソート</td>
+                <td>[10, 20, 30]</td>
+            </tr>
+            <tr>
+                <td><code>$append(payload, [40])</code></td>
+                <td>要素を追加した新配列</td>
+                <td>[10, 20, 30, 40]</td>
+            </tr>
+        </table>
+
+        <h3>配列の加工（map / filter）</h3>
+        <p>JavaScriptの <code>.map()</code> や <code>.filter()</code> に似た処理が書けます。</p>
+
+        <div class="code-block">// 例: payload = [{"name":"A", "temp":25}, {"name":"B", "temp":32}, {"name":"C", "temp":18}]
+
+payload.name
+→ ["A", "B", "C"]  // 各要素のnameを取り出す（ドット記法で暗黙のmap）
+
+payload[temp > 20]
+→ [{"name":"A", "temp":25}, {"name":"B", "temp":32}]  // 条件でフィルタ
+
+$sum(payload.temp) / $count(payload)
+→ 25  // 温度の平均</div>
+
+        <h3>オブジェクトの構築</h3>
+        <p>JSONata式内で直接オブジェクトを組み立てられます。これがJSONataの強力さの核心です。</p>
+
+        <div class="expr-box">{"name": payload, "timestamp": $now(), "unit": "℃"}</div>
+
+        <div class="example-io">
+            <div class="example-io-box">msg.payload = 25</div>
+            <div class="example-io-arrow">→</div>
+            <div class="example-io-box">{"name": 25, "timestamp": "2026-04-19T...", "unit": "℃"}</div>
+        </div>
+
+        <div class="tip">
+            <strong>💡 センサーデータを整形する典型例：</strong>
+            <div class="code-block">// 入力 msg.payload = {"raw_temp": 2530, "raw_humid": 650}
+// 100で割って実数に戻す
+
+{
+  "temperature": payload.raw_temp / 100,
+  "humidity": payload.raw_humid / 10,
+  "time": $now()
+}</div>
+        </div>
+
+        <h2 id="ch6">🗃️ 6. context変数の読み書き</h2>
+        <p>Changeノード内の JSONata 式から、flow変数や global変数を読み取ることができます。書き込みは Change ノードの「対象」側で <code>flow</code>/<code>global</code> を選びます。</p>
+
+        <h3>読み取り: $flowContext / $globalContext</h3>
+
+        <table>
+            <tr>
+                <th>関数</th>
+                <th>用途</th>
+                <th>例</th>
+            </tr>
+            <tr>
+                <td><code>$flowContext("キー")</code></td>
+                <td>flow変数の値を取得</td>
+                <td><code>$flowContext("counter")</code></td>
+            </tr>
+            <tr>
+                <td><code>$globalContext("キー")</code></td>
+                <td>global変数の値を取得</td>
+                <td><code>$globalContext("apiKey")</code></td>
+            </tr>
+        </table>
+
+        <h3>書き込み: ChangeノードのUI操作</h3>
+        <p>式ではなく、<strong>Changeノードの「値の代入」ルールで「対象」側を flow または global</strong> にします。</p>
+
+        <div class="code-block">ルール: 値の代入
+対象: flow.counter     ← ここが「flow」タイプ
+値のタイプ: JSONata式
+値: $flowContext("counter") + 1
+  （解説: 現在値を取って+1し、flow.counterに書き戻す）</div>
+
+        <h3>典型パターン: カウンター</h3>
+        <p>JSONataでは<strong>「式」と「書き込み先」は別</strong>なので、カウンターを作るには「flow変数を読んで +1 した結果を、同じ flow変数に書き戻す」という形になります。</p>
+
+        <div class="code-block">Changeノード（2ルール）:
+
+ルール1: flow.count を JSONata式 に設定
+  式: ($flowContext("count") ? $flowContext("count") : 0) + 1
+      （初回は undefined なので 0 として扱う）
+
+ルール2: msg.payload を JSONata式 に設定
+  式: $flowContext("count")
+      （ルール1の結果を読んで出力）</div>
+
+        <div class="important">
+            <strong>📌 なぜ三項演算子（<code>? :</code>）を使うのか：</strong>
+            <p>初回実行時は <code>$flowContext("count")</code> が <code>undefined</code> になり、<code>undefined + 1</code> はエラーになります。そのため <code>値が存在するかチェック</code> → <code>無ければ0として扱う</code> という防御が必要です。</p>
+        </div>
+
+        <div class="tip">
+            <strong>💡 context変数の詳細は：</strong> <a href="nodered-variable-types-2-guide.html">変数ガイド Part 2（context系変数）</a> に完全なフロー例・演習問題があります。
+        </div>
+
+        <h2 id="ch7">📅 7. 日時・環境変数</h2>
+
+        <h3>日時関数</h3>
+        <table>
+            <tr>
+                <th>関数</th>
+                <th>意味</th>
+                <th>結果の例</th>
+            </tr>
+            <tr>
+                <td><code>$now()</code></td>
+                <td>現在時刻のISO文字列</td>
+                <td>"2026-04-19T10:30:00.000Z"</td>
+            </tr>
+            <tr>
+                <td><code>$millis()</code></td>
+                <td>現在時刻のUnixミリ秒</td>
+                <td>1744632600000</td>
+            </tr>
+            <tr>
+                <td><code>$fromMillis(ms)</code></td>
+                <td>ミリ秒→ISO文字列</td>
+                <td><code>$fromMillis(1744632600000)</code> → "2026-04-19T..."</td>
+            </tr>
+            <tr>
+                <td><code>$toMillis(iso)</code></td>
+                <td>ISO文字列→ミリ秒</td>
+                <td><code>$toMillis("2026-04-19")</code> → 1744...</td>
+            </tr>
+        </table>
+
+        <div class="tip">
+            <strong>💡 タイムスタンプ付与の典型例：</strong>
+            <div class="expr-box">{"data": payload, "received_at": $now()}</div>
+            <p>センサー値に受信時刻を付けて構造化。ログ用途でよく使う。</p>
+        </div>
+
+        <h3>環境変数</h3>
+        <p>JSONata式内から <code>$env("NAME")</code> で環境変数を読めます（Changeノードの「値のタイプ」で <code>env</code> を選ぶ方法もあるが、式内で組み合わせるならこちら）。</p>
+
+        <table>
+            <tr>
+                <th>関数</th>
+                <th>意味</th>
+                <th>例</th>
+            </tr>
+            <tr>
+                <td><code>$env("NAME")</code></td>
+                <td>環境変数の値を取得</td>
+                <td><code>$env("API_KEY")</code> → "xxx"</td>
+            </tr>
+        </table>
+
+        <div class="code-block">// 例: APIキーを付けたリクエストペイロードを作る
+{
+  "key": $env("API_KEY"),
+  "query": payload
+}</div>
+
+        <h3>型チェック・存在チェック</h3>
+        <table>
+            <tr>
+                <th>関数</th>
+                <th>意味</th>
+                <th>例</th>
+            </tr>
+            <tr>
+                <td><code>$exists(value)</code></td>
+                <td>undefined/null でないか</td>
+                <td><code>$exists(payload.user)</code> → true/false</td>
+            </tr>
+            <tr>
+                <td><code>$type(value)</code></td>
+                <td>型名を返す</td>
+                <td><code>$type(payload)</code> → "number" 等</td>
+            </tr>
+            <tr>
+                <td><code>$boolean(value)</code></td>
+                <td>真偽値に変換</td>
+                <td><code>$boolean("true")</code> → true</td>
+            </tr>
+        </table>
+
+        <h2 id="ch8">🔀 8. Change以外のノードでの使い方</h2>
+        <p>JSONataの文法はどのノードでも共通ですが、<strong>「式の結果がどう使われるか」</strong>がノードによって異なります。ここでは代表的な3つを紹介します。</p>
+
+        <h3>🎛️ Switchノード: 式で条件判定</h3>
+        <p>Switchノードの条件欄で「値の型」を <strong>JSONata式</strong> にすると、式の結果（真偽値）で分岐できます。</p>
+
+        <div class="node-example">
+            <span class="node node-inject">Inject<br>payload</span>
+            <span class="arrow">→</span>
+            <span class="node node-switch">Switch<br>payload &gt; 30</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+
+        <div class="code-block">Switchノード条件:
+  条件1: JSONata式 → payload &gt; 30   （高温ルート）
+  条件2: JSONata式 → payload &lt;= 30  （正常ルート）</div>
+
+        <h3>📝 Templateノード: 式の結果を埋め込む</h3>
+        <p>Templateノードのテンプレート内で <code>{{expression}}</code> を使うと、JSONata式の結果が埋め込まれます（Mustache構文＋JSONata）。</p>
+
+        <div class="code-block">// Templateノードのテンプレート
+{{payload.user}} さん、温度は {{payload.temp}}℃ です。
+記録時刻: {{$now()}}
+
+// 出力例
+Alice さん、温度は 25℃ です。
+記録時刻: 2026-04-19T10:30:00.000Z</div>
+
+        <h3>🐛 Debugノード: 特定の計算結果だけ出す</h3>
+        <p>Debugノードの「対象」を <strong>JSONata式</strong> にすると、msgの一部を計算した結果だけをサイドバーに表示できます。</p>
+
+        <div class="code-block">Debugノード対象: JSONata式
+  式: $count(payload)
+  → msg.payload が配列の時、要素数だけを表示</div>
+
+        <div class="tip">
+            <strong>💡 共通のルール：</strong>
+            <ul>
+                <li>JSONata式内で <code>payload</code> / <code>topic</code> と書くと、<strong>暗黙で msg.プロパティ</strong> を指す</li>
+                <li>関数名は常に <code>$関数名()</code> の形（<code>$</code> 前置）</li>
+                <li>文字列は <strong>ダブルクォート</strong>推奨（シングルも使えるが混乱回避のため）</li>
+            </ul>
+        </div>
+
+        <h2 id="ch9">🛠️ 9. 実践パターン集（インポート可能）</h2>
+
+        <div class="tip">
+            <strong>📥 サンプルフローの使い方：</strong>
+            <ol>
+                <li>コピーボタンでクリップボードへ</li>
+                <li>Node-REDエディターのメニュー → 読み込み → クリップボード → 貼り付け</li>
+                <li>「新しいフローとして」を選んで読み込み → デプロイ</li>
+            </ol>
+        </div>
+
+        <h3>パターン1: 温度を華氏に変換してラベル付き文字列にする</h3>
+        <div class="node-example">
+            <span class="node node-inject">温度=25（℃）</span>
+            <span class="arrow">→</span>
+            <span class="node node-change">JSONata変換</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">結果</span>
+        </div>
+
+        <p><strong>Changeノードの式：</strong></p>
+        <div class="expr-box">"摂氏" &amp; payload &amp; "℃ = 華氏" &amp; $round(payload * 1.8 + 32, 1) &amp; "℉"</div>
+
+        <details>
+            <summary>📋 サンプルフロー</summary>
+            <div class="flow-json">[
+    {
+        "id": "tab_p1",
+        "type": "tab",
+        "label": "P1 温度変換",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "p1_inject",
+        "type": "inject",
+        "z": "tab_p1",
+        "name": "温度=25",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "25",
+        "payloadType": "num",
+        "x": 120,
+        "y": 100,
+        "wires": [["p1_change"]]
+    },
+    {
+        "id": "p1_change",
+        "type": "change",
+        "z": "tab_p1",
+        "name": "華氏変換",
+        "rules": [
+            {"t": "set", "p": "payload", "pt": "msg", "to": "\"摂氏\" & payload & \"℃ = 華氏\" & $round(payload * 1.8 + 32, 1) & \"℉\"", "tot": "jsonata"}
+        ],
+        "x": 300,
+        "y": 100,
+        "wires": [["p1_debug"]]
+    },
+    {
+        "id": "p1_debug",
+        "type": "debug",
+        "z": "tab_p1",
+        "name": "結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 470,
+        "y": 100,
+        "wires": []
+    }
+]</div>
+        </details>
+
+        <h3>パターン2: センサー配列から平均・最大・最小を一度に算出</h3>
+        <div class="node-example">
+            <span class="node node-inject">配列送信</span>
+            <span class="arrow">→</span>
+            <span class="node node-change">統計集約</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">結果</span>
+        </div>
+
+        <p><strong>Changeノードの式：</strong></p>
+        <div class="code-block">{
+  "count": $count(payload),
+  "average": $round($average(payload), 2),
+  "max": $max(payload),
+  "min": $min(payload),
+  "sum": $sum(payload)
+}</div>
+
+        <details>
+            <summary>📋 サンプルフロー</summary>
+            <div class="flow-json">[
+    {
+        "id": "tab_p2",
+        "type": "tab",
+        "label": "P2 統計集約",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "p2_inject",
+        "type": "inject",
+        "z": "tab_p2",
+        "name": "配列",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[25.3, 26.1, 24.8, 27.5, 25.0, 28.2, 23.9]",
+        "payloadType": "json",
+        "x": 120,
+        "y": 100,
+        "wires": [["p2_change"]]
+    },
+    {
+        "id": "p2_change",
+        "type": "change",
+        "z": "tab_p2",
+        "name": "統計集約",
+        "rules": [
+            {"t": "set", "p": "payload", "pt": "msg", "to": "{\"count\": $count(payload), \"average\": $round($average(payload), 2), \"max\": $max(payload), \"min\": $min(payload), \"sum\": $sum(payload)}", "tot": "jsonata"}
+        ],
+        "x": 300,
+        "y": 100,
+        "wires": [["p2_debug"]]
+    },
+    {
+        "id": "p2_debug",
+        "type": "debug",
+        "z": "tab_p2",
+        "name": "結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 470,
+        "y": 100,
+        "wires": []
+    }
+]</div>
+        </details>
+
+        <h3>パターン3: オブジェクト配列から条件にマッチするものだけ抽出</h3>
+        <p><strong>入力：</strong> <code>[{"name":"A","temp":25},{"name":"B","temp":32},{"name":"C","temp":18}]</code></p>
+        <p><strong>式（温度30℃以上のものだけ）：</strong></p>
+        <div class="expr-box">payload[temp &gt;= 30]</div>
+
+        <p><strong>結果：</strong> <code>[{"name":"B","temp":32}]</code></p>
+
+        <div class="tip">
+            <strong>💡 さらに応用：</strong> <code>payload[temp &gt;= 30].name</code> と書けば「条件を満たす要素の name のみの配列」（<code>["B"]</code>）が得られます。
+        </div>
+
+        <h3>パターン4: 日時を人間が読める形式に整形</h3>
+        <p>JSONataの <code>$fromMillis()</code> に format引数を指定すると日時を好きな書式にできます。</p>
+
+        <div class="code-block">$fromMillis($millis(), "[Y]-[M01]-[D01] [H01]:[m01]:[s01]")
+→ "2026-04-19 10:30:45"</div>
+
+        <div class="tip">
+            <strong>💡 書式記号（よく使うもの）：</strong>
+            <ul>
+                <li><code>[Y]</code> 年 / <code>[M01]</code> 月（2桁） / <code>[D01]</code> 日（2桁）</li>
+                <li><code>[H01]</code> 時 / <code>[m01]</code> 分 / <code>[s01]</code> 秒</li>
+                <li><code>[F]</code> 曜日（Monday）/ <code>[FNn,*-3]</code> 曜日3文字（Mon）</li>
+            </ul>
+        </div>
+
+        <h2 id="ch10">📋 10. チートシート</h2>
+
+        <h3>最重要（JavaScriptとの違い）</h3>
+        <table>
+            <tr>
+                <th>やりたいこと</th>
+                <th>JavaScript</th>
+                <th>JSONata</th>
+            </tr>
+            <tr>
+                <td>文字列連結</td>
+                <td><code>+</code></td>
+                <td><strong><code>&amp;</code></strong></td>
+            </tr>
+            <tr>
+                <td>等価比較</td>
+                <td><code>===</code></td>
+                <td><strong><code>=</code></strong></td>
+            </tr>
+            <tr>
+                <td>不等価</td>
+                <td><code>!==</code></td>
+                <td><code>!=</code></td>
+            </tr>
+            <tr>
+                <td>論理AND / OR</td>
+                <td><code>&amp;&amp;</code> / <code>||</code></td>
+                <td><strong><code>and</code></strong> / <strong><code>or</code></strong></td>
+            </tr>
+            <tr>
+                <td>最後の配列要素</td>
+                <td><code>arr[arr.length-1]</code></td>
+                <td><strong><code>arr[-1]</code></strong></td>
+            </tr>
+            <tr>
+                <td>msgプロパティ参照</td>
+                <td><code>msg.payload</code></td>
+                <td><strong><code>payload</code></strong>（msg省略）</td>
+            </tr>
+        </table>
+
+        <h3>関数カテゴリ別まとめ</h3>
+        <table>
+            <tr>
+                <th>カテゴリ</th>
+                <th>よく使う関数</th>
+            </tr>
+            <tr>
+                <td>文字列</td>
+                <td><code>$length</code> <code>$uppercase</code> <code>$lowercase</code> <code>$trim</code> <code>$substring</code> <code>$substringBefore</code> <code>$substringAfter</code> <code>$split</code> <code>$join</code> <code>$replace</code> <code>$contains</code> <code>$string</code></td>
+            </tr>
+            <tr>
+                <td>数値</td>
+                <td><code>$number</code> <code>$abs</code> <code>$floor</code> <code>$ceil</code> <code>$round</code> <code>$power</code> <code>$sqrt</code> <code>$random</code></td>
+            </tr>
+            <tr>
+                <td>配列集約</td>
+                <td><code>$count</code> <code>$sum</code> <code>$average</code> <code>$max</code> <code>$min</code> <code>$sort</code> <code>$reverse</code> <code>$append</code></td>
+            </tr>
+            <tr>
+                <td>オブジェクト</td>
+                <td><code>$keys</code> <code>$lookup</code> <code>$merge</code> <code>$spread</code></td>
+            </tr>
+            <tr>
+                <td>型・存在</td>
+                <td><code>$exists</code> <code>$type</code> <code>$boolean</code> <code>$not</code></td>
+            </tr>
+            <tr>
+                <td>日時</td>
+                <td><code>$now</code> <code>$millis</code> <code>$fromMillis</code> <code>$toMillis</code></td>
+            </tr>
+            <tr>
+                <td>Node-RED専用</td>
+                <td><code>$flowContext</code> <code>$globalContext</code> <code>$env</code></td>
+            </tr>
+        </table>
+
+        <h3>よく使う式テンプレート</h3>
+
+        <table>
+            <tr>
+                <th>やりたいこと</th>
+                <th>式</th>
+            </tr>
+            <tr>
+                <td>payloadを2倍する</td>
+                <td><code>payload * 2</code></td>
+            </tr>
+            <tr>
+                <td>payloadの前後に文字列を付ける</td>
+                <td><code>"[" &amp; topic &amp; "] " &amp; payload</code></td>
+            </tr>
+            <tr>
+                <td>payloadが閾値超過か判定</td>
+                <td><code>payload &gt; 30</code></td>
+            </tr>
+            <tr>
+                <td>三項演算で値を選ぶ</td>
+                <td><code>payload &gt; 30 ? "高" : "低"</code></td>
+            </tr>
+            <tr>
+                <td>flow変数を読み取り +1</td>
+                <td><code>($flowContext("count") ? $flowContext("count") : 0) + 1</code></td>
+            </tr>
+            <tr>
+                <td>現在時刻付きオブジェクト</td>
+                <td><code>{"data": payload, "time": $now()}</code></td>
+            </tr>
+            <tr>
+                <td>配列の平均</td>
+                <td><code>$round($average(payload), 2)</code></td>
+            </tr>
+            <tr>
+                <td>オブジェクト配列をフィルタ</td>
+                <td><code>payload[status = "active"]</code></td>
+            </tr>
+            <tr>
+                <td>オブジェクト配列から特定プロパティのみ</td>
+                <td><code>payload.name</code></td>
+            </tr>
+            <tr>
+                <td>環境変数を使う</td>
+                <td><code>$env("API_KEY")</code></td>
+            </tr>
+        </table>
+
+        <h2>🎓 まとめ</h2>
+
+        <div class="important">
+            <strong>📌 JSONataの要点：</strong>
+            <ul>
+                <li>JSONataは<strong>値を動的に計算・加工</strong>するための式言語</li>
+                <li><strong>Changeノード内が主役</strong>だが、Switch/Template/Debug/Injectでも共通の文法で使える</li>
+                <li>JavaScriptとは<strong>演算子が一部違う</strong>（<code>&amp;</code>、<code>=</code>、<code>and</code>/<code>or</code>、<code>[-1]</code>）</li>
+                <li><strong><code>payload</code> と書くだけで <code>msg.payload</code></strong> を指す（暗黙の省略）</li>
+                <li>context変数は <strong><code>$flowContext()</code> / <code>$globalContext()</code></strong> で読み取る</li>
+                <li>オブジェクト <code>{...}</code> や配列 <code>[...]</code> を<strong>式の中で直接構築</strong>できるのが強力</li>
+            </ul>
+        </div>
+
+        <div class="tip">
+            <strong>🔗 関連ガイド：</strong>
+            <ul>
+                <li><a href="nodered-change-node-guide.html">Changeノードガイド</a>（ノード操作の基本）</li>
+                <li><a href="nodered-variable-types-guide.html">変数ガイド Part 1</a>（msgオブジェクト）</li>
+                <li><a href="nodered-variable-types-2-guide.html">変数ガイド Part 2</a>（context系変数とJSONataの応用）</li>
+                <li><a href="nodered-switch-node-guide.html">Switchノードガイド</a>（条件分岐でのJSONata活用）</li>
+                <li><a href="nodered-template-node-guide.html">Templateノードガイド</a>（テンプレート内のJSONata）</li>
+            </ul>
+        </div>
+
+        <div class="nav-links">
+            <a href="nodered-change-node-guide.html">← Changeノードガイドへ</a>
+            <a href="nodered-variable-types-2-guide.html">変数ガイド Part 2 へ →</a>
+        </div>
+
+        <hr style="margin-top: 40px;">
+
+        <p style="text-align: center; color: #999; margin-top: 20px;">
+            <small>Node-RED JSONata式ガイド</small><br>
+            <small>💻 Happy Coding with Node-RED! 🚀</small>
+        </p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var codeBlocks = document.querySelectorAll('.flow-json');
+            codeBlocks.forEach(function(block) {
+                var originalText = block.textContent;
+                var button = document.createElement('button');
+                button.className = 'copy-button';
+                button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                button.addEventListener('click', function() {
+                    navigator.clipboard.writeText(originalText.trim()).then(function() {
+                        button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>コピーしました!';
+                        button.classList.add('copied');
+                        setTimeout(function() {
+                            button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                            button.classList.remove('copied');
+                        }, 2000);
+                    }).catch(function(err) {
+                        console.error('コピーに失敗しました:', err);
+                    });
+                });
+                block.appendChild(button);
+            });
+        });
+    </script>
+    <a href="index.html" style="position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px; background: linear-gradient(135deg, #42b883 0%, #35495e 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; transition: transform 0.3s, box-shadow 0.3s;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 6px 16px rgba(0,0,0,0.4)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.3)';" title="トップページへ">🏠</a>
+</body>
+</html>
