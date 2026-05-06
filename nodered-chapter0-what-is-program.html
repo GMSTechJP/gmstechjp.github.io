@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED 第0章① そもそもプログラムとは？</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        h1 {
+            color: #8f0000;
+            border-bottom: 3px solid #8f0000;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #c00000;
+            margin-top: 30px;
+            border-left: 5px solid #c00000;
+            padding-left: 15px;
+        }
+        h3 {
+            color: #555;
+            margin-top: 25px;
+        }
+        h4 {
+            color: #666;
+            margin-top: 20px;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .page-nav {
+            background: #eef5ff;
+            border: 2px solid #4a90e2;
+            border-radius: 8px;
+            padding: 18px 24px;
+            margin-bottom: 25px;
+        }
+        .page-nav p {
+            margin: 6px 0;
+        }
+        .page-nav .label {
+            display: inline-block;
+            min-width: 110px;
+            font-weight: bold;
+            color: #2c5282;
+        }
+        .important {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .tip {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .warning {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .excel-callout {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-left: 5px solid #4caf50;
+            padding: 18px 22px;
+            margin: 20px 0;
+            border-radius: 6px;
+        }
+        .excel-callout h4 {
+            color: #2e7d32;
+            margin: 0 0 8px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #e2d96e;
+            color: #333;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        ul, ol {
+            padding-left: 25px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        .analogy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 18px;
+            margin: 20px 0;
+        }
+        .analogy-card {
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid;
+        }
+        .analogy-card h4 {
+            margin-top: 0;
+            color: #333;
+        }
+        .analogy-card.recipe {
+            background: #fff3e0;
+            border-color: #ff9800;
+        }
+        .analogy-card.vending {
+            background: #e3f2fd;
+            border-color: #2196f3;
+        }
+        .analogy-card.macro {
+            background: #e8f5e9;
+            border-color: #4caf50;
+        }
+        .three-abilities {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+        .ability-card {
+            background: white;
+            border: 2px solid;
+            border-radius: 10px;
+            padding: 22px;
+            text-align: center;
+        }
+        .ability-card.memory {
+            border-color: #9c27b0;
+        }
+        .ability-card.compute {
+            border-color: #f57c00;
+        }
+        .ability-card.io {
+            border-color: #1976d2;
+        }
+        .ability-icon {
+            font-size: 2.8em;
+            margin-bottom: 8px;
+        }
+        .ability-card h4 {
+            margin: 0 0 10px 0;
+            font-size: 1.2em;
+        }
+        .ability-card.memory h4 { color: #9c27b0; }
+        .ability-card.compute h4 { color: #f57c00; }
+        .ability-card.io h4 { color: #1976d2; }
+        .flow-diagram {
+            background: #f8f9fa;
+            border: 2px dashed #888;
+            border-radius: 10px;
+            padding: 30px 20px;
+            margin: 25px 0;
+            text-align: center;
+            font-size: 1.1em;
+        }
+        .flow-diagram .step {
+            display: inline-block;
+            padding: 14px 22px;
+            background: white;
+            border: 2px solid #4a90e2;
+            border-radius: 8px;
+            margin: 0 6px;
+            font-weight: bold;
+            color: #2c5282;
+            min-width: 110px;
+        }
+        .flow-diagram .arrow {
+            color: #888;
+            font-size: 1.6em;
+            margin: 0 4px;
+            vertical-align: middle;
+        }
+        .three-flows {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+        .flow-card {
+            background: white;
+            border: 2px solid;
+            border-radius: 10px;
+            padding: 22px;
+        }
+        .flow-card h4 {
+            margin-top: 0;
+            padding: 6px 12px;
+            border-radius: 5px;
+            color: white;
+            display: inline-block;
+        }
+        .flow-card.sequential {
+            border-color: #2196f3;
+        }
+        .flow-card.sequential h4 {
+            background: #2196f3;
+        }
+        .flow-card.branch {
+            border-color: #ff9800;
+        }
+        .flow-card.branch h4 {
+            background: #ff9800;
+        }
+        .flow-card.loop {
+            border-color: #9c27b0;
+        }
+        .flow-card.loop h4 {
+            background: #9c27b0;
+        }
+        .glossary {
+            background: #fafafa;
+            border: 2px solid #aaa;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+        .glossary h3 {
+            margin-top: 0;
+            color: #444;
+        }
+        .glossary dl {
+            margin: 0;
+        }
+        .glossary dt {
+            font-weight: bold;
+            color: #c00000;
+            margin-top: 14px;
+            font-size: 1.05em;
+        }
+        .glossary dt:first-child {
+            margin-top: 0;
+        }
+        .glossary dd {
+            margin: 4px 0 10px 20px;
+            color: #333;
+        }
+        .next-box {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-left: 5px solid #1976d2;
+            padding: 20px 25px;
+            margin: 30px 0 10px;
+            border-radius: 6px;
+        }
+        .next-box h3 {
+            margin-top: 0;
+            color: #0d47a1;
+        }
+        .next-box a {
+            color: #1565c0;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        .next-box a:hover {
+            text-decoration: underline;
+        }
+        code {
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌱 第0章① そもそもプログラムとは？</h1>
+
+        <div class="page-nav">
+            <p><span class="label">📖 このページの前提</span>特にありません。Node-RED に触れたことがなくても大丈夫です。Excel で関数やマクロを触ったことがあれば十分理解できます。</p>
+            <p><span class="label">🎯 得られるもの</span>「プログラム」とは何かを、Excel の経験と対比しながら直感的に理解できます。Node-RED が扱う「データの流れ」の考え方の土台ができます。</p>
+            <p><span class="label">➡️ 次に読むページ</span><a href="nodered-chapter0-event-driven.html">② イベント駆動とは？</a></p>
+        </div>
+
+        <h2>1. なぜ「プログラムとは？」から始めるのか</h2>
+        <p>Node-RED はビジュアルで分かりやすい反面、実は多くの初心者が「ノードの使い方は分かるのに、なぜ思い通りに動かないのか」でつまずきます。その多くは、ノードそのものではなく、<strong>プログラム全般に共通する考え方</strong>が土台にないことが原因です。</p>
+        <p>このページでは、あえて Node-RED の話をほとんどせず、Excel の経験だけを頼りに「プログラムとは何をするものか」を整理します。ここを押さえると、以降のページが一気に見通しよくなります。</p>
+
+        <h2>2. プログラムとは「コンピュータに渡すレシピ」</h2>
+        <p>プログラムを一言で言えば、<strong>コンピュータに「こうやって動いてね」と渡す手順書</strong>です。料理のレシピと同じで、材料（データ）を用意し、手順（処理）を書き、できあがり（結果）を得る、という構造をしています。</p>
+
+        <div class="analogy-grid">
+            <div class="analogy-card recipe">
+                <h4>🍳 料理のレシピ</h4>
+                <p>材料を準備 → 手順に沿って調理 → 完成品<br>
+                <strong>材料の順番を変えたり、手順を飛ばすと結果が変わる</strong></p>
+            </div>
+            <div class="analogy-card vending">
+                <h4>🥤 自動販売機</h4>
+                <p>お金を入れる → ボタンを押す → 商品とお釣りが出る<br>
+                <strong>お金が足りなければ何も起きない、という「条件」もルール</strong></p>
+            </div>
+            <div class="analogy-card macro">
+                <h4>📊 Excel のマクロ</h4>
+                <p>データ範囲を選ぶ → マクロを実行 → 集計結果が表示<br>
+                <strong>書いたステップを順番に、正確に実行するだけ</strong></p>
+            </div>
+        </div>
+
+        <div class="important">
+            <strong>💡 コンピュータの性質</strong><br>
+            コンピュータは<strong>速く・正確に・疲れずに</strong>動きますが、<strong>融通は利きません</strong>。曖昧な指示や「だいたいこんな感じ」は通じず、書いた通りにしか動きません。プログラミングとは、この「融通の利かない相手」に正確な手順を渡す作業です。
+        </div>
+
+        <h2>3. コンピュータは 3 つのことしかできない</h2>
+        <p>どんなに複雑に見えるプログラムも、本質的には次の 3 つの組み合わせでできています。この 3 つを覚えておけば、Node-RED でも Python でも JavaScript でも、本質は同じだと分かります。</p>
+
+        <div class="three-abilities">
+            <div class="ability-card memory">
+                <div class="ability-icon">📦</div>
+                <h4>① 記憶する</h4>
+                <p>値を覚えておく。<br>（例: 温度センサーの値を「25」として保持する）</p>
+            </div>
+            <div class="ability-card compute">
+                <div class="ability-icon">🧮</div>
+                <h4>② 計算・判断する</h4>
+                <p>足し算・引き算、大小比較、条件判定。<br>（例: 25 が 30 より大きいか？）</p>
+            </div>
+            <div class="ability-card io">
+                <div class="ability-icon">🔌</div>
+                <h4>③ 入出力する</h4>
+                <p>外の世界から受け取り、外の世界に返す。<br>（例: センサーから読む、画面に出す、メールを送る）</p>
+            </div>
+        </div>
+
+        <div class="excel-callout">
+            <h4>📊 Excel で言うと</h4>
+            <ul>
+                <li><strong>記憶する</strong> = セルに値を入れる</li>
+                <li><strong>計算・判断する</strong> = 関数（<code>=SUM(A1:A10)</code>、<code>=IF(A1&gt;30, "警告", "正常")</code>）</li>
+                <li><strong>入出力する</strong> = データ取り込み（CSV インポート等）、グラフや表で見せる</li>
+            </ul>
+            Node-RED も結局この 3 つをやっているだけです。見た目が違うだけで、本質は Excel と同じです。
+        </div>
+
+        <h2>4. すべてのプログラムは「入力 → 処理 → 出力」</h2>
+        <p>もう一段シンプルにすると、プログラムは必ず次の 3 段階で動きます。</p>
+
+        <div class="flow-diagram">
+            <span class="step">📥 入力<br><small>何かを受け取る</small></span>
+            <span class="arrow">➜</span>
+            <span class="step">⚙️ 処理<br><small>計算・判定する</small></span>
+            <span class="arrow">➜</span>
+            <span class="step">📤 出力<br><small>結果を出す</small></span>
+        </div>
+
+        <p>この 3 段階が、プログラムの一番大きな骨格です。Excel の関数も、BMI 計算も、Node-RED のフローも、みんなこの型に収まります。</p>
+
+        <h3>具体例: BMI 計算</h3>
+        <table>
+            <tr>
+                <th>段階</th>
+                <th>Excel の場合</th>
+                <th>Node-RED の場合</th>
+            </tr>
+            <tr>
+                <td><strong>入力</strong></td>
+                <td>A1 セルに身長(m)、B1 セルに体重(kg) を入力</td>
+                <td>Inject ノードで身長と体重の値を送信</td>
+            </tr>
+            <tr>
+                <td><strong>処理</strong></td>
+                <td>C1 セルに <code>=B1/(A1*A1)</code> と書く</td>
+                <td>Change ノードで BMI を計算する式を書く</td>
+            </tr>
+            <tr>
+                <td><strong>出力</strong></td>
+                <td>C1 の値を見る、グラフ化する</td>
+                <td>Debug ノードで表示、ダッシュボードに出す</td>
+            </tr>
+        </table>
+
+        <div class="tip">
+            <strong>🔍 ここでの学び</strong><br>
+            Node-RED の 1 本のフローは、「入力ノード → 処理ノード → 出力ノード」を<strong>線（ワイヤー）で繋いだ形</strong>になります。これは Excel の「入力セル → 計算式 → 結果セル」と同じ発想です。
+        </div>
+
+        <h2>5. Excel と Node-RED の対応表</h2>
+        <p>以降のページでも何度も使う「共通辞書」です。分からなくなったらここに戻ってきてください。</p>
+
+        <table>
+            <tr>
+                <th>Excel の世界</th>
+                <th>Node-RED の世界</th>
+                <th>一言メモ</th>
+            </tr>
+            <tr>
+                <td>セルの値</td>
+                <td><code>msg.payload</code></td>
+                <td>1 つの「入れ物」と「中身」</td>
+            </tr>
+            <tr>
+                <td>関数（<code>SUM</code>、<code>IF</code>）</td>
+                <td>Change / Switch / Function ノード</td>
+                <td>計算する・判定する・加工する</td>
+            </tr>
+            <tr>
+                <td>マクロ全体</td>
+                <td>1 つのフロー（タブ）</td>
+                <td>自動化のひとかたまり</td>
+            </tr>
+            <tr>
+                <td>シート内での参照</td>
+                <td>flow 変数（flow context）</td>
+                <td>同じタブ内でデータを共有</td>
+            </tr>
+            <tr>
+                <td>ブック全体で共有</td>
+                <td>global 変数（global context）</td>
+                <td>全タブで共有</td>
+            </tr>
+            <tr>
+                <td><code>Worksheet_Change</code> などのイベント</td>
+                <td>Inject / MQTT In / HTTP In など</td>
+                <td>「何かが起きたら動く」</td>
+            </tr>
+            <tr>
+                <td>グラフ</td>
+                <td>Dashboard 2.0 の ui-chart / ui-gauge</td>
+                <td>データを目で見える形に</td>
+            </tr>
+            <tr>
+                <td>フィルタ</td>
+                <td>Switch / Filter (RBE)</td>
+                <td>条件で選別する</td>
+            </tr>
+        </table>
+
+        <h2>6. プログラムを貫く 3 つの流れ</h2>
+        <p>「コンピュータは 3 つのことしかできない」と同じくらい大事な原則が、<strong>処理の進み方にも 3 種類しかない</strong>ということです。</p>
+
+        <div class="three-flows">
+            <div class="flow-card sequential">
+                <h4>① 順次実行</h4>
+                <p>上から下へ、前から後ろへ、書いた順番通りに実行する基本動作です。</p>
+                <p><strong>Excel の例:</strong> マクロの記述を 1 行目から順に実行する。</p>
+                <p><strong>日常の例:</strong> お米を研ぐ → 水を入れる → 炊飯ボタンを押す。順番を逆にすると意味が通らない。</p>
+            </div>
+            <div class="flow-card branch">
+                <h4>② 条件分岐</h4>
+                <p>「もし〜ならA、そうでなければB」のように、状況で道を分ける動作です。</p>
+                <p><strong>Excel の例:</strong> <code>=IF(A1&gt;30, "警告", "正常")</code></p>
+                <p><strong>日常の例:</strong> 雨なら傘を持つ、晴れなら帽子をかぶる。</p>
+            </div>
+            <div class="flow-card loop">
+                <h4>③ 繰り返し</h4>
+                <p>同じ処理を何回も繰り返す動作です。</p>
+                <p><strong>Excel の例:</strong> 1000 行の表を全行チェックしていくマクロ。</p>
+                <p><strong>日常の例:</strong> 洗濯物を 1 枚ずつ畳む（最後の 1 枚になるまで繰り返す）。</p>
+            </div>
+        </div>
+
+        <div class="important">
+            <strong>🎯 覚えておくポイント</strong><br>
+            どんな言語・どんなツールのプログラムも、<strong>順次・分岐・繰り返し</strong>の 3 つの組み合わせで書かれています。複雑に見えるコードも、この 3 種類の入れ子に過ぎません。
+        </div>
+
+        <h2>7. Node-RED ではこう表現する</h2>
+        <p>3 つの流れを Node-RED で表すと次のようになります。見た目は違っても、やっていることは他の言語と同じです。</p>
+
+        <table>
+            <tr>
+                <th>流れの種類</th>
+                <th>Excel・一般言語</th>
+                <th>Node-RED</th>
+            </tr>
+            <tr>
+                <td>順次実行</td>
+                <td>上から書いた順に実行</td>
+                <td>ノードをワイヤーで繋いだ順に msg が流れる</td>
+            </tr>
+            <tr>
+                <td>条件分岐</td>
+                <td><code>IF</code> 関数、<code>if</code> 文</td>
+                <td>Switch ノード（条件で出力ポートを選ぶ）</td>
+            </tr>
+            <tr>
+                <td>繰り返し</td>
+                <td>ループ処理</td>
+                <td>Split ノードで配列を分解、Inject ノードの「繰り返し」機能、Trigger ノード など</td>
+            </tr>
+        </table>
+
+        <div class="warning">
+            <strong>⚠️ 重要な違い</strong><br>
+            Node-RED は「上から順に実行」だけではありません。ボタンが押されたときや、定期タイマーが発火したときなど、<strong>何かのきっかけで動き始める</strong>仕組みが特徴です。これを「イベント駆動」と呼びますが、詳しくは次のページ <a href="nodered-chapter0-event-driven.html">②イベント駆動とは？</a>で解説します。まずは「上から順」だけではないことを覚えておいてください。
+        </div>
+
+        <h2>8. データには「型」がある（予告）</h2>
+        <p>プログラムが扱うデータには種類（型）があります。Excel で言う「数値」「文字列」「日付」の区別と同じです。</p>
+        <ul>
+            <li>数値（<code>1</code>、<code>25.4</code>）</li>
+            <li>文字列（<code>"こんにちは"</code>、<code>"温度: 25度"</code>）</li>
+            <li>真偽値（<code>true</code> / <code>false</code>）</li>
+            <li>配列（複数の値のリスト）</li>
+            <li>オブジェクト（複数の情報をまとめたもの）</li>
+        </ul>
+        <p>型が違うと計算結果も変わります。たとえば文字列の <code>"1"</code> と数値の <code>1</code> は別物で、計算するとおかしな結果になることがあります。これは④のデバッグで繰り返し出てくる話題です。</p>
+
+        <div class="tip">
+            <strong>📚 詳しくは</strong><br>
+            データ型と msg オブジェクトの詳細は <a href="nodered-variable-types-guide.html">変数ガイド Part 1：msgオブジェクト</a>で解説しています。第0章を一通り読み終わったあとで取り組むと、スムーズに理解できます。
+        </div>
+
+        <h2 id="glossary">9. 第0章 用語辞典</h2>
+        <p>第0章全体で使う用語を一覧にまとめました。他のページで「この言葉何だっけ？」となったら、ここに戻ってきてください。</p>
+
+        <div class="glossary">
+            <h3>📖 用語一覧</h3>
+            <dl>
+                <dt>ノード</dt>
+                <dd>Node-RED のエディター上で四角い箱として表示される、ひとつひとつの機能の単位。<br>
+                例: 入力を担当する「Inject ノード」、値を加工する「Change ノード」、結果を表示する「Debug ノード」など。</dd>
+
+                <dt>タブ</dt>
+                <dd>Node-RED エディターの上部に並ぶ、作業エリアの区切り。1 つのタブ ＝ 1 つのまとまった仕事、と考えると分かりやすい。</dd>
+
+                <dt>フロー</dt>
+                <dd>1 つのタブ内にある、ノードとワイヤーで作られた処理の流れ全体。Excel で言えば「1 つのマクロ」にあたる。</dd>
+
+                <dt>ワイヤー</dt>
+                <dd>ノードとノードを繋ぐ線。ワイヤーを通じてデータが流れる。</dd>
+
+                <dt>メッセージ（msg）</dt>
+                <dd>ワイヤーを流れる 1 つ 1 つのデータの塊。郵便物や宅配便の「箱」のようなイメージ。中に複数の情報を入れて運ぶ。</dd>
+
+                <dt>ペイロード（msg.payload）</dt>
+                <dd>メッセージの中に入っている「主な中身」。温度センサーの値、送信する文字列、計算結果など。<br>
+                Excel で言えば「セルの値」に最も近い概念。</dd>
+
+                <dt>トピック（msg.topic）</dt>
+                <dd>メッセージに付けるラベル。どこから来たメッセージか、何についてのメッセージかを示す目印。</dd>
+
+                <dt>トリガー</dt>
+                <dd>フローを動かし始める「きっかけ」となるイベント。ボタン押下、一定時刻の到来、メッセージ受信など。</dd>
+
+                <dt>デプロイ</dt>
+                <dd>エディター右上にある赤いボタンで、編集したフローを実際に動く状態に反映する操作。<strong>「保存」とは違い、これを押さないと変更が反映されない。</strong></dd>
+
+                <dt>デバッグサイドバー</dt>
+                <dd>エディター右側に表示される、Debug ノードからの出力が一覧表示される領域。動作確認に必須の場所。</dd>
+
+                <dt>Dashboard（ダッシュボード）</dt>
+                <dd>ブラウザで見える可視化画面。グラフ、ゲージ、ボタンなどを配置してユーザーと対話できる。正式名称は <strong>Dashboard 2.0</strong>。</dd>
+
+                <dt>コンテキスト（context）</dt>
+                <dd>メッセージが流れ終わった後も、値を覚えておける記憶領域。Excel で言う「シート全体で参照できる値」に近い。詳細は <a href="nodered-variable-types-2-guide.html">変数ガイド Part 2</a>。</dd>
+
+                <dt>ブローカー（MQTT ブローカー）</dt>
+                <dd>MQTT 通信の中継サーバー。送信側と受信側の間に立って、メッセージを振り分ける役目。詳細は⑤IoT全体像と <a href="nodered-mqtt-node-guide.html">MQTT ノードガイド</a>。</dd>
+            </dl>
+        </div>
+
+        <h2>10. まとめと次のページ</h2>
+        <p>このページで押さえたかったことは次の 4 つです。</p>
+        <ol>
+            <li>プログラムは <strong>コンピュータに渡すレシピ</strong>。書いた通りにしか動かない。</li>
+            <li>コンピュータは <strong>記憶・計算/判断・入出力</strong> の 3 つを組み合わせているだけ。</li>
+            <li>どんなプログラムも骨格は <strong>入力 → 処理 → 出力</strong>。</li>
+            <li>処理の進み方には <strong>順次・分岐・繰り返し</strong> の 3 種類しかない。</li>
+        </ol>
+        <p>この土台ができると、Node-RED の画面に並ぶ様々なノードも「結局どれかの流れを表しているだけだ」と見えてきます。</p>
+
+        <div class="next-box">
+            <h3>➡️ 次に読むページ</h3>
+            <p><a href="nodered-chapter0-event-driven.html">② イベント駆動とは？</a></p>
+            <p>Node-RED 最大の特徴は「上から順に動くわけではない」という点です。何かが起きたら動く仕組み（イベント駆動）を次のページで解説します。ここが理解できると、Node-RED のフローが「なぜ勝手に動くのか」が腑に落ちます。</p>
+        </div>
+    </div>
+
+    <!-- フローティングホームボタン -->
+    <a href="index.html" style="position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px; background: linear-gradient(135deg, #42b883 0%, #35495e 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; transition: transform 0.3s, box-shadow 0.3s;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 6px 16px rgba(0,0,0,0.4)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.3)';" title="トップページへ">🏠</a>
+</body>
+</html>

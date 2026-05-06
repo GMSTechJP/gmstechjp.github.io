@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED 第0章④ 動かないときの進め方</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        h1 {
+            color: #8f0000;
+            border-bottom: 3px solid #8f0000;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #c00000;
+            margin-top: 30px;
+            border-left: 5px solid #c00000;
+            padding-left: 15px;
+        }
+        h3 {
+            color: #555;
+            margin-top: 25px;
+        }
+        h4 {
+            color: #666;
+            margin-top: 20px;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .page-nav {
+            background: #eef5ff;
+            border: 2px solid #4a90e2;
+            border-radius: 8px;
+            padding: 18px 24px;
+            margin-bottom: 25px;
+        }
+        .page-nav p {
+            margin: 6px 0;
+        }
+        .page-nav .label {
+            display: inline-block;
+            min-width: 110px;
+            font-weight: bold;
+            color: #2c5282;
+        }
+        .important {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .tip {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .warning {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .calm-box {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-left: 5px solid #1976d2;
+            padding: 22px;
+            margin: 25px 0;
+            border-radius: 8px;
+        }
+        .calm-box h3 {
+            margin-top: 0;
+            color: #0d47a1;
+        }
+        .trouble-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .trouble-card {
+            background: white;
+            border-radius: 10px;
+            padding: 18px;
+            border: 2px solid;
+        }
+        .trouble-card.a { border-color: #e57373; background: #ffebee; }
+        .trouble-card.b { border-color: #ffb300; background: #fff8e1; }
+        .trouble-card.c { border-color: #ba68c8; background: #f3e5f5; }
+        .trouble-card.d { border-color: #4db6ac; background: #e0f2f1; }
+        .trouble-card h4 {
+            margin: 0 0 8px 0;
+            font-size: 1.1em;
+        }
+        .trouble-card.a h4 { color: #c62828; }
+        .trouble-card.b h4 { color: #e65100; }
+        .trouble-card.c h4 { color: #6a1b9a; }
+        .trouble-card.d h4 { color: #00695c; }
+        .trouble-card .example {
+            font-size: 0.9em;
+            color: #555;
+            margin-top: 6px;
+        }
+        .section-anchor {
+            background: #f9fbe7;
+            border: 2px solid #afb42b;
+            border-radius: 10px;
+            padding: 20px 24px;
+            margin: 30px 0;
+        }
+        .section-anchor h3 {
+            color: #827717;
+            margin-top: 0;
+            font-size: 1.2em;
+        }
+        .checklist {
+            background: #f8f9fa;
+            border-left: 4px solid #4caf50;
+            padding: 18px 24px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        .checklist ol {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .checklist li {
+            margin: 10px 0;
+        }
+        .flow-diagram {
+            background: #f8f9fa;
+            border: 2px dashed #888;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+            font-size: 1em;
+        }
+        .flow-diagram .step {
+            display: inline-block;
+            padding: 8px 14px;
+            background: white;
+            border: 2px solid #4a90e2;
+            border-radius: 6px;
+            margin: 4px;
+            font-weight: bold;
+            color: #2c5282;
+        }
+        .flow-diagram .arrow {
+            color: #888;
+            font-size: 1.3em;
+            margin: 0 2px;
+        }
+        .flow-diagram .probe {
+            display: inline-block;
+            padding: 6px 12px;
+            background: #fff3e0;
+            border: 2px dashed #ff9800;
+            border-radius: 6px;
+            margin: 4px;
+            color: #e65100;
+            font-size: 0.9em;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #e2d96e;
+            color: #333;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        ul, ol {
+            padding-left: 25px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        .error-sample {
+            background: #263238;
+            color: #ef9a9a;
+            padding: 14px 18px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            margin: 12px 0;
+            white-space: pre-wrap;
+        }
+        .myth-list {
+            counter-reset: myth;
+            padding-left: 0;
+        }
+        .myth-list > li {
+            list-style: none;
+            counter-increment: myth;
+            background: #fafafa;
+            border-left: 4px solid #9e9e9e;
+            padding: 14px 20px;
+            margin: 10px 0;
+            border-radius: 0 6px 6px 0;
+        }
+        .myth-list > li::before {
+            content: "勘違い #" counter(myth);
+            display: block;
+            font-weight: bold;
+            color: #616161;
+            font-size: 0.85em;
+            margin-bottom: 4px;
+        }
+        .myth-list .correct {
+            display: block;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px dashed #ccc;
+            color: #2e7d32;
+        }
+        .next-box {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-left: 5px solid #1976d2;
+            padding: 20px 25px;
+            margin: 30px 0 10px;
+            border-radius: 6px;
+        }
+        .next-box h3 {
+            margin-top: 0;
+            color: #0d47a1;
+        }
+        .next-box a {
+            color: #1565c0;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        .next-box a:hover {
+            text-decoration: underline;
+        }
+        code {
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+        .emoji-big {
+            font-size: 1.3em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌱 第0章④ 動かないときの進め方</h1>
+
+        <div class="page-nav">
+            <p><span class="label">📖 このページの前提</span><a href="nodered-chapter0-hands-on.html">③最初の10分ハンズオン</a>を一度やってみた方を想定しています。まだの方は先にハンズオンを走らせてから読むと、例えの意味が腹落ちします。</p>
+            <p><span class="label">🎯 得られるもの</span>フローが動かない、期待と違う値になる、エラーが出る――そんなときに「どこから手をつければいいか」が分かります。プログラミング全般に使える思考パターンです。</p>
+            <p><span class="label">📘 用語を忘れたら</span><a href="nodered-chapter0-what-is-program.html#glossary">①の用語辞典</a>に戻れます。</p>
+            <p><span class="label">➡️ 次に読むページ</span><a href="nodered-chapter0-iot-overview.html">⑤ IoT全体像</a></p>
+        </div>
+
+        <h2>1. 「動かない」は誰でも毎日経験する</h2>
+        <p>ベテランのプログラマーでも、書いたコードが一発で動くことは稀です。むしろ<strong>「動かない時間の方が、動く時間より長い」</strong>のが普通です。初心者が「自分には才能がない」と感じてしまう最大の原因は、この事実を知らないまま画面と向き合っていることにあります。</p>
+        <p>プログラミングで身につけるべき本当のスキルは「最初から完璧に動くものを書く能力」ではなく、<strong>「動かないときに原因を切り分けて、一歩ずつ正解に近づける能力」</strong>です。このページで、その進め方を一通り体験してもらいます。</p>
+
+        <div class="tip">
+            <strong>💡 デバッグという言葉</strong><br>
+            「バグ（bug）」は不具合、「デバッグ（debug）」は不具合を取り除く作業のことです。コンピュータの中から虫（bug）を取り出す、という語源からきています。Node-RED の右サイドバーにある虫アイコン（🐛）もこれが由来です。
+        </div>
+
+        <h2>2. まず冷静にやる 3 つのこと</h2>
+        <p>画面を前にパニックになる前に、まず次の 3 つを必ずやってください。この 3 つで解決する問題が、体感で<strong>6〜7 割</strong>あります。</p>
+
+        <div class="calm-box">
+            <h3>🧘 最初の 3 秒でやる「3 点確認」</h3>
+            <ol>
+                <li><strong>デプロイボタンを押したか？</strong> 編集しただけでは反映されません。右上の赤いボタンがグレーになっていれば最新の内容が反映済みです。赤いままなら未デプロイ。</li>
+                <li><strong>ワイヤーは繋がっているか？</strong> 線が引けているつもりで、実は途中で離していることがあります。ノードの端子から端子まで本当に繋がっているか目視確認。</li>
+                <li><strong>デバッグサイドバーは開いているか？</strong> 右上の虫アイコンをクリック。開いていないと Debug ノードの出力は見えません。</li>
+            </ol>
+        </div>
+
+        <p>この 3 点で解決しなかった場合は、いよいよ本格的な切り分けに入ります。</p>
+
+        <h2>3. トラブルを 4 種類に分類する</h2>
+        <p>「動かない」と一言で言っても、実は中身は次の 4 種類に分かれます。どの種類かを最初に見極めると、打つ手が絞られます。</p>
+
+        <div class="trouble-grid">
+            <div class="trouble-card a">
+                <h4>(a) 全く動かない</h4>
+                <p>Inject ボタンを押しても、デバッグサイドバーに何も出ない。ノードのステータスランプも反応しない。</p>
+                <p class="example">例: 配線ミス、未デプロイ、ノード無効化</p>
+            </div>
+            <div class="trouble-card b">
+                <h4>(b) 期待と違う値</h4>
+                <p>動いてはいる。デバッグサイドバーに何か出ている。ただし値が思っていたのと違う。</p>
+                <p class="example">例: Change の設定ミス、型の取り違え</p>
+            </div>
+            <div class="trouble-card c">
+                <h4>(c) エラーが出る</h4>
+                <p>赤いエラーメッセージがデバッグサイドバーや画面右下のトーストに出る。</p>
+                <p class="example">例: 文字列を数値として計算、型エラー</p>
+            </div>
+            <div class="trouble-card d">
+                <h4>(d) 不定期に動かない</h4>
+                <p>動くこともあれば動かないこともある。朝は動いたのに夕方は動かない等。</p>
+                <p class="example">例: タイミング、外部サービスの障害</p>
+            </div>
+        </div>
+
+        <p>以降、(a) 〜 (d) それぞれの進め方を解説します。自分の状況に当てはまるところから読んでください。</p>
+
+        <div class="section-anchor">
+            <h3>🔴 (a) 全く動かない時</h3>
+            <p>まずは「そもそもトリガーが発火しているか」を疑います。ゴール側から原因を探すのではなく、入口側から「電気が流れてきているか」を見るイメージです。</p>
+        </div>
+
+        <h3>チェックリスト：発火側から順番に確認</h3>
+        <div class="checklist">
+            <ol>
+                <li><strong>デプロイボタンを押したか？</strong>（前述。もっとも多い原因）</li>
+                <li><strong>Inject ノードが「無効」になっていないか？</strong> ノードをダブルクリックして「有効」になっているかを確認。フロー全体が無効化されていることもある（タブ右上のトグル）。</li>
+                <li><strong>ノードに赤い三角や赤い枠線が付いていないか？</strong> 設定不備のサイン。ダブルクリックして必須項目が埋まっているか見る。</li>
+                <li><strong>ワイヤーが途中で切れていないか？</strong> 拡大して端子にしっかり接続されているか確認。</li>
+                <li><strong>Debug ノードが「メッセージを送る先」は「デバッグサイドバー」になっているか？</strong> 「コンソール」や「ノードステータス」だけだとサイドバーには出ない。</li>
+                <li><strong>サイドバーの「フィルタ」が特定ノードに絞られていないか？</strong> デバッグサイドバー上部のドロップダウンが「選択したノード」になっていると他のノードの出力が見えない。</li>
+            </ol>
+        </div>
+
+        <div class="tip">
+            <strong>💡 デバッグの金科玉条「ワイヤーの途中に Debug を挿す」</strong><br>
+            動いているかどうか分からないとき、ワイヤーの途中に Debug ノードを分岐で繋いで「この地点まで msg は来ているか」を確認します。これを何箇所かに挿すだけで、どこから先が動いていないかが一気に見えてきます。捨てる前提で気軽に挿しましょう。
+        </div>
+
+        <div class="section-anchor">
+            <h3>🟠 (b) 期待と違う値が出る時（分割統治）</h3>
+            <p>動いてはいるが値がおかしいとき、ベテランが必ず使うのが<strong>「分割統治（ぶんかつとうち）」</strong>という考え方です。原因の可能性がある範囲を半分に絞り、また半分に絞る、を繰り返します。</p>
+        </div>
+
+        <h3>やり方：Debug を 2〜3 箇所に挿して「どこで値がおかしくなったか」を特定する</h3>
+        <p>例えば Inject → Change → Change → Debug というフローで最終的な値が想定と違うとき、以下のようにします。</p>
+
+        <div class="flow-diagram">
+            <span class="step">Inject</span>
+            <span class="arrow">→</span>
+            <span class="probe">🐛 Debug A</span>
+            <span class="arrow">→</span>
+            <span class="step">Change 1</span>
+            <span class="arrow">→</span>
+            <span class="probe">🐛 Debug B</span>
+            <span class="arrow">→</span>
+            <span class="step">Change 2</span>
+            <span class="arrow">→</span>
+            <span class="probe">🐛 Debug C</span>
+        </div>
+
+        <ul>
+            <li><strong>Debug A の値が既におかしい</strong> → 原因は Inject 側の設定</li>
+            <li><strong>A は正しいが B でおかしい</strong> → 原因は Change 1 の設定</li>
+            <li><strong>A と B は正しいが C でおかしい</strong> → 原因は Change 2 の設定</li>
+        </ul>
+
+        <p>このように挟み撃ちしていくと、<strong>「どのノードが犯人か」を機械的に特定</strong>できます。頭で考え込むより、まず Debug を挿して事実を見る方が早いです。</p>
+
+        <div class="tip">
+            <strong>💡 型の取り違えは初心者あるある</strong><br>
+            Inject の payload 種別が「文字列」のまま <code>25</code> と入れると、これは<strong>文字の "25"</strong> であって<strong>数値の 25 ではありません</strong>。「数値として扱っているつもりが、実は文字列だった」という勘違いは非常に多い落とし穴です。Debug サイドバーでは、文字列は <span style="color:#c62828;font-weight:bold;">"25"</span> のように色とクオートで区別して表示されます。
+        </div>
+
+        <div class="section-anchor">
+            <h3>🟣 (c) エラーが出る時</h3>
+            <p>赤いエラーメッセージが出ているときは、その<strong>エラー文面こそが最大のヒント</strong>です。英語でも怖がらず、1 行目と最後の行だけでも読んでみてください。</p>
+        </div>
+
+        <h3>エラー文面の読み方</h3>
+        <p>例えばこんなメッセージが出たとします。</p>
+        <div class="error-sample">TypeError: Cannot read properties of undefined (reading 'temperature')</div>
+        <p>パッと見難しそうですが、分解すると意味は取れます。</p>
+
+        <table>
+            <tr>
+                <th>英単語</th>
+                <th>意味</th>
+                <th>読み解き</th>
+            </tr>
+            <tr>
+                <td><code>TypeError</code></td>
+                <td>型エラー</td>
+                <td>データの種類（型）が想定と違う</td>
+            </tr>
+            <tr>
+                <td><code>Cannot read properties of undefined</code></td>
+                <td>undefined のプロパティは読めない</td>
+                <td>空っぽ（存在しないもの）から中身を取り出そうとした</td>
+            </tr>
+            <tr>
+                <td><code>(reading 'temperature')</code></td>
+                <td>'temperature' を読もうとした</td>
+                <td>具体的に <code>temperature</code> というキーを取ろうとして失敗した</td>
+            </tr>
+        </table>
+
+        <p>つまりこのエラーは「<strong>空っぽのものから <code>temperature</code> というプロパティを取ろうとして失敗した</strong>」と言っています。原因はたいてい、<strong>上流ノードからオブジェクトが来ていない</strong>のにプロパティを取ろうとしているケースです。Debug で上流の値を見ると、本当に空かどうかが確認できます。</p>
+
+        <div class="tip">
+            <strong>💡 エラー文面はそのままコピーして検索</strong><br>
+            メッセージを丸ごとコピーして Google 検索すると、同じエラーで困っている人の記事がほぼ必ず出てきます。エラー文面は、あなただけがつまずいている問題ではありません。他の人の解決策が使えることがほとんどです。
+        </div>
+
+        <h3>よく出るエラーの早見表</h3>
+        <table>
+            <tr>
+                <th>エラー文（キーワード）</th>
+                <th>原因の方向性</th>
+            </tr>
+            <tr>
+                <td><code>undefined</code></td>
+                <td>存在しないプロパティを触った。上流の msg の形を確認。</td>
+            </tr>
+            <tr>
+                <td><code>TypeError</code></td>
+                <td>文字列を数値として計算、配列でないものに <code>.length</code> 等、型の不一致。</td>
+            </tr>
+            <tr>
+                <td><code>ECONNREFUSED</code></td>
+                <td>外部サーバーに接続拒否された。URL、ポート番号、サーバー稼働状態を確認。</td>
+            </tr>
+            <tr>
+                <td><code>ENOTFOUND</code></td>
+                <td>ホスト名が見つからない。URL のスペル、ネットワーク（WiFi）を確認。</td>
+            </tr>
+            <tr>
+                <td><code>Timeout</code></td>
+                <td>応答がなかった。外部サービスの遅延、ネットワーク不安定。</td>
+            </tr>
+            <tr>
+                <td><code>EACCES / Permission denied</code></td>
+                <td>ファイル／ポートへのアクセス権がない。権限設定を確認。</td>
+            </tr>
+        </table>
+
+        <div class="section-anchor">
+            <h3>🟢 (d) 不定期に動かない時</h3>
+            <p>最も厄介なのが「動くときと動かないときがある」パターンです。原因が実行タイミングや外部サービスに依存しているため、机上で考えても答えは出ません。</p>
+        </div>
+
+        <h3>不定期トラブルの切り分け方</h3>
+        <div class="checklist">
+            <ol>
+                <li><strong>まず事実を集める</strong>: 「いつ動かなかったか」「その時の msg の中身」を記録する。Debug サイドバーは過去のログが残るので、そのままメモ代わりにできる。</li>
+                <li><strong>時刻との関連を疑う</strong>: 夜動かない＝ネットワーク変動、朝動く＝起動直後だけ OK など、時間帯パターンを見る。</li>
+                <li><strong>外部サービスを疑う</strong>: HTTP 通信、MQTT ブローカー、API 連携が絡んでいれば、サービス側の障害情報を確認。</li>
+                <li><strong>順序依存を疑う</strong>: 複数のノードが同時に動く場合、実行順が毎回同じとは限らない。順序が重要なら Delay や明示的な連結で整える。</li>
+                <li><strong>再起動で直るかを確認</strong>: Node-RED 自体、あるいは Raspberry Pi を再起動して再発するかを見る。再起動で直るなら、起動時の初期化問題が疑われる。</li>
+            </ol>
+        </div>
+
+        <div class="warning">
+            <strong>⚠️ 「たぶん直った」で終わらせない</strong><br>
+            不定期トラブルは、触っているうちにたまたま再現しなくなって「直ったっぽい」となることがよくあります。が、根本原因が分からないまま放置すると、後で本番環境で再発します。<strong>なぜ直ったかが説明できるまで追う</strong>のが理想です（ただし時間との相談で、再発時に改めて追うのもあり）。
+        </div>
+
+        <h2>4. よくある勘違い 10 選</h2>
+        <p>初心者が最初の数週間で必ずと言っていいほど踏む落とし穴をまとめました。心当たりがあれば、その場で修正できます。</p>
+
+        <ol class="myth-list">
+            <li>
+                「編集したら自動で反映される」と思っている。
+                <span class="correct">✅ 正しい理解: <strong>デプロイボタンを押さないと反映されません。</strong>画面上の変更と、実際に動いているフローは別物だと覚える。</span>
+            </li>
+            <li>
+                Inject に「文字列 25」を入れて計算しようとしている。
+                <span class="correct">✅ 正しい理解: <code>"25"</code> は文字、<code>25</code> は数値。計算に使うなら payload 種別を<strong>「数値」</strong>に切り替える。</span>
+            </li>
+            <li>
+                msg.payload と msg.topic を同じものだと思っている。
+                <span class="correct">✅ 正しい理解: payload は「本文（データ）」、topic は「タイトル・識別子」。住所でいうと payload が中身、topic が宛名ラベル。</span>
+            </li>
+            <li>
+                「Debug が何も出ない＝動いてない」と決めつけている。
+                <span class="correct">✅ 正しい理解: Debug の設定が「完全なメッセージ」ではなく、ピンポイントで空のプロパティを指しているだけかもしれない。設定は <code>msg.payload</code> か「完全なメッセージ」に。</span>
+            </li>
+            <li>
+                Change ノードで「置き換え」と「追加」を混同している。
+                <span class="correct">✅ 正しい理解: 「値の代入」は既存の値を上書き、「削除」はプロパティそのものを消す。やりたいことに合っているかを動作から確認する。</span>
+            </li>
+            <li>
+                「このノード赤いから壊れてる」と慌てる。
+                <span class="correct">✅ 正しい理解: 赤は<strong>「設定不備」か「エラー状態」</strong>のサイン。壊れているのではなく、あと一歩の設定が足りていないだけ。</span>
+            </li>
+            <li>
+                ダッシュボードが真っ白で「動いてない」と判断する。
+                <span class="correct">✅ 正しい理解: 一度 <code>/dashboard</code> を開いてから、元の値が送られていればウィジェットに出る。ページを開く前に Inject を押していると、ウィジェットには何も残らないことがある。</span>
+            </li>
+            <li>
+                エラーメッセージを読まずに「なんかエラー出た」で終わる。
+                <span class="correct">✅ 正しい理解: エラー文面は最大のヒント。最低でも 1 行目と最後の行を読み、分からない単語はそのままコピーして検索する。</span>
+            </li>
+            <li>
+                ノードを消したらワイヤーが勝手に残って「バグった」と思う。
+                <span class="correct">✅ 正しい理解: Node-RED は宙ぶらりんのワイヤーも含めて保存するが、警告表示はされる。不要なワイヤーはクリックで選択して Delete キー。</span>
+            </li>
+            <li>
+                「自分のやり方が悪いに違いない」と自分を責める。
+                <span class="correct">✅ 正しい理解: 動かないのはバグの性質上、普通のこと。淡々と (a)〜(d) の切り分けに戻り、事実を一つずつ確認する。<strong>感情ではなく事実で判断する</strong>。</span>
+            </li>
+        </ol>
+
+        <h2>5. 最終手段：ミニマム再現と人に聞く</h2>
+        <p>(a) 〜 (d) を試しても解決しないときは、次の 2 つのどちらか、または両方をやります。</p>
+
+        <h3>ミニマム再現フロー</h3>
+        <p>問題が起きているフローから、<strong>関係ないノードを全部削って最小にする</strong>。そうすると、原因が見えるか、あるいは「消したらなぜか直った」という形で真犯人が見えることがあります。最小化の過程で答えにたどり着くケースは非常に多いです。</p>
+
+        <div class="tip">
+            <strong>💡 ラバーダック法（ひとり言作戦）</strong><br>
+            誰もいない部屋で、アヒルのおもちゃ（ラバーダック）を相手に「今こういうフローを作って、ここがこうなって、それでうまくいかないんだ」と<strong>声に出して説明</strong>します。英語圏の開発者の定番手法で、説明している途中に自分で原因に気づくことが非常に多いとされています。アヒルがなければ、スマホのメモアプリやノートでもOKです。
+        </div>
+
+        <h3>人に聞くときのコツ</h3>
+        <p>Node-RED 公式フォーラム、社内のチャット、Twitter の #NodeRED タグなどで聞くときは、以下をセットで書くと答えが返りやすくなります。</p>
+        <div class="checklist">
+            <ol>
+                <li><strong>やりたいこと</strong>（目的）: 「Inject で 1 分ごとに温度を取得してダッシュボードに出したい」</li>
+                <li><strong>作ったもの</strong>（手段）: フローのスクリーンショット、または<strong>JSON エクスポート</strong>を貼る</li>
+                <li><strong>起きたこと</strong>（事実）: 「デプロイ後に何も表示されない」「エラー X が出る」</li>
+                <li><strong>試したこと</strong>（切り分け）: 「Debug を途中に挿したら Change の前までは値が来ていた」</li>
+            </ol>
+        </div>
+        <p>この 4 点セットは、自分で問題を整理する過程でもあります。書いているうちに原因に気づくことも珍しくありません。</p>
+
+        <h2>6. デバッグ力は経験で育つ</h2>
+        <p>最後に大事なことを 1 つ。デバッグは<strong>才能ではなく経験です</strong>。「あ、これは前にも見た型エラーだ」「この症状は〇〇ノードの設定ミスっぽい」という勘は、失敗の数だけ育ちます。詰まるたびに、次の 2 つをメモする習慣をつけてください。</p>
+        <ul>
+            <li><strong>どんな症状だったか</strong></li>
+            <li><strong>何が原因で、どう直したか</strong></li>
+        </ul>
+        <p>このメモが 20 件もたまる頃には、ほとんどの「動かない」は自力で 5 分以内に解決できるようになります。</p>
+
+        <h2>7. まとめ：動かないときのフローチャート</h2>
+
+        <div class="flow-diagram" style="text-align:left;padding:25px;">
+            <ol style="margin:0;padding-left:20px;">
+                <li><strong>3 点確認:</strong> デプロイ／ワイヤー／デバッグサイドバーを見る</li>
+                <li><strong>4 分類:</strong> 全く動かない／値が違う／エラー／不定期、のどれかを見極める</li>
+                <li><strong>Debug を挿す:</strong> 分割統治で、どの区間で値が崩れたかを特定する</li>
+                <li><strong>エラー文を読む:</strong> 分からない単語はコピーして検索</li>
+                <li><strong>10 勘違いを疑う:</strong> 初心者あるあるを総当たりでチェック</li>
+                <li><strong>ミニマム再現:</strong> 関係ないものを削って最小のフローにする</li>
+                <li><strong>人に聞く:</strong> 目的・手段・事実・試したこと、の 4 点セットで</li>
+            </ol>
+        </div>
+
+        <p>ここまで読んでくれた方は、もう「動かない」に対する基本的な向き合い方を身につけています。実際に手を動かす中で詰まったら、このページに戻ってきて該当箇所を読み直してみてください。</p>
+
+        <div class="next-box">
+            <h3>➡️ 次のページへ</h3>
+            <p>プログラムの動き方（①②）、実際の操作感（③）、詰まったときの進め方（本ページ）までで、Node-RED と向き合う基礎体力がそろいました。次は視野を広げて、<strong>Node-RED が活躍する IoT という世界の全体像</strong>を見ていきます。エッジとクラウド、MQTT、ダッシュボードの位置づけが分かると、これから何を学べばいいかの地図ができます。</p>
+            <p style="text-align:center;font-size:1.1em;margin-top:15px;">
+                ▶ <a href="nodered-chapter0-iot-overview.html">第0章⑤ IoT全体像</a>
+            </p>
+        </div>
+
+        <p style="margin-top:30px;">
+            <a href="index.html">← トップページへ戻る</a> |
+            <a href="nodered-chapter0-what-is-program.html">① そもそもプログラムとは？</a> |
+            <a href="nodered-chapter0-event-driven.html">② イベント駆動とは？</a> |
+            <a href="nodered-chapter0-hands-on.html">③ 最初の10分ハンズオン</a> |
+            <a href="nodered-chapter0-iot-overview.html">⑤ IoT全体像</a> |
+            <a href="nodered-chapter0-review.html">⑥ 理解度チェック</a>
+        </p>
+    </div>
+
+    <a href="index.html" style="position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px; background: linear-gradient(135deg, #42b883 0%, #35495e 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; transition: transform 0.3s, box-shadow 0.3s;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 6px 16px rgba(0,0,0,0.4)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.3)';" title="トップページへ">🏠</a>
+</body>
+</html>

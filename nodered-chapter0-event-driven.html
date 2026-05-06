@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED 第0章② イベント駆動とは？</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        h1 {
+            color: #8f0000;
+            border-bottom: 3px solid #8f0000;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #c00000;
+            margin-top: 30px;
+            border-left: 5px solid #c00000;
+            padding-left: 15px;
+        }
+        h3 {
+            color: #555;
+            margin-top: 25px;
+        }
+        h4 {
+            color: #666;
+            margin-top: 20px;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .page-nav {
+            background: #eef5ff;
+            border: 2px solid #4a90e2;
+            border-radius: 8px;
+            padding: 18px 24px;
+            margin-bottom: 25px;
+        }
+        .page-nav p {
+            margin: 6px 0;
+        }
+        .page-nav .label {
+            display: inline-block;
+            min-width: 110px;
+            font-weight: bold;
+            color: #2c5282;
+        }
+        .important {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .tip {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .warning {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .excel-callout {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-left: 5px solid #4caf50;
+            padding: 18px 22px;
+            margin: 20px 0;
+            border-radius: 6px;
+        }
+        .excel-callout h4 {
+            color: #2e7d32;
+            margin: 0 0 8px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #e2d96e;
+            color: #333;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        ul, ol {
+            padding-left: 25px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        .compare-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 25px 0;
+        }
+        @media (max-width: 700px) {
+            .compare-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .compare-card {
+            border: 2px solid;
+            border-radius: 10px;
+            padding: 22px;
+        }
+        .compare-card h4 {
+            margin-top: 0;
+            padding: 8px 14px;
+            border-radius: 5px;
+            color: white;
+            display: inline-block;
+        }
+        .compare-card.procedural {
+            border-color: #9e9e9e;
+            background: #fafafa;
+        }
+        .compare-card.procedural h4 {
+            background: #616161;
+        }
+        .compare-card.event {
+            border-color: #4a90e2;
+            background: #eef5ff;
+        }
+        .compare-card.event h4 {
+            background: #1976d2;
+        }
+        .event-source-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .event-source-card {
+            background: white;
+            border: 2px solid #4a90e2;
+            border-radius: 8px;
+            padding: 16px;
+        }
+        .event-source-card h4 {
+            margin: 0 0 8px 0;
+            color: #1976d2;
+        }
+        .event-source-card .badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            background: #4a90e2;
+            color: white;
+            margin-left: 6px;
+        }
+        .flow-diagram {
+            background: #f8f9fa;
+            border: 2px dashed #888;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+            font-size: 1.05em;
+        }
+        .flow-diagram .step {
+            display: inline-block;
+            padding: 10px 16px;
+            background: white;
+            border: 2px solid #4a90e2;
+            border-radius: 6px;
+            margin: 4px;
+            font-weight: bold;
+            color: #2c5282;
+        }
+        .flow-diagram .arrow {
+            color: #888;
+            font-size: 1.4em;
+            margin: 0 4px;
+        }
+        .trigger-visual {
+            background: #fafafa;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .next-box {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-left: 5px solid #1976d2;
+            padding: 20px 25px;
+            margin: 30px 0 10px;
+            border-radius: 6px;
+        }
+        .next-box h3 {
+            margin-top: 0;
+            color: #0d47a1;
+        }
+        .next-box a {
+            color: #1565c0;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        .next-box a:hover {
+            text-decoration: underline;
+        }
+        code {
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌱 第0章② イベント駆動とは？</h1>
+
+        <div class="page-nav">
+            <p><span class="label">📖 このページの前提</span><a href="nodered-chapter0-what-is-program.html">①そもそもプログラムとは？</a>を読んだ方を想定しています。「入力→処理→出力」と「順次・分岐・繰り返し」の考え方が下敷きになります。</p>
+            <p><span class="label">🎯 得られるもの</span>Node-RED が「上から順に実行」ではなく「何かが起きたら動く」仕組みであることが理解できます。いろいろな種類のイベントが同じ仕組みで扱われていることが見えてきます。</p>
+            <p><span class="label">📘 用語を忘れたら</span><a href="nodered-chapter0-what-is-program.html#glossary">①の用語辞典</a>に戻れます。</p>
+            <p><span class="label">➡️ 次に読むページ</span><a href="nodered-chapter0-hands-on.html">③ 最初の10分ハンズオン</a></p>
+        </div>
+
+        <h2>1. このフロー、勝手に動くんだけど？</h2>
+        <p>初心者が Node-RED に触れてまず戸惑うのが、「一度デプロイすると、こちらが何もしなくてもフローが勝手に動き出す」という挙動です。Excel のマクロに慣れていると、「実行ボタンを押して初めて動く」感覚でいるので、この挙動は予想外に映ります。</p>
+        <p>この秘密は「イベント駆動（event-driven）」という仕組みにあります。このページではその仕組みを腹落ちするまで解説します。</p>
+
+        <h2>2. 2 つのプログラミングスタイル</h2>
+        <p>世の中のプログラムには、動き方で見ると大きく 2 つのスタイルがあります。</p>
+
+        <div class="compare-grid">
+            <div class="compare-card procedural">
+                <h4>📜 手続き型（上から順）</h4>
+                <p>書かれた手順を<strong>1 行目から最終行まで順に実行</strong>して、終わったらプログラムも終わる。</p>
+                <p><strong>例:</strong> Excel のマクロ、Python のスクリプト、シェルスクリプト。</p>
+                <p><strong>特徴:</strong> スタートとゴールがはっきりしている。人間が「実行」と言わないと動かない。</p>
+            </div>
+            <div class="compare-card event">
+                <h4>⚡ イベント駆動型（反応型）</h4>
+                <p>プログラム全体は常に<strong>「待機モード」</strong>で待っていて、<strong>何かが起きたときだけ動く</strong>。</p>
+                <p><strong>例:</strong> スマホのアプリ、Web サーバー、Node-RED。</p>
+                <p><strong>特徴:</strong> 一度起動すると電源を切るまで待機し続ける。複数の「起きごと」に同時対応できる。</p>
+            </div>
+        </div>
+
+        <div class="important">
+            <strong>💡 Node-RED は純粋にイベント駆動型</strong><br>
+            デプロイした瞬間、すべてのフローは「待機モード」に入ります。そして、あらかじめ決められた「イベントの源（トリガー）」が発火したときだけ、そのフローにデータが流れ始めます。
+        </div>
+
+        <h2>3. 身近なイベント駆動</h2>
+        <p>「イベント駆動」という言葉は難しく聞こえますが、日常生活の中にすでにたくさんあります。</p>
+
+        <table>
+            <tr>
+                <th>日常の例</th>
+                <th>待っているもの</th>
+                <th>起きたときの動作</th>
+            </tr>
+            <tr>
+                <td>玄関のチャイム</td>
+                <td>誰かがボタンを押すこと</td>
+                <td>音が鳴る</td>
+            </tr>
+            <tr>
+                <td>スマホの通知</td>
+                <td>LINE のメッセージが届くこと</td>
+                <td>画面がつく、音が鳴る</td>
+            </tr>
+            <tr>
+                <td>自動ドア</td>
+                <td>人が近づくこと</td>
+                <td>ドアが開く</td>
+            </tr>
+            <tr>
+                <td>目覚まし時計</td>
+                <td>設定時刻が来ること</td>
+                <td>アラーム音が鳴る</td>
+            </tr>
+            <tr>
+                <td>エアコン</td>
+                <td>室温が設定温度を超えること</td>
+                <td>冷房が自動で動く</td>
+            </tr>
+        </table>
+
+        <p>これらは全部「常に待っていて、特定のイベントが起きたときに反応する」仕組みです。Node-RED のフローもこれと全く同じ発想で作られています。</p>
+
+        <h2>4. Node-RED は純粋なイベント駆動</h2>
+        <p>Node-RED のフローは、デプロイした瞬間に全てが<strong>「待機モード」</strong>に入ります。画面には何もワイヤーが光らず、静かに次のイベントを待っています。そして、どこかの「イベントの源」となるノードで何かが起きると、そこから繋がっているワイヤーを通じてメッセージが流れ始めます。</p>
+
+        <div class="flow-diagram">
+            <span class="step">⏳ 待機中...</span>
+            <span class="arrow">➜</span>
+            <span class="step">🔔 イベント発生！</span>
+            <span class="arrow">➜</span>
+            <span class="step">📨 msg が流れる</span>
+            <span class="arrow">➜</span>
+            <span class="step">⏳ また待機に戻る</span>
+        </div>
+
+        <p>この「待機 → 発火 → 処理 → 待機」のサイクルが、Node-RED のフローの基本動作です。電源を切るまで、これを延々と繰り返します。</p>
+
+        <div class="tip">
+            <strong>📌 言い換えると</strong><br>
+            Node-RED のフローは、<strong>「郵便の仕分けセンター」</strong>のようなものです。職員は普段は待機していて、郵便物（msg）が届いたらそれぞれの処理（ノード）を通して、最終的な届け先（出力先）まで運ぶ。届かない日はずっと待機している。
+        </div>
+
+        <h2>5. Node-RED における「イベントの源」カタログ</h2>
+        <p>Node-RED ではさまざまな種類のイベントを扱えますが、<strong>全て同じ仕組み</strong>で扱われている点が強力なところです。どのイベント源から来ても、msg としてワイヤーを流れる形になります。</p>
+
+        <div class="event-source-grid">
+            <div class="event-source-card">
+                <h4>⏰ Inject <span class="badge">定番</span></h4>
+                <p>手動ボタン押下、一定時刻の到来、Node-RED 起動時など。最も基本的なイベント源。</p>
+            </div>
+            <div class="event-source-card">
+                <h4>📨 MQTT In <span class="badge">IoT</span></h4>
+                <p>MQTT ブローカーから特定トピックのメッセージが届いたら発火。IoT の中心的なイベント源。</p>
+            </div>
+            <div class="event-source-card">
+                <h4>🌐 HTTP In <span class="badge">API</span></h4>
+                <p>外部からの HTTP リクエストが届いたら発火。Web API やフォーム送信を受ける。</p>
+            </div>
+            <div class="event-source-card">
+                <h4>👁️ Watch</h4>
+                <p>指定したファイルやフォルダの中身が変化したら発火。ログ監視やファイル連携に。</p>
+            </div>
+            <div class="event-source-card">
+                <h4>🎮 Dashboard 入力ウィジェット</h4>
+                <p>ユーザーがブラウザでボタン押下、スライダー操作、テキスト入力したら発火。</p>
+            </div>
+            <div class="event-source-card">
+                <h4>🔌 GPIO In（Raspberry Pi） <span class="badge">エッジ</span></h4>
+                <p>Raspberry Pi の GPIO ピンの電圧が変化したら発火。スイッチやセンサーからの物理入力。</p>
+            </div>
+            <div class="event-source-card">
+                <h4>📧 Email In</h4>
+                <p>指定メールボックスに新着メールが届いたら発火。</p>
+            </div>
+            <div class="event-source-card">
+                <h4>🔗 WebSocket In</h4>
+                <p>WebSocket 経由でメッセージが届いたら発火。リアルタイム双方向通信に。</p>
+            </div>
+        </div>
+
+        <div class="important">
+            <strong>🎯 覚えておきたいこと</strong><br>
+            イベントの種類はたくさんありますが、<strong>Node-RED の見方は統一されています</strong>。どれも「左側のポートが無く、右側にだけ出力ポートがある」形で、イベントが起きたら msg を流し始めます。これが見抜けると、新しいノードに出会っても怖くありません。
+        </div>
+
+        <div class="tip">
+            <strong>📚 詳細は個別ガイドへ</strong><br>
+            各イベント源ノードの詳しい使い方は、標準ノードセクションの <a href="nodered-inject-node-guide.html">Inject</a>、<a href="nodered-mqtt-node-guide.html">MQTT</a>、<a href="nodered-http-node-guide.html">HTTP</a>、<a href="nodered-watch-node-guide.html">Watch</a> などで解説しています。
+        </div>
+
+        <h2>6. 複数のイベントが同時に来たら？</h2>
+        <p>イベント駆動型の大事な特徴は、<strong>複数のイベントが並行して動ける</strong>ことです。</p>
+        <p>たとえば、Inject が 1 秒ごとに発火するフローと、MQTT で受信したら動くフローが同じ Node-RED 上に両方ある場合、片方が動いている間にもう片方が止まるわけではなく、それぞれが独立して動きます。</p>
+
+        <div class="warning">
+            <strong>⚠️ ただし注意点</strong><br>
+            複数のイベントが同時に来たとき、どのフローが先に処理を終えるか、順序は保証されません。これを「非同期」と呼びます。慣れるまでは「同時に来たものは、どっちが先か分からない」と覚えておけば OK です。詳しくは <a href="nodered-chapter0-debugging.html">④ 動かないときの進め方</a> の「不定期に動かない時」で解説します。
+        </div>
+
+        <h2>7. フロー設計のコツ：起点を意識する</h2>
+        <p>Node-RED でフローを作るとき、まず最初に決めるべきは<strong>「このフローは何をきっかけに動き始めるか？」</strong>です。これを「起点（トリガー）を決める」と呼びます。</p>
+
+        <p>起点が曖昧だと、後から「あれ、これ誰が動かしてるんだっけ？」となって保守性が下がります。おすすめは次の 3 点です。</p>
+
+        <ol>
+            <li><strong>1 つのフローの起点は 1 つに絞る</strong>（複数の起点を混ぜない）。どうしても複数の起点から同じ処理を呼びたい場合は、Link ノードでサブフローとして切り出す方法があります。</li>
+            <li><strong>起点のノードの隣に Comment ノードを置く</strong>。「このフローは○○があったら動く」と書いておくと、後で見返したときに理解が早い。</li>
+            <li><strong>同じタブに用途の違う起点を並べない</strong>。たとえば「MQTT 受信用」と「定期処理用」は別のタブに分けると、視認性が上がります。</li>
+        </ol>
+
+        <div class="tip">
+            <strong>💡 Node-RED エディターで起点を見つけるコツ</strong><br>
+            「このフローは何で動く？」と確認するときは、<strong>ワイヤーを左に辿って、左側の入力ポートが無いノードを探します</strong>。それが起点（イベント源）です。
+        </div>
+
+        <h2>8. Excel マクロとの対比</h2>
+        <p>Excel にもイベント駆動の仕組みは実はあります。VBA を触ったことがある方なら、次の名前を見たことがあるかもしれません。</p>
+
+        <div class="excel-callout">
+            <h4>📊 Excel のイベントハンドラ</h4>
+            <ul>
+                <li><code>Workbook_Open</code> ... ブックを開いたときに発火</li>
+                <li><code>Worksheet_Change</code> ... セルの値が変わったときに発火</li>
+                <li><code>Worksheet_SelectionChange</code> ... セルの選択が変わったときに発火</li>
+            </ul>
+            これらは全部「◯◯が起きたら、このコードを動かしてね」というイベント駆動の仕組みです。Node-RED はこれをもっと種類豊富に、しかも<strong>視覚的に見える形</strong>で提供している、と考えると分かりやすいです。
+        </div>
+
+        <table>
+            <tr>
+                <th>Excel VBA</th>
+                <th>Node-RED</th>
+            </tr>
+            <tr>
+                <td><code>Workbook_Open</code>（起動時）</td>
+                <td>Inject（「Node-RED 起動時」オプション）</td>
+            </tr>
+            <tr>
+                <td><code>Application.OnTime</code>（時刻指定）</td>
+                <td>Inject（繰り返し実行、時刻指定）</td>
+            </tr>
+            <tr>
+                <td><code>Worksheet_Change</code>（値変更）</td>
+                <td>Watch（ファイル変更）、MQTT In（値受信）</td>
+            </tr>
+            <tr>
+                <td>ボタンの Click イベント</td>
+                <td>Dashboard の ui-button</td>
+            </tr>
+        </table>
+
+        <h2>9. まとめと次のページ</h2>
+        <p>このページで押さえたかったことは次の 3 つです。</p>
+        <ol>
+            <li>Node-RED は<strong>イベント駆動型</strong>。デプロイ後は常に待機していて、何かが起きたら動く。</li>
+            <li>イベントの源は種類が豊富（Inject、MQTT、HTTP、Watch、Dashboard、GPIO など）だが、<strong>全て同じ仕組み</strong>で扱われる。</li>
+            <li>フローを作るときは<strong>「起点は何か」を最初に決める</strong>。</li>
+        </ol>
+
+        <div class="next-box">
+            <h3>➡️ 次に読むページ</h3>
+            <p><a href="nodered-chapter0-hands-on.html">③ 最初の10分ハンズオン</a></p>
+            <p>ここまで読んだ知識を、実際に手を動かして体験する番です。Inject → Debug → Change → Dashboard という 4 つのステップを 10 分で一気に走り抜けます。「動いた！」を 4 回体験してから、次の学習に進みましょう。</p>
+        </div>
+    </div>
+
+    <!-- フローティングホームボタン -->
+    <a href="index.html" style="position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px; background: linear-gradient(135deg, #42b883 0%, #35495e 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; transition: transform 0.3s, box-shadow 0.3s;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 6px 16px rgba(0,0,0,0.4)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.3)';" title="トップページへ">🏠</a>
+</body>
+</html>

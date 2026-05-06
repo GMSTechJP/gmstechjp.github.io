@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED 第0章③ 最初の10分ハンズオン</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        h1 {
+            color: #8f0000;
+            border-bottom: 3px solid #8f0000;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #c00000;
+            margin-top: 30px;
+            border-left: 5px solid #c00000;
+            padding-left: 15px;
+        }
+        h3 {
+            color: #555;
+            margin-top: 25px;
+        }
+        h4 {
+            color: #666;
+            margin-top: 20px;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .page-nav {
+            background: #eef5ff;
+            border: 2px solid #4a90e2;
+            border-radius: 8px;
+            padding: 18px 24px;
+            margin-bottom: 25px;
+        }
+        .page-nav p {
+            margin: 6px 0;
+        }
+        .page-nav .label {
+            display: inline-block;
+            min-width: 110px;
+            font-weight: bold;
+            color: #2c5282;
+        }
+        .important {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .tip {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .warning {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .step-card {
+            background: white;
+            border: 3px solid #4a90e2;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        }
+        .step-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        .step-number {
+            background: #4a90e2;
+            color: white;
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6em;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        .step-title {
+            flex-grow: 1;
+        }
+        .step-title h3 {
+            margin: 0;
+            color: #1976d2;
+            font-size: 1.4em;
+        }
+        .step-meta {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 4px;
+        }
+        .time-badge {
+            display: inline-block;
+            background: #ff9800;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 14px;
+            font-weight: bold;
+            font-size: 0.85em;
+        }
+        .screenshot-marker {
+            background: #fff8e1;
+            border: 2px dashed #ffb300;
+            border-radius: 8px;
+            padding: 16px 22px;
+            margin: 18px 0;
+            font-size: 0.95em;
+        }
+        .screenshot-marker .title {
+            font-weight: bold;
+            color: #ef6c00;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .screenshot-marker .filename {
+            font-family: 'Courier New', monospace;
+            background: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-top: 4px;
+        }
+        .action-list {
+            background: #f8f9fa;
+            border-left: 4px solid #4caf50;
+            padding: 18px 24px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        .action-list ol {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .action-list li {
+            margin: 8px 0;
+        }
+        .stuck-check {
+            background: #ffebee;
+            border: 2px solid #e57373;
+            border-radius: 8px;
+            padding: 18px 24px;
+            margin: 20px 0;
+        }
+        .stuck-check h4 {
+            margin: 0 0 10px 0;
+            color: #c62828;
+        }
+        .stuck-check ul {
+            margin: 0;
+            padding-left: 25px;
+        }
+        .flow-json {
+            background-color: #263238;
+            color: #aed581;
+            padding: 15px;
+            padding-top: 40px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            position: relative;
+            white-space: pre;
+        }
+        .copy-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 6px 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: 'Segoe UI', sans-serif;
+            transition: background-color 0.2s;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .copy-button:hover {
+            background-color: #0056b3;
+        }
+        .copy-button.copied {
+            background-color: #28a745;
+        }
+        .copy-button svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+        }
+        details {
+            margin: 15px 0;
+        }
+        summary {
+            cursor: pointer;
+            padding: 10px 14px;
+            background-color: #546e7a;
+            color: white;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        summary:hover {
+            background-color: #455a64;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #e2d96e;
+            color: #333;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        ul, ol {
+            padding-left: 25px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        .wrapup {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border: 2px solid #4caf50;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 30px 0;
+        }
+        .wrapup h3 {
+            margin-top: 0;
+            color: #2e7d32;
+        }
+        .wrapup .icon-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .wrapup .icon-item {
+            background: white;
+            padding: 14px;
+            border-radius: 8px;
+            border: 1px solid #a5d6a7;
+            text-align: center;
+        }
+        .wrapup .icon-item .emoji {
+            font-size: 2em;
+            margin-bottom: 6px;
+        }
+        .next-box {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-left: 5px solid #1976d2;
+            padding: 20px 25px;
+            margin: 30px 0 10px;
+            border-radius: 6px;
+        }
+        .next-box h3 {
+            margin-top: 0;
+            color: #0d47a1;
+        }
+        .next-box a {
+            color: #1565c0;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        .next-box a:hover {
+            text-decoration: underline;
+        }
+        code {
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+        .goal-box {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border: 2px solid #ff9800;
+            border-radius: 10px;
+            padding: 22px;
+            margin: 20px 0;
+        }
+        .goal-box h3 {
+            margin-top: 0;
+            color: #e65100;
+        }
+        .install-card {
+            background: linear-gradient(135deg, #ede7f6 0%, #d1c4e9 100%);
+            border: 3px solid #7e57c2;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 20px 0 25px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        }
+        .install-card h3 {
+            margin-top: 0;
+            color: #4527a0;
+            font-size: 1.25em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .install-card h3::before {
+            content: "📦";
+            font-size: 1.2em;
+        }
+        .install-card h4 {
+            color: #5e35b1;
+            margin-top: 18px;
+            margin-bottom: 6px;
+        }
+        .install-card .check-first {
+            background: white;
+            border-left: 4px solid #26a69a;
+            padding: 14px 18px;
+            margin: 12px 0 15px;
+            border-radius: 0 6px 6px 0;
+        }
+        .install-card .check-first strong {
+            color: #00695c;
+        }
+        .install-card .steps {
+            background: white;
+            border-radius: 8px;
+            padding: 16px 22px;
+            margin: 12px 0;
+        }
+        .install-card .steps ol {
+            margin: 0;
+            padding-left: 22px;
+        }
+        .install-card .steps li {
+            margin: 8px 0;
+        }
+        .wrong-pkg {
+            background: #ffebee;
+            border: 2px solid #e53935;
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin: 15px 0;
+        }
+        .wrong-pkg .title {
+            color: #b71c1c;
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 1.05em;
+        }
+        .wrong-pkg table {
+            margin: 10px 0 0;
+            background: white;
+        }
+        .wrong-pkg table th {
+            background: #b71c1c;
+            color: white;
+        }
+        .wrong-pkg .mark-ok {
+            color: #2e7d32;
+            font-weight: bold;
+        }
+        .wrong-pkg .mark-ng {
+            color: #c62828;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌱 第0章③ 最初の10分ハンズオン</h1>
+
+        <div class="page-nav">
+            <p><span class="label">📖 このページの前提</span>Node-RED がインストール済みで、ブラウザでエディターが開ける状態を想定しています（まだの方は <a href="nodered-windows-install-guide.html">Windowsインストール</a>／<a href="nodered-raspberry-pi-install-guide.html">Raspberry Piインストール</a>）。①②は未読でも進められますが、読んでおくと理解がスムーズです。</p>
+            <p><span class="label">🎯 得られるもの</span>「イベントで動く」「データが流れる」「途中で加工できる」「画面に出せる」を 10 分で体験できます。手を動かすことで Node-RED の全体像が体に染みつきます。</p>
+            <p><span class="label">📘 用語を忘れたら</span><a href="nodered-chapter0-what-is-program.html#glossary">①の用語辞典</a>に戻れます。</p>
+            <p><span class="label">➡️ 次に読むページ</span><a href="nodered-chapter0-debugging.html">④ 動かないときの進め方</a></p>
+        </div>
+
+        <div class="goal-box">
+            <h3>🎯 このページのゴール</h3>
+            <p>合計 10 分で、以下の 4 ステップを完走します。どのステップも単独でインポート可能な完成フロー JSON を用意しているので、途中で詰まっても再開できます。</p>
+            <ul>
+                <li><strong>ステップ1（2分）:</strong> Inject + Debug で「動いた！」を体験</li>
+                <li><strong>ステップ2（2分）:</strong> 送るデータ（payload）を変えてみる</li>
+                <li><strong>ステップ3（3分）:</strong> 途中に Change を挟んで値を加工する</li>
+                <li><strong>ステップ4（3分）:</strong> ダッシュボードに結果を表示する</li>
+            </ul>
+        </div>
+
+        <h2>事前準備</h2>
+        <div class="action-list">
+            <ol>
+                <li>Node-RED が動いている PC で、ブラウザから <code>http://localhost:1880</code> を開いてください（Raspberry Pi で動かしている場合は IP アドレスに差し替え）。</li>
+                <li>左側にノードのパレット、真ん中にフロー編集エリア、右側にサイドバーが見えていれば準備 OK です。</li>
+                <li>右上に赤い「デプロイ」ボタンがあることを確認してください。編集した内容は<strong>このボタンを押さないと実行されません</strong>。</li>
+            </ol>
+        </div>
+
+        <div class="screenshot-marker">
+            <div class="title">📸 スクリーンショット #1: エディター初期画面</div>
+            撮影対象: Node-RED エディターを開いた直後の状態。左のパレット、中央の編集エリア、右のサイドバーが写るように全体を撮影。<br>
+            推奨ファイル名: <span class="filename">img/chapter0/handson-01-editor-initial.png</span>
+        </div>
+
+        <h2>ステップ1：Hello をログに出す <span class="time-badge">⏱ 2分</span></h2>
+        <div class="step-card">
+            <div class="step-header">
+                <div class="step-number">1</div>
+                <div class="step-title">
+                    <h3>Inject + Debug で最小のフローを作る</h3>
+                    <div class="step-meta">ゴール: Inject ボタンを押すと、デバッグサイドバーに時刻が表示される</div>
+                </div>
+            </div>
+
+            <div class="action-list">
+                <ol>
+                    <li>左のパレットから <strong>Inject</strong> ノードを中央の編集エリアにドラッグ＆ドロップします。</li>
+                    <li>同じように <strong>Debug</strong> ノードも配置します。</li>
+                    <li>Inject ノードの右側の小さな四角から、Debug ノードの左側の四角まで<strong>ワイヤーを繋げます</strong>（クリックしたまま引っ張る）。</li>
+                    <li>右上の赤い<strong>「デプロイ」ボタン</strong>を押します。</li>
+                    <li>右サイドバー上部の<strong>虫アイコン</strong>（🐛）をクリックして、デバッグサイドバーを開きます。</li>
+                    <li>Inject ノード左端の<strong>青いボタン</strong>をクリックします。</li>
+                    <li>デバッグサイドバーに数字（ミリ秒単位の時刻）が表示されれば成功です！</li>
+                </ol>
+            </div>
+
+            <div class="screenshot-marker">
+                <div class="title">📸 スクリーンショット #2: Step1 完成フロー</div>
+                撮影対象: Inject と Debug がワイヤーで繋がった最小フロー。デバッグサイドバーも開いた状態で、数字が 1 件表示されているところ。<br>
+                推奨ファイル名: <span class="filename">img/chapter0/handson-02-step1-flow.png</span>
+            </div>
+
+            <div class="tip">
+                <strong>💡 何が起きたか</strong><br>
+                Inject ノードは「押されたら msg を発射する」イベント源。Debug ノードは「受け取った msg の中身をサイドバーに表示する」出力先。その 2 つをワイヤーで繋ぐことで、1 つのフローが完成しました。これが Node-RED のすべての基本形です。
+            </div>
+
+            <div class="stuck-check">
+                <h4>🚧 動かないときはここを確認</h4>
+                <ul>
+                    <li><strong>デプロイボタンを押しましたか？</strong> 編集しただけでは反映されません。</li>
+                    <li><strong>ワイヤーは本当に繋がっていますか？</strong> Inject の右ポートから Debug の左ポートへ、線が引けているか目視確認。</li>
+                    <li><strong>デバッグサイドバーは開いていますか？</strong> 右上の虫アイコンをクリック。</li>
+                </ul>
+            </div>
+
+            <details>
+                <summary>📋 完成フロー JSON（クリックで展開 / このまま読み込み可能）</summary>
+                <div class="flow-json"><textarea readonly style="display:none;">[
+    {"id":"tab_c0_s1","type":"tab","label":"第0章ハンズオン-Step1","disabled":false,"info":"","env":[]},
+    {"id":"inject_c0_s1","type":"inject","z":"tab_c0_s1","name":"","props":[{"p":"payload"},{"p":"topic","vt":"str"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","payload":"","payloadType":"date","x":200,"y":100,"wires":[["debug_c0_s1"]]},
+    {"id":"debug_c0_s1","type":"debug","z":"tab_c0_s1","name":"","active":true,"tosidebar":true,"console":false,"tostatus":false,"complete":"false","statusVal":"","statusType":"auto","x":420,"y":100,"wires":[]}
+]</textarea><pre style="margin:0;">[
+    {"id":"tab_c0_s1","type":"tab","label":"第0章ハンズオン-Step1","disabled":false,"info":"","env":[]},
+    {"id":"inject_c0_s1","type":"inject","z":"tab_c0_s1","name":"","props":[{"p":"payload"},{"p":"topic","vt":"str"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","payload":"","payloadType":"date","x":200,"y":100,"wires":[["debug_c0_s1"]]},
+    {"id":"debug_c0_s1","type":"debug","z":"tab_c0_s1","name":"","active":true,"tosidebar":true,"console":false,"tostatus":false,"complete":"false","statusVal":"","statusType":"auto","x":420,"y":100,"wires":[]}
+]</pre></div>
+                <p style="font-size:0.9em;color:#666;margin-top:8px;">読み込み方法: 右上ハンバーガーメニュー → 読み込み → JSON 貼り付け → 読み込み</p>
+            </details>
+        </div>
+
+        <h2>ステップ2：送るデータを変える <span class="time-badge">⏱ 2分</span></h2>
+        <div class="step-card">
+            <div class="step-header">
+                <div class="step-number">2</div>
+                <div class="step-title">
+                    <h3>Inject の payload をいろいろ変えてみる</h3>
+                    <div class="step-meta">ゴール: 文字列・数値・JSON の違いを体感する</div>
+                </div>
+            </div>
+
+            <div class="action-list">
+                <ol>
+                    <li>ステップ1 の Inject ノードを<strong>ダブルクリック</strong>して設定画面を開きます。</li>
+                    <li><code>msg.payload = ...</code> の行の「日時」と書かれた部分を、プルダウンから<strong>「文字列」</strong>に変更します。</li>
+                    <li>右の入力欄に <code>こんにちは</code> と入力して「完了」ボタンを押します。</li>
+                    <li>デプロイして、Inject ボタンをクリック。デバッグサイドバーに「こんにちは」と表示されるはずです。</li>
+                    <li>同じ要領で、<strong>「数値」</strong>にして <code>25</code> を入れてみる。デプロイ、クリック、確認。</li>
+                    <li>次は<strong>「JSON」</strong>にして <code>{"temp":25,"unit":"℃"}</code> を入れてみる。オブジェクトとして表示されます。</li>
+                </ol>
+            </div>
+
+            <div class="screenshot-marker">
+                <div class="title">📸 スクリーンショット #3: Inject 設定画面</div>
+                撮影対象: Inject ノードをダブルクリックした設定画面。「msg.payload」のプルダウンが開いて「文字列」が選ばれている様子。<br>
+                推奨ファイル名: <span class="filename">img/chapter0/handson-03-inject-payload-types.png</span>
+            </div>
+
+            <div class="tip">
+                <strong>💡 何が起きたか</strong><br>
+                msg.payload の中身は、<strong>「型」によって扱いが変わります</strong>。文字列 <code>"25"</code>、数値 <code>25</code>、オブジェクト <code>{...}</code> はどれも違うものです。デバッグサイドバーでも色が違って表示されるので見比べてみてください。型の詳細は <a href="nodered-variable-types-guide.html">変数ガイド Part 1</a> で扱います。
+            </div>
+
+            <div class="stuck-check">
+                <h4>🚧 動かないときはここを確認</h4>
+                <ul>
+                    <li>Inject の設定を変えたあと、<strong>必ずデプロイを押す</strong>（内容を変えただけでは実行中のフローに反映されない）。</li>
+                    <li>JSON を入れる時に、中括弧やクォートが半角になっているか確認（全角だとエラー）。</li>
+                    <li>値を変えても何も変わらない場合は、ステップ1 の完成フロー JSON を読み込んで最初からやり直すのも早い。</li>
+                </ul>
+            </div>
+        </div>
+
+        <h2>ステップ3：途中で加工する <span class="time-badge">⏱ 3分</span></h2>
+        <div class="step-card">
+            <div class="step-header">
+                <div class="step-number">3</div>
+                <div class="step-title">
+                    <h3>Change ノードで値を書き換える</h3>
+                    <div class="step-meta">ゴール: Inject → Change → Debug の 3 ノード構成を作り、途中で payload を変える</div>
+                </div>
+            </div>
+
+            <div class="action-list">
+                <ol>
+                    <li>Inject の payload を<strong>「文字列」 で <code>こんにちは</code></strong> に設定しておきます。</li>
+                    <li>パレットから <strong>Change</strong> ノードを 1 つ、Inject と Debug の間にドラッグします。</li>
+                    <li>既存のワイヤー（Inject → Debug）の真ん中に Change を落とすと、自動で割り込みます。もしうまくいかなければ、既存のワイヤーを削除して手動で繋ぎ直します。</li>
+                    <li>Change ノードをダブルクリックして設定画面を開きます。</li>
+                    <li>ルール部分を次のようにします。
+                        <ul>
+                            <li>プルダウン1: <strong>「置換」</strong>（Change）</li>
+                            <li>対象: <code>msg.payload</code></li>
+                            <li>検索する値: <code>こんにちは</code>（文字列）</li>
+                            <li>置換後の値: <code>おはよう</code>（文字列）</li>
+                        </ul>
+                    </li>
+                    <li>完了 → デプロイ → Inject クリック。デバッグサイドバーに <code>おはよう</code> と表示されれば成功です。</li>
+                </ol>
+            </div>
+
+            <div class="screenshot-marker">
+                <div class="title">📸 スクリーンショット #4: Step3 完成フローと Change 設定</div>
+                撮影対象: 3 ノード（Inject → Change → Debug）が繋がったフロー。可能であれば Change の設定画面を開いた状態も別ショットで。<br>
+                推奨ファイル名: <span class="filename">img/chapter0/handson-04-step3-flow.png</span>
+            </div>
+
+            <div class="tip">
+                <strong>💡 何が起きたか</strong><br>
+                メッセージがフローを流れる途中で、Change ノードが「こんにちは」を見つけて「おはよう」に書き換えました。これが<strong>Node-RED の「処理」</strong>の正体です。ノードは受け取った msg に何かをして、次のノードへ送る、という動きを延々とやっています。
+            </div>
+
+            <div class="stuck-check">
+                <h4>🚧 動かないときはここを確認</h4>
+                <ul>
+                    <li>Change ノードのルールが<strong>「置換（Change）」</strong>になっているか（「値の代入（Set）」と間違えやすい）。</li>
+                    <li>検索文字列と Inject の payload が<strong>完全に一致</strong>しているか（半角・全角、スペースに注意）。</li>
+                    <li>ワイヤーが<strong>Inject → Change → Debug</strong> の順に繋がっているか。Change を迂回していないか。</li>
+                </ul>
+            </div>
+
+            <details>
+                <summary>📋 Step3 完成フロー JSON（クリックで展開）</summary>
+                <div class="flow-json"><pre style="margin:0;">[
+    {"id":"tab_c0_s3","type":"tab","label":"第0章ハンズオン-Step3","disabled":false,"info":"","env":[]},
+    {"id":"inject_c0_s3","type":"inject","z":"tab_c0_s3","name":"挨拶を送信","props":[{"p":"payload"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","payload":"こんにちは","payloadType":"str","x":200,"y":100,"wires":[["change_c0_s3"]]},
+    {"id":"change_c0_s3","type":"change","z":"tab_c0_s3","name":"おはようへ置換","rules":[{"t":"change","p":"payload","pt":"msg","from":"こんにちは","fromt":"str","to":"おはよう","tot":"str"}],"action":"","property":"","from":"","to":"","reg":false,"x":400,"y":100,"wires":[["debug_c0_s3"]]},
+    {"id":"debug_c0_s3","type":"debug","z":"tab_c0_s3","name":"","active":true,"tosidebar":true,"console":false,"tostatus":false,"complete":"false","statusVal":"","statusType":"auto","x":600,"y":100,"wires":[]}
+]</pre></div>
+            </details>
+        </div>
+
+        <h2>ステップ4：ダッシュボードに出す <span class="time-badge">⏱ 3分</span></h2>
+        <div class="step-card">
+            <div class="step-header">
+                <div class="step-number">4</div>
+                <div class="step-title">
+                    <h3>ui-text ノードで画面に表示する</h3>
+                    <div class="step-meta">ゴール: ブラウザに専用ダッシュボードを開き、加工後の文字列を表示する</div>
+                </div>
+            </div>
+
+            <div class="install-card">
+                <h3>事前準備: Dashboard 2.0 のインストール</h3>
+                <p style="margin:6px 0 14px;">ステップ4 では <code>ui-text</code> という画面表示用のノードを使います。これは Node-RED の<strong>標準では入っていない</strong>追加パッケージなので、<strong>先にインストール</strong>しておく必要があります。初めての方はここで 2〜3 分かかりますが、一度入れれば以降ずっと使えます。</p>
+
+                <div class="check-first">
+                    <strong>✅ まず確認:</strong> 左のノードパレットを下にスクロールして、<strong>「dashboard 2」というカテゴリ</strong>があり、その中に <code>ui-text</code> が見えていれば<strong>インストール済み</strong>です。この節はスキップして先に進めます。見当たらない場合は、下のインストール手順を実施してください。
+                </div>
+
+                <h4>インストール手順（3〜5 ステップ）</h4>
+                <div class="steps">
+                    <ol>
+                        <li>Node-RED エディター<strong>右上のハンバーガーメニュー</strong>（≡ の形）をクリック。</li>
+                        <li>メニューの中から <strong>「パレットの管理」</strong> を選択。</li>
+                        <li>開いたダイアログの <strong>「ノードを追加」</strong> タブに切り替え。</li>
+                        <li>検索欄に <code>@flowfuse/node-red-dashboard</code> と入力（部分入力でも候補に出てきます）。</li>
+                        <li><strong>「@flowfuse/node-red-dashboard」</strong>（説明文に "Dashboard 2.0" とあるもの）の右の <strong>「ノードを追加」ボタン</strong>をクリック。</li>
+                        <li>確認ダイアログで「追加」をクリック。インストール完了まで 1 分ほど待ちます（バックグラウンドで npm install が走っています）。</li>
+                        <li>完了すると、左パレットに <strong>「dashboard 2」</strong> カテゴリが追加され、ui-text などが選べるようになります。</li>
+                    </ol>
+                </div>
+
+                <div class="wrong-pkg">
+                    <div class="title">⚠️ 最大の落とし穴: 旧版（Dashboard 1.0）と間違えない</div>
+                    <p style="margin:4px 0 8px;">検索結果には<strong>似た名前のパッケージ</strong>が複数出てきます。<strong>必ず下の「◯」の方</strong>を選んでください。間違えて旧版を入れると、このガイドのフロー JSON は一切動きません。</p>
+                    <table>
+                        <tr>
+                            <th>判定</th>
+                            <th>パッケージ名</th>
+                            <th>正体</th>
+                        </tr>
+                        <tr>
+                            <td class="mark-ok">◯ これを入れる</td>
+                            <td><code>@flowfuse/node-red-dashboard</code></td>
+                            <td>Dashboard 2.0（現行、FlowFuse 社がメンテ）</td>
+                        </tr>
+                        <tr>
+                            <td class="mark-ng">✕ 入れない</td>
+                            <td><code>node-red-dashboard</code></td>
+                            <td>Dashboard 1.0（旧版、ノード種別が全く違う）</td>
+                        </tr>
+                    </table>
+                    <p style="margin:10px 0 0;font-size:0.92em;">見分け方: パッケージ名の<strong>先頭に <code>@flowfuse/</code> が付いているか</strong>。付いていれば 2.0、付いていなければ 1.0 です。</p>
+                </div>
+
+                <div class="screenshot-marker" style="margin-top:15px;">
+                    <div class="title">📸 スクリーンショット #4a: パレット管理画面でのインストール</div>
+                    撮影対象: 「パレットの管理」→「ノードを追加」タブで <code>@flowfuse/node-red-dashboard</code> を検索した結果画面。Dashboard 2.0 のパッケージが一番上に表示されている状態。<br>
+                    推奨ファイル名: <span class="filename">img/chapter0/handson-04a-palette-install.png</span>
+                </div>
+
+                <p style="font-size:0.92em;margin-top:12px;">
+                    <strong>🧭 もっと詳しく知りたい方:</strong> <a href="nodered-dashboard2-overview.html">Dashboard 2.0 概要ガイド</a> にコマンドラインからのインストール方法（<code>npm install</code>）や、1.0 からの移行も掲載されています。
+                </p>
+
+                <div class="stuck-check" style="margin-top:15px;">
+                    <h4>🚧 インストールで詰まったときの確認</h4>
+                    <ul>
+                        <li><strong>「パレットの管理」が見つからない</strong>: Node-RED のバージョンが古い可能性があります。Node-RED 3.x 以降を使用してください。</li>
+                        <li><strong>検索しても出てこない</strong>: インターネット接続を確認。企業プロキシ配下の場合は管理者に確認が必要なことがあります。</li>
+                        <li><strong>インストールに失敗する</strong>: Node-RED ログ（起動したターミナル）にエラーが出ていないか確認。権限エラーなら <code>~/.node-red</code> ディレクトリの所有者を確認。</li>
+                        <li><strong>インストール後もパレットに出ない</strong>: Node-RED を一度再起動してください。</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="action-list">
+                <ol>
+                    <li>ステップ3 の Debug ノードは残したまま、<strong>ui-text</strong> ノードを追加で配置します。</li>
+                    <li>Change ノードの出力から<strong>2 本目のワイヤー</strong>を引いて、ui-text に繋ぎます（Change は 1 つの出力から複数のノードに送れます）。</li>
+                    <li>ui-text ノードをダブルクリックして設定画面を開きます。</li>
+                    <li><strong>Group</strong> の右にある鉛筆アイコンをクリックして、新しいグループを作ります。
+                        <ul>
+                            <li>Group の名前: <code>メイン</code>（何でも OK）</li>
+                            <li>Page の右の鉛筆アイコンで、新しいページも作成。
+                                <ul>
+                                    <li>Page の名前: <code>ページ1</code></li>
+                                    <li>UI の右の鉛筆アイコンで、ui-base も作成（名前はデフォルトのままで OK）</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>Label には <code>挨拶</code>、Value format には <code>{{msg.payload}}</code> と入力（初期値のまま）。</li>
+                    <li>完了 → デプロイ。</li>
+                    <li>ブラウザで新しいタブを開き、<code>http://localhost:1880/dashboard</code> にアクセス。</li>
+                    <li>Node-RED エディターに戻り、Inject ボタンをクリック。</li>
+                    <li>ダッシュボード画面に <code>おはよう</code> と表示されれば成功です！🎉</li>
+                </ol>
+            </div>
+
+            <div class="screenshot-marker">
+                <div class="title">📸 スクリーンショット #5: Step4 完成フロー</div>
+                撮影対象: Inject → Change → Debug と、Change → ui-text の分岐した 4 ノード構成。<br>
+                推奨ファイル名: <span class="filename">img/chapter0/handson-05-step4-flow.png</span>
+            </div>
+
+            <div class="screenshot-marker">
+                <div class="title">📸 スクリーンショット #6: ダッシュボード画面</div>
+                撮影対象: ブラウザで <code>/dashboard</code> を開き、「おはよう」と表示されている画面。<br>
+                推奨ファイル名: <span class="filename">img/chapter0/handson-06-dashboard.png</span>
+            </div>
+
+            <div class="tip">
+                <strong>💡 何が起きたか</strong><br>
+                フローの終点が「Debug サイドバー」から「ブラウザの画面」に変わりました。これが<strong>Dashboard 2.0</strong> の基本です。ui-text のような「ui-」で始まるノードは、ブラウザに表示される部品として動きます。ボタン、スライダー、グラフ、ゲージなど、たくさんの部品を組み合わせて IoT ダッシュボードを作っていくことになります。
+            </div>
+
+            <div class="stuck-check">
+                <h4>🚧 動かないときはここを確認</h4>
+                <ul>
+                    <li>パレットに <strong>ui-text</strong> が無い場合、Dashboard 2.0 がインストールされていない。右上メニュー → パレットの管理からインストール。</li>
+                    <li>ダッシュボード URL は <code>/dashboard</code>（末尾スラッシュなし）。<code>/ui</code> や <code>/dashboards</code> ではない。</li>
+                    <li>Group / Page / ui-base の 3 つが全て<strong>設定済み</strong>になっているか（鉛筆アイコンを順に追って作成）。</li>
+                    <li>まだ何も表示されない場合は、Debug サイドバーで「おはよう」が出ているかをまず確認。そこが OK なら、ダッシュボード側（ui-text の設定）の問題。</li>
+                </ul>
+            </div>
+
+            <details>
+                <summary>📋 Step4 完成フロー JSON（クリックで展開 / Dashboard 設定込み）</summary>
+                <div class="flow-json"><pre style="margin:0;">[
+    {"id":"tab_c0_s4","type":"tab","label":"第0章ハンズオン-Step4","disabled":false,"info":"","env":[]},
+    {"id":"ui_base_c0","type":"ui-base","name":"My Dashboard","path":"/dashboard","includeClientData":true,"acceptsClientConfig":["ui-notification","ui-control"],"showPathInSidebar":false,"headerContent":"page","navigationStyle":"default","titleBarStyle":"default","showReconnectNotification":true,"notificationDisplayTime":5,"showDisconnectNotification":true,"allowInstall":true,"showSourceInMenu":false},
+    {"id":"theme_c0","type":"ui-theme","name":"Default Theme","colors":{"surface":"#ffffff","primary":"#0094CE","bgPage":"#eeeeee","groupBg":"#ffffff","groupOutline":"#cccccc"},"sizes":{"pagePadding":"12px","groupGap":"12px","groupBorderRadius":"4px","widgetGap":"12px","density":"default"}},
+    {"id":"page_c0","type":"ui-page","name":"ページ1","ui":"ui_base_c0","path":"/page1","icon":"home","layout":"grid","theme":"theme_c0","breakpoints":[{"name":"Default","px":"0","cols":"3"},{"name":"Tablet","px":"576","cols":"6"},{"name":"Small Desktop","px":"768","cols":"9"},{"name":"Desktop","px":"1024","cols":"12"}],"order":1,"className":"","visible":"true","disabled":"false"},
+    {"id":"group_c0","type":"ui-group","name":"メイン","page":"page_c0","width":"6","height":"1","order":1,"showTitle":true,"className":"","visible":"true","disabled":"false","groupType":"default"},
+    {"id":"inject_c0_s4","type":"inject","z":"tab_c0_s4","name":"挨拶を送信","props":[{"p":"payload"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","payload":"こんにちは","payloadType":"str","x":200,"y":100,"wires":[["change_c0_s4"]]},
+    {"id":"change_c0_s4","type":"change","z":"tab_c0_s4","name":"おはようへ置換","rules":[{"t":"change","p":"payload","pt":"msg","from":"こんにちは","fromt":"str","to":"おはよう","tot":"str"}],"action":"","property":"","from":"","to":"","reg":false,"x":400,"y":100,"wires":[["debug_c0_s4","uitext_c0_s4"]]},
+    {"id":"debug_c0_s4","type":"debug","z":"tab_c0_s4","name":"","active":true,"tosidebar":true,"console":false,"tostatus":false,"complete":"false","statusVal":"","statusType":"auto","x":620,"y":60,"wires":[]},
+    {"id":"uitext_c0_s4","type":"ui-text","z":"tab_c0_s4","group":"group_c0","order":1,"width":0,"height":0,"name":"挨拶表示","label":"挨拶","format":"{{msg.payload}}","layout":"row-spread","style":false,"font":"","fontSize":16,"color":"#000000","className":"","x":620,"y":140,"wires":[]}
+]</pre></div>
+            </details>
+        </div>
+
+        <h2>詰まったら</h2>
+        <p>何かうまく行かなくて、自分では解決しきれない場面が出てきたら、次のページ <a href="nodered-chapter0-debugging.html">④ 動かないときの進め方</a> で「問題を切り分ける手順」を学べます。動かないのはプログラミング学習では<strong>普通のこと</strong>で、原因を特定するスキルそのものが大事な学習項目です。</p>
+
+        <h2>ここまでで見えた 4 つのこと</h2>
+        <div class="wrapup">
+            <h3>🎊 10 分でこれだけ体験しました</h3>
+            <div class="icon-list">
+                <div class="icon-item">
+                    <div class="emoji">⚡</div>
+                    <strong>イベントで動く</strong><br>
+                    <small>Inject ボタンの押下がトリガー。押さないと何も起きない。</small>
+                </div>
+                <div class="icon-item">
+                    <div class="emoji">📨</div>
+                    <strong>データが流れる</strong><br>
+                    <small>msg.payload がワイヤーを伝ってノードを次々に通過する。</small>
+                </div>
+                <div class="icon-item">
+                    <div class="emoji">✂️</div>
+                    <strong>途中で加工できる</strong><br>
+                    <small>Change ノードで値を書き換えられた。Node-RED の「処理」の本体。</small>
+                </div>
+                <div class="icon-item">
+                    <div class="emoji">📊</div>
+                    <strong>画面に出せる</strong><br>
+                    <small>Dashboard 2.0 でブラウザに表示された。IoT ダッシュボードの第一歩。</small>
+                </div>
+            </div>
+            <p style="margin-top:20px;">この 4 つが Node-RED でできる全ての根幹です。以降は、この 4 つの組み合わせが複雑になるだけです。</p>
+        </div>
+
+        <h2>次のステップ</h2>
+        <p>ハンズオンを完走したあなたが次に取り組むと良い内容は、状況によって 2 通りあります。</p>
+
+        <table>
+            <tr>
+                <th>状況</th>
+                <th>おすすめ</th>
+            </tr>
+            <tr>
+                <td>スムーズに完走できた</td>
+                <td>そのまま <a href="nodered-chapter0-debugging.html">④ 動かないときの進め方</a> に進む。将来の詰まり対策を先に身につける。</td>
+            </tr>
+            <tr>
+                <td>何度か詰まった／仕組みが曖昧</td>
+                <td>先に <a href="nodered-chapter0-debugging.html">④ デバッグ方法論</a> を読んでから、このハンズオンをもう一度やり直すと腹落ち感が増します。</td>
+            </tr>
+        </table>
+
+        <div class="next-box">
+            <h3>➡️ 次に読むページ</h3>
+            <p><a href="nodered-chapter0-debugging.html">④ 動かないときの進め方</a></p>
+            <p>プログラミング初心者にとって、動かない時間は「学びの時間」です。どう調べれば原因にたどり着けるか、その手順を具体化します。ここを覚えると、後の学習効率が圧倒的に変わります。</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.flow-json').forEach(function(block) {
+                var button = document.createElement('button');
+                button.className = 'copy-button';
+                button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                button.addEventListener('click', function() {
+                    var pre = block.querySelector('pre');
+                    var text = pre ? pre.textContent : block.textContent;
+                    navigator.clipboard.writeText(text).then(function() {
+                        button.textContent = '✓ コピーしました';
+                        button.classList.add('copied');
+                        setTimeout(function() {
+                            button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                            button.classList.remove('copied');
+                        }, 2000);
+                    }).catch(function() {
+                        button.textContent = 'エラー';
+                        setTimeout(function() {
+                            button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                        }, 2000);
+                    });
+                });
+                block.appendChild(button);
+            });
+        });
+    </script>
+
+    <!-- フローティングホームボタン -->
+    <a href="index.html" style="position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px; background: linear-gradient(135deg, #42b883 0%, #35495e 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; transition: transform 0.3s, box-shadow 0.3s;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 6px 16px rgba(0,0,0,0.4)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.3)';" title="トップページへ">🏠</a>
+</body>
+</html>

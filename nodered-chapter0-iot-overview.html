@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED 第0章⑤ IoT全体像</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        h1 {
+            color: #8f0000;
+            border-bottom: 3px solid #8f0000;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #c00000;
+            margin-top: 30px;
+            border-left: 5px solid #c00000;
+            padding-left: 15px;
+        }
+        h3 {
+            color: #555;
+            margin-top: 25px;
+        }
+        h4 {
+            color: #666;
+            margin-top: 20px;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .page-nav {
+            background: #eef5ff;
+            border: 2px solid #4a90e2;
+            border-radius: 8px;
+            padding: 18px 24px;
+            margin-bottom: 25px;
+        }
+        .page-nav p {
+            margin: 6px 0;
+        }
+        .page-nav .label {
+            display: inline-block;
+            min-width: 110px;
+            font-weight: bold;
+            color: #2c5282;
+        }
+        .important {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .tip {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .warning {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .layer-diagram {
+            background: #fafafa;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+        .layer {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            border-radius: 10px;
+            margin: 10px 0;
+            gap: 18px;
+        }
+        .layer .label {
+            min-width: 140px;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        .layer .body {
+            flex-grow: 1;
+        }
+        .layer.sense { background: #fce4ec; border-left: 6px solid #e91e63; }
+        .layer.sense .label { color: #ad1457; }
+        .layer.edge { background: #e1f5fe; border-left: 6px solid #0288d1; }
+        .layer.edge .label { color: #01579b; }
+        .layer.transport { background: #f3e5f5; border-left: 6px solid #8e24aa; }
+        .layer.transport .label { color: #4a148c; }
+        .layer.cloud { background: #e8f5e9; border-left: 6px solid #43a047; }
+        .layer.cloud .label { color: #1b5e20; }
+        .layer.ui { background: #fff3e0; border-left: 6px solid #fb8c00; }
+        .layer.ui .label { color: #e65100; }
+        .layer-arrow {
+            text-align: center;
+            font-size: 1.5em;
+            color: #888;
+            margin: -4px 0;
+        }
+        .where-box {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-left: 5px solid #1976d2;
+            padding: 22px;
+            margin: 25px 0;
+            border-radius: 8px;
+        }
+        .where-box h3 {
+            margin-top: 0;
+            color: #0d47a1;
+        }
+        .role-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .role-card {
+            background: white;
+            border: 2px solid #4a90e2;
+            border-radius: 8px;
+            padding: 16px 18px;
+        }
+        .role-card h4 {
+            margin: 0 0 8px 0;
+            color: #1976d2;
+        }
+        .role-card .badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            background: #4a90e2;
+            color: white;
+            margin-left: 6px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #e2d96e;
+            color: #333;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        ul, ol {
+            padding-left: 25px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        .scenario-box {
+            background: #fff8e1;
+            border: 2px solid #ffb300;
+            border-radius: 10px;
+            padding: 20px 25px;
+            margin: 25px 0;
+        }
+        .scenario-box h3 {
+            margin-top: 0;
+            color: #e65100;
+        }
+        .scenario-flow {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 12px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+        .next-box {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-left: 5px solid #1976d2;
+            padding: 20px 25px;
+            margin: 30px 0 10px;
+            border-radius: 6px;
+        }
+        .next-box h3 {
+            margin-top: 0;
+            color: #0d47a1;
+        }
+        .next-box a {
+            color: #1565c0;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        .next-box a:hover {
+            text-decoration: underline;
+        }
+        code {
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+        .highlight-word {
+            background: #fff59d;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌱 第0章⑤ IoT全体像</h1>
+
+        <div class="page-nav">
+            <p><span class="label">📖 このページの前提</span>①②③④ で Node-RED の基本的な仕組みと向き合い方が身についた方を想定しています。ここまでの知識を「どういう場面で使うのか」という地図にのせるのがこのページの役目です。</p>
+            <p><span class="label">🎯 得られるもの</span>IoT の世界で登場する「センサー」「エッジ」「クラウド」「MQTT」「ダッシュボード」がどう連携するかが分かります。Node-RED がその中でどの役割を担うのかも見えてきます。</p>
+            <p><span class="label">📘 用語を忘れたら</span><a href="nodered-chapter0-what-is-program.html#glossary">①の用語辞典</a>に戻れます。</p>
+            <p><span class="label">➡️ 次に読むページ</span><a href="nodered-chapter0-review.html">⑥ 理解度チェック</a></p>
+        </div>
+
+        <h2>1. IoT とは「モノがインターネットにつながる」仕組み</h2>
+        <p><strong>IoT</strong>（Internet of Things, アイ・オー・ティー）とは、センサーや家電、産業機器などの「モノ」がインターネットに接続され、データをやり取りできるようになる仕組みの総称です。和訳では<strong>「モノのインターネット」</strong>と言われます。</p>
+        <p>身近な例だけでも、エアコンの遠隔操作、スマートウォッチの心拍測定、見守りカメラ、工場の稼働監視、駐車場の空き検知――すべて IoT の応用例です。</p>
+
+        <div class="tip">
+            <strong>💡 「スマホと何が違うの？」</strong><br>
+            スマホやパソコンは「人が操作してネットと会話する端末」。IoT は「<strong>人の操作なしに、機器やセンサーが勝手にデータを送受信する</strong>」点が違います。これは①②で学んだ「イベント駆動」の考え方そのもの。温度が変化したら送る、ボタンが押されたら送る、といった<strong>自動化</strong>が本質です。
+        </div>
+
+        <h2>2. IoT システムの 5 つの階層</h2>
+        <p>どんな IoT システムも、ざっくり分けると次の 5 つの階層で成り立っています。各階層が担う役割を押さえると、自分が今どの階層をいじっているかが分かるようになります。</p>
+
+        <div class="layer-diagram">
+            <div class="layer sense">
+                <div class="label">① センサー層</div>
+                <div class="body">温度・湿度・振動・光・人感・電力など、現実世界の情報を数値化するハードウェア。</div>
+            </div>
+            <div class="layer-arrow">⬇ ケーブル／近距離無線</div>
+            <div class="layer edge">
+                <div class="label">② エッジ層</div>
+                <div class="body">センサーに近い場所（現場）で動く小型コンピュータ。例: Raspberry Pi、Jetson。データを集めて整え、必要なら即座に判断して動作する。</div>
+            </div>
+            <div class="layer-arrow">⬇ インターネット（MQTT, HTTP）</div>
+            <div class="layer transport">
+                <div class="label">③ 通信層</div>
+                <div class="body">エッジとクラウドを結ぶパイプ。<strong>MQTT</strong>（軽量メッセージ）、HTTP/HTTPS、WebSocket など。</div>
+            </div>
+            <div class="layer-arrow">⬇ メッセージ受信</div>
+            <div class="layer cloud">
+                <div class="label">④ クラウド層</div>
+                <div class="body">大量のデータを蓄え、分析し、通知や保存を担う。AWS、Azure、Google Cloud など。</div>
+            </div>
+            <div class="layer-arrow">⬇ 表示要求</div>
+            <div class="layer ui">
+                <div class="label">⑤ UI 層</div>
+                <div class="body">人間が見る画面。<strong>ダッシュボード</strong>、スマホアプリ、メール／LINE 通知など。</div>
+            </div>
+        </div>
+
+        <div class="important">
+            <strong>📌 すべてを 1 台でやる必要はない</strong><br>
+            規模が小さければ、エッジだけで全階層をこなすこともあります（センサーを繋いで、Node-RED で処理して、Node-RED のダッシュボードで表示する）。規模が大きくなるほど、クラウドを絡めた分散構成が必要になります。
+        </div>
+
+        <h2>3. Node-RED はどこで活躍するのか？</h2>
+        <p>Node-RED の強みは、<strong>複数の階層をまたいで「つなぐ役目」</strong>をこなせることです。具体的には次の 3 つのポジションが代表的です。</p>
+
+        <div class="where-box">
+            <h3>🔷 Node-RED が活躍する 3 つのポジション</h3>
+            <ol>
+                <li><strong>エッジ層（Raspberry Pi / Jetson 上）</strong>: センサーから値を読み、ちょっとした処理を入れて、クラウドに送る。現場で動く IoT ゲートウェイの中心。</li>
+                <li><strong>クラウド層（AWS 等に Node-RED を立てる）</strong>: 複数のエッジから届いたデータを受け取り、条件に応じて保存・通知・集計する。</li>
+                <li><strong>UI 層（ダッシュボード）</strong>: 集まったデータをグラフやカードで可視化する。Node-RED Dashboard 2.0 を使うと、コード無しで画面が作れる。</li>
+            </ol>
+        </div>
+
+        <p>つまり Node-RED は、<strong>どの階層にも顔を出せる</strong>万能選手です。これが「GUI でデータを配線できる」利点を最大限に活かしたアーキテクチャです。</p>
+
+        <h2>4. 登場人物紹介：IoT で出てくる主要ワード</h2>
+
+        <div class="role-grid">
+            <div class="role-card">
+                <h4>センサー <span class="badge">入力</span></h4>
+                <p>現実世界の物理量を電気信号に変換する部品。温度、湿度、圧力、照度、加速度、電流など。</p>
+            </div>
+            <div class="role-card">
+                <h4>アクチュエータ <span class="badge">出力</span></h4>
+                <p>電気信号で現実世界に影響を与える部品。モーター、リレー、LED、スピーカーなど。</p>
+            </div>
+            <div class="role-card">
+                <h4>エッジデバイス <span class="badge">処理</span></h4>
+                <p>現場で動く小型コンピュータ。Raspberry Pi、Jetson、Arduino、ESP32 など。</p>
+            </div>
+            <div class="role-card">
+                <h4>ゲートウェイ <span class="badge">中継</span></h4>
+                <p>現場のセンサーをまとめてクラウドへ送る中継機。多くの場合、エッジデバイスが兼任。</p>
+            </div>
+            <div class="role-card">
+                <h4>MQTT <span class="badge">通信</span></h4>
+                <p>IoT 標準の軽量メッセージプロトコル。「ブローカー」を経由して、送信者と受信者が疎結合でやり取りできる。</p>
+            </div>
+            <div class="role-card">
+                <h4>ブローカー <span class="badge">仲介</span></h4>
+                <p>MQTT メッセージを仲介するサーバー。送信者は「どのトピックに出す」、受信者は「どのトピックを聞く」と宣言するだけで繋がる。</p>
+            </div>
+            <div class="role-card">
+                <h4>クラウド <span class="badge">蓄積</span></h4>
+                <p>AWS・Azure・Google Cloud 等のオンライン計算資源。大量データの保管・分析・通知・可視化に使う。</p>
+            </div>
+            <div class="role-card">
+                <h4>ダッシュボード <span class="badge">可視化</span></h4>
+                <p>集まったデータをグラフやカードで表示する画面。Node-RED Dashboard 2.0、Grafana、AWS QuickSight など。</p>
+            </div>
+            <div class="role-card">
+                <h4>データベース <span class="badge">記録</span></h4>
+                <p>時系列で値を溜める倉庫。InfluxDB、DynamoDB、Timestream などが IoT でよく使われる。</p>
+            </div>
+        </div>
+
+        <h2>5. MQTT って結局なに？</h2>
+        <p>IoT で最もよく出てくる「MQTT」を、一段だけ噛み砕いて説明します。</p>
+        <p>MQTT は、① で学んだ msg の考え方とほぼ同じ発想です。<strong>「どこ宛て（topic）に、何のデータ（payload）を送るか」</strong>をブローカー（仲介サーバー）に渡すと、そのトピックを聞いている全員に配送される、という仕組みです。</p>
+
+        <div class="layer-diagram" style="background:#fff;">
+            <p style="text-align:center;font-weight:bold;margin-top:0;">MQTT のイメージ</p>
+            <div class="scenario-flow">
+センサーA「temperature」のトピックに "25" を送信
+        ↓
+MQTT ブローカー（仲介サーバー）が受け取る
+        ↓
+「temperature」を購読しているノード全員に配送
+        ↓
+受信: Node-RED ダッシュボード、Node-RED の別フロー、スマホアプリ、etc.
+            </div>
+        </div>
+
+        <div class="tip">
+            <strong>💡 Node-RED の msg との対応</strong><br>
+            Node-RED の <code>msg.topic</code> と <code>msg.payload</code> は、もともと MQTT を強く意識して設計されています。MQTT ノードを使えば、フロー内の msg をそのまま MQTT として<strong>外に送り出す</strong>ことも、外から受け取ってフロー内の msg として扱うこともできます。<br>
+            つまり、ここまで学んできた Node-RED の基本がそのまま MQTT 通信の基本でもあります。
+        </div>
+
+        <h2>6. エッジ vs クラウド：どちらで処理する？</h2>
+        <p>「処理はエッジでやる」のと「処理はクラウドでやる」の違いをまとめます。IoT システム設計で最初に考えるのが、この切り分けです。</p>
+
+        <table>
+            <tr>
+                <th>観点</th>
+                <th>エッジで処理</th>
+                <th>クラウドで処理</th>
+            </tr>
+            <tr>
+                <td>応答速度</td>
+                <td>速い（ms 単位）</td>
+                <td>遅い（ネット遅延あり）</td>
+            </tr>
+            <tr>
+                <td>通信量</td>
+                <td>少ない（加工後だけ送る）</td>
+                <td>多い（生データ全部送る）</td>
+            </tr>
+            <tr>
+                <td>ネット切断時</td>
+                <td>動作継続できる</td>
+                <td>止まる</td>
+            </tr>
+            <tr>
+                <td>大量データ分析</td>
+                <td>苦手（CPU・メモリ限界）</td>
+                <td>得意（スケール可能）</td>
+            </tr>
+            <tr>
+                <td>複数拠点集約</td>
+                <td>難しい</td>
+                <td>得意</td>
+            </tr>
+            <tr>
+                <td>運用コスト</td>
+                <td>電気代のみ</td>
+                <td>月額課金</td>
+            </tr>
+            <tr>
+                <td>向いている処理</td>
+                <td>即時判断、異常検知、前処理</td>
+                <td>集計、長期保存、横断分析、通知</td>
+            </tr>
+        </table>
+
+        <p>実務では<strong>両方を組み合わせる</strong>のが一般的です。エッジで前処理して必要な値だけクラウドに送り、クラウドで長期保管・集計する、という分業が定石です。</p>
+
+        <h2>7. 小さく始める IoT のパターン 3 つ</h2>
+        <p>大掛かりな構成から始めるとハードルが高いので、まずは小さいところから積み上げるのがおすすめです。読者の方が実際に試しやすい規模感を 3 つ紹介します。</p>
+
+        <div class="scenario-box">
+            <h3>🅰 パターン A: エッジだけで完結（初級）</h3>
+            <p><strong>例:</strong> 部屋の温度を Raspberry Pi で測り、Node-RED Dashboard 2.0 に表示する。</p>
+            <div class="scenario-flow">
+温度センサー → Raspberry Pi → Node-RED → ダッシュボード（同じ Pi 上）
+            </div>
+            <p><strong>特徴:</strong> クラウド不要、設定が最小、0 円で動く。③ のハンズオンが体験した世界の延長線上。</p>
+        </div>
+
+        <div class="scenario-box">
+            <h3>🅱 パターン B: エッジ → MQTT → クラウド Node-RED（中級）</h3>
+            <p><strong>例:</strong> 複数の Raspberry Pi から温度データを集め、AWS 上の Node-RED で一括表示。</p>
+            <div class="scenario-flow">
+センサー → Pi (Node-RED) ─MQTT─→ クラウド Node-RED → ダッシュボード
+                        ─MQTT─↗
+            </div>
+            <p><strong>特徴:</strong> 複数拠点の集約ができる。MQTT の理解が必須。AWS の EC2 や軽量 VM に Node-RED を立てる構成。</p>
+        </div>
+
+        <div class="scenario-box">
+            <h3>🅲 パターン C: エッジ → クラウドサービス統合（応用）</h3>
+            <p><strong>例:</strong> センサーデータを AWS IoT Core で受け、DynamoDB に保存、異常値があれば SNS で通知。</p>
+            <div class="scenario-flow">
+センサー → Pi (Node-RED) ─MQTT/HTTPS─→ AWS IoT Core
+                                    → DynamoDB（保存）
+                                    → Lambda → SNS（通知）
+            </div>
+            <p><strong>特徴:</strong> 本格的なクラウドネイティブ構成。AWS 各サービスの組み合わせが学べる。運用コストと設計の複雑さが上がる代わりに、大規模運用に耐える。</p>
+        </div>
+
+        <div class="important">
+            <strong>📌 最初はパターン A で OK</strong><br>
+            学び始めは、パターン A で「センサー → フロー → ダッシュボード」の 1 本を作り切ることを目標にしてください。ここができれば、後は MQTT やクラウドを足すだけで B, C へ拡張できます。
+        </div>
+
+        <h2>8. Node-RED の役割を一言で言うと</h2>
+        <p>IoT の世界で Node-RED の役割を一言で表すなら、こうです。</p>
+
+        <div class="where-box" style="text-align:center;font-size:1.2em;">
+            <p style="margin:10px 0;">
+                <span class="highlight-word">センサー／クラウド／ダッシュボード</span>を<br>
+                <span class="highlight-word">ノーコードで接着する</span>ハブ
+            </p>
+        </div>
+
+        <p>プログラムを一行も書かずに、異なる世界のデータを<strong>「つなぐ」「整える」「見せる」</strong>ところが Node-RED の本領です。ここまで読んだあなたは、もうこの「ハブ」の中身を配線できる素地を持っています。</p>
+
+        <h2>9. このあとの学習ロードマップ</h2>
+        <p>第 0 章を終えた後、どう進むかの地図を示します。興味のある方向から拾い読みして OK です。</p>
+
+        <table>
+            <tr>
+                <th>興味の方向</th>
+                <th>次に触ると良いガイド</th>
+            </tr>
+            <tr>
+                <td>ノード 1 つずつの使い方を深める</td>
+                <td>Inject／Debug／Change／Function の各ガイド</td>
+            </tr>
+            <tr>
+                <td>ダッシュボードを作ってみる</td>
+                <td>Dashboard 2.0 ウィジェット系の各ガイド</td>
+            </tr>
+            <tr>
+                <td>外部 API と連携する</td>
+                <td>HTTP Request、HTTP In/Response の各ガイド</td>
+            </tr>
+            <tr>
+                <td>MQTT で通信する</td>
+                <td>MQTT In／MQTT Out の各ガイド</td>
+            </tr>
+            <tr>
+                <td>ファイルや DB に書き出す</td>
+                <td>File、DB 系ノードの各ガイド</td>
+            </tr>
+            <tr>
+                <td>Raspberry Pi のハード連携</td>
+                <td>GPIO、Raspberry Pi セットアップガイド</td>
+            </tr>
+        </table>
+
+        <div class="tip">
+            <strong>💡 まずは手を動かす習慣をつける</strong><br>
+            ロードマップはあくまで目安です。一番大事なのは<strong>「気になったノードをその日のうちに試す」</strong>習慣をつけること。読むだけでは手に馴染みません。
+        </div>
+
+        <h2>10. まとめ：地図が手に入った</h2>
+        <ul>
+            <li>IoT は<strong>センサー → エッジ → 通信 → クラウド → UI</strong> の 5 層でできている。</li>
+            <li>Node-RED は<strong>エッジ・クラウド・UI のどこでも使える</strong>接着剤。</li>
+            <li>MQTT は Node-RED の msg（topic+payload）を外に出すための標準プロトコル。</li>
+            <li>エッジとクラウドは<strong>得意分野が違う</strong>。両者の組み合わせで設計する。</li>
+            <li>まずは<strong>パターン A（エッジ完結）</strong>から始めて、必要に応じて B, C へ拡張。</li>
+        </ul>
+
+        <p>ここまで来れば、世の中の IoT 事例を見たときに「これはどの階層の話で、Node-RED だとどこを担うだろう？」と考えられるようになっています。第 0 章で学んだ基礎が、現実のシステムにどう対応するかのイメージが持てているはずです。</p>
+
+        <div class="next-box">
+            <h3>➡️ 次のページへ</h3>
+            <p>第 0 章もいよいよ最後です。次のページは<strong>理解度チェック</strong>。12 問のクイズと 3 問のフロー作成チャレンジで、学んだことが身についているかを自己確認できます。間違えても大丈夫。引っかかった問題は対応ページに戻って読み直すことで、自分の弱点が分かります。</p>
+            <p style="text-align:center;font-size:1.1em;margin-top:15px;">
+                ▶ <a href="nodered-chapter0-review.html">第0章⑥ 理解度チェック</a>
+            </p>
+        </div>
+
+        <p style="margin-top:30px;">
+            <a href="index.html">← トップページへ戻る</a> |
+            <a href="nodered-chapter0-what-is-program.html">① そもそもプログラムとは？</a> |
+            <a href="nodered-chapter0-event-driven.html">② イベント駆動とは？</a> |
+            <a href="nodered-chapter0-hands-on.html">③ 最初の10分ハンズオン</a> |
+            <a href="nodered-chapter0-debugging.html">④ 動かないときの進め方</a> |
+            <a href="nodered-chapter0-review.html">⑥ 理解度チェック</a>
+        </p>
+    </div>
+
+    <a href="index.html" style="position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px; background: linear-gradient(135deg, #42b883 0%, #35495e 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; transition: transform 0.3s, box-shadow 0.3s;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 6px 16px rgba(0,0,0,0.4)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.3)';" title="トップページへ">🏠</a>
+</body>
+</html>

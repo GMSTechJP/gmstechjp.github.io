@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED 第0章⑥ 理解度チェック</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        h1 {
+            color: #8f0000;
+            border-bottom: 3px solid #8f0000;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #c00000;
+            margin-top: 30px;
+            border-left: 5px solid #c00000;
+            padding-left: 15px;
+        }
+        h3 {
+            color: #555;
+            margin-top: 25px;
+        }
+        h4 {
+            color: #666;
+            margin-top: 20px;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .page-nav {
+            background: #eef5ff;
+            border: 2px solid #4a90e2;
+            border-radius: 8px;
+            padding: 18px 24px;
+            margin-bottom: 25px;
+        }
+        .page-nav p {
+            margin: 6px 0;
+        }
+        .page-nav .label {
+            display: inline-block;
+            min-width: 110px;
+            font-weight: bold;
+            color: #2c5282;
+        }
+        .intro-box {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border: 2px solid #ff9800;
+            border-radius: 10px;
+            padding: 22px;
+            margin: 20px 0;
+        }
+        .intro-box h3 {
+            margin-top: 0;
+            color: #e65100;
+        }
+        .quiz-section {
+            margin: 30px 0;
+        }
+        .quiz-item {
+            background: white;
+            border: 2px solid #90caf9;
+            border-radius: 10px;
+            padding: 22px 26px;
+            margin: 18px 0;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+        .quiz-item .qhead {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        .quiz-item .qnum {
+            background: #1976d2;
+            color: white;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            flex-shrink: 0;
+        }
+        .quiz-item .qtag {
+            background: #e3f2fd;
+            color: #0d47a1;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        .quiz-item .qtext {
+            font-size: 1.05em;
+            font-weight: bold;
+            color: #1a237e;
+            margin: 8px 0 14px;
+        }
+        .quiz-item .choices {
+            margin: 10px 0 14px;
+            padding-left: 0;
+            list-style: none;
+        }
+        .quiz-item .choices li {
+            background: #f5f5f5;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 10px 14px;
+            margin: 6px 0;
+        }
+        .quiz-item .choices .label {
+            display: inline-block;
+            background: #90caf9;
+            color: white;
+            width: 28px;
+            height: 28px;
+            line-height: 28px;
+            text-align: center;
+            border-radius: 50%;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        details.answer {
+            margin-top: 14px;
+        }
+        details.answer summary {
+            cursor: pointer;
+            padding: 10px 16px;
+            background: #546e7a;
+            color: white;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.95em;
+        }
+        details.answer summary:hover {
+            background: #37474f;
+        }
+        details.answer .answer-body {
+            background: #f0f7e8;
+            border-left: 4px solid #7cb342;
+            padding: 16px 20px;
+            margin-top: 10px;
+            border-radius: 0 6px 6px 0;
+        }
+        details.answer .answer-body .correct-mark {
+            font-size: 1.05em;
+            color: #33691e;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+        details.answer .answer-body .source-link {
+            font-size: 0.9em;
+            color: #555;
+            margin-top: 10px;
+        }
+        details.answer .answer-body .source-link a {
+            color: #1565c0;
+        }
+        .challenge-section {
+            margin: 40px 0;
+        }
+        .challenge-card {
+            background: white;
+            border: 3px solid #66bb6a;
+            border-radius: 12px;
+            padding: 26px;
+            margin: 25px 0;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        }
+        .challenge-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 14px;
+            padding-bottom: 14px;
+            border-bottom: 2px solid #c8e6c9;
+        }
+        .challenge-num {
+            background: #43a047;
+            color: white;
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4em;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        .challenge-title h3 {
+            margin: 0;
+            color: #1b5e20;
+        }
+        .difficulty {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+            color: white;
+            margin-left: 8px;
+        }
+        .difficulty.easy { background: #66bb6a; }
+        .difficulty.mid { background: #ffa726; }
+        .difficulty.hard { background: #ef5350; }
+        .challenge-goal {
+            background: #fffde7;
+            border-left: 4px solid #fbc02d;
+            padding: 12px 18px;
+            margin: 12px 0;
+            border-radius: 5px;
+        }
+        .challenge-requirements {
+            background: #f8f9fa;
+            border-left: 4px solid #4caf50;
+            padding: 14px 20px;
+            margin: 14px 0;
+            border-radius: 5px;
+        }
+        .challenge-requirements ul {
+            margin: 0;
+            padding-left: 22px;
+        }
+        .challenge-hint {
+            background: #e3f2fd;
+            border-left: 4px solid #42a5f5;
+            padding: 14px 20px;
+            margin: 14px 0;
+            border-radius: 5px;
+        }
+        .flow-json {
+            background-color: #263238;
+            color: #aed581;
+            padding: 15px;
+            padding-top: 40px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            position: relative;
+            white-space: pre;
+        }
+        details.solution {
+            margin: 14px 0;
+        }
+        details.solution summary {
+            cursor: pointer;
+            padding: 10px 16px;
+            background: #1b5e20;
+            color: white;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+        details.solution summary:hover {
+            background: #0d3e0f;
+        }
+        .score-card {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border: 2px solid #4caf50;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+        }
+        .score-card h3 {
+            margin-top: 0;
+            color: #1b5e20;
+        }
+        .score-table {
+            margin: 15px 0;
+        }
+        .score-range {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 18px;
+            background: white;
+            border-radius: 8px;
+            margin: 8px 0;
+            border-left: 5px solid;
+        }
+        .score-range.s1 { border-color: #ef5350; }
+        .score-range.s2 { border-color: #ff9800; }
+        .score-range.s3 { border-color: #66bb6a; }
+        .score-range.s4 { border-color: #1b5e20; }
+        .score-range .range {
+            font-weight: bold;
+            font-size: 1.15em;
+            min-width: 90px;
+        }
+        .weak-points {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 20px 25px;
+            margin: 25px 0;
+        }
+        .weak-points h3 {
+            margin-top: 0;
+            color: #e65100;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #e2d96e;
+            color: #333;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        ul, ol {
+            padding-left: 25px;
+        }
+        li {
+            margin: 6px 0;
+        }
+        code {
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+        .next-box {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-left: 5px solid #1976d2;
+            padding: 20px 25px;
+            margin: 30px 0 10px;
+            border-radius: 6px;
+        }
+        .next-box h3 {
+            margin-top: 0;
+            color: #0d47a1;
+        }
+        .next-box a {
+            color: #1565c0;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        .next-box a:hover {
+            text-decoration: underline;
+        }
+        .tip {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌱 第0章⑥ 理解度チェック</h1>
+
+        <div class="page-nav">
+            <p><span class="label">📖 このページの前提</span>第 0 章①〜⑤ を読んだ方向けの自己チェックです。順番に読んでなくても OK ですが、分からなかった問題は対応ページに戻れるよう、各問題に参照先を明記しています。</p>
+            <p><span class="label">🎯 得られるもの</span>12 問のクイズで知識の定着度を確認、3 つのフロー作成チャレンジで実践力を確認できます。苦手分野が一目で分かる仕組みになっています。</p>
+            <p><span class="label">📘 用語を忘れたら</span><a href="nodered-chapter0-what-is-program.html#glossary">①の用語辞典</a>に戻れます。</p>
+        </div>
+
+        <div class="intro-box">
+            <h3>🎯 このページの使い方</h3>
+            <ol>
+                <li><strong>Part 1（クイズ 12 問）</strong>: 各問題ごとに答えを考えてから「答えを見る」を開く。全問終わったら正解数を数える。</li>
+                <li><strong>Part 2（フロー作成 3 問）</strong>: 実際に Node-RED エディターで手を動かす。完成したら解答例フローと比較する。</li>
+                <li><strong>Part 3（自己採点）</strong>: 各パートの成績から、復習すべきページが分かる。</li>
+            </ol>
+            <p style="margin-bottom:0;"><strong>⚠️ 注意:</strong> 間違えても落ち込む必要はありません。間違えた問題ほど、記憶に残りやすくなります。<strong>淡々と、間違えた箇所に戻って読み直す</strong>のが最も効率の良い学び方です。</p>
+        </div>
+
+        <h2>📝 Part 1: クイズ（12 問）</h2>
+        <p>各問題、選択肢の中から最も適切なものを 1 つ選んでから答え合わせをしてください。各問題の右上に出典ページのタグが付いているので、間違えた問題はそのページに戻って復習できます。</p>
+
+        <div class="quiz-section">
+
+            <!-- Q1 -->
+            <div class="quiz-item">
+                <div class="qhead">
+                    <div class="qnum">1</div>
+                    <div><span class="qtag">① そもそもプログラムとは？</span></div>
+                </div>
+                <div class="qtext">Q1. プログラムの基本的な動きを 3 段階で表すと、どれが正しいですか？</div>
+                <ul class="choices">
+                    <li><span class="label">A</span>入力 → 処理 → 出力</li>
+                    <li><span class="label">B</span>開始 → 実行 → 停止</li>
+                    <li><span class="label">C</span>設計 → 作成 → 販売</li>
+                    <li><span class="label">D</span>命令 → 確認 → 保存</li>
+                </ul>
+                <details class="answer">
+                    <summary>✅ 答えを見る</summary>
+                    <div class="answer-body">
+                        <div class="correct-mark">正解: A（入力 → 処理 → 出力）</div>
+                        <p>プログラムは「データを受け取り（入力）」「加工して（処理）」「結果を返す（出力）」という 3 段階が基本。Excel の数式も、Node-RED のフローも、この構造は変わりません。</p>
+                        <div class="source-link">📖 復習: <a href="nodered-chapter0-what-is-program.html">① そもそもプログラムとは？</a> §4</div>
+                    </div>
+                </details>
+            </div>
+
+            <!-- Q2 -->
+            <div class="quiz-item">
+                <div class="qhead">
+                    <div class="qnum">2</div>
+                    <div><span class="qtag">① そもそもプログラムとは？</span></div>
+                </div>
+                <div class="qtext">Q2. プログラムの「3 つの基本構造」として、次のうち正しい組み合わせはどれですか？</div>
+                <ul class="choices">
+                    <li><span class="label">A</span>入力・処理・出力</li>
+                    <li><span class="label">B</span>順次・分岐・繰り返し</li>
+                    <li><span class="label">C</span>数値・文字列・真偽値</li>
+                    <li><span class="label">D</span>設計・実装・テスト</li>
+                </ul>
+                <details class="answer">
+                    <summary>✅ 答えを見る</summary>
+                    <div class="answer-body">
+                        <div class="correct-mark">正解: B（順次・分岐・繰り返し）</div>
+                        <p>プログラムの流れ方は、この 3 つの組み合わせで表現できるとされています。Node-RED の配線も、ワイヤーで順次つなぐ／Switch で分岐する／Delay や Loop で繰り返す、として対応します。</p>
+                        <div class="source-link">📖 復習: <a href="nodered-chapter0-what-is-program.html">① そもそもプログラムとは？</a> §6</div>
+                    </div>
+                </details>
+            </div>
+
+            <!-- Q3 -->
+            <div class="quiz-item">
+                <div class="qhead">
+                    <div class="qnum">3</div>
+                    <div><span class="qtag">① そもそもプログラムとは？</span></div>
+                </div>
+                <div class="qtext">Q3. Node-RED でフローを流れる「メッセージ」は一般的に何と呼ばれますか？</div>
+                <ul class="choices">
+                    <li><span class="label">A</span>data</li>
+                    <li><span class="label">B</span>event</li>
+                    <li><span class="label">C</span>msg</li>
+                    <li><span class="label">D</span>payload</li>
+                </ul>
+                <details class="answer">
+                    <summary>✅ 答えを見る</summary>
+                    <div class="answer-body">
+                        <div class="correct-mark">正解: C（msg）</div>
+                        <p>Node-RED ではノード間を流れるオブジェクト全体を <code>msg</code>（メッセージ）と呼びます。その中身として <code>msg.payload</code>（本文）や <code>msg.topic</code>（タイトル）などのプロパティが入っています。</p>
+                        <div class="source-link">📖 復習: <a href="nodered-chapter0-what-is-program.html">① そもそもプログラムとは？</a> §7／<a href="nodered-chapter0-what-is-program.html#glossary">用語辞典</a></div>
+                    </div>
+                </details>
+            </div>
+
+            <!-- Q4 -->
+            <div class="quiz-item">
+                <div class="qhead">
+                    <div class="qnum">4</div>
+                    <div><span class="qtag">② イベント駆動とは？</span></div>
+                </div>
+                <div class="qtext">Q4. Node-RED は次のうちどちらの方式で動いていますか？</div>
+                <ul class="choices">
+                    <li><span class="label">A</span>手続き型（上から順に実行して終了）</li>
+                    <li><span class="label">B</span>イベント駆動型（何かが起きたら動く）</li>
+                    <li><span class="label">C</span>関数型（数式だけで構成）</li>
+                    <li><span class="label">D</span>オブジェクト指向型（クラスを書く）</li>
+                </ul>
+                <details class="answer">
+                    <summary>✅ 答えを見る</summary>
+                    <div class="answer-body">
+                        <div class="correct-mark">正解: B（イベント駆動型）</div>
+                        <p>Node-RED はデプロイ後、Inject ボタンが押された、タイマーが鳴った、MQTT にメッセージが届いた等の「イベント」が発生したときだけフローが動きます。何も起きなければ、ずっと待機状態です。</p>
+                        <div class="source-link">📖 復習: <a href="nodered-chapter0-event-driven.html">② イベント駆動とは？</a> §2, §4</div>
+                    </div>
+                </details>
+            </div>
+
+            <!-- Q5 -->
+            <div class="quiz-item">
+                <div class="qhead">
+                    <div class="qnum">5</div>
+                    <div><span class="qtag">② イベント駆動とは？</span></div>
+                </div>
+                <div class="qtext">Q5. 次のうち「イベント源（トリガー）」になり得るのはどれですか？（最も適切なものを 1 つ）</div>
+                <ul class="choices">
+                    <li><span class="label">A</span>Inject ボタンが押される</li>
+                    <li><span class="label">B</span>毎分の定期タイマー</li>
+                    <li><span class="label">C</span>MQTT メッセージの受信</li>
+                    <li><span class="label">D</span>上記すべて</li>
+                </ul>
+                <details class="answer">
+                    <summary>✅ 答えを見る</summary>
+                    <div class="answer-body">
+                        <div class="correct-mark">正解: D（上記すべて）</div>
+                        <p>Node-RED ではあらゆる「何かが起きた」瞬間がイベントになります。ボタン押下、タイマー満了、通信受信、ファイル変更、GPIO 信号、HTTP リクエストなど、どれも同じ仕組みで扱われます。</p>
+                        <div class="source-link">📖 復習: <a href="nodered-chapter0-event-driven.html">② イベント駆動とは？</a> §5</div>
+                    </div>
+                </details>
+            </div>
+
+            <!-- Q6 -->
+            <div class="quiz-item">
+                <div class="qhead">
+                    <div class="qnum">6</div>
+                    <div><span class="qtag">③ 最初の10分ハンズオン</span></div>
+                </div>
+                <div class="qtext">Q6. フローを編集した後、変更を反映させるには何が必要ですか？</div>
+                <ul class="choices">
+                    <li><span class="label">A</span>ファイルを保存する</li>
+                    <li><span class="label">B</span>ブラウザを再読み込みする</li>
+                    <li><span class="label">C</span>右上の赤い「デプロイ」ボタンを押す</li>
+                    <li><span class="label">D</span>Node-RED を再起動する</li>
+                </ul>
+                <details class="answer">
+                    <summary>✅ 答えを見る</summary>
+                    <div class="answer-body">
+                        <div class="correct-mark">正解: C（デプロイボタンを押す）</div>
+                        <p>編集しただけでは反映されません。右上の赤いボタンがグレーになるまでデプロイしてください。Node-RED あるあるの最上位の勘違いです。</p>
+                        <div class="source-link">📖 復習: <a href="nodered-chapter0-hands-on.html">③ 最初の10分ハンズオン</a> ステップ1／<a href="nodered-chapter0-debugging.html">④ 動かないときの進め方</a> §2</div>
+                    </div>
+                </details>
+            </div>
+
+            <!-- Q7 -->
+            <div class="quiz-item">
+                <div class="qhead">
+                    <div class="qnum">7</div>
+                    <div><span class="qtag">③ 最初の10分ハンズオン</span></div>
+                </div>
+                <div class="qtext">Q7. Inject ノードの payload 種別で「数値」を選んで <code>25</code> を入れた場合と「文字列」を選んで <code>25</code> を入れた場合の違いは？</div>
+                <ul class="choices">
+                    <li><span class="label">A</span>違いはない。同じ 25 になる。</li>
+                    <li><span class="label">B</span>「数値」は計算できる <code>25</code>、「文字列」は文字としての <code>"25"</code>。</li>
+                    <li><span class="label">C</span>「数値」は整数、「文字列」は小数も扱える。</li>
+                    <li><span class="label">D</span>「文字列」の方が処理が速い。</li>
+                </ul>
+                <details class="answer">
+                    <summary>✅ 答えを見る</summary>
+                    <div class="answer-body">
+                        <div class="correct-mark">正解: B（数値は計算できる 25、文字列は文字の "25"）</div>
+                        <p>型の違いはプログラミングで最も重要な概念の 1 つ。Debug サイドバーでは、文字列は <code>"25"</code> のようにクオート付き、数値はクオート無しで表示されて区別できます。</p>
+                        <div class="source-link">📖 復習: <a href="nodered-chapter0-hands-on.html">③ 最初の10分ハンズオン</a> ステップ2／<a href="nodered-chapter0-debugging.html">④ 動かないときの進め方</a> §5（勘違い #2）</div>
+                    </div>
+                </details>
+            </div>
+
+            <!-- Q8 -->
+            <div class="quiz-item">
+                <div class="qhead">
+                    <div class="qnum">8</div>
+                    <div><span class="qtag">③ 最初の10分ハンズオン</span></div>
+                </div>
+                <div class="qtext">Q8. ダッシュボード（ui-text 等）を動かすのに必要な「設定ノード」はどれですか？</div>
+                <ul class="choices">
+                    <li><span class="label">A</span>ui-base のみ</li>
+                    <li><span class="label">B</span>ui-page のみ</li>
+                    <li><span class="label">C</span>ui-base, ui-theme, ui-page, ui-group をそれぞれ作る必要がある</li>
+                    <li><span class="label">D</span>ダッシュボードは設定ノード不要</li>
+                </ul>
+                <details class="answer">
+                    <summary>✅ 答えを見る</summary>
+                    <div class="answer-body">
+                        <div class="correct-mark">正解: C（ui-base, ui-theme, ui-page, ui-group が必要）</div>
+                        <p>Node-RED Dashboard 2.0 はウィジェットをツリー構造で管理します。ui-base（ダッシュボード本体）→ ui-theme（見た目）／ui-page（ページ）→ ui-group（画面内の箱）→ 各ウィジェット、という階層が必要です。初回だけ設定すれば、後は使い回せます。</p>
+                        <div class="source-link">📖 復習: <a href="nodered-chapter0-hands-on.html">③ 最初の10分ハンズオン</a> ステップ4</div>
+                    </div>
+                </details>
+            </div>
+
+            <!-- Q9 -->
+            <div class="quiz-item">
+                <div class="qhead">
+                    <div class="qnum">9</div>
+                    <div><span class="qtag">④ 動かないときの進め方</span></div>
+                </div>
+                <div class="qtext">Q9. フローが動かないとき、まず最初に確認すべき「3 点確認」に含まれないものはどれ？</div>
+                <ul class="choices">
+                    <li><span class="label">A</span>デプロイボタンを押したか</li>
+                    <li><span class="label">B</span>ワイヤーが繋がっているか</li>
+                    <li><span class="label">C</span>デバッグサイドバーは開いているか</li>
+                    <li><span class="label">D</span>Node-RED を再インストールする</li>
+                </ul>
+                <details class="answer">
+                    <summary>✅ 答えを見る</summary>
+                    <div class="answer-body">
+                        <div class="correct-mark">正解: D（再インストールは最初にやることではない）</div>
+                        <p>最初の 3 秒でやるべきは ABC の 3 点確認です。D のような大掛かりな対処は最終手段であり、原因究明の前にやると問題が闇に葬られてしまいます。</p>
+                        <div class="source-link">📖 復習: <a href="nodered-chapter0-debugging.html">④ 動かないときの進め方</a> §2</div>
+                    </div>
+                </details>
+            </div>
+
+            <!-- Q10 -->
+            <div class="quiz-item">
+                <div class="qhead">
+                    <div class="qnum">10</div>
+                    <div><span class="qtag">④ 動かないときの進め方</span></div>
+                </div>
+                <div class="qtext">Q10. 「値はあるが思っていたのと違う」ときに使う、ベテランが必ず使うテクニックは？</div>
+                <ul class="choices">
+                    <li><span class="label">A</span>Node-RED を再起動する</li>
+                    <li><span class="label">B</span>ワイヤーの途中に Debug ノードを 2〜3 箇所挿して、どこで値が崩れたか特定する（分割統治）</li>
+                    <li><span class="label">C</span>フロー全体を書き直す</li>
+                    <li><span class="label">D</span>パソコンを再起動する</li>
+                </ul>
+                <details class="answer">
+                    <summary>✅ 答えを見る</summary>
+                    <div class="answer-body">
+                        <div class="correct-mark">正解: B（Debug を複数挿す分割統治）</div>
+                        <p>デバッグの最大の武器。ワイヤーの各区間で msg を覗いていけば、「どの区間までは正しくて、どこから崩れるか」が機械的に特定できます。頭で考えるより、事実を見る方が速いです。</p>
+                        <div class="source-link">📖 復習: <a href="nodered-chapter0-debugging.html">④ 動かないときの進め方</a> §(b)</div>
+                    </div>
+                </details>
+            </div>
+
+            <!-- Q11 -->
+            <div class="quiz-item">
+                <div class="qhead">
+                    <div class="qnum">11</div>
+                    <div><span class="qtag">⑤ IoT全体像</span></div>
+                </div>
+                <div class="qtext">Q11. 「エッジで処理する」利点として<strong>当てはまらない</strong>ものはどれ？</div>
+                <ul class="choices">
+                    <li><span class="label">A</span>応答が速い</li>
+                    <li><span class="label">B</span>通信量が少なくて済む</li>
+                    <li><span class="label">C</span>ネットが切れても動き続けられる</li>
+                    <li><span class="label">D</span>複数拠点のデータを集約・横断分析するのが得意</li>
+                </ul>
+                <details class="answer">
+                    <summary>✅ 答えを見る</summary>
+                    <div class="answer-body">
+                        <div class="correct-mark">正解: D（横断分析はクラウドの得意分野）</div>
+                        <p>エッジは現場での即時性に強く、クラウドは大量データの集約・分析に強い、という使い分けです。多くの IoT システムはこの 2 つを組み合わせて設計します。</p>
+                        <div class="source-link">📖 復習: <a href="nodered-chapter0-iot-overview.html">⑤ IoT全体像</a> §6</div>
+                    </div>
+                </details>
+            </div>
+
+            <!-- Q12 -->
+            <div class="quiz-item">
+                <div class="qhead">
+                    <div class="qnum">12</div>
+                    <div><span class="qtag">⑤ IoT全体像</span></div>
+                </div>
+                <div class="qtext">Q12. MQTT の仕組みで「メッセージを仲介する存在」を何と呼びますか？</div>
+                <ul class="choices">
+                    <li><span class="label">A</span>サーバー</li>
+                    <li><span class="label">B</span>ブローカー</li>
+                    <li><span class="label">C</span>クライアント</li>
+                    <li><span class="label">D</span>ハブ</li>
+                </ul>
+                <details class="answer">
+                    <summary>✅ 答えを見る</summary>
+                    <div class="answer-body">
+                        <div class="correct-mark">正解: B（ブローカー）</div>
+                        <p>MQTT は「送信者」→「ブローカー」→「受信者」という 3 者構成。送信者と受信者はお互いを知る必要がなく、トピック名だけで結びつきます。Node-RED の <code>msg.topic</code> はこの発想が起源。</p>
+                        <div class="source-link">📖 復習: <a href="nodered-chapter0-iot-overview.html">⑤ IoT全体像</a> §5／<a href="nodered-chapter0-what-is-program.html#glossary">用語辞典</a></div>
+                    </div>
+                </details>
+            </div>
+
+        </div>
+
+        <h2>🛠 Part 2: フロー作成チャレンジ（3 問）</h2>
+
+        <div class="tip">
+            <strong>💡 使える部品の縛り</strong><br>
+            このチャレンジでは<strong>第 0 章に出てきたノードだけ</strong>を使います。具体的には <code>Inject</code>, <code>Debug</code>, <code>Change</code>, <code>ui-text</code>（+ ダッシュボード用の ui-base / ui-theme / ui-page / ui-group 設定ノード）のみ。まだ習っていないノード（Function や Switch 等）は使いません。
+        </div>
+
+        <div class="challenge-section">
+
+            <!-- Challenge 1 -->
+            <div class="challenge-card">
+                <div class="challenge-header">
+                    <div class="challenge-num">1</div>
+                    <div class="challenge-title">
+                        <h3>自分の名前をデバッグサイドバーに表示<span class="difficulty easy">初級</span></h3>
+                    </div>
+                </div>
+
+                <div class="challenge-goal">
+                    <strong>🎯 ゴール:</strong> Inject ボタンを押すと、デバッグサイドバーに自分の名前（文字列）が表示される最小のフローを作る。
+                </div>
+
+                <div class="challenge-requirements">
+                    <strong>📋 要件:</strong>
+                    <ul>
+                        <li>使用ノード: Inject, Debug（各 1 個ずつ）</li>
+                        <li>Inject の payload 種別は「文字列」にする</li>
+                        <li>payload の中身は自分の名前（例: <code>Taro</code>）</li>
+                        <li>Inject ボタンを押すと、Debug サイドバーにその文字列が表示される</li>
+                    </ul>
+                </div>
+
+                <div class="challenge-hint">
+                    <strong>💡 ヒント:</strong> ③ ハンズオンのステップ 2 を参考に。payload 種別のプルダウンを「文字列」に変えるのがコツ。デプロイを忘れないように。
+                </div>
+
+                <details class="solution">
+                    <summary>🟢 解答例（クリックで展開）</summary>
+                    <p style="font-size:0.9em;color:#666;">このフローをインポートして、デプロイ → Inject ボタンクリックで動作確認できます。</p>
+                    <div class="flow-json"><pre style="margin:0;">[
+    {"id":"tab_c0_q1","type":"tab","label":"チャレンジ1-名前表示","disabled":false,"info":"","env":[]},
+    {"id":"inject_q1","type":"inject","z":"tab_c0_q1","name":"名前を送る","props":[{"p":"payload"},{"p":"topic","vt":"str"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","payload":"Taro","payloadType":"str","x":200,"y":120,"wires":[["debug_q1"]]},
+    {"id":"debug_q1","type":"debug","z":"tab_c0_q1","name":"結果","active":true,"tosidebar":true,"console":false,"tostatus":false,"complete":"payload","targetType":"msg","statusVal":"","statusType":"auto","x":420,"y":120,"wires":[]}
+]</pre></div>
+                    <p style="font-size:0.9em;color:#666;margin-top:8px;">読み込み方法: 右上ハンバーガーメニュー → 読み込み → JSON 貼り付け → 読み込み</p>
+                </details>
+            </div>
+
+            <!-- Challenge 2 -->
+            <div class="challenge-card">
+                <div class="challenge-header">
+                    <div class="challenge-num">2</div>
+                    <div class="challenge-title">
+                        <h3>Change ノードで値を加工してダッシュボードに表示<span class="difficulty mid">中級</span></h3>
+                    </div>
+                </div>
+
+                <div class="challenge-goal">
+                    <strong>🎯 ゴール:</strong> Inject で数値を送り、Change で単位を付けた文字列に変換して、ダッシュボードの ui-text に「温度: 25℃」のように表示する。
+                </div>
+
+                <div class="challenge-requirements">
+                    <strong>📋 要件:</strong>
+                    <ul>
+                        <li>使用ノード: Inject, Change, ui-text（+ Dashboard 設定ノード一式）</li>
+                        <li>Inject の payload は数値 <code>25</code>（固定でよい）</li>
+                        <li>Change ノードで payload を <code>温度: 25℃</code> という文字列に差し替える（値の代入／式で <code>"温度: " &amp; msg.payload &amp; "℃"</code>）</li>
+                        <li>ui-text でダッシュボードに表示する</li>
+                        <li>ブラウザで <code>http://localhost:1880/dashboard</code> を開いて値が見える</li>
+                    </ul>
+                </div>
+
+                <div class="challenge-hint">
+                    <strong>💡 ヒント:</strong> Change ノードの「値の代入」を選び、「対象の値」欄のプルダウンを JSONata や文字列連結が使える形に切り替える。<br>
+                    JSONata で書くなら: <code>"温度: " &amp; payload &amp; "℃"</code><br>
+                    ダッシュボードは ③ ハンズオンのステップ 4 のフローを参考にするとスムーズ。
+                </div>
+
+                <details class="solution">
+                    <summary>🟢 解答例（クリックで展開）</summary>
+                    <p style="font-size:0.9em;color:#666;">このフローをインポートして、デプロイ → Inject ボタンクリック → <code>/dashboard</code> を開いて確認。</p>
+                    <div class="flow-json"><pre style="margin:0;">[
+    {"id":"tab_c0_q2","type":"tab","label":"チャレンジ2-加工表示","disabled":false,"info":"","env":[]},
+    {"id":"ui_base_q2","type":"ui-base","name":"Chapter0 Dashboard","path":"/dashboard","appIcon":"","includeClientData":true,"acceptsClientConfig":["ui-notification","ui-control"],"showPathInSidebar":false,"showPageTitle":true,"navigationStyle":"default","titleBarStyle":"default"},
+    {"id":"theme_q2","type":"ui-theme","name":"Default Theme","colors":{"surface":"#ffffff","primary":"#0094ce","bgPage":"#eeeeee","groupBg":"#ffffff","groupOutline":"#cccccc"},"sizes":{"pagePadding":"12px","groupGap":"12px","groupBorderRadius":"4px","widgetGap":"12px","density":"default"}},
+    {"id":"page_q2","type":"ui-page","name":"チャレンジ2","ui":"ui_base_q2","path":"/page1","icon":"home","layout":"grid","theme":"theme_q2","breakpoints":[{"name":"Default","px":"0","cols":"3"},{"name":"Tablet","px":"576","cols":"6"},{"name":"Small Desktop","px":"768","cols":"9"},{"name":"Desktop","px":"1024","cols":"12"}],"order":1,"className":"","visible":true,"disabled":false},
+    {"id":"group_q2","type":"ui-group","name":"温度表示","page":"page_q2","width":"6","height":"1","order":1,"showTitle":true,"className":"","visible":true,"disabled":false,"groupType":"default"},
+    {"id":"inject_q2","type":"inject","z":"tab_c0_q2","name":"温度を送る","props":[{"p":"payload"},{"p":"topic","vt":"str"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","payload":"25","payloadType":"num","x":160,"y":120,"wires":[["change_q2"]]},
+    {"id":"change_q2","type":"change","z":"tab_c0_q2","name":"単位を付ける","rules":[{"t":"set","p":"payload","pt":"msg","to":"\"温度: \" & payload & \"℃\"","tot":"jsonata"}],"action":"","property":"","from":"","to":"","reg":false,"x":360,"y":120,"wires":[["uitext_q2","debug_q2"]]},
+    {"id":"uitext_q2","type":"ui-text","z":"tab_c0_q2","group":"group_q2","order":1,"width":0,"height":0,"name":"温度テキスト","label":"現在の温度","format":"{{msg.payload}}","layout":"row-left","style":false,"font":"","fontSize":16,"color":"#1f1f1f","className":"","x":580,"y":100,"wires":[]},
+    {"id":"debug_q2","type":"debug","z":"tab_c0_q2","name":"ログ","active":true,"tosidebar":true,"console":false,"tostatus":false,"complete":"payload","targetType":"msg","statusVal":"","statusType":"auto","x":580,"y":160,"wires":[]}
+]</pre></div>
+                    <p style="font-size:0.9em;color:#666;margin-top:8px;">※ Change ノードの JSONata 式: <code>"温度: " &amp; payload &amp; "℃"</code> は、数値 payload を文字列と連結して「温度: 25℃」にします。</p>
+                </details>
+            </div>
+
+            <!-- Challenge 3 -->
+            <div class="challenge-card">
+                <div class="challenge-header">
+                    <div class="challenge-num">3</div>
+                    <div class="challenge-title">
+                        <h3>複数の Inject から異なる値を送り、1 つの Debug で見分ける<span class="difficulty hard">応用</span></h3>
+                    </div>
+                </div>
+
+                <div class="challenge-goal">
+                    <strong>🎯 ゴール:</strong> 「温度」用と「湿度」用の 2 つの Inject ボタンを作り、それぞれ違う値を送っても 1 つの Debug ノードで「これは温度」「これは湿度」と見分けられるようにする。
+                </div>
+
+                <div class="challenge-requirements">
+                    <strong>📋 要件:</strong>
+                    <ul>
+                        <li>使用ノード: Inject × 2, Change × 0〜2（任意）, Debug × 1</li>
+                        <li>2 つの Inject はそれぞれ別の topic（例: <code>temperature</code> と <code>humidity</code>）を持つ</li>
+                        <li>Debug ノードは「完全なメッセージ」を表示する設定にして、<code>topic</code> と <code>payload</code> の両方が見えるようにする</li>
+                        <li>1 つの Inject は数値（例: 25）、もう 1 つの Inject は文字列（例: <code>60%</code>）を送る</li>
+                        <li>どちらのボタンを押したかが Debug サイドバーの内容から一目で判別できる</li>
+                    </ul>
+                </div>
+
+                <div class="challenge-hint">
+                    <strong>💡 ヒント:</strong> Inject の設定画面で、payload の行の下に topic 入力欄があります（無ければ行追加で topic を足す）。Debug ノードは「対象」を「msg.payload」から「完全なメッセージ」に変えると、msg オブジェクト全体が表示されます。Change は使わなくても成立します（topic を Inject 側で設定すればよい）。
+                </div>
+
+                <details class="solution">
+                    <summary>🟢 解答例（クリックで展開）</summary>
+                    <p style="font-size:0.9em;color:#666;">このフローをインポートして、デプロイ → 2 つの Inject ボタンを交互に押して確認。</p>
+                    <div class="flow-json"><pre style="margin:0;">[
+    {"id":"tab_c0_q3","type":"tab","label":"チャレンジ3-トピック識別","disabled":false,"info":"","env":[]},
+    {"id":"inject_q3_temp","type":"inject","z":"tab_c0_q3","name":"温度を送る","props":[{"p":"payload"},{"p":"topic","vt":"str"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"temperature","payload":"25","payloadType":"num","x":160,"y":100,"wires":[["debug_q3"]]},
+    {"id":"inject_q3_hum","type":"inject","z":"tab_c0_q3","name":"湿度を送る","props":[{"p":"payload"},{"p":"topic","vt":"str"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"humidity","payload":"60%","payloadType":"str","x":160,"y":160,"wires":[["debug_q3"]]},
+    {"id":"debug_q3","type":"debug","z":"tab_c0_q3","name":"トピック識別ログ","active":true,"tosidebar":true,"console":false,"tostatus":false,"complete":"true","targetType":"full","statusVal":"","statusType":"auto","x":420,"y":130,"wires":[]}
+]</pre></div>
+                    <p style="font-size:0.9em;color:#666;margin-top:8px;">※ Debug の <code>complete</code> を <code>"true"</code>, <code>targetType</code> を <code>"full"</code> にすることで、サイドバーに msg 全体が JSON 形式で表示され、<code>topic</code> と <code>payload</code> の両方が見えます。</p>
+                </details>
+            </div>
+
+        </div>
+
+        <h2>📊 Part 3: 自己採点と苦手分野の特定</h2>
+
+        <div class="score-card">
+            <h3>🎯 クイズ（12 問）の採点目安</h3>
+            <div class="score-table">
+                <div class="score-range s4">
+                    <div class="range">11〜12 問</div>
+                    <div>第 0 章の内容は完璧に身についています。次は各ノードの詳細ガイドに進みましょう。</div>
+                </div>
+                <div class="score-range s3">
+                    <div class="range">8〜10 問</div>
+                    <div>十分な理解度です。間違えた問題のページだけ戻って読み直せば OK。</div>
+                </div>
+                <div class="score-range s2">
+                    <div class="range">5〜7 問</div>
+                    <div>要点は押さえているが抜け漏れあり。間違えた分野のページを 1 つずつ丁寧に復習しましょう。</div>
+                </div>
+                <div class="score-range s1">
+                    <div class="range">0〜4 問</div>
+                    <div>焦らず ① から順に読み直し、③ ハンズオンは必ず手を動かすことをおすすめします。</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="weak-points">
+            <h3>🔍 間違えた問題から復習すべきページを特定する</h3>
+            <p>各問題のタグ（<span class="qtag" style="background:#e3f2fd;color:#0d47a1;padding:2px 8px;border-radius:10px;font-size:0.85em;">出典ページ</span>）を見て、間違えた問題が集中しているページから復習するのが最も効率的です。</p>
+            <table>
+                <tr>
+                    <th>問題番号</th>
+                    <th>出典ページ</th>
+                    <th>復習テーマ</th>
+                </tr>
+                <tr>
+                    <td>Q1, Q2, Q3</td>
+                    <td><a href="nodered-chapter0-what-is-program.html">① そもそもプログラムとは？</a></td>
+                    <td>プログラムの基本構造、msg の概念</td>
+                </tr>
+                <tr>
+                    <td>Q4, Q5</td>
+                    <td><a href="nodered-chapter0-event-driven.html">② イベント駆動とは？</a></td>
+                    <td>手続き型 vs イベント駆動、トリガー</td>
+                </tr>
+                <tr>
+                    <td>Q6, Q7, Q8</td>
+                    <td><a href="nodered-chapter0-hands-on.html">③ 最初の10分ハンズオン</a></td>
+                    <td>デプロイ、payload 型、ダッシュボード設定</td>
+                </tr>
+                <tr>
+                    <td>Q9, Q10</td>
+                    <td><a href="nodered-chapter0-debugging.html">④ 動かないときの進め方</a></td>
+                    <td>3 点確認、分割統治</td>
+                </tr>
+                <tr>
+                    <td>Q11, Q12</td>
+                    <td><a href="nodered-chapter0-iot-overview.html">⑤ IoT全体像</a></td>
+                    <td>エッジ vs クラウド、MQTT</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="score-card">
+            <h3>🛠 フロー作成チャレンジ（3 問）の自己評価</h3>
+            <ul>
+                <li><strong>3 問クリア:</strong> 基本動作を完璧に理解しています。次は実際のセンサーと組み合わせたフローに挑戦を。</li>
+                <li><strong>2 問クリア:</strong> 基礎力はあります。詰まった問題を解答例と照らし合わせて、何が足りなかったかをメモしましょう。</li>
+                <li><strong>1 問クリア:</strong> 最初の一歩は踏めています。解答例をインポート → 動かす → 1 箇所ずつ自分で変えてみる、の順で慣れていきましょう。</li>
+                <li><strong>0 問:</strong> <a href="nodered-chapter0-hands-on.html">③ ハンズオン</a>をもう一度、時間をかけてやり直すことをおすすめします。手を動かす回数が一番効きます。</li>
+            </ul>
+        </div>
+
+        <h2>🎓 第 0 章 修了！</h2>
+        <p>お疲れ様でした。第 0 章を走り抜けたあなたは、もう Node-RED と向き合う基礎体力を身につけています。具体的には以下のことができるようになっているはずです。</p>
+        <ul>
+            <li>プログラムの基本構造（入力→処理→出力、順次・分岐・繰り返し）が理解できている</li>
+            <li>イベント駆動という考え方に馴染んでいる</li>
+            <li>Inject + Debug + Change + ui-text で最小の IoT 的フローが作れる</li>
+            <li>フローが動かないときに、落ち着いて切り分けられる</li>
+            <li>IoT の全体像の中で、Node-RED がどこを担うかが見えている</li>
+        </ul>
+
+        <div class="next-box">
+            <h3>➡️ 次のステップへ</h3>
+            <p>第 0 章で得た基礎をもとに、いよいよ個々のノードの詳細ガイドに進めます。興味のある方向から読み始めて OK です。</p>
+            <ul style="margin-top:10px;">
+                <li><strong>まず中心となるノードを深める:</strong> Inject、Debug、Change、Function の各ガイド</li>
+                <li><strong>画面を作り込む:</strong> Dashboard 2.0 のウィジェット各種（Button、Text、Chart 等）</li>
+                <li><strong>外部と通信する:</strong> HTTP、MQTT 関連のノード</li>
+                <li><strong>ハードウェア連携:</strong> Raspberry Pi GPIO、各種センサーとの接続</li>
+            </ul>
+            <p style="text-align:center;font-size:1.1em;margin-top:15px;">
+                ▶ <a href="index.html">トップページからガイド一覧を見る</a>
+            </p>
+        </div>
+
+        <p style="margin-top:30px;">
+            <a href="index.html">← トップページへ戻る</a> |
+            <a href="nodered-chapter0-what-is-program.html">① そもそもプログラムとは？</a> |
+            <a href="nodered-chapter0-event-driven.html">② イベント駆動とは？</a> |
+            <a href="nodered-chapter0-hands-on.html">③ 最初の10分ハンズオン</a> |
+            <a href="nodered-chapter0-debugging.html">④ 動かないときの進め方</a> |
+            <a href="nodered-chapter0-iot-overview.html">⑤ IoT全体像</a>
+        </p>
+    </div>
+
+    <a href="index.html" style="position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px; background: linear-gradient(135deg, #42b883 0%, #35495e 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; transition: transform 0.3s, box-shadow 0.3s;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 6px 16px rgba(0,0,0,0.4)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.3)';" title="トップページへ">🏠</a>
+</body>
+</html>
