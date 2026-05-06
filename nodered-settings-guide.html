@@ -371,7 +371,8 @@
                 <li><a href="#section3">3. パスワード認証の設定</a> <span class="badge badge-main">メイン</span></li>
                 <li class="sub"><a href="#section3-1">3.1 エディタの認証（adminAuth）</a></li>
                 <li class="sub"><a href="#section3-2">3.2 ダッシュボード・HTTPノードの認証</a></li>
-                <li class="sub"><a href="#section3-3">3.3 パスワードハッシュの生成方法</a></li>
+                <li class="sub"><a href="#section3-3">3.3 静的コンテンツの配信と保護（httpStatic / httpStaticAuth）</a></li>
+                <li class="sub"><a href="#section3-4">3.4 パスワードハッシュの生成方法</a></li>
                 <li><a href="#section4">4. コンテキスト永続化の設定</a> <span class="badge badge-main">メイン</span></li>
                 <li><a href="#section5">5. その他の便利な設定</a> <span class="badge badge-sub">サブ</span></li>
                 <li><a href="#section6">6. トラブルシューティング</a></li>
@@ -600,7 +601,7 @@ git --version</div>
             <tr>
                 <td><code>httpStaticAuth</code></td>
                 <td>httpStaticで配信する静的ファイル</td>
-                <td><code>http://localhost:1880/static/</code></td>
+                <td><code>http://localhost:1880/static/</code><br><small>※ <code>httpStaticRoot: '/static/'</code> 設定時。詳細は<a href="#section3-3">3.3</a></small></td>
             </tr>
         </table>
         
@@ -677,23 +678,141 @@ git --version</div>
             </ul>
         </div>
         
-        <h4>📋 静的コンテンツの認証（httpStaticAuth）</h4>
-        
-        <p><code>httpStatic</code>で配信する静的ファイルを保護する場合：</p>
-        
+        <p style="margin-top:15px;">静的ファイル（HTML/CSS/JS/画像など）の配信そのものと、その保護方法は次の <a href="#section3-3">3.3 静的コンテンツの配信と保護</a> を参照してください。</p>
+
+        <!-- 3.3 静的コンテンツの配信と保護 -->
+        <h3 id="section3-3">3.3 静的コンテンツの配信と保護（httpStatic / httpStaticAuth）</h3>
+
+        <p><code>httpStatic</code> は、サーバ上の任意ディレクトリの中身を Node-RED 経由で Web 配信する仕組みです。Dashboard 2.0 や HTTP In ノードのような「フローで生成するレスポンス」とは別系統で、<strong>純粋なファイルをそのまま配る</strong>ためのもの。</p>
+
+        <h4>📋 こんな場面で使う</h4>
+        <ul>
+            <li>Dashboard 2.0 の Template ウィジェットから読み込むカスタム JS / CSS / 画像（ロゴ等）の配信</li>
+            <li>社内向けの静的 HTML ページ・PDF マニュアル・帳票テンプレートの配布</li>
+            <li>センサーカメラの保存画像や録画ファイルの閲覧用配信</li>
+            <li>Node-RED が動く小型機器で、別途 nginx 等を立てずに簡易 Web ホストしたい場合</li>
+        </ul>
+        <div class="tip">
+            <p><strong>💡 REST API は <code>httpStatic</code> ではない</strong></p>
+            <p>HTTP In ノードで作る REST API のアクセス制限は <code>httpNodeAuth</code> の管轄です（<a href="#section3-2">3.2</a>）。<code>httpStaticAuth</code> はあくまで「ファイルとして置いたものをそのまま配信する経路」専用の保護機構です。</p>
+        </div>
+
+        <h4>📁 ファイルを置く場所</h4>
+        <p>Node-RED が読み取り権限を持つ場所であればどこでも構いませんが、運用しやすい候補は以下：</p>
+        <table>
+            <tr>
+                <th>パス候補</th>
+                <th>特徴</th>
+            </tr>
+            <tr>
+                <td><code>~/.node-red/public/</code></td>
+                <td><strong>推奨</strong>。Node-RED のユーザーディレクトリ配下で管理が一元化、バックアップも容易</td>
+            </tr>
+            <tr>
+                <td><code>/var/www/nodered-static/</code></td>
+                <td>システム全体で共有。複数ユーザーで運用するサーバ向け</td>
+            </tr>
+            <tr>
+                <td>任意のディレクトリ</td>
+                <td>絶対パスで指定すれば動作。プロジェクトごとに分けたい場合など</td>
+            </tr>
+        </table>
+
+        <h4>🚀 最小手順（HTML を 1 枚配信する）</h4>
+        <p>HelloWorld 的に動作確認するなら、以下 4 ステップで完了します。</p>
+
+        <p><strong>ステップ 1: 配信ディレクトリと HTML を用意</strong></p>
+        <div class="code-block powershell">
+            <button class="copy-button" onclick="copyCode(this)">コピー</button>
+mkdir -p ~/.node-red/public
+cat &gt; ~/.node-red/public/index.html &lt;&lt;'EOF'
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;&lt;body&gt;&lt;h1&gt;Hello from Node-RED static!&lt;/h1&gt;&lt;/body&gt;&lt;/html&gt;
+EOF</div>
+
+        <p><strong>ステップ 2: <code>settings.js</code> を編集</strong></p>
+        <div class="code-block js">
+            <button class="copy-button" onclick="copyCode(this)">コピー</button>
+    // 配信元ディレクトリ（絶対パスで指定）
+    httpStatic: '/home/user/.node-red/public/',
+
+    // 配信URLのプレフィックス（推奨：必ず設定する）
+    httpStaticRoot: '/static/',</div>
+
+        <p><strong>ステップ 3: Node-RED を再起動</strong></p>
+        <p>設定ファイルの変更は再起動後に反映されます。</p>
+
+        <p><strong>ステップ 4: ブラウザで確認</strong></p>
+        <div class="code-block">http://localhost:1880/static/index.html</div>
+
+        <h4>🗺 URL マッピングの仕組み</h4>
+        <p><code>httpStatic</code> と <code>httpStaticRoot</code> の組み合わせでアクセス URL が決まります。</p>
+        <table>
+            <tr>
+                <th><code>httpStatic</code></th>
+                <th><code>httpStaticRoot</code></th>
+                <th>アクセスURL</th>
+            </tr>
+            <tr>
+                <td><code>'/home/u/public/'</code></td>
+                <td>（未設定）</td>
+                <td><code>http://localhost:1880/index.html</code><br><small>※ Node-RED のルート直下に展開される（注意点参照）</small></td>
+            </tr>
+            <tr>
+                <td><code>'/home/u/public/'</code></td>
+                <td><code>'/static/'</code></td>
+                <td><code>http://localhost:1880/static/index.html</code></td>
+            </tr>
+            <tr>
+                <td><code>[{path:'/img/', root:'/pics/'}]</code></td>
+                <td><code>'/static/'</code></td>
+                <td><code>http://localhost:1880/static/pics/xxx.jpg</code></td>
+            </tr>
+        </table>
+
+        <h4>🔐 認証で保護する（httpStaticAuth）</h4>
+        <p>配信内容に閲覧制限をかけたい場合、<code>httpStaticAuth</code> を併記すると HTTP Basic 認証がかかります。</p>
         <div class="code-block js">
             <button class="copy-button" onclick="copyCode(this)">コピー</button>
     // 静的ファイルの配信設定
     httpStatic: '/home/user/.node-red/public/',
-    
-    // 静的ファイルの認証
+    httpStaticRoot: '/static/',
+
+    // 静的ファイルへのアクセスに認証をかける
     httpStaticAuth: {
         user: "staticuser",
         pass: "$2b$08$ここにハッシュ化したパスワード"
     },</div>
-        
-        <!-- 3.3 パスワードハッシュの生成 -->
-        <h3 id="section3-3">3.3 パスワードハッシュの生成方法</h3>
+        <ul>
+            <li><code>httpNodeAuth</code> と同様、<strong>1 ユーザーのみ</strong>設定可能</li>
+            <li>プロパティ名は <code>user</code> / <code>pass</code>（<code>username</code> / <code>password</code> ではない）</li>
+            <li>パスワードは bcrypt ハッシュで指定（生成方法は <a href="#section3-4">3.4</a>）</li>
+        </ul>
+
+        <h4>🧩 複数ディレクトリを別 URL で配信（応用）</h4>
+        <p>画像は <code>/img/</code>、PDF は <code>/doc/</code> のように、配信元と公開 URL を複数同時に設定できます。</p>
+        <div class="code-block js">
+            <button class="copy-button" onclick="copyCode(this)">コピー</button>
+    httpStatic: [
+        { path: '/home/user/pics/',    root: '/img/' },
+        { path: '/home/user/reports/', root: '/doc/' },
+        { path: '/home/user/videos/',  root: '/vid/', options: { maxAge: '1d' } }
+    ],
+    httpStaticRoot: '/static/',</div>
+        <p>上記の場合、画像は <code>http://localhost:1880/static/img/xxx.jpg</code>、PDF は <code>http://localhost:1880/static/doc/xxx.pdf</code> でアクセスできます。<code>options</code> には <a href="https://expressjs.com/en/api.html#express.static" target="_blank" rel="noopener">Express の静的配信オプション</a>がそのまま渡せます（キャッシュ期間など）。</p>
+
+        <div class="warning">
+            <p><strong>⚠️ 注意点</strong></p>
+            <ul>
+                <li><strong><code>httpStaticRoot</code> は実質必須</strong>: 設定しないとファイルが Node-RED ルート（<code>/</code>）直下に展開され、エディタや Dashboard / HTTP In ノードのパスと衝突する恐れがあります。原則 <code>'/static/'</code> 等を併用してください</li>
+                <li><strong>絶対パス推奨</strong>: 相対パスは Node-RED の起動ディレクトリ依存になるため避ける</li>
+                <li><strong>Node-RED プロセスが読める権限が必要</strong>: 配信ディレクトリのパーミッションを確認</li>
+                <li><strong><code>httpStatic</code> を設定していないなら <code>httpStaticAuth</code> は意味がない</strong>: 認証だけ書いても保護対象が存在しません</li>
+            </ul>
+        </div>
+
+        <!-- 3.4 パスワードハッシュの生成 -->
+        <h3 id="section3-4">3.4 パスワードハッシュの生成方法</h3>
         
         <p>settings.jsに記述するパスワードは、<strong>bcrypt形式でハッシュ化</strong>する必要があります。平文のパスワードを直接書くことはできません。</p>
         
