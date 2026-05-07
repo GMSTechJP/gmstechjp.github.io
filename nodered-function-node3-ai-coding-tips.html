@@ -442,9 +442,10 @@
                 <li><a href="#section3">3. コピペで使えるプロンプトテンプレート</a></li>
                 <li><a href="#section4">4. Inject + Function + Debug で「単体テスト」する</a></li>
                 <li><a href="#section5">5. AIに結果を返して修正してもらうループ</a></li>
-                <li><a href="#section6">6. 演習：1サイクル回してみる</a></li>
-                <li><a href="#section7">7. AI生成コードの落とし穴と検証チェックリスト</a></li>
-                <li><a href="#section8">8. まとめ＋プロンプト早見表</a></li>
+                <li><a href="#section6">6. 学びを加速させる：AIを「コードの先生」として使う</a></li>
+                <li><a href="#section7">7. 演習：1サイクル回してみる</a></li>
+                <li><a href="#section8">8. AI生成コードの落とし穴と検証チェックリスト</a></li>
+                <li><a href="#section9">9. まとめ＋プロンプト早見表</a></li>
             </ul>
         </div>
 
@@ -759,7 +760,129 @@
             </tr>
         </table>
 
-        <h2 id="section6">🏋️ 6. 演習：1サイクル回してみる</h2>
+        <h2 id="section6">📖 6. 学びを加速させる：AIを「コードの先生」として使う</h2>
+
+        <p>ここまでは「動くコードを手に入れる」ことに焦点を当ててきました。でも、AIから返ってきたコードを「動いた、よし採用」で終わらせると、あなたのスキルは伸びません。<strong>同じAIを、コードの解説者・先生として使い倒す</strong>ことで、1回のやり取りから学べる量が一気に増えます。</p>
+
+        <h3>📝 6-1. コード生成と同時に「コメント付き」で頼む</h3>
+
+        <p>プロンプトの【制約】に1行加えるだけで、勉強用の教材レベルにコードの説明が手厚くなります。</p>
+
+        <div class="prompt-box">
+<span class="label-tag">追加する1行</span>- 初心者向けに、各処理の意図が分かるコメントを日本語で入れてください。特に <code>map</code> / <code>filter</code> / <code>reduce</code> / 三項演算子・分割代入など、慣れない構文には1行解説を添えてください。</div>
+
+        <div class="compare-grid">
+            <div class="compare-card ng">
+                <h4>❌ コメントなしの応答</h4>
+                <pre style="white-space: pre-wrap; margin: 0; font-size: 13px;">const lines = text.split("\n").filter(l => l.trim() !== "");
+const headers = lines[0].split(",");
+const rows = lines.slice(1).map(line => {
+    const cols = line.split(",");
+    return headers.reduce((obj, key, i) => {
+        obj[key] = cols[i];
+        return obj;
+    }, {});
+});</pre>
+                <p style="margin-top: 10px;"><strong>動くけれど</strong>、<code>reduce</code> や <code>slice(1)</code> が初見の人には何をしているのか分からない。</p>
+            </div>
+            <div class="compare-card ok">
+                <h4>✅ コメント依頼ありの応答</h4>
+                <pre style="white-space: pre-wrap; margin: 0; font-size: 13px;">// 改行で分割し、空行を除外（先頭/末尾の空白も対象）
+const lines = text.split("\n").filter(l => l.trim() !== "");
+
+// 1行目をヘッダ行として "name,age,city" → ["name","age","city"]
+const headers = lines[0].split(",");
+
+// 2行目以降を1行ずつオブジェクトに変換
+const rows = lines.slice(1).map(line => {
+    const cols = line.split(",");
+    // headers配列を順に回し、対応する値とペアにしてobjに積む
+    // (key, i) は ["name", 0], ["age", 1] ...
+    return headers.reduce((obj, key, i) => {
+        obj[key] = cols[i];
+        return obj;
+    }, {});
+});</pre>
+                <p style="margin-top: 10px;">同じコードでも<strong>「なぜこう書くか」が読めば分かる</strong>状態に。次に似た処理を書くときの参考になる。</p>
+            </div>
+        </div>
+
+        <div class="tip">
+            <strong>💡 さらに踏み込むなら</strong><br>
+            「コード末尾に、このコードで使っている<strong>JavaScriptの構文・メソッドのリスト</strong>を初心者向け解説付きで列挙してください」と頼むのも有効です。<code>Array.prototype.reduce</code> / アロー関数 / <code>||</code> 演算子のフォールバック用法、などの索引が手元に残ります。
+        </div>
+
+        <h3>❓ 6-2. 「これ何？」と即座に聞き返す</h3>
+
+        <p>動くコードが手に入ったあと、<strong>1行でも理解できない箇所があったら、その場でAIに聞き返す</strong>のが最大の学習チャンスです。検索する手間より早く、その文脈に沿った説明が得られます。</p>
+
+        <h4>🪪 聞き返しテンプレート</h4>
+
+        <div class="prompt-box">
+<span class="label-tag">聞き返しテンプレ</span>先ほどのコードについて、以下の部分が理解できませんでした。
+初心者向けに、なぜそう書くのか・どんな動きをするのかを解説してください。
+
+【該当箇所】
+```js
+{{コピペ。前後数行も含めると文脈が伝わりやすい}}
+```
+
+【特に分からないこと】
+- {{例：reduce の3番目の引数 i は何？}}
+- {{例：なぜ `(msg.payload || "")` と書くの？}}
+- {{例：このアロー関数の `=>` は普通の function と何が違う？}}
+
+可能なら、似たことを別の書き方（for ループ等）で書いた場合と比較もお願いします。</div>
+
+        <div class="ok-callout">
+            <h4>🎯 こう聞くとさらに学びが深まる</h4>
+            <ul>
+                <li><strong>「なぜこの書き方？」</strong> — 動作だけでなく設計判断の意図を聞く（例：「なぜ <code>for</code> ではなく <code>map</code>？」）</li>
+                <li><strong>「他の書き方は？」</strong> — 同じ結果を別解で実装してもらい、複数の引き出しを得る（「<code>for</code> 文版・<code>forEach</code> 版・<code>reduce</code> 版それぞれで書いてください」）</li>
+                <li><strong>「もっとシンプルにできる？」</strong> — 冗長な部分の改善案を引き出す（と同時に「なぜ短い方が良いか」も学べる）</li>
+                <li><strong>「逆にもっと初心者向けに、長く書くと？」</strong> — 短すぎて分からない時の逆方向。1行のチェーンを5行のループにほぐしてもらう</li>
+                <li><strong>「これがバグるとしたらどんな入力？」</strong> — エッジケースを自分で考える前にAIに列挙してもらい、防御的プログラミングの感覚を養う</li>
+            </ul>
+        </div>
+
+        <div class="warning">
+            <strong>⚠️ 注意：「分かった気」で終わらせない</strong><br>
+            AIの解説を読んで「ふーん、なるほど」で済ませると、次に同じ場面で書けるかは怪しいままです。学んだ書き方は、<strong>その場でちょっとだけ改造して動かしてみる</strong>のが定着の最短ルート。「<code>map</code> を <code>forEach</code> に書き換えても同じ結果になるか？」と試すような小さな実験を積み重ねましょう。
+        </div>
+
+        <h3>🔁 6-3. 学びを設計に活かす「派生プロンプト」</h3>
+
+        <p>ひとつのコードから派生させて、視野を広げる質問パターンの代表例：</p>
+
+        <table>
+            <tr>
+                <th>派生プロンプト</th>
+                <th>得られる学び</th>
+            </tr>
+            <tr>
+                <td>「このコードで使っているJavaScriptの機能を、登場した順に箇条書きで一覧化してください」</td>
+                <td>自分が今まさに使った構文の<strong>索引</strong>ができる。後で復習しやすい</td>
+            </tr>
+            <tr>
+                <td>「この処理を、Node-REDの他のノード（Change/Switch/Splitなど）の組み合わせで実現するとどうなりますか？」</td>
+                <td>Functionで書くべきか、標準ノードで足りるかの<strong>判断軸</strong>が育つ</td>
+            </tr>
+            <tr>
+                <td>「想定外の入力（型違い・null・空配列・極端に大きい配列）が来た時、それぞれどう振る舞いますか？」</td>
+                <td>自分のコードの<strong>耐久性</strong>を可視化してから採用できる</td>
+            </tr>
+            <tr>
+                <td>「このコードに学習目的のミニ演習問題を3つ作ってください。難易度を初級・中級・上級で」</td>
+                <td>受け身の理解から<strong>能動的な練習</strong>へ。AIが家庭教師になる</td>
+            </tr>
+        </table>
+
+        <div class="ok-callout">
+            <h4>🌱 まとめ：AIは「答えを返す機械」ではなく「対話する先生」</h4>
+            最初の1往復で動くコードを得たら、そこからの<strong>2〜3往復</strong>で理解度を底上げするのがコツ。「動いた、終わり」ではなく、「動いた、で、これは何？他の書き方は？」と<strong>問い続ける姿勢</strong>そのものが、AIネイティブ時代のプログラミング学習法です。
+        </div>
+
+        <h2 id="section7">🏋️ 7. 演習：1サイクル回してみる</h2>
 
         <div class="exercise">
             <h3>演習1：CSV風文字列をオブジェクト配列に変換 <span class="difficulty difficulty-medium">中級</span></h3>
@@ -1127,7 +1250,7 @@ return msg;</div>
             </div>
         </div>
 
-        <h2 id="section7">⚠️ 7. AI生成コードの落とし穴と検証チェックリスト</h2>
+        <h2 id="section8">⚠️ 8. AI生成コードの落とし穴と検証チェックリスト</h2>
 
         <p>AIが書いたコードは、見た目は正しそうでも Node-RED 特有の罠を踏むことがあります。採用前に以下をチェックしましょう。</p>
 
@@ -1199,7 +1322,7 @@ return msg;</div>
             </ul>
         </div>
 
-        <h2 id="section8">🎓 8. まとめ＋プロンプト早見表</h2>
+        <h2 id="section9">🎓 9. まとめ＋プロンプト早見表</h2>
 
         <div class="ok-callout">
             <h4>🌟 このガイドの3つの要点</h4>
