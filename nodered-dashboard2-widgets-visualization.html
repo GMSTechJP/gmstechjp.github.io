@@ -1353,13 +1353,117 @@ msg.topic = "センサーA";</div>
         <div class="tip">
             <strong>💡 ヒント:</strong> チャートの全データをクリアするには、<code>msg.payload = []</code>（空配列）を送信します。
         </div>
-        
+
         <div class="node-example">
             <span class="node node-ui-button">button</span>
             <span class="arrow">→</span>
             <span class="node node-ui-chart">chart</span>
         </div>
-        
+
+        <h3>🔹 既知の不具合・制限事項</h3>
+        <div class="warning">
+            <p><strong>⚠️ ui-chart には現時点で以下の既知の不具合・注意点が報告されています</strong>（FlowFuse Dashboard 2.x 系、eCharts ベース）。</p>
+            <p>長時間稼働や複雑な構成で利用する場合は、特に下表のワークアラウンドを設計に取り入れてください。</p>
+        </div>
+
+        <table>
+            <tr>
+                <th>分類</th>
+                <th>現象</th>
+                <th>影響</th>
+                <th>暫定対策</th>
+            </tr>
+            <tr>
+                <td>複数系列</td>
+                <td>複数 series を含むリアルタイム payload を順次送ると、ブラウザ更新やページ切替後にチャート内容が消える。</td>
+                <td>監視画面・時系列表示で、リロード後に履歴表示が空になる。</td>
+                <td>更新・ページ切替後に過去データを再送する設計、または一時的に series ごとにメッセージを分割。</td>
+            </tr>
+            <tr>
+                <td>動的オプション</td>
+                <td>毎サンプルごとに <code>msg.ui_update.chartOptions</code> を送ると、内部の <code>dynamicChartOptions</code> 配列が増え続ける。</td>
+                <td>長時間稼働で CPU 使用率増加、画面遅延、UX 悪化。</td>
+                <td><code>chartOptions</code> は毎回送らず、初期化時・変更時のみ送る。必要に応じて throttle / rate limit を入れる。</td>
+            </tr>
+            <tr>
+                <td>series オプション</td>
+                <td><code>msg.ui_update.chartOptions.series</code> の設定がページ更新で永続しない。データ到着前や非表示ページのチャートに送ると反映されないことがある。</td>
+                <td>線色・系列別設定が意図どおり残らない。</td>
+                <td>データ投入後に series オプションを再送する。series には <code>name</code> と <code>type</code> を必ず明示する。</td>
+            </tr>
+            <tr>
+                <td>legend</td>
+                <td>必要な series / value キーを持たないデータが混じると、凡例に <code>undefined</code> が表示される。</td>
+                <td>凡例が汚れる。不要データが内部で保持・再送される可能性。</td>
+                <td>chart ノードへ送る前に function ノードで series / value が欠けたデータを除外する。</td>
+            </tr>
+            <tr>
+                <td>X 軸</td>
+                <td>棒グラフなどで重複する X ラベルを使うと、後続データが前のデータを上書きするように見える。</td>
+                <td>「今日 00–23時」「明日 00–23時」のような重複ラベル表示で不都合。</td>
+                <td>内部 X 値は一意にし、表示ラベルだけ短縮する。eCharts の <code>formatter</code> を活用。</td>
+            </tr>
+            <tr>
+                <td>極端な数値</td>
+                <td><code>Number.MAX_VALUE</code> や極端値を含むと Y 軸の自動スケールで描画不能となり、タブクラッシュに至るケースもある。</td>
+                <td>センサー異常値や桁あふれで画面が壊れる可能性。</td>
+                <td>chart 投入前に値を検証し、上限・下限でクリップ。異常値は別表示にする。</td>
+            </tr>
+            <tr>
+                <td>大量 series</td>
+                <td>非表示の系列が多数あっても更新処理が走り、描画・操作が重くなる。</td>
+                <td>多数系列の監視画面でブラウザが固まる。</td>
+                <td>非表示系列は chart data から外す、表示系列数を制限、サーバ側で間引きを行う。</td>
+            </tr>
+        </table>
+
+        <div class="tip">
+            <strong>💡 設計時のチェックリスト:</strong>
+            <ul>
+                <li><code>msg.ui_update.chartOptions</code> は変更時だけ送る（毎サンプル送らない）</li>
+                <li>chart ノード前で <strong>必ず</strong> 入力データを検証し、series / x / y が欠けたデータを除外する</li>
+                <li>長期稼働の監視画面では、ブラウザ更新・ページ切替・再接続時の再描画テストを必ず実施する</li>
+                <li>X 軸ラベルは内部値を一意にし、表示用フォーマットを別途指定する</li>
+            </ul>
+        </div>
+
+        <h4 style="margin-top: 20px;">💊 まず試したい応急処置：「Clear Chart History」ボタン</h4>
+        <p>
+            上記のような不具合（凡例に <code>undefined</code> が残る、過去データが壊れている、
+            複数系列の表示が崩れているなど）が発生した場合、
+            <strong>chart ノードの編集ダイアログ左上にある「Clear Chart History」ボタン</strong>
+            を押すと、内部に蓄積された履歴データがクリアされて表示が正常に戻るケースがあります。
+            根本解決ではありませんが、配信中のダッシュボードを止めずに復旧したい場合に有効です。
+        </p>
+
+        <div style="text-align: center; margin: 20px 0;">
+            <img src="img/ui-chart-edit-clear-history.png" alt="ui-chart ノード編集ダイアログ。左上に「Clear Chart History」ボタンがある" style="max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+            <p style="color: #666; font-size: 0.9em; margin-top: 10px;">
+                ▲ chart ノードの編集ダイアログ。左上の「Clear Chart History」ボタンで履歴をクリアできる。
+            </p>
+        </div>
+
+        <div class="tip">
+            <strong>💡 「Clear Chart History」の使いどころ:</strong>
+            <ul>
+                <li>凡例に <code>undefined</code> が出てしまった後、入力データ側を修正したのに表示が戻らない</li>
+                <li>テスト中に投入した不正データが残っていて、本番データの表示を邪魔している</li>
+                <li>series 設定変更後に古い系列が残ってしまっている</li>
+                <li>長時間稼働で動作が重くなってきた場合の暫定リセット</li>
+            </ul>
+            <p style="margin-top: 8px;">
+                押下後は <strong>「完了」ボタンを押してデプロイ</strong> することで反映されます。
+                クリア後にまた症状が再発する場合は、入力データ側のフィルタリングや
+                <code>chartOptions</code> の送信頻度などを併せて見直してください。
+            </p>
+        </div>
+
+        <p style="margin-top: 10px;">
+            最新の不具合情報・修正状況は
+            <a href="https://github.com/FlowFuse/node-red-dashboard/issues" target="_blank">FlowFuse Dashboard の GitHub Issues</a>
+            を参照してください。
+        </p>
+
         <h2 id="section4">🎯 4. gauge（ゲージ）</h2>
         
         <div class="widget-card">
@@ -4346,8 +4450,18 @@ return [msg, null, null];</div>
                 <td>タイムスタンプ形式の問題</td>
                 <td>ミリ秒単位のUnixタイムスタンプを使用</td>
             </tr>
+            <tr>
+                <td>リロード後にチャートが空になる / 凡例に <code>undefined</code> が出る / 動作が重くなる</td>
+                <td>ui-chart の既知の不具合に該当する可能性</td>
+                <td><a href="#section3">「3. chart（チャート）」内の「既知の不具合・制限事項」</a> を参照</td>
+            </tr>
+            <tr>
+                <td>表示が崩れている／不正なデータが残っている</td>
+                <td>chart 内部の履歴データに不整合データが蓄積</td>
+                <td>chart ノード編集画面左上の <strong>「Clear Chart History」</strong> ボタンで履歴をクリア（<a href="#section3">詳細</a>）</td>
+            </tr>
         </table>
-        
+
         <h2 id="section10">🏭 10. 実務活用例</h2>
         
         <h3>ケース1: 工場環境モニタリング</h3>

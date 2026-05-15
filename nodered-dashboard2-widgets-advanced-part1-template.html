@@ -1662,7 +1662,40 @@ export default {
     }
 }
 &lt;/script&gt;</div>
-        
+
+        <div class="warning">
+            <p><strong>⚠️ Chart.js を ui-template で使う際の既知の不具合・落とし穴</strong></p>
+            <p>Vue + Chart.js の組み合わせには、以下のような不具合報告があります。本格運用する前に必ず確認してください。</p>
+            <ul>
+                <li><strong>無限ループ／スタックオーバーフロー:</strong> Vue の reactive オブジェクトを Chart.js の <code>data</code> や <code>options</code> に直接渡すと、<code>Maximum call stack size exceeded</code> や <code>Cannot read properties of undefined</code> が発生する。
+                    <br>→ Chart.js に渡す前に <code>JSON.parse(JSON.stringify(obj))</code> や <code>structuredClone()</code> で <strong>plain object 化</strong> する。
+                </li>
+                <li><strong>chart instance の二重生成:</strong> ウィジェット再描画時に古い chart instance が残ったまま新しいものを作ると、リサイズや描画が壊れる。
+                    <br>→ 再生成前に必ず <code>this.chart.destroy()</code> を呼ぶ（上記サンプルの <code>beforeUnmount</code> パターンを推奨）。
+                </li>
+                <li><strong>リサイズ不具合:</strong> ウィンドウを縮めると追従するが、拡大したときにチャートが拡大しないという報告がある。
+                    <br>→ 親要素サイズを CSS で明示し、必要に応じて <code>this.chart.resize()</code> を手動で呼ぶ。
+                </li>
+                <li><strong>極端な数値・大量 dataset:</strong> <code>Number.MAX_VALUE</code> 級の値や大量の非表示 dataset があるとブラウザが固まる／タブクラッシュする。
+                    <br>→ 入力値は事前にクリップ（上下限を設ける）し、不要な系列はそもそも data から除外する。
+                </li>
+                <li><strong>defaults の後変更:</strong> chart 描画後に <code>Chart.defaults.font</code> 等を変更すると、legend 描画時に <code>height</code> undefined エラーでクラッシュする。
+                    <br>→ <code>Chart.defaults</code> はチャート作成 <strong>前</strong> に設定する。作成後は instance の <code>options</code> を更新して <code>chart.update()</code> を呼ぶ。
+                </li>
+            </ul>
+            <p style="margin-top: 8px;">
+                単純な時系列グラフであれば、ui-template + Chart.js より
+                <a href="nodered-dashboard2-widgets-visualization.html#section3">標準の <code>ui-chart</code>（eCharts ベース）</a>
+                を使う方が、不具合リスク・実装コストともに少なく済みます。Chart.js は標準ノードでは表現できない要件がある場合に限って採用するのが安全です。
+            </p>
+            <p>最新の不具合情報は
+                <a href="https://github.com/chartjs/Chart.js/issues" target="_blank">Chart.js GitHub Issues</a>
+                および
+                <a href="https://github.com/FlowFuse/node-red-dashboard/issues" target="_blank">FlowFuse Dashboard Issues</a>
+                を参照してください。
+            </p>
+        </div>
+
         <h2 id="section8">🏋️ 8. 実践演習</h2>
         
         <div class="exercise">
@@ -2383,8 +2416,13 @@ export default {
                 <td>状態がブラウザ内のみ</td>
                 <td>resendOnRefresh: trueを設定しNode-REDから再送信</td>
             </tr>
+            <tr>
+                <td>Chart.js でクラッシュ／無限ループ／拡大時にリサイズしない</td>
+                <td>Vue リアクティブとの相性、chart instance の管理ミス</td>
+                <td><a href="#section7">「7. 実用的な使用パターン」内のパターン5</a> 末尾の警告ボックスを参照</td>
+            </tr>
         </table>
-        
+
         <h2 id="section11">💡 11. 実務での活用例</h2>
         
         <h3>ケース1: カスタムセンサーダッシュボード</h3>
