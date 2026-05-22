@@ -408,17 +408,71 @@
             </div>
         </div>
 
-        <h3>ノードを一時的に無効化する</h3>
+        <h3 id="disable-node">ノードを一時的に無効化する</h3>
         <p>
-            ノード編集ダイアログで <strong>「ノードを有効化」スイッチをオフ</strong> にすると、そのノードは灰色表示になり、デプロイしてもメッセージが通過しなくなります。
+            「<strong>削除はしたくないが、今は実行を止めたい</strong>」というときは、ノードを <strong>無効化</strong> しましょう。ワイヤと設定はそのまま残り、デプロイしてもメッセージが通過しなくなります。
         </p>
+
+        <h4>操作場所</h4>
+        <p>
+            ノードの編集ダイアログ <strong>左下</strong> にある <strong>「○ 有効」トグル</strong>（ON のときは色付き、OFF のときは灰色）をクリックします。OFF にしてダイアログを <strong>完了</strong> し、デプロイすると無効化が反映されます。
+        </p>
+
+        <figure style="margin: 20px 0; text-align: center;">
+            <img src="img/debug-node-edit-description.png"
+                 alt="編集ダイアログの左下に「○ 有効」スイッチが写っている。これをオフにするとノードが無効化される"
+                 style="max-width: 560px; width: 100%; height: auto; border: 1px solid #ddd; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.08);">
+            <figcaption style="margin-top: 10px; color: #666; font-size: 0.92em;">
+                編集ダイアログ <strong>左下</strong> の「<strong>○ 有効</strong>」トグルが操作ポイント。OFF にするとそのノードがフローから一時的に切り離される。
+            </figcaption>
+        </figure>
+
+        <p>無効になったノードはキャンバス上で <strong>オレンジ色の破線枠で囲まれ、本来のノード色が薄く透過表示</strong> されます。見ただけで「動いていない」と分かります。</p>
+
+        <figure style="margin: 20px 0; text-align: center;">
+            <img src="img/node-disabled-example.png"
+                 alt="無効化された function ノードの表示例。オレンジ色の破線枠で囲まれ、function ノード本来のオレンジ色が薄く透過表示されている"
+                 style="max-width: 420px; width: 100%; height: auto; border: 1px solid #ddd; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.08);">
+            <figcaption style="margin-top: 10px; color: #666; font-size: 0.92em;">
+                無効化された function ノードの実例。<strong>オレンジの破線枠</strong>が「現在このノードは実行されない」というサイン。背景が薄いオレンジに見えるのは function ノード本来の色がオレンジだからで、<strong>他の色のノード（inject の青、debug の緑など）は本来の色が薄く透過された見た目</strong>になります。
+            </figcaption>
+        </figure>
+
+        <h4>3 段階の無効化</h4>
+        <p>無効化には <strong>3 つのスコープ</strong> があります。状況に応じて使い分けましょう。</p>
+        <table>
+            <tr><th>スコープ</th><th>操作</th><th>こんなとき</th></tr>
+            <tr>
+                <td><strong>① ノード単体</strong></td>
+                <td>編集ダイアログ左下の「有効」トグルを OFF</td>
+                <td>1 ノードだけピンポイントで止めたい。挙動の切り分け</td>
+            </tr>
+            <tr>
+                <td><strong>② 複数ノードを一括</strong></td>
+                <td><a href="nodered-overview.html#section-organize">グループ化</a> → グループの枠を右クリック →「<code>Disable selected nodes</code>」</td>
+                <td>「センサー入力部だけ止める」など機能単位で一時停止</td>
+            </tr>
+            <tr>
+                <td><strong>③ フロータブ全体</strong></td>
+                <td>フロータブを右クリック →「無効化」、またはサイドバーの設定タブからも切替可</td>
+                <td>機能ごと丸ごと止める／本番環境では特定のフローだけ稼働させたい</td>
+            </tr>
+        </table>
+
         <div class="tip">
             <p><strong>💡 使いどころ</strong></p>
             <ul>
-                <li>「この処理を一旦止めて挙動を確認したい」というデバッグ作業</li>
-                <li>準備中の機能を本番デプロイから外したい時（ワイヤは残しておきたい）</li>
-                <li>複数ノードをまとめて止めたいときは <a href="nodered-overview.html#section-organize">グループ化</a> + 右クリック → 「Disable selected nodes」</li>
+                <li><strong>挙動の切り分け：</strong>処理を 1 段ずつ無効化して「どこから動かなくなるか」を特定する</li>
+                <li><strong>準備中の機能を本番から外す：</strong>削除は怖いがデプロイには含めたくない</li>
+                <li><strong>A/B 切替：</strong>同じ役割の異なる実装を 2 系統用意し、片方ずつ ON/OFF で比較</li>
+                <li><strong>本番デプロイ前の debug クリーンアップ：</strong>仕込んだ debug ノードを一括無効化（→ <a href="#ch6">第 6 章</a> 参照）</li>
             </ul>
+        </div>
+
+        <div class="warning">
+            <p><strong>⚠️ 「フローが動かない」原因 No.1 のひとつ</strong></p>
+            <p>他人が作ったフローを読み込んだ／久しぶりに開いた、というシーンで「メッセージが流れない」場合、まず <strong>① ノード ② グループ ③ フロータブ</strong> のいずれかが無効化されていないか確認しましょう。<strong>オレンジの破線枠</strong>が無効化のサインです。<br>
+            → 動かない時の進め方の体系は <a href="nodered-chapter0-debugging.html">第 0 章 ④ 動かないときの進め方</a> も参照。</p>
         </div>
 
         <!-- ===== 3. 編集の基本操作 ===== -->
