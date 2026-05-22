@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED エディタ Tips集 - 知っておくと作業が2倍速くなる小技</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        h1 {
+            color: #8f0000;
+            border-bottom: 3px solid #8f0000;
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            color: #c00000;
+            margin-top: 40px;
+            border-left: 5px solid #c00000;
+            padding-left: 15px;
+        }
+
+        h3 {
+            color: #555;
+            margin-top: 25px;
+        }
+
+        h4 {
+            color: #666;
+            margin-top: 20px;
+        }
+
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        /* 目次 */
+        .toc {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px 30px;
+            margin: 20px 0;
+        }
+
+        .toc h3 {
+            margin-top: 0;
+            color: #8f0000;
+        }
+
+        .toc ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .toc li {
+            padding: 5px 0;
+        }
+
+        .toc a {
+            color: #1976d2;
+            text-decoration: none;
+        }
+
+        .toc a:hover {
+            text-decoration: underline;
+        }
+
+        /* 情報ボックス */
+        .important {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .tip {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .warning {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .success {
+            background-color: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        /* テーブル */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px 12px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background-color: #8f0000;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        kbd {
+            display: inline-block;
+            padding: 2px 8px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.9em;
+            color: #333;
+            background-color: #f8f9fa;
+            border: 1px solid #ccc;
+            border-bottom-width: 2px;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+
+        code {
+            background-color: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.92em;
+        }
+
+        /* セクションカード */
+        .section-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #8f0000;
+        }
+
+        .section-card h3 {
+            margin-top: 0;
+            color: #8f0000;
+        }
+
+        /* 折りたたみ */
+        details {
+            margin: 15px 0;
+        }
+
+        summary {
+            cursor: pointer;
+            padding: 12px 15px;
+            background-color: #6c757d;
+            color: white;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        summary:hover {
+            background-color: #5a6268;
+        }
+
+        details[open] summary {
+            border-radius: 4px 4px 0 0;
+        }
+
+        details .content {
+            padding: 15px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+        }
+
+        /* バッジ */
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+
+        .badge-must {
+            background-color: #8f0000;
+            color: white;
+        }
+
+        .badge-nice {
+            background-color: #17a2b8;
+            color: white;
+        }
+
+        .badge-power {
+            background-color: #6f42c1;
+            color: white;
+        }
+
+        /* before/after */
+        .compare {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .compare-box {
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+        }
+
+        .compare-bad {
+            background-color: #fdecea;
+            border-color: #f5c2c0;
+        }
+
+        .compare-good {
+            background-color: #e8f5e9;
+            border-color: #c8e6c9;
+        }
+
+        .compare-box h4 {
+            margin-top: 0;
+        }
+
+        @media (max-width: 700px) {
+            .compare {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💡 Node-RED エディタ Tips集</h1>
+        <p style="font-size: 1.05em;">
+            知っておくと作業が <strong>2 倍速くなる</strong> 小技を集めました。特定のノードに依存しない、フロー編集の「横串」の知識です。
+        </p>
+
+        <div class="important">
+            <p><strong>📋 このガイドの対象</strong></p>
+            <ul>
+                <li>第 0 章を終え、いくつかのノードを触ったことがある人</li>
+                <li>同じ作業を毎回マウスで繰り返していて非効率を感じている人</li>
+                <li>フローが見づらく、整理する方法を知りたい人</li>
+            </ul>
+        </div>
+
+        <!-- 目次 -->
+        <div class="toc">
+            <h3>📚 目次</h3>
+            <ul>
+                <li><a href="#ch1">1. キーボードショートカット早見表</a> <span class="badge badge-must">必修</span></li>
+                <li><a href="#ch2">2. ノードの見た目を整える（ラベル非表示など）</a> <span class="badge badge-must">必修</span></li>
+                <li><a href="#ch3">3. 編集を効率化する基本操作</a> <span class="badge badge-must">必修</span></li>
+                <li><a href="#ch4">4. キャンバスの動かし方</a></li>
+                <li><a href="#ch5">5. 検索とナビゲーション</a></li>
+                <li><a href="#ch6">6. Debug ノード徹底活用</a> <span class="badge badge-must">必修</span></li>
+                <li><a href="#ch7">7. 編集ダイアログの便利機能</a></li>
+                <li><a href="#ch8">8. ライブラリで部品を再利用</a> <span class="badge badge-power">中級</span></li>
+                <li><a href="#ch9">9. info（説明文）で生きたドキュメントを残す</a></li>
+                <li><a href="#related">関連ガイド・参考リンク</a></li>
+            </ul>
+        </div>
+
+        <div class="tip">
+            <p><strong>💡 表記について</strong></p>
+            <ul>
+                <li>キー表記は <kbd>Ctrl</kbd> 系で統一しています。Mac では <kbd>Ctrl</kbd> を <kbd>⌘</kbd>（Command）に読み替えてください。</li>
+                <li>すべてのショートカットはエディタ右上のメニュー →「キーボードショートカット」（<kbd>Shift</kbd>+<kbd>?</kbd>）から確認・カスタマイズできます。</li>
+            </ul>
+        </div>
+
+        <!-- ===== 1. ショートカット早見表 ===== -->
+        <h2 id="ch1">⌨️ 1. キーボードショートカット早見表</h2>
+        <p>まず覚えるべき「絶対必修 10 個」と、知っていると作業速度が上がる「便利な 15 個」に分けて掲載します。</p>
+
+        <h3>🔥 絶対覚えるべき 10 個</h3>
+        <table>
+            <tr><th>ショートカット</th><th>動作</th><th>使いどころ</th></tr>
+            <tr><td><kbd>Ctrl</kbd>+<kbd>D</kbd></td><td>デプロイ（変更を反映して実行）</td><td>編集 → 即反映の基本動作</td></tr>
+            <tr><td><kbd>Ctrl</kbd>+<kbd>Z</kbd></td><td>元に戻す（Undo）</td><td>誤って削除・移動した時</td></tr>
+            <tr><td><kbd>Ctrl</kbd>+<kbd>Y</kbd></td><td>やり直し（Redo）</td><td>Undo しすぎた時</td></tr>
+            <tr><td><kbd>Ctrl</kbd>+<kbd>F</kbd></td><td>フロー内検索</td><td>ノード名・ID・プロパティで検索</td></tr>
+            <tr><td><kbd>Ctrl</kbd>+<kbd>C</kbd> / <kbd>Ctrl</kbd>+<kbd>V</kbd></td><td>コピー / ペースト</td><td>ノードや接続線も含めて複製</td></tr>
+            <tr><td><kbd>Ctrl</kbd>+<kbd>A</kbd></td><td>全選択</td><td>フロー丸ごとコピーしたい時</td></tr>
+            <tr><td><kbd>Delete</kbd></td><td>選択中のノード・線を削除</td><td>—</td></tr>
+            <tr><td><kbd>Enter</kbd></td><td>選択中のノードのプロパティを開く</td><td>マウスのダブルクリック相当</td></tr>
+            <tr><td><kbd>Esc</kbd></td><td>選択解除・ダイアログを閉じる</td><td>—</td></tr>
+            <tr><td><kbd>Shift</kbd>+<kbd>?</kbd></td><td>キーボードショートカット一覧を開く</td><td>困った時の駆け込み寺</td></tr>
+        </table>
+
+        <h3>✨ 知っていると差がつく 15 個</h3>
+        <table>
+            <tr><th>ショートカット</th><th>動作</th><th>備考</th></tr>
+            <tr><td><kbd>Ctrl</kbd>+<kbd>E</kbd></td><td>エクスポートダイアログを開く</td><td>選択範囲・現在フロー・全体を選んで JSON で書き出し</td></tr>
+            <tr><td><kbd>Ctrl</kbd>+<kbd>I</kbd></td><td>インポートダイアログを開く</td><td>—</td></tr>
+            <tr><td><kbd>Ctrl</kbd>+<kbd>Delete</kbd></td><td>削除して両隣をつなぐ</td><td>中間ノードを抜きたい時に超便利</td></tr>
+            <tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>G</kbd></td><td>選択ノードをグループ化</td><td>→ <a href="nodered-overview.html#section-organize">グループ化解説</a></td></tr>
+            <tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>U</kbd></td><td>グループ解除</td><td>—</td></tr>
+            <tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd> / <kbd>V</kbd></td><td>グループのスタイルをコピー / ペースト</td><td>色や枠線を他のグループに転写</td></tr>
+            <tr><td><kbd>Ctrl</kbd>+<kbd>+</kbd> / <kbd>Ctrl</kbd>+<kbd>-</kbd></td><td>ズームイン / アウト</td><td><kbd>Ctrl</kbd>+<kbd>0</kbd> で 100% に戻る</td></tr>
+            <tr><td><kbd>Ctrl</kbd>+<kbd>Space</kbd></td><td>サイドバーの表示/非表示</td><td>画面を広く使いたい時</td></tr>
+            <tr><td><kbd>Ctrl</kbd>+<kbd>P</kbd></td><td>パレットの表示/非表示</td><td>同上</td></tr>
+            <tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd></td><td>アクションリストを開く</td><td>VS Code のコマンドパレット相当。全操作を検索実行できる</td></tr>
+            <tr><td><kbd>Ctrl</kbd>+<kbd>[</kbd> / <kbd>Ctrl</kbd>+<kbd>]</kbd></td><td>前後のフロータブへ移動</td><td>—</td></tr>
+            <tr><td><kbd>Alt</kbd>+<kbd>A</kbd></td><td>選択ノードを整列</td><td>続けて方向キーで上下左右に揃える</td></tr>
+            <tr><td><kbd>Shift</kbd>+<kbd>矢印</kbd></td><td>キャンバスを 10 グリッド分スクロール</td><td>—</td></tr>
+            <tr><td>矢印キー</td><td>選択ノードを 1 グリッド分移動</td><td>細かい位置調整用</td></tr>
+            <tr><td>ノードをワイヤ上にドロップ</td><td>ワイヤに自動挿入</td><td>これだけマウス操作だが、知らない人が多い <strong>最強の小技</strong></td></tr>
+        </table>
+
+        <div class="tip">
+            <p><strong>💡 カスタマイズ可能</strong></p>
+            <p><kbd>Shift</kbd>+<kbd>?</kbd> で開くダイアログから、すべてのショートカットを自分好みに変更できます。</p>
+        </div>
+
+        <!-- ===== 2. 見た目を整える ===== -->
+        <h2 id="ch2">🏷️ 2. ノードの見た目を整える</h2>
+
+        <h3>ラベルの表示/非表示</h3>
+        <p>
+            ノードの編集ダイアログを開き、右上の <strong>「外観」タブ</strong> を選ぶと、<strong>「ラベル」</strong>項目があります。<strong>「非表示」にチェック</strong>を入れると、フロー上でそのノードのラベル（名前 or タイプ名）が表示されなくなります。
+        </p>
+
+        <figure style="margin: 20px 0; text-align: center;">
+            <img src="img/debug-node-edit-appearance.png"
+                 alt="debug ノードの編集ダイアログ「外観」タブ。ラベル項目の「非表示」チェックボックス、アイコン、ポートラベルが設定できる"
+                 style="max-width: 560px; width: 100%; height: auto; border: 1px solid #ddd; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.08);">
+            <figcaption style="margin-top: 10px; color: #666; font-size: 0.92em;">
+                編集ダイアログ「外観」タブ。<strong>「ラベル：非表示」</strong>のチェックボックスがラベル ON/OFF の操作ポイント。
+            </figcaption>
+        </figure>
+
+        <p>チェックを入れる前と後でノードの見た目が次のように変わります。</p>
+
+        <figure style="margin: 20px 0; text-align: center;">
+            <img src="img/debug-node-label-compare.png"
+                 alt="debug ノードのラベル表示ON（上）とOFF（下）の比較。OFFにするとアイコンのみのコンパクト表示になる"
+                 style="max-width: 420px; width: 100%; height: auto; border: 1px solid #ddd; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.08);">
+            <figcaption style="margin-top: 10px; color: #666; font-size: 0.92em;">
+                <strong>上：ラベル表示 ON</strong>（デフォルト）／<strong>下：ラベル表示 OFF</strong>（アイコンのみのコンパクト表示）
+            </figcaption>
+        </figure>
+
+        <p>
+            大量に debug ノードを並べたいけれど画面を散らかしたくない、というシーンで特に効果を発揮します。フローの<strong>構造</strong>に集中したいときはオフにしてみましょう。
+        </p>
+
+        <div class="tip">
+            <p><strong>💡 使いどころ</strong></p>
+            <ul>
+                <li><strong>大量の debug ノード</strong> ─ デバッグ用途で散りばめる時。意味のある debug だけ名前付きで表示</li>
+                <li><strong>確認用の inject ノード</strong> ─ テスト用ボタン群がフローを圧迫しないように</li>
+                <li><strong>整流用の change/switch ノード</strong> ─ 「ここを通る」とわかれば十分でラベル不要なケース</li>
+            </ul>
+        </div>
+
+        <h3>ノード名（name）の付け方</h3>
+        <p>
+            ノードの <code>name</code> プロパティを空欄のままにすると、ノードタイプ名（<code>inject</code>、<code>function</code> 等）がそのまま表示されます。フローが大きくなると意味が読み取れなくなるので、できるだけ <strong>役割が分かる名前</strong> を付けましょう。
+        </p>
+        <div class="compare">
+            <div class="compare-box compare-bad">
+                <h4>❌ 悪い例</h4>
+                <ul>
+                    <li>名前なし → <code>function</code> としか表示されない</li>
+                    <li><code>関数1</code>、<code>処理</code> ─ 何の処理か分からない</li>
+                </ul>
+            </div>
+            <div class="compare-box compare-good">
+                <h4>✅ 良い例（動詞 + 目的語）</h4>
+                <ul>
+                    <li><code>温度を ℃→℉ に変換</code></li>
+                    <li><code>異常値を除外</code></li>
+                    <li><code>JSON を整形して送信</code></li>
+                </ul>
+            </div>
+        </div>
+
+        <h3>ノードを一時的に無効化する</h3>
+        <p>
+            ノード編集ダイアログで <strong>「ノードを有効化」スイッチをオフ</strong> にすると、そのノードは灰色表示になり、デプロイしてもメッセージが通過しなくなります。
+        </p>
+        <div class="tip">
+            <p><strong>💡 使いどころ</strong></p>
+            <ul>
+                <li>「この処理を一旦止めて挙動を確認したい」というデバッグ作業</li>
+                <li>準備中の機能を本番デプロイから外したい時（ワイヤは残しておきたい）</li>
+                <li>複数ノードをまとめて止めたいときは <a href="nodered-overview.html#section-organize">グループ化</a> + 右クリック → 「Disable selected nodes」</li>
+            </ul>
+        </div>
+
+        <!-- ===== 3. 編集の基本操作 ===== -->
+        <h2 id="ch3">✂️ 3. 編集を効率化する基本操作</h2>
+
+        <h3>選択の小技</h3>
+        <ul>
+            <li><strong>範囲選択：</strong>キャンバスの空白部分から斜めにドラッグ</li>
+            <li><strong>追加選択：</strong><kbd>Ctrl</kbd>+クリック（Mac は <kbd>⌘</kbd>+クリック）で個別追加・解除</li>
+            <li><strong>ノード間ワイヤごと選択：</strong>範囲ドラッグで自然に含まれる</li>
+            <li><strong>つながっているノードを一括選択：</strong>
+                <ul style="margin-top: 5px;">
+                    <li>キーボード：<kbd>Alt</kbd>+<kbd>S</kbd> → <kbd>C</kbd>（接続全体）/ <kbd>D</kbd>（下流のみ）/ <kbd>U</kbd>（上流のみ）</li>
+                    <li>マウス：<kbd>Shift</kbd>+クリックでも同じ操作が可能。ノードの<strong>左側</strong>クリックで上流、<strong>右側</strong>クリックで下流、<strong>中央</strong>クリック（マウス中ボタン）で接続全体を選択</li>
+                </ul>
+            </li>
+        </ul>
+
+        <h3>ワイヤへの自動挿入<span class="badge badge-power">超便利</span></h3>
+        <div class="success">
+            <p>
+                新しいノードを <strong>既存のワイヤの上にドラッグして放す</strong> と、Node-RED が自動でワイヤを切り、間にノードを挿入してくれます。「あとから処理を挟みたい」シーンで頻出する操作です。
+            </p>
+            <p>例：<code>inject → debug</code> の途中に <code>change</code> を挟みたい時、<code>change</code> をワイヤの上にドロップするだけで <code>inject → change → debug</code> になります。</p>
+        </div>
+
+        <h3>削除して両隣をつなぐ</h3>
+        <p>
+            <kbd>Ctrl</kbd>+<kbd>Delete</kbd> でノードを削除すると、Node-RED が <strong>両隣のノードを自動でつなぎ直し</strong> てくれます。普通の <kbd>Delete</kbd> はワイヤごと削除されるので、フローを保ったままノードを抜きたい時はこちらを使いましょう。
+        </p>
+
+        <h3>ワイヤの再接続・分断</h3>
+        <ul>
+            <li><strong>つなぎ替え：</strong>ワイヤをクリックして選択 → <kbd>Shift</kbd>+左クリックでポートをつかみ、別のポートにドラッグして付け替える</li>
+            <li><strong>選択して削除：</strong>ワイヤをクリックして選択し <kbd>Delete</kbd></li>
+            <li><strong>複数ワイヤをまとめて切る：</strong><kbd>Alt</kbd>+ドラッグで切断線を描画（マウスの軌跡を横切るワイヤがすべて削除される）</li>
+        </ul>
+
+        <h3>コピー&ペーストでフロー間を移動</h3>
+        <p>
+            <kbd>Ctrl</kbd>+<kbd>C</kbd> → 別のタブに切り替え → <kbd>Ctrl</kbd>+<kbd>V</kbd> で、フロー間でもノードを移動できます。ワイヤごとペーストされるので、丸ごと別フローに引っ越しが簡単です。
+        </p>
+
+        <!-- ===== 4. キャンバス操作 ===== -->
+        <h2 id="ch4">🗺️ 4. キャンバスの動かし方</h2>
+
+        <table>
+            <tr><th>操作</th><th>方法</th></tr>
+            <tr><td>パン（画面の移動）</td><td>キャンバスの空白をドラッグ、または <kbd>Ctrl</kbd>+矢印キー</td></tr>
+            <tr><td>ズームイン</td><td><kbd>Ctrl</kbd>+<kbd>+</kbd> または <kbd>Ctrl</kbd>+マウスホイール</td></tr>
+            <tr><td>ズームアウト</td><td><kbd>Ctrl</kbd>+<kbd>-</kbd></td></tr>
+            <tr><td>ズームを 100% に戻す</td><td><kbd>Ctrl</kbd>+<kbd>0</kbd></td></tr>
+            <tr><td>大きく移動</td><td><kbd>Shift</kbd>+矢印キー（10 グリッド分）</td></tr>
+        </table>
+
+        <h3>選択ノードの整列</h3>
+        <p>
+            複数ノードを選択して <kbd>Alt</kbd>+<kbd>A</kbd> を押すと、整列メニューが開きます。続けて以下のキーを押すと指定の整列が行われます。
+        </p>
+        <ul>
+            <li><kbd>L</kbd>：左揃え / <kbd>R</kbd>：右揃え / <kbd>T</kbd>：上揃え / <kbd>B</kbd>：下揃え</li>
+            <li><kbd>C</kbd>：水平中央揃え / <kbd>M</kbd>：垂直中央揃え</li>
+            <li><kbd>H</kbd>：水平方向に等間隔配置 / <kbd>V</kbd>：垂直方向に等間隔配置</li>
+        </ul>
+        <div class="tip">
+            フローの見栄えが格段に良くなる機能ですが、知らない人が多い穴場です。
+        </div>
+
+        <!-- ===== 5. 検索とナビゲーション ===== -->
+        <h2 id="ch5">🔍 5. 検索とナビゲーション</h2>
+
+        <h3>フロー内検索（<kbd>Ctrl</kbd>+<kbd>F</kbd>）</h3>
+        <p>
+            ノード名・ノードタイプ・プロパティ値・ノード ID で横断検索ができます。検索結果をクリックすると、該当ノードまでキャンバスがジャンプ。フローが増えてきたら必須の機能です。
+        </p>
+
+        <h3>サイドバーを使いこなす</h3>
+        <table>
+            <tr><th>タブ</th><th>役割</th><th>知っておくと得な使い方</th></tr>
+            <tr>
+                <td><strong>info</strong></td>
+                <td>選択中のノード/フローの説明を表示</td>
+                <td>ノードを選択すると公式ヘルプが自動表示される。「このノード何だっけ？」が一発解決</td>
+            </tr>
+            <tr>
+                <td><strong>debug</strong></td>
+                <td>debug ノードの出力を表示</td>
+                <td>右上の漏斗マークで「現在のフローのみ」「特定ノードのみ」にフィルタ可能</td>
+            </tr>
+            <tr>
+                <td><strong>context</strong></td>
+                <td>flow / global コンテキストの中身を表示</td>
+                <td>変数の値が今どうなっているかを可視化できる。<a href="nodered-variable-types-guide.html">変数の種類ガイド</a> 参照</td>
+            </tr>
+            <tr>
+                <td><strong>設定（歯車）</strong></td>
+                <td>フロー一覧、サブフロー、グローバル設定</td>
+                <td>無効化したノードや、各タブの管理</td>
+            </tr>
+        </table>
+
+        <!-- ===== 6. Debug 徹底活用 ===== -->
+        <h2 id="ch6">🐞 6. Debug ノード徹底活用</h2>
+
+        <p>Debug ノードの編集ダイアログ「プロパティ」タブで、何を・どこに出力するかをまとめて設定します。</p>
+
+        <figure style="margin: 20px 0; text-align: center;">
+            <img src="img/debug-node-edit-property.png"
+                 alt="debug ノードの編集ダイアログ「プロパティ」タブ。対象、出力先（デバッグウィンドウ／システムコンソール／ノードステータス）、名前を設定できる"
+                 style="max-width: 560px; width: 100%; height: auto; border: 1px solid #ddd; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.08);">
+            <figcaption style="margin-top: 10px; color: #666; font-size: 0.92em;">
+                Debug ノードの「プロパティ」タブ。<strong>対象</strong>と<strong>出力先</strong>がここに集約されている。出力先の「ノードステータス」には UI 上で <strong>「(32 文字)」</strong> と明記されている。
+            </figcaption>
+        </figure>
+
+        <h3>出力対象の切り替え</h3>
+        <p>「<strong>対象</strong>」フィールドで、何を表示するかを切り替えられます。</p>
+        <ul>
+            <li><code>msg.payload</code>：最も使う。本体のデータだけを見る</li>
+            <li><code>msg</code> オブジェクト全体：トピックやヘッダーも見たい時</li>
+            <li><strong>JSONata 式</strong>：式を書いて任意の値を抽出（例：<code>$count(payload)</code> で配列長だけ表示）</li>
+        </ul>
+
+        <h3>出力先の切り替え</h3>
+        <p>「<strong>出力先</strong>」のチェックボックス（複数選択可）で、どこに出すかを決められます。</p>
+        <table>
+            <tr><th>出力先</th><th>挙動</th></tr>
+            <tr><td>デバッグウィンドウ</td><td>サイドバーに表示（デフォルト）</td></tr>
+            <tr><td>システムコンソール</td><td>Node-RED 起動時のターミナルに出力。長期ログ向け</td></tr>
+            <tr><td>ノードステータス(32 文字)</td><td><strong>ノードの下に小さくテキスト表示</strong> される。常に最新値を見たい時に便利。UI のラベルどおり<strong>最大 32 文字</strong>に切り詰められる点に注意</td></tr>
+        </table>
+
+        <div class="tip">
+            <p><strong>💡 ステータス表示の活用例</strong></p>
+            <p>センサー値を扱うフローで、debug の対象を <code>msg.payload</code>、出力先を「ノードのステータス」にしておくと、デバッグウィンドウを開かなくても <strong>キャンバス上で最新値が常時見える</strong> ようになります。長い JSON は切り詰められるので、温度・カウンタなど短い値の表示に向いています。</p>
+        </div>
+
+        <h3>個別 ON / OFF</h3>
+        <p>
+            debug ノードの右側にある <strong>緑のボタン</strong> をクリックすると、そのノードだけ一時的に出力を止められます。大量の debug を仕込んだ後、必要なものだけ ON にして観察する使い方が便利です。
+        </p>
+
+        <h3>サイドバーのフィルタとクリア</h3>
+        <p>
+            debug サイドバー右上の漏斗アイコンから「全ノード」「現在のフローのみ」「特定のノードのみ」の 3 段階でフィルタできます。複数フローでデバッグしていると出力が混ざるので、ぜひ活用しましょう。
+        </p>
+        <div class="tip">
+            <p><strong>💡 表示は最新 100 件まで</strong></p>
+            <p>debug サイドバーには <strong>最新 100 件</strong> までしか保持されません（古いものから消えていきます）。手動で全消去するには <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>L</kbd> が便利です。</p>
+        </div>
+
+        <div class="warning">
+            <p><strong>⚠️ 本番デプロイ前のチェック</strong></p>
+            <p>debug ノードは便利ですが、大量のメッセージを処理する本番フローで放置すると <strong>パフォーマンス低下や Node-RED メモリ枯渇</strong> の原因になります。本番デプロイ時は不要な debug を無効化（個別 OFF または削除）しましょう。</p>
+        </div>
+
+        <!-- ===== 7. 編集ダイアログの便利機能 ===== -->
+        <h2 id="ch7">⚙️ 7. 編集ダイアログの便利機能</h2>
+
+        <h3>typed input（型付き入力）の使いこなし</h3>
+        <p>
+            Node-RED のあちこちに登場する <strong>左側にアイコンが付いた入力欄</strong> ─ これが typed input です。アイコンをクリックすると入力する値の型を切り替えられます。
+        </p>
+        <table>
+            <tr><th>タイプ</th><th>意味</th><th>使用例</th></tr>
+            <tr><td><code>msg.</code></td><td>メッセージのプロパティ参照</td><td><code>payload</code>、<code>topic</code></td></tr>
+            <tr><td><code>flow.</code></td><td>フローコンテキストの変数</td><td>同じフロー内のノード間で共有する値</td></tr>
+            <tr><td><code>global.</code></td><td>グローバルコンテキストの変数</td><td>フローをまたいで共有する値</td></tr>
+            <tr><td><code>str</code></td><td>文字列リテラル</td><td><code>hello</code></td></tr>
+            <tr><td><code>num</code></td><td>数値リテラル</td><td><code>42</code></td></tr>
+            <tr><td><code>bool</code></td><td>真偽値</td><td>true / false</td></tr>
+            <tr><td><code>json</code></td><td>JSON オブジェクト/配列</td><td><code>{"a": 1}</code></td></tr>
+            <tr><td><code>jsonata</code></td><td>JSONata 式</td><td><code>payload.items[0].name</code></td></tr>
+            <tr><td><code>env</code></td><td>環境変数</td><td>OS の環境変数や グループ/フローの env</td></tr>
+        </table>
+        <div class="tip">
+            change ノード、switch ノード、inject ノードなど、ほぼすべての主要ノードでこの仕組みを使います。マスターするとフロー作成が一気に楽になります。
+        </div>
+
+        <h3>Function ノードのコードエディタ</h3>
+        <p>
+            Function ノードのコード欄は、ブラウザ内で動く高機能なコードエディタです。プレーンな <code>&lt;textarea&gt;</code> ではないので、以下のようなエディタ標準の操作が使えます。
+        </p>
+        <ul>
+            <li><strong>コード補完：</strong>変数名やメソッドを途中まで入れると候補が出る</li>
+            <li><strong>検索・置換：</strong>エディタ内でショートカットや右クリックメニューから利用可能</li>
+            <li><strong>シンタックスハイライト・エラー表示：</strong>JavaScript の構文エラーがその場で見える</li>
+        </ul>
+        <div class="tip">
+            <p><strong>💡 補足</strong></p>
+            <p>使用されるエディタは Node-RED の設定（<code>settings.js</code> の <code>editorTheme.codeEditor</code>）で切り替え可能です。利用可能な細かいショートカットはエディタ実装に依存します。</p>
+        </div>
+        <p>詳しくは <a href="nodered-function-node-guide.html">Function ノードガイド</a>、<a href="nodered-function-node2-javascript-guide.html">Function ノード JavaScript 編</a> も参照。</p>
+
+        <!-- ===== 8. ライブラリ ===== -->
+        <h2 id="ch8">📚 8. ライブラリで部品を再利用</h2>
+
+        <h3>選択範囲をライブラリに保存</h3>
+        <p>
+            よく使うノード構成は <strong>ローカルフローライブラリ</strong> に保存しておくと、別フロー・別プロジェクトでも呼び出せます。
+        </p>
+        <ol>
+            <li>保存したいノードを選択</li>
+            <li><kbd>Ctrl</kbd>+<kbd>E</kbd>（または右上メニュー → <strong>書き出し</strong>）でエクスポートダイアログを開く</li>
+            <li>ダイアログ内の <strong>「ライブラリ」</strong> タブを選び、名前を付けて保存（フォルダを切ることも可能）</li>
+        </ol>
+        <p>呼び出す側は <kbd>Ctrl</kbd>+<kbd>I</kbd>（読み込み）→ <strong>「ライブラリ」</strong> タブから選択します。</p>
+        <ul>
+            <li>自分専用の「定型フロー集」を作れる</li>
+            <li>JSON ファイルとして保管する場合と違い、エディタ内で完結する手軽さ</li>
+        </ul>
+
+        <div class="important">
+            <p><strong>📌 ライブラリと Examples は別物</strong></p>
+            <p>読み込みダイアログには「ライブラリ」と「<strong>Examples（例）</strong>」という別タブがあります。混同しないように整理しておきましょう。</p>
+            <ul>
+                <li><strong>ライブラリ：</strong>自分で保存した再利用パーツ</li>
+                <li><strong>Examples：</strong>インストール済みノードが提供する公式サンプル（例：<code>node-red-contrib-xxx</code> が同梱するデモフロー）</li>
+            </ul>
+        </div>
+
+        <h3>Examples（インストール済みノードのサンプル）</h3>
+        <p>
+            インストール済みノードがサンプルフローを同梱している場合、<kbd>Ctrl</kbd>+<kbd>I</kbd> → <strong>「例」タブ</strong> から確認できます。「このノードの使い方が分からない」時の最速ルートです。
+        </p>
+
+        <h3>グループ化・サブフローとの使い分け</h3>
+        <p>
+            部品化には複数の選択肢があります。詳しくは <a href="nodered-overview.html#section-organize">概要ガイドの「フローを整理する・部品化するテクニック」</a> を参照してください。
+        </p>
+        <table>
+            <tr><th>目的</th><th>選ぶべき機能</th></tr>
+            <tr><td>見た目の整理</td><td>グループ化</td></tr>
+            <tr><td>同じ処理を「1 個のノード」として何度も使う</td><td>サブフロー</td></tr>
+            <tr><td>テンプレ的に呼び出してから自由に編集</td><td>ライブラリ保存</td></tr>
+        </table>
+
+        <!-- ===== 9. info でドキュメント化 ===== -->
+        <h2 id="ch9">📝 9. info（説明文）で生きたドキュメントを残す</h2>
+
+        <p>
+            ノード・フロー・サブフロー・グループは、それぞれ <strong>編集ダイアログの「説明」タブ</strong> で <strong>Markdown</strong> 形式の説明文を書けます。
+        </p>
+
+        <figure style="margin: 20px 0; text-align: center;">
+            <img src="img/debug-node-edit-description.png"
+                 alt="debug ノードの編集ダイアログ「説明」タブ。h1/h2/h3、太字、斜体、コード、リスト、引用、リンクなどのツールバーが上部に並んでいる"
+                 style="max-width: 560px; width: 100%; height: auto; border: 1px solid #ddd; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.08);">
+            <figcaption style="margin-top: 10px; color: #666; font-size: 0.92em;">
+                編集ダイアログ「説明」タブ。上部のツールバーから <strong>見出し（h1/h2/h3）・太字・コード・リスト・引用・リンク</strong> を挿入できる Markdown エディタ。
+            </figcaption>
+        </figure>
+
+        <h3>書き方の例</h3>
+        <ul>
+            <li>ノードの説明：「このノードは温度センサー値の異常検知を行う」「閾値は flow.threshold」</li>
+            <li>フローの説明：このフローの目的、入出力、依存関係、注意点</li>
+            <li>サブフローの説明：使い方、必要なパラメータ、戻り値</li>
+        </ul>
+
+        <div class="tip">
+            <p><strong>💡 info タブで自動表示される</strong></p>
+            <p>ノードを選択するだけで、書いた説明文がサイドバーの info タブに自動表示されます。<strong>コメントノードを並べるより画面が散らからない</strong> 利点があります。</p>
+        </div>
+
+        <div class="success">
+            <p><strong>📖 図も書ける</strong></p>
+            <p>Markdown に加えて <strong>Mermaid 図</strong> も書けるため、フロー全体のシーケンス図やフローチャートをドキュメント内に埋め込めます。</p>
+        </div>
+
+        <!-- ===== 関連リンク ===== -->
+        <h2 id="related">🔗 関連ガイド・参考リンク</h2>
+        <h3>このサイト内の関連ページ</h3>
+        <ul>
+            <li><a href="nodered-overview.html">Node-RED 入門ガイド</a> ─ エディタ画面の構成、グループ化・サブフロー</li>
+            <li><a href="nodered-debug-node-guide.html">Debug ノードガイド</a> ─ Debug ノードの詳細</li>
+            <li><a href="nodered-comment-node-guide.html">Comment ノードガイド</a> ─ コメントノードの使い方</li>
+            <li><a href="nodered-link-node-guide.html">Link ノードガイド</a> ─ 離れたノードを線なしでつなぐ</li>
+            <li><a href="nodered-variable-types-guide.html">変数の種類ガイド</a> ─ msg/flow/global コンテキスト</li>
+            <li><a href="nodered-function-node-guide.html">Function ノードガイド</a> ─ Monaco エディタ</li>
+            <li><a href="nodered-settings-guide.html">settings.js 設定ガイド</a> ─ サーバー側の設定</li>
+        </ul>
+
+        <h3>公式ドキュメント・外部リソース</h3>
+        <ul>
+            <li><a href="https://nodered.org/docs/user-guide/editor/" target="_blank" rel="noopener">Node-RED Editor Documentation（公式）</a></li>
+            <li><a href="https://nodered.org/docs/user-guide/editor/workspace/groups" target="_blank" rel="noopener">Groups（公式）</a></li>
+            <li><a href="https://nodered.org/docs/user-guide/editor/workspace/subflows" target="_blank" rel="noopener">Subflows（公式）</a></li>
+            <li><a href="https://flowfuse.com/node-red/keyboard/" target="_blank" rel="noopener">Node-RED Keyboard Shortcuts（FlowFuse）</a></li>
+        </ul>
+
+        <!-- 目次に戻る -->
+        <div style="text-align: center; margin-top: 40px;">
+            <a href="#top" onclick="window.scrollTo({top: 0, behavior: 'smooth'}); return false;" style="display: inline-block; padding: 10px 20px; background: #8f0000; color: white; border-radius: 6px; text-decoration: none;">⬆ ページ先頭へ戻る</a>
+        </div>
+    </div>
+
+    <!-- フローティングホームボタン -->
+    <a href="index.html" style="position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px; background: linear-gradient(135deg, #42b883 0%, #35495e 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; transition: transform 0.3s, box-shadow 0.3s;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 6px 16px rgba(0,0,0,0.4)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.3)';" title="トップページへ">🏠</a>
+</body>
+</html>
