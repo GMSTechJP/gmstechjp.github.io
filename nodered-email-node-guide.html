@@ -720,16 +720,30 @@ if (now - lastSent > interval) {
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
     {
+        "id": "email_node_guide_tab_0",
+        "type": "tab",
+        "label": "email_node_guide 例1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
         "id": "email_ex1_inject",
         "type": "inject",
+        "z": "email_node_guide_tab_0",
         "name": "テスト送信",
         "props": [],
         "repeat": "",
-        "wires": [["email_ex1_change"]]
+        "wires": [
+            [
+                "email_ex1_change"
+            ]
+        ]
     },
     {
         "id": "email_ex1_change",
         "type": "change",
+        "z": "email_node_guide_tab_0",
         "name": "件名・本文設定",
         "rules": [
             {
@@ -747,11 +761,16 @@ if (now - lastSent > interval) {
                 "tot": "jsonata"
             }
         ],
-        "wires": [["email_ex1_send"]]
+        "wires": [
+            [
+                "email_ex1_send"
+            ]
+        ]
     },
     {
         "id": "email_ex1_send",
         "type": "e-mail",
+        "z": "email_node_guide_tab_0",
         "name": "テストメール送信",
         "server": "smtp.gmail.com",
         "port": "465",
@@ -802,34 +821,68 @@ if (now - lastSent > interval) {
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
     {
+        "id": "email_node_guide_tab_1",
+        "type": "tab",
+        "label": "email_node_guide 例2",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
         "id": "email_ex2_inject",
         "type": "inject",
+        "z": "email_node_guide_tab_1",
         "name": "ランダム温度",
-        "props": [{"p": "payload"}],
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
         "payload": "$floor($random() * 40 + 20)",
         "payloadType": "jsonata",
         "repeat": "10",
-        "wires": [["email_ex2_switch"]]
+        "wires": [
+            [
+                "email_ex2_switch"
+            ]
+        ]
     },
     {
         "id": "email_ex2_switch",
         "type": "switch",
+        "z": "email_node_guide_tab_1",
         "name": "50°C以上?",
         "property": "payload",
-        "rules": [{"t": "gte", "v": "50", "vt": "num"}],
-        "wires": [["email_ex2_func"]]
+        "rules": [
+            {
+                "t": "gte",
+                "v": "50",
+                "vt": "num"
+            }
+        ],
+        "wires": [
+            [
+                "email_ex2_func"
+            ]
+        ]
     },
     {
         "id": "email_ex2_func",
         "type": "function",
+        "z": "email_node_guide_tab_1",
         "name": "アラートメール作成",
         "func": "var lastSent = context.get('lastSent') || 0;\nvar now = Date.now();\nvar interval = 5 * 60 * 1000;\n\nif (now - lastSent > interval) {\n    context.set('lastSent', now);\n    var temp = msg.payload;\n    msg.to = 'admin@example.com';\n    msg.topic = '[ALERT] 温度異常: ' + temp + '°C';\n    msg.payload = '<h2 style=\"color:red\">温度アラート</h2>' +\n        '<p>センサーの温度が閾値を超えました。</p>' +\n        '<ul>' +\n        '<li>現在温度: <strong>' + temp + '°C</strong></li>' +\n        '<li>閾値: 50°C</li>' +\n        '<li>検知時刻: ' + new Date().toLocaleString('ja-JP') + '</li>' +\n        '</ul>' +\n        '<hr><p style=\"color:gray\">このメールはNode-REDから自動送信されています。</p>';\n    return msg;\n}\nreturn null;",
         "outputs": 1,
-        "wires": [["email_ex2_send"]]
+        "wires": [
+            [
+                "email_ex2_send"
+            ]
+        ]
     },
     {
         "id": "email_ex2_send",
         "type": "e-mail",
+        "z": "email_node_guide_tab_1",
         "name": "アラート送信",
         "server": "smtp.gmail.com",
         "port": "465",
@@ -879,8 +932,17 @@ if (now - lastSent > interval) {
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
     {
+        "id": "email_node_guide_tab_2",
+        "type": "tab",
+        "label": "email_node_guide 例3",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
         "id": "email_ex3_in",
         "type": "e-mail in",
+        "z": "email_node_guide_tab_2",
         "name": "コマンド受信",
         "protocol": "IMAP",
         "server": "imap.gmail.com",
@@ -888,37 +950,68 @@ if (now - lastSent > interval) {
         "secure": true,
         "useSSL": true,
         "disposition": "Read",
-        "wires": [["email_ex3_switch"]]
+        "wires": [
+            [
+                "email_ex3_switch"
+            ]
+        ]
     },
     {
         "id": "email_ex3_switch",
         "type": "switch",
+        "z": "email_node_guide_tab_2",
         "name": "コマンド判定",
         "property": "topic",
         "rules": [
-            {"t": "cont", "v": "STATUS", "vt": "str"},
-            {"t": "cont", "v": "REPORT", "vt": "str"}
+            {
+                "t": "cont",
+                "v": "STATUS",
+                "vt": "str"
+            },
+            {
+                "t": "cont",
+                "v": "REPORT",
+                "vt": "str"
+            }
         ],
         "checkall": "false",
-        "wires": [["email_ex3_status"], ["email_ex3_report"]]
+        "wires": [
+            [
+                "email_ex3_status"
+            ],
+            [
+                "email_ex3_report"
+            ]
+        ]
     },
     {
         "id": "email_ex3_status",
         "type": "function",
+        "z": "email_node_guide_tab_2",
         "name": "ステータス返信",
         "func": "var uptime = process.uptime();\nvar hours = Math.floor(uptime / 3600);\nvar mins = Math.floor((uptime % 3600) / 60);\nvar mem = process.memoryUsage();\n\nmsg.to = msg.from;\nmsg.topic = 'Re: ' + msg.topic;\nmsg.payload = 'システムステータスレポート\\n' +\n    '========================\\n' +\n    '稼働時間: ' + hours + '時間' + mins + '分\\n' +\n    'メモリ使用量: ' + Math.floor(mem.heapUsed / 1024 / 1024) + 'MB / ' + Math.floor(mem.heapTotal / 1024 / 1024) + 'MB\\n' +\n    '確認時刻: ' + new Date().toLocaleString('ja-JP');\nreturn msg;",
-        "wires": [["email_ex3_send"]]
+        "wires": [
+            [
+                "email_ex3_send"
+            ]
+        ]
     },
     {
         "id": "email_ex3_report",
         "type": "function",
+        "z": "email_node_guide_tab_2",
         "name": "レポート返信",
         "func": "var data = flow.get('sensorData') || [\n    {time: '10:00', temp: 25.3, humidity: 60},\n    {time: '11:00', temp: 26.1, humidity: 58},\n    {time: '12:00', temp: 27.5, humidity: 55}\n];\n\nvar csv = '時刻,温度,湿度\\n';\ndata.forEach(function(row) {\n    csv += row.time + ',' + row.temp + ',' + row.humidity + '\\n';\n});\n\nmsg.to = msg.from;\nmsg.topic = 'Re: ' + msg.topic;\nmsg.payload = '計測データレポートを添付します。';\nmsg.attachments = [{\n    filename: 'report_' + new Date().toISOString().slice(0,10) + '.csv',\n    content: csv,\n    contentType: 'text/csv'\n}];\nreturn msg;",
-        "wires": [["email_ex3_send"]]
+        "wires": [
+            [
+                "email_ex3_send"
+            ]
+        ]
     },
     {
         "id": "email_ex3_send",
         "type": "e-mail",
+        "z": "email_node_guide_tab_2",
         "name": "返信送信",
         "server": "smtp.gmail.com",
         "port": "465",

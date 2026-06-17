@@ -435,25 +435,49 @@ return null;</div>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
     {
+        "id": "base64_tab_0",
+        "type": "tab",
+        "label": "Base64 例1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
         "id": "b64_ex1_inject",
         "type": "inject",
+        "z": "base64_tab_0",
         "name": "テスト文字列",
-        "props": [{"p": "payload"}],
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
         "payload": "Node-RED Base64 テスト",
         "payloadType": "str",
-        "wires": [["b64_ex1_encode"]]
+        "wires": [
+            [
+                "b64_ex1_encode"
+            ]
+        ]
     },
     {
         "id": "b64_ex1_encode",
         "type": "base64",
+        "z": "base64_tab_0",
         "name": "エンコード",
         "action": "",
         "property": "payload",
-        "wires": [["b64_ex1_debug1", "b64_ex1_decode"]]
+        "wires": [
+            [
+                "b64_ex1_debug1",
+                "b64_ex1_decode"
+            ]
+        ]
     },
     {
         "id": "b64_ex1_debug1",
         "type": "debug",
+        "z": "base64_tab_0",
         "name": "Base64文字列",
         "active": true,
         "complete": "payload",
@@ -462,21 +486,32 @@ return null;</div>
     {
         "id": "b64_ex1_decode",
         "type": "base64",
+        "z": "base64_tab_0",
         "name": "デコード",
         "action": "",
         "property": "payload",
-        "wires": [["b64_ex1_func"]]
+        "wires": [
+            [
+                "b64_ex1_func"
+            ]
+        ]
     },
     {
         "id": "b64_ex1_func",
         "type": "function",
+        "z": "base64_tab_0",
         "name": "Buffer→文字列",
         "func": "msg.payload = msg.payload.toString();\nreturn msg;",
-        "wires": [["b64_ex1_debug2"]]
+        "wires": [
+            [
+                "b64_ex1_debug2"
+            ]
+        ]
     },
     {
         "id": "b64_ex1_debug2",
         "type": "debug",
+        "z": "base64_tab_0",
         "name": "復元結果",
         "active": true,
         "complete": "payload",
@@ -522,40 +557,75 @@ return null;</div>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
     {
+        "id": "base64_tab_1",
+        "type": "tab",
+        "label": "Base64 例2",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
         "id": "b64_ex2_inject",
         "type": "inject",
+        "z": "base64_tab_1",
         "name": "読み込み開始",
-        "props": [{"p": "filename", "v": "/tmp/test.png", "vt": "str"}],
-        "wires": [["b64_ex2_file"]]
+        "props": [
+            {
+                "p": "filename",
+                "v": "/tmp/test.png",
+                "vt": "str"
+            }
+        ],
+        "wires": [
+            [
+                "b64_ex2_file"
+            ]
+        ]
     },
     {
         "id": "b64_ex2_file",
         "type": "file in",
+        "z": "base64_tab_1",
         "name": "画像読み込み",
         "filename": "",
         "filenameType": "msg",
         "format": "",
         "allProps": true,
-        "wires": [["b64_ex2_base64"]]
+        "wires": [
+            [
+                "b64_ex2_base64"
+            ]
+        ]
     },
     {
         "id": "b64_ex2_base64",
         "type": "base64",
+        "z": "base64_tab_1",
         "name": "Base64変換",
         "action": "",
         "property": "payload",
-        "wires": [["b64_ex2_func"]]
+        "wires": [
+            [
+                "b64_ex2_func"
+            ]
+        ]
     },
     {
         "id": "b64_ex2_func",
         "type": "function",
+        "z": "base64_tab_1",
         "name": "Data URI HTML生成",
         "func": "var ext = (msg.filename || '').split('.').pop().toLowerCase();\nvar mimeMap = { 'png': 'image/png', 'jpg': 'image/jpeg', 'jpeg': 'image/jpeg', 'gif': 'image/gif' };\nvar mime = mimeMap[ext] || 'image/png';\n\nvar dataUri = 'data:' + mime + ';base64,' + msg.payload;\nmsg.payload = '<html><body><h2>Base64埋め込み画像</h2><img src=\"' + dataUri + '\" style=\"max-width:400px\"></body></html>';\nreturn msg;",
-        "wires": [["b64_ex2_debug"]]
+        "wires": [
+            [
+                "b64_ex2_debug"
+            ]
+        ]
     },
     {
         "id": "b64_ex2_debug",
         "type": "debug",
+        "z": "base64_tab_1",
         "name": "HTML出力",
         "active": true,
         "complete": "payload",
@@ -602,31 +672,56 @@ return null;</div>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
     {
+        "id": "base64_tab_2",
+        "type": "tab",
+        "label": "Base64 例3",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
         "id": "b64_ex3_inject",
         "type": "inject",
+        "z": "base64_tab_2",
         "name": "センサー送信",
         "props": [],
         "repeat": "",
-        "wires": [["b64_ex3_pack"]]
+        "wires": [
+            [
+                "b64_ex3_pack"
+            ]
+        ]
     },
     {
         "id": "b64_ex3_pack",
         "type": "function",
+        "z": "base64_tab_2",
         "name": "バイナリパック",
         "func": "var buf = Buffer.alloc(12);\nbuf.writeFloatLE(25.5, 0);    // 温度\nbuf.writeFloatLE(60.2, 4);    // 湿度\nbuf.writeFloatLE(1013.25, 8); // 気圧\nmsg.payload = buf;\nreturn msg;",
-        "wires": [["b64_ex3_encode"]]
+        "wires": [
+            [
+                "b64_ex3_encode"
+            ]
+        ]
     },
     {
         "id": "b64_ex3_encode",
         "type": "base64",
+        "z": "base64_tab_2",
         "name": "エンコード",
         "action": "",
         "property": "payload",
-        "wires": [["b64_ex3_debug_enc", "b64_ex3_decode"]]
+        "wires": [
+            [
+                "b64_ex3_debug_enc",
+                "b64_ex3_decode"
+            ]
+        ]
     },
     {
         "id": "b64_ex3_debug_enc",
         "type": "debug",
+        "z": "base64_tab_2",
         "name": "Base64パケット",
         "active": true,
         "complete": "payload",
@@ -635,21 +730,32 @@ return null;</div>
     {
         "id": "b64_ex3_decode",
         "type": "base64",
+        "z": "base64_tab_2",
         "name": "デコード",
         "action": "",
         "property": "payload",
-        "wires": [["b64_ex3_unpack"]]
+        "wires": [
+            [
+                "b64_ex3_unpack"
+            ]
+        ]
     },
     {
         "id": "b64_ex3_unpack",
         "type": "function",
+        "z": "base64_tab_2",
         "name": "バイナリ解析",
         "func": "var buf = msg.payload;\nmsg.payload = {\n    temperature: Math.round(buf.readFloatLE(0) * 10) / 10,\n    humidity: Math.round(buf.readFloatLE(4) * 10) / 10,\n    pressure: Math.round(buf.readFloatLE(8) * 100) / 100\n};\nreturn msg;",
-        "wires": [["b64_ex3_debug_dec"]]
+        "wires": [
+            [
+                "b64_ex3_debug_dec"
+            ]
+        ]
     },
     {
         "id": "b64_ex3_debug_dec",
         "type": "debug",
+        "z": "base64_tab_2",
         "name": "解析結果",
         "active": true,
         "complete": "payload",
