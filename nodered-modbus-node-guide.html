@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED MODBUS ノードガイド（サードパーティ）</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.8; max-width: 1000px; margin: 0 auto; padding: 20px; background-color: #f5f5f5; color: #333; }
+        h1 { color: #37474f; border-bottom: 3px solid #37474f; padding-bottom: 10px; }
+        h2 { color: #455a64; margin-top: 40px; border-left: 5px solid #455a64; padding-left: 15px; }
+        h3 { color: #555; margin-top: 25px; }
+        h4 { color: #666; margin-top: 20px; }
+        .container { background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .node-example { background-color: #2d3133; padding: 20px; border-radius: 5px; margin: 20px 0; color: white; font-family: 'Courier New', monospace; display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
+        .node { display: inline-block; padding: 8px 15px; border-radius: 4px; margin: 5px; font-weight: bold; font-size: 14px; }
+        .node-inject { background-color: #3fadb5; color: white; }
+        .node-debug { background-color: #87a48d; color: white; }
+        .node-modbus { background-color: #607d8b; color: white; }
+        .node-modbus-server { background-color: #455a64; color: white; }
+        .arrow { color: #999; font-size: 20px; margin: 0 10px; }
+        .important { background-color: #eceff1; border-left: 4px solid #37474f; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .tip { background-color: #e8f5e9; border-left: 4px solid #4caf50; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .warning { background-color: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .thirdparty { background: linear-gradient(135deg, #eceff1 0%, #cfd8dc 100%); border: 2px solid #607d8b; border-radius: 8px; padding: 18px 22px; margin: 20px 0; }
+        .thirdparty h3 { margin-top: 0; color: #37474f; }
+        .code-block { background-color: #2d3133; color: #f8f8f2; padding: 15px; border-radius: 5px; margin: 15px 0; overflow-x: auto; font-family: 'Courier New', Consolas, monospace; font-size: 14px; white-space: pre; }
+        .flow-json { background-color: #1a1a2e; color: #a6e22e; padding: 15px; border-radius: 5px; font-family: 'Courier New', Consolas, monospace; font-size: 12px; overflow-x: auto; white-space: pre; position: relative; max-height: 400px; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; vertical-align: top; }
+        th { background-color: #455a64; color: white; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .exercise { background-color: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0; border: 2px solid #2196f3; }
+        .exercise h3 { color: #1976d2; margin-top: 0; }
+        .difficulty { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; margin-left: 10px; }
+        .difficulty-easy { background-color: #c8e6c9; color: #2e7d32; }
+        .difficulty-medium { background-color: #fff9c4; color: #f57f17; }
+        .difficulty-hard { background-color: #ffcdd2; color: #c62828; }
+        details { background-color: #f5f5f5; padding: 10px 15px; border-radius: 5px; margin: 10px 0; }
+        details summary { cursor: pointer; font-weight: bold; color: #455a64; }
+        details[open] summary { margin-bottom: 10px; }
+        .toc { background-color: #fafafa; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .toc h3 { margin-top: 0; color: #37474f; }
+        .toc ul { list-style: none; padding-left: 0; }
+        .toc li { padding: 5px 0; }
+        .toc a { color: #1976d2; text-decoration: none; }
+        .toc a:hover { text-decoration: underline; }
+        .copy-button { position: absolute; top: 8px; right: 8px; padding: 6px 12px; background-color: #455a64; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-family: 'Segoe UI', sans-serif; transition: background-color 0.2s; z-index: 10; display: flex; align-items: center; gap: 4px; }
+        .copy-button:hover { background-color: #37474f; }
+        .copy-button.copied { background-color: #28a745; }
+        .copy-button svg { width: 14px; height: 14px; fill: currentColor; }
+        .node-compare { display: flex; gap: 20px; flex-wrap: wrap; margin: 20px 0; }
+        .node-card { background: #f9f9f9; border: 1px solid #ddd; border-radius: 8px; padding: 15px; flex: 1; min-width: 200px; }
+        .node-card h4 { margin-top: 0; color: #455a64; }
+        .diagram-box { background: #2d3133; color: white; padding: 20px; border-radius: 8px; font-family: monospace; margin: 15px 0; white-space: pre-wrap; }
+        code { background: #eceff1; padding: 2px 6px; border-radius: 3px; font-family: 'Courier New', monospace; font-size: 0.95em; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏭 Node-RED MODBUS ノードガイド</h1>
+        <div data-envbadge="1" style="margin:12px 0;"><span style="display:inline-block;padding:3px 12px;border-radius:12px;font-size:0.85em;font-weight:bold;background:#fff3e0;color:#e65100;border:1px solid #ffcc80;">⚠️ クラウド可（自分専用ポート）</span> <a href="nodered-learning-environment-guide.html" style="font-size:0.82em;">環境とは？</a></div>
+
+        <div class="thirdparty">
+            <h3>📦 これはサードパーティノードです</h3>
+            <p>MODBUS は Node-RED の標準ノードには含まれていません。<strong><code>node-red-contrib-modbus</code></strong> というパッケージを追加インストールして使います（本ガイド執筆時点の最新は v5.45.2）。インストール手順は<a href="#section2">第2章</a>で解説します。</p>
+            <p>通信の全体像がまだあいまいな方は、先に <a href="nodered-network-basics-guide.html">通信の基礎（ネットワーク入門）</a> を読むと、MODBUS が「ポーリング型（見回り点検）」の通信であることがすっきり理解できます。</p>
+        </div>
+
+        <div class="toc">
+            <h3>📚 目次</h3>
+            <ul>
+                <li><a href="#section1">1. 概要 — MODBUS とは</a></li>
+                <li><a href="#section2">2. インストール方法</a></li>
+                <li><a href="#section3">3. MODBUS の基礎知識（RTU/TCP・データモデル・FC）</a></li>
+                <li><a href="#section4">4. ノード構成</a></li>
+                <li><a href="#section5">5. 設定項目一覧（プロパティ表）</a></li>
+                <li><a href="#section6">6. 実用的な使用パターン</a></li>
+                <li><a href="#section7">7. サンプルフロー & シミュレータの準備</a></li>
+                <li><a href="#section8">8. 演習問題</a></li>
+                <li><a href="#section9">9. まとめ</a></li>
+                <li><a href="#section10">10. トラブルシューティング</a></li>
+            </ul>
+        </div>
+
+        <h2 id="section1">📖 1. 概要 — MODBUS とは</h2>
+        <p><strong>MODBUS（モドバス）</strong>は、1979 年に Modicon 社（現 Schneider Electric）が発表した、産業機器どうしをつなぐための通信プロトコルです。40 年以上の歴史があり、いまも<strong>工場・プラント・ビル設備で最も広く使われている「産業界の共通言語」</strong>です。</p>
+
+        <p>🔦 <strong>見回り点検にたとえると</strong>：MODBUS は「担当者（親機）が各機械（子機）を定期的に巡回し、『いま何度？』『カウンタはいくつ？』と聞いて回る」方式です。子機は聞かれたことに答えるだけ。親機が会話の主導権を握る、シンプルで予測しやすい通信です。</p>
+
+        <h3>どんな機器で使われる？</h3>
+        <ul>
+            <li><strong>PLC</strong>（シーケンサ）— 工場の自動制御装置</li>
+            <li><strong>インバータ</strong>— モーターの回転数制御</li>
+            <li><strong>電力計・電力モニタ</strong>— 電圧・電流・電力量の計測</li>
+            <li><strong>温調計・センサー</strong>— 温度・湿度・圧力の測定</li>
+            <li><strong>I/O ユニット</strong>— 接点入出力の集約</li>
+        </ul>
+
+        <h3>MODBUS の特徴</h3>
+        <table>
+            <tr><th>特徴</th><th>内容</th></tr>
+            <tr><td><strong>マスター/スレーブ方式</strong></td><td>親機（マスター）が要求し、子機（スレーブ）が応答する。Node-RED は通常マスター側になる。</td></tr>
+            <tr><td><strong>ポーリング</strong></td><td>マスターが定期的に問い合わせて値を集める。スレーブから勝手に送ってくることはない。</td></tr>
+            <tr><td><strong>レジスタ番地で指定</strong></td><td>「何番地の値が欲しい」と番地（アドレス）を指定してやり取りする。</td></tr>
+            <tr><td><strong>オープン仕様</strong></td><td>仕様が公開されており、メーカーをまたいで相互接続できる。</td></tr>
+        </table>
+
+        <h2 id="section2">⚙️ 2. インストール方法</h2>
+        <p>サードパーティノードは、Node-RED エディターの<strong>「パレットの管理」</strong>からインストールします。MODBUS に限らず、すべての追加ノードで共通の手順です。</p>
+
+        <ol>
+            <li>エディター右上の <strong>≡ メニュー</strong> →「<strong>パレットの管理</strong>」を開く</li>
+            <li>「<strong>ノードを追加</strong>」タブを選ぶ</li>
+            <li>検索欄に <code>node-red-contrib-modbus</code> と入力</li>
+            <li>該当パッケージの「<strong>ノードを追加</strong>」ボタンを押す</li>
+            <li>インストール完了後、左のパレットに「Modbus」カテゴリのノード群が現れる</li>
+        </ol>
+
+        <div class="tip">
+            <strong>💡 コマンドラインでも入れられる</strong><br>
+            Node-RED のユーザーディレクトリ（通常 <code>~/.node-red</code>）で次を実行しても同じです。実行後は Node-RED の再起動が必要です。
+            <div class="code-block">cd ~/.node-red
+npm install node-red-contrib-modbus</div>
+        </div>
+
+        <div class="warning">
+            <strong>⚠️ シリアル接続を使う場合</strong><br>
+            RS-485／USB シリアル変換器で実機につなぐ場合、OS 側にシリアルポートのドライバと権限が必要です。Linux では <code>dialout</code> グループへの所属（<code>sudo usermod -a -G dialout $USER</code>）が要ることがあります。まずは次章以降の<strong>シミュレータ（TCP）</strong>で動作を覚えるのがおすすめです。
+        </div>
+
+        <h2 id="section3">🧱 3. MODBUS の基礎知識</h2>
+
+        <h3>3-1. RTU と TCP — 2 つの伝送方式</h3>
+        <p>MODBUS には主に 2 つの「運び方」があります。どちらも“会話の中身（レジスタの読み書き）”は同じで、物理的な経路が違うだけです。</p>
+
+        <div class="node-compare">
+            <div class="node-card">
+                <h4>🔌 Modbus RTU</h4>
+                <p><strong>経路:</strong> シリアル（RS-485 / RS-232）</p>
+                <p><strong>特徴:</strong> 1 本の線に複数のスレーブをぶら下げる。長距離・ノイズに強い。古くからの定番。</p>
+                <p><strong>指定:</strong> ポート名・ボーレート・パリティ等</p>
+            </div>
+            <div class="node-card">
+                <h4>🌐 Modbus TCP</h4>
+                <p><strong>経路:</strong> イーサネット（LAN）</p>
+                <p><strong>特徴:</strong> IP アドレスとポート（既定 <code>502</code>）で指定。配線が楽で高速。新しい機器で主流。</p>
+                <p><strong>指定:</strong> ホスト（IP）・ポート 502</p>
+            </div>
+        </div>
+
+        <div class="tip">
+            <strong>💡 まずは TCP から</strong><br>
+            学習・検証は <strong>Modbus TCP</strong> が断然ラクです。実機がなくてもパソコン上のシミュレータに <code>127.0.0.1:10502</code> でつなげば、配線なしで一通り体験できます（<a href="#section7">第7章</a>参照）。
+        </div>
+
+        <h3>3-2. データモデル — 4 種類の入れ物</h3>
+        <p>MODBUS のスレーブは、データを <strong>4 種類の「入れ物」</strong>に分けて持っています。「ビット（ON/OFF）か、ワード（16bit 数値）か」「読み取り専用か、書き込みもできるか」で 4 つに分かれます。</p>
+
+        <table>
+            <tr><th>データ種別</th><th>単位</th><th>読み書き</th><th>イメージ</th><th>用途例</th></tr>
+            <tr><td><strong>Coil（コイル）</strong></td><td>1 ビット</td><td>読み書き可</td><td>ON/OFF の出力スイッチ</td><td>リレー、ランプ、起動/停止</td></tr>
+            <tr><td><strong>Discrete Input（離散入力）</strong></td><td>1 ビット</td><td>読み取り専用</td><td>ON/OFF の入力接点</td><td>押しボタン、リミットスイッチ</td></tr>
+            <tr><td><strong>Input Register（入力レジスタ）</strong></td><td>16 ビット</td><td>読み取り専用</td><td>測定された数値</td><td>温度、電流などのセンサー値</td></tr>
+            <tr><td><strong>Holding Register（保持レジスタ）</strong></td><td>16 ビット</td><td>読み書き可</td><td>設定できる数値</td><td>目標温度、回転数の設定値</td></tr>
+        </table>
+
+        <h3>3-3. ファンクションコード（FC）— 操作の種類</h3>
+        <p><strong>ファンクションコード</strong>は「どの入れ物に・読みか書きか」を表す番号です。<code>node-red-contrib-modbus</code> では、ノードの <strong>FC</strong> ドロップダウンで選びます（読取系と書込系で選択肢が異なります）。</p>
+
+        <table>
+            <tr><th>FC</th><th>操作</th><th>対象データ</th><th>ノード設定値（dataType）</th></tr>
+            <tr><td><strong>FC 1</strong></td><td>読み取り</td><td>Coil</td><td>Coil（FC 1: Read Coil Status）</td></tr>
+            <tr><td><strong>FC 2</strong></td><td>読み取り</td><td>Discrete Input</td><td>Input（FC 2: Read Input Status）</td></tr>
+            <tr><td><strong>FC 3</strong></td><td>読み取り</td><td>Holding Register</td><td>HoldingRegister（FC 3: Read Holding Registers）</td></tr>
+            <tr><td><strong>FC 4</strong></td><td>読み取り</td><td>Input Register</td><td>InputRegister（FC 4: Read Input Registers）</td></tr>
+            <tr><td><strong>FC 5</strong></td><td>書き込み（1 点）</td><td>Coil</td><td>Coil（FC 5: Force Single Coil）</td></tr>
+            <tr><td><strong>FC 6</strong></td><td>書き込み（1 点）</td><td>Holding Register</td><td>HoldingRegister（FC 6: Preset Single Register）</td></tr>
+            <tr><td><strong>FC 15</strong></td><td>書き込み（複数）</td><td>Coil</td><td>MCoils（FC 15: Force Multiple Coils）</td></tr>
+            <tr><td><strong>FC 16</strong></td><td>書き込み（複数）</td><td>Holding Register</td><td>MHoldingRegisters（FC 16: Preset Multiple Registers）</td></tr>
+        </table>
+
+        <h3>3-4. アドレスの「0 始まり」問題（つまずきポイント）</h3>
+        <div class="warning">
+            <strong>⚠️ 機器の仕様書の番地と、ノードに入れる番地が 1 ずれることがある</strong><br>
+            機器のマニュアルには「保持レジスタ <strong>40001</strong>」のように書かれることが多いですが、これは人間向けの参照番号です。MODBUS プロトコル上の実際のアドレスは <strong>0 始まり</strong>で、<code>40001</code> は<strong>プロトコルアドレス 0</strong> を指します。<br>
+            <code>node-red-contrib-modbus</code> の <strong>Address</strong> 欄には、この<strong>0 始まりのプロトコルアドレス</strong>を入れます。値が読めるのに 1 つズレている、というときはまずここを疑ってください。
+        </div>
+        <table>
+            <tr><th>マニュアル表記（参照番号）</th><th>データ種別</th><th>ノードの Address 欄</th></tr>
+            <tr><td>40001</td><td>Holding Register</td><td>0</td></tr>
+            <tr><td>40002</td><td>Holding Register</td><td>1</td></tr>
+            <tr><td>30001</td><td>Input Register</td><td>0</td></tr>
+            <tr><td>10001</td><td>Discrete Input</td><td>0</td></tr>
+            <tr><td>00001</td><td>Coil</td><td>0</td></tr>
+        </table>
+
+        <h2 id="section4">🧩 4. ノード構成</h2>
+        <p><code>node-red-contrib-modbus</code> は 14 個のノードを提供します。最初は次の<strong>主要 5 ノード</strong>だけ押さえれば十分です。</p>
+
+        <div class="node-example">
+            <span class="node node-modbus">Modbus Read</span>
+            <span class="node node-modbus">Modbus Getter</span>
+            <span class="node node-modbus">Modbus Write</span>
+            <span class="node node-modbus">Modbus Flex Getter</span>
+            <span class="node node-modbus-server">Modbus Server</span>
+        </div>
+
+        <table>
+            <tr><th>ノード</th><th>入力</th><th>役割</th><th>たとえ</th></tr>
+            <tr><td><strong>Modbus-Read</strong></td><td>なし（自動）</td><td>設定した間隔で<strong>定期的に読み取る</strong>（ポーリング）</td><td>定時の見回り</td></tr>
+            <tr><td><strong>Modbus-Getter</strong></td><td>あり</td><td>メッセージが来た<strong>時だけ読み取る</strong>（オンデマンド）</td><td>呼ばれたら確認</td></tr>
+            <tr><td><strong>Modbus-Write</strong></td><td>あり</td><td>値を<strong>書き込む</strong></td><td>設定を変更</td></tr>
+            <tr><td><strong>Modbus-Flex-Getter</strong></td><td>あり</td><td>FC・アドレス・数量を <code>msg</code> で動的に指定して読み取る</td><td>その都度指示して確認</td></tr>
+            <tr><td><strong>Modbus-Client</strong>（設定ノード）</td><td>—</td><td>接続先（TCP/シリアル）を定義。各ノードから共有参照する</td><td>連絡先の住所録</td></tr>
+        </table>
+
+        <div class="important">
+            <strong>📌 接続は「設定ノード」に集約される</strong><br>
+            Read / Getter / Write などの各ノードは、自分では接続先を持ちません。共通の <strong>Modbus-Client（設定ノード）</strong>を参照します。1 台の機器に対して設定ノードは 1 つ作り、複数の読み書きノードでそれを共有するのが基本です。<br>
+            なお、1 つの設定ノードにぶら下げる読み書きノードが<strong>10 個を超える</strong>ときは、公式ヘルプでも <strong>Modbus-Flex-Getter</strong> の利用や接続の分割が推奨されています。
+        </div>
+
+        <h2 id="section5">📋 5. 設定項目一覧（プロパティ表）</h2>
+        <p>主要ノードの設定項目です。項目名は <code>node-red-contrib-modbus</code> v5.45.2 のエディター表示（英語。日本語ロケールは未提供）に一致させています。</p>
+
+        <h3>5-1. Modbus-Client（設定ノード）</h3>
+        <p>接続先を定義する設定ノードです。<strong>Type</strong> で TCP / Serial を切り替えると、表示される項目が変わります。</p>
+        <table>
+            <tr><th>設定項目</th><th>説明</th><th>既定値 / 例</th></tr>
+            <tr><td><strong>Name</strong></td><td>設定ノードの名前</td><td>（任意）</td></tr>
+            <tr><td><strong>Type</strong></td><td>接続方式（TCP / Serial / Serial Expert）</td><td>TCP</td></tr>
+            <tr><td><strong>Host</strong></td><td>接続先 IP（TCP 時）</td><td>127.0.0.1</td></tr>
+            <tr><td><strong>Port</strong></td><td>接続先ポート（TCP 時）</td><td>502（標準。本サンプルは 10502）</td></tr>
+            <tr><td><strong>TCP Type</strong></td><td>TCP の種類</td><td>DEFAULT</td></tr>
+            <tr><td><strong>Serial port</strong></td><td>シリアルポート名（Serial 時）</td><td>/dev/ttyUSB、COM4 など</td></tr>
+            <tr><td><strong>Baud rate</strong></td><td>通信速度（Serial 時）</td><td>9600</td></tr>
+            <tr><td><strong>Parity / Data Bits / Stop Bits</strong></td><td>シリアル通信パラメータ</td><td>none / 8 / 1</td></tr>
+            <tr><td><strong>Unit-Id</strong></td><td>スレーブ ID の既定値（TCP 0–255／Serial 0–247）</td><td>1</td></tr>
+            <tr><td><strong>Timeout (ms)</strong></td><td>応答待ちタイムアウト</td><td>1000</td></tr>
+            <tr><td><strong>Reconnect on timeout</strong></td><td>タイムアウト時に再接続するか</td><td>有効</td></tr>
+            <tr><td><strong>Queue commands</strong></td><td>コマンドをキューにためて順次処理するか</td><td>有効</td></tr>
+            <tr><td><strong>Show Errors / Show Warnings / Show Logs</strong></td><td>ログ表示の制御</td><td>警告・ログは既定で表示</td></tr>
+        </table>
+
+        <h3>5-2. Modbus-Read（定期読取）</h3>
+        <table>
+            <tr><th>設定項目</th><th>説明</th><th>例</th></tr>
+            <tr><td><strong>Name</strong></td><td>ノードの名前</td><td>保持レジスタ読取</td></tr>
+            <tr><td><strong>Topic</strong></td><td>出力 msg に付ける topic</td><td>holding</td></tr>
+            <tr><td><strong>Unit-Id</strong></td><td>スレーブ ID（空なら設定ノードの既定を使用）</td><td>1</td></tr>
+            <tr><td><strong>FC</strong></td><td>ファンクションコード（読取は FC1–4）</td><td>FC 3: Read Holding Registers</td></tr>
+            <tr><td><strong>Address</strong></td><td>読み取り開始アドレス（0 始まり、0–65535）</td><td>0</td></tr>
+            <tr><td><strong>Quantity</strong></td><td>読み取る点数（コイル数 / レジスタ数）</td><td>4</td></tr>
+            <tr><td><strong>Poll Rate</strong></td><td>ポーリング間隔（単位は ms / s / m / h）</td><td>5 秒</td></tr>
+            <tr><td><strong>Server</strong></td><td>参照する Modbus-Client 設定ノード</td><td>（設定ノードを選択）</td></tr>
+            <tr><td><strong>Empty msg on Modbus fail</strong></td><td>失敗時に空 msg を出すか</td><td>無効</td></tr>
+            <tr><td><strong>Show Activities / Errors / Warnings</strong></td><td>ステータス・ログ表示の制御</td><td>—</td></tr>
+        </table>
+
+        <h3>5-3. Modbus-Getter（要求時読取）</h3>
+        <p>入力 1 つ。<strong>メッセージを受けた時だけ</strong>読み取ります。FC・Address・Quantity・Unit-Id は Read とほぼ同じ。<strong>Poll Rate がない</strong>（トリガで動くため）点が違います。<code>Keep Msg Properties</code> で入力 msg のプロパティを引き継げます。</p>
+
+        <h3>5-4. Modbus-Write（書込）</h3>
+        <table>
+            <tr><th>設定項目</th><th>説明</th><th>例</th></tr>
+            <tr><td><strong>Unit-Id</strong></td><td>スレーブ ID</td><td>1</td></tr>
+            <tr><td><strong>FC</strong></td><td>ファンクションコード（書込は FC5/6/15/16）</td><td>FC 16: Preset Multiple Registers</td></tr>
+            <tr><td><strong>Address</strong></td><td>書き込み開始アドレス（0 始まり）</td><td>0</td></tr>
+            <tr><td><strong>Quantity</strong></td><td>書き込む点数</td><td>2</td></tr>
+            <tr><td><strong>Server</strong></td><td>参照する設定ノード</td><td>（設定ノードを選択）</td></tr>
+            <tr><td><strong>Keep Msg Properties</strong></td><td>入力 msg のプロパティを保持するか</td><td>無効</td></tr>
+        </table>
+        <p>書き込む値は <strong><code>msg.payload</code></strong> で渡します。複数レジスタ書込（FC16）なら配列、例: <code>[111, 222]</code>。単一コイル書込（FC5）なら <code>true</code> / <code>false</code>。</p>
+
+        <h3>5-5. Modbus-Flex-Getter（柔軟読取）</h3>
+        <p>FC・Address・Quantity を<strong>設定画面ではなく <code>msg.payload</code> で指定</strong>するノードです。読み取る場所を動的に変えたいときや、1 つの設定で多数の番地を読みたいときに使います。</p>
+        <div class="code-block">// Flex-Getter に渡す msg.payload の例
+msg.payload = {
+    value: msg.payload,        // 書込用（読取では未使用）
+    fc: 3,                     // ファンクションコード
+    unitid: 1,                 // スレーブID
+    address: 0,                // 開始アドレス（0始まり）
+    quantity: 4                // 点数
+};
+return msg;</div>
+
+        <h2 id="section6">🔧 6. 実用的な使用パターン</h2>
+
+        <h3>パターン1: センサー値を定期収集してダッシュボード表示</h3>
+        <div class="node-example">
+            <span class="node node-modbus">Modbus Read</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">scale</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">chart</span>
+        </div>
+        <p>Modbus-Read で温度センサー（Input Register）を 5 秒ごとに読み、Function で実値にスケーリング（例: 生値 ÷ 10）して、Dashboard のチャートへ。最も典型的な構成です。</p>
+
+        <h3>パターン2: ボタン操作で機器を起動/停止（書込）</h3>
+        <div class="node-example">
+            <span class="node node-inject">button</span>
+            <span class="arrow">→</span>
+            <span class="node node-modbus">Modbus Write</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">debug</span>
+        </div>
+        <p>Dashboard のボタンやスイッチで <code>msg.payload = true</code> を送り、Modbus-Write（FC5）で Coil を ON/OFF。装置の起動・停止やリレー制御に。</p>
+
+        <h3>パターン3: 状態を要求時に確認（Getter）</h3>
+        <p>「画面を開いたときだけ現在値を取りたい」「他の処理の途中で 1 回だけ読みたい」場合は、Modbus-Read（常時ポーリング）ではなく <strong>Modbus-Getter</strong> をトリガ起動で使います。通信量を抑えられます。</p>
+
+        <div class="tip">
+            <strong>💡 読み取った値はどこに入る？</strong><br>
+            読取系ノードの <strong>出力 1</strong> の <code>msg.payload</code> に、読み取った値の配列（PDU）が入ります。あわせて <code>msg.responseBuffer</code>（生のバイト列）や元の入力 msg も付きます。<strong>出力 2</strong> は同じ情報を順序違いで返すので、まずは<strong>出力 1 だけ</strong>を使えば十分です。
+        </div>
+
+        <h2 id="section7">🧪 7. サンプルフロー & シミュレータの準備</h2>
+
+        <div class="important">
+            <strong>📌 このサンプルは「シミュレータ前提」です</strong><br>
+            MODBUS は通信相手（スレーブ）がないと動きません。実機がなくても、下の<strong>3 つのいずれか</strong>で <code>127.0.0.1:10502</code> に擬似スレーブを立てれば、フローを動かして確認できます。
+        </div>
+
+        <h3>7-1. どの環境で動かす？（クラウド / ローカル / ラズパイ）</h3>
+        <p>MODBUS は環境によって勝手が変わります。詳しくは <a href="nodered-learning-environment-guide.html">学習環境ガイド</a> もどうぞ。</p>
+        <table>
+            <tr><th>環境</th><th>やり方</th><th>ポート</th></tr>
+            <tr><td>☁️ 共有クラウド</td><td>Modbus-Server ノードで擬似スレーブを立てる。<strong>非特権ポート＋自分専用番号</strong></td><td>10502, 10503…（502 は不可）</td></tr>
+            <tr><td>🖥️ ローカルPC</td><td>ModRSsim2 等の GUI シミュレータ、または Modbus-Server</td><td>502 でも自由</td></tr>
+            <tr><td>🍓 ラズパイ</td><td>RS-485 で実機接続（RTU）、または同上</td><td>実機は通常 502</td></tr>
+        </table>
+        <div class="warning">
+            <strong>⚠️ なぜ本サンプルは 10502 ？</strong><br>
+            Modbus TCP の標準ポートは <code>502</code> ですが、<code>502</code> は管理者専用の<strong>特権ポート</strong>で、<strong>共有クラウドの一般ユーザーでは開けません</strong>。そこで本ガイドのサンプルは非特権の <code>10502</code> を使います。自分のPC（管理者）やラズパイなら <code>502</code> のままでも構いません。<strong>共有サーバーでは他の学習者と衝突しないよう、自分専用の番号</strong>（10502, 10503…）にしてください。
+        </div>
+
+        <h3>7-2. シミュレータの選択肢</h3>
+        <table>
+            <tr><th>方法</th><th>環境</th><th>特徴</th></tr>
+            <tr><td><strong>Modbus-Server ノード</strong></td><td>Node-RED 内</td><td>同じ <code>node-red-contrib-modbus</code> に含まれる擬似スレーブ。<strong>外部ソフト不要</strong>で最も手軽。ノードを 1 つ置き、ポート 10502 で待受にするだけ。</td></tr>
+            <tr><td><strong>diagslave</strong></td><td>Win / Linux / Mac（CLI）</td><td>無料の Modbus スレーブシミュレータ。下記コマンドで TCP 待受を起動。</td></tr>
+            <tr><td><strong>ModRSsim2</strong></td><td>Windows（GUI）</td><td>無料の GUI シミュレータ。レジスタ値を画面で編集でき、視覚的に分かりやすい。</td></tr>
+        </table>
+        <div class="code-block"># diagslave を使う場合（TCP・ポート10502でスレーブ起動）
+diagslave -m tcp -p 10502</div>
+
+        <div class="tip">
+            <strong>💡 いちばん簡単なのは Modbus-Server ノード</strong><br>
+            パレットに追加済みの <strong>Modbus-Server</strong> ノードをフローに置き、ポートを <code>10502</code> にしてデプロイするだけで、Node-RED 自身がスレーブ役になります。別ソフトのインストールが不要なので、まずはこれで下のサンプルを動かしてみてください。
+        </div>
+
+        <h3>7-3. サンプルフロー</h3>
+        <p>下記は<strong>マスター側（読み書きする側）</strong>のフローです。設定ノードは <code>127.0.0.1:10502</code> を向いています。読み込んだら、上記いずれかのシミュレータを同じポートで起動してください。</p>
+        <ul>
+            <li><strong>① 定期読取</strong>: Holding Register を 5 秒ごとに 4 ワード読む（Modbus-Read / FC3）</li>
+            <li><strong>② 要求時読取</strong>: inject で叩いた時だけ Input Register を 2 ワード読む（Modbus-Getter / FC4）</li>
+            <li><strong>③ 書込</strong>: <code>[111, 222]</code> を Holding Register に書く（Modbus-Write / FC16）</li>
+        </ul>
+
+        <details>
+            <summary>📥 サンプルフローJSON（クリックで展開）</summary>
+            <div class="flow-json">[
+    {
+        "id": "modbus_sample_tab",
+        "type": "tab",
+        "label": "MODBUS サンプル",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "modbus_client_sim",
+        "type": "modbus-client",
+        "name": "Modbus Simulator (TCP)",
+        "clienttype": "tcp",
+        "bufferCommands": true,
+        "stateLogEnabled": false,
+        "queueLogEnabled": false,
+        "failureLogEnabled": true,
+        "tcpHost": "127.0.0.1",
+        "tcpPort": "10502",
+        "tcpType": "DEFAULT",
+        "serialPort": "/dev/ttyUSB",
+        "serialType": "RTU-BUFFERD",
+        "serialBaudrate": "9600",
+        "serialDatabits": "8",
+        "serialStopbits": "1",
+        "serialParity": "none",
+        "serialConnectionDelay": "100",
+        "serialAsciiResponseStartDelimiter": "0x3A",
+        "unit_id": "1",
+        "commandDelay": "1",
+        "clientTimeout": "1000",
+        "reconnectOnTimeout": true,
+        "reconnectTimeout": "2000",
+        "parallelUnitIdsAllowed": true,
+        "showErrors": false,
+        "showWarnings": true,
+        "showLogs": true
+    },
+    {
+        "id": "modbus_c1",
+        "type": "comment",
+        "z": "modbus_sample_tab",
+        "name": "=== 1. 保持レジスタを定期読取（Modbus-Read / FC3）===",
+        "info": "5秒ごとにアドレス0から4ワード読み取る",
+        "x": 260,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "modbus_read_hr",
+        "type": "modbus-read",
+        "z": "modbus_sample_tab",
+        "name": "保持レジスタを定期読取",
+        "topic": "holding",
+        "showStatusActivities": false,
+        "logIOActivities": false,
+        "showErrors": false,
+        "showWarnings": true,
+        "unitid": "1",
+        "dataType": "HoldingRegister",
+        "adr": "0",
+        "quantity": "4",
+        "rate": "5",
+        "rateUnit": "s",
+        "delayOnStart": false,
+        "enableDeformedMessages": false,
+        "startDelayTime": "",
+        "server": "modbus_client_sim",
+        "useIOFile": false,
+        "ioFile": "",
+        "useIOForPayload": false,
+        "emptyMsgOnFail": false,
+        "x": 200,
+        "y": 100,
+        "wires": [
+            [
+                "debug_read"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "debug_read",
+        "type": "debug",
+        "z": "modbus_sample_tab",
+        "name": "読取値",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 470,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "modbus_c2",
+        "type": "comment",
+        "z": "modbus_sample_tab",
+        "name": "=== 2. 入力レジスタを要求時読取（Modbus-Getter / FC4）===",
+        "info": "injectで叩いた時だけ読み取る",
+        "x": 260,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "inject_getter",
+        "type": "inject",
+        "z": "modbus_sample_tab",
+        "name": "読取トリガ",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 180,
+        "y": 240,
+        "wires": [
+            [
+                "modbus_getter_ir"
+            ]
+        ]
+    },
+    {
+        "id": "modbus_getter_ir",
+        "type": "modbus-getter",
+        "z": "modbus_sample_tab",
+        "name": "入力レジスタを要求時読取",
+        "showStatusActivities": false,
+        "showErrors": false,
+        "showWarnings": true,
+        "logIOActivities": false,
+        "unitid": "1",
+        "dataType": "InputRegister",
+        "adr": "0",
+        "quantity": "2",
+        "server": "modbus_client_sim",
+        "useIOFile": false,
+        "ioFile": "",
+        "useIOForPayload": false,
+        "emptyMsgOnFail": false,
+        "keepMsgProperties": false,
+        "delayOnStart": false,
+        "enableDeformedMessages": false,
+        "startDelayTime": "",
+        "x": 400,
+        "y": 240,
+        "wires": [
+            [
+                "debug_getter"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "debug_getter",
+        "type": "debug",
+        "z": "modbus_sample_tab",
+        "name": "要求読取値",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 650,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "modbus_c3",
+        "type": "comment",
+        "z": "modbus_sample_tab",
+        "name": "=== 3. 保持レジスタへ書込（Modbus-Write / FC16）===",
+        "info": "payloadの配列をアドレス0から書き込む",
+        "x": 250,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "inject_write",
+        "type": "inject",
+        "z": "modbus_sample_tab",
+        "name": "書込値[111,222]",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[111,222]",
+        "payloadType": "json",
+        "x": 190,
+        "y": 380,
+        "wires": [
+            [
+                "modbus_write_hr"
+            ]
+        ]
+    },
+    {
+        "id": "modbus_write_hr",
+        "type": "modbus-write",
+        "z": "modbus_sample_tab",
+        "name": "保持レジスタへ書込",
+        "showStatusActivities": false,
+        "showErrors": false,
+        "showWarnings": true,
+        "unitid": "1",
+        "dataType": "MHoldingRegisters",
+        "adr": "0",
+        "quantity": "2",
+        "server": "modbus_client_sim",
+        "emptyMsgOnFail": false,
+        "keepMsgProperties": false,
+        "delayOnStart": false,
+        "startDelayTime": "",
+        "x": 420,
+        "y": 380,
+        "wires": [
+            [
+                "debug_write"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "debug_write",
+        "type": "debug",
+        "z": "modbus_sample_tab",
+        "name": "書込結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 650,
+        "y": 380,
+        "wires": []
+    }
+]</div>
+        </details>
+
+        <div class="warning">
+            <strong>⚠️ インポート後の確認</strong><br>
+            読み込み後、各 Modbus ノードをダブルクリックして <strong>Server</strong> 欄に設定ノード「Modbus Simulator (TCP)」が選ばれているか確認してください。接続が確立すると、ノード下のステータスが緑（active / connected）になります。赤やタイムアウト表示のままなら、シミュレータが <code>127.0.0.1:10502</code> で起動しているかを確認します（→<a href="#section10">第10章</a>）。
+        </div>
+
+        <h2 id="section8">📝 8. 演習問題</h2>
+
+        <div class="exercise">
+            <h3>演習1: ポーリング間隔を変える <span class="difficulty difficulty-easy">初級</span></h3>
+            <p>サンプルの Modbus-Read の <strong>Poll Rate</strong> を「5 秒」から「2 秒」に変更し、Debug の出力頻度が上がることを確認してください。</p>
+            <details>
+                <summary>ヒント</summary>
+                <p>Modbus-Read をダブルクリック → <strong>Poll Rate</strong> の数値を 2、単位を <code>second(s)</code> に。デプロイ後、Debug サイドバーの出力間隔を見ます。</p>
+            </details>
+        </div>
+
+        <div class="exercise">
+            <h3>演習2: 別のアドレスを読む <span class="difficulty difficulty-medium">中級</span></h3>
+            <p>Modbus-Getter の <strong>Address</strong> を 0 から 10 に、<strong>Quantity</strong> を 2 から 5 に変更し、Input Register の 10〜14 番地を読み取ってください。シミュレータ側にその範囲の値を用意しておきましょう。</p>
+            <details>
+                <summary>ヒント</summary>
+                <p>Address は 0 始まりです。マニュアルで「30011」と書かれていれば、Input Register のプロトコルアドレスは 10 になります（<a href="#section3">3-4 参照</a>）。</p>
+            </details>
+        </div>
+
+        <div class="exercise">
+            <h3>演習3: 単一コイルを ON/OFF する <span class="difficulty difficulty-medium">中級</span></h3>
+            <p>新しい Modbus-Write を追加し、<strong>FC 5: Force Single Coil</strong> でアドレス 0 のコイルを ON/OFF してください。inject で <code>msg.payload = true</code> と <code>false</code> を送り分けます。</p>
+            <details>
+                <summary>ヒント</summary>
+                <p>FC を「FC 5」にすると単一コイル書込になります。inject の payload 型を <code>boolean</code> にして <code>true</code> / <code>false</code> を 2 つ用意すると切り替えやすいです。</p>
+            </details>
+        </div>
+
+        <div class="exercise">
+            <h3>演習4: Flex-Getter で動的に読む <span class="difficulty difficulty-hard">上級</span></h3>
+            <p>Modbus-Flex-Getter を使い、Function ノードで <code>fc</code>・<code>address</code>・<code>quantity</code> を組み立てて、読み取り対象を実行時に切り替えるフローを作ってください。</p>
+            <details>
+                <summary>ヒント</summary>
+                <p><a href="#section5">5-5</a> の payload 形式を Function で生成して Flex-Getter に渡します。複数の番地を順番に読みたいときは、Inject や Split と組み合わせます。</p>
+            </details>
+        </div>
+
+        <h2 id="section9">✅ 9. まとめ</h2>
+        <ul>
+            <li>MODBUS は<strong>産業機器の共通言語</strong>。Node-RED では <code>node-red-contrib-modbus</code> を追加して使う（サードパーティ）。</li>
+            <li>通信は<strong>マスター（Node-RED）がスレーブ（機器）に問い合わせるポーリング型</strong>。</li>
+            <li>伝送方式は <strong>RTU（シリアル）</strong>と <strong>TCP（イーサネット）</strong>。学習は TCP が手軽。</li>
+            <li>データは <strong>Coil / Discrete Input / Input Register / Holding Register</strong> の 4 種類。読み書き可否で使い分ける。</li>
+            <li>操作は <strong>ファンクションコード（FC）</strong>で指定。読取 FC1–4、書込 FC5/6/15/16。</li>
+            <li><strong>Address は 0 始まり</strong>。マニュアルの参照番号（40001 等）と 1 ずれることに注意。</li>
+            <li>接続先は <strong>Modbus-Client 設定ノード</strong>に集約し、Read/Getter/Write で共有する。</li>
+            <li>実機がなくても <strong>Modbus-Server ノード / diagslave / ModRSsim2</strong> で検証できる。</li>
+        </ul>
+
+        <h2 id="section10">🔧 10. トラブルシューティング</h2>
+        <table>
+            <tr><th>症状</th><th>主な原因</th><th>対処</th></tr>
+            <tr>
+                <td>ステータスが赤・タイムアウトになる</td>
+                <td>スレーブ未起動 / IP・ポート違い / ファイアウォール</td>
+                <td>シミュレータが <code>127.0.0.1:10502</code> で動いているか確認。Host/Port を再確認。Timeout を少し延ばす。</td>
+            </tr>
+            <tr>
+                <td>値が読めるが 1 つズレている</td>
+                <td>アドレスの 0 始まり / 1 始まりの取り違え</td>
+                <td>Address はプロトコルアドレス（0 始まり）。マニュアルの参照番号から 1 引く（<a href="#section3">3-4</a>）。</td>
+            </tr>
+            <tr>
+                <td>Illegal data address エラー</td>
+                <td>機器が持たない番地・点数を要求</td>
+                <td>Address と Quantity を機器のマップ範囲内に収める。FC とデータ種別の対応も確認。</td>
+            </tr>
+            <tr>
+                <td>書き込めない</td>
+                <td>読み取り専用領域への書込 / FC 違い</td>
+                <td>Input Register / Discrete Input は読取専用。書込は Coil か Holding Register に、正しい FC（5/6/15/16）で。</td>
+            </tr>
+            <tr>
+                <td>値が桁違い・負の数になる</td>
+                <td>スケーリング / 符号・エンディアンの解釈</td>
+                <td>生値を実値へ変換（例 ÷10）。32bit 値は 2 レジスタ結合が必要で、ワード順（エンディアン）に注意。</td>
+            </tr>
+            <tr>
+                <td>シリアルで全く通信できない</td>
+                <td>ポート名・ボーレート・パリティ不一致 / 権限</td>
+                <td>機器側の通信設定と完全一致させる。Linux は <code>dialout</code> グループ権限を確認。</td>
+            </tr>
+            <tr>
+                <td>ノードが多くて不安定</td>
+                <td>1 設定ノードに読み書きノードが多すぎる</td>
+                <td>10 個超なら Flex-Getter にまとめるか、接続を分割（公式推奨）。</td>
+            </tr>
+        </table>
+
+        <p style="margin-top:30px;">
+            <a href="index.html">← トップページへ戻る</a> |
+            <a href="nodered-network-basics-guide.html">通信の基礎（ネットワーク入門）</a> |
+            <a href="nodered-tcp-node-guide.html">TCP</a> |
+            <a href="nodered-mqtt-node-guide.html">MQTT</a>
+        </p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.flow-json').forEach(function(block) {
+                var button = document.createElement('button');
+                button.className = 'copy-button';
+                button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                button.addEventListener('click', function() {
+                    var code = block.textContent.replace(/コピー(しました!)?$/, '').trim();
+                    navigator.clipboard.writeText(code).then(function() {
+                        button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>コピーしました!';
+                        button.classList.add('copied');
+                        setTimeout(function() {
+                            button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                            button.classList.remove('copied');
+                        }, 2000);
+                    });
+                });
+                block.style.position = 'relative';
+                block.appendChild(button);
+            });
+        });
+    </script>
+    <!-- フローティングホームボタン -->
+    <a href="index.html" style="position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px; background: linear-gradient(135deg, #42b883 0%, #35495e 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; transition: transform 0.3s, box-shadow 0.3s;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 6px 16px rgba(0,0,0,0.4)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.3)';" title="トップページへ">🏠</a>
+</body>
+</html>

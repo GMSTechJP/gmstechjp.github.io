@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED ローカル/ラズパイ 演習環境ガイド</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8; max-width: 1000px; margin: 0 auto; padding: 20px;
+            background-color: #f5f5f5; color: #333;
+        }
+        h1 { color: #8f0000; border-bottom: 3px solid #8f0000; padding-bottom: 10px; }
+        h2 { color: #c00000; margin-top: 30px; border-left: 5px solid #c00000; padding-left: 15px; }
+        h3 { color: #555; margin-top: 25px; }
+        h4 { color: #666; margin-top: 20px; }
+        .container { background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .page-nav { background: #eef5ff; border: 2px solid #4a90e2; border-radius: 8px; padding: 18px 24px; margin-bottom: 25px; }
+        .page-nav p { margin: 6px 0; }
+        .page-nav .label { display: inline-block; min-width: 110px; font-weight: bold; color: #2c5282; }
+        .important { background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 15px 0; border-radius: 4px; }
+        .tip { background-color: #d1ecf1; border-left: 4px solid #17a2b8; padding: 15px; margin: 15px 0; border-radius: 4px; }
+        .warning { background-color: #f8d7da; border-left: 4px solid #dc3545; padding: 15px; margin: 15px 0; border-radius: 4px; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; vertical-align: top; }
+        th { background-color: #e2d96e; color: #333; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        ul, ol { padding-left: 25px; }
+        li { margin: 8px 0; }
+        code { background: #f0f0f0; padding: 2px 6px; border-radius: 3px; font-family: 'Courier New', monospace; font-size: 0.95em; }
+        .code-block { background-color: #2d3133; color: #f8f8f2; padding: 15px; border-radius: 5px; margin: 15px 0; overflow-x: auto; font-family: 'Courier New', Consolas, monospace; font-size: 14px; white-space: pre; }
+        .toc { background-color: #fafafa; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .toc h3 { margin-top: 0; color: #8f0000; }
+        .toc ul { list-style: none; padding-left: 0; }
+        .toc li { padding: 4px 0; }
+        .toc a { color: #1976d2; text-decoration: none; }
+        .toc a:hover { text-decoration: underline; }
+        .next-box { background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-left: 5px solid #1976d2; padding: 20px 25px; margin: 30px 0 10px; border-radius: 6px; }
+        .next-box h3 { margin-top: 0; color: #0d47a1; }
+        .next-box a { color: #1565c0; font-weight: bold; text-decoration: none; }
+        .env-badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 0.82em; font-weight: bold; white-space: nowrap; }
+        .env-cloud { background: #e3f2fd; color: #0d47a1; border: 1px solid #90caf9; }
+        .env-cond  { background: #fff3e0; color: #e65100; border: 1px solid #ffcc80; }
+        .env-local { background: #ede7f6; color: #4527a0; border: 1px solid #b39ddb; }
+        .env-pi    { background: #e8f5e9; color: #1b5e20; border: 1px solid #a5d6a7; }
+        .os-win { border-left: 6px solid #0078d6; }
+        .os-pi  { border-left: 6px solid #c51a4a; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛠️ ローカル/ラズパイ 演習環境ガイド</h1>
+        <div data-envbadge="1" style="margin:12px 0;"><span style="display:inline-block;padding:3px 12px;border-radius:12px;font-size:0.85em;font-weight:bold;background:#f3e5f5;color:#6a1b9a;border:1px solid #ce93d8;">🖥️🍓 ローカル/ラズパイ向け</span> <a href="nodered-learning-environment-guide.html" style="font-size:0.82em;">環境とは？</a></div>
+
+        <div class="page-nav">
+            <p><span class="label">📖 このガイドの役目</span><a href="nodered-learning-environment-guide.html">学習環境ガイド</a>で「第2層（ローカル/ラズパイ）へ移ろう」となった方向けの<strong>実践セットアップ</strong>です。TCP/UDPの自由な実験、MODBUS（シミュレータ／実機）、ブロードキャストなど、<strong>共有クラウドでは難しかった演習</strong>を自分の環境で動かします。</p>
+            <p><span class="label">🎯 前提</span>Node-RED 自体のインストールは <a href="nodered-windows-install-guide.html">Windows</a> ／ <a href="nodered-raspberry-pi-install-guide.html">Raspberry Pi</a> のインストールガイドで済ませておいてください。本ガイドはその<strong>「先」の演習準備</strong>です。</p>
+            <p><span class="label">🧭 環境の考え方</span>ローカルPC・ラズパイは<strong>クラウドの上位互換</strong>（クラウドでできることは全部でき、＋自由なポート・実機）。詳しくは <a href="nodered-learning-environment-guide.html">学習環境ガイド</a>。</p>
+        </div>
+
+        <div class="toc">
+            <h3>📚 目次</h3>
+            <ul>
+                <li><a href="#common">0. 共通：ローカル/ラズパイで何が変わる？</a></li>
+                <li><a href="#win">1. 🖥️ Windows 編</a></li>
+                <li><a href="#pi">2. 🍓 Raspberry Pi 編</a></li>
+                <li><a href="#trouble">3. つまずきポイント</a></li>
+                <li><a href="#summary">4. まとめ</a></li>
+            </ul>
+        </div>
+
+        <h2 id="common">0. 共通：ローカル/ラズパイで何が変わる？</h2>
+        <p>自分専用のマシン（ローカルPC・ラズパイ）でNode-REDを動かすと、共有クラウドの制約が外れます。</p>
+        <table>
+            <tr><th>項目</th><th>共有クラウド</th><th>ローカル/ラズパイ</th></tr>
+            <tr><td>ポート</td><td>他の学習者と取り合い（固有番号が必要）</td><td><strong>自由</strong>（9000でも502でも好きに）</td></tr>
+            <tr><td>特権ポート（502等）</td><td>開けない（非root）</td><td><strong>開ける</strong>（管理者/sudo）</td></tr>
+            <tr><td>ブロードキャスト</td><td>基本届かない</td><td><strong>実LANで届く</strong></td></tr>
+            <tr><td>物理ハード</td><td>無し</td><td>USB機器（ローカル）／GPIO・センサー（ラズパイ）</td></tr>
+        </table>
+
+        <div class="tip">
+            <strong>💡 自分のIPアドレスを把握しておく</strong><br>
+            別の機器（もう1台のPCやラズパイ）とTCP/UDP通信するには、相手のIPが要ります。確認コマンド：<br>
+            Windows → <code>ipconfig</code>（IPv4アドレス）／ ラズパイ・Mac・Linux → <code>hostname -I</code>
+        </div>
+
+        <h2 id="win">1. 🖥️ Windows 編</h2>
+        <p>手元のWindows PCは、MODBUSシミュレータ（GUI）やTCP/UDPの自由演習に向いた手軽な環境です。</p>
+
+        <h3 class="os-win" style="padding-left:12px;">1-1. MODBUS シミュレータ「ModRSsim2」で試す <span class="env-badge env-local">🖥️ ローカル</span></h3>
+        <p><strong>ModRSsim2</strong> は無料のWindows用Modbusスレーブシミュレータ（GUI）です。レジスタ値を画面で見ながら編集でき、初学者に最適です。</p>
+        <ol>
+            <li>「ModRSsim2」を入手して起動する（Modbus TCP/シリアル両対応の擬似スレーブ）</li>
+            <li>プロトコルを <strong>Modbus TCP</strong>、待受ポートを <strong><code>502</code></strong>（ローカルなので特権ポートでもOK）に設定</li>
+            <li>レジスタ表（Holding/Input など）に適当な値を入れておく</li>
+            <li>Node-RED 側の <a href="nodered-modbus-node-guide.html">Modbus-Client 設定ノード</a> を <code>127.0.0.1</code>・ポート <code>502</code> に向ける</li>
+            <li>Modbus-Read でポーリングし、Debugに値が出れば成功</li>
+        </ol>
+        <div class="tip">
+            <strong>💡 CLI派なら diagslave</strong><br>
+            GUIが不要なら、<a href="nodered-modbus-node-guide.html">MODBUSガイド</a>で紹介した <code>diagslave -m tcp -p 502</code> でもスレーブを立てられます（Windows/Mac/Linux共通）。
+        </div>
+
+        <h3 class="os-win" style="padding-left:12px;">1-2. USBシリアルで MODBUS RTU（実機/変換器） <span class="env-badge env-local">🖥️ ローカル</span></h3>
+        <p>USB-RS485 変換器をPCに挿すと、Windowsでは <strong>COMポート</strong>（例 <code>COM4</code>）として認識されます。Modbus-Client 設定ノードを <strong>Serial</strong> に切り替え、そのCOMポート・ボーレート（機器に合わせる、例 9600）を指定すれば、RTUの実機と通信できます。</p>
+
+        <h3 class="os-win" style="padding-left:12px;">1-3. TCP/UDP を自由に試す <span class="env-badge env-local">🖥️ ローカル</span></h3>
+        <p>ローカルでは<strong>ポート番号を気にせず</strong>サンプルのまま（9000, 8000 等）使えます。同じLANのスマホや別PCと送受信する実験も可能です。</p>
+
+        <div class="warning">
+            🔥 <strong>Windowsファイアウォールに注意</strong><br>
+            他の機器から自分のNode-RED（TCP/UDPの待受やHTTP）へ接続できないときは、Windows Defender ファイアウォールが受信をブロックしている可能性大。初回接続時に出る許可ダイアログで「許可」するか、該当ポートの受信を許可してください。<strong>同じPC内（127.0.0.1）の通信はブロックされません。</strong>
+        </div>
+
+        <h2 id="pi">2. 🍓 Raspberry Pi 編</h2>
+        <p>ラズパイは、TCP/UDPの実LAN実験に加え、<strong>シリアル（RS-485）やGPIO・センサー</strong>といった物理ハードまで扱える本命環境です。</p>
+
+        <h3 class="os-pi" style="padding-left:12px;">2-1. 同じLANで TCP/UDP 実験 <span class="env-badge env-pi">🍓</span> <span class="env-badge env-local">🖥️</span></h3>
+        <p>ラズパイともう1台（PCや別のPi）を同じLANにつなげば、<strong>2台の間で実際のTCP/UDP通信</strong>を体験できます。片方を「Listen on（サーバー）」、もう片方を「Connect to（クライアント）」にして、IP同士でつなぎます。共有クラウドではできなかった「機器間通信」の本番です。</p>
+
+        <h3 class="os-pi" style="padding-left:12px;">2-2. ブロードキャスト実験 <span class="env-badge env-pi">🍓</span> <span class="env-badge env-local">🖥️</span></h3>
+        <p>実LANなら、UDPのブロードキャスト（<code>255.255.255.255</code> など）が機能します。機器発見や一斉通知の演習は、ここで試してください（クラウドでは届きません）。</p>
+
+        <h3 class="os-pi" style="padding-left:12px;">2-3. RS-485 で MODBUS RTU 実機 <span class="env-badge env-pi">🍓</span></h3>
+        <p>ラズパイに <strong>RS-485 HAT</strong> や <strong>USB-RS485 変換器</strong>をつなぐと、PLC・インバータ・電力計などの実機とMODBUS RTUで通信できます。</p>
+        <ul>
+            <li>USB変換器 → <code>/dev/ttyUSB0</code> として認識</li>
+            <li>GPIO上のUART/HAT → <code>/dev/serial0</code>（<code>raspi-config</code> でシリアルを有効化し、シリアルコンソールは無効化）</li>
+            <li>Modbus-Client 設定ノードを <strong>Serial</strong> にし、上記ポート・ボーレート・パリティを機器に合わせる</li>
+        </ul>
+
+        <div class="warning">
+            🔑 <strong>シリアルポートの権限（dialout）</strong><br>
+            Linux/ラズパイでシリアルポートを使うには、ユーザーが <code>dialout</code> グループに属している必要があります。<br>
+            <div class="code-block">sudo usermod -a -G dialout $USER
+# 反映には再ログイン（または再起動）が必要</div>
+            権限不足だと「ポートを開けない」エラーになります。
+        </div>
+
+        <h3 class="os-pi" style="padding-left:12px;">2-4. GPIO・センサー（Sense HAT 等） <span class="env-badge env-pi">🍓</span></h3>
+        <p>温度・湿度・モーションなどの物理センサーや、LED・リレーの制御はラズパイならでは。<a href="nodered-pi-sense-hat-node-guide.html">Pi Sense HAT ガイド</a>で具体的な扱い方を解説しています。</p>
+
+        <h2 id="trouble">3. つまずきポイント</h2>
+        <table>
+            <tr><th>症状</th><th>主な原因</th><th>対処</th></tr>
+            <tr><td>他の機器から自分のNode-REDに接続できない</td><td>ファイアウォール／IP違い</td><td>Windowsファイアウォールで許可。相手のIPを <code>ipconfig</code>/<code>hostname -I</code> で再確認</td></tr>
+            <tr><td>シリアルポートを開けない（Pi/Linux）</td><td>dialout 権限不足／ポート名違い</td><td><code>dialout</code> グループ追加＋再ログイン。<code>ls /dev/ttyUSB* /dev/serial*</code> でポート確認</td></tr>
+            <tr><td>Pi のUARTが使えない</td><td>シリアル未有効／コンソール占有</td><td><code>raspi-config</code> でシリアルを有効・ログインシェルは無効に</td></tr>
+            <tr><td>MODBUS がタイムアウト</td><td>シミュレータ未起動／ポート・ボーレート不一致</td><td>ModRSsim2やdiagslaveの起動とポートを確認。RTUは機器設定と完全一致させる</td></tr>
+            <tr><td>ブロードキャストが届かない</td><td>クラウド上で実行している</td><td>実LAN（ローカルPC/Pi）で実行する</td></tr>
+        </table>
+
+        <h2 id="summary">4. まとめ</h2>
+        <ul>
+            <li>ローカルPC・ラズパイは<strong>ポート自由・特権ポート可・ブロードキャスト可・実機接続可</strong>。クラウドの制約が外れる。</li>
+            <li><strong>Windows</strong>：ModRSsim2でMODBUSを手軽に、USB-RS485でRTU実機、TCP/UDPは自由に。ファイアウォールに注意。</li>
+            <li><strong>ラズパイ</strong>：実LANでのTCP/UDP・ブロードキャスト、RS-485でRTU実機、GPIO/センサー。シリアルは <code>dialout</code> 権限。</li>
+            <li>どの演習をどこでやるかは <a href="nodered-learning-environment-guide.html">学習環境ガイド</a> の環境マップで確認。</li>
+        </ul>
+
+        <div class="next-box">
+            <h3>➡️ 関連ガイド</h3>
+            <p><a href="nodered-modbus-node-guide.html">MODBUS ノードガイド</a>（シミュレータ手順・サンプルフロー）／ <a href="nodered-tcp-node-guide.html">TCP</a>・<a href="nodered-udp-node-guide.html">UDP</a> ／ <a href="nodered-pi-sense-hat-node-guide.html">Pi Sense HAT</a> ／ <a href="nodered-learning-environment-guide.html">学習環境ガイド</a></p>
+        </div>
+
+        <p style="margin-top:30px;">
+            <a href="index.html">← トップページへ戻る</a> |
+            <a href="nodered-learning-environment-guide.html">学習環境ガイド</a> |
+            <a href="nodered-windows-install-guide.html">Windows インストール</a> |
+            <a href="nodered-raspberry-pi-install-guide.html">Raspberry Pi インストール</a>
+        </p>
+    </div>
+
+    <a href="index.html" style="position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px; background: linear-gradient(135deg, #42b883 0%, #35495e 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; transition: transform 0.3s, box-shadow 0.3s;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 6px 16px rgba(0,0,0,0.4)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.3)';" title="トップページへ">🏠</a>
+</body>
+</html>
