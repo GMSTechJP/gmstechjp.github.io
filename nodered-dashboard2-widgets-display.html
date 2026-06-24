@@ -3023,12 +3023,11 @@ return msg;</div>
                     <li>msg.payload.name: "サーバーA"</li>
                     <li>msg.payload.status: "正常"（または"エラー"）</li>
                     <li>msg.payload.url: "https://example.com/serverA"</li>
+                    <li>msg.payload.color: "green"（正常）/ "red"（エラー）</li>
                 </ul>
-                <p><strong>Templateノード:</strong></p>
-                <div class="code-block">&lt;a href="{{payload.url}}" target="_blank"&gt;{{payload.name}}&lt;/a&gt;: 
-&lt;span style="color: {{#payload.status}}正常{{/payload.status}}{{^payload.status}}エラー{{/payload.status}} == '正常' ? 'green' : 'red'"&gt;
-  {{payload.status}}
-&lt;/span&gt;</div>
+                <p><strong>Templateノード:</strong> Node-REDのTemplateは<strong>Mustache</strong>で描画されるため、<code>{{#eq ...}}</code>のような比較構文や三項演算子は使えません。色のような「条件で決まる値」は<strong>Injectや上流のChange/Functionで先に <code>msg.payload.color</code> を用意</strong>し、テンプレートでは差し込むだけにします。</p>
+                <div class="code-block">&lt;a href="{{payload.url}}" target="_blank"&gt;{{payload.name}}&lt;/a&gt;:
+&lt;span style="color: {{payload.color}}; font-weight: bold;"&gt;{{payload.status}}&lt;/span&gt;</div>
             </details>
             
             <details>
@@ -3109,6 +3108,11 @@ return msg;</div>
                 "p": "payload.url",
                 "v": "https://example.com/serverA",
                 "vt": "str"
+            },
+            {
+                "p": "payload.color",
+                "v": "green",
+                "vt": "str"
             }
         ],
         "repeat": "",
@@ -3144,6 +3148,11 @@ return msg;</div>
                 "p": "payload.url",
                 "v": "https://example.com/serverB",
                 "vt": "str"
+            },
+            {
+                "p": "payload.color",
+                "v": "red",
+                "vt": "str"
             }
         ],
         "repeat": "",
@@ -3168,7 +3177,7 @@ return msg;</div>
         "fieldType": "msg",
         "format": "handlebars",
         "syntax": "mustache",
-        "template": "<a href=\"{{payload.url}}\" target=\"_blank\">{{payload.name}}</a>: <span style=\"color: {{#eq payload.status '正常'}}green{{else}}red{{/eq}}; font-weight: bold;\">{{payload.status}}</span>",
+        "template": "<a href=\"{{payload.url}}\" target=\"_blank\">{{payload.name}}</a>: <span style=\"color: {{payload.color}}; font-weight: bold;\">{{payload.status}}</span>",
         "output": "str",
         "x": 340,
         "y": 130,
@@ -4191,7 +4200,7 @@ graph TD;
         "name": "通知",
         "x": 670,
         "y": 160,
-        "wires": []
+        "wires": [[]]
     }
 ]</div>
             </details>
@@ -4627,7 +4636,7 @@ return [notifyMsg, audioMsg];</div>
         "name": "警告通知",
         "x": 510,
         "y": 80,
-        "wires": []
+        "wires": [[]]
     },
     {
         "id": "ex4_audio",

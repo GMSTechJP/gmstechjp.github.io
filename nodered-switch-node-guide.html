@@ -2020,13 +2020,15 @@
                     <li>Inject: JSON配列を入力</li>
                     <li>Split: 配列を個別メッセージに分割</li>
                     <li>Switch: &gt; 0 と &lt; 0 で振り分け</li>
-                    <li>Join: 各出力を配列に再結合（autoモード）</li>
+                    <li>Join: 各出力を配列に再結合（手動モード・カウント=3）</li>
                 </ol>
                 <p><strong>Joinノードの設定:</strong></p>
                 <ul>
-                    <li>モード: 自動（Splitとペアで使用）</li>
-                    <li>msg.partsを使用して自動再結合</li>
+                    <li>モード: 手動（custom）</li>
+                    <li>結合の数: 3（各出力に振り分けられる件数）</li>
+                    <li>各メッセージ部: 配列（array）</li>
                 </ul>
+                <p><strong>⚠️ なぜ自動モードではないのか:</strong> Joinの自動モードは「分割前の総数（ここでは6件）」が揃うまで待って再結合します。間にSwitchを挟むと各Joinには3件しか届かないため、自動モードでは6件に到達せず<strong>いつまでも出力されません</strong>。振り分けてから再結合する場合は、手動モードで件数（ここでは3）を指定します。</p>
             </details>
             
             <details>
@@ -2123,7 +2125,7 @@
         "type": "join",
         "z": "switch_node_guide_tab_4",
         "name": "正の数",
-        "mode": "auto",
+        "mode": "custom",
         "build": "array",
         "property": "payload",
         "propertyType": "msg",
@@ -2132,7 +2134,7 @@
         "joinerType": "str",
         "accumulate": false,
         "timeout": "",
-        "count": "",
+        "count": "3",
         "reduceRight": false,
         "x": 620,
         "y": 80,
@@ -2147,7 +2149,7 @@
         "type": "join",
         "z": "switch_node_guide_tab_4",
         "name": "負の数",
-        "mode": "auto",
+        "mode": "custom",
         "build": "array",
         "property": "payload",
         "propertyType": "msg",
@@ -2156,7 +2158,7 @@
         "joinerType": "str",
         "accumulate": false,
         "timeout": "",
-        "count": "",
+        "count": "3",
         "reduceRight": false,
         "x": 620,
         "y": 120,

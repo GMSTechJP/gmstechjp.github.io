@@ -1600,6 +1600,11 @@
                     <li>延長: ✓ 有効</li>
                     <li>リセット: "logout"</li>
                 </ul>
+                <p><strong>強制ログアウト（即時出力）の作り方:</strong> リセットはタイマーを取り消すだけで何も出力しません。そこで「強制ログアウト」Injectは2方向に配線します。</p>
+                <ul>
+                    <li>① Triggerへ（payload <code>"logout"</code> がリセット条件に一致し、保留中の自動ログアウトを取り消す）</li>
+                    <li>② Changeノードへ → payload を <code>"ログアウト"</code> にして Debug へ（5秒待たず即座に表示）</li>
+                </ul>
             </details>
             
             <details>
@@ -1660,7 +1665,35 @@
         "y": 140,
         "wires": [
             [
-                "ex3_trigger"
+                "ex3_trigger",
+                "ex3_force_logout_msg"
+            ]
+        ]
+    },
+    {
+        "id": "ex3_force_logout_msg",
+        "type": "change",
+        "z": "trigger_node_guide_tab_3",
+        "name": "ログアウト表示",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "ログアウト",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 410,
+        "y": 160,
+        "wires": [
+            [
+                "ex3_debug"
             ]
         ]
     },
