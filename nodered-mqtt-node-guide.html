@@ -86,6 +86,7 @@
                 <li><a href="#section7">7. まとめ</a></li>
                 <li><a href="#section8">8. トラブルシューティング</a></li>
                 <li><a href="#section9">9. 実務活用例</a></li>
+                <li><a href="#section10">10. MQTT 用語集（QoS / Retain / Last Will / Keep Alive / Clean Session）</a></li>
             </ul>
         </div>
         
@@ -97,8 +98,9 @@
         <ul>
             <li><strong>軽量</strong>：ヘッダーが小さく、帯域幅を節約</li>
             <li><strong>Pub/Sub モデル</strong>：送信者と受信者が直接接続しない</li>
-            <li><strong>QoS（Quality of Service）</strong>：メッセージ配信の信頼性を選択可能</li>
-            <li><strong>Retain</strong>：最後のメッセージを保持し、新規購読者に配信</li>
+            <li><strong><a href="#term-qos">QoS（Quality of Service）</a></strong>：メッセージ配信の信頼性を選択可能（0/1/2 の 3 段階）</li>
+            <li><strong><a href="#term-retain">Retain</a></strong>：最後のメッセージを保持し、新規購読者に配信</li>
+            <li><strong><a href="#term-lwt">Last Will</a></strong>：クライアントの予期せぬ切断時にブローカーが代理発行する「遺言」メッセージ</li>
         </ul>
         
         <p>📰 <strong>新聞配達に例えると</strong>：MQTTは「新聞配達システム」のようなものです。</p>
@@ -240,7 +242,7 @@
             <tr><td><strong>サーバ</strong></td><td>ブローカーのホスト名/IP</td><td>test.mosquitto.org</td></tr>
             <tr><td><strong>ポート</strong></td><td>接続ポート</td><td>1883（非暗号化）, 8883（TLS）</td></tr>
             <tr><td><strong>クライアントID</strong></td><td>クライアント識別子（空欄で自動生成）</td><td>nodered-client-001</td></tr>
-            <tr><td><strong>Keep Alive</strong></td><td>接続維持間隔（秒）</td><td>60</td></tr>
+            <tr><td><strong><a href="#term-keepalive">Keep Alive</a></strong></td><td>接続維持間隔（秒）。1.5倍の時間で切断判定 → Last Will 発火</td><td>60</td></tr>
             <tr><td><strong>セッション初期化</strong></td><td>接続時にセッションをクリア</td><td>true</td></tr>
         </table>
         
@@ -1033,9 +1035,9 @@ return msg;</div>
             <tr><th>症状</th><th>原因</th><th>解決方法</th></tr>
             <tr><td>接続できない</td><td>ブローカー設定の誤り</td><td>Server、Port を確認、ファイアウォール確認</td></tr>
             <tr><td>メッセージが届かない</td><td>トピック名の不一致</td><td>発行/購読のトピック名を正確に一致させる</td></tr>
-            <tr><td>接続が切れる</td><td>Keep Alive タイムアウト</td><td>Keep Alive 値を調整</td></tr>
-            <tr><td>重複メッセージ</td><td>QoS 1 の再送</td><td>アプリケーション側で重複排除</td></tr>
-            <tr><td>古いメッセージが届く</td><td>Retain メッセージ</td><td>空のRetainメッセージを発行してクリア</td></tr>
+            <tr><td>接続が切れる</td><td><a href="#term-keepalive">Keep Alive</a> タイムアウト</td><td>Keep Alive 値を調整</td></tr>
+            <tr><td>重複メッセージ</td><td><a href="#term-qos">QoS 1</a> の再送</td><td>アプリケーション側で重複排除</td></tr>
+            <tr><td>古いメッセージが届く</td><td><a href="#term-retain">Retain</a> メッセージ</td><td>空のRetainメッセージを発行してクリア</td></tr>
         </table>
         
         <h2 id="section9">🏭 9. 実務活用例</h2>
@@ -1051,7 +1053,85 @@ return msg;</div>
         
         <h3>ケース4: 車両追跡システム</h3>
         <p>GPSデータをMQTTで送信し、リアルタイム位置追跡</p>
-        
+
+        <h2 id="section10">📘 10. MQTT 用語集</h2>
+        <p>このガイドや MQTT ブローカーの設定画面に出てくる MQTT 固有の用語をまとめました。<strong>クライアント／サーバー／ブローカー／トピック／Pub-Sub</strong> など通信全般の用語は <a href="nodered-network-basics-guide.html#glossary">通信の基礎ガイドの用語集</a> を参照してください。</p>
+
+        <h3 id="term-qos">🎯 QoS（Quality of Service）</h3>
+        <p>メッセージ配信の<strong>信頼性レベル</strong>。送信側と受信側がそれぞれ要求でき、ブローカーは<strong>両者の低い方</strong>で配信します。</p>
+        <table>
+            <tr><th>レベル</th><th>呼び名</th><th>保証</th><th>パケット往復</th><th>使いどころ</th></tr>
+            <tr><td><strong>0</strong></td><td>At most once<br>（最大1回）</td><td>送りっぱなし。失われても気にしない</td><td>1 回（PUBLISH のみ）</td><td>頻繁に流すテレメトリ、損失許容データ</td></tr>
+            <tr><td><strong>1</strong></td><td>At least once<br>（少なくとも1回）</td><td>確実に届くが <strong>重複の可能性あり</strong></td><td>2 回（PUBLISH → PUBACK）</td><td>最もよく使われる既定値。重要データ全般</td></tr>
+            <tr><td><strong>2</strong></td><td>Exactly once<br>（正確に1回）</td><td>重複なしで確実に 1 回だけ</td><td>4 回（PUBLISH → PUBREC → PUBREL → PUBCOMP）</td><td>「2 回実行されると困る」決済・制御コマンド</td></tr>
+        </table>
+        <div class="tip">
+            💡 QoS が上がるほど確実だが <strong>パケット往復が増えて重く</strong> なります。デフォルトの QoS 1 で十分なケースが大半です。
+        </div>
+
+        <h3 id="term-retain">📌 Retain（保持メッセージ）</h3>
+        <p>発行時に <code>retain=true</code> を付けると、ブローカーがそのトピックの<strong>最新メッセージを保存</strong>し、後から購読してきたクライアントに<strong>即座に配信</strong>します。</p>
+        <ul>
+            <li><strong>1 トピックにつき 1 メッセージ</strong>だけ保持される（新しい retain で上書き）</li>
+            <li>センサーの最終値、機器の現在状態など「<strong>後から接続してきても今の状態を知りたい</strong>」用途に最適</li>
+            <li><strong>削除方法：</strong>同じトピックに <strong>ペイロード空（0 バイト）かつ retain=true</strong> でメッセージを発行する</li>
+        </ul>
+
+        <h3 id="term-lwt">⚰️ Last Will（LWT / Last Will and Testament）</h3>
+        <p>クライアントが <strong>予期せず切断</strong> した場合に、ブローカーが代理で発行してくれる「遺言」メッセージ。「あの機器、いつの間にか落ちている」を防ぎます。</p>
+        <table>
+            <tr><th>設定項目</th><th>意味</th></tr>
+            <tr><td>Will Topic</td><td>遺言を流す宛先トピック（例: <code>device/sensor1/status</code>）</td></tr>
+            <tr><td>Will Payload</td><td>流す内容（例: <code>offline</code>、JSON 等）</td></tr>
+            <tr><td>Will QoS</td><td>遺言の配信品質（0/1/2）</td></tr>
+            <tr><td>Will Retain</td><td>遺言を retain にするか（後から購読した人にも届けるか）</td></tr>
+        </table>
+        <p><strong>発火する状況：</strong></p>
+        <ul>
+            <li>ネットワーク／I/O 障害で接続が切れた</li>
+            <li>Keep Alive 期間内に通信がなく、ブローカーが切断を判定した</li>
+            <li>DISCONNECT パケットを送らずにクライアントが落ちた</li>
+            <li>プロトコルエラーでブローカー側から切断された</li>
+        </ul>
+        <p><strong>発火しない状況：</strong>クライアントが <strong>正常に DISCONNECT</strong> を送って切断したとき。</p>
+        <div class="tip">
+            💡 「<strong>online / offline」を retain と組み合わせる</strong>のが定番パターン：
+            <ul>
+                <li>接続直後に <code>device/xxx/status = online</code> を <strong>retain=true</strong> で発行</li>
+                <li>Will を <code>device/xxx/status = offline</code> に <strong>retain=true</strong> で設定</li>
+                <li>→ いつ購読しても最新のオンライン状態が分かる</li>
+            </ul>
+        </div>
+
+        <h3 id="term-keepalive">💓 Keep Alive（接続維持間隔）</h3>
+        <p>クライアントとブローカーが <strong>「お互い生きてるよ」を確認する間隔（秒）</strong>。接続時に交渉して決まります。</p>
+        <ul>
+            <li><strong>クライアント側：</strong>この間隔の間に普通の通信が無ければ <strong>PINGREQ</strong>（ハートビート）を送る。ブローカーは <strong>PINGRESP</strong> で応答</li>
+            <li><strong>ブローカー側：</strong>Keep Alive の <strong>1.5 倍</strong> の時間、クライアントから何も来なかったら接続を切断し、設定があれば <strong>Last Will を発行</strong></li>
+            <li><strong>既定値：</strong>Node-RED の MQTT ブローカー設定では <code>60</code> 秒</li>
+            <li><strong>0 にすると無効</strong>（最大 18 時間 12 分 15 秒 ＝ 65535 秒）</li>
+        </ul>
+
+        <h3 id="term-clean-session">🧹 Clean Session（MQTT 3.1.1）／ Clean Start（MQTT 5）</h3>
+        <p>接続時に <strong>過去のセッション情報を引き継ぐかどうか</strong>のフラグ。</p>
+        <table>
+            <tr><th>値</th><th>挙動</th><th>使いどころ</th></tr>
+            <tr><td><strong>true（既定）</strong></td><td>過去のセッション状態を<strong>すべて破棄</strong>して新規開始。購読も毎回やり直し</td><td>常時オンラインで状態を持ち越す必要がないクライアント</td></tr>
+            <tr><td><strong>false</strong></td><td>前回のセッションを<strong>再開</strong>。購読リスト、QoS 1/2 の未送信メッセージが<strong>サーバー側に保持</strong>される</td><td>一時的にオフラインになっても、再接続後に取りこぼしを受け取りたいモバイル機器など</td></tr>
+        </table>
+        <div class="warning">
+            <p><strong>⚠️ 注意：</strong>Clean Session = false にする場合、<strong>固定の Client ID</strong> を設定する必要があります（ブローカーがクライアントを特定できないとセッション再開できないため）。空欄や毎回ランダムな ID では false にしても意味がありません。</p>
+            <p>MQTT 5 では「Clean Start」と「Session Expiry Interval」の 2 つに分かれ、より細かい制御が可能になっています。</p>
+        </div>
+
+        <h3>📚 参考リンク</h3>
+        <ul>
+            <li><a href="https://mqtt.org/" target="_blank" rel="noopener">MQTT 公式サイト</a></li>
+            <li><a href="https://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html" target="_blank" rel="noopener">MQTT 3.1.1 仕様（OASIS）</a></li>
+            <li><a href="https://docs.oasis-open.org/mqtt/mqtt/v5.0/mqtt-v5.0.html" target="_blank" rel="noopener">MQTT 5.0 仕様（OASIS）</a></li>
+            <li><a href="nodered-network-basics-guide.html#glossary">通信の基礎ガイド 用語集</a>（ブローカー・トピック・Pub/Sub など）</li>
+        </ul>
+
         <p style="margin-top: 40px;"><a href="https://nodered.org/docs/user-guide/nodes#mqtt" target="_blank">📚 Node-RED 公式ドキュメント - MQTT</a></p>
     </div>
     
