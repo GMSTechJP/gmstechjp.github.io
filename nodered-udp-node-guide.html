@@ -82,6 +82,7 @@
                 <li><a href="#section7">7. まとめ</a></li>
                 <li><a href="#section8">8. トラブルシューティング</a></li>
                 <li><a href="#section9">9. 実務活用例</a></li>
+                <li><a href="#section10">10. 用語集（コネクションレス・MTU・ユニキャスト/マルチキャスト/ブロードキャスト・チェックサム）</a></li>
             </ul>
         </div>
         
@@ -93,11 +94,11 @@
         
         <h3>UDPの特徴</h3>
         <ul>
-            <li><strong>コネクションレス</strong>：接続確立なしに即座に送信</li>
+            <li><strong><a href="#term-connectionless">コネクションレス</a></strong>：接続確立なしに即座に送信</li>
             <li><strong>軽量・高速</strong>：オーバーヘッドが少ない</li>
             <li><strong>信頼性なし</strong>：パケット損失や順序逆転の可能性</li>
-            <li><strong>ブロードキャスト可能</strong>：ネットワーク全体に一斉送信</li>
-            <li><strong>マルチキャスト対応</strong>：特定グループに送信</li>
+            <li><strong><a href="#term-cast">ブロードキャスト</a>可能</strong>：ネットワーク全体に一斉送信</li>
+            <li><strong><a href="#term-cast">マルチキャスト</a>対応</strong>：特定グループに送信</li>
         </ul>
         
         <div class="node-compare">
@@ -973,7 +974,7 @@ return msg;</div>
                 <li><strong>信頼性が必要な場合はTCPを使用</strong></li>
                 <li><strong>ブロードキャスト</strong>は同一サブネット内でのみ有効</li>
                 <li><strong>ファイアウォール</strong>設定でUDPポートを開放</li>
-                <li><strong>パケットサイズ</strong>：MTU（通常1500バイト）を超えると分割される</li>
+                <li><strong>パケットサイズ</strong>：<a href="#term-mtu">MTU</a>（通常1500バイト）を超えると分割される</li>
             </ul>
         </div>
         
@@ -983,7 +984,7 @@ return msg;</div>
             <tr><th>症状</th><th>原因</th><th>解決方法</th></tr>
             <tr><td>データが届かない</td><td>ファイアウォール/ポート未開放</td><td>FW設定確認、別ポート試行</td></tr>
             <tr><td>ブロードキャストが届かない</td><td>異なるサブネット/ルーター越え</td><td>同一サブネット内で使用</td></tr>
-            <tr><td>データが途中で切れる</td><td>MTU超過</td><td>データサイズを小さくする</td></tr>
+            <tr><td>データが途中で切れる</td><td><a href="#term-mtu">MTU</a> 超過</td><td>データサイズを小さくする（安全圏は 1472 バイト以下）</td></tr>
             <tr><td>文字化け</td><td>エンコーディング不一致</td><td>UTF-8で統一</td></tr>
             <tr><td>返信が届かない</td><td>msg.ip/port が未設定</td><td>受信時のmsg.ip/portを保持</td></tr>
         </table>
@@ -1001,7 +1002,75 @@ return msg;</div>
         
         <h3>ケース4: Raspberry Pi 間の軽量通信</h3>
         <p>同一ネットワーク内の複数Raspberry Piでセンサーデータを共有。</p>
-        
+
+        <h2 id="section10">📘 10. 用語集（UDP 固有の用語）</h2>
+        <p>UDP はシンプルなプロトコルですが、配信形態（ユニキャスト / マルチキャスト / ブロードキャスト）や信頼性の用語で混乱しやすい点があります。<strong>データグラム・パケット・ソケット・ポート</strong>などは <a href="nodered-network-basics-guide.html#glossary">通信の基礎ガイドの用語集</a> を参照してください。</p>
+
+        <h3 id="term-connectionless">📭 コネクションレス（connectionless）</h3>
+        <p><strong>「接続を張らずに、いきなり荷物を投げる」</strong>方式。TCP の「電話をかけてから話す」のと対照的に、UDP は「はがきを投函する」イメージです。</p>
+        <ul>
+            <li>事前の <strong>ハンドシェイクなし</strong>（送信側はすぐ送信を開始できる）</li>
+            <li>状態を持たないので、サーバー側も<strong>軽量</strong>（少ないリソースで大量送信先を扱える）</li>
+            <li>逆に、<strong>相手が受信できる状態かどうか送信側は知らない</strong></li>
+        </ul>
+
+        <h3 id="term-best-effort">🎯 ベストエフォート配信（best-effort）</h3>
+        <p>UDP は <strong>「届くか届かないか保証しない、順番もずれる、重複する可能性もある」</strong>方針。これらを保証するのは TCP の役割であり、必要なら<strong>アプリ側で実装</strong>します。</p>
+        <ul>
+            <li><strong>届かない（再送なし）：</strong>1 通失われても気づかれない</li>
+            <li><strong>順番が入れ替わる：</strong>後から送った方が先に着くことがある</li>
+            <li><strong>重複する：</strong>同じデータグラムが 2 回届くことがある</li>
+        </ul>
+        <p>こうした「不確実さ」を承知の上で、<strong>速度・軽さ・1 対多配信</strong>のために UDP を選びます。</p>
+
+        <h3 id="term-cast">📡 ユニキャスト / マルチキャスト / ブロードキャスト（3 つの配信形態）</h3>
+        <table>
+            <tr><th>形態</th><th>送信先</th><th>例</th><th>典型用途</th></tr>
+            <tr><td><strong>ユニキャスト（unicast）</strong></td><td><strong>特定の 1 台</strong>に送る</td><td><code>192.168.1.10</code> 宛て</td><td>通常の 1 対 1 通信</td></tr>
+            <tr><td><strong>ブロードキャスト（broadcast）</strong></td><td>同じサブネット内の<strong>全員</strong>に送る</td><td><code>192.168.1.255</code>（限定）/ <code>255.255.255.255</code>（全体）</td><td>サービス発見、DHCP、機器探索</td></tr>
+            <tr><td><strong>マルチキャスト（multicast）</strong></td><td>「<strong>このグループに加入</strong>している人」だけに送る</td><td><code>224.0.0.0 〜 239.255.255.255</code> の範囲</td><td>動画/音声のストリーミング配信、産業制御</td></tr>
+        </table>
+        <div class="tip">
+            💡 <strong>マルチキャストはブロードキャストとユニキャストの中間</strong>です。ブロードキャストのように「興味ない人にも届いて負荷をかける」ことなく、ユニキャストのように「同じデータを N 回コピー送信する」非効率もなく、<strong>受信したい人だけ</strong>が受け取れます。
+        </div>
+        <div class="warning">
+            <strong>⚠️ クラウド／インターネット越しでは届かない</strong>: ブロードキャストとマルチキャストは <strong>ルーターを跨ぐと伝わらない</strong>のが原則です。<strong>同一サブネット（同じ LAN セグメント）内でのみ</strong>有効と考えてください。クラウド共有環境ではほぼ動きません。
+        </div>
+
+        <h3 id="term-mtu">📏 MTU（Maximum Transmission Unit）と分割（fragmentation）</h3>
+        <p>1 回で送れる<strong>IP パケットの最大サイズ</strong>。物理ネットワークごとに決まっており、Ethernet では <strong>通常 1500 バイト</strong>です。</p>
+        <ul>
+            <li>UDP データグラムが MTU を超えると、<strong>IP 層で複数のフラグメント（断片）に分割</strong>される</li>
+            <li>分割されたフラグメントのうち <strong>1 つでも失われると、データグラム全体が無効</strong>になる（UDP には再送がない）</li>
+            <li>そのため UDP では <strong>1 データグラムを MTU 以下に収める</strong>のが鉄則。安全圏は <strong>1472 バイト</strong>（1500 − IP ヘッダ 20 − UDP ヘッダ 8）</li>
+            <li>大きなデータを送りたい場合は、アプリ側で<strong>自前で分割・再構成</strong>する必要がある（または TCP を使う）</li>
+        </ul>
+
+        <h3 id="term-checksum">✅ チェックサム（checksum）</h3>
+        <p>UDP ヘッダとペイロードの<strong>誤り検出</strong>用の 16 bit 値。受信側で計算し直して送信時と一致しなければそのデータグラムを破棄します。</p>
+        <ul>
+            <li><strong>IPv4 では任意</strong>（0 にすれば未使用扱い）</li>
+            <li><strong>IPv6 では必須</strong>（IPv6 自身がチェックサムを持たないため）</li>
+            <li>これはあくまで<strong>誤り「検出」</strong>であって、誤り訂正や再送はしない（再送が欲しければ TCP かアプリ層で実装）</li>
+        </ul>
+
+        <h3 id="term-port-reuse">🔁 ポート再利用（SO_REUSEADDR）</h3>
+        <p>UDP では「同じポートに複数のプロセスが Bind したい」状況がよくあります（マルチキャスト受信や、サーバー再起動時の即時再 Bind など）。</p>
+        <ul>
+            <li><strong>SO_REUSEADDR</strong> オプションで「<strong>このポートを他と共有してよい</strong>」と OS に伝える</li>
+            <li>Node-RED の UDP In ノードは内部で適切にこのオプションを設定するため、明示的な設定は通常不要</li>
+            <li>「ポートがすでに使われています」エラーが出るときは、別のプロセス（別の Node-RED フローや netcat 等）が同じポートを占有していないかを確認</li>
+        </ul>
+
+        <h3>📚 参考リンク</h3>
+        <ul>
+            <li><a href="https://datatracker.ietf.org/doc/html/rfc768" target="_blank" rel="noopener">RFC 768 — User Datagram Protocol (UDP)</a></li>
+            <li><a href="https://datatracker.ietf.org/doc/html/rfc1112" target="_blank" rel="noopener">RFC 1112 — Host Extensions for IP Multicasting</a></li>
+            <li><a href="https://en.wikipedia.org/wiki/User_Datagram_Protocol" target="_blank" rel="noopener">UDP — Wikipedia</a></li>
+            <li><a href="nodered-network-basics-guide.html#glossary">通信の基礎ガイド 用語集</a>（データグラム・パケット・ソケット・ポート）</li>
+            <li><a href="nodered-tcp-node-guide.html">TCP ノードガイド</a>（対照的な信頼性重視プロトコル）</li>
+        </ul>
+
         <p style="margin-top: 40px;"><a href="https://nodered.org/docs/user-guide/nodes#udp" target="_blank">📚 Node-RED 公式ドキュメント - UDP</a></p>
     </div>
     
