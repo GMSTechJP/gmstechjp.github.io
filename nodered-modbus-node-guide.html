@@ -79,6 +79,7 @@
                 <li><a href="#section8">8. 演習問題</a></li>
                 <li><a href="#section9">9. まとめ</a></li>
                 <li><a href="#section10">10. トラブルシューティング</a></li>
+                <li><a href="#section11">11. 用語集（Master/Slave・Unit ID・エンディアン・CRC・PLC など）</a></li>
             </ul>
         </div>
 
@@ -89,8 +90,8 @@
 
         <h3>どんな機器で使われる？</h3>
         <ul>
-            <li><strong>PLC</strong>（シーケンサ）— 工場の自動制御装置</li>
-            <li><strong>インバータ</strong>— モーターの回転数制御</li>
+            <li><strong><a href="#term-plc">PLC</a></strong>（シーケンサ）— 工場の自動制御装置</li>
+            <li><strong><a href="#term-plc">インバータ</a></strong>— モーターの回転数制御</li>
             <li><strong>電力計・電力モニタ</strong>— 電圧・電流・電力量の計測</li>
             <li><strong>温調計・センサー</strong>— 温度・湿度・圧力の測定</li>
             <li><strong>I/O ユニット</strong>— 接点入出力の集約</li>
@@ -99,7 +100,7 @@
         <h3>MODBUS の特徴</h3>
         <table>
             <tr><th>特徴</th><th>内容</th></tr>
-            <tr><td><strong>マスター/スレーブ方式</strong></td><td>親機（マスター）が要求し、子機（スレーブ）が応答する。Node-RED は通常マスター側になる。</td></tr>
+            <tr><td><strong>マスター / スレーブ方式</strong><br>（新呼称: クライアント / サーバー）</td><td>親機（マスター ＝ クライアント）が要求し、子機（スレーブ ＝ サーバー）が応答する。Node-RED は通常マスター側。<strong>Modbus 公式は近年「Client / Server」へ用語を切り替え</strong>たが、実機マニュアルやノードのプロパティ名は「Master / Slave / Unit-Id」のまま残っているケースが多い（→ <a href="#term-master-slave">用語集</a>）。</td></tr>
             <tr><td><strong>ポーリング</strong></td><td>マスターが定期的に問い合わせて値を集める。スレーブから勝手に送ってくることはない。</td></tr>
             <tr><td><strong>レジスタ番地で指定</strong></td><td>「何番地の値が欲しい」と番地（アドレス）を指定してやり取りする。</td></tr>
             <tr><td><strong>オープン仕様</strong></td><td>仕様が公開されており、メーカーをまたいで相互接続できる。</td></tr>
@@ -130,19 +131,30 @@ npm install node-red-contrib-modbus</div>
 
         <h2 id="section3">🧱 3. MODBUS の基礎知識</h2>
 
-        <h3>3-1. RTU と TCP — 2 つの伝送方式</h3>
-        <p>MODBUS には主に 2 つの「運び方」があります。どちらも“会話の中身（レジスタの読み書き）”は同じで、物理的な経路が違うだけです。</p>
+        <h3>3-1. RTU / ASCII / TCP — 3 つの伝送方式</h3>
+        <p>MODBUS には主に <strong>3 つの「運び方」</strong>があります。どれも“会話の中身（レジスタの読み書き）”は同じで、物理的な経路と誤り検出方法が違うだけです。</p>
 
         <div class="node-compare">
             <div class="node-card">
                 <h4>🔌 Modbus RTU</h4>
                 <p><strong>経路:</strong> シリアル（RS-485 / RS-232）</p>
+                <p><strong>形式:</strong> バイナリ（コンパクト）</p>
+                <p><strong>誤り検出:</strong> <strong>CRC-16</strong>（→ <a href="#term-crc-lrc">用語集</a>）</p>
                 <p><strong>特徴:</strong> 1 本の線に複数のスレーブをぶら下げる。長距離・ノイズに強い。古くからの定番。</p>
                 <p><strong>指定:</strong> ポート名・ボーレート・パリティ等</p>
             </div>
             <div class="node-card">
+                <h4>📝 Modbus ASCII</h4>
+                <p><strong>経路:</strong> シリアル（RS-485 / RS-232）</p>
+                <p><strong>形式:</strong> ASCII 文字（人間も読める）</p>
+                <p><strong>誤り検出:</strong> <strong>LRC</strong>（→ <a href="#term-crc-lrc">用語集</a>）</p>
+                <p><strong>特徴:</strong> RTU よりデータ量が約 2 倍で<strong>低速</strong>。連続送信が苦手な機器・通信路向け（文字間に最大 1 秒の遅延が許される）。<strong>現代では RTU/TCP に置き換えが進んでおり採用例は少ない</strong>。</p>
+            </div>
+            <div class="node-card">
                 <h4>🌐 Modbus TCP</h4>
                 <p><strong>経路:</strong> イーサネット（LAN）</p>
+                <p><strong>形式:</strong> バイナリ + TCP/IP ヘッダ</p>
+                <p><strong>誤り検出:</strong> TCP 層が担当（Modbus 側にチェックサムなし）</p>
                 <p><strong>特徴:</strong> IP アドレスとポート（既定 <code>502</code>）で指定。配線が楽で高速。新しい機器で主流。</p>
                 <p><strong>指定:</strong> ホスト（IP）・ポート 502</p>
             </div>
@@ -235,7 +247,7 @@ npm install node-red-contrib-modbus</div>
             <tr><td><strong>Serial port</strong></td><td>シリアルポート名（Serial 時）</td><td>/dev/ttyUSB、COM4 など</td></tr>
             <tr><td><strong>Baud rate</strong></td><td>通信速度（Serial 時）</td><td>9600</td></tr>
             <tr><td><strong>Parity / Data Bits / Stop Bits</strong></td><td>シリアル通信パラメータ</td><td>none / 8 / 1</td></tr>
-            <tr><td><strong>Unit-Id</strong></td><td>スレーブ ID の既定値（TCP 0–255／Serial 0–247）</td><td>1</td></tr>
+            <tr><td><strong><a href="#term-unit-id">Unit-Id</a></strong></td><td>スレーブ ID の既定値（TCP 0–255／Serial 0–247。1 対 1 接続なら通常 1）</td><td>1</td></tr>
             <tr><td><strong>Timeout (ms)</strong></td><td>応答待ちタイムアウト</td><td>1000</td></tr>
             <tr><td><strong>Reconnect on timeout</strong></td><td>タイムアウト時に再接続するか</td><td>有効</td></tr>
             <tr><td><strong>Queue commands</strong></td><td>コマンドをキューにためて順次処理するか</td><td>有効</td></tr>
@@ -715,6 +727,75 @@ diagslave -m tcp -p 10502</div>
                 <td>10 個超なら Flex-Getter にまとめるか、接続を分割（公式推奨）。</td>
             </tr>
         </table>
+
+        <h2 id="section11">📘 11. 用語集（追加リファレンス）</h2>
+        <p>セクション 3「MODBUS の基礎知識」で扱いきれなかった、または別の場所に散らばっていた用語の補完リファレンスです。<strong>レジスタ・コイル・ファンクションコード等の主要概念は <a href="#section3">第 3 章</a></strong>、<strong>通信全般の用語（クライアント/サーバー・プロトコル・ポートなど）は <a href="nodered-network-basics-guide.html#glossary">通信の基礎ガイドの用語集</a></strong> を参照してください。</p>
+
+        <h3 id="term-master-slave">👥 Master / Slave（クライアント / サーバー）</h3>
+        <p>MODBUS の役割を表す用語ですが、<strong>2 系統の呼び方が並行して使われています</strong>。</p>
+        <table>
+            <tr><th>古い呼び名（伝統的）</th><th>新しい呼び名（推奨）</th><th>役割</th></tr>
+            <tr><td><strong>マスター（Master）</strong></td><td>クライアント（Client）</td><td>会話の主導権を握り、要求を出す側。<strong>Node-RED は通常こちら</strong>（<code>node-red-contrib-modbus</code> の Read / Write / Getter ノードはマスター動作）</td></tr>
+            <tr><td><strong>スレーブ（Slave）</strong></td><td>サーバー（Server）</td><td>要求に応える側。<strong>PLC・センサ・電力計などの被計測機器</strong>がこの役。Node-RED の <code>Modbus-Server</code> ノードを使えば Node-RED 自身をサーバー役にもできる</td></tr>
+        </table>
+        <div class="tip">
+            💡 <strong>Modbus.org（公式）は「Client / Server」を推奨</strong> していますが、<strong>実機マニュアル・既存ドキュメント・<code>node-red-contrib-modbus</code> のプロパティ名（Unit-Id 等）は今も Master/Slave のまま</strong> のものが大半です。本ガイドでは混乱を避けるため<strong>両方を併記</strong>します。
+        </div>
+
+        <h3 id="term-unit-id">🆔 Unit ID（スレーブ ID）</h3>
+        <p>同じ通信路に複数のスレーブがぶら下がっているとき、<strong>どの機器宛ての要求かを示す番号</strong>。シリアル接続が前提の概念です。</p>
+        <ul>
+            <li><strong>範囲：</strong>有効値は <code>1〜247</code>（248〜255 は予約）。<code>0</code> は<strong>ブロードキャスト</strong>（全スレーブ宛て）として扱われる</li>
+            <li><strong>マスター側にはアドレスが不要</strong>（送信元として暗黙）</li>
+            <li><strong>Modbus TCP では本来不要</strong>（IP アドレスで宛先を識別できるため）ですが、Modbus シリアルを TCP にブリッジするゲートウェイ越しに「シリアル先のどの機器か」を伝える目的で残されています</li>
+            <li>1 対 1 接続のときは <code>1</code> でほぼ問題ありません</li>
+        </ul>
+
+        <h3 id="term-endian">🔀 エンディアン（Endian / ワード順序）</h3>
+        <p>MODBUS のレジスタは <strong>16 bit（1 ワード）単位</strong>ですが、温度（32 bit float）や 32 bit カウンタなど <strong>1 レジスタに収まらない値</strong>を扱うときに問題になります。</p>
+        <p>32 bit 値を 2 つの 16 bit レジスタに分けて格納するとき、<strong>どちらのワードを上位にするか</strong>は機器メーカーごとに異なります。</p>
+        <table>
+            <tr><th>並べ方</th><th>32 bit 値 <code>0x12345678</code> をレジスタ N と N+1 に</th></tr>
+            <tr><td><strong>ビッグエンディアン（上位ワード先）</strong></td><td>レジスタ N: <code>0x1234</code>、N+1: <code>0x5678</code>。Modbus の標準仕様（バイト順）</td></tr>
+            <tr><td><strong>リトルエンディアン（下位ワード先）</strong></td><td>レジスタ N: <code>0x5678</code>、N+1: <code>0x1234</code>。多くの PLC やパソコン CPU が内部で採用</td></tr>
+        </table>
+        <div class="warning">
+            <strong>⚠️ 値が読めるのに桁が大きすぎる／符号が逆／変な数になる</strong>ときは、まずワード順を疑ってください。<code>node-red-contrib-modbus</code> 側でスワップする処理を Function ノードで挟むか、機器マニュアルの「<strong>Word Order</strong>」「<strong>Byte Swap</strong>」項目を確認します。
+        </div>
+
+        <h3 id="term-crc-lrc">🔐 CRC-16 / LRC（誤り検出）</h3>
+        <p>シリアル系の Modbus でメッセージが壊れていないかを検査する仕組み。受信側で計算して送信側と一致しなければ捨てます。</p>
+        <ul>
+            <li><strong>CRC-16</strong>（Cyclic Redundancy Check 16 bit）：Modbus <strong>RTU</strong> が使用。バイナリ全体から 16 bit の検査値を計算</li>
+            <li><strong>LRC</strong>（Longitudinal Redundancy Check）：Modbus <strong>ASCII</strong> が使用。ASCII バイトの合計から 8 bit の検査値を計算</li>
+            <li><strong>Modbus TCP</strong>：TCP 層自体がチェックサムを提供するため、Modbus 側には CRC/LRC を入れない</li>
+        </ul>
+        <p>node-red-contrib-modbus やシミュレータは自動的に正しい CRC/LRC を付けてくれるため、利用者が手計算することは通常ありません。</p>
+
+        <h3 id="term-plc">🏭 PLC / シーケンサ / インバータ（産業機器）</h3>
+        <table>
+            <tr><th>用語</th><th>意味</th></tr>
+            <tr>
+                <td><strong>PLC（Programmable Logic Controller）</strong><br>日本では「シーケンサ」と呼ぶことが多い</td>
+                <td>工場の<strong>自動制御を担う産業用コンピュータ</strong>。センサー入力・スイッチ入力を受け、内蔵プログラム（ラダー言語等）に従ってモーター・バルブ・ランプなどを制御する。Modbus はこの PLC の値を <strong>Node-RED から読み書きするための窓口</strong>になる</td>
+            </tr>
+            <tr>
+                <td><strong>インバータ（Inverter）</strong></td>
+                <td>交流モーターの<strong>回転数を可変させる装置</strong>。本来は「直流を交流に変換する装置」だが、産業界では「VVVF インバータ」（Variable Voltage Variable Frequency）を指すことが多い。Modbus で目標周波数・運転指令を送ったり、現在電流値を読み取ったりする</td>
+            </tr>
+            <tr>
+                <td><strong>RS-485 / RS-232</strong></td>
+                <td>Modbus RTU/ASCII の物理層に使われる<strong>シリアル通信規格</strong>。RS-485 は 1 本のバスに最大 32 台ぶら下げられ、長距離（最大 1.2 km 程度）に強い。RS-232 は 1 対 1 接続向け</td>
+            </tr>
+        </table>
+
+        <h3>📚 参考リンク</h3>
+        <ul>
+            <li><a href="https://modbus.org/" target="_blank" rel="noopener">Modbus 公式サイト（modbus.org）</a></li>
+            <li><a href="https://modbus.org/docs/Modbus_Application_Protocol_V1_1b3.pdf" target="_blank" rel="noopener">Modbus Application Protocol V1.1b3（公式仕様 PDF）</a></li>
+            <li><a href="https://en.wikipedia.org/wiki/Modbus" target="_blank" rel="noopener">Modbus — Wikipedia</a></li>
+            <li><a href="nodered-network-basics-guide.html#glossary">通信の基礎ガイド 用語集</a>（クライアント/サーバー・プロトコル・ポート等）</li>
+        </ul>
 
         <p style="margin-top:30px;">
             <a href="index.html">← トップページへ戻る</a> |
