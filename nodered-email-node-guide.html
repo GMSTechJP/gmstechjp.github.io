@@ -77,6 +77,7 @@
                 <li><a href="#section8">8. トラブルシューティング</a></li>
                 <li><a href="#section9">9. ベストプラクティス</a></li>
                 <li><a href="#section10">10. 追加リソース</a></li>
+                <li><a href="#section11">11. 用語集（アプリパスワード・OAuth 2.0・SPF / DKIM / DMARC・Envelope など）</a></li>
             </ul>
         </div>
 
@@ -274,7 +275,7 @@ npm install node-red-node-email</div>
                 <td>添付ファイル（nodemailer形式）</td>
             </tr>
             <tr>
-                <td><strong>msg.envelope</strong></td>
+                <td><strong><a href="#term-envelope">msg.envelope</a></strong></td>
                 <td>object</td>
                 <td>SMTP envelope（拡張アドレス指定用）</td>
             </tr>
@@ -491,14 +492,14 @@ return msg;</div>
             <h4>📧 Gmail</h4>
             <p>送信: <code>smtp.gmail.com</code> ポート: <code>465</code>（SSL）</p>
             <p>受信: <code>imap.gmail.com</code> ポート: <code>993</code>（SSL）</p>
-            <p>認証: アプリパスワードが必要（2段階認証を有効化した上で生成）</p>
+            <p>認証: <a href="#term-app-password">アプリパスワード</a>が必要（2段階認証を有効化した上で生成）</p>
         </div>
 
         <div class="protocol-box">
             <h4>📧 Outlook / Office 365</h4>
             <p>送信: <code>smtp.office365.com</code> ポート: <code>587</code>（STARTTLS）</p>
             <p>受信: <code>outlook.office365.com</code> ポート: <code>993</code>（SSL）</p>
-            <p>認証: OAuth2.0が必要な場合あり</p>
+            <p>認証: <a href="#term-oauth2">OAuth 2.0</a> が必要な場合あり</p>
         </div>
 
         <div class="protocol-box">
@@ -508,15 +509,15 @@ return msg;</div>
         </div>
 
         <div class="warning">
-            <p><strong>⚠️ Gmailのアプリパスワード設定手順:</strong></p>
+            <p><strong>⚠️ Gmailの<a href="#term-app-password">アプリパスワード</a>設定手順:</strong></p>
             <ol>
                 <li>Googleアカウント設定 → <strong>セキュリティ</strong></li>
                 <li><strong>2段階認証プロセス</strong>を有効化</li>
-                <li>セキュリティ → <strong>アプリパスワード</strong>を選択</li>
+                <li>セキュリティ → <strong><a href="#term-app-password">アプリパスワード</a></strong>を選択</li>
                 <li>アプリ名を入力して<strong>作成</strong>をクリック</li>
                 <li>生成された16文字のパスワードをNode-REDのPassword欄に入力</li>
             </ol>
-            <p><strong>注意:</strong> 通常のGmailパスワードは使用できません。必ずアプリパスワードを使用してください。</p>
+            <p><strong>注意:</strong> 通常のGmailパスワードは使用できません。必ず<a href="#term-app-password">アプリパスワード</a>を使用してください。</p>
         </div>
 
         <h3>IMAP vs POP3 の比較</h3>
@@ -1034,7 +1035,7 @@ if (now - lastSent > interval) {
             <tr>
                 <td>メールが送信されない</td>
                 <td>SMTP認証エラー</td>
-                <td>アプリパスワード（Gmail）を使用する。ユーザーIDとパスワードを再確認する</td>
+                <td><a href="#term-app-password">アプリパスワード</a>（Gmail）を使用する。ユーザーIDとパスワードを再確認する</td>
             </tr>
             <tr>
                 <td>「Connection refused」エラー</td>
@@ -1044,7 +1045,7 @@ if (now - lastSent > interval) {
             <tr>
                 <td>「Authentication failed」エラー</td>
                 <td>パスワードが通常のパスワード</td>
-                <td>Gmailの場合はアプリパスワードを生成して使用する</td>
+                <td>Gmailの場合は<a href="#term-app-password">アプリパスワード</a>を生成して使用する</td>
             </tr>
             <tr>
                 <td>メール受信が動作しない</td>
@@ -1077,9 +1078,9 @@ if (now - lastSent > interval) {
                 <td>npm installのエラーログを確認し、Node-REDを再起動する</td>
             </tr>
             <tr>
-                <td>OAuth2エラー（Outlook）</td>
+                <td><a href="#term-oauth2">OAuth 2.0</a> エラー（Outlook）</td>
                 <td>基本認証が無効化されている</td>
-                <td>OAuth2.0認証トークンをmsg経由で渡す設定を行う</td>
+                <td><a href="#term-oauth2">OAuth 2.0</a> 認証トークンを msg 経由で渡す設定を行う</td>
             </tr>
         </table>
 
@@ -1088,7 +1089,7 @@ if (now - lastSent > interval) {
         <div class="tip">
             <p><strong>✅ 推奨事項:</strong></p>
             <ul>
-                <li><strong>アプリパスワードの使用:</strong> Gmail等では通常パスワードではなくアプリパスワードを使用する</li>
+                <li><strong><a href="#term-app-password">アプリパスワード</a>の使用:</strong> Gmail等では通常パスワードではなく<a href="#term-app-password">アプリパスワード</a>を使用する</li>
                 <li><strong>レートリミットの実装:</strong> アラート通知には必ず送信間隔制限を設けて大量送信を防ぐ</li>
                 <li><strong>エラーハンドリング:</strong> Catchノードを接続してメール送信失敗時のリトライや通知を実装する</li>
                 <li><strong>件名の明確化:</strong> 自動送信メールには[NODE-RED]等の接頭辞を付けて識別しやすくする</li>
@@ -1104,7 +1105,7 @@ if (now - lastSent > interval) {
                 <li><strong>送信制限:</strong> GmailのSMTPには1日あたりの送信数制限（500通/日）があるため、大量送信には向かない</li>
                 <li><strong>ポーリング負荷:</strong> e-mail inノードのポーリング間隔を短くしすぎるとサーバーに負荷がかかる。最低30秒以上を推奨</li>
                 <li><strong>添付ファイルサイズ:</strong> 大きな添付ファイルはメールサーバーの制限（通常25MB）に注意する</li>
-                <li><strong>スパム判定:</strong> 自動送信メールはスパムフィルターに引っかかる場合がある。送信元アドレスとSPF/DKIM設定を確認する</li>
+                <li><strong>スパム判定:</strong> 自動送信メールはスパムフィルターに引っかかる場合がある。送信元アドレスと <a href="#term-spf">SPF</a> / <a href="#term-dkim">DKIM</a> / <a href="#term-dmarc">DMARC</a> 設定を確認する</li>
             </ul>
         </div>
 
@@ -1118,6 +1119,84 @@ if (now - lastSent > interval) {
             <li><a href="nodered-function-node-guide.html">Function ノードガイド</a></li>
             <li><a href="nodered-inject-node-guide.html">Inject ノードガイド</a></li>
             <li><a href="nodered-catch-node-guide.html">Catch ノードガイド</a></li>
+        </ul>
+
+        <h2 id="section11">📘 11. 用語集（メール固有の用語）</h2>
+        <p>メール関連には独特な認証技術や用語が多数登場します。基本的な通信用語（SMTP / IMAP / POP3 / TLS / STARTTLS / SSL）は <a href="nodered-network-basics-guide.html#glossary">通信の基礎ガイドの用語集</a> に集約しているので、まずそちらをご参照ください。</p>
+
+        <h3 id="term-app-password">🔑 アプリパスワード（App Password）</h3>
+        <p>2 段階認証を有効にしている Google / Yahoo などのアカウントで、<strong>SMTP / IMAP からログインするためだけに発行する 16 桁の専用パスワード</strong>。</p>
+        <ul>
+            <li>通常のログインパスワードは「Web ログイン + 2 段階認証コード」が必要なので、メールクライアントなど 2 段階認証に対応していないアプリは弾かれる</li>
+            <li>アプリパスワードを使えば、<strong>2 段階認証の保護を保ったまま</strong> 古いプロトコル（SMTP/IMAP）からのアクセスを許可できる</li>
+            <li>アカウント本体のパスワードを変更すると <strong>自動的に失効</strong> するので、再発行が必要</li>
+            <li>OAuth 2.0 が使える場合はそちらの方が安全 ─ <strong>アプリパスワードは「OAuth 非対応アプリ向けの代替手段」</strong>という位置づけ</li>
+        </ul>
+        <div class="warning">
+            <strong>⚠️ 注意：</strong>「通常の Gmail パスワードでログイン可能」のように案内している古い情報を見かけることがありますが、Google は 2022 年 5 月以降「<strong>安全性の低いアプリのアクセス</strong>」設定を廃止しており、<strong>2 段階認証 + アプリパスワード（または OAuth）が必須</strong>です。
+        </div>
+
+        <h3 id="term-oauth2">🛡️ OAuth 2.0</h3>
+        <p>「<strong>パスワードを渡さずに、別のアプリにアカウントの一部権限を委任する</strong>」ための業界標準プロトコル。「アプリ Y が Google アカウントの『メール送信のみ』を実行する許可を、ユーザーが Google に対して与える」というモデルです。</p>
+        <ul>
+            <li>アプリはパスワードではなく <strong>アクセストークン</strong>（短命）と <strong>リフレッシュトークン</strong>（長命）を受け取って認証する</li>
+            <li>ユーザーがいつでも委任を取り消せる、権限スコープを絞れる、パスワード漏洩リスクがない、などのメリット</li>
+            <li><strong>Microsoft 365 / Outlook では従来の Basic Authentication（基本認証）が廃止</strong>され、OAuth 2.0 が必須に。Node-RED から接続するには <code>node-red-contrib-oauth2</code> 等を組み合わせて access token を取得し、<code>msg.auth</code> として渡す必要がある</li>
+        </ul>
+
+        <h3 id="term-envelope">✉️ Envelope（封筒）と Header（便箋）</h3>
+        <p>メールには <strong>「外封筒（Envelope）」と「中身の便箋（Header / Body）」</strong> の 2 つの宛先情報があり、別物として扱われます。</p>
+        <table>
+            <tr><th></th><th>Envelope（SMTP の宛先）</th><th>Header（メール本文上部）</th></tr>
+            <tr><td><strong>役割</strong></td><td>サーバー間で <strong>実際にどこへ配送するか</strong></td><td>受信者が画面で <strong>誰から / 誰宛て / 件名</strong> として見るもの</td></tr>
+            <tr><td><strong>SMTP コマンド</strong></td><td><code>MAIL FROM</code>（差出人）<br><code>RCPT TO</code>（宛先）</td><td><code>From:</code> / <code>To:</code> / <code>Subject:</code> など</td></tr>
+            <tr><td><strong>バウンス先</strong></td><td>Envelope の <code>MAIL FROM</code> へ返る</td><td>—</td></tr>
+            <tr><td><strong>Node-RED</strong></td><td><code>msg.envelope</code> で指定（拡張用途）</td><td><code>msg.payload</code> / <code>msg.to</code> / <code>msg.from</code> / <code>msg.topic</code></td></tr>
+        </table>
+        <div class="tip">
+            💡 メーリングリスト配信などでは「<strong>Envelope 差出人＝list-bounce@…</strong>」「<strong>From ヘッダ＝投稿者</strong>」のように <strong>意図的にずらす</strong> ことがあります。郵便でいう「会社宛て封筒に、社内の個人宛て便箋を入れる」関係です。
+        </div>
+
+        <h3 id="term-spf">📬 SPF（Sender Policy Framework）</h3>
+        <p>「<strong>このドメインからメールを送ってよい IP アドレス（メールサーバー）はこれだけです</strong>」というリストを、ドメインオーナーが DNS の TXT レコードで宣言する仕組み。</p>
+        <ul>
+            <li>受信側サーバーは、メール到着時に <strong>Envelope の差出人ドメイン</strong> の DNS を見て、送ってきた IP がリストに入っているか確認</li>
+            <li>入っていなければ「なりすまし疑い」として拒否・スパム判定できる</li>
+            <li><strong>制約：</strong>SPF は Envelope の差出人しか見ない。<strong>From ヘッダのなりすましは検出できない</strong>（→ DKIM・DMARC と組み合わせる）</li>
+        </ul>
+
+        <h3 id="term-dkim">🔏 DKIM（DomainKeys Identified Mail）</h3>
+        <p>送信側がメール本文に <strong>電子署名</strong> を付け、受信側が <strong>DNS で公開鍵を取得して検証</strong> する仕組み。「このメールは確かに <code>example.com</code> から出されており、途中で改ざんされていない」ことを証明します。</p>
+        <ul>
+            <li>送信側：秘密鍵で本文+ヘッダの一部に署名 → <code>DKIM-Signature</code> ヘッダとして付与</li>
+            <li>受信側：DNS から公開鍵を取得 → 署名を検証 → 一致すれば「正規送信＋改ざんなし」</li>
+            <li>SPF と違って <strong>転送やコピー元のメールサーバーが変わっても</strong> 署名が崩れない限り検証できる</li>
+        </ul>
+
+        <h3 id="term-dmarc">📛 DMARC（Domain-based Message Authentication, Reporting, and Conformance）</h3>
+        <p>SPF と DKIM の <strong>上位ポリシー</strong>。「SPF や DKIM の検証に失敗したらどうするか（受け入れる / 隔離する / 拒否する）」と、「失敗レポートをどこに送るか」をドメインオーナーが DNS で宣言する仕組み。</p>
+        <ul>
+            <li>SPF/DKIM が「検証する仕組み」、DMARC は「失敗時の<strong>処理方針</strong>を決める仕組み」</li>
+            <li><strong>From ヘッダ</strong>のドメインと、SPF / DKIM で検証したドメインの整合（アラインメント）を要求できる</li>
+            <li>2024 年以降、Gmail / Yahoo は <strong>大量送信者に DMARC 設定を必須化</strong>。自前ドメインから送る場合は要設定</li>
+        </ul>
+
+        <h3 id="term-credentials">🔐 Credentials（認証情報の保管）</h3>
+        <p>Node-RED は、メールパスワード等の機密情報を <strong>フロー本体とは別の <code>flows_cred.json</code> ファイル</strong> に分けて、AES 暗号化して保管します。</p>
+        <ul>
+            <li>フローを JSON でエクスポートしても <strong>パスワードは含まれない</strong>（共有しても漏れない）</li>
+            <li>暗号鍵は <code>settings.js</code> の <code>credentialSecret</code>。設定していないと自動生成され、<strong>移行・バックアップ時に復号できなくなる</strong></li>
+            <li>セッティングは <a href="nodered-settings-guide.html">settings.js 設定ガイド</a> 参照</li>
+        </ul>
+
+        <h3>📚 参考リンク</h3>
+        <ul>
+            <li><a href="https://datatracker.ietf.org/doc/html/rfc5321" target="_blank" rel="noopener">RFC 5321 — SMTP</a></li>
+            <li><a href="https://datatracker.ietf.org/doc/html/rfc7208" target="_blank" rel="noopener">RFC 7208 — Sender Policy Framework (SPF)</a></li>
+            <li><a href="https://datatracker.ietf.org/doc/html/rfc6376" target="_blank" rel="noopener">RFC 6376 — DomainKeys Identified Mail (DKIM)</a></li>
+            <li><a href="https://datatracker.ietf.org/doc/html/rfc7489" target="_blank" rel="noopener">RFC 7489 — DMARC</a></li>
+            <li><a href="https://oauth.net/2/" target="_blank" rel="noopener">OAuth 2.0 公式</a></li>
+            <li><a href="nodered-network-basics-guide.html#glossary">通信の基礎ガイド 用語集</a>（SMTP / IMAP / POP3 / TLS / STARTTLS）</li>
         </ul>
 
         <a href="index.html" style="position: fixed; bottom: 20px; right: 20px; background-color: #b92d5d; color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); z-index: 1000;" title="ホームに戻る">🏠</a>
