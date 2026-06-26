@@ -78,6 +78,7 @@
                 <li><a href="#section6">6. まとめ</a></li>
                 <li><a href="#section7">7. トラブルシューティング</a></li>
                 <li><a href="#section8">8. 実務活用例</a></li>
+                <li><a href="#section9">9. 用語集（ハンドシェイク・フレーム・Ping/Pong・ステートフル・再接続）</a></li>
             </ul>
         </div>
         
@@ -145,7 +146,7 @@
             <tr><th>プロパティ</th><th>説明</th><th>例</th></tr>
             <tr><td><strong>種類</strong></td><td>Listen at（サーバー）</td><td>-</td></tr>
             <tr><td><strong>パス</strong></td><td>WebSocketエンドポイント</td><td>/ws/chat</td></tr>
-            <tr><td><strong>送受信</strong></td><td>データ形式</td><td>entire message / payload</td></tr>
+            <tr><td><strong>送受信</strong></td><td>データ形式（→ <a href="#term-message-format">用語集</a>）</td><td>entire message / payload</td></tr>
         </table>
         
         <div class="code-block">// クライアントからの接続URL
@@ -157,14 +158,14 @@ ws://localhost:1880/ws/chat</div>
             <tr><th>プロパティ</th><th>説明</th><th>例</th></tr>
             <tr><td><strong>種類</strong></td><td>Connect to（クライアント）</td><td>-</td></tr>
             <tr><td><strong>URL</strong></td><td>接続先WebSocketサーバー</td><td>ws://example.com/socket</td></tr>
-            <tr><td><strong>ハートビート送信</strong></td><td>キープアライブ送信</td><td>25秒ごと</td></tr>
+            <tr><td><strong>ハートビート送信</strong></td><td>キープアライブ送信（<a href="#term-ping-pong">Ping/Pong フレーム</a>を一定間隔で送信）</td><td>25秒ごと</td></tr>
         </table>
         
         <h3>Send/Receive オプション</h3>
         <table>
             <tr><th>オプション</th><th>説明</th><th>用途</th></tr>
-            <tr><td><strong>entire message</strong></td><td>msg全体をJSON化して送受信</td><td>Node-RED間通信</td></tr>
-            <tr><td><strong>payload only</strong></td><td>msg.payloadのみ送受信</td><td>一般的なWebSocket通信</td></tr>
+            <tr><td><strong><a href="#term-message-format">entire message</a></strong></td><td>msg全体をJSON化して送受信</td><td>Node-RED間通信</td></tr>
+            <tr><td><strong><a href="#term-message-format">payload only</a></strong></td><td>msg.payloadのみ送受信</td><td>一般的なWebSocket通信</td></tr>
         </table>
         
         <h2 id="section3">⚙️ 3. WebSocket In / Out ノード</h2>
@@ -763,8 +764,8 @@ return msg;</div>
         <div class="warning">
             <p><strong>⚠️ 注意事項:</strong></p>
             <ul>
-                <li>WebSocket接続は<strong>ステートフル</strong>（状態を持つ）なので、サーバー再起動時に切断される</li>
-                <li>クライアント側で<strong>再接続処理</strong>を実装することを推奨</li>
+                <li>WebSocket接続は<strong><a href="#term-stateful">ステートフル</a></strong>（状態を持つ）なので、サーバー再起動時に切断される</li>
+                <li>クライアント側で<strong><a href="#term-reconnect">再接続処理</a></strong>を実装することを推奨</li>
                 <li>大量のクライアント接続時は<strong>メモリ使用量</strong>に注意</li>
                 <li>外部公開時は<strong>WSS（WebSocket Secure）</strong>を使用</li>
             </ul>
@@ -814,7 +815,91 @@ return msg;</div>
         
         <h3>ケース4: 複数デバイス間の同期</h3>
         <p>複数のRaspberry Pi間でデータを同期（分散センサーネットワーク）</p>
-        
+
+        <h2 id="section9">📘 9. 用語集（WebSocket 固有の用語）</h2>
+        <p>WebSocket の仕様（<a href="https://datatracker.ietf.org/doc/html/rfc6455" target="_blank" rel="noopener">RFC 6455</a>）特有の用語をまとめました。クライアント／サーバー、プロトコル、ポートなど通信全般の用語は <a href="nodered-network-basics-guide.html#glossary">通信の基礎ガイドの用語集</a> を参照してください。</p>
+
+        <h3 id="term-handshake">🤝 オープニングハンドシェイク（HTTP Upgrade）</h3>
+        <p>WebSocket 接続は <strong>最初の 1 回だけ HTTP リクエスト</strong> として始まり、サーバーが受け入れると<strong>その同じ TCP 接続を WebSocket プロトコルに切り替える</strong>仕組みです。</p>
+        <ul>
+            <li>クライアント: <code>GET /path HTTP/1.1</code> に <code>Upgrade: websocket</code> ヘッダを付けて送信</li>
+            <li>サーバー: 受け入れる場合 <strong><code>HTTP/1.1 101 Switching Protocols</code></strong> を返す</li>
+            <li>以後は同じソケット上で <strong>双方向のフレーム送受信</strong> が始まる</li>
+            <li>HTTP ポート（80 / 443）で動くため、<strong>HTTP プロキシや CDN を経由できる</strong>のが大きな利点</li>
+        </ul>
+        <div class="tip">
+            💡 通信基礎ガイドの <a href="nodered-network-basics-guide.html#glossary">ハンドシェイク</a> は TCP の 3 ウェイハンドシェイクが主ですが、WebSocket のオープニングハンドシェイクは <strong>その上に乗る HTTP レベルの追加の握手</strong> です。
+        </div>
+
+        <h3 id="term-stateful">🔄 ステートフル(stateful)接続</h3>
+        <p>WebSocket は <strong>「いったん繋いだら接続を保ち続ける」</strong> 通信です。これに対し HTTP は <strong>「1 リクエスト 1 レスポンスで毎回切断」</strong> するステートレス（stateless）通信です。</p>
+        <table>
+            <tr><th></th><th>HTTP（ステートレス）</th><th>WebSocket（ステートフル）</th></tr>
+            <tr><td><strong>接続</strong></td><td>リクエストごとに張り直す</td><td>1 回張ったら保持し続ける</td></tr>
+            <tr><td><strong>サーバーからの送信</strong></td><td>不可（クライアントが聞きに来るのを待つ）</td><td><strong>いつでも push できる</strong></td></tr>
+            <tr><td><strong>サーバー再起動の影響</strong></td><td>次のリクエストで自動復帰</td><td><strong>全クライアントが切断される</strong></td></tr>
+            <tr><td><strong>状態の保持</strong></td><td>セッション情報の管理が別途必要</td><td>接続が状態そのもの（<code>msg._session</code> でクライアント識別可能）</td></tr>
+        </table>
+
+        <h3 id="term-frame">📦 フレーム（Text / Binary）</h3>
+        <p>WebSocket は <strong>「メッセージ単位」で送受信</strong> します。データはバイト列に区切られた <strong>フレーム</strong> として運ばれ、用途に応じて 2 種類があります。</p>
+        <ul>
+            <li><strong>テキストフレーム</strong>: UTF-8 エンコードの文字列。JSON 文字列のやり取りで最も使われる</li>
+            <li><strong>バイナリフレーム</strong>: 任意のバイト列。画像・音声・カスタムプロトコルなど</li>
+        </ul>
+        <p>大きなメッセージは複数のフレームに <strong>分割（fragmentation）</strong> されて送られることもありますが、受信側ではアプリには 1 つのメッセージとして見えます。</p>
+
+        <h3 id="term-ping-pong">💓 Ping / Pong フレーム（キープアライブ）</h3>
+        <p>長時間データのやり取りがない場合、ネットワーク機器（プロキシ・NAT・ルーター）が <strong>「もう使われていない」と判断して接続を切る</strong> ことがあります。これを防ぐのが Ping / Pong フレーム。</p>
+        <ul>
+            <li><strong>Ping</strong>（制御フレーム）: 一方が「生きてる？」と問いかける</li>
+            <li><strong>Pong</strong>（制御フレーム）: 受け取った側は<strong>すぐに同じペイロードを Pong として返す（仕様で必須）</strong></li>
+            <li><strong>用途</strong>: キープアライブ／死活確認／遅延（レイテンシ）測定</li>
+        </ul>
+        <div class="tip">
+            💡 Node-RED の WebSocket 設定にある <strong>「ハートビート送信」</strong>（既定 25 秒）が、この Ping を一定間隔で自動送信する機能です。クラウド経由や Cloudflare 経由などで切断が起きやすい環境では、<strong>間隔を短く</strong>することで安定性が増します。
+        </div>
+
+        <h3 id="term-close-frame">👋 クローズフレームとクローズコード</h3>
+        <p>接続を終了するときは、どちらかが <strong>クローズフレーム</strong> を送り、理由を <strong>クローズコード（4 桁）</strong>で示します。</p>
+        <table>
+            <tr><th>コード</th><th>意味</th></tr>
+            <tr><td><code>1000</code></td><td>正常終了（Normal Closure）</td></tr>
+            <tr><td><code>1001</code></td><td>サーバー停止・ブラウザ閉じた等（Going Away）</td></tr>
+            <tr><td><code>1006</code></td><td>異常切断（クローズフレームなしの切断）</td></tr>
+            <tr><td><code>1008</code></td><td>ポリシー違反</td></tr>
+            <tr><td><code>1011</code></td><td>サーバー内部エラー</td></tr>
+        </table>
+        <p>Node-RED の WebSocket では、切断時の close コードは <code>msg._session</code> 内などで参照できる場合があります（実装による）。</p>
+
+        <h3 id="term-reconnect">🔁 再接続戦略（reconnection）</h3>
+        <p>WebSocket 仕様（RFC 6455）には <strong>再接続のルールは含まれていません</strong>。「切れたら繋ぎ直す」のは <strong>アプリ側で実装する責務</strong> です。</p>
+        <ul>
+            <li>Node-RED の WebSocket Out（client モード）は<strong>切断時に自動で再接続</strong>を試みる実装になっている</li>
+            <li>ブラウザ側 JavaScript で書く場合は、<code>onclose</code> ハンドラ内で <code>setTimeout</code> で再接続するのが定石</li>
+            <li><strong>無限ループ・即時再接続は避ける</strong> ─ <strong>指数バックオフ</strong>（1秒→2秒→4秒→…最大30秒）にして、サーバー過負荷時の雪崩を防ぐ</li>
+            <li>「サーバー再起動時に全クライアントが切断され、一斉再接続でサーバーが落ちる」のは<strong>典型的なハマりどころ</strong></li>
+        </ul>
+
+        <h3 id="term-message-format">📝 entire message / payload only（Node-RED 固有の選択肢）</h3>
+        <p>Node-RED の WebSocket 設定ノードでは、<strong>送受信するデータの形</strong>を 2 つから選びます。</p>
+        <table>
+            <tr><th>選択肢</th><th>送受信される内容</th><th>用途</th></tr>
+            <tr><td><strong>payload only</strong></td><td><code>msg.payload</code> のみ</td><td>通常の WebSocket 通信（ブラウザの <code>new WebSocket()</code> と素直に互換）</td></tr>
+            <tr><td><strong>entire message</strong></td><td><code>msg</code> オブジェクト全体を JSON 化</td><td><strong>Node-RED 同士の通信</strong>（topic 等の付加情報も丸ごと運びたい）</td></tr>
+        </table>
+        <div class="warning">
+            <strong>⚠️ Node-RED 独自の挙動</strong>: <code>entire message</code> は <strong>WebSocket 標準ではなく Node-RED の便利機能</strong>です。ブラウザ等の外部クライアントから <strong>JSON 文字列として届く</strong> ため、受け取り側で <code>JSON.parse()</code> が必要になります。
+        </div>
+
+        <h3>📚 参考リンク</h3>
+        <ul>
+            <li><a href="https://datatracker.ietf.org/doc/html/rfc6455" target="_blank" rel="noopener">RFC 6455 — The WebSocket Protocol</a></li>
+            <li><a href="https://developer.mozilla.org/ja/docs/Web/API/WebSockets_API" target="_blank" rel="noopener">MDN — WebSockets API</a></li>
+            <li><a href="https://en.wikipedia.org/wiki/WebSocket" target="_blank" rel="noopener">WebSocket — Wikipedia</a></li>
+            <li><a href="nodered-network-basics-guide.html#glossary">通信の基礎ガイド 用語集</a>（ハンドシェイク・クライアント/サーバー・TLS など）</li>
+        </ul>
+
         <p style="margin-top: 40px;"><a href="https://nodered.org/docs/user-guide/nodes#websocket" target="_blank">📚 Node-RED 公式ドキュメント - WebSocket</a></p>
     </div>
     
