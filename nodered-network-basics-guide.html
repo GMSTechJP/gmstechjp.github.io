@@ -574,15 +574,24 @@
             <tr><td><strong>DNS</strong></td><td>名前 → IPアドレスを変換する電話帳の仕組み。</td></tr>
             <tr><td><strong>URL</strong></td><td>方式・住所・窓口・場所を1行にまとめた宛名（例: <code>https://example.com/path</code>）。</td></tr>
             <tr><td><strong>API</strong></td><td>機械が機械に向けて用意した「窓口」。多くはHTTPで提供される。</td></tr>
+            <tr><td><strong>エンドポイント</strong></td><td>API の「窓口」となる個別の URL のこと（例: <code>https://api.example.com/users</code> がユーザー一覧のエンドポイント）。1 つの API サービスが複数のエンドポイントを公開していることが多い。</td></tr>
+            <tr><td><strong>REST API</strong></td><td>HTTP の標準的な使い方（GET=取得 / POST=作成 / PUT=更新 / DELETE=削除）に従って設計された API のスタイル。Web サービスの大多数がこの形式。</td></tr>
+            <tr><td><strong>HTTP メソッド</strong></td><td>クライアントが「何をしたいか」を伝える動詞。<code>GET</code>（取得）/ <code>POST</code>（送信・新規作成）/ <code>PUT</code>（更新）/ <code>DELETE</code>（削除）/ <code>HEAD</code>（ヘッダー情報のみ）など。</td></tr>
+            <tr><td><strong>ステータスコード</strong></td><td>サーバーから返ってくる結果コード（3 桁の数字）。<strong>2xx</strong>=成功 / <strong>3xx</strong>=リダイレクト / <strong>4xx</strong>=クライアント側の間違い / <strong>5xx</strong>=サーバー側のエラー。代表例: <code>200</code>（OK）/ <code>404</code>（見つからない）/ <code>500</code>（内部エラー）。</td></tr>
+            <tr><td><strong>Webhook</strong></td><td>「何かが起きたら、あちらから自動的に通知が飛んでくる」しくみ。ポーリング（こちらから定期的に問い合わせる）の逆。例: GitHub に Push されると、登録した URL に GitHub から自動で HTTP POST が送られてくる。受け取り側は <code>http in</code> ノードで窓口を用意するだけ。</td></tr>
             <tr><td><strong>リクエスト / レスポンス</strong></td><td>要求 / それへの応答。HTTP通信の基本ペア。</td></tr>
             <tr><td><strong>ペイロード</strong></td><td>実際に運ばれる中身のデータ。Node-REDの <code>msg.payload</code> と同じ発想。</td></tr>
             <tr><td><strong>パケット</strong></td><td>データを小さく区切った1つの荷物。ネットワークはこの単位で運ぶ。</td></tr>
+            <tr><td><strong>データグラム</strong></td><td>UDP で送るデータの 1 単位（＝1 通の「はがき」）。TCP の「パケットの集まりを順番に組み直す」のと違い、データグラムは <strong>1 通単位で独立</strong> しており、再送・順序保証もない。</td></tr>
             <tr><td><strong>ソケット</strong></td><td>通信の出入口の総称。「IPアドレス＋ポート」で1つの接続口を表す。</td></tr>
+            <tr><td><strong>ハンドシェイク（handshake）</strong></td><td>通信を始める前に行う「あいさつ」の手順。TCP では <strong>3 ウェイハンドシェイク</strong>（SYN → SYN+ACK → ACK の 3 往復）で接続を確立する。WebSocket も最初に HTTP で握手してから常時接続に切り替わる。</td></tr>
             <tr><td><strong>ブローカー</strong></td><td>MQTTで送信者と受信者を仲介するサーバー。</td></tr>
             <tr><td><strong>トピック</strong></td><td>MQTTでデータを仕分ける宛先ラベル（例: <code>sensor/temperature</code>）。</td></tr>
             <tr><td><strong>Pub/Sub</strong></td><td>発行（Publish）と購読（Subscribe）で成り立つ配信方式。MQTTの方式。</td></tr>
-            <tr><td><strong>TLS / HTTPS</strong></td><td>通信を暗号化して盗み見を防ぐ仕組み。httpsの「s」はこれ。</td></tr>
-            <tr><td><strong>ポーリング</strong></td><td>こちらから定期的に「いまどう？」と問い合わせる方式。MODBUSが代表。</td></tr>
+            <tr><td><strong>TLS / SSL / HTTPS</strong></td><td>通信を暗号化して盗み見を防ぐ仕組み。<strong>SSL は古い呼称</strong>で、現代は <strong>TLS</strong> が正式名（実装上はほぼ同じものを指す）。https の「s」はこれ。</td></tr>
+            <tr><td><strong>STARTTLS</strong></td><td>「最初は暗号化なしで接続して、途中から TLS に切り替える」方式。メール送信（SMTP の 587 番ポート）でよく使われる。最初から TLS で繋ぐ「暗黙的 TLS（implicit TLS）」と区別される。</td></tr>
+            <tr><td><strong>SMTP / IMAP / POP3</strong></td><td>メール用のプロトコル 3 種類。<strong>SMTP</strong>＝送信用（Simple Mail Transfer Protocol）、<strong>IMAP</strong>＝受信用でサーバー上にメールを残す方式、<strong>POP3</strong>＝受信用でローカルにダウンロードする方式。</td></tr>
+            <tr><td><strong>ポーリング</strong></td><td>こちらから定期的に「いまどう？」と問い合わせる方式。MODBUS が代表（マスター機器がスレーブ機器のレジスタを順に読みに行く）。<strong>「あちらから通知が来る」Webhook と対照的</strong>な仕組み。</td></tr>
             <tr><td><strong>ブロードキャスト</strong></td><td>同じネットワーク内の全員へ一斉送信すること。UDPで使う。</td></tr>
         </table>
 
