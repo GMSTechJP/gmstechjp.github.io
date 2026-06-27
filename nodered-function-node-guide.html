@@ -366,29 +366,29 @@
 </head>
 <body>
     <div class="container">
-        <h1>⚡ Node-RED Functionノード ガイド</h1>
+        <h1>Node-RED Functionノード ガイド</h1>
         <div data-envbadge="1" style="margin:12px 0;"><span style="display:inline-block;padding:3px 12px;border-radius:12px;font-size:0.85em;font-weight:bold;background:#e3f2fd;color:#0d47a1;border:1px solid #90caf9;">☁️ クラウドOK</span> <a href="nodered-learning-environment-guide.html" style="font-size:0.82em;">環境とは？</a></div>
         
-        <p>このガイドでは、Node-REDの<strong>Functionノード</strong>について、初心者の方でも理解できるように詳しく説明します。</p>
+        <p><strong>Functionノード</strong>は、JavaScriptコードでメッセージを自由に加工できるNode-REDのノードです。初心者にも分かるように、設定項目から実用パターンまで順に解説します。</p>
 
         <div class="important" style="background-color: #e3f2fd; border-left-color: #1976d2;">
-            <p style="margin: 0 0 8px 0;"><strong>📚 あわせて読みたい姉妹ガイド</strong></p>
+            <p style="margin: 0 0 8px 0;"><strong>あわせて読みたい姉妹ガイド</strong></p>
             <ul style="margin: 0;">
-                <li><a href="nodered-function-node2-javascript-guide.html"><strong>JavaScript関数・メソッド 基礎ガイド</strong></a> ── Functionノードで使う JavaScript の書き方（配列・文字列・オブジェクト操作など）が不安な方はこちらから</li>
-                <li><a href="nodered-function-node3-ai-coding-tips.html"><strong>AIを活用したFunctionノード作成術 (Tips)</strong></a> ── ChatGPT/Claude/Gemini/Microsoft 365 Copilot等のAIにコードを書いてもらい、Inject + Debug で単体テストして改善するループの実践</li>
+                <li><a href="nodered-function-node2-javascript-guide.html"><strong>JavaScript関数・メソッド 基礎ガイド</strong></a>：Functionノードで使う JavaScript の書き方（配列や文字列、オブジェクトの操作など）が不安な方はこちらから</li>
+                <li><a href="nodered-function-node3-ai-coding-tips.html"><strong>AIを活用したFunctionノード作成術 (Tips)</strong></a>：ChatGPT/Claude/Gemini/Microsoft 365 Copilot等のAIにコードを書いてもらい、Inject + Debug で単体テストして改善するループの実践</li>
             </ul>
         </div>
 
-        <h2>📚 1. Functionノードとは?</h2>
-        
-        <h3>🤔 「Function」って何?</h3>
+        <h2>1. Functionノードとは?</h2>
+
+        <h3>「Function」って何?</h3>
         <p>
-            Functionノードは、<strong>JavaScriptコードを書いてメッセージを自由に加工できる</strong>ノードです。
-            日常生活で例えると、<strong>料理人</strong>のようなものです。
+            「Functionノード」の働きは、日常生活でいえば<strong>料理人</strong>に近いものです。
+            材料を受け取って調理し、できあがった料理を提供する、という流れがメッセージ処理とよく対応します。
         </p>
         
         <div class="important">
-            <p><strong>👨‍🍳 料理人に例えると:</strong></p>
+            <p><strong>料理人に例えると:</strong></p>
             <ul>
                 <li>🥕 <strong>材料を受け取る</strong> = 入力メッセージ(msg)</li>
                 <li>🔪 <strong>調理する(切る、煮る、焼く)</strong> = JavaScriptで加工</li>
@@ -397,7 +397,7 @@
             </ul>
         </div>
         
-        <h3>📦 基本的な動作</h3>
+        <h3>基本的な動作</h3>
         <div class="node-example">
             <span class="node node-inject">Inject</span>
             <span class="arrow">→</span>
@@ -408,12 +408,12 @@
         
         <p>
             Functionノードは、入力メッセージを受け取り、JavaScriptコードで処理して、結果を出力します。
-            <strong>他のノードでは実現できない複雑な処理</strong>を実装できます。
+            他のノードでは実現しにくい複雑な処理も、ここで実装できます。
         </p>
         
-        <h2>⚙️ 2. Functionノードの設定</h2>
-        
-        <h3>🔧 設定タブの構成</h3>
+        <h2>2. Functionノードの設定</h2>
+
+        <h3>設定タブの構成</h3>
         
         <div class="tab-container">
             <div class="tab-buttons">
@@ -450,7 +450,7 @@
             </div>
         </div>
         
-        <h3>📋 基本設定項目</h3>
+        <h3>基本設定項目</h3>
 
         <table>
             <tr>
@@ -495,12 +495,12 @@
             </tr>
         </table>
         
-        <h3>🎯 利用可能な組み込みオブジェクト</h3>
+        <h3>利用可能な組み込みオブジェクト</h3>
         
         <div class="feature-grid">
             <div class="feature-card">
                 <h4><span class="mode-badge badge-basic">msg</span> メッセージオブジェクト</h4>
-                <p>入力メッセージを参照・変更</p>
+                <p>入力メッセージを参照や変更</p>
                 <div class="code-block">msg.payload  // データ本体
 msg.topic    // トピック名
 msg._msgid   // メッセージID</div>
@@ -529,7 +529,7 @@ global.set('key', value)</div>
             
             <div class="feature-card">
                 <h4><span class="mode-badge badge-async">node</span> ノードオブジェクト</h4>
-                <p>ノード制御・ログ出力</p>
+                <p>ノードの制御とログ出力</p>
                 <div class="code-block">node.send(msg)
 node.log("情報")
 node.warn("警告")
@@ -544,10 +544,10 @@ node.status({...})</div>
             </div>
         </div>
         
-        <h2>🎯 3. 実用的な使用パターン</h2>
+        <h2>3. 実用的な使用パターン</h2>
         
         <div class="important">
-            <p><strong>📥 サンプルフローのインポート方法:</strong></p>
+            <p><strong>サンプルフローのインポート方法:</strong></p>
             <ol>
                 <li>下のサンプルフローJSONをコピー</li>
                 <li>Node-REDエディタで <strong>メニュー → 読み込み</strong> を選択</li>
@@ -1456,7 +1456,7 @@ node.status({...})</div>
         </div>
         
         <div class="tip">
-            <p><strong>📌 動作の流れ:</strong></p>
+            <p><strong>動作の流れ:</strong></p>
             <ol>
                 <li>Injectノードからメッセージを受信</li>
                 <li>Functionノードで <code>msg.payload</code> を加工</li>
@@ -1486,7 +1486,7 @@ return msg;</div>
         </div>
         
         <div class="tip">
-            <p><strong>📌 戻り値の形式:</strong></p>
+            <p><strong>戻り値の形式:</strong></p>
             <ul>
                 <li><code>[msg, null]</code> → 出力1のみに送信</li>
                 <li><code>[null, msg]</code> → 出力2のみに送信</li>
@@ -1515,7 +1515,7 @@ if (msg.payload >= 50) {
         </div>
         
         <div class="tip">
-            <p><strong>📌 戻り値の形式:</strong></p>
+            <p><strong>戻り値の形式:</strong></p>
             <ul>
                 <li><code>[[msg1, msg2, msg3]]</code> → 出力1に3つのメッセージを順次送信</li>
                 <li><code>[[msg1, msg2], [msg3]]</code> → 出力1に2つ、出力2に1つ</li>
@@ -1543,7 +1543,7 @@ return [[msg1, msg2, msg3]];</div>
         </div>
         
         <div class="tip">
-            <p><strong>📌 動作の流れ:</strong></p>
+            <p><strong>動作の流れ:</strong></p>
             <ol>
                 <li>メッセージを受信</li>
                 <li><code>setTimeout()</code> で遅延実行を設定</li>
@@ -1573,7 +1573,7 @@ setTimeout(function() {
         </div>
         
         <div class="tip">
-            <p><strong>📌 コンテキストの種類:</strong></p>
+            <p><strong>コンテキストの種類:</strong></p>
             <ul>
                 <li><code>context</code> → このノード内のみ</li>
                 <li><code>flow</code> → 同じフロー(タブ)内で共有</li>
@@ -1606,7 +1606,7 @@ return msg;</div>
         </div>
         
         <div class="tip">
-            <p><strong>📌 node.status() のオプション:</strong></p>
+            <p><strong>node.status() のオプション:</strong></p>
             <ul>
                 <li><code>fill</code>: "red", "green", "yellow", "blue", "grey"</li>
                 <li><code>shape</code>: "ring"(輪), "dot"(点)</li>
@@ -1647,7 +1647,7 @@ if (msg.payload === "connected") {
         </div>
         
         <div class="tip">
-            <p><strong>📌 エラー報告の種類:</strong></p>
+            <p><strong>エラー報告の種類:</strong></p>
             <ul>
                 <li><code>node.error("message")</code> → ログにエラー出力のみ</li>
                 <li><code>node.error("message", msg)</code> → Catchノードでキャッチ可能</li>
@@ -1668,7 +1668,7 @@ msg.payload = msg.payload * 2;
 return msg;</div>
         
         <div class="tip">
-            <h3>💡 ヒント: ログ出力関数の使い分け</h3>
+            <h3>ヒント: ログ出力関数の使い分け</h3>
             <table>
                 <tr>
                     <th>関数</th>
@@ -1703,26 +1703,26 @@ return msg;</div>
             </table>
         </div>
         
-        <h2>🏋️ 4. 実践演習</h2>
+        <h2>4. 実践演習</h2>
         
         <div class="exercise">
             <h3>演習1: 基本的なメッセージ加工<span class="difficulty difficulty-easy">初級</span></h3>
             
-            <p><strong>📝 課題:</strong></p>
+            <p><strong>課題:</strong></p>
             <p>名前を入力すると「Hello, [名前]!」と挨拶メッセージを生成するフローを作成してください。</p>
             
-            <p><strong>🎯 要求仕様:</strong></p>
+            <p><strong>要求仕様:</strong></p>
             <ul>
                 <li>Inject、Function、Debugノードを使用</li>
                 <li>入力: "World" → 出力: "Hello, World!"</li>
             </ul>
             
-            <p><strong>📊 期待される動作:</strong></p>
+            <p><strong>期待される動作:</strong></p>
             <ul>
                 <li>Injectボタンをクリック → Debugに "Hello, World!" が表示</li>
             </ul>
 
-            <p><strong>✅ 成功の条件:</strong></p>
+            <p><strong>成功の条件:</strong></p>
             <ul>
                 <li>Injectボタンを押した直後、デバッグパネルに文字列 <code>"Hello, World!"</code> が表示される</li>
                 <li>入力を <code>"Alice"</code> に変更するとデバッグパネルに <code>"Hello, Alice!"</code> が表示される</li>
@@ -1818,24 +1818,24 @@ return msg;</div>
         <div class="exercise">
             <h3>演習2: カウンター機能<span class="difficulty difficulty-medium">中級</span></h3>
             
-            <p><strong>📝 課題:</strong></p>
+            <p><strong>課題:</strong></p>
             <p>ボタンを押すたびにカウントが1ずつ増加するカウンターを作成してください。</p>
             
-            <p><strong>🎯 要求仕様:</strong></p>
+            <p><strong>要求仕様:</strong></p>
             <ul>
                 <li>Inject、Function、Debugノードを使用</li>
                 <li>contextを使用してカウントを保持</li>
                 <li>ボタンを押すたびに1, 2, 3...と増加</li>
             </ul>
             
-            <p><strong>📊 期待される動作:</strong></p>
+            <p><strong>期待される動作:</strong></p>
             <ul>
                 <li>1回目クリック → 1</li>
                 <li>2回目クリック → 2</li>
                 <li>3回目クリック → 3</li>
             </ul>
 
-            <p><strong>✅ 成功の条件:</strong></p>
+            <p><strong>成功の条件:</strong></p>
             <ul>
                 <li>Injectボタンを押すたびに、デバッグパネルの数値が1ずつ増加する</li>
                 <li>フローをデプロイし直してもカウントが維持される（Node-REDを再起動するとリセットされるのは正常）</li>
@@ -1932,10 +1932,10 @@ return msg;</div>
         <div class="exercise">
             <h3>演習3: 条件分岐とステータス表示<span class="difficulty difficulty-medium">中級</span></h3>
             
-            <p><strong>📝 課題:</strong></p>
+            <p><strong>課題:</strong></p>
             <p>温度データを受け取り、30度以上なら「高温」、10度以下なら「低温」、それ以外は「適温」と判定し、ノードにステータスを表示してください。</p>
             
-            <p><strong>🎯 要求仕様:</strong></p>
+            <p><strong>要求仕様:</strong></p>
             <ul>
                 <li>Injectノードで数値を入力(10, 25, 35など)</li>
                 <li>Functionノードで温度を判定</li>
@@ -1943,14 +1943,14 @@ return msg;</div>
                 <li>30度以上: 赤色、10度以下: 青色、それ以外: 緑色</li>
             </ul>
             
-            <p><strong>📊 期待される動作:</strong></p>
+            <p><strong>期待される動作:</strong></p>
             <ul>
                 <li>35を入力 → ステータスに赤で「高温: 35℃」</li>
                 <li>5を入力 → ステータスに青で「低温: 5℃」</li>
                 <li>25を入力 → ステータスに緑で「適温: 25℃」</li>
             </ul>
 
-            <p><strong>✅ 成功の条件:</strong></p>
+            <p><strong>成功の条件:</strong></p>
             <ul>
                 <li>35を入力したとき、Functionノードの下部に赤色のステータスドットと「高温: 35℃」というテキストが表示される</li>
                 <li>デバッグパネルに <code>"高温"</code>、<code>"低温"</code>、<code>"適温"</code> のいずれかが表示される</li>
@@ -2097,10 +2097,10 @@ return msg;</div>
         <div class="exercise">
             <h3>演習4: 非同期処理とエラーハンドリング<span class="difficulty difficulty-hard">上級</span></h3>
             
-            <p><strong>📝 課題:</strong></p>
+            <p><strong>課題:</strong></p>
             <p>センサーデータを受け取り、2秒後にデータを処理して送信するシステムを作成してください。ただし、データが不正な場合はエラーを発生させ、Catchノードで捕捉してください。</p>
             
-            <p><strong>🎯 要求仕様:</strong></p>
+            <p><strong>要求仕様:</strong></p>
             <ul>
                 <li>Inject、Function、Debug、Catchノードを使用</li>
                 <li>数値データは2秒後に2倍にして出力</li>
@@ -2108,13 +2108,13 @@ return msg;</div>
                 <li>Catchノードでエラーを捕捉してDebugに出力</li>
             </ul>
             
-            <p><strong>📊 期待される動作:</strong></p>
+            <p><strong>期待される動作:</strong></p>
             <ul>
                 <li>50を入力 → 2秒後に100が出力</li>
                 <li>"text"を入力 → Catchノードでエラー捕捉</li>
             </ul>
 
-            <p><strong>✅ 成功の条件:</strong></p>
+            <p><strong>成功の条件:</strong></p>
             <ul>
                 <li>数値 <code>50</code> を入力したとき、約2秒後にデバッグパネルに <code>100</code> が表示される（即座には表示されない）</li>
                 <li>文字列 <code>"error"</code> を入力したとき、即座にCatchノードがエラーを受け取り、エラーメッセージがデバッグパネルに表示される</li>
@@ -2266,7 +2266,7 @@ return msg;</div>
             </details>
         </div>
         
-        <h2>🎓 5. まとめ</h2>
+        <h2>5. まとめ</h2>
         
         <div class="important">
             <h3>Functionノードの重要ポイント</h3>
@@ -2281,7 +2281,7 @@ return msg;</div>
         </div>
         
         <div class="warning">
-            <h3>⚠️ よくある間違い</h3>
+            <h3>よくある間違い</h3>
             <ul>
                 <li><strong>return忘れ</strong>: returnしないとメッセージが送信されない</li>
                 <li><strong>非同期でreturn</strong>: setTimeout内ではnode.send()を使う</li>
@@ -2291,7 +2291,7 @@ return msg;</div>
         </div>
         
         <div class="tip">
-            <h3>📚 次のステップ</h3>
+            <h3>次のステップ</h3>
             <p>Functionノードをマスターしたら、以下のノードも学んでみましょう:</p>
             <ul>
                 <li><strong>Changeノード</strong>: コードなしでプロパティを変更</li>
@@ -2301,7 +2301,7 @@ return msg;</div>
             </ul>
         </div>
         
-        <h2>🔧 6. トラブルシューティング</h2>
+        <h2>6. トラブルシューティング</h2>
         
         <h3>よくある問題と解決方法</h3>
         
@@ -2343,7 +2343,7 @@ return msg;</div>
             </tr>
         </table>
         
-        <h2>💡 7. 実務での活用例</h2>
+        <h2>7. 実務での活用例</h2>
         
         <h3>ケース1: センサーデータの変換</h3>
         <div class="js-code" data-copy="true">// 温度センサーの生データを摂氏に変換
@@ -2418,18 +2418,18 @@ context.set('lastValue', msg.payload);
 
 return msg;</div>
         
-        <h2>📗 8. 追加リソース</h2>
+        <h2>8. 追加リソース</h2>
 
-        <h3>🔗 サイト内の関連ガイド</h3>
+        <h3>サイト内の関連ガイド</h3>
         <ul>
-            <li><a href="nodered-function-node2-javascript-guide.html"><strong>JavaScript関数・メソッド 基礎ガイド</strong></a> ── Functionノードで使うJavaScriptの書き方を体系的に学べます（変数定義、配列・文字列・オブジェクト操作、便利な構文など）</li>
-            <li><a href="nodered-function-node3-ai-coding-tips.html"><strong>AIを活用したFunctionノード作成術 (Tips)</strong></a> ── AIに依頼するときの3点セット（やりたいこと・入力サンプル・期待する出力）、Inject + Debug を使った単体テスト、AI差し戻しループ、落とし穴チェックリスト</li>
-            <li><a href="nodered-variable-types-guide.html">変数ガイド Part 1：msgオブジェクト</a> ── Functionノードに入る msg の構造とデータ型を理解</li>
-            <li><a href="nodered-variable-types-2-guide.html">変数ガイド Part 2：context系変数</a> ── context / flow / global の正しい使い分け</li>
-            <li><a href="nodered-javascript-operators-guide.html">演算子ガイド</a> ── 算術演算子・比較演算子・論理演算子の使い方</li>
+            <li><a href="nodered-function-node2-javascript-guide.html"><strong>JavaScript関数・メソッド 基礎ガイド</strong></a>：Functionノードで使うJavaScriptの書き方を体系的に学べます（変数定義、配列や文字列、オブジェクトの操作、便利な構文など）</li>
+            <li><a href="nodered-function-node3-ai-coding-tips.html"><strong>AIを活用したFunctionノード作成術 (Tips)</strong></a>：AIに依頼するときの3点セット（やりたいこと、入力サンプル、期待する出力）、Inject + Debug を使った単体テスト、AI差し戻しループ、落とし穴チェックリスト</li>
+            <li><a href="nodered-variable-types-guide.html">変数ガイド Part 1：msgオブジェクト</a>：Functionノードに入る msg の構造とデータ型を理解</li>
+            <li><a href="nodered-variable-types-2-guide.html">変数ガイド Part 2：context系変数</a>：context / flow / global の正しい使い分け</li>
+            <li><a href="nodered-javascript-operators-guide.html">演算子ガイド</a>：算術演算子や比較演算子、論理演算子の使い方</li>
         </ul>
 
-        <h3>🌐 公式ドキュメント・外部資料</h3>
+        <h3>公式ドキュメントや外部資料</h3>
         <ul>
             <li><a href="https://nodered.org/docs/user-guide/writing-functions" target="_blank">Node-RED公式ドキュメント: Functionノード</a></li>
             <li><a href="https://nodered.org/docs/user-guide/context" target="_blank">Node-RED公式ドキュメント: コンテキスト</a></li>
