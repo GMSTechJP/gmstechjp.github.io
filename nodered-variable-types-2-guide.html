@@ -449,13 +449,13 @@
 </head>
 <body>
     <div class="container">
-        <h1>📚 Node-RED 変数タイプガイド Part 2<br><span style="font-size: 0.6em; color: #666;">context系変数（記憶するデータ）</span></h1>
+        <h1>Node-RED 変数タイプガイド Part 2<br><span style="font-size: 0.6em; color: #666;">context系変数（記憶するデータ）</span></h1>
         <div data-envbadge="1" style="margin:12px 0;"><span style="display:inline-block;padding:3px 12px;border-radius:12px;font-size:0.85em;font-weight:bold;background:#e3f2fd;color:#0d47a1;border:1px solid #90caf9;">☁️ クラウドOK</span> <a href="nodered-learning-environment-guide.html" style="font-size:0.82em;">環境とは？</a></div>
 
-        <p>このページは <a href="nodered-variable-types-guide.html">Part 1（msg編）</a> の続編です。msgオブジェクトがノード間を流れる「一時的なデータ」だったのに対して、ここで扱う <strong>context系変数</strong> は、<strong>フローが終わっても値を保持し続ける「記憶するデータ」</strong>を扱います。</p>
+        <p>このページは <a href="nodered-variable-types-guide.html">Part 1（msg編）</a> の続編です。msgオブジェクトがノード間を流れる「一時的なデータ」だったのに対して、ここで扱う <strong>context系変数</strong> は、フローが終わっても値を保持し続ける「記憶するデータ」を扱います。</p>
 
-        <h2>🗺️ Node-REDの3種類の変数（マップ再掲）</h2>
-        <p>Node-REDで使う変数は大きく3種類に分けられます。このページでは <strong>②context系変数</strong> を詳しく扱います。</p>
+        <h2>Node-REDの3種類の変数（マップ再掲）</h2>
+        <p>Node-REDで使う変数は大きく3種類に分けられます。このページでは ②context系変数 を詳しく扱います。</p>
 
         <div class="three-types-map">
             <div class="type-map-card msg">
@@ -481,34 +481,34 @@
             </div>
         </div>
 
-        <h2>📖 1. なぜcontext系変数が必要か？</h2>
-        <p>msgオブジェクトは「ノードからノードへ流れる荷物」のようなもので、<strong>1本のフローの中でしか値を共有できません</strong>。しかし実際にアプリを作ると、msgだけでは解決できない場面に必ずぶつかります。</p>
+        <h2>1. なぜcontext系変数が必要か？</h2>
+        <p>msgオブジェクトは「ノードからノードへ流れる荷物」のようなもので、<strong>1本のフローの中でしか値を共有できません</strong>。しかし実際にアプリを作ると、msgだけでは解決できない場面に出会います。</p>
 
-        <h3>🤔 msgだけでは困る3つの典型例</h3>
+        <h3>msgだけでは困る3つの典型例</h3>
 
         <div class="feature-grid">
             <div class="feature-card">
-                <h4>🔢 場面A: 前回の値と比べたい</h4>
+                <h4>場面A: 前回の値と比べたい</h4>
                 <p>温度センサーが値を送ってきたとき、「前回より上昇したか下降したか」を判定したい。でも msg には<strong>今回の値しか入っていない</strong>。前回値をどこかに覚えておく必要がある。</p>
             </div>
 
             <div class="feature-card">
-                <h4>🔀 場面B: 複数の入力経路を合わせたい</h4>
-                <p>センサーAとセンサーBが<strong>バラバラのタイミング</strong>で別々のInjectから値を送ってくる。両方の最新値を使って合計や平均を計算したいが、msg.payload だけでは片方しか伝わらない。</p>
+                <h4>場面B: 複数の入力経路を合わせたい</h4>
+                <p>センサーAとセンサーBがバラバラのタイミングで別々のInjectから値を送ってくる。両方の最新値を使って合計や平均を計算したいが、msg.payload だけでは片方しか伝わらない。</p>
             </div>
 
             <div class="feature-card">
-                <h4>🌍 場面C: 全タブで同じ設定を使いたい</h4>
-                <p>APIキー、警告閾値、デバイス名などの<strong>設定値を複数のタブから参照</strong>したい。各フローに同じ値を書くとメンテナンスが大変。</p>
+                <h4>場面C: 全タブで同じ設定を使いたい</h4>
+                <p>APIキー、警告閾値、デバイス名などの設定値を複数のタブから参照したい。各フローに同じ値を書くとメンテナンスが大変。</p>
             </div>
         </div>
 
         <div class="tip">
-            <strong>💡 context系変数の役割：</strong>
+            <strong>context系変数の役割：</strong>
             <p>これら3つの場面で必要になるのが「フローを超えて値を覚えておく仕組み」です。それが <strong>context / flow / global</strong> の3つのスコープを持つ context系変数です。「どこまでの範囲で共有したいか」によって、使い分けます。</p>
         </div>
 
-        <h2>🌐 2. context / flow / global の3つのスコープ</h2>
+        <h2>2. context / flow / global の3つのスコープ</h2>
         <p>context系変数は、<strong>宣言の仕方（APIの呼び分け）</strong>によってスコープ（共有範囲）が変わります。どの範囲まで値を共有したいかによって使い分けましょう。</p>
 
         <div class="scope-container">
@@ -520,7 +520,7 @@
                 <div class="dark-code">context.set('lastValue', 25);
 let val = context.get('lastValue');</div>
                 <div class="example-box">
-                    <strong>📝 例：</strong><br>
+                    <strong>例：</strong><br>
                     特定のFunctionノード内でのみ使用する前回値や状態を保存
                 </div>
             </div>
@@ -533,7 +533,7 @@ let val = context.get('lastValue');</div>
                 <div class="dark-code">flow.set('counter', 0);
 let count = flow.get('counter');</div>
                 <div class="example-box">
-                    <strong>📝 例：</strong><br>
+                    <strong>例：</strong><br>
                     同じフロー内の複数ノードで共有するカウンター値や設定値
                 </div>
             </div>
@@ -546,33 +546,33 @@ let count = flow.get('counter');</div>
                 <div class="dark-code">global.set('apiKey', 'xxx');
 let key = global.get('apiKey');</div>
                 <div class="example-box">
-                    <strong>📝 例：</strong><br>
+                    <strong>例：</strong><br>
                     全フローで共有するAPIキーやユーザー設定
                 </div>
             </div>
         </div>
 
         <div class="tip">
-            <strong>💡 使い分けの3原則：</strong>
+            <strong>使い分けの3原則：</strong>
             <ul>
                 <li><strong>context</strong>: そのノードだけで覚えておきたいデータ（前回値、内部状態）</li>
                 <li><strong>flow</strong>: 同じタブ内の複数ノードで共有したいデータ（カウンター、中継値）</li>
-                <li><strong>global</strong>: すべてのタブで共有したいデータ（設定値、APIキー）— 使いすぎ注意</li>
+                <li><strong>global</strong>: すべてのタブで共有したいデータ（設定値、APIキー）。使いすぎに注意</li>
             </ul>
         </div>
 
         <div class="warning">
-            <strong>⚠️ 共通の注意点：</strong>
+            <strong>共通の注意点：</strong>
             <ul>
                 <li>いずれも値はメモリ上にのみ保持される。<strong>Node-REDを再起動すると消える</strong>（永続化するには設定が別途必要）</li>
                 <li>global を乱用すると「どこから変更されているか」が追いにくくなる。本当に必要な時だけ使う</li>
             </ul>
         </div>
 
-        <h2>🔧 3. context系変数の使い方</h2>
-        <p>context系変数は、<strong>ChangeノードのGUI操作</strong>と <strong>Functionノード内のJavaScript</strong> のどちらでも読み書きできます。目的と好みに応じて使い分けましょう。</p>
+        <h2>3. context系変数の使い方</h2>
+        <p>context系変数は、ChangeノードのGUI操作と Functionノード内のJavaScript のどちらでも読み書きできます。目的と好みに応じて使い分けましょう。</p>
 
-        <h3>🎨 Changeノードで読み書きする（JavaScript不要）</h3>
+        <h3>Changeノードで読み書きする（JavaScript不要）</h3>
         <p>Changeノードの「値の代入」ルールで、対象や値のタイプとして <code>flow</code> / <code>global</code> を選べます。<strong>JavaScriptを書かなくてもGUI操作だけで</strong>context系変数を操作できます。</p>
 
         <table>
@@ -599,7 +599,7 @@ let key = global.get('apiKey');</div>
         </table>
 
         <div class="important">
-            <strong>📌 JSONata関数で context系変数を読む：</strong>
+            <strong>JSONata関数で context系変数を読む：</strong>
             <ul>
                 <li><code>$flowContext("キー名")</code> : flow変数の値を取得</li>
                 <li><code>$globalContext("キー名")</code> : global変数の値を取得</li>
@@ -607,7 +607,7 @@ let key = global.get('apiKey');</div>
             </ul>
         </div>
 
-        <h3>💻 Functionノードで読み書きする（JavaScript）</h3>
+        <h3>Functionノードで読み書きする（JavaScript）</h3>
         <p>Functionノード内では、<code>context</code> / <code>flow</code> / <code>global</code> の3つのオブジェクトが使えます。条件分岐や計算ロジックが複雑な場合は、こちらのほうが柔軟です。</p>
 
         <table>
@@ -649,19 +649,19 @@ msg.payload = count;
 return msg;</div>
 
         <div class="tip">
-            <strong>💡 どちらを使うか迷ったら：</strong>
+            <strong>どちらを使うか迷ったら：</strong>
             <ul>
-                <li><strong>単純な保存・参照・代入だけ</strong> → Changeノード（コーディング不要）</li>
-                <li><strong>条件分岐、ループ、配列操作</strong> → Functionノード（JavaScriptの柔軟性）</li>
-                <li><strong>どちらで書いた変数でも</strong>、互いに読み書きできる（相互運用性あり）</li>
+                <li>単純な保存や参照、代入だけ → Changeノード（コーディング不要）</li>
+                <li>条件分岐、ループ、配列操作 → Functionノード（JavaScriptの柔軟性）</li>
+                <li>どちらで書いた変数でも、互いに読み書きできる（相互運用性あり）</li>
             </ul>
         </div>
 
-        <h2>🚀 4. 実用フロー例</h2>
+        <h2>4. 実用フロー例</h2>
         <p>ここでは、context系変数がよく使われる場面を、実際にNode-REDにインポートして動かせるフロー付きで紹介します。各例のサンプルフローをコピーしてエディターに読み込み、手を動かしながら動作を確認してみてください。</p>
 
         <div class="tip">
-            <strong>📥 サンプルフローの使い方：</strong>
+            <strong>サンプルフローの使い方：</strong>
             <ol>
                 <li>下のJSONの「コピー」ボタンでクリップボードにコピー</li>
                 <li>Node-REDエディターのメニュー → 「読み込み」 → 「クリップボード」に貼り付け</li>
@@ -670,12 +670,12 @@ return msg;</div>
         </div>
 
         <div class="practical-example">
-            <h3>💡 例1: flow変数で「ボタン押下回数」をカウントする</h3>
+            <h3>例1: flow変数で「ボタン押下回数」をカウントする</h3>
             <p><strong>よくある場面：</strong> 同じタブ内で「実行回数を数える」「前回の値を保持する」「2つのボタン（カウント／リセット）で同じ変数を操作する」など。</p>
 
-            <p>この例では、<strong>同じ処理を2つの方法</strong>で実装したフローを用意しています。Functionノードが難しく感じる方は、まずパターンB（Changeノードだけで実装）から試してください。動作結果はどちらも同じです。</p>
+            <p>この例では、同じ処理を2つの方法で実装したフローを用意しています。Functionノードが難しく感じる方は、まずパターンB（Changeノードだけで実装）から試してください。動作結果はどちらも同じです。</p>
 
-            <h4>🅰️ パターンA: Functionノードを使う方法</h4>
+            <h4>パターンA: Functionノードを使う方法</h4>
             <p>Functionノードの中でJavaScriptを書き、<code>flow.get()</code> / <code>flow.set()</code> で flow変数を読み書きする方法です。JavaScriptに慣れていると、こちらのほうが短く書けます。</p>
 
             <p><strong>フロー構成：</strong></p>
@@ -792,7 +792,7 @@ return msg;</div>
 ]</div>
             </details>
 
-            <h4 style="margin-top: 30px;">🅱️ パターンB: Changeノードだけで実現する方法（JavaScript不要）</h4>
+            <h4 style="margin-top: 30px;">パターンB: Changeノードだけで実現する方法（JavaScript不要）</h4>
             <p>Functionノードを使わず、<strong>Changeノード1つで</strong> 同じ処理を実現できます。JSONata式を使って「flow.counter を取り出して +1 した値を、再び flow.counter に保存」します。JavaScriptを書かなくてよいので、プログラミング初心者に優しい方法です。</p>
 
             <p><strong>フロー構成：</strong></p>
@@ -820,9 +820,9 @@ return msg;</div>
   （解説: ルール1で更新済みの flow.counter を読んで文字列連結）</div>
 
             <div class="important">
-                <strong>📌 Changeノード版の仕組み：</strong>
+                <strong>Changeノード版の仕組み：</strong>
                 <ul>
-                    <li>ルールは<strong>上から順に</strong>実行される</li>
+                    <li>ルールは上から順に実行される</li>
                     <li>ルール1で flow.counter を更新 → ルール2で更新後の値を使える</li>
                     <li><code>$flowContext("counter")</code> はChangeノード内でも使える JSONata関数</li>
                     <li><code>&amp;</code> は JSONata の文字列連結演算子（JavaScriptの <code>+</code> に相当）</li>
@@ -919,18 +919,18 @@ return msg;</div>
             </details>
 
             <div class="tip">
-                <strong>💡 どちらを選ぶべき？</strong>
+                <strong>どちらを選ぶべき？</strong>
                 <ul>
                     <li><strong>パターンA（Function）</strong>：複雑な条件分岐やループが必要な場合、JavaScriptに慣れている方向け</li>
-                    <li><strong>パターンB（Change）</strong>：シンプルな計算・代入だけで済む場合、GUI中心で完結させたい方向け</li>
+                    <li><strong>パターンB（Change）</strong>：シンプルな計算や代入だけで済む場合、GUI中心で完結させたい方向け</li>
                     <li><strong>共通のポイント</strong>：どちらの方式で保存した flow変数も、お互いに読み書きできる（相互運用性あり）</li>
                 </ul>
             </div>
         </div>
 
         <div class="practical-example">
-            <h3>💡 例2: global変数で「設定値」を全フローから参照する</h3>
-            <p><strong>よくある場面：</strong> 温度の警告閾値、デバイス名、APIエンドポイントなど、<strong>複数のタブ（フロー）から同じ設定値を参照</strong>したいケース。global変数は全タブから参照できるので、このような「設定値の共有」に最適です。</p>
+            <h3>例2: global変数で「設定値」を全フローから参照する</h3>
+            <p><strong>よくある場面：</strong> 温度の警告閾値、デバイス名、APIエンドポイントなど、複数のタブ（フロー）から同じ設定値を参照したいケース。global変数は全タブから参照できるので、このような「設定値の共有」に向いています。</p>
 
             <p><strong>フロー構成：</strong></p>
             <div class="node-example">
@@ -951,8 +951,8 @@ return msg;</div>
             <ul>
                 <li>最初に「設定登録」Injectを押して <code>global.threshold = 30</code> を保存</li>
                 <li>次に「温度=35」Injectを押すと、Changeノードが <code>global.threshold</code> を取り出して比較</li>
-                <li>JSONata式で、現在温度・閾値・超過判定を1つのJSONにまとめて出力</li>
-                <li>実運用では「設定登録」と「温度判定」は<strong>別タブに配置</strong>しても同じように動く</li>
+                <li>JSONata式で、現在温度や閾値、超過判定を1つのJSONにまとめて出力</li>
+                <li>実運用では「設定登録」と「温度判定」は別タブに配置しても同じように動く</li>
             </ul>
 
             <p><strong>判定Changeノードの設定（2ルール）：</strong></p>
@@ -1055,8 +1055,8 @@ return msg;</div>
         </div>
 
         <div class="practical-example">
-            <h3>💡 例3: context変数で「前回値」を覚えて差分を計算する</h3>
-            <p><strong>よくある場面：</strong> センサーの温度変化量を計算する、前回のAPIレスポンスと比較する、電力量計の増分を求めるなど。<strong>そのノード専用の記憶域</strong>としてcontext変数が役立ちます。</p>
+            <h3>例3: context変数で「前回値」を覚えて差分を計算する</h3>
+            <p><strong>よくある場面：</strong> センサーの温度変化量を計算する、前回のAPIレスポンスと比較する、電力量計の増分を求めるなど。そのノード専用の記憶域としてcontext変数が役立ちます。</p>
 
             <p><strong>フロー構成：</strong></p>
             <div class="node-example">
@@ -1193,7 +1193,7 @@ return msg;</div>
         </div>
 
         <div class="tip">
-            <strong>💡 3つの例の使い分けまとめ：</strong>
+            <strong>3つの例の使い分けまとめ：</strong>
             <ul>
                 <li><strong>flow（例1）</strong>：同じタブ内の複数ノードで共有（カウンター、状態フラグなど）</li>
                 <li><strong>global（例2）</strong>：すべてのタブで共有（設定値、APIキーなど）</li>
@@ -1201,7 +1201,7 @@ return msg;</div>
             </ul>
         </div>
 
-        <h2>📊 5. よくある使い方のパターン</h2>
+        <h2>5. よくある使い方のパターン</h2>
 
         <div class="feature-grid">
             <div class="feature-card">
@@ -1221,16 +1221,16 @@ return msg;</div>
 
             <div class="feature-card">
                 <h4>パターン4: 独立フロー間の中継 → flow</h4>
-                <p>別々のタイミング・入力経路で来るセンサー値を、1本のフローで合算したい時の中継点</p>
+                <p>別々のタイミングや入力経路で来るセンサー値を、1本のフローで合算したい時の中継点</p>
             </div>
         </div>
 
         <div class="warning">
-            <strong>⚠️ 注意：</strong> global変数は便利ですが、使いすぎるとフローが複雑になります。本当に必要な場合だけ使用しましょう。まずは flow変数で足りないか検討してください。
+            <strong>注意：</strong> global変数は便利ですが、使いすぎるとフローが複雑になります。本当に必要な場合だけ使用しましょう。まずは flow変数で足りないか検討してください。
         </div>
 
-        <h2>🏋️ 6. 演習問題</h2>
-        <p>実際に手を動かして、flow / context / global 変数の使い方を身につけましょう。各問題には難易度・要求仕様・ヒント・解答例フローが用意されています。</p>
+        <h2>6. 演習問題</h2>
+        <p>実際に手を動かして、flow / context / global 変数の使い方を身につけましょう。各問題には難易度、要求仕様、ヒント、解答例フローが用意されています。</p>
 
         <div class="exercise">
             <h3>演習1: flow変数で訪問カウンターを作る<span class="difficulty difficulty-easy">初級</span></h3>
@@ -1340,7 +1340,7 @@ return msg;</div>
             <h3>演習2: 独立した2つのフローの値を合算する<span class="difficulty difficulty-easy">初級</span></h3>
 
             <p><strong>📝 課題：</strong></p>
-            <p>センサーAとセンサーBの値を、それぞれ<strong>独立したフロー（別々のInjectチェーン）</strong>で受け取り、<strong>3つ目のフロー</strong>で両方の最新値を使って合計と平均を計算してください。実運用では「センサーAとBはバラバラのタイミングで値が更新されるが、計算時には両方の最新値が必要」という場面がよくあります。</p>
+            <p>センサーAとセンサーBの値を、それぞれ独立したフロー（別々のInjectチェーン）で受け取り、3つ目のフローで両方の最新値を使って合計と平均を計算してください。実運用では「センサーAとBはバラバラのタイミングで値が更新されるが、計算時には両方の最新値が必要」という場面がよくあります。</p>
 
             <p><strong>🎯 要求仕様：</strong></p>
             <ul>
@@ -1348,7 +1348,7 @@ return msg;</div>
                     <ul>
                         <li>フロー1: Inject「センサーA=20」→ Change（flow.sensorA に保存）→ Debug</li>
                         <li>フロー2: Inject「センサーB=60」→ Change（flow.sensorB に保存）→ Debug</li>
-                        <li>フロー3: Inject「計算実行」→ Change（flow.sensorA と flow.sensorB から合計・平均を計算）→ Debug</li>
+                        <li>フロー3: Inject「計算実行」→ Change（flow.sensorA と flow.sensorB から合計と平均を計算）→ Debug</li>
                     </ul>
                 </li>
                 <li>センサーA と センサーB は<strong>別々のタイミングで押しても動作</strong>する（= flow変数で値が保持される）</li>
@@ -1366,8 +1366,8 @@ return msg;</div>
             </ul>
 
             <div class="tip">
-                <strong>💡 なぜ flow変数なのか？</strong>
-                <p>msg.payload だけで受け渡そうとすると、AとBが「同じ1本のフロー」に並んでいないと値が揃いません。ところがAとBは<strong>別々のタイミング・別々の入力経路</strong>から来るので、それぞれの値を「どこかに置いておく」必要があります。ここで <strong>flow変数が中継地点</strong>の役割を果たします。</p>
+                <strong>なぜ flow変数なのか？</strong>
+                <p>msg.payload だけで受け渡そうとすると、AとBが「同じ1本のフロー」に並んでいないと値が揃いません。ところがAとBは別々のタイミング、別々の入力経路から来るので、それぞれの値を「どこかに置いておく」必要があります。ここで <strong>flow変数が中継地点</strong>の役割を果たします。</p>
             </div>
 
             <details>
@@ -1518,7 +1518,7 @@ return msg;</div>
         </div>
 
         <div class="exercise">
-            <h3>演習3: global変数でユーザー設定を保存・参照する<span class="difficulty difficulty-medium">中級</span></h3>
+            <h3>演習3: global変数でユーザー設定を保存して参照する<span class="difficulty difficulty-medium">中級</span></h3>
 
             <p><strong>📝 課題：</strong></p>
             <p>Injectで送った「ユーザー名」をglobal変数に保存し、別のInjectで挨拶メッセージを作るフローを作成してください。global変数を使うことで、<strong>設定値がフロー全体で共有される</strong>ことを体験します。</p>
@@ -1822,7 +1822,7 @@ return msg;</div>
         </div>
 
         <div class="tip">
-            <strong>🎯 演習のチェックポイント：</strong>
+            <strong>演習のチェックポイント：</strong>
             <ul>
                 <li>演習1で<strong>flow変数のスコープ</strong>（同じタブ内で共有）と累積更新を体感</li>
                 <li>演習2で<strong>独立した複数フローの橋渡し</strong>としての flow変数の使い方を習得</li>
@@ -1832,7 +1832,7 @@ return msg;</div>
             </ul>
         </div>
 
-        <h2>📋 7. チートシート</h2>
+        <h2>7. チートシート</h2>
 
         <table>
             <tr>
@@ -1890,10 +1890,10 @@ return msg;</div>
             </tr>
         </table>
 
-        <h2>🎓 まとめ</h2>
+        <h2>まとめ</h2>
 
         <div class="important">
-            <strong>📌 Part 2 の要点：</strong>
+            <strong>Part 2 の要点：</strong>
             <ul>
                 <li><strong>context系変数 = フローを超えて値を覚えておく仕組み</strong></li>
                 <li>スコープは <strong>context（ノード） / flow（タブ） / global（全体）</strong> の3種類</li>
@@ -1903,7 +1903,7 @@ return msg;</div>
             </ul>
         </div>
 
-        <p style="margin-top: 20px;">Part 1（msg編）と合わせて、Node-REDの変数の全体像が掴めたはずです。実際のプロジェクトでこれらを組み合わせて、より複雑なアプリケーションに挑戦してみてください！</p>
+        <p style="margin-top: 20px;">Part 1（msg編）と合わせると、Node-REDの変数の全体像が見えてきます。実際のプロジェクトでこれらを組み合わせて、より複雑なアプリケーションに挑戦してみてください。</p>
 
         <div class="nav-links">
             <a href="nodered-variable-types-guide.html">← Part 1（msg編）に戻る</a>
