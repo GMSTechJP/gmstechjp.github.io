@@ -361,35 +361,35 @@
 </head>
 <body>
     <div class="container">
-        <h1>🧮 Node-RED JSONata式ガイド</h1>
+        <h1>Node-RED JSONata式ガイド</h1>
         <div data-envbadge="1" style="margin:12px 0;"><span style="display:inline-block;padding:3px 12px;border-radius:12px;font-size:0.85em;font-weight:bold;background:#e3f2fd;color:#0d47a1;border:1px solid #90caf9;">☁️ クラウドOK</span> <a href="nodered-learning-environment-guide.html" style="font-size:0.82em;">環境とは？</a></div>
 
-        <p><strong>JSONata</strong> は、Node-REDで「値を動的に計算・加工」するために使う式言語です。Changeノードで式を書くときに出てくる「J:」アイコンで選択できます。このガイドでは、<strong>Changeノードを中心に</strong>、JSONataの基本から実践パターンまでを日本語で解説します。</p>
+        <p><strong>JSONata</strong> は、Node-REDで値を動的に計算したり加工したりするために使う式言語です。Changeノードで式を書くときに出てくる「J:」アイコンで選択できます。このガイドはChangeノードを中心に、JSONataの基本から実践パターンまでを日本語で解説します。</p>
 
         <div class="tip">
-            <strong>💡 前提知識：</strong> このガイドは <a href="nodered-change-node-guide.html">Changeノードガイド</a> と <a href="nodered-variable-types-guide.html">変数ガイド Part 1</a> の内容を把握している読者を想定しています。まだの方はそちらを先にご覧ください。
+            <strong>前提知識：</strong> このガイドは <a href="nodered-change-node-guide.html">Changeノードガイド</a> と <a href="nodered-variable-types-guide.html">変数ガイド Part 1</a> の内容を把握している読者を想定しています。まだの方はそちらを先にご覧ください。
         </div>
 
         <div class="toc">
-            <h3>📑 目次</h3>
+            <h3>目次</h3>
             <ol>
                 <li><a href="#ch1">JSONataとは？ どこで使える？</a></li>
                 <li><a href="#ch2">最初のJSONata（Changeノードで試す）</a></li>
                 <li><a href="#ch3">文字列の操作</a></li>
-                <li><a href="#ch4">計算・数値操作</a></li>
-                <li><a href="#ch5">配列・オブジェクト操作</a></li>
+                <li><a href="#ch4">計算と数値操作</a></li>
+                <li><a href="#ch5">配列とオブジェクトの操作</a></li>
                 <li><a href="#ch6">context変数の読み書き</a></li>
-                <li><a href="#ch7">日時・環境変数</a></li>
+                <li><a href="#ch7">日時と環境変数</a></li>
                 <li><a href="#ch8">Change以外のノードでの使い方</a></li>
                 <li><a href="#ch9">実践パターン集</a></li>
                 <li><a href="#ch10">チートシート</a></li>
             </ol>
         </div>
 
-        <h2 id="ch1">📖 1. JSONataとは？ どこで使える？</h2>
+        <h2 id="ch1">1. JSONataとは？ どこで使える？</h2>
 
-        <h3>🤔 JSONataはなぜ必要か</h3>
-        <p>Changeノードの「値の代入」で、文字列や数値を<strong>固定値で入れるだけ</strong>なら JSONata は不要です。しかし実務では、「現在時刻を付ける」「payload を 2 倍する」「文字列を連結する」「前回値と比較する」など、<strong>動的に計算した値</strong>を入れたい場面が頻繁に出てきます。これを実現するのが JSONata 式です。</p>
+        <h3>JSONataはなぜ必要か</h3>
+        <p>Changeノードの「値の代入」で、文字列や数値を固定値で入れるだけなら JSONata は不要です。しかし実務では、現在時刻を付ける、payload を 2 倍する、文字列を連結する、前回値と比較するなど、<strong>動的に計算した値</strong>を入れたい場面が頻繁に出てきます。これを実現するのが JSONata 式です。</p>
 
         <div class="feature-grid">
             <div class="feature-card">
@@ -406,8 +406,8 @@ msg.topic = "greeting-" &amp; $now()</div>
             </div>
         </div>
 
-        <h3>🎯 Node-REDでJSONataが使えるノード</h3>
-        <p>Changeノード以外にも「J:」アイコン（式セレクタ）が出る場所では同じ JSONata 文法が使えます。このガイドでは<strong>主にChangeノード</strong>を題材にしますが、文法は共通なので他ノードでも応用できます。</p>
+        <h3>Node-REDでJSONataが使えるノード</h3>
+        <p>Changeノード以外にも「J:」アイコン（式セレクタ）が出る場所では同じ JSONata 文法が使えます。このガイドは主にChangeノードを題材にしますが、文法は共通なので他ノードでも応用できます。</p>
 
         <table>
             <tr>
@@ -443,16 +443,16 @@ msg.topic = "greeting-" &amp; $now()</div>
         </table>
 
         <div class="important">
-            <strong>📌 このガイドの方針：</strong>
+            <strong>このガイドの方針：</strong>
             <ul>
-                <li>第2〜7章は<strong>Changeノード内で JSONata</strong> を使う前提で解説</li>
-                <li>第8章で<strong>他ノードでの使い方</strong>の違いを補足</li>
-                <li>第9章に<strong>実践パターン集</strong>（インポート可能なフロー付き）</li>
-                <li>第10章に<strong>チートシート</strong>（リファレンス用）</li>
+                <li>セクション2〜7はChangeノード内で JSONata を使う前提で解説</li>
+                <li>セクション8で他ノードでの使い方の違いを補足</li>
+                <li>セクション9に実践パターン集（インポート可能なフロー付き）</li>
+                <li>セクション10にチートシート（リファレンス用）</li>
             </ul>
         </div>
 
-        <h2 id="ch2">🚀 2. 最初のJSONata（Changeノードで試す）</h2>
+        <h2 id="ch2">2. 最初のJSONata（Changeノードで試す）</h2>
 
         <p>いきなり難しい関数から入らず、まずは「payload を参照する」「+1 する」「文字列を連結する」の3ステップで JSONata の雰囲気に慣れましょう。</p>
 
@@ -477,7 +477,7 @@ msg.topic = "greeting-" &amp; $now()</div>
         </div>
 
         <h3>ステップ3: 文字列を連結する</h3>
-        <p>JavaScriptでは <code>+</code> を使いますが、<strong>JSONataでは <code>&amp;</code> を使います</strong>。ここが最初の落とし穴です。</p>
+        <p>JavaScriptでは <code>+</code> を使いますが、JSONataでは <code>&amp;</code> を使います。ここが最初の落とし穴です。</p>
 
         <div class="expr-box">"温度は " &amp; payload &amp; "℃ です"</div>
 
@@ -488,7 +488,7 @@ msg.topic = "greeting-" &amp; $now()</div>
         </div>
 
         <div class="warning">
-            <strong>⚠️ JavaScriptとの違い（最重要）：</strong>
+            <strong>JavaScriptとの違い（最重要）：</strong>
             <ul>
                 <li>文字列連結は <code>+</code> ではなく <code>&amp;</code></li>
                 <li>比較は <code>===</code> ではなく <code>=</code>（1文字）</li>
@@ -579,10 +579,10 @@ msg.topic = "greeting-" &amp; $now()</div>
 ]</div>
         </details>
 
-        <h2 id="ch3">📝 3. 文字列の操作</h2>
+        <h2 id="ch3">3. 文字列の操作</h2>
         <p>JSONataには文字列を操作する豊富な関数が用意されています。ここでは Changeノードでよく使うものを紹介します。</p>
 
-        <h3>🔗 文字列の連結</h3>
+        <h3>文字列の連結</h3>
         <table>
             <tr>
                 <th>式</th>
@@ -606,7 +606,7 @@ msg.topic = "greeting-" &amp; $now()</div>
             </tr>
         </table>
 
-        <h3>🔤 よく使う文字列関数</h3>
+        <h3>よく使う文字列関数</h3>
         <table>
             <tr>
                 <th>関数</th>
@@ -681,14 +681,14 @@ msg.topic = "greeting-" &amp; $now()</div>
         </table>
 
         <div class="tip">
-            <strong>💡 よくある実例：</strong>
+            <strong>よくある実例：</strong>
             <div class="expr-box">$uppercase($substringBefore(payload, "@"))</div>
             <p>メールアドレスのローカルパートを大文字化。<code>"alice@example.com"</code> → <code>"ALICE"</code></p>
         </div>
 
-        <h2 id="ch4">🔢 4. 計算・数値操作</h2>
+        <h2 id="ch4">4. 計算と数値操作</h2>
 
-        <h3>🧮 四則演算と基本演算子</h3>
+        <h3>四則演算と基本演算子</h3>
         <table>
             <tr>
                 <th>演算子</th>
@@ -727,7 +727,7 @@ msg.topic = "greeting-" &amp; $now()</div>
             </tr>
         </table>
 
-        <h3>📐 よく使う数値関数</h3>
+        <h3>よく使う数値関数</h3>
         <table>
             <tr>
                 <th>関数</th>
@@ -792,12 +792,12 @@ msg.topic = "greeting-" &amp; $now()</div>
         </table>
 
         <div class="tip">
-            <strong>💡 よくある実例（温度変換）：</strong>
+            <strong>よくある実例（温度変換）：</strong>
             <div class="expr-box">$round(payload * 1.8 + 32, 1)</div>
             <p>摂氏→華氏に変換して小数1桁に丸める。<code>25</code> → <code>77</code>、<code>20.5</code> → <code>68.9</code></p>
         </div>
 
-        <h2 id="ch5">📦 5. 配列・オブジェクト操作</h2>
+        <h2 id="ch5">5. 配列とオブジェクトの操作</h2>
 
         <h3>配列の基本</h3>
         <table>
@@ -813,7 +813,7 @@ msg.topic = "greeting-" &amp; $now()</div>
             </tr>
             <tr>
                 <td><code>payload[-1]</code></td>
-                <td>最後の要素（便利！）</td>
+                <td>最後の要素（負のインデックス）</td>
                 <td>30</td>
             </tr>
             <tr>
@@ -853,7 +853,7 @@ $sum(payload.temp) / $count(payload)
 → 25  // 温度の平均</div>
 
         <h3>オブジェクトの構築</h3>
-        <p>JSONata式内で直接オブジェクトを組み立てられます。これがJSONataの強力さの核心です。</p>
+        <p>JSONata式内で直接オブジェクトを組み立てられます。入力から必要な項目だけを取り出して新しい構造に整える場面で役立ちます。</p>
 
         <div class="expr-box">{"name": payload, "timestamp": $now(), "unit": "℃"}</div>
 
@@ -864,7 +864,7 @@ $sum(payload.temp) / $count(payload)
         </div>
 
         <div class="tip">
-            <strong>💡 センサーデータを整形する典型例：</strong>
+            <strong>センサーデータを整形する典型例：</strong>
             <div class="code-block">// 入力 msg.payload = {"raw_temp": 2530, "raw_humid": 650}
 // 100で割って実数に戻す
 
@@ -875,7 +875,7 @@ $sum(payload.temp) / $count(payload)
 }</div>
         </div>
 
-        <h2 id="ch6">🗃️ 6. context変数の読み書き</h2>
+        <h2 id="ch6">6. context変数の読み書き</h2>
         <p>Changeノード内の JSONata 式から、flow変数や global変数を読み取ることができます。書き込みは Change ノードの「対象」側で <code>flow</code>/<code>global</code> を選びます。</p>
 
         <h3>読み取り: $flowContext / $globalContext</h3>
@@ -899,7 +899,7 @@ $sum(payload.temp) / $count(payload)
         </table>
 
         <h3>書き込み: ChangeノードのUI操作</h3>
-        <p>式ではなく、<strong>Changeノードの「値の代入」ルールで「対象」側を flow または global</strong> にします。</p>
+        <p>式ではなく、Changeノードの「値の代入」ルールで「対象」側を <strong>flow</strong> または <strong>global</strong> にします。</p>
 
         <div class="code-block">ルール: 値の代入
 対象: flow.counter     ← ここが「flow」タイプ
@@ -908,7 +908,7 @@ $sum(payload.temp) / $count(payload)
   （解説: 現在値を取って+1し、flow.counterに書き戻す）</div>
 
         <h3>典型パターン: カウンター</h3>
-        <p>JSONataでは<strong>「式」と「書き込み先」は別</strong>なので、カウンターを作るには「flow変数を読んで +1 した結果を、同じ flow変数に書き戻す」という形になります。</p>
+        <p>JSONataでは「式」と「書き込み先」は別なので、カウンターを作るには「flow変数を読んで +1 した結果を、同じ flow変数に書き戻す」という形になります。</p>
 
         <div class="code-block">Changeノード（2ルール）:
 
@@ -921,15 +921,15 @@ $sum(payload.temp) / $count(payload)
       （ルール1の結果を読んで出力）</div>
 
         <div class="important">
-            <strong>📌 なぜ三項演算子（<code>? :</code>）を使うのか：</strong>
+            <strong>なぜ三項演算子（<code>? :</code>）を使うのか：</strong>
             <p>初回実行時は <code>$flowContext("count")</code> が <code>undefined</code> になり、<code>undefined + 1</code> はエラーになります。そのため <code>値が存在するかチェック</code> → <code>無ければ0として扱う</code> という防御が必要です。</p>
         </div>
 
         <div class="tip">
-            <strong>💡 context変数の詳細は：</strong> <a href="nodered-variable-types-2-guide.html">変数ガイド Part 2（context系変数）</a> に完全なフロー例・演習問題があります。
+            <strong>context変数の詳細は：</strong> <a href="nodered-variable-types-2-guide.html">変数ガイド Part 2（context系変数）</a> にフロー例と演習問題があります。
         </div>
 
-        <h2 id="ch7">📅 7. 日時・環境変数</h2>
+        <h2 id="ch7">7. 日時と環境変数</h2>
 
         <h3>日時関数</h3>
         <table>
@@ -961,7 +961,7 @@ $sum(payload.temp) / $count(payload)
         </table>
 
         <div class="tip">
-            <strong>💡 タイムスタンプ付与の典型例：</strong>
+            <strong>タイムスタンプ付与の典型例：</strong>
             <div class="expr-box">{"data": payload, "received_at": $now()}</div>
             <p>センサー値に受信時刻を付けて構造化。ログ用途でよく使う。</p>
         </div>
@@ -1012,10 +1012,10 @@ $sum(payload.temp) / $count(payload)
             </tr>
         </table>
 
-        <h2 id="ch8">🔀 8. Change以外のノードでの使い方</h2>
-        <p>JSONataの文法はどのノードでも共通ですが、<strong>「式の結果がどう使われるか」</strong>がノードによって異なります。ここでは代表的な3つを紹介します。</p>
+        <h2 id="ch8">8. Change以外のノードでの使い方</h2>
+        <p>JSONataの文法はどのノードでも共通ですが、式の結果がどう使われるかはノードによって異なります。ここでは代表的な3つを紹介します。</p>
 
-        <h3>🎛️ Switchノード: 式で条件判定</h3>
+        <h3>Switchノード: 式で条件判定</h3>
         <p>Switchノードの条件欄で「値の型」を <strong>JSONata式</strong> にすると、式の結果（真偽値）で分岐できます。</p>
 
         <div class="node-example">
@@ -1030,7 +1030,7 @@ $sum(payload.temp) / $count(payload)
   条件1: JSONata式 → payload &gt; 30   （高温ルート）
   条件2: JSONata式 → payload &lt;= 30  （正常ルート）</div>
 
-        <h3>📝 Templateノード: 式の結果を埋め込む</h3>
+        <h3>Templateノード: 式の結果を埋め込む</h3>
         <p>Templateノードのテンプレート内で <code>{{expression}}</code> を使うと、JSONata式の結果が埋め込まれます（Mustache構文＋JSONata）。</p>
 
         <div class="code-block">// Templateノードのテンプレート
@@ -1041,7 +1041,7 @@ $sum(payload.temp) / $count(payload)
 Alice さん、温度は 25℃ です。
 記録時刻: 2026-04-19T10:30:00.000Z</div>
 
-        <h3>🐛 Debugノード: 特定の計算結果だけ出す</h3>
+        <h3>Debugノード: 特定の計算結果だけ出す</h3>
         <p>Debugノードの「対象」を <strong>JSONata式</strong> にすると、msgの一部を計算した結果だけをサイドバーに表示できます。</p>
 
         <div class="code-block">Debugノード対象: JSONata式
@@ -1049,18 +1049,18 @@ Alice さん、温度は 25℃ です。
   → msg.payload が配列の時、要素数だけを表示</div>
 
         <div class="tip">
-            <strong>💡 共通のルール：</strong>
+            <strong>共通のルール：</strong>
             <ul>
-                <li>JSONata式内で <code>payload</code> / <code>topic</code> と書くと、<strong>暗黙で msg.プロパティ</strong> を指す</li>
+                <li>JSONata式内で <code>payload</code> / <code>topic</code> と書くと、暗黙で msg.プロパティを指す</li>
                 <li>関数名は常に <code>$関数名()</code> の形（<code>$</code> 前置）</li>
-                <li>文字列は <strong>ダブルクォート</strong>推奨（シングルも使えるが混乱回避のため）</li>
+                <li>文字列はダブルクォートを推奨（シングルも使えるが、混乱を避けるため）</li>
             </ul>
         </div>
 
-        <h2 id="ch9">🛠️ 9. 実践パターン集（インポート可能）</h2>
+        <h2 id="ch9">9. 実践パターン集（インポート可能）</h2>
 
         <div class="tip">
-            <strong>📥 サンプルフローの使い方：</strong>
+            <strong>サンプルフローの使い方：</strong>
             <ol>
                 <li>コピーボタンでクリップボードへ</li>
                 <li>Node-REDエディターのメニュー → 読み込み → クリップボード → 貼り付け</li>
@@ -1138,7 +1138,7 @@ Alice さん、温度は 25℃ です。
 ]</div>
         </details>
 
-        <h3>パターン2: センサー配列から平均・最大・最小を一度に算出</h3>
+        <h3>パターン2: センサー配列から平均、最大、最小を一度に算出</h3>
         <div class="node-example">
             <span class="node node-inject">配列送信</span>
             <span class="arrow">→</span>
@@ -1222,7 +1222,7 @@ Alice さん、温度は 25℃ です。
         <p><strong>結果：</strong> <code>[{"name":"B","temp":32}]</code></p>
 
         <div class="tip">
-            <strong>💡 さらに応用：</strong> <code>payload[temp &gt;= 30].name</code> と書けば「条件を満たす要素の name のみの配列」（<code>["B"]</code>）が得られます。
+            <strong>さらに応用：</strong> <code>payload[temp &gt;= 30].name</code> と書けば「条件を満たす要素の name のみの配列」（<code>["B"]</code>）が得られます。
         </div>
 
         <h3>パターン4: 日時を人間が読める形式に整形</h3>
@@ -1232,7 +1232,7 @@ Alice さん、温度は 25℃ です。
 → "2026-04-19 10:30:45"</div>
 
         <div class="tip">
-            <strong>💡 書式記号（よく使うもの）：</strong>
+            <strong>書式記号（よく使うもの）：</strong>
             <ul>
                 <li><code>[Y]</code> 年 / <code>[M01]</code> 月（2桁） / <code>[D01]</code> 日（2桁）</li>
                 <li><code>[H01]</code> 時 / <code>[m01]</code> 分 / <code>[s01]</code> 秒</li>
@@ -1240,7 +1240,7 @@ Alice さん、温度は 25℃ です。
             </ul>
         </div>
 
-        <h2 id="ch10">📋 10. チートシート</h2>
+        <h2 id="ch10">10. チートシート</h2>
 
         <h3>最重要（JavaScriptとの違い）</h3>
         <table>
@@ -1366,22 +1366,22 @@ Alice さん、温度は 25℃ です。
             </tr>
         </table>
 
-        <h2>🎓 まとめ</h2>
+        <h2>まとめ</h2>
 
         <div class="important">
-            <strong>📌 JSONataの要点：</strong>
+            <strong>JSONataの要点：</strong>
             <ul>
-                <li>JSONataは<strong>値を動的に計算・加工</strong>するための式言語</li>
-                <li><strong>Changeノード内が主役</strong>だが、Switch/Template/Debug/Injectでも共通の文法で使える</li>
-                <li>JavaScriptとは<strong>演算子が一部違う</strong>（<code>&amp;</code>、<code>=</code>、<code>and</code>/<code>or</code>、<code>[-1]</code>）</li>
-                <li><strong><code>payload</code> と書くだけで <code>msg.payload</code></strong> を指す（暗黙の省略）</li>
-                <li>context変数は <strong><code>$flowContext()</code> / <code>$globalContext()</code></strong> で読み取る</li>
-                <li>オブジェクト <code>{...}</code> や配列 <code>[...]</code> を<strong>式の中で直接構築</strong>できるのが強力</li>
+                <li>JSONataは値を動的に計算したり加工したりするための式言語</li>
+                <li>Changeノード内が主な活躍の場だが、Switch/Template/Debug/Injectでも共通の文法で使える</li>
+                <li>JavaScriptとは演算子が一部違う（<code>&amp;</code>、<code>=</code>、<code>and</code>/<code>or</code>、<code>[-1]</code>）</li>
+                <li><code>payload</code> と書くだけで <code>msg.payload</code> を指す（暗黙の省略）</li>
+                <li>context変数は <code>$flowContext()</code> / <code>$globalContext()</code> で読み取る</li>
+                <li>オブジェクト <code>{...}</code> や配列 <code>[...]</code> を式の中で直接構築できる</li>
             </ul>
         </div>
 
         <div class="tip">
-            <strong>🔗 関連ガイド：</strong>
+            <strong>関連ガイド：</strong>
             <ul>
                 <li><a href="nodered-change-node-guide.html">Changeノードガイド</a>（ノード操作の基本）</li>
                 <li><a href="nodered-variable-types-guide.html">変数ガイド Part 1</a>（msgオブジェクト）</li>
