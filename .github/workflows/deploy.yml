@@ -1,0 +1,67 @@
+name: GitHub Pages へビルド & デプロイ
+
+# main への push 時に、git 履歴から updates.html と最終更新日を生成し、
+# サイトを GitHub Pages にデプロイする。
+# 生成物をリポジトリへコミットし返さない方式のため、ローカルとの差分(behind)が発生しない。
+#
+# 【事前設定（1回だけ）】GitHub の Settings → Pages → Source を「GitHub Actions」にすること。
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 同時デプロイを直列化（実行中はキャンセルしない）
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: チェックアウト（全履歴）
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Python セットアップ
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: 更新履歴と最終更新日を生成
+        run: python3 scripts/gen_updates.py
+
+      - name: 公開ファイルを収集（.git 等の非公開物を除外）
+        run: |
+          mkdir -p _site
+          rsync -a \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='scripts' \
+            --exclude='_site' \
+            ./ _site/
+
+      - name: Pages 設定
+        uses: actions/configure-pages@v5
+
+      - name: 成果物をアップロード
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Pages へデプロイ
+        id: deployment
+        uses: actions/deploy-pages@v4
