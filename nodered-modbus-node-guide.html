@@ -57,33 +57,33 @@
 </head>
 <body>
     <div class="container">
-        <h1>🏭 Node-RED MODBUS ノードガイド</h1>
+        <h1>Node-RED MODBUS ノードガイド</h1>
         <div data-envbadge="1" style="margin:12px 0;"><span style="display:inline-block;padding:3px 12px;border-radius:12px;font-size:0.85em;font-weight:bold;background:#fff3e0;color:#e65100;border:1px solid #ffcc80;">⚠️ クラウド可（自分専用ポート）</span> <a href="nodered-learning-environment-guide.html" style="font-size:0.82em;">環境とは？</a></div>
 
         <div class="thirdparty">
-            <h3>📦 これはサードパーティノードです</h3>
+            <h3>これはサードパーティノードです</h3>
             <p>MODBUS は Node-RED の標準ノードには含まれていません。<strong><code>node-red-contrib-modbus</code></strong> というパッケージを追加インストールして使います（本ガイド執筆時点の最新は v5.45.2）。インストール手順は<a href="#section2">第2章</a>で解説します。</p>
             <p>通信の全体像がまだあいまいな方は、先に <a href="nodered-network-basics-guide.html">通信の基礎（ネットワーク入門）</a> を読むと、MODBUS が「ポーリング型（見回り点検）」の通信であることがすっきり理解できます。</p>
         </div>
 
         <div class="toc">
-            <h3>📚 目次</h3>
+            <h3>目次</h3>
             <ul>
-                <li><a href="#section1">1. 概要 — MODBUS とは</a></li>
+                <li><a href="#section1">1. 概要：MODBUS とは</a></li>
                 <li><a href="#section2">2. インストール方法</a></li>
-                <li><a href="#section3">3. MODBUS の基礎知識（RTU/TCP・データモデル・FC）</a></li>
+                <li><a href="#section3">3. MODBUS の基礎知識（RTU/TCP、データモデル、FC）</a></li>
                 <li><a href="#section4">4. ノード構成</a></li>
                 <li><a href="#section5">5. 設定項目一覧（プロパティ表）</a></li>
                 <li><a href="#section6">6. 実用的な使用パターン</a></li>
-                <li><a href="#section7">7. サンプルフロー & シミュレータの準備</a></li>
+                <li><a href="#section7">7. サンプルフローとシミュレータの準備</a></li>
                 <li><a href="#section8">8. 演習問題</a></li>
                 <li><a href="#section9">9. まとめ</a></li>
                 <li><a href="#section10">10. トラブルシューティング</a></li>
-                <li><a href="#section11">11. 用語集（Master/Slave・Unit ID・エンディアン・CRC・PLC など）</a></li>
+                <li><a href="#section11">11. 用語集（Master/Slave、Unit ID、エンディアン、CRC、PLC など）</a></li>
             </ul>
         </div>
 
-        <h2 id="section1">📖 1. 概要 — MODBUS とは</h2>
+        <h2 id="section1">1. 概要：MODBUS とは</h2>
         <p><strong>MODBUS（モドバス）</strong>は、1979 年に Modicon 社（現 Schneider Electric）が発表した、産業機器どうしをつなぐための通信プロトコルです。40 年以上の歴史があり、いまも<strong>工場・プラント・ビル設備で最も広く使われている「産業界の共通言語」</strong>です。</p>
 
         <p>🔦 <strong>見回り点検にたとえると</strong>：MODBUS は「担当者（親機）が各機械（子機）を定期的に巡回し、『いま何度？』『カウンタはいくつ？』と聞いて回る」方式です。子機は聞かれたことに答えるだけ。親機が会話の主導権を握る、シンプルで予測しやすい通信です。</p>
@@ -106,7 +106,7 @@
             <tr><td><strong>オープン仕様</strong></td><td>仕様が公開されており、メーカーをまたいで相互接続できる。</td></tr>
         </table>
 
-        <h2 id="section2">⚙️ 2. インストール方法</h2>
+        <h2 id="section2">2. インストール方法</h2>
         <p>サードパーティノードは、Node-RED エディターの<strong>「パレットの管理」</strong>からインストールします。MODBUS に限らず、すべての追加ノードで共通の手順です。</p>
 
         <ol>
@@ -129,9 +129,9 @@ npm install node-red-contrib-modbus</div>
             RS-485／USB シリアル変換器で実機につなぐ場合、OS 側にシリアルポートのドライバと権限が必要です。Linux では <code>dialout</code> グループへの所属（<code>sudo usermod -a -G dialout $USER</code>）が要ることがあります。まずは次章以降の<strong>シミュレータ（TCP）</strong>で動作を覚えるのがおすすめです。
         </div>
 
-        <h2 id="section3">🧱 3. MODBUS の基礎知識</h2>
+        <h2 id="section3">3. MODBUS の基礎知識</h2>
 
-        <h3>3-1. RTU / ASCII / TCP — 3 つの伝送方式</h3>
+        <h3>3-1. RTU / ASCII / TCP（3 つの伝送方式）</h3>
         <p>MODBUS には主に <strong>3 つの「運び方」</strong>があります。どれも“会話の中身（レジスタの読み書き）”は同じで、物理的な経路と誤り検出方法が違うだけです。</p>
 
         <div class="node-compare">
@@ -165,7 +165,7 @@ npm install node-red-contrib-modbus</div>
             学習・検証は <strong>Modbus TCP</strong> が断然ラクです。実機がなくてもパソコン上のシミュレータに <code>127.0.0.1:10502</code> でつなげば、配線なしで一通り体験できます（<a href="#section7">第7章</a>参照）。
         </div>
 
-        <h3>3-2. データモデル — 4 種類の入れ物</h3>
+        <h3>3-2. データモデル（4 種類の入れ物）</h3>
         <p>MODBUS のスレーブは、データを <strong>4 種類の「入れ物」</strong>に分けて持っています。「ビット（ON/OFF）か、ワード（16bit 数値）か」「読み取り専用か、書き込みもできるか」で 4 つに分かれます。</p>
 
         <table>
@@ -176,7 +176,7 @@ npm install node-red-contrib-modbus</div>
             <tr><td><strong>Holding Register（保持レジスタ）</strong></td><td>16 ビット</td><td>読み書き可</td><td>設定できる数値</td><td>目標温度、回転数の設定値</td></tr>
         </table>
 
-        <h3>3-3. ファンクションコード（FC）— 操作の種類</h3>
+        <h3>3-3. ファンクションコード（FC）の役割</h3>
         <p><strong>ファンクションコード</strong>は「どの入れ物に・読みか書きか」を表す番号です。<code>node-red-contrib-modbus</code> では、ノードの <strong>FC</strong> ドロップダウンで選びます（読取系と書込系で選択肢が異なります）。</p>
 
         <table>
@@ -206,7 +206,7 @@ npm install node-red-contrib-modbus</div>
             <tr><td>00001</td><td>Coil</td><td>0</td></tr>
         </table>
 
-        <h2 id="section4">🧩 4. ノード構成</h2>
+        <h2 id="section4">4. ノード構成</h2>
         <p><code>node-red-contrib-modbus</code> は 14 個のノードを提供します。最初は次の<strong>主要 5 ノード</strong>だけ押さえれば十分です。</p>
 
         <div class="node-example">
@@ -232,7 +232,7 @@ npm install node-red-contrib-modbus</div>
             なお、1 つの設定ノードにぶら下げる読み書きノードが<strong>10 個を超える</strong>ときは、公式ヘルプでも <strong>Modbus-Flex-Getter</strong> の利用や接続の分割が推奨されています。
         </div>
 
-        <h2 id="section5">📋 5. 設定項目一覧（プロパティ表）</h2>
+        <h2 id="section5">5. 設定項目一覧（プロパティ表）</h2>
         <p>主要ノードの設定項目です。項目名は <code>node-red-contrib-modbus</code> v5.45.2 のエディター表示（英語。日本語ロケールは未提供）に一致させています。</p>
 
         <h3>5-1. Modbus-Client（設定ノード）</h3>
@@ -296,7 +296,7 @@ msg.payload = {
 };
 return msg;</div>
 
-        <h2 id="section6">🔧 6. 実用的な使用パターン</h2>
+        <h2 id="section6">6. 実用的な使用パターン</h2>
 
         <h3>パターン1: センサー値を定期収集してダッシュボード表示</h3>
         <div class="node-example">
@@ -326,14 +326,14 @@ return msg;</div>
             読取系ノードの <strong>出力 1</strong> の <code>msg.payload</code> に、読み取った値の配列（PDU）が入ります。あわせて <code>msg.responseBuffer</code>（生のバイト列）や元の入力 msg も付きます。<strong>出力 2</strong> は同じ情報を順序違いで返すので、まずは<strong>出力 1 だけ</strong>を使えば十分です。
         </div>
 
-        <h2 id="section7">🧪 7. サンプルフロー & シミュレータの準備</h2>
+        <h2 id="section7">7. サンプルフローとシミュレータの準備</h2>
 
         <div class="important">
             <strong>📌 このサンプルは「シミュレータ前提」です</strong><br>
             MODBUS は通信相手（スレーブ）がないと動きません。実機がなくても、下の<strong>3 つのいずれか</strong>で <code>127.0.0.1:10502</code> に擬似スレーブを立てれば、フローを動かして確認できます。
         </div>
 
-        <h3>7-1. どの環境で動かす？（クラウド / ローカル / ラズパイ）</h3>
+        <h3>7-1. どの環境で動かす？（クラウド、ローカル、ラズパイ）</h3>
         <p>MODBUS は環境によって勝手が変わります。詳しくは <a href="nodered-learning-environment-guide.html">学習環境ガイド</a> もどうぞ。</p>
         <table>
             <tr><th>環境</th><th>やり方</th><th>ポート</th></tr>
@@ -638,7 +638,7 @@ diagslave -m tcp -p 10502</div>
             読み込み後、各 Modbus ノードをダブルクリックして <strong>Server</strong> 欄に設定ノード「Modbus Simulator (TCP)」が選ばれているか確認してください。接続が確立すると、ノード下のステータスが緑（active / connected）になります。赤やタイムアウト表示のままなら、シミュレータが <code>127.0.0.1:10502</code> で起動しているかを確認します（→<a href="#section10">第10章</a>）。
         </div>
 
-        <h2 id="section8">📝 8. 演習問題</h2>
+        <h2 id="section8">8. 演習問題</h2>
 
         <div class="exercise">
             <h3>演習1: ポーリング間隔を変える <span class="difficulty difficulty-easy">初級</span></h3>
@@ -676,7 +676,7 @@ diagslave -m tcp -p 10502</div>
             </details>
         </div>
 
-        <h2 id="section9">✅ 9. まとめ</h2>
+        <h2 id="section9">9. まとめ</h2>
         <ul>
             <li>MODBUS は<strong>産業機器の共通言語</strong>。Node-RED では <code>node-red-contrib-modbus</code> を追加して使う（サードパーティ）。</li>
             <li>通信は<strong>マスター（Node-RED）がスレーブ（機器）に問い合わせるポーリング型</strong>。</li>
@@ -688,7 +688,7 @@ diagslave -m tcp -p 10502</div>
             <li>実機がなくても <strong>Modbus-Server ノード / diagslave / ModRSsim2</strong> で検証できる。</li>
         </ul>
 
-        <h2 id="section10">🔧 10. トラブルシューティング</h2>
+        <h2 id="section10">10. トラブルシューティング</h2>
         <table>
             <tr><th>症状</th><th>主な原因</th><th>対処</th></tr>
             <tr>
@@ -728,10 +728,10 @@ diagslave -m tcp -p 10502</div>
             </tr>
         </table>
 
-        <h2 id="section11">📘 11. 用語集（追加リファレンス）</h2>
+        <h2 id="section11">11. 用語集（追加リファレンス）</h2>
         <p>セクション 3「MODBUS の基礎知識」で扱いきれなかった、または別の場所に散らばっていた用語の補完リファレンスです。<strong>レジスタ・コイル・ファンクションコード等の主要概念は <a href="#section3">第 3 章</a></strong>、<strong>通信全般の用語（クライアント/サーバー・プロトコル・ポートなど）は <a href="nodered-network-basics-guide.html#glossary">通信の基礎ガイドの用語集</a></strong> を参照してください。</p>
 
-        <h3 id="term-master-slave">👥 Master / Slave（クライアント / サーバー）</h3>
+        <h3 id="term-master-slave">Master / Slave（クライアント / サーバー）</h3>
         <p>MODBUS の役割を表す用語ですが、<strong>2 系統の呼び方が並行して使われています</strong>。</p>
         <table>
             <tr><th>古い呼び名（伝統的）</th><th>新しい呼び名（推奨）</th><th>役割</th></tr>
@@ -742,7 +742,7 @@ diagslave -m tcp -p 10502</div>
             💡 <strong>Modbus.org（公式）は「Client / Server」を推奨</strong> していますが、<strong>実機マニュアル・既存ドキュメント・<code>node-red-contrib-modbus</code> のプロパティ名（Unit-Id 等）は今も Master/Slave のまま</strong> のものが大半です。本ガイドでは混乱を避けるため<strong>両方を併記</strong>します。
         </div>
 
-        <h3 id="term-unit-id">🆔 Unit ID（スレーブ ID）</h3>
+        <h3 id="term-unit-id">Unit ID（スレーブ ID）</h3>
         <p>同じ通信路に複数のスレーブがぶら下がっているとき、<strong>どの機器宛ての要求かを示す番号</strong>。シリアル接続が前提の概念です。</p>
         <ul>
             <li><strong>範囲：</strong>有効値は <code>1〜247</code>（248〜255 は予約）。<code>0</code> は<strong>ブロードキャスト</strong>（全スレーブ宛て）として扱われる</li>
@@ -751,7 +751,7 @@ diagslave -m tcp -p 10502</div>
             <li>1 対 1 接続のときは <code>1</code> でほぼ問題ありません</li>
         </ul>
 
-        <h3 id="term-endian">🔀 エンディアン（Endian / ワード順序）</h3>
+        <h3 id="term-endian">エンディアン（Endian / ワード順序）</h3>
         <p>MODBUS のレジスタは <strong>16 bit（1 ワード）単位</strong>ですが、温度（32 bit float）や 32 bit カウンタなど <strong>1 レジスタに収まらない値</strong>を扱うときに問題になります。</p>
         <p>32 bit 値を 2 つの 16 bit レジスタに分けて格納するとき、<strong>どちらのワードを上位にするか</strong>は機器メーカーごとに異なります。</p>
         <table>
@@ -763,7 +763,7 @@ diagslave -m tcp -p 10502</div>
             <strong>⚠️ 値が読めるのに桁が大きすぎる／符号が逆／変な数になる</strong>ときは、まずワード順を疑ってください。<code>node-red-contrib-modbus</code> 側でスワップする処理を Function ノードで挟むか、機器マニュアルの「<strong>Word Order</strong>」「<strong>Byte Swap</strong>」項目を確認します。
         </div>
 
-        <h3 id="term-crc-lrc">🔐 CRC-16 / LRC（誤り検出）</h3>
+        <h3 id="term-crc-lrc">CRC-16 / LRC（誤り検出）</h3>
         <p>シリアル系の Modbus でメッセージが壊れていないかを検査する仕組み。受信側で計算して送信側と一致しなければ捨てます。</p>
         <ul>
             <li><strong>CRC-16</strong>（Cyclic Redundancy Check 16 bit）：Modbus <strong>RTU</strong> が使用。バイナリ全体から 16 bit の検査値を計算</li>
@@ -772,7 +772,7 @@ diagslave -m tcp -p 10502</div>
         </ul>
         <p>node-red-contrib-modbus やシミュレータは自動的に正しい CRC/LRC を付けてくれるため、利用者が手計算することは通常ありません。</p>
 
-        <h3 id="term-plc">🏭 PLC / シーケンサ / インバータ（産業機器）</h3>
+        <h3 id="term-plc">PLC / シーケンサ / インバータ（産業機器）</h3>
         <table>
             <tr><th>用語</th><th>意味</th></tr>
             <tr>
@@ -789,7 +789,7 @@ diagslave -m tcp -p 10502</div>
             </tr>
         </table>
 
-        <h3>📚 参考リンク</h3>
+        <h3>参考リンク</h3>
         <ul>
             <li><a href="https://modbus.org/" target="_blank" rel="noopener">Modbus 公式サイト（modbus.org）</a></li>
             <li><a href="https://modbus.org/docs/Modbus_Application_Protocol_V1_1b3.pdf" target="_blank" rel="noopener">Modbus Application Protocol V1.1b3（公式仕様 PDF）</a></li>
