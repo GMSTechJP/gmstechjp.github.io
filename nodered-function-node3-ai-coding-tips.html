@@ -426,7 +426,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>🤖 AIを活用したFunctionノード作成術</h1>
+        <h1>AIを活用したFunctionノード作成術</h1>
         <div data-envbadge="1" style="margin:12px 0;"><span style="display:inline-block;padding:3px 12px;border-radius:12px;font-size:0.85em;font-weight:bold;background:#e3f2fd;color:#0d47a1;border:1px solid #90caf9;">☁️ クラウドOK</span> <a href="nodered-learning-environment-guide.html" style="font-size:0.82em;">環境とは？</a></div>
 
         <div class="page-nav">
@@ -436,7 +436,7 @@
         </div>
 
         <div class="toc">
-            <h3>📚 目次</h3>
+            <h3>目次</h3>
             <ul>
                 <li><a href="#section1">1. このガイドの目的</a></li>
                 <li><a href="#section2">2. AIに「何を」「どう」依頼するか（3点セット）</a></li>
@@ -450,15 +450,15 @@
             </ul>
         </div>
 
-        <h2 id="section1">📚 1. このガイドの目的</h2>
-        <p>FunctionノードはJavaScriptを書く必要があるため、初心者にとって最初の壁になりがちです。一方、ChatGPT等のAIに「こういう処理を書いて」と頼めば、それらしいコードはすぐ手に入ります。問題は——<strong>そのコードが本当に動くかどうか別の話</strong>、ということです。</p>
+        <h2 id="section1">1. このガイドの目的</h2>
+        <p>FunctionノードはJavaScriptを書く必要があるため、初心者にとって最初の壁になりがちです。一方、ChatGPT等のAIに「こういう処理を書いて」と頼めば、それらしいコードはすぐ手に入ります。問題は、そのコードが本当に動くかどうかは別の話だということです。</p>
 
         <div class="important">
-            <strong>💡 このガイドが目指す姿</strong><br>
-            「AIに頼めばOK」でも「自分で全部書く」でもなく、<strong>「AIに正確に依頼 → Node-RED上で必ず単体テスト → 結果をAIに返して修正」</strong>というループを回す方法を身につけます。これは初心者が最短で動くフローを作るのに、もっとも実用的なアプローチです。
+            <strong>このガイドが目指す姿</strong><br>
+            「AIに頼めばOK」でも「自分で全部書く」でもなく、<strong>「AIに正確に依頼 → Node-RED上で単体テスト → 結果をAIに返して修正」</strong>というループを回す方法を身につけます。これは初心者が動くフローを作るときの、実用的なアプローチの一つです。
         </div>
 
-        <h2 id="section2">🎯 2. AIに「何を」「どう」依頼するか</h2>
+        <h2 id="section2">2. AIに「何を」「どう」依頼するか</h2>
 
         <p>第0章で学んだ <strong>「すべてのプログラムは 入力 → 処理 → 出力」</strong> のおさらいです。Functionノードも例外ではありません。</p>
 
@@ -470,9 +470,9 @@
             <span class="step">📤 出力<br><small>msg(加工後)</small></span>
         </div>
 
-        <p>つまりFunctionノードを書くとは、<strong>「この入力を、この処理で、この出力にする」</strong>を決めること。AIに依頼するときも、この3つを伝えれば的確なコードが返ってきます。逆に、これを伝えないAIには的外れなコードしか書けません。</p>
+        <p>つまりFunctionノードを書くとは、<strong>「この入力を、この処理で、この出力にする」</strong>を決めることです。AIに依頼するときも、この3つを伝えれば的確なコードが返ってきます。逆に、これを伝えないとAIは的外れなコードを返しがちです。</p>
 
-        <h3>🪪 AIに渡すべき「3点セット」</h3>
+        <h3>AIに渡すべき「3点セット」</h3>
 
         <div class="flow-diagram">
             <span class="step input">📥 入力サンプル<br><small>実際のmsg構造</small></span>
@@ -491,22 +491,22 @@
             </div>
             <div class="triple-card input">
                 <h4>② 入力の形（Input shape）</h4>
-                <p><strong>実際の <code>msg</code> をJSON形式で</strong>1件貼り付けるのが最強です。型・ネストの深さ・空文字の有無まで伝わります。</p>
+                <p><strong>実際の <code>msg</code> をJSON形式で</strong>1件貼り付けるのが効果的です。型やネストの深さ、空文字の有無まで伝わります。</p>
                 <p>とくに <code>payload</code> が文字列／数値／オブジェクト／配列のどれなのかは、AIの選ぶコードを大きく左右します。</p>
             </div>
             <div class="triple-card output">
                 <h4>③ 欲しい出力の形（Output shape）</h4>
-                <p>同じく<strong>JSONで完成形を1件</strong>。「これに変換したい」を見せるだけで、AIは正しいプロパティ名・型に合わせて書きます。</p>
+                <p>同じく<strong>JSONで完成形を1件</strong>。「これに変換したい」を見せるだけで、AIは正しいプロパティ名や型に合わせて書きます。</p>
                 <p>型が定まらない場合は「数値で」「文字列のままで」など型を明記。</p>
             </div>
         </div>
 
         <div class="tip">
-            <strong>📝 なぜサンプルを貼るのが効くのか</strong><br>
+            <strong>なぜサンプルを貼るのが効くのか</strong><br>
             自然言語で「2列のCSVを連想配列に」と言うより、<code>"name,age\nAlice,30"</code> という生データを見せる方が、AIに残された解釈の幅がほぼゼロになります。<strong>サンプル1件は、説明文100文字より雄弁</strong>です。
         </div>
 
-        <h2 id="section3">📋 3. コピペで使えるプロンプトテンプレート</h2>
+        <h2 id="section3">3. コピペで使えるプロンプトテンプレート</h2>
 
         <p>まずは下のテンプレートを丸ごとコピーして、<strong>3つの「ここを埋める」部分</strong>を差し替えるだけで、安定した品質のコードが得られます。</p>
 
@@ -535,23 +535,23 @@
 完成したコードと、簡単な動作説明を返してください。</div>
 
         <div class="ok-callout">
-            <h4>✅ このテンプレが効く理由</h4>
+            <h4>このテンプレが効く理由</h4>
             <ul>
                 <li><strong>用途を明示</strong> ← 「Node-RED Function ノード用」と書くことで <code>node.send()</code> や <code>msg.payload</code> 前提で書いてくれる</li>
                 <li><strong>サンプル2点</strong> ← 入力と出力の形が固定され、AIが勝手にプロパティ名を作らない</li>
-                <li><strong>制約セクション</strong> ← 出力数・依存ライブラリ・例外処理の指示でブレを抑える</li>
+                <li><strong>制約セクション</strong> ← 出力数や依存ライブラリ、例外処理の指示でブレを抑える</li>
             </ul>
         </div>
 
-        <h3>👎 NGプロンプト vs 👍 OKプロンプト</h3>
+        <h3>NGプロンプトとOKプロンプト</h3>
 
         <div class="compare-grid">
             <div class="compare-card ng">
-                <h4>❌ NG例：あいまい・サンプルなし</h4>
+                <h4>❌ NG例：あいまいでサンプルなし</h4>
                 <pre style="white-space: pre-wrap; margin: 0; font-size: 13px;">Node-REDで温度のデータを
 処理するコードを書いて。
 異常値を見つけたい。</pre>
-                <p style="margin-top: 12px;"><strong>何が起きるか</strong>: AIが勝手に「温度の構造」「異常値の閾値」「出力形式」を決め打ちしたコードが返ってくる。あなたのフローには合わない可能性が高い。</p>
+                <p style="margin-top: 12px;"><strong>何が起きるか</strong>: AIが勝手に「温度の構造」「異常値の閾値」「出力形式」を決め打ちしたコードが返ってくる。手元のフローには合わない可能性が高い。</p>
             </div>
             <div class="compare-card ok">
                 <h4>✅ OK例：3点セット入り</h4>
@@ -567,11 +567,11 @@
             </div>
         </div>
 
-        <h2 id="section4">🔄 4. Inject + Function + Debug で「単体テスト」する</h2>
+        <h2 id="section4">4. Inject + Function + Debug で「単体テスト」する</h2>
 
         <p>AIから受け取ったコードを、いきなり実フローに組み込むのは危険です。<strong>必ずテスト用フローで単体動作を確認</strong>してから採用しましょう。</p>
 
-        <h3>🧪 テスト用フローのスケルトン</h3>
+        <h3>テスト用フローのスケルトン</h3>
 
         <div class="node-example">
             <span class="node node-inject">Inject<br><small>入力サンプル</small></span>
@@ -650,28 +650,28 @@
 ]</div>
         </details>
 
-        <h3>🛠️ テストの手順（毎回これをやる）</h3>
+        <h3>テストの手順（毎回これをやる）</h3>
         <ol>
-            <li><strong>Injectノードに「典型的な入力」を1つ用意</strong> — payloadType を <code>JSON</code> や <code>文字列</code> に切り替え、本物に近いデータを入れる</li>
+            <li><strong>Injectノードに「典型的な入力」を1つ用意</strong>：payloadType を <code>JSON</code> や <code>文字列</code> に切り替え、本物に近いデータを入れる</li>
             <li><strong>Functionノードに AI のコードをそのまま貼り付け</strong></li>
-            <li><strong>Debugノードを Complete msg object モードにする</strong> — payload以外の <code>msg.topic</code> 等もちゃんと残っているか確認できる</li>
+            <li><strong>Debugノードを Complete msg object モードにする</strong>：payload以外の <code>msg.topic</code> 等もちゃんと残っているか確認できる</li>
             <li><strong>デプロイ → Injectのボタンを押す</strong></li>
             <li><strong>Debugサイドバーで「期待した出力」と一致するか確認</strong></li>
         </ol>
 
         <div class="tip">
-            <strong>💡 境界値も忘れずに</strong><br>
+            <strong>境界値も忘れずに</strong><br>
             最低でも以下を別々のInjectノードで流すのがおすすめです：<br>
             ・典型的な入力（普通のケース）<br>
             ・空の入力（<code>""</code> や <code>[]</code> や <code>{}</code>）<br>
             ・想定外の型（数値が来る想定なのに文字列、など）
         </div>
 
-        <h2 id="section5">🤖 5. AIに結果を返して修正してもらうループ</h2>
+        <h2 id="section5">5. AIに結果を返して修正してもらうループ</h2>
 
         <p>テストで「期待と違う結果」「エラー発生」が起きたら、その<strong>事実をそのままAIに伝える</strong>のがコツです。「動かない」と書くだけではAIも当てずっぽうになります。</p>
 
-        <h3>📨 差し戻し用テンプレート</h3>
+        <h3>差し戻し用テンプレート</h3>
 
         <div class="prompt-box">
 <span class="label-tag">差し戻しテンプレ</span>先ほどのコードをNode-REDで実行したところ、期待した動作になりませんでした。
@@ -700,33 +700,33 @@
 差分の原因と、修正版の完全なコードをお願いします。</div>
 
         <div class="warning">
-            <strong>⚠️ よくある落とし穴：要約しないこと</strong><br>
+            <strong>よくある落とし穴：要約しないこと</strong><br>
             「数字が違いました」「なんかエラーが出ました」のような<strong>要約はNG</strong>。AIが推測で修正するため、別のバグを生むことがあります。<strong>Debug出力はコピペでそのまま渡す</strong>のが鉄則です。
         </div>
 
         <div class="tip">
-            <strong>📸 スクリーンショットを渡すという手</strong><br>
-            ChatGPT・Claude・Gemini・<strong>Microsoft 365 Copilot</strong> など<strong>画像入力に対応したAI</strong>を使っている場合は、エラー文や思い通りでないDebug出力を<strong>スクリーンショットで渡すのも有効な手段</strong>です。
+            <strong>スクリーンショットを渡すという手</strong><br>
+            ChatGPT・Claude・Gemini・Microsoft 365 Copilot など画像入力に対応したAIを使っている場合は、エラー文や思い通りでないDebug出力をスクリーンショットで渡すのも有効な手段です。
             <ul style="margin: 10px 0 0 0;">
-                <li><strong>向いているケース</strong>：Debugサイドバーの赤いエラーボックス、ネストの深いオブジェクトの折りたたみ表示、エディタ画面でのノード接続図、ダッシュボード上の表示崩れなど、<strong>「テキストにすると情報が落ちる」場面</strong></li>
-                <li><strong>合わせてやると良いこと</strong>：画像を貼るだけで終わらせず、<strong>「どの部分が期待と違うか」を文章でも一言添える</strong>と精度が上がります（例：「画像の payload.normal が空配列ですが、本来は6件入るはずです」）</li>
+                <li><strong>向いているケース</strong>：Debugサイドバーの赤いエラーボックス、ネストの深いオブジェクトの折りたたみ表示、エディタ画面でのノード接続図、ダッシュボード上の表示崩れなど、テキストにすると情報が落ちる場面</li>
+                <li><strong>合わせてやると良いこと</strong>：画像を貼るだけで終わらせず、どの部分が期待と違うかを文章でも一言添えると精度が上がります（例：「画像の payload.normal が空配列ですが、本来は6件入るはずです」）</li>
             </ul>
-            つまり「テキスト貼り付け」と「スクリーンショット」は<strong>排他ではなく併用</strong>。コピペで済むものはコピペで、視覚情報が物を言う場面は画像で、と使い分けましょう。
+            「テキスト貼り付け」と「スクリーンショット」は排他ではなく併用できます。コピペで済むものはコピペで、視覚情報が物を言う場面は画像で、と使い分けましょう。
         </div>
 
         <div class="warning">
-            <strong>🔐 大前提：会社業務で使うなら「会社契約のAI」を使うこと</strong><br>
-            業務データ・センサーログ・顧客情報・APIキー・社内システムのスクリーンショットなどを<strong>個人契約のAIや無料サービスに貼り付けるのは、情報漏えいリスクが極めて高い</strong>行為です。コピペでもスクリーンショットでも、AIに送った情報は「自分の端末の外」に出ます。
+            <strong>大前提：会社業務で使うなら「会社契約のAI」を使うこと</strong><br>
+            業務データやセンサーログ、顧客情報、APIキー、社内システムのスクリーンショットなどを<strong>個人契約のAIや無料サービスに貼り付けるのは、情報漏えいリスクが極めて高い</strong>行為です。コピペでもスクリーンショットでも、AIに送った情報は「自分の端末の外」に出ます。
             <ul style="margin: 10px 0 0 0;">
-                <li><strong>OK：会社が契約しているテナント／法人プラン</strong> 例: Microsoft 365 Copilot（テナント契約）、ChatGPT Enterprise / Team、Claude for Work（Team / Enterprise）、Gemini for Workspace ── これらは<strong>原則として入力データをモデル学習に使わない</strong>契約・設定が可能で、監査ログも残せます</li>
-                <li><strong>NG：個人契約・無料サービスを業務利用</strong> 個人の ChatGPT Free / Plus、無料の Gemini、Claude.ai 個人プランなどへの業務情報投入は、多くの会社で<strong>社内規程上の許可が必要／禁止されている</strong>行為です。学習利用の有無は各サービスの<strong>利用規約と個別設定（オプトアウトの有無）に依存</strong>するため、ユーザー自身では完全に把握しきれず、データはサービス提供者側のサーバーに保存される点も留意が必要です</li>
-                <li><strong>送信前チェック</strong>：スクリーンショットは特に文脈ごと写るので、APIキー・トークン・氏名・メールアドレス・社外秘マーク・URL（社内ドメイン）などの映り込みを必ず確認。<strong>テキストよりも漏えいリスクが上がります</strong></li>
+                <li><strong>OK：会社が契約しているテナント／法人プラン</strong> 例: Microsoft 365 Copilot（テナント契約）、ChatGPT Enterprise / Team、Claude for Work（Team / Enterprise）、Gemini for Workspace ── これらは原則として入力データをモデル学習に使わない契約・設定が可能で、監査ログも残せます</li>
+                <li><strong>NG：個人契約・無料サービスを業務利用</strong> 個人の ChatGPT Free / Plus、無料の Gemini、Claude.ai 個人プランなどへの業務情報投入は、多くの会社で社内規程上の許可が必要／禁止されている行為です。学習利用の有無は各サービスの利用規約と個別設定（オプトアウトの有無）に依存するため、ユーザー自身では完全に把握しきれず、データはサービス提供者側のサーバーに保存される点も留意が必要です</li>
+                <li><strong>送信前チェック</strong>：スクリーンショットは特に文脈ごと写るので、APIキーやトークン、氏名、メールアドレス、社外秘マーク、URL（社内ドメイン）などの映り込みを必ず確認。テキストよりも漏えいリスクが上がります</li>
                 <li><strong>迷ったら</strong>：自社の情報セキュリティ規程／生成AI利用ガイドラインを確認、または情シス部門に「このサービスを業務で使ってよいか」を確認してから利用すること</li>
             </ul>
             個人の学習用フローや、このガイドの演習のようにダミーデータしか含まないものなら、無料サービスでも問題ありません。<strong>「業務データかどうか」で線を引く</strong>のがポイントです。
         </div>
 
-        <h3>🔁 差し戻しの典型パターン</h3>
+        <h3>差し戻しの典型パターン</h3>
 
         <table>
             <tr>
@@ -761,11 +761,11 @@
             </tr>
         </table>
 
-        <h2 id="section6">📖 6. 学びを加速させる：AIを「コードの先生」として使う</h2>
+        <h2 id="section6">6. 学びを加速させる：AIを「コードの先生」として使う</h2>
 
-        <p>ここまでは「動くコードを手に入れる」ことに焦点を当ててきました。でも、AIから返ってきたコードを「動いた、よし採用」で終わらせると、あなたのスキルは伸びません。<strong>同じAIを、コードの解説者・先生として使い倒す</strong>ことで、1回のやり取りから学べる量が一気に増えます。</p>
+        <p>ここまでは「動くコードを手に入れる」ことに焦点を当ててきました。ただ、AIから返ってきたコードを「動いた、よし採用」で終わらせると、スキルはなかなか伸びません。<strong>同じAIを、コードの解説者や先生として使い倒す</strong>ことで、1回のやり取りから学べる量が一気に増えます。</p>
 
-        <h3>📝 6-1. コード生成と同時に「コメント付き」で頼む</h3>
+        <h3>6-1. コード生成と同時に「コメント付き」で頼む</h3>
 
         <p>プロンプトの【制約】に1行加えるだけで、勉強用の教材レベルにコードの説明が手厚くなります。</p>
 
@@ -809,15 +809,15 @@ const rows = lines.slice(1).map(line => {
         </div>
 
         <div class="tip">
-            <strong>💡 さらに踏み込むなら</strong><br>
-            「コード末尾に、このコードで使っている<strong>JavaScriptの構文・メソッドのリスト</strong>を初心者向け解説付きで列挙してください」と頼むのも有効です。<code>Array.prototype.reduce</code> / アロー関数 / <code>||</code> 演算子のフォールバック用法、などの索引が手元に残ります。
+            <strong>さらに踏み込むなら</strong><br>
+            「コード末尾に、このコードで使っている<strong>JavaScriptの構文やメソッドのリスト</strong>を初心者向け解説付きで列挙してください」と頼むのも有効です。<code>Array.prototype.reduce</code> / アロー関数 / <code>||</code> 演算子のフォールバック用法、などの索引が手元に残ります。
         </div>
 
-        <h3>❓ 6-2. 「これ何？」と即座に聞き返す</h3>
+        <h3>6-2. 「これ何？」と即座に聞き返す</h3>
 
         <p>動くコードが手に入ったあと、<strong>1行でも理解できない箇所があったら、その場でAIに聞き返す</strong>のが最大の学習チャンスです。検索する手間より早く、その文脈に沿った説明が得られます。</p>
 
-        <h4>🪪 聞き返しテンプレート</h4>
+        <h4>聞き返しテンプレート</h4>
 
         <div class="prompt-box">
 <span class="label-tag">聞き返しテンプレ</span>先ほどのコードについて、以下の部分が理解できませんでした。
@@ -836,22 +836,22 @@ const rows = lines.slice(1).map(line => {
 可能なら、似たことを別の書き方（for ループ等）で書いた場合と比較もお願いします。</div>
 
         <div class="ok-callout">
-            <h4>🎯 こう聞くとさらに学びが深まる</h4>
+            <h4>こう聞くとさらに学びが深まる</h4>
             <ul>
-                <li><strong>「なぜこの書き方？」</strong> — 動作だけでなく設計判断の意図を聞く（例：「なぜ <code>for</code> ではなく <code>map</code>？」）</li>
-                <li><strong>「他の書き方は？」</strong> — 同じ結果を別解で実装してもらい、複数の引き出しを得る（「<code>for</code> 文版・<code>forEach</code> 版・<code>reduce</code> 版それぞれで書いてください」）</li>
-                <li><strong>「もっとシンプルにできる？」</strong> — 冗長な部分の改善案を引き出す（と同時に「なぜ短い方が良いか」も学べる）</li>
-                <li><strong>「逆にもっと初心者向けに、長く書くと？」</strong> — 短すぎて分からない時の逆方向。1行のチェーンを5行のループにほぐしてもらう</li>
-                <li><strong>「これがバグるとしたらどんな入力？」</strong> — エッジケースを自分で考える前にAIに列挙してもらい、防御的プログラミングの感覚を養う</li>
+                <li><strong>「なぜこの書き方？」</strong>：動作だけでなく設計判断の意図を聞く（例：「なぜ <code>for</code> ではなく <code>map</code>？」）</li>
+                <li><strong>「他の書き方は？」</strong>：同じ結果を別解で実装してもらい、複数の引き出しを得る（「<code>for</code> 文版・<code>forEach</code> 版・<code>reduce</code> 版それぞれで書いてください」）</li>
+                <li><strong>「もっとシンプルにできる？」</strong>：冗長な部分の改善案を引き出す（と同時に「なぜ短い方が良いか」も学べる）</li>
+                <li><strong>「逆にもっと初心者向けに、長く書くと？」</strong>：短すぎて分からない時の逆方向。1行のチェーンを5行のループにほぐしてもらう</li>
+                <li><strong>「これがバグるとしたらどんな入力？」</strong>：エッジケースを自分で考える前にAIに列挙してもらい、防御的プログラミングの感覚を養う</li>
             </ul>
         </div>
 
         <div class="warning">
-            <strong>⚠️ 注意：「分かった気」で終わらせない</strong><br>
+            <strong>注意：「分かった気」で終わらせない</strong><br>
             AIの解説を読んで「ふーん、なるほど」で済ませると、次に同じ場面で書けるかは怪しいままです。学んだ書き方は、<strong>その場でちょっとだけ改造して動かしてみる</strong>のが定着の最短ルート。「<code>map</code> を <code>forEach</code> に書き換えても同じ結果になるか？」と試すような小さな実験を積み重ねましょう。
         </div>
 
-        <h3>🔁 6-3. 学びを設計に活かす「派生プロンプト」</h3>
+        <h3>6-3. 学びを設計に活かす「派生プロンプト」</h3>
 
         <p>ひとつのコードから派生させて、視野を広げる質問パターンの代表例：</p>
 
@@ -879,27 +879,27 @@ const rows = lines.slice(1).map(line => {
         </table>
 
         <div class="ok-callout">
-            <h4>🌱 まとめ：AIは「答えを返す機械」ではなく「対話する先生」</h4>
+            <h4>まとめ：AIは「答えを返す機械」ではなく「対話する先生」</h4>
             最初の1往復で動くコードを得たら、そこからの<strong>2〜3往復</strong>で理解度を底上げするのがコツ。「動いた、終わり」ではなく、「動いた、で、これは何？他の書き方は？」と<strong>問い続ける姿勢</strong>そのものが、AIネイティブ時代のプログラミング学習法です。
         </div>
 
-        <h2 id="section7">🏋️ 7. 演習：1サイクル回してみる</h2>
+        <h2 id="section7">7. 演習：1サイクル回してみる</h2>
 
         <div class="exercise">
             <h3>演習1：CSV風文字列をオブジェクト配列に変換 <span class="difficulty difficulty-medium">中級</span></h3>
             <p><strong>シナリオ</strong>: ある外部APIから、改行区切りのCSV文字列が <code>msg.payload</code> に入ってきます。これを「ヘッダ行をキーにしたオブジェクトの配列」に変換したい。</p>
 
-            <h4>📥 入力サンプル（msg.payload）</h4>
+            <h4>入力サンプル（msg.payload）</h4>
             <div class="js-code" data-copy="true">"name,age,city\nAlice,30,Tokyo\nBob,25,Osaka\nCarol,40,Nagoya"</div>
 
-            <h4>📤 期待する出力（msg.payload）</h4>
+            <h4>期待する出力（msg.payload）</h4>
             <div class="js-code" data-copy="true">[
   { "name": "Alice", "age": "30", "city": "Tokyo" },
   { "name": "Bob",   "age": "25", "city": "Osaka" },
   { "name": "Carol", "age": "40", "city": "Nagoya" }
 ]</div>
 
-            <h4>🤖 AIに渡すプロンプト（穴埋め済みの完成形）</h4>
+            <h4>AIに渡すプロンプト（穴埋め済みの完成形）</h4>
             <div class="prompt-box">
 <span class="label-tag">プロンプト</span>Node-RED の Function ノード用 JavaScript を書いてください。
 
@@ -932,7 +932,7 @@ const rows = lines.slice(1).map(line => {
 
 コードと簡単な解説をお願いします。</div>
 
-            <h4>📝 期待されるAI回答（一例）</h4>
+            <h4>期待されるAI回答（一例）</h4>
             <div class="js-code" data-copy="true">// CSV風文字列 → オブジェクト配列
 const text = (msg.payload || "").trim();
 if (!text) {
@@ -954,7 +954,7 @@ msg.payload = rows;
 return msg;</div>
 
             <div class="warning" style="margin-top: 12px;">
-                <strong>⚠️ このコードの限界</strong><br>
+                <strong>このコードの限界</strong><br>
                 上記は <code>line.split(",")</code> による単純分割の実装で、<strong>RFC 4180 準拠の本格CSVには対応していません</strong>。具体的には次のケースで破綻します：
                 <ul style="margin: 6px 0 0 0;">
                     <li>フィールド値にカンマを含む（例：<code>"Smith, Jr"</code>）</li>
@@ -964,7 +964,7 @@ return msg;</div>
                 本格CSVを扱う場合は、<strong>Node-RED 標準の <a href="nodered-csv-node-guide.html">CSVノード</a></strong> を使うのが正解です。Function ノードで自前パースが必要なのは「区切り文字や形式が独自仕様で、CSVノードで扱えない場合」のみ、と覚えておくと手戻りが減ります。
             </div>
 
-            <h4>🧪 単体テスト用フロー</h4>
+            <h4>単体テスト用フロー</h4>
             <details>
                 <summary>📋 演習1：単体テスト用フローJSON（クリックで展開）</summary>
                 <div class="flow-json">[
@@ -1052,7 +1052,7 @@ return msg;</div>
             </details>
 
             <div class="tip">
-                <strong>💡 ステップアップ課題</strong><br>
+                <strong>ステップアップ課題</strong><br>
                 ・<code>age</code> を文字列ではなく数値で出したい場合、AIにどう差し戻せばいいでしょうか？<br>
                 ・カンマがフィールド値に含まれるケース（<code>"Smith, Jr"</code> のような）はどう扱う？という追加要件を投げてみよう。
             </div>
@@ -1062,10 +1062,10 @@ return msg;</div>
             <h3>演習2：温度センサ配列の異常値検知 <span class="difficulty difficulty-medium">中級</span></h3>
             <p><strong>シナリオ</strong>: 1分おきに集めた温度（℃）の配列が <code>msg.payload</code> に入っています。10〜35℃の範囲を「正常」、それ以外を「異常」として、両方を区別して返したい。</p>
 
-            <h4>📥 入力サンプル（msg.payload）</h4>
+            <h4>入力サンプル（msg.payload）</h4>
             <div class="js-code" data-copy="true">[18.5, 22.1, 25.3, 38.7, 24.0, 23.5, -15.2, 25.1]</div>
 
-            <h4>📤 期待する出力（msg.payload）</h4>
+            <h4>期待する出力（msg.payload）</h4>
             <div class="js-code" data-copy="true">{
   "normal":   [18.5, 22.1, 25.3, 24.0, 23.5, 25.1],
   "abnormal": [38.7, -15.2],
@@ -1076,7 +1076,7 @@ return msg;</div>
   }
 }</div>
 
-            <h4>🤖 AIに渡すプロンプト（穴埋め済みの完成形）</h4>
+            <h4>AIに渡すプロンプト（穴埋め済みの完成形）</h4>
             <div class="prompt-box">
 <span class="label-tag">プロンプト</span>Node-RED の Function ノード用 JavaScript を書いてください。
 
@@ -1110,7 +1110,7 @@ return msg;</div>
 
 コードと簡単な解説をお願いします。</div>
 
-            <h4>📝 期待されるAI回答（一例）</h4>
+            <h4>期待されるAI回答（一例）</h4>
             <div class="js-code" data-copy="true">// 温度配列から異常値を分離する
 const MIN_TEMP = 10;
 const MAX_TEMP = 35;
@@ -1139,7 +1139,7 @@ msg.payload = {
 };
 return msg;</div>
 
-            <h4>🧪 単体テスト用フロー</h4>
+            <h4>単体テスト用フロー</h4>
             <details>
                 <summary>📋 演習2：単体テスト用フローJSON（クリックで展開）</summary>
                 <div class="flow-json">[
@@ -1245,17 +1245,17 @@ return msg;</div>
             </details>
 
             <div class="tip">
-                <strong>💡 ステップアップ課題</strong><br>
+                <strong>ステップアップ課題</strong><br>
                 ・「平均値」と「最大値・最小値」もサマリーに加えたい場合のプロンプト改善は？<br>
                 ・閾値そのものを <code>msg.config.minTemp</code> から動的に渡す形にしてほしい場合の差し戻し方は？
             </div>
         </div>
 
-        <h2 id="section8">⚠️ 8. AI生成コードの落とし穴と検証チェックリスト</h2>
+        <h2 id="section8">8. AI生成コードの落とし穴と検証チェックリスト</h2>
 
         <p>AIが書いたコードは、見た目は正しそうでも Node-RED 特有の罠を踏むことがあります。採用前に以下をチェックしましょう。</p>
 
-        <h3>🚧 よくある落とし穴トップ7</h3>
+        <h3>よくある落とし穴トップ7</h3>
 
         <table>
             <tr>
@@ -1308,7 +1308,7 @@ return msg;</div>
             </tr>
         </table>
 
-        <h3>✅ 採用前チェックリスト</h3>
+        <h3>採用前チェックリスト</h3>
 
         <div class="checklist">
             <ul>
@@ -1323,18 +1323,18 @@ return msg;</div>
             </ul>
         </div>
 
-        <h2 id="section9">🎓 9. まとめ＋プロンプト早見表</h2>
+        <h2 id="section9">9. まとめ＋プロンプト早見表</h2>
 
         <div class="ok-callout">
-            <h4>🌟 このガイドの3つの要点</h4>
+            <h4>このガイドの3つの要点</h4>
             <ol>
-                <li><strong>AIに渡すのは「やりたいこと・入力サンプル・期待する出力」の3点セット</strong>。曖昧さを排除すれば一発で動くコードが返ってくる確率が上がる。</li>
+                <li><strong>AIに渡すのは「やりたいこと、入力サンプル、期待する出力」の3点セット</strong>。曖昧さを排除すれば一発で動くコードが返ってくる確率が上がる。</li>
                 <li><strong>コードは必ず Inject + Function + Debug で単体テスト</strong>。実フローに組み込むのは、典型値＋境界値で動作確認した後。</li>
                 <li><strong>動かなければDebug出力をそのままAIに返して修正依頼</strong>。要約せず、生のmsgとエラー全文を貼るのが最短ルート。</li>
             </ol>
         </div>
 
-        <h3>📑 やりたいこと別 プロンプトひな型早見表</h3>
+        <h3>やりたいこと別 プロンプトひな型早見表</h3>
 
         <table>
             <tr>
@@ -1343,12 +1343,12 @@ return msg;</div>
                 <th>渡すサンプル</th>
             </tr>
             <tr>
-                <td>文字列の整形・分割</td>
+                <td>文字列の整形や分割</td>
                 <td>「文字列を、こういう構造の配列／オブジェクトに変換」</td>
                 <td>変換前の生文字列 + 変換後のJSON</td>
             </tr>
             <tr>
-                <td>配列の集計・フィルタ</td>
+                <td>配列の集計やフィルタ</td>
                 <td>「配列から条件に合う要素を抜き出す／集計する」</td>
                 <td>配列1件（10要素程度） + 期待する集計結果</td>
             </tr>
@@ -1365,17 +1365,17 @@ return msg;</div>
             <tr>
                 <td>状態を覚えておきたい</td>
                 <td>「context / flow / global のどこに保存したいか明記」</td>
-                <td>初回msg・2回目msg・期待される蓄積結果</td>
+                <td>初回msg、2回目msg、期待される蓄積結果</td>
             </tr>
             <tr>
                 <td>外部APIを呼びたい</td>
                 <td>そもそもFunctionでやらない方が良いケースが多い</td>
-                <td><strong>HTTP Requestノード</strong>を検討。Functionで書くなら認証・エラー処理も明記</td>
+                <td><strong>HTTP Requestノード</strong>を検討。Functionで書くなら認証やエラー処理も明記</td>
             </tr>
         </table>
 
         <div class="next-box" style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-left: 5px solid #1976d2; padding: 20px 25px; margin: 30px 0 10px; border-radius: 6px;">
-            <h3 style="margin-top: 0; color: #0d47a1;">➡️ あわせて読みたい</h3>
+            <h3 style="margin-top: 0; color: #0d47a1;">あわせて読みたい</h3>
             <ul style="margin-bottom: 0;">
                 <li><a href="nodered-function-node-guide.html" style="color: #1565c0; font-weight: bold;">Functionノード ガイド</a> ── ノード自体の設定・モード・基本パターン</li>
                 <li><a href="nodered-function-node2-javascript-guide.html" style="color: #1565c0; font-weight: bold;">JavaScript入門（Functionノード向け）</a> ── 配列・文字列・オブジェクト操作の基礎</li>
