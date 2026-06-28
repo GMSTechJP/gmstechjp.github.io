@@ -472,76 +472,144 @@
         
         <h3>設定項目一覧</h3>
 
+        <p>Join ノードの設定欄は、上部で選ぶ「動作」（モード）に応じて表示が切り替わる。まず全モード共通の項目を決め、続いて選んだモードの専用項目を設定する。</p>
+
+        <h4>共通（モードの選択）</h4>
         <table>
             <tr>
                 <th>設定項目</th>
                 <th>説明</th>
-                <th>使用モード</th>
+                <th>既定値</th>
+            </tr>
+            <tr>
+                <td><strong>名前</strong></td>
+                <td>ノードに付ける表示名。指定するとフロー上のラベルになる。</td>
+                <td>（空）</td>
             </tr>
             <tr>
                 <td><strong>動作</strong></td>
-                <td>自動/手動/Reduceから選択</td>
-                <td>全モード共通</td>
+                <td>結合のモードを選ぶ。<strong>自動</strong>は split が付けた msg.parts を頼りに元の形へ戻す。<strong>手動</strong>は出力形式と送信タイミングを自分で指定する。<strong>列の集約</strong>（Reduce）は JSONata 式でメッセージ列を 1 つの値へ畳み込む。</td>
+                <td>自動</td>
+            </tr>
+        </table>
+
+        <h4>「動作」＝手動のときの項目</h4>
+        <table>
+            <tr>
+                <th>設定項目</th>
+                <th>説明</th>
+                <th>既定値</th>
+            </tr>
+            <tr>
+                <td><strong>結合</strong></td>
+                <td>結合の対象にするメッセージプロパティ。通常は msg.payload。「メッセージ全体」を選ぶと msg ごと結合する。</td>
+                <td>msg.payload</td>
             </tr>
             <tr>
                 <td><strong>出力</strong></td>
-                <td>文字列/配列/オブジェクト/マージ</td>
-                <td>手動モード</td>
+                <td>結合結果をどの形にまとめるか（種類は下表）。</td>
+                <td>key/valueオブジェクト</td>
             </tr>
             <tr>
-                <td><strong>対象プロパティ</strong></td>
-                <td>結合対象のメッセージプロパティ</td>
-                <td>手動/Reduce</td>
+                <td><strong>使用する値</strong>（をキーとして使用）</td>
+                <td>出力が「key/valueオブジェクト」のとき、どのプロパティをキーにするか。既定は msg.topic。</td>
+                <td>topic</td>
             </tr>
             <tr>
                 <td><strong>連結文字</strong></td>
-                <td>文字列結合時の区切り文字</td>
-                <td>手動(文字列)</td>
-            </tr>
-            <tr>
-                <td><strong>使用する値</strong></td>
-                <td>オブジェクト結合時のキーとなるプロパティ</td>
-                <td>手動(オブジェクト)</td>
-            </tr>
-            <tr>
-                <td><strong>合計値</strong></td>
-                <td>結合するメッセージの数</td>
-                <td>手動/Reduce</td>
-            </tr>
-            <tr>
-                <td><strong>タイムアウト</strong></td>
-                <td>指定秒数後に強制結合</td>
-                <td>手動/Reduce</td>
+                <td>出力が「文字列」「バッファ」のとき、各値の間に挟む区切り。</td>
+                <td>\n（改行）</td>
             </tr>
             <tr>
                 <td><strong>既存のmsg.partsプロパティを使用</strong></td>
-                <td>既存のmsg.parts情報を使用してシーケンスを認識</td>
-                <td>手動モード</td>
+                <td>入力に付いている msg.parts のシーケンス情報を使って、結合の順序と件数を判断する。</td>
+                <td>オフ</td>
+            </tr>
+        </table>
+
+        <p><strong>メッセージ送信:</strong> 手動モードでは、次のいずれかの条件が満たされたときに結合結果を送り出す（条件は併用できる）。</p>
+        <table>
+            <tr>
+                <th>設定項目</th>
+                <th>説明</th>
+                <th>既定値</th>
             </tr>
             <tr>
-                <td><strong>蓄積モード</strong></td>
-                <td>各メッセージ受信時に出力を生成</td>
-                <td>手動モード</td>
+                <td><strong>指定数のメッセージパーツを受信後</strong></td>
+                <td>受信した件数がこの数に達したら送信する。</td>
+                <td>（空）</td>
             </tr>
             <tr>
-                <td><strong>Reduce式</strong></td>
-                <td>JSONata式で集計処理を定義</td>
-                <td>Reduceモード</td>
+                <td><strong>後続のメッセージ毎</strong></td>
+                <td>件数に達した後も、メッセージを受け取るたびに最新の結合結果を送り続ける（出力が key/valueオブジェクト・結合オブジェクトのときだけ表示）。</td>
+                <td>オフ</td>
+            </tr>
+            <tr>
+                <td><strong>最初のメッセージ受信からのタイムアウト後</strong></td>
+                <td>最初の受信から指定した秒数が過ぎたら、その時点までの分で送信する。</td>
+                <td>（空）</td>
+            </tr>
+            <tr>
+                <td><strong>msg.complete プロパティが設定されたメッセージ受信後</strong></td>
+                <td>msg.complete を持つメッセージを受け取った時点で送信する（エディター上は設定欄ではなく説明として表示される）。</td>
+                <td>—</td>
+            </tr>
+        </table>
+
+        <h4>「出力」の種類</h4>
+        <table>
+            <tr>
+                <th>選択肢</th>
+                <th>結合結果</th>
+            </tr>
+            <tr>
+                <td><strong>文字列</strong></td>
+                <td>各値を連結文字でつないだ 1 つの文字列。</td>
+            </tr>
+            <tr>
+                <td><strong>バッファ</strong></td>
+                <td>各値を連結した 1 つのバイナリバッファ。</td>
+            </tr>
+            <tr>
+                <td><strong>配列</strong></td>
+                <td>受信順に並べた配列。</td>
+            </tr>
+            <tr>
+                <td><strong>key/valueオブジェクト</strong></td>
+                <td>「使用する値」で指定したキーを見出しにしたオブジェクト。</td>
+            </tr>
+            <tr>
+                <td><strong>結合オブジェクト</strong></td>
+                <td>各メッセージのオブジェクトを 1 つにマージしたオブジェクト。</td>
+            </tr>
+        </table>
+
+        <h4>「動作」＝列の集約（Reduce）のときの項目</h4>
+        <table>
+            <tr>
+                <th>設定項目</th>
+                <th>説明</th>
+                <th>既定値</th>
+            </tr>
+            <tr>
+                <td><strong>集約式</strong></td>
+                <td>メッセージごとに評価する JSONata 式。累積値 <code>$A</code> に現在値を足し込むなど、畳み込みの本体を書く。</td>
+                <td>（未設定）</td>
             </tr>
             <tr>
                 <td><strong>初期値</strong></td>
-                <td>Reduce処理の初期値</td>
-                <td>Reduceモード</td>
+                <td><code>$A</code> の初期値。型も選べる。</td>
+                <td>（未設定）</td>
             </tr>
             <tr>
-                <td><strong>最終処理</strong></td>
-                <td>結合完了後の変換式</td>
-                <td>Reduceモード</td>
+                <td><strong>最終調整式</strong></td>
+                <td>全メッセージの処理後に 1 度だけ評価し、結果を仕上げる JSONata 式。合計を件数 <code>$N</code> で割って平均にするなど。</td>
+                <td>（未設定）</td>
             </tr>
             <tr>
-                <td><strong>逆順で評価</strong></td>
-                <td>メッセージを逆順で処理</td>
-                <td>Reduceモード</td>
+                <td><strong>評価を逆順に行う (最後から最初)</strong></td>
+                <td>メッセージ列を末尾から先頭へ向けて畳み込む。</td>
+                <td>オフ</td>
             </tr>
         </table>
         
@@ -601,7 +669,7 @@
         </div>
         
         <p><strong>設定例:</strong></p>
-        <div class="code-block">モード: 自動
+        <div class="code-block">動作: 自動
 
 入力: "Apple" → "Orange" → "Banana" → "Kiwi" (4メッセージ)
 出力: "Apple\nOrange\nBanana\nKiwi" (1メッセージ)</div>
@@ -629,10 +697,10 @@
         </div>
         
         <p><strong>設定例:</strong></p>
-        <div class="code-block">モード: 手動
-結合形式: 文字列
-結合文字: ,
-メッセージ数: 2
+        <div class="code-block">動作: 手動
+出力: 文字列
+連結文字: ,
+指定数のメッセージパーツを受信後: 2
 
 入力: "Apple" → "Orange" → "Banana" → "Kiwi"
 出力: "Apple,Orange" → "Banana,Kiwi"</div>
@@ -662,10 +730,10 @@
         </div>
         
         <p><strong>設定例:</strong></p>
-        <div class="code-block">モード: 手動
-結合形式: 文字列
-結合文字: ,
-タイムアウト: 2秒
+        <div class="code-block">動作: 手動
+出力: 文字列
+連結文字: ,
+最初のメッセージ受信からのタイムアウト後: 2（秒）
 
 入力: 1秒間隔で "Apple" → "Orange" → "Banana" → "Kiwi"
 出力: "Apple,Orange" → "Banana,Kiwi" (約2秒ごとに出力)</div>
@@ -684,9 +752,9 @@
         </div>
         
         <p><strong>設定例:</strong></p>
-        <div class="code-block">モード: 手動
-結合形式: 配列
-メッセージ数: 2
+        <div class="code-block">動作: 手動
+出力: 配列
+指定数のメッセージパーツを受信後: 2
 
 入力: "Apple" → "Orange" → "Banana" → "Kiwi"
 出力: ["Apple", "Orange"] → ["Banana", "Kiwi"]</div>
@@ -719,9 +787,9 @@
         </div>
         
         <p><strong>設定例:</strong></p>
-        <div class="code-block">モード: 手動
-結合形式: キー/値 オブジェクト
-メッセージ数: 2
+        <div class="code-block">動作: 手動
+出力: key/valueオブジェクト
+指定数のメッセージパーツを受信後: 2
 
 入力: {topic: "Apple", payload: 100} → {topic: "Orange", payload: 80}
 出力: {"Apple": 100, "Orange": 80}</div>
@@ -751,10 +819,10 @@
         </div>
         
         <p><strong>設定例:</strong></p>
-        <div class="code-block">モード: Reduce
-Reduce式: $A + payload
+        <div class="code-block">動作: 列の集約（Reduce）
+集約式: $A + payload
 初期値: 0
-最終処理: $A / $N
+最終調整式: $A / $N
 
 入力: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
 処理: (1+2+3+4+5+6+7+8+9+10) / 10
@@ -800,10 +868,10 @@ Reduce式: $A + payload
                 </ul>
                 <p><strong>Joinノードの設定:</strong></p>
                 <ul>
-                    <li>モード: 手動</li>
-                    <li>結合形式: 文字列</li>
-                    <li>結合文字: <code>/</code></li>
-                    <li>メッセージ数: 4（またはmsg.parts.countを使う自動モードでも可）</li>
+                    <li>動作: 手動</li>
+                    <li>出力: 文字列</li>
+                    <li>連結文字: <code>/</code></li>
+                    <li>指定数のメッセージパーツを受信後: 4（または msg.parts.count を使う自動モードでも可）</li>
                 </ul>
             </details>
             
@@ -952,9 +1020,9 @@ Reduce式: $A + payload
                 </ul>
                 <p><strong>Joinノードの設定:</strong></p>
                 <ul>
-                    <li>モード: 手動</li>
-                    <li>結合形式: 配列</li>
-                    <li>メッセージ数: 3</li>
+                    <li>動作: 手動</li>
+                    <li>出力: 配列</li>
+                    <li>指定数のメッセージパーツを受信後: 3</li>
                 </ul>
             </details>
             
@@ -1127,9 +1195,9 @@ Reduce式: $A + payload
                 </ul>
                 <p><strong>Joinノードの設定:</strong></p>
                 <ul>
-                    <li>モード: 手動</li>
-                    <li>結合形式: キー/値 オブジェクト</li>
-                    <li>メッセージ数: 2</li>
+                    <li>動作: 手動</li>
+                    <li>出力: key/valueオブジェクト</li>
+                    <li>指定数のメッセージパーツを受信後: 2</li>
                 </ul>
             </details>
             
@@ -1331,10 +1399,10 @@ Reduce式: $A + payload
                 </ul>
                 <p><strong>Joinノードの設定:</strong></p>
                 <ul>
-                    <li>モード: Reduce</li>
-                    <li>Reduce式: <code>$A + payload</code></li>
+                    <li>動作: 列の集約（Reduce）</li>
+                    <li>集約式: <code>$A + payload</code></li>
                     <li>初期値: 0（数値型）</li>
-                    <li>最終処理: 空（合計のみなので不要）</li>
+                    <li>最終調整式: 空（合計のみなので不要）</li>
                 </ul>
             </details>
             
@@ -1470,7 +1538,7 @@ Reduce式: $A + payload
             <ul>
                 <li>✅ <strong>自動モード</strong>: Splitノードと連携してmsg.partsを使用して再結合</li>
                 <li>✅ <strong>手動モード</strong>: メッセージ数、タイムアウト、msg.completeで結合タイミングを制御</li>
-                <li>✅ <strong>結合形式</strong>: 文字列、配列、オブジェクト、マージから選択可能</li>
+                <li>✅ <strong>出力</strong>: 文字列・バッファ・配列・key/valueオブジェクト・結合オブジェクトから選択</li>
                 <li>✅ <strong>Reduceモード</strong>: JSONata式で柔軟な集計処理（$A, $I, $Nを活用）</li>
                 <li>✅ <strong>msg.complete</strong>: trueを設定すると即座に結合を完了</li>
             </ul>
@@ -1482,7 +1550,7 @@ Reduce式: $A + payload
                 <li><strong>msg.partsの消失</strong>: 途中のノードでmsg.partsを削除すると自動モードが機能しない</li>
                 <li><strong>メッセージ数の不一致</strong>: 指定したcount数に達しないとタイムアウトまで待機</li>
                 <li><strong>異なるidのメッセージ</strong>: msg.parts.idが異なるメッセージは別グループとして扱われる</li>
-                <li><strong>Reduce式のエラー</strong>: JSONata式の構文エラーに注意</li>
+                <li><strong>集約式のエラー</strong>: JSONata式の構文エラーに注意</li>
                 <li><strong>タイムアウト未設定</strong>: メッセージが揃わない場合、永久に待機してしまう</li>
             </ul>
         </div>
@@ -1573,7 +1641,7 @@ Split（行ごとに分割）
 ↓
 フィルタリング（エラーログのみ）
 ↓
-Join（Reduce: $A + 1, 初期値: 0）
+Join（集約式: $A + 1, 初期値: 0）
 ↓
 エラー件数: 15</div>
         
@@ -1619,7 +1687,7 @@ Join（配列形式）
             </tr>
         </table>
         
-        <h3>Reduce式の例</h3>
+        <h3>集約式の例</h3>
         <div class="code-block">// 合計
 $A + payload
 
