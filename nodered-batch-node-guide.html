@@ -451,7 +451,7 @@
                 <p>指定した数のメッセージをグループ化</p>
                 <div class="code-block">N個ずつまとめて
 シーケンス作成
-オーバーラップ可能</div>
+オーバラップ可能</div>
             </div>
             
             <div class="feature-card">
@@ -470,56 +470,91 @@
         </div>
         
         <h3>設定項目一覧</h3>
-        
+
+        <p>Batch ノードは上部で選んだ「モード」によって設定欄が切り替わる。まずモードを選び、続いてそのモード専用の項目を設定する。</p>
+
+        <h4>共通（モードの選択）</h4>
         <table>
             <tr>
                 <th>設定項目</th>
                 <th>説明</th>
-                <th>使用モード</th>
+                <th>既定値</th>
             </tr>
             <tr>
                 <td><strong>モード</strong></td>
-                <td>数量/時間/連結から選択</td>
-                <td>全モード共通</td>
+                <td>グループ化のやり方を選ぶ。<strong>メッセージ数でグループ化</strong>は一定件数ごと、<strong>時間間隔でグループ化</strong>は一定秒数ごと、<strong>列の結合</strong>は複数トピックのシーケンスを指定順に連結する。</td>
+                <td>メッセージ数でグループ化</td>
+            </tr>
+            <tr>
+                <td><strong>名前</strong></td>
+                <td>ノードに付ける表示名。指定するとフロー上のラベルになる。</td>
+                <td>（空）</td>
+            </tr>
+        </table>
+
+        <h4>「モード」＝メッセージ数でグループ化のときの項目</h4>
+        <table>
+            <tr>
+                <th>設定項目</th>
+                <th>説明</th>
+                <th>既定値</th>
             </tr>
             <tr>
                 <td><strong>メッセージ数</strong></td>
-                <td>1グループにまとめるメッセージ数</td>
-                <td>数量ベース</td>
+                <td>1 グループにまとめるメッセージの件数。</td>
+                <td>10</td>
             </tr>
             <tr>
-                <td><strong>オーバーラップ</strong></td>
-                <td>隣接グループ間で共有するメッセージ数</td>
-                <td>数量ベース</td>
+                <td><strong>オーバラップ</strong></td>
+                <td>隣り合うグループ間で重複させるメッセージの件数。移動平均のように直前の値を引き継ぎたいときに使う。</td>
+                <td>0</td>
             </tr>
             <tr>
                 <td><strong>msg.partsを用いたbatch操作を許可</strong></td>
-                <td>受信メッセージのmsg.partsを考慮する</td>
-                <td>数量ベース</td>
+                <td>入力に付いている msg.parts のシーケンス情報を考慮してグループ化する。</td>
+                <td>オフ</td>
+            </tr>
+        </table>
+
+        <h4>「モード」＝時間間隔でグループ化のときの項目</h4>
+        <table>
+            <tr>
+                <th>設定項目</th>
+                <th>説明</th>
+                <th>既定値</th>
             </tr>
             <tr>
-                <td><strong>間隔（秒）</strong></td>
-                <td>グループ化する時間間隔</td>
-                <td>時間ベース</td>
+                <td><strong>時間間隔</strong>（秒）</td>
+                <td>1 グループにまとめる時間の長さ（秒）。</td>
+                <td>10</td>
             </tr>
             <tr>
                 <td><strong>メッセージを受信しない場合、空のメッセージを送信</strong></td>
-                <td>メッセージがない場合も空シーケンスを出力</td>
-                <td>時間ベース</td>
+                <td>その間隔に 1 件も届かなくても、空のシーケンスを送り出す。</td>
+                <td>オフ</td>
+            </tr>
+        </table>
+
+        <h4>「モード」＝列の結合のときの項目</h4>
+        <table>
+            <tr>
+                <th>設定項目</th>
+                <th>説明</th>
+                <th>既定値</th>
             </tr>
             <tr>
                 <td><strong>トピック</strong></td>
-                <td>連結するシーケンスのトピック順序</td>
-                <td>連結モード</td>
+                <td>連結するシーケンスのトピックを順番に並べる。ここに書いた順序で各トピックのメッセージ列がつながる。</td>
+                <td>（空 1 件）</td>
             </tr>
         </table>
         
-        <h3>オーバーラップの動作</h3>
+        <h3>オーバラップの動作</h3>
         
-        <p>数量ベースモードでは、グループ間でメッセージを共有（オーバーラップ）できます。</p>
+        <p>数量ベースモードでは、グループ間でメッセージを共有（オーバラップ）できます。</p>
         
         <div class="batch-visual">
-            <p><strong>オーバーラップなし（overlap=0）:</strong></p>
+            <p><strong>オーバラップなし（overlap=0）:</strong></p>
             <span class="msg group1">0</span>
             <span class="msg group1">1</span>
             <span class="msg group1">2</span>
@@ -534,7 +569,7 @@
             |
             <span class="msg group3">10</span>...
             <br><br>
-            <p><strong>オーバーラップあり（overlap=1）:</strong></p>
+            <p><strong>オーバラップあり（overlap=1）:</strong></p>
             <span class="msg group1">0</span>
             <span class="msg group1">1</span>
             <span class="msg group1">2</span>
@@ -550,7 +585,7 @@
         </div>
         
         <div class="tip">
-            <p><strong>オーバーラップの活用例:</strong></p>
+            <p><strong>オーバラップの活用例:</strong></p>
             <ul>
                 <li><strong>移動平均の計算</strong>: 直近5件のデータで平均を取り、1件ずつスライド</li>
                 <li><strong>パターン検出</strong>: 前後の文脈を含めたデータ分析</li>
@@ -861,14 +896,14 @@
         </div>
         
         <p><strong>設定例:</strong></p>
-        <div class="code-block">モード: 数量ベース
+        <div class="code-block">モード: メッセージ数でグループ化
 メッセージ数: 5
-オーバーラップ: 0
+オーバラップ: 0（重複なし）
 
 入力: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ... , 29 (30メッセージ)
 出力: [0,1,2,3,4], [5,6,7,8,9], ... , [25,26,27,28,29] (6グループ)</div>
         
-        <h3>パターン2: オーバーラップ付きグループ化</h3>
+        <h3>パターン2: オーバラップ付きグループ化</h3>
         <p><strong>用途:</strong> 隣接グループでメッセージを共有（移動平均など）</p>
         
         <div class="node-example">
@@ -884,17 +919,17 @@
         </div>
         
         <div class="tip">
-            <p><strong>オーバーラップの効果:</strong></p>
+            <p><strong>オーバラップの効果:</strong></p>
             <ul>
                 <li>overlap=1の場合、各グループの最後の1メッセージが次のグループにも含まれる</li>
-                <li>30メッセージ → 7グループ（オーバーラップなしなら6グループ）</li>
+                <li>30メッセージ → 7グループ（オーバラップなしなら6グループ）</li>
             </ul>
         </div>
         
         <p><strong>設定例:</strong></p>
-        <div class="code-block">モード: 数量ベース
+        <div class="code-block">モード: メッセージ数でグループ化
 メッセージ数: 5
-オーバーラップ: 1
+オーバラップ: 1
 
 入力: 0, 1, 2, ..., 29 (30メッセージ)
 出力: 
@@ -930,8 +965,8 @@
         </div>
         
         <p><strong>設定例:</strong></p>
-        <div class="code-block">モード: 時間ベース
-間隔: 5秒
+        <div class="code-block">モード: 時間間隔でグループ化
+時間間隔: 5（秒）
 空シーケンスを許可: OFF
 
 入力: 1秒間隔で 0, 1, 2, 3, ... , 29
@@ -986,13 +1021,13 @@
                 </ul>
                 <p><strong>Batchノードの設定:</strong></p>
                 <ul>
-                    <li>モード: 数量ベース</li>
+                    <li>モード: メッセージ数でグループ化</li>
                     <li>メッセージ数: 3</li>
-                    <li>オーバーラップ: 0</li>
+                    <li>オーバラップ: 0</li>
                 </ul>
                 <p><strong>Joinノードの設定:</strong></p>
                 <ul>
-                    <li>モード: 自動</li>
+                    <li>動作: 自動</li>
                 </ul>
             </details>
             
@@ -1113,7 +1148,7 @@
             <h3>演習2: 移動ウィンドウの実装<span class="difficulty difficulty-medium">中級</span></h3>
             
             <p><strong>課題:</strong></p>
-            <p>オーバーラップを使って3要素の移動ウィンドウを作成してください。</p>
+            <p>オーバラップを使って3要素の移動ウィンドウを作成してください。</p>
             
             <p><strong>要求仕様:</strong></p>
             <ul>
@@ -1124,14 +1159,14 @@
             
             <p><strong>期待される動作:</strong></p>
             <ul>
-                <li>各グループが2要素ずつオーバーラップする</li>
+                <li>各グループが2要素ずつオーバラップする</li>
             </ul>
             
             <p><strong>成功の条件:</strong></p>
             <ul>
                 <li>デバッグパネルに4つの配列メッセージが表示される</li>
                 <li>各配列の要素数がちょうど3個になっている</li>
-                <li>4つのグループが [1,2,3]、[2,3,4]、[3,4,5]、[4,5,6] の順に出力される（各グループが2要素オーバーラップ）</li>
+                <li>4つのグループが [1,2,3]、[2,3,4]、[3,4,5]、[4,5,6] の順に出力される（各グループが2要素オーバラップ）</li>
             </ul>
 
             <details>
@@ -1142,9 +1177,9 @@
                 </ul>
                 <p><strong>Batchノードの設定:</strong></p>
                 <ul>
-                    <li>モード: 数量ベース</li>
+                    <li>モード: メッセージ数でグループ化</li>
                     <li>メッセージ数: 3</li>
-                    <li>オーバーラップ: 2（3-1=2で1要素ずつスライド）</li>
+                    <li>オーバラップ: 2（3-1=2で1要素ずつスライド）</li>
                 </ul>
             </details>
             
@@ -1299,8 +1334,8 @@
                 </ul>
                 <p><strong>Batchノードの設定:</strong></p>
                 <ul>
-                    <li>モード: 時間ベース</li>
-                    <li>間隔: 2秒</li>
+                    <li>モード: 時間間隔でグループ化</li>
+                    <li>時間間隔: 2（秒）</li>
                 </ul>
             </details>
             
@@ -1479,13 +1514,13 @@
                 </ul>
                 <p><strong>Batchノードの設定:</strong></p>
                 <ul>
-                    <li>モード: 数量ベース</li>
+                    <li>モード: メッセージ数でグループ化</li>
                     <li>メッセージ数: 3</li>
-                    <li>オーバーラップ: 2</li>
+                    <li>オーバラップ: 2</li>
                 </ul>
                 <p><strong>Joinノードの設定:</strong></p>
                 <ul>
-                    <li>モード: 自動（配列に結合）</li>
+                    <li>動作: 自動（配列に結合）</li>
                 </ul>
                 <p><strong>Functionノード（平均計算）の設定:</strong></p>
                 <ul>
@@ -1652,7 +1687,7 @@
             <h3>Batchノードの重要ポイント</h3>
             <ul>
                 <li><strong>3つのモード</strong>: 数量ベース、時間ベース、連結モード</li>
-                <li><strong>数量ベース</strong>: N個ずつグループ化、オーバーラップ設定可能</li>
+                <li><strong>数量ベース</strong>: N個ずつグループ化、オーバラップ設定可能</li>
                 <li><strong>時間ベース</strong>: 指定秒数ごとにグループを出力</li>
                 <li><strong>連結モード</strong>: トピック別シーケンスを順番に結合</li>
                 <li><strong>Joinとの連携</strong>: 出力シーケンスをJoinで配列化するのが一般的</li>
@@ -1663,7 +1698,7 @@
             <h3>よくある間違い</h3>
             <ul>
                 <li><strong>Joinノードの忘れ</strong>: Batchの出力はシーケンス、配列にするにはJoinが必要</li>
-                <li><strong>オーバーラップの計算ミス</strong>: overlap = count - スライド幅</li>
+                <li><strong>オーバラップの計算ミス</strong>: overlap = count - スライド幅</li>
                 <li><strong>時間モードでのタイミング</strong>: 最初の出力は指定秒数後</li>
                 <li><strong>連結モードのトピック未設定</strong>: msg.topicが設定されていないと動作しない</li>
                 <li><strong>空シーケンスの扱い</strong>: 時間モードでメッセージがない場合の動作を確認</li>
@@ -1701,8 +1736,8 @@
                 <td>Batchの後にJoinノードを追加</td>
             </tr>
             <tr>
-                <td>オーバーラップが想定と違う</td>
-                <td>オーバーラップ値の理解ミス</td>
+                <td>オーバラップが想定と違う</td>
+                <td>オーバラップ値の理解ミス</td>
                 <td>overlap = count - 移動幅 で計算</td>
             </tr>
             <tr>
