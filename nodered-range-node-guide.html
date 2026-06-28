@@ -98,21 +98,25 @@
         <h2 id="section2">2. 設定詳細</h2>
         
         <h3>主要プロパティ</h3>
+        <p>数値の入力範囲を出力範囲へ写像する。範囲外の値の扱いは「動作」で決める。</p>
         <table>
-            <tr><th>プロパティ</th><th>説明</th><th>デフォルト</th></tr>
-            <tr><td><strong>Property</strong></td><td>変換対象のプロパティ</td><td>msg.payload</td></tr>
-            <tr><td><strong>Action</strong></td><td>範囲外の値の処理方法</td><td>Scale</td></tr>
-            <tr><td><strong>Input Range</strong></td><td>入力値の範囲（最小〜最大）</td><td>空</td></tr>
-            <tr><td><strong>Output Range</strong></td><td>出力値の範囲（最小〜最大）</td><td>空</td></tr>
-            <tr><td><strong>Round</strong></td><td>整数に丸める</td><td>false</td></tr>
+            <tr><th>設定項目</th><th>説明</th><th>既定値</th></tr>
+            <tr><td><strong>プロパティ</strong></td><td>変換する数値が入っている入力プロパティ</td><td>msg.payload</td></tr>
+            <tr><td><strong>動作</strong></td><td>入力値をどう写像するか。特に入力範囲を外れた値の扱いを決める（下の「動作の種類」から選ぶ）</td><td>msg.payloadの値を拡大/縮小</td></tr>
+            <tr><td><strong>入力値の範囲</strong></td><td>変換前の値が取りうる範囲。最小値と最大値を入力する</td><td>（空）</td></tr>
+            <tr><td><strong>出力値の範囲</strong></td><td>変換後に割り当てる範囲。最小値と最大値を入力する</td><td>（空）</td></tr>
+            <tr><td><strong>小数値を四捨五入し整数値へ変換</strong></td><td>変換結果を四捨五入して整数にするか（チェックボックス）</td><td>オフ</td></tr>
+            <tr><td><strong>名前</strong></td><td>エディター上のノード表示名</td><td>（空）</td></tr>
         </table>
-        
-        <h3>Action（範囲外の値の処理）</h3>
+
+        <h3>「動作」の種類</h3>
+        <p>「動作」セレクタで選べる4つの写像方法。例は入力範囲 0〜10、出力範囲 0〜100 で、範囲外の入力値 15 を与えた場合を示す。</p>
         <table>
-            <tr><th>オプション</th><th>説明</th><th>例（入力0-10→出力0-100で入力15の場合）</th></tr>
-            <tr><td><strong>Scale and limit</strong></td><td>範囲内に制限（クランプ）</td><td>100（上限で制限）</td></tr>
-            <tr><td><strong>Scale and wrap</strong></td><td>範囲を超えたら折り返し</td><td>50（15-10=5 → 50）</td></tr>
-            <tr><td><strong>Scale only</strong></td><td>制限なしで変換継続</td><td>150（そのまま変換）</td></tr>
+            <tr><th>選択肢</th><th>説明</th><th>入力15のとき</th></tr>
+            <tr><td><strong>msg.payloadの値を拡大/縮小</strong></td><td>範囲で制限せず、比例関係のまま変換し続ける</td><td>150</td></tr>
+            <tr><td><strong>入力値の範囲外の値を最小値/最大値とし拡大/縮小</strong></td><td>入力範囲を外れた値を範囲の端に丸めてから変換する（クランプ）</td><td>100</td></tr>
+            <tr><td><strong>入力値の範囲外の値を範囲幅で割った余りとし拡大/縮小</strong></td><td>範囲を超えた分を折り返す（15 は範囲幅 10 で割った余り 5 として扱う）</td><td>50</td></tr>
+            <tr><td><strong>値を拡大/縮小(入力範囲外の時はメッセージを削除)</strong></td><td>入力が範囲外ならメッセージを通さない</td><td>（出力されない）</td></tr>
         </table>
         
         <h3>変換例</h3>
@@ -243,7 +247,7 @@
         "action": "clamp",
         "round": true,
         "property": "payload",
-        "name": "Scale & Limit",
+        "name": "クランプ",
         "x": 410,
         "y": 180,
         "wires": [["debug_limit"]]
@@ -252,7 +256,7 @@
         "id": "debug_limit",
         "type": "debug",
         "z": "range_sample_tab",
-        "name": "Limit: 255",
+        "name": "クランプ: 255",
         "active": true,
         "tosidebar": true,
         "console": false,
@@ -276,7 +280,7 @@
         "action": "scale",
         "round": true,
         "property": "payload",
-        "name": "Scale Only",
+        "name": "拡大/縮小のみ",
         "x": 410,
         "y": 220,
         "wires": [["debug_scale"]]
@@ -285,7 +289,7 @@
         "id": "debug_scale",
         "type": "debug",
         "z": "range_sample_tab",
-        "name": "Scale: 382",
+        "name": "拡大/縮小: 383",
         "active": true,
         "tosidebar": true,
         "console": false,
@@ -309,7 +313,7 @@
         "action": "roll",
         "round": true,
         "property": "payload",
-        "name": "Scale & Wrap",
+        "name": "折り返し",
         "x": 410,
         "y": 260,
         "wires": [["debug_wrap"]]
@@ -318,7 +322,7 @@
         "id": "debug_wrap",
         "type": "debug",
         "z": "range_sample_tab",
-        "name": "Wrap: 127",
+        "name": "折り返し: 128",
         "active": true,
         "tosidebar": true,
         "console": false,
@@ -402,16 +406,16 @@
         <div class="node-example">
             <span class="node node-inject">150を送信</span>
             <span class="arrow">→</span>
-            <span class="node node-range">Scale & Limit</span>
+            <span class="node node-range">クランプ</span>
             <span class="arrow">→</span>
             <span class="node node-debug">255（上限に制限）</span>
         </div>
-        <p><strong>3つのモードの違い:</strong></p>
+        <p><strong>3つの動作の違い:</strong></p>
         <table>
-            <tr><th>モード</th><th>入力150（範囲外）の結果</th><th>説明</th></tr>
-            <tr><td>Scale & Limit</td><td>255</td><td>出力範囲に制限</td></tr>
-            <tr><td>Scale Only</td><td>382</td><td>そのまま変換（範囲外も許可）</td></tr>
-            <tr><td>Scale & Wrap</td><td>127</td><td>範囲内にラップ（循環）</td></tr>
+            <tr><th>「動作」の選択肢</th><th>入力150（範囲外）の結果</th><th>説明</th></tr>
+            <tr><td>入力値の範囲外の値を最小値/最大値とし拡大/縮小</td><td>255</td><td>出力範囲の端に制限（クランプ）</td></tr>
+            <tr><td>msg.payloadの値を拡大/縮小</td><td>383</td><td>制限せず比例のまま変換</td></tr>
+            <tr><td>入力値の範囲外の値を範囲幅で割った余りとし拡大/縮小</td><td>128</td><td>範囲内に折り返し（循環）</td></tr>
         </table>
         
         <h3>パターン2: 温度変換（摂氏→華氏）</h3>
@@ -425,8 +429,8 @@
         </div>
         <p><strong>設定:</strong></p>
         <ul>
-            <li>Input Range: 0〜100（摂氏）</li>
-            <li>Output Range: 32〜212（華氏）</li>
+            <li>入力値の範囲: 0〜100（摂氏）</li>
+            <li>出力値の範囲: 32〜212（華氏）</li>
             <li>変換式: F = C × 1.8 + 32</li>
         </ul>
         
@@ -451,7 +455,7 @@
 
             <details>
                 <summary>💡 ヒント</summary>
-                <p>Range ノードで Input Range を 0-100、Output Range を 0-255 に設定し、Round をチェックします。</p>
+                <p>range ノードで「入力値の範囲」を 0-100、「出力値の範囲」を 0-255 に設定し、「小数値を四捨五入し整数値へ変換」にチェックを入れます。</p>
             </details>
             <details>
                 <summary>✅ 解答例フロー</summary>
@@ -483,7 +487,7 @@
 
             <details>
                 <summary>💡 ヒント</summary>
-                <p>Round をオフにすると小数点以下も保持されます。表示形式の調整には Function ノードを追加できます。</p>
+                <p>「小数値を四捨五入し整数値へ変換」をオフにすると小数点以下も保持されます。表示形式の調整には Function ノードを追加できます。</p>
             </details>
             <details>
                 <summary>✅ 解答例フロー</summary>
@@ -517,7 +521,7 @@
 
             <details>
                 <summary>💡 ヒント</summary>
-                <p>Action を「Scale and limit」に設定すると、範囲外の値は自動的に制限されます。</p>
+                <p>「動作」で「入力値の範囲外の値を最小値/最大値とし拡大/縮小」を選ぶと、範囲外の値は範囲の端に制限されます。</p>
             </details>
             <details>
                 <summary>✅ 解答例フロー</summary>
@@ -574,7 +578,7 @@
             <ul>
                 <li>Range ノードは数値を線形変換するシンプルなノード</li>
                 <li>センサー値の正規化やスケール変換に最適</li>
-                <li>範囲外の値の処理方法を3種類から選択可能</li>
+                <li>範囲外の値の処理方法を4種類から選択可能</li>
                 <li>Round オプションで整数化が可能</li>
             </ul>
         </div>
@@ -595,7 +599,7 @@
             <tr><td>出力が NaN になる</td><td>入力が数値でない</td><td>Change ノードで数値型に変換</td></tr>
             <tr><td>期待通りの値にならない</td><td>範囲設定ミス</td><td>入力/出力範囲を確認</td></tr>
             <tr><td>小数が出力される</td><td>Round が無効</td><td>Round にチェックを入れる</td></tr>
-            <tr><td>範囲外の値が出力される</td><td>Action が Scale Only</td><td>Scale and Limit に変更</td></tr>
+            <tr><td>範囲外の値が出力される</td><td>「動作」が「msg.payloadの値を拡大/縮小」</td><td>「入力値の範囲外の値を最小値/最大値とし拡大/縮小」に変更</td></tr>
         </table>
         
         <h2 id="section7">7. 実務活用例</h2>
