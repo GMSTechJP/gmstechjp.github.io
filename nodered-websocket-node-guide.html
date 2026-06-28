@@ -138,34 +138,68 @@
         
         <h2 id="section2">⚙️ 2. WebSocket設定ノード</h2>
         
-        <p>WebSocket In/Out ノードは、<strong>設定ノード</strong>（WebSocket-listener または WebSocket-client）を共有します。</p>
-        
-        <h3>サーバーモード（Listen）</h3>
-        <p>Node-REDがWebSocketサーバーとして動作し、クライアントからの接続を受け付けます。</p>
+        <p>WebSocket In/Out ノードは、<strong>設定ノード</strong>（WebSocket-listener または WebSocket-client）を共有します。In/Out ノード側では「種類」で「待ち受け」（サーバー）か「接続」（クライアント）を選び、対応する設定ノードを指定します。</p>
+
+        <h3>待ち受け（サーバー）</h3>
+        <p>Node-REDがWebSocketサーバーとして動作し、クライアントからの接続を受け付けます。設定ノード WebSocket-listener の項目は次のとおりです。</p>
         <table>
-            <tr><th>プロパティ</th><th>説明</th><th>例</th></tr>
-            <tr><td><strong>種類</strong></td><td>Listen at（サーバー）</td><td>-</td></tr>
-            <tr><td><strong>パス</strong></td><td>WebSocketエンドポイント</td><td>/ws/chat</td></tr>
-            <tr><td><strong>送受信</strong></td><td>データ形式（→ <a href="#term-message-format">用語集</a>）</td><td>entire message / payload</td></tr>
+            <tr><th>設定項目</th><th>説明</th><th>既定値</th></tr>
+            <tr>
+                <td><strong>パス</strong></td>
+                <td>待ち受けるWebSocketエンドポイントのパス。Node-RED のベースURL（例 <code>ws://localhost:1880</code>）からの相対パスになります。</td>
+                <td>（必須・既定なし）</td>
+            </tr>
+            <tr>
+                <td><strong>送信/受信</strong></td>
+                <td>やり取りするデータの単位を選びます。「ペイロードを送信/受信」は <code>msg.payload</code> だけを送受信します。「メッセージ全体を送信/受信」は msg 全体をJSON文字列にして送受信します（→ <a href="#term-message-format">用語集</a>）。</td>
+                <td>ペイロードを送信/受信</td>
+            </tr>
         </table>
-        
+
         <div class="code-block">// クライアントからの接続URL
 ws://localhost:1880/ws/chat</div>
-        
-        <h3>クライアントモード（Connect）</h3>
-        <p>Node-REDがWebSocketクライアントとして、外部サーバーに接続します。</p>
+
+        <h3>接続（クライアント）</h3>
+        <p>Node-REDがWebSocketクライアントとして、外部サーバーに接続します。設定ノード WebSocket-client の項目は次のとおりです。</p>
         <table>
-            <tr><th>プロパティ</th><th>説明</th><th>例</th></tr>
-            <tr><td><strong>種類</strong></td><td>Connect to（クライアント）</td><td>-</td></tr>
-            <tr><td><strong>URL</strong></td><td>接続先WebSocketサーバー</td><td>ws://example.com/socket</td></tr>
-            <tr><td><strong>ハートビート送信</strong></td><td>キープアライブ送信（<a href="#term-ping-pong">Ping/Pong フレーム</a>を一定間隔で送信）</td><td>25秒ごと</td></tr>
+            <tr><th>設定項目</th><th>説明</th><th>既定値</th></tr>
+            <tr>
+                <td><strong>URL</strong></td>
+                <td>接続先WebSocketサーバーのURL。<code>ws://</code> または <code>wss://</code> で始めます。</td>
+                <td>（必須・既定なし）</td>
+            </tr>
+            <tr>
+                <td><strong>TLS設定</strong></td>
+                <td><code>wss://</code> で接続するときのTLS設定ノード。自己署名証明書やクライアント証明書を使う場合に指定します。</td>
+                <td>（なし）</td>
+            </tr>
+            <tr>
+                <td><strong>サブプロトコル</strong></td>
+                <td>接続時に提示するWebSocketサブプロトコル名。サーバーが特定のサブプロトコルを要求する場合に指定します。</td>
+                <td>（空）</td>
+            </tr>
+            <tr>
+                <td><strong>送信/受信</strong></td>
+                <td>やり取りするデータの単位。「ペイロードを送信/受信」か「メッセージ全体を送信/受信」を選びます（→ <a href="#term-message-format">用語集</a>）。</td>
+                <td>ペイロードを送信/受信</td>
+            </tr>
+            <tr>
+                <td><strong>ハートビートを送信</strong></td>
+                <td>チェックを入れると、指定した秒間隔で <a href="#term-ping-pong">Ping/Pong フレーム</a>を送り、接続を維持します。</td>
+                <td>オフ</td>
+            </tr>
+            <tr>
+                <td><strong>ヘッダ</strong></td>
+                <td>接続要求（HTTP Upgrade）時に付与するHTTPヘッダ。認証トークンなどを渡すときに使います。</td>
+                <td>（なし）</td>
+            </tr>
         </table>
-        
-        <h3>Send/Receive オプション</h3>
+
+        <h3>送信/受信の選択肢</h3>
         <table>
-            <tr><th>オプション</th><th>説明</th><th>用途</th></tr>
-            <tr><td><strong><a href="#term-message-format">entire message</a></strong></td><td>msg全体をJSON化して送受信</td><td>Node-RED間通信</td></tr>
-            <tr><td><strong><a href="#term-message-format">payload only</a></strong></td><td>msg.payloadのみ送受信</td><td>一般的なWebSocket通信</td></tr>
+            <tr><th>選択肢</th><th>説明</th><th>用途</th></tr>
+            <tr><td><strong><a href="#term-message-format">メッセージ全体を送信/受信</a></strong></td><td>msg全体をJSON文字列にして送受信</td><td>Node-RED間通信</td></tr>
+            <tr><td><strong><a href="#term-message-format">ペイロードを送信/受信</a></strong></td><td><code>msg.payload</code> のみ送受信</td><td>一般的なWebSocket通信</td></tr>
         </table>
         
         <h2 id="section3">⚙️ 3. WebSocket In / Out ノード</h2>
@@ -605,8 +639,8 @@ ws.send("テストメッセージ");</div>
                 <summary>💡 ヒント</summary>
                 <p><strong>WebSocket In ノード:</strong></p>
                 <ul>
-                    <li>Type: Listen at</li>
-                    <li>Path: /ws/myecho</li>
+                    <li>種類: 待ち受け</li>
+                    <li>パス: /ws/myecho</li>
                 </ul>
                 <p><strong>WebSocket Out ノード:</strong> 同じ設定ノードを選択</p>
                 <p>WebSocket In の出力を直接 WebSocket Out に接続すれば、msg._session が保持されて送信元に返信されます。</p>
@@ -857,7 +891,7 @@ return msg;</div>
             <li><strong>用途</strong>: キープアライブ／死活確認／遅延（レイテンシ）測定</li>
         </ul>
         <div class="tip">
-            💡 Node-RED の WebSocket 設定にある <strong>「ハートビート送信」</strong>（既定 25 秒）が、この Ping を一定間隔で自動送信する機能です。クラウド経由や Cloudflare 経由などで切断が起きやすい環境では、<strong>間隔を短く</strong>することで安定性が増します。
+            💡 Node-RED の WebSocket 設定にある <strong>「ハートビートを送信」</strong>（クライアント設定の項目。秒数を指定）が、この Ping を一定間隔で自動送信する機能です。クラウド経由や Cloudflare 経由などで切断が起きやすい環境では、<strong>間隔を短く</strong>することで安定性が増します。
         </div>
 
         <h3 id="term-close-frame">👋 クローズフレームとクローズコード</h3>
@@ -881,15 +915,15 @@ return msg;</div>
             <li>「サーバー再起動時に全クライアントが切断され、一斉再接続でサーバーが落ちる」のは<strong>典型的なハマりどころ</strong></li>
         </ul>
 
-        <h3 id="term-message-format">📝 entire message / payload only（Node-RED 固有の選択肢）</h3>
-        <p>Node-RED の WebSocket 設定ノードでは、<strong>送受信するデータの形</strong>を 2 つから選びます。</p>
+        <h3 id="term-message-format">📝 ペイロードを送信/受信 と メッセージ全体を送信/受信（Node-RED 固有の選択肢）</h3>
+        <p>Node-RED の WebSocket 設定ノードでは、「送信/受信」の欄で <strong>送受信するデータの形</strong>を 2 つから選びます。</p>
         <table>
             <tr><th>選択肢</th><th>送受信される内容</th><th>用途</th></tr>
-            <tr><td><strong>payload only</strong></td><td><code>msg.payload</code> のみ</td><td>通常の WebSocket 通信（ブラウザの <code>new WebSocket()</code> と素直に互換）</td></tr>
-            <tr><td><strong>entire message</strong></td><td><code>msg</code> オブジェクト全体を JSON 化</td><td><strong>Node-RED 同士の通信</strong>（topic 等の付加情報も丸ごと運びたい）</td></tr>
+            <tr><td><strong>ペイロードを送信/受信</strong></td><td><code>msg.payload</code> のみ</td><td>通常の WebSocket 通信（ブラウザの <code>new WebSocket()</code> と素直に互換）</td></tr>
+            <tr><td><strong>メッセージ全体を送信/受信</strong></td><td><code>msg</code> オブジェクト全体を JSON 化</td><td><strong>Node-RED 同士の通信</strong>（topic 等の付加情報も丸ごと運びたい）</td></tr>
         </table>
         <div class="warning">
-            <strong>⚠️ Node-RED 独自の挙動</strong>: <code>entire message</code> は <strong>WebSocket 標準ではなく Node-RED の便利機能</strong>です。ブラウザ等の外部クライアントから <strong>JSON 文字列として届く</strong> ため、受け取り側で <code>JSON.parse()</code> が必要になります。
+            <strong>⚠️ Node-RED 独自の挙動</strong>: <strong>「メッセージ全体を送信/受信」</strong>は <strong>WebSocket 標準ではなく Node-RED の便利機能</strong>です。ブラウザ等の外部クライアントから <strong>JSON 文字列として届く</strong> ため、受け取り側で <code>JSON.parse()</code> が必要になります。
         </div>
 
         <h3>📚 参考リンク</h3>
