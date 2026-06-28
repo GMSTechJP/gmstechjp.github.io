@@ -512,84 +512,105 @@ Split的に出力</div>
             </div>
         </div>
         
-        <h3>設定項目一覧（パース時）</h3>
+        <p>エディターの設定欄は、上から順に「共通設定」「CSVからオブジェクトへ変換」「オブジェクトからCSVへ変換」の3区分に分かれています。共通設定は両方向に効き、残りの2区分は変換の向きごとに別々に効きます。</p>
 
+        <h3>共通設定</h3>
+        <p>区切りより上の欄で、パース（CSV→オブジェクト）と生成（オブジェクト→CSV）の両方に効きます。</p>
         <table>
             <tr>
                 <th>設定項目</th>
                 <th>説明</th>
-                <th>例</th>
+                <th>既定値</th>
             </tr>
             <tr>
-                <td><strong>パーサ</strong></td>
-                <td>CSV解析の準拠仕様</td>
-                <td>RFC 4180 / legacy</td>
+                <td><strong>列名</strong></td>
+                <td>変換に使う列名をコンマ区切りで指定する。パース時は各行をこの名前を持つオブジェクトに変換し、生成時はこの順序と範囲で列を出力する（空欄なら全プロパティ）</td>
+                <td>（なし）</td>
             </tr>
             <tr>
                 <td><strong>区切り文字</strong></td>
-                <td>列を区切る文字</td>
-                <td>, (カンマ)、\t (タブ)、; (セミコロン)</td>
+                <td>列を区切る文字。コンマ／タブ／空白／セミコロン／コロン／ハッシュタグから選ぶ。「その他...」を選ぶと任意の1〜2文字を入力できる</td>
+                <td>コンマ</td>
             </tr>
             <tr>
-                <td><strong>列名</strong></td>
-                <td>出力オブジェクトのキー名</td>
-                <td>kind,price,origin</td>
+                <td><strong>パーサ</strong></td>
+                <td>CSV の解釈方式。<strong>RFC4180</strong>＝引用符やエスケープを RFC 4180 に準拠して扱う。<strong>従来</strong>＝旧実装（将来のリリースで削除予定のため新規は RFC4180 を推奨）</td>
+                <td>RFC4180</td>
             </tr>
             <tr>
-                <td><strong>1行目に列名を含む</strong></td>
-                <td>CSVの先頭行をカラム名として使用</td>
-                <td>チェックON/OFF</td>
-            </tr>
-            <tr>
-                <td><strong>出力</strong></td>
-                <td>1行ずつメッセージ or 配列で一括</td>
-                <td>行毎にメッセージを分割 / 配列化した1つのメッセージ</td>
-            </tr>
-            <tr>
-                <td><strong>最初の〜行を無視する</strong></td>
-                <td>先頭から無視する行数</td>
-                <td>0, 1, 2...</td>
-            </tr>
-            <tr>
-                <td><strong>数値を変換する</strong></td>
-                <td>数値文字列を数値型に変換</td>
-                <td>チェックON/OFF</td>
-            </tr>
-            <tr>
-                <td><strong>空の文字を含む</strong></td>
-                <td>空のフィールドを含めるか</td>
-                <td>チェックON/OFF</td>
-            </tr>
-            <tr>
-                <td><strong>null値を含む</strong></td>
-                <td>null値を含めるか</td>
-                <td>チェックON/OFF</td>
+                <td><strong>名前</strong></td>
+                <td>ノードの識別名</td>
+                <td>（なし）</td>
             </tr>
         </table>
-        
-        <h3>設定項目一覧（生成時）</h3>
 
+        <h3>CSVからオブジェクトへ変換</h3>
+        <p>CSV 文字列を読み取ってオブジェクト（や配列）にするときの設定。エディターでは「入力」（読み込み方）と「出力」（渡し方）に分かれています。</p>
+        <p><strong>入力</strong></p>
         <table>
             <tr>
                 <th>設定項目</th>
                 <th>説明</th>
-                <th>例</th>
+                <th>既定値</th>
             </tr>
             <tr>
-                <td><strong>列名</strong></td>
-                <td>出力するプロパティとその順序</td>
-                <td>kind,price（originは除外）</td>
+                <td><strong>最初の〜行を無視する</strong></td>
+                <td>先頭から読み飛ばす行数。ファイル冒頭の注記行などを除くときに使う</td>
+                <td>0</td>
+            </tr>
+            <tr>
+                <td><strong>1行目に列名を含む</strong></td>
+                <td>先頭行を列名として使う。チェックすると上の「列名」欄より優先される</td>
+                <td>OFF</td>
+            </tr>
+            <tr>
+                <td><strong>数値を変換する</strong></td>
+                <td><code>"123"</code> のような数値文字列を数値型に変換する。OFF だと文字列のまま</td>
+                <td>ON</td>
+            </tr>
+            <tr>
+                <td><strong>空の文字を含む</strong></td>
+                <td>空のフィールド（<code>""</code>）を結果に含める</td>
+                <td>OFF</td>
+            </tr>
+            <tr>
+                <td><strong>null値を含む</strong></td>
+                <td>値のないフィールドを <code>null</code> として含める</td>
+                <td>OFF</td>
+            </tr>
+        </table>
+        <p><strong>出力</strong>：変換結果の渡し方を次から選びます。</p>
+        <table>
+            <tr><th>選択肢</th><th>意味</th></tr>
+            <tr><td><strong>行毎にメッセージを分割</strong></td><td>1行を1メッセージとして順に送る（<code>msg.parts</code> 付き）。既定値</td></tr>
+            <tr><td><strong>配列化した1つのメッセージ</strong></td><td>全行をオブジェクト配列にまとめ、1メッセージで送る</td></tr>
+        </table>
+
+        <h3>オブジェクトからCSVへ変換</h3>
+        <p>オブジェクト（や配列）を CSV 文字列にするときの設定。</p>
+        <table>
+            <tr>
+                <th>設定項目</th>
+                <th>説明</th>
+                <th>既定値</th>
             </tr>
             <tr>
                 <td><strong>出力</strong></td>
-                <td>カラム名を先頭行に出力するか</td>
-                <td>カラムヘッダを送信しない / カラムヘッダを常に送信する / ヘッダを一度だけ送信する</td>
+                <td>ヘッダ行（列名の行）の送り方を選ぶ。選択肢は下表の3つ</td>
+                <td>カラムヘッダを送信しない</td>
             </tr>
             <tr>
                 <td><strong>改行コード</strong></td>
-                <td>行末の改行文字</td>
-                <td>\n (LF) / \r\n (CRLF)</td>
+                <td>行末に付ける改行。Windows (\r\n) ／ Linux (\n) ／ Mac (\r) から選ぶ</td>
+                <td>Windows (\r\n)</td>
             </tr>
+        </table>
+        <p>出力（ヘッダ行）の選択肢:</p>
+        <table>
+            <tr><th>選択肢</th><th>意味</th></tr>
+            <tr><td><strong>カラムヘッダを送信しない</strong></td><td>データ行だけを出力する</td></tr>
+            <tr><td><strong>カラムヘッダを常に送信する</strong></td><td>毎メッセージの先頭に列名の行を付ける</td></tr>
+            <tr><td><strong>ヘッダを一度だけ送信する(msg.resetの受け付けると再送)</strong></td><td>最初の1回だけ列名の行を付ける。<code>msg.reset</code> を受け取ると再びヘッダを送る</td></tr>
         </table>
         
         <h3>入力メッセージで制御できるプロパティ</h3>
@@ -607,7 +628,7 @@ Split的に出力</div>
             </tr>
             <tr>
                 <td><strong>msg.columns</strong></td>
-                <td>動的にカラム名を指定</td>
+                <td>動的に列名を指定</td>
                 <td>"kind,price,origin"</td>
             </tr>
             <tr>
@@ -1215,9 +1236,9 @@ Split的に出力</div>
         
         <p><strong>設定例:</strong></p>
         <div class="code-block">区切り文字: ,
-カラム名: （空白 = col1, col2, col3...を自動生成）
-1行目をカラム名に: OFF
-出力形式: 1行毎にメッセージを送信
+列名: （空白 = col1, col2, col3...を自動生成）
+1行目に列名を含む: OFF
+出力: 行毎にメッセージを分割
 
 入力: "Apple,100,Canada\nOrange,120,USA\nBanana,80,Philippines"
 出力1: {col1: "Apple", col2: "100", col3: "Canada"}
@@ -1239,7 +1260,7 @@ Split的に出力</div>
         
         <p><strong>設定例:</strong></p>
         <div class="code-block">区切り文字: ,
-出力形式: 単一の配列メッセージとして出力
+出力: 配列化した1つのメッセージ
 
 入力: "Apple,100,Canada\nOrange,120,USA\nBanana,80,Philippines"
 出力: [
@@ -1264,15 +1285,15 @@ Split的に出力</div>
         <div class="tip">
             <p><strong>ポイント</strong></p>
             <ul>
-                <li>CSVノードの「カラム」設定で <code>kind,price,origin</code> を指定</li>
+                <li>CSVノードの「列名」設定で <code>kind,price,origin</code> を指定</li>
                 <li>col1, col2... ではなく、意味のある名前になる</li>
             </ul>
         </div>
         
         <p><strong>設定例:</strong></p>
         <div class="code-block">区切り文字: ,
-カラム名: kind,price,origin
-1行目をカラム名に: OFF
+列名: kind,price,origin
+1行目に列名を含む: OFF
 
 入力: "Apple,100,Canada\nOrange,120,USA"
 出力1: {kind: "Apple", price: "100", origin: "Canada"}
@@ -1293,7 +1314,7 @@ Split的に出力</div>
         
         <p><strong>設定例:</strong></p>
         <div class="code-block">区切り文字: ,
-1行目をカラム名に: ON
+1行目に列名を含む: ON
 
 入力: "kind,price,origin\nApple,100,Canada\nOrange,120,USA"
 出力1: {kind: "Apple", price: "100", origin: "Canada"}  ← 先頭行はスキップ
@@ -1321,7 +1342,7 @@ Split的に出力</div>
         </div>
         
         <p><strong>設定例:</strong></p>
-        <div class="code-block">カラム名: kind,price  ← originは除外
+        <div class="code-block">列名: kind,price  ← originは除外
 ヘッダー行: なし
 
 入力: {kind: "Apple", price: 100, origin: "Canada"}
@@ -1341,7 +1362,7 @@ Split的に出力</div>
         </div>
         
         <p><strong>設定例:</strong></p>
-        <div class="code-block">カラム名: kind,price
+        <div class="code-block">列名: kind,price
 ヘッダー行: 常に出力
 
 入力: [
@@ -1362,7 +1383,7 @@ Split的に出力</div>
             <ul>
                 <li>Inject、Template、CSV、Debugノードを使用</li>
                 <li>入力CSV: "りんご,150\nみかん,100\nバナナ,80"</li>
-                <li>カラム名: name, price</li>
+                <li>列名: name, price</li>
                 <li>1行ずつメッセージとして出力</li>
             </ul>
             
@@ -1394,8 +1415,8 @@ Split的に出力</div>
                 <p><strong>CSVノードの設定:</strong></p>
                 <ul>
                     <li>区切り文字: <code>,</code></li>
-                    <li>カラム: <code>name,price</code></li>
-                    <li>出力: 1行毎にメッセージを送信</li>
+                    <li>列名: <code>name,price</code></li>
+                    <li>出力: 行毎にメッセージを分割</li>
                 </ul>
             </details>
             
@@ -1534,8 +1555,8 @@ Split的に出力</div>
                 <p><strong>CSVノードの設定:</strong></p>
                 <ul>
                     <li>区切り文字: <code>,</code></li>
-                    <li>1行目をカラム名に: チェックON</li>
-                    <li>出力: 単一の配列メッセージとして出力</li>
+                    <li>1行目に列名を含む: チェックON</li>
+                    <li>出力: 配列化した1つのメッセージ</li>
                 </ul>
             </details>
             
@@ -1808,14 +1829,14 @@ Split的に出力</div>
                 <p><strong>フローの構成:</strong></p>
                 <ol>
                     <li>Template: ヘッダー付きCSVを作成</li>
-                    <li>CSV（パース）: 1行目をカラム名として使用、1行ずつ出力</li>
+                    <li>CSV（パース）: 「1行目に列名を含む」を有効化、1行ずつ出力</li>
                     <li>Join: 自動モードで配列に結合</li>
                     <li>CSV（生成）: kind,priceカラムのみでCSV生成</li>
                 </ol>
                 <p><strong>CSVノード（パース）の設定:</strong></p>
                 <ul>
-                    <li>1行目をカラム名に: チェックON</li>
-                    <li>出力: 1行毎にメッセージを送信（msg.parts付き）</li>
+                    <li>1行目に列名を含む: チェックON</li>
+                    <li>出力: 行毎にメッセージを分割（msg.parts付き）</li>
                 </ul>
                 <p><strong>Joinノードの設定:</strong></p>
                 <ul>
@@ -1980,8 +2001,8 @@ Split的に出力</div>
             <ul>
                 <li><strong>双方向変換</strong>: CSV文字列 ↔ JavaScriptオブジェクトの相互変換</li>
                 <li><strong>自動判定</strong>: 入力データ型で変換方向を自動判定</li>
-                <li><strong>カラム名</strong>: 設定、先頭行、msg.columnsの3つの方法で指定可能</li>
-                <li><strong>出力形式</strong>: 1行ずつメッセージ or 配列で一括（パース時）</li>
+                <li><strong>列名</strong>: 設定欄、先頭行、msg.columnsの3つの方法で指定可能</li>
+                <li><strong>出力</strong>: 行毎にメッセージを分割 か 配列化した1つのメッセージ（パース時）</li>
                 <li><strong>ヘッダー制御</strong>: なし/常に/最初だけの3パターン（生成時）</li>
                 <li><strong>msg.parts</strong>: 1行ずつ出力時はSplitと同様のparts情報付き</li>
             </ul>
@@ -1990,7 +2011,7 @@ Split的に出力</div>
         <div class="warning">
             <h3>よくある間違い</h3>
             <ul>
-                <li><strong>数値が文字列になる</strong>: 「数値を変換」オプションをOFFにしていると文字列のまま</li>
+                <li><strong>数値が文字列になる</strong>: 「数値を変換する」オプションをOFFにしていると文字列のまま</li>
                 <li><strong>カラム数の不一致</strong>: CSVの列数とカラム名の数が合わないとエラー</li>
                 <li><strong>改行コードの違い</strong>: Windows(\r\n)とLinux(\n)で改行コードが異なる</li>
                 <li><strong>特殊文字の扱い</strong>: カンマや改行を含むデータは引用符で囲む必要がある</li>
@@ -2022,17 +2043,17 @@ Split的に出力</div>
             <tr>
                 <td>数値が文字列になる</td>
                 <td>数値変換がOFF</td>
-                <td>「数値を変換」オプションをONに</td>
+                <td>「数値を変換する」オプションをONに</td>
             </tr>
             <tr>
                 <td>カラム名がcol1,col2...</td>
-                <td>カラム名未指定</td>
-                <td>カラム設定または1行目をカラム名として使用</td>
+                <td>「列名」を未指定</td>
+                <td>「列名」欄の設定、または「1行目に列名を含む」を有効化</td>
             </tr>
             <tr>
                 <td>出力プロパティが不足</td>
                 <td>カラム名でフィルタリング</td>
-                <td>必要なプロパティをすべてカラムに指定</td>
+                <td>必要なプロパティをすべて「列名」に指定</td>
             </tr>
             <tr>
                 <td>文字化け</td>
