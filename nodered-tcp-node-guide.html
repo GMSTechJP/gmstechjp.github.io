@@ -67,7 +67,7 @@
         </div>
 
         <div class="warning">
-            🔌 <strong>共有クラウドサーバーで学ぶ方へ：</strong> TCP In を「Listen on（サーバー）」で使うと、サーバー全体で1つしかないポートを開きます。<strong>同じ番号は学習者1名しか使えません</strong>。サンプルのポート番号（9000 等）はそのまま使わず、<strong>自分専用の番号に変えて</strong>ください。「Connect to（クライアント）」側は競合しません。ポートを気にせず自由に試すなら <a href="nodered-learning-environment-guide.html">ローカルPC / ラズパイ</a> がおすすめです（→ <a href="nodered-learning-environment-guide.html">学習環境ガイド</a>）。
+            🔌 <strong>共有クラウドサーバーで学ぶ方へ：</strong> TCP In を種類「待ち受け」（サーバー）で使うと、サーバー全体で1つしかないポートを開きます。<strong>同じ番号は学習者1名しか使えません</strong>。サンプルのポート番号（9000 等）はそのまま使わず、<strong>自分専用の番号に変えて</strong>ください。種類「接続」（クライアント）側は競合しません。ポートを気にせず自由に試すなら <a href="nodered-learning-environment-guide.html">ローカルPC / ラズパイ</a> がおすすめです（→ <a href="nodered-learning-environment-guide.html">学習環境ガイド</a>）。
         </div>
         
         <div class="toc">
@@ -130,53 +130,19 @@
         
         <h2 id="section2">⚙️ 2. TCP In ノード</h2>
         
-        <h3>動作モード</h3>
+        <h3>設定項目</h3>
+        <p>TCP In ノードは、設定した相手から届いたデータを受け取り、後続のノードへ流す。接続の持ち方（自分が待ち受けるか、相手へつなぎに行くか）と、受け取ったバイト列をどの単位と形式で出力するかを決める。</p>
         <table>
-            <tr><th>モード</th><th>説明</th><th>用途</th></tr>
-            <tr>
-                <td><strong>Listen on</strong></td>
-                <td>指定ポートでサーバーとして待ち受け</td>
-                <td>TCPサーバーを構築</td>
-            </tr>
-            <tr>
-                <td><strong>Connect to</strong></td>
-                <td>指定ホスト:ポートにクライアントとして接続</td>
-                <td>外部TCPサーバーに接続</td>
-            </tr>
-        </table>
-        
-        <h3>主要プロパティ</h3>
-        <table>
-            <tr><th>プロパティ</th><th>説明</th><th>例</th></tr>
-            <tr><td><strong>種類</strong></td><td>Listen on / Connect to</td><td>Listen on</td></tr>
-            <tr><td><strong>ポート</strong></td><td>ポート番号</td><td>9000</td></tr>
-            <tr><td><strong>ホスト</strong></td><td>接続先ホスト（Connect to時）</td><td>192.168.1.100</td></tr>
-            <tr><td><strong>出力</strong></td><td>出力形式（→ <a href="#term-output-mode">用語集</a>）</td><td>stream / single / after silence</td></tr>
-        </table>
-        
-        <h3>Output オプション</h3>
-        <table>
-            <tr><th>オプション</th><th>説明</th><th>用途</th></tr>
-            <tr>
-                <td><strong>stream of</strong></td>
-                <td>固定長バイト数で分割出力</td>
-                <td>バイナリプロトコル</td>
-            </tr>
-            <tr>
-                <td><strong>single</strong></td>
-                <td>接続ごとに1メッセージ</td>
-                <td>短いデータ</td>
-            </tr>
-            <tr>
-                <td><strong>after silence of</strong></td>
-                <td>指定秒の無通信後に出力</td>
-                <td>不定長データ</td>
-            </tr>
-            <tr>
-                <td><strong>never - keep connection</strong></td>
-                <td>接続維持、データごとに出力</td>
-                <td>ストリーム処理</td>
-            </tr>
+            <tr><th>設定項目</th><th>説明</th><th>既定値</th></tr>
+            <tr><td><strong>種類</strong></td><td>接続の持ち方を選ぶ。「待ち受け」は自分がサーバーになり、指定ポートへの接続を待つ。「接続」はクライアントとして相手のホストとポートへつなぎに行く。</td><td>待ち受け</td></tr>
+            <tr><td><strong>ポート</strong></td><td>待ち受けるポート番号（待ち受け時）、または接続先のポート番号（接続時）。必須。</td><td>（なし）</td></tr>
+            <tr><td><strong>ホスト</strong></td><td>接続先のホスト名または IP アドレス。種類が「接続」のときだけ表示される。</td><td>（空）</td></tr>
+            <tr><td><strong>SSL/TLS接続を有効化</strong></td><td>通信を TLS で暗号化する。オンにすると「TLS設定」欄が現れ、証明書の設定ノードを選ぶ。</td><td>オフ</td></tr>
+            <tr><td><strong>出力</strong></td><td>2つのドロップダウンで出力を決める。前は単位（「ストリーム」＝届いたデータを随時出力／「単一」＝接続が閉じるまでまとめて1メッセージ）、後は形式（「バイナリバッファ」「文字列」「Base64文字列」）。詳しくは<a href="#term-output-mode">用語集</a>。</td><td>ストリーム／バイナリバッファ</td></tr>
+            <tr><td><strong>区切り文字</strong></td><td>出力が「ストリーム」かつ「文字列」のときに現れる。指定した文字でメッセージを区切る。空欄なら区切らない。</td><td>（空）</td></tr>
+            <tr><td><strong>区切り文字を再追加</strong></td><td>区切った各メッセージの末尾に、区切り文字を付け直す。</td><td>オフ</td></tr>
+            <tr><td><strong>トピック</strong></td><td>出力する msg に設定する msg.topic の値。</td><td>（空）</td></tr>
+            <tr><td><strong>名前</strong></td><td>エディター上のノード表示名。</td><td>（空）</td></tr>
         </table>
         
         <h3>受信時の msg プロパティ</h3>
@@ -190,62 +156,51 @@
         
         <h2 id="section3">⚙️ 3. TCP Out ノード</h2>
         
-        <h3>動作モード</h3>
+        <h3>設定項目</h3>
+        <p>TCP Out ノードは、受け取った msg.payload を TCP で送り出す。送る相手の決め方（自分が待ち受けるか、相手へつなぐか、TCP In が受けた接続へ返すか）を「種類」で選ぶ。</p>
         <table>
-            <tr><th>モード</th><th>説明</th><th>用途</th></tr>
-            <tr>
-                <td><strong>Listen on</strong></td>
-                <td>サーバーとして待ち受け、接続したクライアントに送信</td>
-                <td>サーバーからクライアントへ送信</td>
-            </tr>
-            <tr>
-                <td><strong>Connect to</strong></td>
-                <td>指定ホストに接続して送信</td>
-                <td>クライアントとして送信</td>
-            </tr>
-            <tr>
-                <td><strong>Reply to TCP</strong></td>
-                <td>TCP In で受信した接続に返信</td>
-                <td>リクエスト→レスポンス</td>
-            </tr>
-        </table>
-        
-        <h3>主要プロパティ</h3>
-        <table>
-            <tr><th>プロパティ</th><th>説明</th><th>例</th></tr>
-            <tr><td><strong>種類</strong></td><td>動作モード</td><td>Reply to TCP</td></tr>
-            <tr><td><strong>ポート</strong></td><td>ポート番号</td><td>9000</td></tr>
-            <tr><td><strong>ホスト</strong></td><td>接続先ホスト</td><td>192.168.1.100</td></tr>
-            <tr><td><strong>接続を閉じる</strong></td><td>送信後に接続を閉じる</td><td>after each message</td></tr>
+            <tr><th>設定項目</th><th>説明</th><th>既定値</th></tr>
+            <tr><td><strong>種類</strong></td><td>送り先の決め方。「待ち受け」は自分がサーバーになり、接続してきたクライアントへ送る。「接続」はクライアントとして相手へつないで送る。「TCP応答」は TCP In が受け取った接続へそのまま返信する（msg._session が要る）。</td><td>接続</td></tr>
+            <tr><td><strong>ポート</strong></td><td>待ち受けるポート、または接続先のポート。種類が「TCP応答」のときは表示されない。</td><td>（空）</td></tr>
+            <tr><td><strong>ホスト</strong></td><td>接続先のホスト名または IP アドレス。種類が「接続」のときだけ表示される。</td><td>（空）</td></tr>
+            <tr><td><strong>SSL/TLS接続を有効化</strong></td><td>通信を TLS で暗号化する。オンにすると「TLS設定」欄が現れ、証明書の設定ノードを選ぶ。種類が「TCP応答」のときは表示されない。</td><td>オフ</td></tr>
+            <tr><td><strong>メッセージを送信するたびに接続を切断</strong></td><td>1メッセージ送るたびに接続を閉じる。オフなら接続を保つ。種類が「TCP応答」のときは表示されない。</td><td>オフ</td></tr>
+            <tr><td><strong>Base64メッセージの復号</strong></td><td>msg.payload が Base64 文字列のとき、復号してから送る。</td><td>オフ</td></tr>
+            <tr><td><strong>名前</strong></td><td>エディター上のノード表示名。</td><td>（空）</td></tr>
         </table>
         
         <h3>送信時に設定できる msg プロパティ</h3>
         <table>
             <tr><th>プロパティ</th><th>説明</th></tr>
             <tr><td><strong>msg.payload</strong></td><td>送信データ（String または Buffer）</td></tr>
-            <tr><td><strong>msg._session</strong></td><td>送信先セッション（Reply to TCP時に必要）</td></tr>
+            <tr><td><strong>msg._session</strong></td><td>送信先セッション（種類が「TCP応答」のときに必要）</td></tr>
         </table>
         
         <h2 id="section4">⚙️ 4. TCP Request ノード</h2>
         
         <p>TCP Request ノードは、<strong>リクエスト送信→レスポンス待機</strong>を1ノードで行います。HTTP Request に似た動作です。</p>
         
-        <h3>主要プロパティ</h3>
+        <h3>設定項目</h3>
         <table>
-            <tr><th>プロパティ</th><th>説明</th><th>例</th></tr>
-            <tr><td><strong>ホスト</strong></td><td>接続先ホスト</td><td>192.168.1.100</td></tr>
-            <tr><td><strong>ポート</strong></td><td>接続先ポート</td><td>9000</td></tr>
-            <tr><td><strong>出力</strong></td><td>レスポンス出力条件</td><td>after fixed number of chars</td></tr>
+            <tr><th>設定項目</th><th>説明</th><th>既定値</th></tr>
+            <tr><td><strong>サーバ</strong></td><td>接続先のホスト名または IP アドレス。</td><td>（空）</td></tr>
+            <tr><td><strong>ポート</strong></td><td>接続先のポート番号。</td><td>（空）</td></tr>
+            <tr><td><strong>SSL/TLS接続を有効化</strong></td><td>通信を TLS で暗号化する。オンにすると「TLS設定」欄が現れ、証明書の設定ノードを選ぶ。</td><td>オフ</td></tr>
+            <tr><td><strong>戻り値</strong></td><td>出力する msg.payload の形式。「バイナリバッファ」か「文字列」。</td><td>バイナリバッファ</td></tr>
+            <tr><td><strong>終了</strong></td><td>返信をどの時点で区切って出力するかの条件。5つの選択肢を下の表に示す。選んだ条件に応じて、右の欄に値（時間・文字・文字数）を入れる。</td><td>指定時間後</td></tr>
+            <tr><td><strong>区切り文字</strong></td><td>戻り値が「文字列」かつ終了が「なし - 接続を維持」のときに現れる。指定した文字でメッセージを区切る。</td><td>（空）</td></tr>
+            <tr><td><strong>区切り文字を再追加</strong></td><td>区切った各メッセージの末尾に、区切り文字を付け直す。</td><td>オフ</td></tr>
+            <tr><td><strong>名前</strong></td><td>エディター上のノード表示名。</td><td>（空）</td></tr>
         </table>
-        
-        <h3>Return オプション</h3>
+
+        <h3>「終了」の選択肢</h3>
         <table>
-            <tr><th>オプション</th><th>説明</th></tr>
-            <tr><td><strong>never - keep connection open</strong></td><td>接続維持、データ受信ごとに出力</td></tr>
-            <tr><td><strong>after fixed number of chars</strong></td><td>指定バイト数受信後に出力</td></tr>
-            <tr><td><strong>when character received</strong></td><td>特定文字（例: 改行）受信時に出力</td></tr>
-            <tr><td><strong>after a fixed timeout</strong></td><td>タイムアウト後に出力</td></tr>
-            <tr><td><strong>immediately</strong></td><td>送信後すぐに出力（レスポンス待たない）</td></tr>
+            <tr><th>選択肢</th><th>説明</th><th>右欄の入力</th></tr>
+            <tr><td><strong>指定時間後</strong></td><td>送信してから、指定したミリ秒が経過したら出力する。</td><td>ミリ秒</td></tr>
+            <tr><td><strong>指定文字の受信時</strong></td><td>指定した文字（例: 改行 <code>\n</code>）を受信したら出力する。</td><td>区切り文字</td></tr>
+            <tr><td><strong>指定数の文字列</strong></td><td>指定した文字数を受信したら出力する。</td><td>文字数</td></tr>
+            <tr><td><strong>なし - 接続を維持</strong></td><td>接続を閉じずに保ち、データが届くたびに出力する。</td><td>（入力なし）</td></tr>
+            <tr><td><strong>即時 - 応答を待たない</strong></td><td>送信したらすぐ出力し、返信を待たない。</td><td>（入力なし）</td></tr>
         </table>
         
         <h2 id="section5">🔧 5. 実用的な使用パターン</h2>
@@ -691,7 +646,7 @@ Hello Server!
             
             <p><strong>🎯 要求仕様:</strong></p>
             <ul>
-                <li>TCP In ノード: Listen on ポート 9100</li>
+                <li>TCP In ノード: 種類「待ち受け」、ポート 9100</li>
                 <li>受信したデータをそのまま TCP Out で返信</li>
             </ul>
 
@@ -706,13 +661,13 @@ Hello Server!
                 <summary>💡 ヒント</summary>
                 <p><strong>TCP In ノード:</strong></p>
                 <ul>
-                    <li>Type: Listen on</li>
-                    <li>Port: 9100</li>
-                    <li>Output: stream of String</li>
+                    <li>種類: 待ち受け</li>
+                    <li>ポート: 9100</li>
+                    <li>出力: ストリーム / 文字列</li>
                 </ul>
                 <p><strong>TCP Out ノード:</strong></p>
                 <ul>
-                    <li>Type: Reply to TCP</li>
+                    <li>種類: TCP応答</li>
                 </ul>
                 <p>TCP In の出力を直接 TCP Out に接続すれば、msg._session が保持されてクライアントに返信されます。</p>
             </details>
@@ -866,10 +821,10 @@ return msg;</div>
         <div class="important">
             <p><strong>🎯 重要ポイント:</strong></p>
             <ul>
-                <li><strong>TCP In</strong>: Listen（サーバー）または Connect（クライアント）として動作</li>
-                <li><strong>TCP Out</strong>: Reply で受信元に返信、または指定ホストに送信</li>
+                <li><strong>TCP In</strong>: 種類「待ち受け」（サーバー）または「接続」（クライアント）として動作</li>
+                <li><strong>TCP Out</strong>: 種類「TCP応答」で受信元に返信、または指定ホストに送信</li>
                 <li><strong>TCP Request</strong>: リクエスト→レスポンスを1ノードで処理</li>
-                <li><strong>msg._session</strong>: 接続を識別（Reply to TCP時に必須）</li>
+                <li><strong>msg._session</strong>: 接続を識別（種類が「TCP応答」のときに必須）</li>
                 <li><strong>区切り文字</strong>: 改行（\n）を使うとデータの境界が明確になる</li>
             </ul>
         </div>
@@ -889,8 +844,8 @@ return msg;</div>
         <table>
             <tr><th>症状</th><th>原因</th><th>解決方法</th></tr>
             <tr><td>接続できない</td><td>ポートが使用中/ファイアウォール</td><td>別のポート使用、FW設定確認</td></tr>
-            <tr><td>データが途中で切れる</td><td>ストリーム分割の問題</td><td>区切り文字を設定、適切な Output 設定</td></tr>
-            <tr><td>返信が届かない</td><td>_session が消えている</td><td>Reply to TCP を使用、msg._session を保持</td></tr>
+            <tr><td>データが途中で切れる</td><td>ストリーム分割の問題</td><td>区切り文字を設定、適切な「出力」設定</td></tr>
+            <tr><td>返信が届かない</td><td>_session が消えている</td><td>種類「TCP応答」を使用、msg._session を保持</td></tr>
             <tr><td>文字化け</td><td>エンコーディング不一致</td><td>UTF-8 で統一</td></tr>
             <tr><td>接続がすぐ切れる</td><td>タイムアウト</td><td><a href="#term-keepalive">Keep-alive</a> の実装を検討</td></tr>
         </table>
@@ -929,18 +884,17 @@ return msg;</div>
             <tr><th>方式</th><th>仕組み</th><th>例</th></tr>
             <tr><td><strong>区切り文字方式</strong></td><td>特定のバイト（多くは <code>\n</code>=改行）で 1 メッセージの終わりを示す</td><td>テキストプロトコル全般（SMTP・POP3 など）</td></tr>
             <tr><td><strong>長さ指定方式</strong></td><td>先頭に「これから何バイト来るか」を書く（length prefix）</td><td>多くのバイナリプロトコル</td></tr>
-            <tr><td><strong>無音時間で区切る</strong></td><td>「N ミリ秒データが来なかったらそこで区切る」</td><td>Node-RED の <strong>after silence of</strong> モード</td></tr>
+            <tr><td><strong>無音時間で区切る</strong></td><td>「N ミリ秒データが来なかったらそこで区切る」</td><td>一定時間データが来なければ確定する独自処理</td></tr>
         </table>
 
-        <h3 id="term-output-mode">📥 Output モード（stream / single / after silence）</h3>
-        <p>Node-RED の TCP In ノードの <strong>「出力（Output）」</strong>設定。<strong>ストリームをどう msg 単位に切るか</strong>の戦略です。</p>
+        <h3 id="term-output-mode">📥 出力モード（ストリーム / 単一）</h3>
+        <p>TCP In ノードの <strong>「出力」</strong>設定。届いたバイト列を <strong>どの単位で msg にするか</strong> を、前のドロップダウン（単位）と後のドロップダウン（形式）の組み合わせで決めます。</p>
         <table>
-            <tr><th>モード</th><th>意味</th><th>使いどころ</th></tr>
-            <tr><td><strong>stream of</strong></td><td>来たバイトを<strong>そのまま流す</strong>。区切り処理なし</td><td>後段の Function で自前パースする / 巨大なバイト列をそのまま処理</td></tr>
-            <tr><td><strong>single</strong></td><td>接続が閉じるまで<strong>全部を 1 つの msg にまとめる</strong></td><td>1 回の要求で 1 回応答が返るシンプルな問い合わせ型</td></tr>
-            <tr><td><strong>delimited by</strong></td><td>指定した<strong>区切り文字</strong>（例 <code>\n</code>）で 1 msg ずつ切り出す</td><td>テキストプロトコル、行指向の通信</td></tr>
-            <tr><td><strong>after silence of</strong></td><td>指定ミリ秒データが来なくなったら 1 msg として確定</td><td>区切りが決まっておらず「会話が一段落」を待ちたい場合</td></tr>
+            <tr><th>単位</th><th>意味</th><th>使いどころ</th></tr>
+            <tr><td><strong>ストリーム</strong></td><td>届いたデータを区切らずに随時流す。形式が「文字列」のときは「区切り文字」で 1 msg ずつ切り出せる</td><td>テキストの行指向プロトコル / 後段の Function で自前パースする場合</td></tr>
+            <tr><td><strong>単一</strong></td><td>接続が閉じるまで<strong>全部を 1 つの msg にまとめる</strong></td><td>1 回の接続で完結する短い問い合わせ型</td></tr>
         </table>
+        <p>形式（後のドロップダウン）は「バイナリバッファ」「文字列」「Base64文字列」から選びます。「ストリーム」かつ「文字列」のときだけ「区切り文字」欄が現れ、改行（<code>\n</code>）などで msg を区切れます。</p>
 
         <h3 id="term-segment">📦 セグメント（segment）</h3>
         <p>TCP がネットワーク上で運ぶ <strong>1 回分のデータ単位</strong>。アプリが <code>send()</code> したバイト列は、TCP 層で <strong>セグメント</strong>（多くは MTU - ヘッダ分のサイズ）に切り分けられ、受信側で組み立て直されます。</p>
