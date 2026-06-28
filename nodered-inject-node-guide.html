@@ -551,46 +551,33 @@
         
         <h3>設定項目一覧</h3>
         
+        <p>Inject ノードの設定は、何を送るか（上部のプロパティ一覧）と、いつ送るか（起動時の1回／繰り返し）に分かれる。下表はエディターの項目順に合わせている。</p>
+
         <table>
             <tr>
                 <th>設定項目</th>
                 <th>説明</th>
-                <th>備考</th>
+                <th>既定値</th>
             </tr>
             <tr>
-                <td><strong>msg.payload</strong></td>
-                <td>送信するデータの内容</td>
-                <td>様々な型を選択可能</td>
+                <td><strong>プロパティ一覧（上部）</strong></td>
+                <td>送信する msg に設定する値を並べる欄。既定で msg.payload（日時）と msg.topic（空）が入っており、「＋ 追加」で他のプロパティも足せる。各値は typedInput で型を選ぶ。</td>
+                <td>msg.payload＝日時／msg.topic＝空</td>
             </tr>
             <tr>
-                <td><strong>msg.topic</strong></td>
-                <td>メッセージのトピック（分類用）</td>
-                <td>任意の文字列</td>
-            </tr>
-            <tr>
-                <td><strong>追加プロパティ</strong></td>
-                <td>msg.payloadとtopic以外のプロパティ</td>
-                <td>複数追加可能</td>
+                <td><strong>Node-RED起動の〜秒後、以下を行う</strong></td>
+                <td>チェックすると、フローを配備（デプロイ）した指定秒後に1回だけ自動で注入する。</td>
+                <td>オフ</td>
             </tr>
             <tr>
                 <td><strong>繰り返し</strong></td>
-                <td>定期実行の間隔</td>
-                <td>秒/分/時間で指定</td>
-            </tr>
-            <tr>
-                <td><strong>指定した時刻</strong></td>
-                <td>cron式でスケジュール指定</td>
-                <td>曜日・時刻を細かく設定</td>
-            </tr>
-            <tr>
-                <td><strong>Node-RED起動時にも実行</strong></td>
-                <td>デプロイ時・再起動時に自動実行</td>
-                <td>遅延時間も設定可能</td>
+                <td>自動で繰り返し注入する条件。「なし」／「指定した時間間隔」（N 秒・分・時間ごと）／「指定した時間間隔、日時」（曜日と時刻を指定）／「指定した日時」（毎日や特定曜日の時刻）から選ぶ。</td>
+                <td>なし</td>
             </tr>
             <tr>
                 <td><strong>名前</strong></td>
-                <td>ノードの表示名</td>
-                <td>用途がわかる名前を推奨</td>
+                <td>エディター上のノード表示名。</td>
+                <td>（空）</td>
             </tr>
         </table>
         
@@ -828,8 +815,7 @@
         <p><strong>設定例:</strong></p>
         <div class="code-block">msg.payload: "Started!" (文字列)
 繰り返し: なし
-Node-RED起動時にも実行: ✓
-遅延時間: 0.1秒（デフォルト）
+Node-RED起動の0.1秒後、以下を行う: ✓（0.1秒は既定）
 
 動作: Node-RED起動時（デプロイ時含む）に
       "Started!" というメッセージを送信</div>
@@ -890,7 +876,7 @@ Node-RED起動時にも実行: ✓
         
         <p><strong>設定例:</strong></p>
         <div class="code-block">msg.payload: "It is 4pm on a weekday!" (文字列)
-指定した時刻: 16:00, 月〜金曜日
+繰り返し: 指定した時間間隔、日時（16:00、月〜金曜日）
 
 動作: 平日の16:00に自動実行
       日報送信やバックアップ処理に最適</div>
@@ -1306,7 +1292,7 @@ msg.retain: true
                 <ul>
                     <li>msg.payload: タイムスタンプ</li>
                     <li>繰り返し: 60秒</li>
-                    <li>Node-RED起動時にも実行: ✓</li>
+                    <li>Node-RED起動の〜秒後、以下を行う: ✓</li>
                 </ul>
                 <p><strong>Functionノードの設定:</strong></p>
                 <ul>
@@ -1446,7 +1432,7 @@ msg.retain: true
             <tr>
                 <td>起動時に実行されない</td>
                 <td>チェックが入っていない</td>
-                <td>「Node-RED起動時にも実行」を有効化</td>
+                <td>「Node-RED起動の〜秒後、以下を行う」を有効化</td>
             </tr>
             <tr>
                 <td>cron式が動作しない</td>
