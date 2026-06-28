@@ -489,7 +489,7 @@
         </div>
         
         <p>
-            Debugノードは、受け取ったメッセージの内容を<strong>デバッグサイドバー</strong>、
+            Debugノードは、受け取ったメッセージの内容を<strong>デバッグウィンドウ</strong>、
             システムコンソール、またはノードのステータスに出力します。
             フロー開発時の動作確認やトラブルシューティングで使うノードです。
         </p>
@@ -512,7 +512,7 @@
         
         <div class="feature-grid">
             <div class="feature-card">
-                <h4><span class="mode-badge badge-sidebar">サイドバー</span> デバッグサイドバー</h4>
+                <h4><span class="mode-badge badge-sidebar">サイドバー</span> デバッグウィンドウ</h4>
                 <p>Node-REDエディタの右側パネルに出力</p>
                 <div class="code-block">最も一般的な使い方
 展開して詳細確認可能
@@ -538,45 +538,42 @@
         
         <h3>設定項目一覧</h3>
         
+        <p>Debug ノードの設定は、メッセージの何を、どこへ出力するかを決める。「出力先」はエディター上では1つのラベルの下に3つのチェックボックスが並ぶグループで、下表ではそれぞれを「出力先：〜」として示す。</p>
+
         <table>
             <tr>
                 <th>設定項目</th>
                 <th>説明</th>
-                <th>オプション</th>
+                <th>既定値</th>
             </tr>
             <tr>
-                <td><strong>出力対象</strong></td>
-                <td>表示する内容を選択</td>
-                <td>msg.payload / 完全なmsgオブジェクト / JSONata式</td>
+                <td><strong>対象</strong></td>
+                <td>出力する内容を選ぶ。msg のプロパティ、メッセージ全体、JSONata 式などを指定できる（typedInput）。</td>
+                <td>msg.payload</td>
             </tr>
             <tr>
-                <td><strong>出力先</strong></td>
-                <td>デバッグサイドバー</td>
-                <td>オン/オフ</td>
+                <td><strong>出力先：デバッグウィンドウ</strong></td>
+                <td>サイドバーのデバッグタブに表示する。</td>
+                <td>オン</td>
             </tr>
             <tr>
-                <td><strong>出力先</strong></td>
-                <td>システムコンソール</td>
-                <td>オン/オフ</td>
+                <td><strong>出力先：システムコンソール</strong></td>
+                <td>Node-RED を起動した端末（標準出力）にも出力する。</td>
+                <td>オフ</td>
             </tr>
             <tr>
-                <td><strong>出力先</strong></td>
-                <td>ノードステータス</td>
-                <td>オン/オフ（32文字まで）</td>
-            </tr>
-            <tr>
-                <td><strong>ステータス表示内容</strong></td>
-                <td>ノードステータスに表示する値</td>
-                <td>typedInput（デフォルト: 自動）</td>
+                <td><strong>出力先：ノードステータス(32 文字)</strong></td>
+                <td>ノードの下に最大32文字のステータスとして表示する。表示する内容は、この項目の下に現れる欄で指定する（既定は「対象」の値）。</td>
+                <td>オフ</td>
             </tr>
             <tr>
                 <td><strong>名前</strong></td>
-                <td>ノードの表示名</td>
-                <td>任意の文字列</td>
+                <td>エディター上のノード表示名。</td>
+                <td>（空）</td>
             </tr>
         </table>
         
-        <h3>出力対象の種類</h3>
+        <h3>対象の種類</h3>
         
         <table>
             <tr>
@@ -927,8 +924,8 @@
         </div>
         
         <p><strong>設定例:</strong></p>
-        <div class="code-block">出力対象: msg.payload
-出力先: デバッグサイドバー ✓
+        <div class="code-block">対象: msg.payload
+出力先: デバッグウィンドウ ✓
        システムコンソール ✗
        ノードステータス ✗</div>
         
@@ -952,8 +949,8 @@
         </div>
         
         <p><strong>設定例:</strong></p>
-        <div class="code-block">出力対象: 完全なmsgオブジェクト
-出力先: デバッグサイドバー ✓
+        <div class="code-block">対象: 完全なmsgオブジェクト
+出力先: デバッグウィンドウ ✓
 
 表示されるプロパティ:
   - payload: メインデータ
@@ -980,8 +977,8 @@
         </div>
         
         <p><strong>設定例:</strong></p>
-        <div class="code-block">出力対象: msg.payload
-出力先: デバッグサイドバー ✗
+        <div class="code-block">対象: msg.payload
+出力先: デバッグウィンドウ ✗
        システムコンソール ✓
        ノードステータス ✗
 
@@ -1007,8 +1004,8 @@
         </div>
         
         <p><strong>設定例:</strong></p>
-        <div class="code-block">出力対象: msg.payload
-出力先: デバッグサイドバー ✗
+        <div class="code-block">対象: msg.payload
+出力先: デバッグウィンドウ ✗
        システムコンソール ✗
        ノードステータス ✓
 
@@ -1040,7 +1037,7 @@
         </div>
         
         <p><strong>設定例:</strong></p>
-        <div class="code-block">出力対象: JSONata式
+        <div class="code-block">対象: JSONata式
 式: "[" & topic & "] " & payload
 
 入力:
@@ -1070,7 +1067,7 @@
 
             <p><strong>成功の条件:</strong></p>
             <ul>
-                <li>デバッグサイドバーに出力タイプ <code>Object</code> の行が追加される</li>
+                <li>デバッグウィンドウに出力タイプ <code>Object</code> の行が追加される</li>
                 <li>その行の左にある三角アイコンをクリックすると展開でき、<code>temperature: 25.5</code> と <code>humidity: 60</code> が確認できる</li>
                 <li>システムコンソールには出力されない（サイドバーのみ）</li>
                 <li>数値プロパティが文字列ではなく数値として表示される</li>
@@ -1085,8 +1082,8 @@
                 </ul>
                 <p><strong>Debugノードの設定:</strong></p>
                 <ul>
-                    <li>出力対象: msg.payload</li>
-                    <li>出力先: デバッグサイドバー</li>
+                    <li>対象: msg.payload</li>
+                    <li>出力先: デバッグウィンドウ</li>
                 </ul>
             </details>
             
@@ -1170,7 +1167,7 @@
 
             <p><strong>成功の条件:</strong></p>
             <ul>
-                <li>Injectボタンを1回クリックすると、デバッグサイドバーに2件（完全msgとpayload）の出力が追加される</li>
+                <li>Injectボタンを1回クリックすると、デバッグウィンドウに2件（完全msgとpayload）の出力が追加される</li>
                 <li>サイドバー出力の「サイドバー出力」ノードには <code>payload</code>、<code>topic</code>、<code>_msgid</code> を含む完全なオブジェクトが展開できる</li>
                 <li>「ステータス出力」ノードの下に <code>"テストメッセージ"</code> がフロー上で直接表示される</li>
                 <li>Node-REDを起動したターミナルに <code>"テストメッセージ"</code> がログ出力されている</li>
@@ -1187,19 +1184,19 @@
                 <p><strong>Debug 1（サイドバー）の設定:</strong></p>
                 <ul>
                     <li>名前: "サイドバー出力"</li>
-                    <li>出力対象: 完全なmsgオブジェクト</li>
-                    <li>出力先: デバッグサイドバー ✓</li>
+                    <li>対象: 完全なmsgオブジェクト</li>
+                    <li>出力先: デバッグウィンドウ ✓</li>
                 </ul>
                 <p><strong>Debug 2（コンソール）の設定:</strong></p>
                 <ul>
                     <li>名前: "コンソール出力"</li>
-                    <li>出力対象: msg.payload</li>
+                    <li>対象: msg.payload</li>
                     <li>出力先: システムコンソール ✓</li>
                 </ul>
                 <p><strong>Debug 3（ステータス）の設定:</strong></p>
                 <ul>
                     <li>名前: "ステータス出力"</li>
-                    <li>出力対象: msg.payload</li>
+                    <li>対象: msg.payload</li>
                     <li>出力先: ノードステータス ✓</li>
                 </ul>
             </details>
@@ -1324,7 +1321,7 @@
 
             <p><strong>成功の条件:</strong></p>
             <ul>
-                <li>デバッグサイドバーに <code>"sensor01: 25.5°C"</code> という文字列が1行で表示される</li>
+                <li>デバッグウィンドウに <code>"sensor01: 25.5°C"</code> という文字列が1行で表示される</li>
                 <li>デバイスIDと温度値が結合された形式になっており、JSONオブジェクトではなく文字列として表示される</li>
                 <li>元のJSONオブジェクトのプロパティ（device、unit等）は表示されない</li>
             </ul>
@@ -1338,7 +1335,7 @@
                 </ul>
                 <p><strong>Debugノードの設定:</strong></p>
                 <ul>
-                    <li>出力対象: JSONata式</li>
+                    <li>対象: JSONata式</li>
                     <li>式: <code>payload.device & ": " & $string(payload.temp) & "°C"</code></li>
                 </ul>
                 <p><strong>JSONataのポイント:</strong></p>
@@ -1452,12 +1449,12 @@
                 </ul>
                 <p><strong>Debug 1（警告）の設定:</strong></p>
                 <ul>
-                    <li>出力対象: JSONata式</li>
+                    <li>対象: JSONata式</li>
                     <li>式: <code>"⚠️ 警告: " & $string(payload) & "°C - 高温注意!"</code></li>
                 </ul>
                 <p><strong>Debug 2（正常）の設定:</strong></p>
                 <ul>
-                    <li>出力対象: JSONata式</li>
+                    <li>対象: JSONata式</li>
                     <li>式: <code>"✓ 正常: " & $string(payload) & "°C"</code></li>
                 </ul>
             </details>
@@ -1775,7 +1772,7 @@ Debug (コンソール): 全データをログファイルに記録
         
         <ul>
             <li><a href="https://nodered.org/docs/user-guide/nodes#debug" target="_blank">Node-RED公式ドキュメント: Debugノード</a></li>
-            <li><a href="https://nodered.org/docs/user-guide/editor/sidebar/debug" target="_blank">Node-RED公式ドキュメント: デバッグサイドバー</a></li>
+            <li><a href="https://nodered.org/docs/user-guide/editor/sidebar/debug" target="_blank">Node-RED公式ドキュメント: デバッグウィンドウ</a></li>
             <li><a href="https://cookbook.nodered.org/" target="_blank">Node-RED Cookbook</a></li>
             <li><a href="https://docs.jsonata.org/" target="_blank">JSONataドキュメント</a></li>
         </ul>
