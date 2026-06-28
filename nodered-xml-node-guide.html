@@ -53,11 +53,11 @@
 </head>
 <body>
     <div class="container">
-        <h1>📄 Node-RED XML ノード完全ガイド</h1>
+        <h1>Node-RED XML ノード ガイド</h1>
         <div data-envbadge="1" style="margin:12px 0;"><span style="display:inline-block;padding:3px 12px;border-radius:12px;font-size:0.85em;font-weight:bold;background:#e3f2fd;color:#0d47a1;border:1px solid #90caf9;">☁️ クラウドOK</span> <a href="nodered-learning-environment-guide.html" style="font-size:0.82em;">環境とは？</a></div>
         
         <div class="toc">
-            <h3>📚 目次</h3>
+            <h3>目次</h3>
             <ul>
                 <li><a href="#section1">1. 概要</a></li>
                 <li><a href="#section2">2. 設定詳細</a></li>
@@ -68,11 +68,11 @@
             </ul>
         </div>
         
-        <h2 id="section1">📖 1. 概要</h2>
+        <h2 id="section1">1. 概要</h2>
         
         <p><strong>XML ノード</strong>は、XML文字列とJavaScriptオブジェクトを相互変換するノードです。XML形式のデータを扱うAPIやファイルとの連携に使用します。</p>
         
-        <p>📚 <strong>翻訳者に例えると</strong>：XML ノードは2つの言語（XML形式とJavaScriptオブジェクト形式）を相互に翻訳する通訳者のようなものです。どちらの形式でデータを受け取っても、もう一方の形式に変換してくれます。</p>
+        <p><strong>翻訳者に例えると</strong>：XML ノードは2つの言語（XML形式とJavaScriptオブジェクト形式）を相互に翻訳する通訳者のようなものです。どちらの形式でデータを受け取っても、もう一方の形式に変換してくれます。</p>
         
         <div class="node-example">
             <span class="node node-template">XML文字列</span>
@@ -83,7 +83,7 @@
         </div>
         
         <div class="tip">
-            <p><strong>💡 ポイント:</strong></p>
+            <p><strong>ポイント:</strong></p>
             <ul>
                 <li>入力がXML文字列 → オブジェクトに変換</li>
                 <li>入力がオブジェクト → XML文字列に変換</li>
@@ -92,18 +92,30 @@
             </ul>
         </div>
         
-        <h2 id="section2">⚙️ 2. 設定詳細</h2>
+        <h2 id="section2">2. 設定詳細</h2>
         
-        <h3>プロパティ</h3>
+        <p>XML ノードの設定はごく少ない。指定したプロパティの値を見て、文字列なら XML をオブジェクトへ、オブジェクトなら XML へと、変換の向きを自動で切り替える。設定項目は「どのデータを変換するか」と「XML をオブジェクトにするときの表現」の 2 つに分かれる。</p>
+
+        <h3>基本</h3>
         <table>
-            <tr><th>プロパティ</th><th>説明</th><th>デフォルト</th></tr>
-            <tr><td><strong>名前</strong></td><td>ノードの名前</td><td>空</td></tr>
-            <tr><td><strong>プロパティ</strong></td><td>変換対象のプロパティ</td><td>msg.payload</td></tr>
-            <tr><td><strong>XMLタグ属性を次のプロパティ名として表現</strong></td><td>XML属性を格納するプロパティ名</td><td>$ (デフォルト)</td></tr>
-            <tr><td><strong>文字列を参照するための接頭辞</strong></td><td>テキストコンテンツを格納するプロパティ名</td><td>_ (デフォルト)</td></tr>
+            <tr><th>設定項目</th><th>説明</th><th>既定値</th></tr>
+            <tr><td><strong>プロパティ</strong></td><td>変換の対象にする <code>msg</code> のプロパティ。この値が文字列なら XML からオブジェクトへ、オブジェクトなら XML へ変換する。</td><td><code>msg.payload</code></td></tr>
+            <tr><td><strong>名前</strong></td><td>エディター上の表示名。動作には影響しない。</td><td>（空）</td></tr>
         </table>
+
+        <h3>XMLからオブジェクトへ変換</h3>
+        <p>次の 2 つは、入力が XML 文字列のとき（XML からオブジェクトへ変換するとき）にだけ働く。XML の属性と要素のテキストを、オブジェクトのどのキーに入れるかを決める。逆向き（オブジェクトから XML）では使われない。</p>
+        <table>
+            <tr><th>設定項目</th><th>説明</th><th>既定値</th></tr>
+            <tr><td><strong>XMLタグ属性を次のプロパティ名として表現</strong></td><td>要素の属性（<code>&lt;book id="1"&gt;</code> の <code>id</code>）をまとめて格納する子オブジェクトのキー名。既定の <code>$</code> なら <code>{ "book": { "$": { "id": "1" } } }</code> のように属性が <code>$</code> の下に入る。</td><td><code>$</code>（空欄時）</td></tr>
+            <tr><td><strong>文字列を参照するための接頭辞</strong></td><td>属性や子要素を持つ要素について、その要素自身のテキストを格納するキー名。既定の <code>_</code> なら <code>&lt;tag a="1"&gt;text&lt;/tag&gt;</code> が <code>{ "$": { "a": "1" }, "_": "text" }</code> になる。</td><td><code>_</code>（空欄時）</td></tr>
+        </table>
+
+        <div class="tip">
+            <p><strong>補足（上級者向け）:</strong> 変換の細かな挙動は <code>msg.options</code> に xml2js のオプションを渡して調整できる。属性とテキストのキー名はエディターの設定が優先され、空欄のときに <code>msg.options.attrkey</code> / <code>msg.options.charkey</code> や既定値が使われる。オブジェクトから XML を組み立てるときは <code>msg.options.renderOpts</code>（整形など）が反映される。</p>
+        </div>
         
-        <h2 id="section3">🔄 3. 変換ルール</h2>
+        <h2 id="section3">3. 変換ルール</h2>
         
         <h3>XML → オブジェクト変換</h3>
         <div class="compare-box">
@@ -156,9 +168,9 @@
             <tr><td>属性+テキスト</td><td><code>{ "$": { "attr": "v" }, "_": "text" }</code></td></tr>
         </table>
         
-        <h2 id="section4">🔧 4. 実用的な使用パターン</h2>
+        <h2 id="section4">4. 実用的な使用パターン</h2>
         <div class="important">
-            <p><strong>📥 サンプルフローのインポート方法:</strong></p>
+            <p><strong>サンプルフローのインポート方法:</strong></p>
             <ol>
                 <li>下のサンプルフローJSONをコピー</li>
                 <li>Node-REDエディタで <strong>メニュー → 読み込み</strong> を選択</li>
@@ -448,12 +460,12 @@
             <li>テキスト値: <code>element.value[0]._</code></li>
         </ul>
         
-        <h2 id="section5">📝 5. 演習問題</h2>
+        <h2 id="section5">5. 演習問題</h2>
         
         <div class="exercise">
             <h3>演習1: 基本的なXML変換 <span class="difficulty difficulty-easy">初級</span></h3>
-            <p><strong>📋 課題:</strong> シンプルなXML文字列をオブジェクトに変換してください。</p>
-            <p><strong>✅ 成功の条件:</strong></p>
+            <p><strong>課題:</strong> シンプルなXML文字列をオブジェクトに変換してください。</p>
+            <p><strong>成功の条件:</strong></p>
             <ul>
                 <li>デバッグパネルに表示されるpayloadがオブジェクト型（Object）になっている</li>
                 <li><code>msg.payload.user</code> プロパティが存在し、その中に <code>name</code> と <code>email</code> が含まれている</li>
@@ -478,8 +490,8 @@
         
         <div class="exercise">
             <h3>演習2: オブジェクトからXML生成 <span class="difficulty difficulty-easy">初級</span></h3>
-            <p><strong>📋 課題:</strong> JavaScriptオブジェクトからXML文字列を生成してください。</p>
-            <p><strong>✅ 成功の条件:</strong></p>
+            <p><strong>課題:</strong> JavaScriptオブジェクトからXML文字列を生成してください。</p>
+            <p><strong>成功の条件:</strong></p>
             <ul>
                 <li>デバッグパネルに表示されるpayloadが文字列型（string）になっている</li>
                 <li>出力文字列が有効なXML形式になっており、<code>&lt;product&gt;</code> タグを含んでいる</li>
@@ -504,8 +516,8 @@
         
         <div class="exercise">
             <h3>演習3: 属性付きXMLの処理 <span class="difficulty difficulty-medium">中級</span></h3>
-            <p><strong>📋 課題:</strong> 属性を持つXMLを解析し、属性値を取得してください。</p>
-            <p><strong>✅ 成功の条件:</strong></p>
+            <p><strong>課題:</strong> 属性を持つXMLを解析し、属性値を取得してください。</p>
+            <p><strong>成功の条件:</strong></p>
             <ul>
                 <li>デバッグパネルにオブジェクト型のpayloadが表示される</li>
                 <li><code>id</code> プロパティに <code>"ITM001"</code>、<code>category</code> プロパティに <code>"electronics"</code> が入っている</li>
@@ -531,8 +543,8 @@
         
         <div class="exercise">
             <h3>演習4: 属性付きXMLの生成 <span class="difficulty difficulty-hard">上級</span></h3>
-            <p><strong>📋 課題:</strong> 属性を持つXMLをオブジェクトから生成してください。</p>
-            <p><strong>✅ 成功の条件:</strong></p>
+            <p><strong>課題:</strong> 属性を持つXMLをオブジェクトから生成してください。</p>
+            <p><strong>成功の条件:</strong></p>
             <ul>
                 <li>デバッグパネルに文字列型（string）のXMLが出力される</li>
                 <li><code>&lt;response status="success" code="200"&gt;</code> のようにルート要素に属性が付与されている</li>
@@ -555,10 +567,10 @@
             </details>
         </div>
         
-        <h2 id="section6">✅ 6. まとめ</h2>
+        <h2 id="section6">6. まとめ</h2>
         
         <div class="important">
-            <p><strong>🎯 重要ポイント:</strong></p>
+            <p><strong>重要ポイント:</strong></p>
             <ul>
                 <li>XML文字列 ↔ オブジェクトの相互変換</li>
                 <li>属性は <code>$</code> プロパティで表現</li>
@@ -568,7 +580,7 @@
         </div>
         
         <div class="warning">
-            <p><strong>⚠️ 注意事項:</strong></p>
+            <p><strong>注意事項:</strong></p>
             <ul>
                 <li>不正なXMLはエラーになる（事前にCatch設置を推奨）</li>
                 <li>要素の順序は保持されない場合がある</li>
@@ -576,7 +588,7 @@
             </ul>
         </div>
         
-        <h2 id="section7">🏭 7. 実務活用例</h2>
+        <h2 id="section7">7. 実務活用例</h2>
         
         <h3>ケース1: SOAP API連携</h3>
         <p>SOAP Webサービスとの通信でXMLリクエスト/レスポンスを処理。</p>
