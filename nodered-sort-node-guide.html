@@ -426,31 +426,38 @@
         
         <h3>設定項目一覧</h3>
         
+        <p>Sort ノードの設定は、何を・何を基準に・どの順で並べ替えるかを決める。表の並びはエディターの項目順に合わせている。</p>
+
         <table>
             <tr>
                 <th>設定項目</th>
                 <th>説明</th>
-                <th>選択肢</th>
+                <th>既定値</th>
             </tr>
             <tr>
-                <td><strong>ソート対象</strong></td>
-                <td>配列またはメッセージシーケンスを選択</td>
-                <td>msg.payload / メッセージシーケンス</td>
-            </tr>
-            <tr>
-                <td><strong>ソート順</strong></td>
-                <td>昇順または降順を選択</td>
-                <td>昇順 / 降順</td>
-            </tr>
-            <tr>
-                <td><strong>数値として</strong></td>
-                <td>数値としてソートするかどうか</td>
-                <td>チェックボックス</td>
+                <td><strong>対象</strong></td>
+                <td>並べ替えるデータを指定する。配列（msg.payload など）か、split で分割したメッセージシーケンスを選べる。</td>
+                <td>msg.payload</td>
             </tr>
             <tr>
                 <td><strong>キー</strong></td>
-                <td>ソートの基準となる値を指定</td>
-                <td>要素の値 / JSONata式</td>
+                <td>並べ替えの基準となる値。配列の各要素そのもの、または要素内のプロパティを JSONata 式で指定する。</td>
+                <td>要素の値</td>
+            </tr>
+            <tr>
+                <td><strong>順序</strong></td>
+                <td>並び順。「昇順」か「降順」。</td>
+                <td>昇順</td>
+            </tr>
+            <tr>
+                <td><strong>数値として比較</strong></td>
+                <td>値を数値とみなして並べ替える。オフのときは文字列として比較するため、"10" が "9" より前になる。</td>
+                <td>オフ</td>
+            </tr>
+            <tr>
+                <td><strong>名前</strong></td>
+                <td>エディター上のノード表示名。</td>
+                <td>（空）</td>
             </tr>
         </table>
         
@@ -818,9 +825,9 @@
         </div>
         
         <p><strong>設定例:</strong></p>
-        <div class="code-block">ソート対象: msg.payload
-ソート順: 昇順
-数値として: OFF
+        <div class="code-block">対象: msg.payload
+順序: 昇順
+数値として比較: OFF
 
 入力: ["orange", "banana", "apple", "kiwi"]
 出力: ["apple", "banana", "kiwi", "orange"]</div>
@@ -839,9 +846,9 @@
         </div>
         
         <p><strong>設定例:</strong></p>
-        <div class="code-block">ソート対象: msg.payload
-ソート順: 降順
-数値として: OFF
+        <div class="code-block">対象: msg.payload
+順序: 降順
+数値として比較: OFF
 
 入力: ["orange", "banana", "apple", "kiwi"]
 出力: ["pear", "orange", "kiwi", "banana", "apple"]</div>
@@ -862,15 +869,15 @@
         <div class="tip">
             <p><strong>数値ソートのポイント</strong></p>
             <ul>
-                <li>「数値として」にチェックを入れると、文字列でも数値として比較</li>
+                <li>「数値として比較」にチェックを入れると、文字列でも数値として比較</li>
                 <li>"9" は "100" より小さいと判定される（文字列順だと逆）</li>
             </ul>
         </div>
         
         <p><strong>設定例:</strong></p>
-        <div class="code-block">ソート対象: msg.payload
-ソート順: 昇順
-数値として: ON
+        <div class="code-block">対象: msg.payload
+順序: 昇順
+数値として比較: ON
 
 入力: ["1024", "86", "256", "100", "9"]
 出力: ["9", "86", "100", "256", "1024"]</div>
@@ -897,9 +904,9 @@
         </div>
         
         <p><strong>設定例:</strong></p>
-        <div class="code-block">ソート対象: msg.payload
+        <div class="code-block">対象: msg.payload
 キー: price (JSONata式)
-ソート順: 昇順
+順序: 昇順
 
 入力: [
   {"name": "orange", "price": 80},
@@ -926,9 +933,9 @@
         </div>
         
         <p><strong>設定例:</strong></p>
-        <div class="code-block">ソート対象: msg.payload
+        <div class="code-block">対象: msg.payload
 キー: $substring("0000" & $string(price), -4) & name
-ソート順: 昇順
+順序: 昇順
 
 この式の意味:
 1. priceを4桁のゼロ埋め文字列に変換（100 → "0100"）
@@ -962,9 +969,9 @@
         </div>
         
         <p><strong>設定例:</strong></p>
-        <div class="code-block">ソート対象: メッセージシーケンス
+        <div class="code-block">対象: メッセージシーケンス
 キー: msg.payload
-ソート順: 昇順
+順序: 昇順
 
 入力シーケンス: "orange" → "banana" → "apple" → "kiwi"
 出力シーケンス: "apple" → "banana" → "kiwi" → "orange"</div>
@@ -1010,9 +1017,9 @@
                 </ul>
                 <p><strong>Sortノードの設定:</strong></p>
                 <ul>
-                    <li>ソート対象: msg.payload</li>
-                    <li>ソート順: 降順</li>
-                    <li>数値として: OFF（チェックなし）</li>
+                    <li>対象: msg.payload</li>
+                    <li>順序: 降順</li>
+                    <li>数値として比較: OFF（チェックなし）</li>
                 </ul>
             </details>
             
@@ -1134,7 +1141,7 @@
                 <li>デバッグパネルに1つのメッセージとして配列が表示される</li>
                 <li>出力配列が [7, 15, 42, 99, 128] の昇順になっている</li>
                 <li>配列の先頭が最小値（7）、末尾が最大値（128）になっている</li>
-                <li>文字列順ではなく数値順で正しく並べ替えられている（「数値として」がONであること）</li>
+                <li>文字列順ではなく数値順で正しく並べ替えられている（「数値として比較」がONであること）</li>
             </ul>
 
             <details>
@@ -1147,9 +1154,9 @@
                 </ul>
                 <p><strong>Sortノードの設定:</strong></p>
                 <ul>
-                    <li>ソート対象: msg.payload</li>
-                    <li>ソート順: 昇順</li>
-                    <li>数値として: ON（チェック）</li>
+                    <li>対象: msg.payload</li>
+                    <li>順序: 昇順</li>
+                    <li>数値として比較: ON（チェック）</li>
                 </ul>
             </details>
             
@@ -1283,9 +1290,9 @@
                 </ul>
                 <p><strong>Sortノードの設定:</strong></p>
                 <ul>
-                    <li>ソート対象: msg.payload</li>
+                    <li>対象: msg.payload</li>
                     <li>キー: price（JSONata式を選択）</li>
-                    <li>ソート順: 昇順</li>
+                    <li>順序: 昇順</li>
                 </ul>
             </details>
             
@@ -1424,9 +1431,9 @@
                 </ul>
                 <p><strong>Sortノードの設定:</strong></p>
                 <ul>
-                    <li>ソート対象: メッセージシーケンス</li>
+                    <li>対象: メッセージシーケンス</li>
                     <li>キー: msg.payload</li>
-                    <li>ソート順: 昇順</li>
+                    <li>順序: 昇順</li>
                 </ul>
                 <p><strong>Joinノードの設定:</strong></p>
                 <ul>
@@ -1578,7 +1585,7 @@
             <h3>Sortノードの重要ポイント</h3>
             <ul>
                 <li><strong>2つのモード</strong>: 配列ソートとメッセージシーケンスソート</li>
-                <li><strong>ソート順</strong>: 昇順（ascending）と降順（descending）</li>
+                <li><strong>順序</strong>: 昇順（ascending）と降順（descending）</li>
                 <li><strong>数値モード</strong>: 数値として比較するか文字列として比較するか選択可能</li>
                 <li><strong>JSONata式</strong>: オブジェクト配列のプロパティでソート可能</li>
                 <li><strong>Split/Joinとの連携</strong>: メッセージシーケンスのソートはSplit/Joinと組み合わせて使用</li>
@@ -1622,8 +1629,8 @@
             </tr>
             <tr>
                 <td>数値順にならない</td>
-                <td>「数値として」がOFF</td>
-                <td>「数値として」をONに設定</td>
+                <td>「数値として比較」がOFF</td>
+                <td>「数値として比較」をONに設定</td>
             </tr>
             <tr>
                 <td>シーケンスソートが動かない</td>
