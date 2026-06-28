@@ -467,7 +467,7 @@
                 <li>🔴 <strong>赤信号で停止</strong> = メッセージを一定時間保持</li>
                 <li>🟢 <strong>青信号で発進</strong> = 時間経過後にメッセージを送信</li>
                 <li>🚗 <strong>車間距離を保つ</strong> = メッセージの流量を制限（レート制限）</li>
-                <li>🚧 <strong>渋滞時は一部通過</strong> = 中間メッセージを破棄して最新のみ通過</li>
+                <li>🚧 <strong>渋滞時は一部通過</strong> = 中間メッセージを削除して最新のみ通過</li>
             </ul>
         </div>
         
@@ -541,57 +541,59 @@
         </div>
         
         <h3>設定項目一覧</h3>
-        
+
+        <p>Delay ノードの設定は、まず「動作」で2つのモードのどちらかを選ぶ。選んだモードによって表示される項目が変わる。右欄は、その項目がどちらの動作のときに現れるかを示す。</p>
+
         <table>
             <tr>
                 <th>設定項目</th>
                 <th>説明</th>
-                <th>対応モード</th>
+                <th>対応モード（動作）</th>
             </tr>
             <tr>
                 <td><strong>動作</strong></td>
-                <td>遅延/レート制限/ドロップから選択</td>
-                <td>全モード共通</td>
+                <td>「メッセージの遅延」は各メッセージを指定時間だけ遅らせて流す。「メッセージの流量制限」は決めた間隔に間引いて流す（既定: メッセージの遅延）。</td>
+                <td>共通</td>
             </tr>
             <tr>
-                <td><strong>遅延時間</strong></td>
-                <td>固定の遅延時間を指定</td>
-                <td>固定遅延</td>
+                <td><strong>遅延の種類（ドロップダウン）</strong></td>
+                <td>「指定した時間遅延」（固定時間）／「ランダム時間の遅延」（範囲内のランダム時間）／「msg.delay に遅延を設定」（メッセージの msg.delay ミリ秒で指定）から選ぶ。</td>
+                <td>メッセージの遅延</td>
             </tr>
             <tr>
-                <td><strong>msg.delayで上書き</strong></td>
-                <td>メッセージプロパティで遅延時間を指定</td>
-                <td>固定遅延</td>
+                <td><strong>時間</strong></td>
+                <td>「指定した時間遅延」のときの遅延量。ミリ秒／秒／分／時間／日で指定する（既定 5 秒）。</td>
+                <td>メッセージの遅延</td>
             </tr>
             <tr>
-                <td><strong>ランダム範囲</strong></td>
-                <td>最小〜最大の遅延時間</td>
-                <td>ランダム遅延</td>
+                <td><strong>範囲</strong></td>
+                <td>「ランダム時間の遅延」のときの下限〜上限。この範囲のランダムな時間だけ遅らせる（既定 1〜5 秒）。</td>
+                <td>メッセージの遅延</td>
             </tr>
             <tr>
-                <td><strong>レート</strong></td>
-                <td>時間あたりのメッセージ数</td>
-                <td>レート制限</td>
+                <td><strong>全てのメッセージ／msg.topic毎</strong></td>
+                <td>流量制限の単位。「全てのメッセージ」は全体で1つの間隔に、「msg.topic毎」はトピックごとに間隔を管理する（既定: 全てのメッセージ）。</td>
+                <td>メッセージの流量制限</td>
             </tr>
             <tr>
-                <td><strong>中間メッセージを破棄</strong></td>
-                <td>キューを使わず最新のみ送信</td>
-                <td>レート制限</td>
+                <td><strong>流量</strong></td>
+                <td>送り出す間隔。「X メッセージ／秒・分・時間・日」で指定する（既定 1 メッセージ／秒）。</td>
+                <td>メッセージの流量制限</td>
             </tr>
             <tr>
-                <td><strong>レート上書き許可</strong></td>
-                <td>msg.rateで送信レートを動的に変更</td>
-                <td>レート制限</td>
+                <td><strong>msg.rate(ミリ秒単位)で流量値を上書き</strong></td>
+                <td>メッセージの msg.rate で流量を動的に変更できるようにする（既定 オフ）。</td>
+                <td>メッセージの流量制限</td>
             </tr>
             <tr>
-                <td><strong>トピックごと</strong></td>
-                <td>msg.topicで個別にレート制限</td>
-                <td>レート制限</td>
+                <td><strong>中間メッセージの扱い</strong></td>
+                <td>間隔の合間に届いたメッセージの処理。「中間メッセージをキューに追加」（順に送出）／「中間メッセージを削除」（捨てる）／「2番目の出力で中間メッセージを送信」から選ぶ（既定: キューに追加）。</td>
+                <td>メッセージの流量制限</td>
             </tr>
             <tr>
                 <td><strong>名前</strong></td>
-                <td>ノードの表示名</td>
-                <td>全モード共通</td>
+                <td>エディター上のノード表示名。</td>
+                <td>共通</td>
             </tr>
         </table>
         
@@ -1183,7 +1185,7 @@
         </div>
         
         <p><strong>設定例:</strong></p>
-        <div class="code-block">動作: 一定時間遅延させる
+        <div class="code-block">動作: メッセージの遅延（指定した時間遅延）
 遅延時間: 3秒
 
 入力: 10:00:00 に "Hello, World!"
@@ -1213,8 +1215,8 @@
         </div>
         
         <p><strong>設定例:</strong></p>
-        <div class="code-block">動作: msg.delayに指定した時間遅延
-（設定画面で「msg.delayで上書き」を選択）
+        <div class="code-block">動作: メッセージの遅延（msg.delay に遅延を設定）
+（設定画面で「msg.delay に遅延を設定」を選択）
 
 メッセージ1: msg.delay = 1000 → 1秒後に出力
 メッセージ2: msg.delay = 10000 → 10秒後に出力</div>
@@ -1292,8 +1294,8 @@ Flushの場合:
         </div>
         
         <p><strong>設定例:</strong></p>
-        <div class="code-block">動作: メッセージのレートを制限
-レート: 1メッセージ / 1秒
+        <div class="code-block">動作: メッセージの流量制限
+流量: 1メッセージ / 1秒
 
 入力: 10個のメッセージを一斉に送信
 出力: 1秒ごとに1メッセージずつ出力（10秒かかる）</div>
@@ -1323,9 +1325,9 @@ Flushの場合:
         </div>
         
         <p><strong>設定例:</strong></p>
-        <div class="code-block">動作: トピックごとに最新メッセージを送信
-レート: 1メッセージ / 2秒
-中間メッセージを破棄: ✓
+        <div class="code-block">動作: メッセージの流量制限（msg.topic毎）
+流量: 1メッセージ / 2秒
+中間メッセージの扱い: 中間メッセージを削除
 
 入力:
   apple:1 → apple:2 → apple:3
@@ -1372,7 +1374,7 @@ Flushの場合:
                 </ul>
                 <p><strong>Delayノードの設定:</strong></p>
                 <ul>
-                    <li>動作: 一定時間遅延させる</li>
+                    <li>動作: メッセージの遅延（指定した時間遅延）</li>
                     <li>遅延時間: 5秒</li>
                 </ul>
                 <p><strong>Debugノードの設定:</strong></p>
@@ -1504,7 +1506,7 @@ Flushの場合:
                 </ul>
                 <p><strong>Delayノードの設定:</strong></p>
                 <ul>
-                    <li>動作: msg.delayに指定した時間遅延</li>
+                    <li>動作: メッセージの遅延（msg.delay に遅延を設定）</li>
                 </ul>
             </details>
             
@@ -1663,7 +1665,7 @@ Flushの場合:
                 </ul>
                 <p><strong>Delayノードの設定:</strong></p>
                 <ul>
-                    <li>動作: メッセージのレートを制限</li>
+                    <li>動作: メッセージの流量制限</li>
                     <li>レート: 2メッセージ / 1秒</li>
                 </ul>
             </details>
@@ -1813,10 +1815,10 @@ Flushの場合:
                 </ul>
                 <p><strong>Delayノードの設定:</strong></p>
                 <ul>
-                    <li>動作: メッセージのレートを制限</li>
-                    <li>レート: 1メッセージ / 3秒</li>
-                    <li>中間メッセージを破棄: ✓</li>
-                    <li>トピックごと: ✓</li>
+                    <li>動作: メッセージの流量制限</li>
+                    <li>流量: 1メッセージ / 3秒</li>
+                    <li>中間メッセージの扱い: 中間メッセージを削除</li>
+                    <li>全てのメッセージ／msg.topic毎: msg.topic毎</li>
                 </ul>
             </details>
             
@@ -2009,7 +2011,7 @@ Flushの場合:
             <tr>
                 <td>msg.delayが効かない</td>
                 <td>モードが固定遅延になっている</td>
-                <td>「msg.delayで上書き」を選択</td>
+                <td>「msg.delay に遅延を設定」を選択</td>
             </tr>
             <tr>
                 <td>メモリ使用量が増加</td>
