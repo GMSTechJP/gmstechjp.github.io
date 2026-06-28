@@ -141,26 +141,39 @@
         <h2 id="section3">3. 設定詳細</h2>
         
         <h3>Link In プロパティ</h3>
+        <p>受信口の Link In で設定できる欄は名前だけです。名前の下には、このノードへつながる Link Out や Link Call を選ぶ一覧が並びます（この一覧にラベルはありません）。</p>
         <table>
-            <tr><th>プロパティ</th><th>説明</th></tr>
-            <tr><td><strong>名前</strong></td><td>リンクの識別名（他のLinkから参照される）</td></tr>
+            <tr><th>設定項目</th><th>説明</th><th>既定値</th></tr>
+            <tr><td><strong>名前</strong></td><td>このリンクの識別名。Link Out や Link Call の接続先一覧に、この名前が表示される</td><td>（なし）</td></tr>
         </table>
 
         <h3>Link Out プロパティ</h3>
+        <p>送信口の Link Out は、モードでノードの役割を切り替えます。モードの下に、接続先の Link In を選ぶ一覧が表示されます（この一覧にラベルはありません）。</p>
         <table>
-            <tr><th>プロパティ</th><th>説明</th></tr>
-            <tr><td><strong>モード</strong></td><td>送信先の Link In を選択 / Return モード（Link Call用）</td></tr>
-            <tr><td><strong>名前</strong></td><td>リンクの識別名</td></tr>
-            <tr><td><strong>Links</strong></td><td>接続先の Link In ノードを選択</td></tr>
+            <tr><th>設定項目</th><th>説明</th><th>既定値</th></tr>
+            <tr><td><strong>モード</strong></td><td>ノードの役割を選ぶ。選択肢は下表の2つ</td><td>接続された全てのlinkノードへ送信</td></tr>
+            <tr><td><strong>名前</strong></td><td>このリンクの識別名</td><td>（なし）</td></tr>
+        </table>
+        <p>モードの選択肢:</p>
+        <table>
+            <tr><th>選択肢</th><th>意味</th></tr>
+            <tr><td><strong>接続された全てのlinkノードへ送信</strong></td><td>通常の送信口。選んだ Link In すべてへメッセージを送る（送りっぱなし）</td></tr>
+            <tr><td><strong>link callノードへ返却</strong></td><td>Link Call から呼ばれた処理の戻り口にする。呼び出し元の Link Call へ結果を返す</td></tr>
         </table>
 
         <h3>Link Call プロパティ</h3>
+        <p>Link Call は Link In を呼び出し、戻り口（「link callノードへ返却」モードの Link Out）からの結果を待ちます。「対象を固定で指定」のときは、リンクの種類の下に表示される一覧から呼び出す Link In を選びます。</p>
         <table>
-            <tr><th>プロパティ</th><th>説明</th></tr>
-            <tr><td><strong>リンクの種類</strong></td><td>呼び出し方式（対象を固定で指定 / 対象を動的に指定）</td></tr>
-            <tr><td><strong>Link</strong></td><td>呼び出す Link In ノードを選択（固定指定時）</td></tr>
-            <tr><td><strong>タイムアウト</strong></td><td>応答待ちタイムアウト（秒）</td></tr>
-            <tr><td><strong>名前</strong></td><td>ノードの識別名</td></tr>
+            <tr><th>設定項目</th><th>説明</th><th>既定値</th></tr>
+            <tr><td><strong>タイムアウト</strong></td><td>呼び出し先からの応答を待つ上限。これを超えるとエラーになる</td><td>30（秒）</td></tr>
+            <tr><td><strong>リンクの種類</strong></td><td>呼び出し先の決め方を選ぶ。選択肢は下表の2つ</td><td>対象を固定で指定</td></tr>
+            <tr><td><strong>名前</strong></td><td>ノードの識別名</td><td>（なし）</td></tr>
+        </table>
+        <p>リンクの種類の選択肢:</p>
+        <table>
+            <tr><th>選択肢</th><th>意味</th></tr>
+            <tr><td><strong>対象を固定で指定</strong></td><td>設定画面で呼び出す Link In を選んでおく</td></tr>
+            <tr><td><strong>対象を動的に指定 (msg.target)</strong></td><td>受信したメッセージの <code>msg.target</code> で呼び出し先を切り替える</td></tr>
         </table>
         
         <h2 id="section4">4. 実用的な使用パターン</h2>
@@ -475,12 +488,12 @@
             <span class="arrow">→</span>
             <span class="node node-function">処理</span>
             <span class="arrow">→</span>
-            <span class="node node-link-out" style="border: 2px solid #4caf50;">Return</span>
+            <span class="node node-link-out" style="border: 2px solid #4caf50;">返却</span>
         </div>
         <p><strong>ポイント:</strong></p>
         <ul>
             <li>Link Call は呼び出し先から結果が返るまで待機</li>
-            <li>Link Out の Mode を「Return」に設定すると結果を返せる</li>
+            <li>Link Out のモードを「link callノードへ返却」に設定すると結果を返せる</li>
         </ul>
         
         <h3>パターン3: 複数の送信先</h3>
@@ -580,13 +593,13 @@
                 <li>「7を入力」ボタンをクリックすると、デバッグサイドバーに <code>21</code>（7×3）が表示される</li>
                 <li>Debugノードのステータス欄に <code>21</code> が表示される</li>
                 <li>Link Callノードへの出力（7）とDebugへの出力（21）が別のノードを経由しており、共通処理（3倍）が分離されている構成になっている</li>
-                <li>共通処理の Link Out のモードが「return」になっており、Link Call に結果が戻ってくる</li>
+                <li>共通処理の Link Out のモードが「link callノードへ返却」になっており、Link Call に結果が戻ってくる</li>
             </ul>
             <details>
                 <summary>💡 ヒント</summary>
-                <p>1. 共通処理: Link In → Function（×3） → Link Out（returnモード）</p>
+                <p>1. 共通処理: Link In → Function（×3） → Link Out（返却モード）</p>
                 <p>2. 呼び出し側: Inject → Link Call → Debug</p>
-                <p>3. Link Out のモードを「return」に設定することが重要です</p>
+                <p>3. Link Out のモードを「link callノードへ返却」に設定することが重要です</p>
             </details>
             <details>
                 <summary>✅ 解答例フロー</summary>
@@ -655,7 +668,7 @@
         <div class="warning">
             <p><strong>注意事項:</strong></p>
             <ul>
-                <li>Link Call を使う場合、呼び出し先に Link Out（returnモード）が必要</li>
+                <li>Link Call を使う場合、呼び出し先に Link Out（返却モード）が必要</li>
                 <li>循環参照（A→B→A）を作らないよう注意</li>
                 <li>タイムアウト設定を適切に行う（デフォルト30秒）</li>
                 <li>名前を分かりやすくつけて管理しやすくする</li>
