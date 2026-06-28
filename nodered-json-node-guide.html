@@ -510,27 +510,47 @@
             <tr>
                 <th>設定項目</th>
                 <th>説明</th>
-                <th>例</th>
+                <th>既定値</th>
             </tr>
             <tr>
                 <td><strong>動作</strong></td>
-                <td>変換方向を指定（自動/常にJSON変換/常に文字列化）</td>
-                <td>自動判定がデフォルト</td>
+                <td>変換の向きを決める（種類は下表）。既定では入力の型を見て自動で双方向に変換する。</td>
+                <td>JSON文字列とオブジェクト間の相互変換</td>
             </tr>
             <tr>
                 <td><strong>プロパティ</strong></td>
-                <td>変換対象のプロパティ</td>
+                <td>変換の対象にするメッセージプロパティ。</td>
                 <td>msg.payload</td>
             </tr>
             <tr>
-                <td><strong>整形出力</strong></td>
-                <td>文字列化時にインデントを付けて見やすく整形</td>
-                <td>チェックON/OFF</td>
+                <td><strong>JSON文字列フォーマット</strong></td>
+                <td>オブジェクトを JSON 文字列にするとき、インデントを付けて読みやすく整形する（動作が「相互変換」「常にJSON文字列に変換」のときだけ表示）。</td>
+                <td>オフ</td>
             </tr>
             <tr>
                 <td><strong>名前</strong></td>
-                <td>ノードの表示名</td>
-                <td>任意の文字列</td>
+                <td>ノードに付ける表示名。指定するとフロー上のラベルになる。</td>
+                <td>（空）</td>
+            </tr>
+        </table>
+
+        <h4>「動作」の種類</h4>
+        <table>
+            <tr>
+                <th>選択肢</th>
+                <th>変換の向き</th>
+            </tr>
+            <tr>
+                <td><strong>JSON文字列とオブジェクト間の相互変換</strong></td>
+                <td>入力が文字列ならオブジェクトへ、オブジェクトなら文字列へ、型を見て自動で変換する。</td>
+            </tr>
+            <tr>
+                <td><strong>常にJSON文字列に変換</strong></td>
+                <td>入力がどちらでも JSON 文字列にする。</td>
+            </tr>
+            <tr>
+                <td><strong>常にJavaScriptオブジェクトに変換</strong></td>
+                <td>入力がどちらでも JavaScript オブジェクトにする。</td>
             </tr>
         </table>
         
@@ -886,7 +906,7 @@
         </div>
         
         <p><strong>設定例:</strong></p>
-        <div class="code-block">動作: JSON文字列とオブジェクトの相互変換（自動）
+        <div class="code-block">動作: JSON文字列とオブジェクト間の相互変換（自動）
 プロパティ: msg.payload
 
 入力: '{"kind":"Apple","price":100,"origin":"Canada"}'  ← 文字列（引用符付き）
@@ -906,7 +926,7 @@
         </div>
         
         <p><strong>設定例:</strong></p>
-        <div class="code-block">動作: JSON文字列とオブジェクトの相互変換（自動）
+        <div class="code-block">動作: JSON文字列とオブジェクト間の相互変換（自動）
 プロパティ: msg.payload
 
 入力: {kind: "Apple", price: 100, origin: "Canada"}     ← オブジェクト
@@ -967,7 +987,7 @@
         </div>
         
         <p><strong>設定例:</strong></p>
-        <div class="code-block">整形出力: ON
+        <div class="code-block">JSON文字列フォーマット: ON
 
 入力: {kind: "Apple", price: 100, origin: "Canada"}
 
@@ -1045,7 +1065,7 @@ msg.payload = msg.payload.data.temperature;  // 25.5</div>
                 </ul>
                 <p><strong>JSONノードの設定:</strong></p>
                 <ul>
-                    <li>動作: 自動（デフォルト）</li>
+                    <li>動作: JSON文字列とオブジェクト間の相互変換（自動・デフォルト）</li>
                     <li>プロパティ: msg.payload</li>
                 </ul>
                 <p><strong>Changeノードの設定:</strong></p>
@@ -1206,8 +1226,8 @@ msg.payload = msg.payload.data.temperature;  // 25.5</div>
                 </ul>
                 <p><strong>JSONノードの設定:</strong></p>
                 <ul>
-                    <li>動作: 自動</li>
-                    <li>整形出力: チェックON</li>
+                    <li>動作: JSON文字列とオブジェクト間の相互変換（自動）</li>
+                    <li>JSON文字列フォーマット: チェックON</li>
                 </ul>
             </details>
             
@@ -1655,7 +1675,7 @@ return msg;</div>
                 <li><strong>双方向変換</strong>: JSON文字列 ↔ JavaScriptオブジェクトの相互変換</li>
                 <li><strong>自動判定</strong>: 入力データ型で変換方向を自動判定</li>
                 <li><strong>スキーマ検証</strong>: msg.schemaでJSONスキーマによる検証が可能</li>
-                <li><strong>整形出力</strong>: Pretty Print オプションで見やすく整形</li>
+                <li><strong>JSON文字列フォーマット</strong>: Pretty Print オプションで見やすく整形</li>
                 <li><strong>エラー処理</strong>: 不正なJSONやスキーマ違反はCatchノードで捕捉</li>
             </ul>
         </div>
