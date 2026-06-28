@@ -508,41 +508,48 @@
         
         <h3>設定項目一覧</h3>
         
+        <p>Exec ノードの設定は、何のコマンドを・どんな引数で実行し、結果をどう返すかを決める。下表はエディターの項目順に合わせている。</p>
+
         <table>
             <tr>
                 <th>設定項目</th>
                 <th>説明</th>
-                <th>例</th>
+                <th>既定値</th>
             </tr>
             <tr>
                 <td><strong>コマンド</strong></td>
-                <td>実行するコマンドやプログラム</td>
-                <td>echo, ls, python</td>
+                <td>実行する OS コマンドやプログラム（パスや実行ファイル名）。</td>
+                <td>（空）</td>
             </tr>
             <tr>
                 <td><strong>引数</strong></td>
-                <td>コマンドの後に追加する固定引数</td>
-                <td>-la, --version</td>
+                <td>チェックを入れると、入力メッセージの msg.payload をコマンドの引数として末尾に追加する。</td>
+                <td>オフ</td>
             </tr>
             <tr>
-                <td><strong>msg.payloadを追加</strong></td>
-                <td>入力メッセージのpayloadをコマンド引数に追加</td>
-                <td>チェックON/OFF</td>
+                <td><strong>追加引数</strong></td>
+                <td>コマンドに常に渡す固定の引数を入力する欄（プレースホルダ「追加引数」）。例：<code>-la</code>、<code>--version</code>。</td>
+                <td>（空）</td>
             </tr>
             <tr>
                 <td><strong>出力</strong></td>
-                <td>exec（完了後）またはspawn（リアルタイム）</td>
-                <td>exec / spawn</td>
+                <td>結果の返し方。「コマンド終了時 - execモード」は終了後に出力をまとめて返す。「コマンド実行中 - spawnモード」は出力を逐次ストリームで返す。</td>
+                <td>コマンド終了時 - execモード</td>
             </tr>
             <tr>
                 <td><strong>タイムアウト</strong></td>
-                <td>コマンド実行の最大待ち時間（秒）</td>
-                <td>30（秒）</td>
+                <td>指定した秒数で実行を打ち切る。空欄なら制限しない。</td>
+                <td>（空・無制限）</td>
             </tr>
             <tr>
-                <td><strong>旧式の出力</strong></td>
-                <td>古い形式の終了コード出力を使用</td>
-                <td>チェックON/OFF</td>
+                <td><strong>コンソールを非表示</strong></td>
+                <td>Windows で、コマンド実行時にコンソールウィンドウを表示しない。</td>
+                <td>オフ</td>
+            </tr>
+            <tr>
+                <td><strong>名前</strong></td>
+                <td>エディター上のノード表示名。</td>
+                <td>（空）</td>
             </tr>
         </table>
         
@@ -556,7 +563,7 @@
             </tr>
             <tr>
                 <td><strong>msg.payload</strong></td>
-                <td>「msg.payloadを追加」がONの場合、コマンド引数に追加</td>
+                <td>「引数（msg.payload追加）」がONの場合、コマンド引数に追加</td>
                 <td>"Hello World!"</td>
             </tr>
             <tr>
@@ -992,7 +999,7 @@ msg.payload = {
         
         <p><strong>設定例:</strong></p>
         <div class="code-block">コマンド: echo
-msg.payloadを追加: チェックON
+引数（msg.payload追加）: チェックON
 出力形式: exec（待機）
 
 入力: msg.payload = "Hello World!"
@@ -1026,7 +1033,7 @@ msg.payloadを追加: チェックON
         
         <p><strong>設定例:</strong></p>
         <div class="code-block">コマンド: /non/existing/command
-msg.payloadを追加: チェックOFF
+引数（msg.payload追加）: チェックOFF
 
 実行: /non/existing/command
 出力(stderr): "spawn /non/existing/command ENOENT"
@@ -1080,7 +1087,7 @@ msg.payloadを追加: チェックOFF
         
         <p><strong>設定例:</strong></p>
         <div class="code-block">コマンド: hostname（または date, df -h, uname -a など）
-msg.payloadを追加: チェックOFF
+引数（msg.payload追加）: チェックOFF
 
 出力例(hostname): "raspberrypi\n"
 ※ 末尾の改行を除去するにはChangeノードやFunctionノードでtrim()を使用</div>
@@ -1100,7 +1107,7 @@ msg.payloadを追加: チェックOFF
         
         <p><strong>設定例:</strong></p>
         <div class="code-block">コマンド: python3 /home/pi/scripts/process.py
-msg.payloadを追加: チェックON（スクリプトへの引数として）
+引数（msg.payload追加）: チェックON（スクリプトへの引数として）
 
 // Pythonスクリプト側でsys.argvで引数を受け取り
 // 結果をprint()でJSON形式で出力
@@ -1143,7 +1150,7 @@ msg.payloadを追加: チェックON（スクリプトへの引数として）
                 <p><strong>Execノードの設定:</strong></p>
                 <ul>
                     <li>コマンド: <code>echo</code></li>
-                    <li>msg.payloadを追加: チェックON</li>
+                    <li>引数（msg.payload追加）: チェックON</li>
                     <li>出力: exec（待機）</li>
                 </ul>
                 <p><strong>Debugノードの設定:</strong></p>
@@ -1281,7 +1288,7 @@ msg.payloadを追加: チェックON（スクリプトへの引数として）
                 <p><strong>Execノードの設定:</strong></p>
                 <ul>
                     <li>コマンド: <code>date</code></li>
-                    <li>msg.payloadを追加: チェックOFF</li>
+                    <li>引数（msg.payload追加）: チェックOFF</li>
                 </ul>
                 <p><strong>Changeノードの設定:</strong></p>
                 <ul>
@@ -1795,7 +1802,7 @@ msg.payloadを追加: チェックON（スクリプトへの引数として）
             <ul>
                 <li><strong>3つの出力ポート</strong>: stdout（標準出力）、stderr（標準エラー）、終了コード</li>
                 <li><strong>2つのモード</strong>: exec（完了後出力）とspawn（リアルタイム出力）</li>
-                <li><strong>msg.payloadを追加</strong>: コマンド引数として入力値を使用可能</li>
+                <li><strong>引数（msg.payload追加）</strong>: コマンド引数として入力値を使用可能</li>
                 <li><strong>msg.kill</strong>: spawnモードで実行中のプロセスを終了</li>
                 <li><strong>タイムアウト</strong>: 長時間実行を防ぐための安全機構</li>
             </ul>
@@ -1926,7 +1933,7 @@ Execノード: gpio write 0 1
         <p><strong>安全なコマンド実行の例:</strong></p>
         <div class="code-block">// 危険な例（ユーザー入力を直接使用）
 コマンド: rm -rf
-msg.payloadを追加: ON  ← ユーザーが "/ --no-preserve-root" を入力したら...
+引数（msg.payload追加）: ON  ← ユーザーが "/ --no-preserve-root" を入力したら...
 
 // 安全な例（ホワイトリスト方式）
 Functionノードで入力値を検証してからExecノードに渡す
