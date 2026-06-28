@@ -174,29 +174,45 @@
         
         <h2 id="section3">⚙️ 3. UDP In ノード</h2>
         
-        <h3>動作モード</h3>
+        <h3>設定項目</h3>
+        <p>各項目は Node-RED エディターの表示ラベルに対応します。「待ち受け」で「マルチキャストメッセージ」を選ぶと、「グループ」と「ローカルIP」の欄が現れます。</p>
         <table>
-            <tr><th>モード</th><th>説明</th><th>用途</th></tr>
+            <tr><th>設定項目</th><th>説明</th><th>既定値</th></tr>
             <tr>
-                <td><strong>Listen for udp messages</strong></td>
-                <td>指定ポートでUDPパケットを待ち受け</td>
-                <td>UDPサーバー、センサーデータ受信</td>
+                <td><strong>待ち受け</strong></td>
+                <td>受信方法を選びます。「UDPメッセージ」は単一ポートで通常のUDPを受信します。「マルチキャストメッセージ」はマルチキャストグループに参加して受信します。</td>
+                <td>UDPメッセージ</td>
             </tr>
             <tr>
-                <td><strong>Listen for multicast messages</strong></td>
-                <td>マルチキャストグループに参加して受信</td>
-                <td>グループ通信</td>
+                <td><strong>グループ</strong></td>
+                <td>参加するマルチキャストグループのアドレス。「待ち受け」が「マルチキャストメッセージ」のときだけ表示されます。</td>
+                <td>（空）</td>
             </tr>
-        </table>
-        
-        <h3>主要プロパティ</h3>
-        <table>
-            <tr><th>プロパティ</th><th>説明</th><th>例</th></tr>
-            <tr><td><strong>待ち受け</strong></td><td>受信モード</td><td>udp messages</td></tr>
-            <tr><td><strong>ポート</strong></td><td>待ち受けポート</td><td>8000</td></tr>
-            <tr><td><strong>IPv</strong></td><td>IPv4 または IPv6</td><td>ipv4</td></tr>
-            <tr><td><strong>グループ</strong></td><td>マルチキャストグループ（マルチキャスト時）</td><td>224.0.0.1</td></tr>
-            <tr><td><strong>出力</strong></td><td>出力形式</td><td>String / Buffer</td></tr>
+            <tr>
+                <td><strong>ローカルIP</strong></td>
+                <td>マルチキャスト受信に使うローカルインターフェイスのアドレス。NICが複数あるときに受信側を指定します。空欄なら既定のインターフェイスを使います。</td>
+                <td>（空）</td>
+            </tr>
+            <tr>
+                <td><strong>ポート</strong></td>
+                <td>待ち受けるポート番号。必須項目です。</td>
+                <td>（必須・既定なし）</td>
+            </tr>
+            <tr>
+                <td><strong>種類</strong></td>
+                <td>ポート欄の右にあり、IPのバージョンを ipv4 と ipv6 から選びます。</td>
+                <td>ipv4</td>
+            </tr>
+            <tr>
+                <td><strong>出力</strong></td>
+                <td>受信データを <code>msg.payload</code> に格納する形式。「バイナリバッファ」（Buffer）、「文字列」（UTF-8文字列）、「Base64文字列」から選びます。</td>
+                <td>バイナリバッファ</td>
+            </tr>
+            <tr>
+                <td><strong>名前</strong></td>
+                <td>エディター上のノード表示名。省略するとポート番号が表示されます。</td>
+                <td>（空）</td>
+            </tr>
         </table>
         
         <h3>受信時の msg プロパティ</h3>
@@ -222,14 +238,45 @@
             </tr>
         </table>
         
-        <h3>主要プロパティ</h3>
+        <h3>設定項目</h3>
+        <p>各項目は Node-RED エディターの表示ラベルに対応します。「送信」が「マルチキャストメッセージ」のときだけ「ローカルIP」の欄が現れ、「アドレス」のラベルは「グループ」に変わります。</p>
         <table>
-            <tr><th>プロパティ</th><th>説明</th><th>例</th></tr>
-            <tr><td><strong>送信</strong></td><td>送信モード</td><td>udp message</td></tr>
-            <tr><td><strong>アドレス</strong></td><td>送信先アドレス</td><td>192.168.1.100</td></tr>
-            <tr><td><strong>ポート</strong></td><td>送信先ポート</td><td>8000</td></tr>
-            <tr><td><strong>ブロードキャストアドレス</strong></td><td>ブロードキャストアドレス</td><td>192.168.1.255</td></tr>
-            <tr><td><strong>ローカルポート</strong></td><td>ローカルポートを固定</td><td>8001</td></tr>
+            <tr><th>設定項目</th><th>説明</th><th>既定値</th></tr>
+            <tr>
+                <td><strong>送信</strong></td>
+                <td>送信方法を選びます。「UDPメッセージ」は通常の単一宛先送信、「ブロードキャストメッセージ」は同一サブネットへの一斉送信、「マルチキャストメッセージ」はグループ宛て送信です。右側の欄に宛先ポートを入れます。</td>
+                <td>UDPメッセージ</td>
+            </tr>
+            <tr>
+                <td><strong>アドレス</strong></td>
+                <td>宛先IPアドレス。ブロードキャスト時はブロードキャストアドレス（例 <code>192.168.1.255</code>）、マルチキャスト時はラベルが「グループ」に変わりグループアドレスを入れます。</td>
+                <td>（空）</td>
+            </tr>
+            <tr>
+                <td><strong>種類</strong></td>
+                <td>アドレス欄の右にあり、IPのバージョンを ipv4 と ipv6 から選びます。</td>
+                <td>ipv4</td>
+            </tr>
+            <tr>
+                <td><strong>ローカルIP</strong></td>
+                <td>マルチキャスト送信に使うローカルインターフェイス。「送信」が「マルチキャストメッセージ」のときだけ表示されます。</td>
+                <td>（空）</td>
+            </tr>
+            <tr>
+                <td><strong>ローカルポート</strong></td>
+                <td>送信元のローカルポート。ドロップダウンで「ローカルポートをランダムに使用」か「ローカルポートを使用」（固定）を選び、固定時は右の欄にポート番号を入れます。</td>
+                <td>ランダム</td>
+            </tr>
+            <tr>
+                <td><strong>Base64形式のペイロードを復号</strong></td>
+                <td>チェックを入れると、Base64文字列の <code>msg.payload</code> をバイナリに復号してから送信します。</td>
+                <td>オフ</td>
+            </tr>
+            <tr>
+                <td><strong>名前</strong></td>
+                <td>エディター上のノード表示名。</td>
+                <td>（空）</td>
+            </tr>
         </table>
         
         <h3>ブロードキャストアドレス</h3>
@@ -794,14 +841,14 @@ nc -ul 8000</div>
                 <summary>💡 ヒント</summary>
                 <p><strong>UDP In ノード:</strong></p>
                 <ul>
-                    <li>Listen for: udp messages</li>
-                    <li>on port: 9000</li>
-                    <li>Output: String</li>
+                    <li>待ち受け: UDPメッセージ</li>
+                    <li>ポート: 9000</li>
+                    <li>出力: 文字列</li>
                 </ul>
                 <p><strong>UDP Out ノード:</strong></p>
                 <ul>
-                    <li>to: localhost</li>
-                    <li>port: 9000</li>
+                    <li>アドレス: localhost</li>
+                    <li>ポート: 9000</li>
                 </ul>
             </details>
             
@@ -845,8 +892,8 @@ nc -ul 8000</div>
 // ※ msg.ip と msg.port はそのまま保持される</div>
                 <p><strong>UDP Out ノード:</strong></p>
                 <ul>
-                    <li>to: 空欄（msg.ip を使用）</li>
-                    <li>port: 空欄（msg.port を使用）</li>
+                    <li>アドレス: 空欄（msg.ip を使用）</li>
+                    <li>ポート: 空欄（msg.port を使用）</li>
                 </ul>
             </details>
             
