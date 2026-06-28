@@ -114,24 +114,25 @@
         
         <h3>プロパティ</h3>
         <table>
-            <tr><th>プロパティ</th><th>説明</th><th>デフォルト</th></tr>
-            <tr><td><strong>ファイル名</strong></td><td>書き込み先ファイルパス</td><td>（空）</td></tr>
-            <tr><td><strong>動作</strong></td><td>書き込み動作の種類</td><td>append to file</td></tr>
-            <tr><td><strong>メッセージの入力のたびに改行を追加</strong></td><td>末尾に改行を追加</td><td>true</td></tr>
-            <tr><td><strong>ディレクトリが存在しない場合は作成</strong></td><td>ディレクトリがなければ作成</td><td>false</td></tr>
-            <tr><td><strong>文字コード</strong></td><td>文字エンコーディング</td><td>default</td></tr>
+            <tr><th>設定項目</th><th>説明</th><th>既定値</th></tr>
+            <tr><td><strong>ファイル名</strong></td><td>書き込み先のファイルパス。入力欄左の型選択で パス／msg／JSONata／env を切り替えられる</td><td>（空）</td></tr>
+            <tr><td><strong>動作</strong></td><td>ファイルに対する操作。下の「動作の種類」から選ぶ</td><td>ファイルへ追記</td></tr>
+            <tr><td><strong>メッセージの入力のたびに改行を追加</strong></td><td>メッセージごとに末尾へ改行を付けるか（チェックボックス）</td><td>オン</td></tr>
+            <tr><td><strong>ディレクトリが存在しない場合は作成</strong></td><td>書き込み先の親ディレクトリがなければ自動で作成するか（チェックボックス）</td><td>オフ</td></tr>
+            <tr><td><strong>文字コード</strong></td><td>書き込み時の文字エンコーディング</td><td>デフォルト</td></tr>
+            <tr><td><strong>名前</strong></td><td>エディター上のノード表示名</td><td>（空）</td></tr>
         </table>
         
-        <h3>Action（動作）オプション</h3>
+        <h3>「動作」の種類</h3>
         <table>
-            <tr><th>オプション</th><th>説明</th><th>用途</th></tr>
-            <tr><td><strong>append to file</strong></td><td>ファイル末尾に追記</td><td>ログファイル、時系列データ</td></tr>
-            <tr><td><strong>overwrite file</strong></td><td>ファイルを上書き</td><td>設定ファイル、状態保存</td></tr>
-            <tr><td><strong>delete file</strong></td><td>ファイルを削除</td><td>一時ファイルの削除</td></tr>
+            <tr><th>選択肢</th><th>説明</th><th>用途</th></tr>
+            <tr><td><strong>ファイルへ追記</strong></td><td>既存の内容を残し、ファイル末尾に書き足す</td><td>ログファイル、時系列データ</td></tr>
+            <tr><td><strong>ファイルを上書き</strong></td><td>既存の内容を消してから書き込む</td><td>設定ファイル、状態保存</td></tr>
+            <tr><td><strong>ファイルを削除</strong></td><td>指定したファイルを削除する</td><td>一時ファイルの削除</td></tr>
         </table>
         
         <h3>動的なファイル名</h3>
-        <p>Filename を空にして、<code>msg.filename</code> でファイルパスを指定できます。</p>
+        <p>「ファイル名」を空にして、<code>msg.filename</code> でファイルパスを指定できます。</p>
         <div class="code-block">// Function ノードで動的にファイル名を設定
 msg.filename = "/home/pi/logs/sensor_" + new Date().toISOString().slice(0,10) + ".log";
 msg.payload = "センサーデータ: " + msg.payload;
@@ -141,26 +142,28 @@ return msg;</div>
         
         <h3>プロパティ</h3>
         <table>
-            <tr><th>プロパティ</th><th>説明</th><th>デフォルト</th></tr>
-            <tr><td><strong>ファイル名</strong></td><td>読み込むファイルパス</td><td>（空）</td></tr>
-            <tr><td><strong>出力形式</strong></td><td>出力形式</td><td>a single utf8 string</td></tr>
-            <tr><td><strong>文字コード</strong></td><td>文字エンコーディング</td><td>utf8</td></tr>
+            <tr><th>設定項目</th><th>説明</th><th>既定値</th></tr>
+            <tr><td><strong>ファイル名</strong></td><td>読み込むファイルパス。入力欄左の型選択で パス／msg／JSONata／env を切り替えられる</td><td>（空）</td></tr>
+            <tr><td><strong>出力形式</strong></td><td>ファイル内容をどの形で出力するか。下の「出力形式の種類」から選ぶ</td><td>文字列</td></tr>
+            <tr><td><strong>各メッセージに既存の全プロパティを含める</strong></td><td>出力形式が「行毎のメッセージ」「バッファのストリーム」のとき表示。分割した各メッセージに、入力メッセージの他のプロパティも引き継ぐか（チェックボックス）</td><td>オフ</td></tr>
+            <tr><td><strong>文字コード</strong></td><td>読み込み時の文字エンコーディング（出力形式が「文字列」「行毎のメッセージ」のとき有効）</td><td>デフォルト</td></tr>
+            <tr><td><strong>名前</strong></td><td>エディター上のノード表示名</td><td>（空）</td></tr>
         </table>
         
-        <h3>Output（出力形式）オプション</h3>
+        <h3>「出力形式」の種類</h3>
         <table>
-            <tr><th>オプション</th><th>説明</th><th>用途</th></tr>
-            <tr><td><strong>a single utf8 string</strong></td><td>ファイル全体を文字列で</td><td>設定ファイル、テンプレート</td></tr>
-            <tr><td><strong>a single Buffer object</strong></td><td>ファイル全体をBufferで</td><td>バイナリファイル、画像</td></tr>
-            <tr><td><strong>a msg per line</strong></td><td>1行ごとにメッセージ出力</td><td>CSVの行処理、ログ解析</td></tr>
-            <tr><td><strong>a single stream</strong></td><td>ストリームとして出力</td><td>大きなファイルの処理</td></tr>
+            <tr><th>選択肢</th><th>説明</th><th>用途</th></tr>
+            <tr><td><strong>文字列</strong></td><td>ファイル全体を1つの文字列で出力する</td><td>設定ファイル、テンプレート</td></tr>
+            <tr><td><strong>行毎のメッセージ</strong></td><td>1行ごとに分割し、複数のメッセージで出力する</td><td>CSVの行処理、ログ解析</td></tr>
+            <tr><td><strong>バイナリバッファ</strong></td><td>ファイル全体を Buffer オブジェクトで出力する</td><td>バイナリファイル、画像</td></tr>
+            <tr><td><strong>バッファのストリーム</strong></td><td>バッファのストリームとして出力する</td><td>大きなファイルの処理</td></tr>
         </table>
         
         <div class="tip">
             <p><strong>ポイント:</strong></p>
             <ul>
                 <li><code>msg.filename</code> で動的にファイルを指定可能</li>
-                <li>大きなファイルは「a msg per line」または「stream」を使用</li>
+                <li>大きなファイルは「行毎のメッセージ」または「バッファのストリーム」を使用</li>
                 <li>読み込み完了時に msg を出力</li>
             </ul>
         </div>
@@ -565,7 +568,7 @@ return msg;</div>
             <span class="arrow">→</span>
             <span class="node node-debug">完了</span>
         </div>
-        <p><strong>設定:</strong> Action: append to file, Add newline: ✓</p>
+        <p><strong>設定:</strong> 動作: ファイルへ追記、メッセージの入力のたびに改行を追加: ✓</p>
         
         <h3>パターン2: ファイルの読み込み</h3>
         <p>サンプルフローの「ファイルの読み込み」を参照してください。</p>
@@ -576,7 +579,7 @@ return msg;</div>
             <span class="arrow">→</span>
             <span class="node node-debug">内容表示</span>
         </div>
-        <p><strong>設定:</strong> Output: a single utf8 string</p>
+        <p><strong>設定:</strong> 出力形式: 文字列</p>
         
         <h3>パターン3: 上書き保存</h3>
         <p>サンプルフローの「上書き保存」を参照してください。</p>
@@ -587,7 +590,7 @@ return msg;</div>
             <span class="arrow">→</span>
             <span class="node node-debug">保存完了</span>
         </div>
-        <p><strong>設定:</strong> Action: overwrite file（既存ファイルを置き換え）</p>
+        <p><strong>設定:</strong> 動作: ファイルを上書き（既存ファイルを置き換え）</p>
         
         <h3>パターン4: 動的ファイル名（日付別ログ）</h3>
         <p>サンプルフローの「動的ファイル名（日付別ログ）」を参照してください。</p>
@@ -598,7 +601,7 @@ return msg;</div>
             <span class="arrow">→</span>
             <span class="node node-file">動的ファイル</span>
         </div>
-        <p><strong>設定:</strong> Filename: 空（msg.filename で指定）</p>
+        <p><strong>設定:</strong> ファイル名: 空（msg.filename で指定）</p>
         
         <h3>パターン5: エラーハンドリング</h3>
         <p>サンプルフローの「エラーハンドリング」を参照してください。</p>
@@ -626,7 +629,7 @@ return msg;</div>
             </ul>
             <details>
                 <summary>💡 ヒント</summary>
-                <p>File ノードの Action を「append to file」に設定し、「Add newline」をオンにします。</p>
+                <p>file ノードの「動作」を「ファイルへ追記」に設定し、「メッセージの入力のたびに改行を追加」をオンにします。</p>
             </details>
             <details>
                 <summary>✅ 解答例フロー</summary>
@@ -651,7 +654,7 @@ return msg;</div>
             </ul>
             <details>
                 <summary>💡 ヒント</summary>
-                <p>File In ノードを使用し、Output を「a single utf8 string」に設定します。</p>
+                <p>file in ノードを使用し、「出力形式」を「文字列」に設定します。</p>
             </details>
             <details>
                 <summary>✅ 解答例フロー</summary>
@@ -705,7 +708,7 @@ return msg;</div>
             </ul>
             <details>
                 <summary>💡 ヒント</summary>
-                <p>msg.filename で動的にファイル名を指定。削除は Action: delete file を使用。</p>
+                <p>msg.filename で動的にファイル名を指定。削除は「動作」で「ファイルを削除」を使用。</p>
             </details>
             <details>
                 <summary>✅ 解答例フロー</summary>
@@ -739,7 +742,7 @@ return msg;</div>
             <p><strong>注意事項:</strong></p>
             <ul>
                 <li>ファイルパスの権限に注意（読み書き権限が必要）</li>
-                <li>大きなファイルは「a msg per line」または「stream」を使用</li>
+                <li>大きなファイルは「行毎のメッセージ」または「バッファのストリーム」を使用</li>
                 <li>重要なファイル操作には Catch ノードでエラーハンドリング</li>
                 <li>相対パスはNode-REDの作業ディレクトリ基準</li>
             </ul>
