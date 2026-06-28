@@ -359,30 +359,30 @@
 </head>
 <body>
     <div class="container">
-        <h1>✂️ Node-RED Splitノード ガイド</h1>
+        <h1>Node-RED Splitノード ガイド</h1>
         <div data-envbadge="1" style="margin:12px 0;"><span style="display:inline-block;padding:3px 12px;border-radius:12px;font-size:0.85em;font-weight:bold;background:#e3f2fd;color:#0d47a1;border:1px solid #90caf9;">☁️ クラウドOK</span> <a href="nodered-learning-environment-guide.html" style="font-size:0.82em;">環境とは？</a></div>
         
-        <p>このガイドでは、Node-REDの<strong>Splitノード</strong>について、初心者の方でも理解できるように詳しく説明します。</p>
-        
-        <h2>📚 1. Splitノードとは?</h2>
-        
-        <h3>🤔 「Split」って何?</h3>
+        <p>Node-REDの<strong>Splitノード</strong>について、設定項目から実用パターンまで解説します。</p>
+
+        <h2>1. Splitノードとは</h2>
+
+        <h3>「Split」の役割</h3>
         <p>
-            Splitノードは、<strong>1つのメッセージを複数のメッセージに分割する</strong>ノードです。
-            日常生活で例えると、<strong>ピザを切り分ける</strong>ようなものです。
+            Splitノードは、1つのメッセージを複数のメッセージに分割するノードです。
+            ピザを切り分けるように、まとまったデータを要素ごとに切り出して後続ノードに送ります。
         </p>
-        
+
         <div class="important">
-            <p><strong>🍕 ピザの切り分けに例えると:</strong></p>
+            <p><strong>動作のイメージ:</strong></p>
             <ul>
-                <li>🍕 <strong>ホールピザを受け取る</strong> = 1つのメッセージ(配列やテキスト)</li>
-                <li>🔪 <strong>ピザカッターで切る</strong> = Splitノードで分割</li>
-                <li>🍽️ <strong>1切れずつ配る</strong> = 個別のメッセージとして送信</li>
-                <li>📝 <strong>何切れ目かメモ</strong> = msg.partsに分割情報を記録</li>
+                <li>🍕 ホールピザを受け取る = 1つのメッセージ（配列やテキスト）</li>
+                <li>🔪 ピザカッターで切る = Splitノードで分割</li>
+                <li>🍽️ 1切れずつ配る = 個別のメッセージとして送信</li>
+                <li>📝 何切れ目かメモ = msg.partsに分割情報を記録</li>
             </ul>
         </div>
         
-        <h3>📦 基本的な動作</h3>
+        <h3>基本的な動作</h3>
         <div class="node-example">
             <span class="node node-inject">Inject</span>
             <span class="arrow">→</span>
@@ -392,8 +392,8 @@
         </div>
         
         <p>
-            Splitノードは、配列、文字列、オブジェクトなどを受け取り、それぞれの要素を<strong>個別のメッセージとして順次送信</strong>します。
-            後で<strong>Joinノード</strong>と組み合わせて、分割したメッセージを再結合することもできます。
+            Splitノードは、配列、文字列、オブジェクトなどを受け取り、それぞれの要素を個別のメッセージとして順次送信します。
+            Joinノードと組み合わせると、分割したメッセージを後から再結合できます。
         </p>
         
         <div class="data-flow">
@@ -408,9 +408,9 @@
             </div>
         </div>
         
-        <h2>⚙️ 2. Splitノードの設定</h2>
-        
-        <h3>🔧 入力データ別の動作</h3>
+        <h2>2. Splitノードの設定</h2>
+
+        <h3>入力データ別の動作</h3>
         
         <div class="feature-grid">
             <div class="feature-card">
@@ -447,7 +447,7 @@ Buffer(4) → Buffer(4) → Buffer(4)</div>
             </div>
         </div>
         
-        <h3>📋 設定項目</h3>
+        <h3>設定項目</h3>
 
         <table>
             <tr>
@@ -463,7 +463,7 @@ Buffer(4) → Buffer(4) → Buffer(4)</div>
             <tr>
                 <td><strong>分割</strong></td>
                 <td>文字列の場合の区切り文字</td>
-                <td>\n(改行), ,(カンマ), 任意の文字</td>
+                <td>\n（改行）、,（カンマ）、任意の文字</td>
             </tr>
             <tr>
                 <td><strong>固定長</strong></td>
@@ -487,9 +487,9 @@ Buffer(4) → Buffer(4) → Buffer(4)</div>
             </tr>
         </table>
         
-        <h3>🎯 msg.partsオブジェクト</h3>
-        
-        <p>Splitノードは分割情報を<code>msg.parts</code>に自動的に追加します。これはJoinノードで再結合する際に使用されます。</p>
+        <h3>msg.partsオブジェクト</h3>
+
+        <p>Splitノードは分割情報を<code>msg.parts</code>に自動的に付与します。Joinノードで再結合する際に使用します。</p>
         
         <div class="code-block">msg.parts = {
     id: "abc123",      // 分割グループの識別子
@@ -499,10 +499,10 @@ Buffer(4) → Buffer(4) → Buffer(4)</div>
     key: "Apple"       // オブジェクト分割時のキー名
 }</div>
         
-        <h2>🎯 3. 実用的な使用パターン</h2>
-        
+        <h2>3. 実用的な使用パターン</h2>
+
         <div class="important">
-            <p><strong>📥 サンプルフローのインポート方法:</strong></p>
+            <p><strong>サンプルフローのインポート方法:</strong></p>
             <ol>
                 <li>下のサンプルフローJSONをコピー</li>
                 <li>Node-REDエディタで <strong>メニュー → 読み込み</strong> を選択</li>
@@ -512,7 +512,7 @@ Buffer(4) → Buffer(4) → Buffer(4)</div>
         </div>
         
         <details>
-            <summary>📋 サンプルフロー（クリックで展開）</summary>
+            <summary>サンプルフロー（クリックで展開）</summary>
             <p style="margin: 10px 0; color: #666;"><small>参照元：NodeREDエディター内サンプルフロー</small></p>
             <div class="flow-json">
 [
@@ -912,7 +912,7 @@ Buffer(4) → Buffer(4) → Buffer(4)</div>
         </details>
         
         <h3>パターン1: 文字列を区切り文字で分割</h3>
-        <p><strong>用途:</strong> テキストデータを行ごと、カンマ区切りなどで分割</p>
+        <p><strong>用途:</strong> テキストデータを行ごとやカンマ区切りで分割</p>
         
         <div class="node-example">
             <span class="node node-inject">Inject</span>
@@ -925,14 +925,14 @@ Buffer(4) → Buffer(4) → Buffer(4)</div>
         </div>
         
         <div class="tip">
-            <p><strong>📌 動作の流れ:</strong></p>
+            <p><strong>動作の流れ:</strong></p>
             <ol>
                 <li>"Apple\nOrange\nBanana" を受信</li>
                 <li>改行文字(\n)で分割</li>
                 <li>"Apple" → "Orange" → "Banana" を順次送信</li>
             </ol>
         </div>
-        
+
         <p><strong>設定例:</strong></p>
         <div class="code-block">分割: 文字列 "\n"
 
@@ -956,14 +956,14 @@ Buffer(4) → Buffer(4) → Buffer(4)</div>
         </div>
         
         <div class="tip">
-            <p><strong>📌 動作の流れ:</strong></p>
+            <p><strong>動作の流れ:</strong></p>
             <ol>
-                <li>"Apple\nOrange\nBanana" (19文字)を受信</li>
+                <li>"Apple\nOrange\nBanana"（19文字）を受信</li>
                 <li>4文字ずつ分割</li>
                 <li>"Appl" → "e\nOr" → "ange" → "\nBan" → "ana" を順次送信</li>
             </ol>
         </div>
-        
+
         <p><strong>設定例:</strong></p>
         <div class="code-block">分割: 固定長 4文字
 
@@ -987,16 +987,16 @@ Buffer(4) → Buffer(4) → Buffer(4)</div>
         </div>
         
         <div class="tip">
-            <p><strong>📌 動作の流れ:</strong></p>
+            <p><strong>動作の流れ:</strong></p>
             <ol>
                 <li>["Apple", "Orange", "Banana"] を受信</li>
                 <li>配列を自動認識して分割</li>
                 <li>"Apple" → "Orange" → "Banana" を順次送信</li>
             </ol>
         </div>
-        
+
         <p><strong>設定例:</strong></p>
-        <div class="code-block">分割: 配列 (自動認識)
+        <div class="code-block">分割: 配列（自動認識）
 
 入力: ["Apple", "Orange", "Banana"]
 出力: 3つのメッセージ
@@ -1018,7 +1018,7 @@ Buffer(4) → Buffer(4) → Buffer(4)</div>
         </div>
         
         <div class="tip">
-            <p><strong>📌 動作の流れ:</strong></p>
+            <p><strong>動作の流れ:</strong></p>
             <ol>
                 <li>{Apple: 80, Orange: 100, Banana: 50} を受信</li>
                 <li>オブジェクトを自動認識して分割</li>
@@ -1053,37 +1053,37 @@ Buffer(4) → Buffer(4) → Buffer(4)</div>
         </div>
         
         <div class="tip">
-            <p><strong>📌 動作の流れ:</strong></p>
+            <p><strong>動作の流れ:</strong></p>
             <ol>
                 <li>[1, 2, 3] を受信してSplitで分割</li>
                 <li>Functionで各値を2倍に加工</li>
                 <li>Joinで再結合して [2, 4, 6] を出力</li>
             </ol>
-            <p><em>※ msg.partsが保持されているので、Joinノードで自動的に再結合できます</em></p>
+            <p><em>msg.partsが保持されているため、Joinノードで自動的に再結合できます。</em></p>
         </div>
         
-        <h2>🏋️ 4. 実践演習</h2>
-        
+        <h2>4. 実践演習</h2>
+
         <div class="exercise">
             <h3>演習1: CSVデータの分割<span class="difficulty difficulty-easy">初級</span></h3>
-            
-            <p><strong>📝 課題:</strong></p>
+
+            <p><strong>課題:</strong></p>
             <p>カンマ区切りのテキストを個別のメッセージに分割してください。</p>
-            
-            <p><strong>🎯 要求仕様:</strong></p>
+
+            <p><strong>要求仕様:</strong></p>
             <ul>
                 <li>Inject、Split、Debugノードを使用</li>
                 <li>入力: "東京,大阪,名古屋,福岡"</li>
                 <li>カンマで分割して4つのメッセージを出力</li>
             </ul>
-            
-            <p><strong>📊 期待される動作:</strong></p>
+
+            <p><strong>期待される動作:</strong></p>
             <ul>
-                <li>Injectボタンをクリック → Debugに4つのメッセージが表示</li>
+                <li>Injectボタンをクリックすると、Debugに4つのメッセージが表示される</li>
                 <li>"東京" → "大阪" → "名古屋" → "福岡"</li>
             </ul>
-            
-            <p><strong>✅ 成功の条件:</strong></p>
+
+            <p><strong>成功の条件:</strong></p>
             <ul>
                 <li>デバッグパネルに4つのメッセージが個別に表示される</li>
                 <li>各メッセージのpayloadが "東京"、"大阪"、"名古屋"、"福岡" の順に出力される</li>
@@ -1091,11 +1091,11 @@ Buffer(4) → Buffer(4) → Buffer(4)</div>
             </ul>
 
             <details>
-                <summary>💡 ヒント</summary>
+                <summary>ヒント</summary>
                 <p><strong>Splitノードの設定:</strong></p>
                 <ul>
                     <li>分割方法: 文字列</li>
-                    <li>区切り文字: <code>,</code> (カンマ)</li>
+                    <li>区切り文字: <code>,</code>（カンマ）</li>
                 </ul>
                 <p><strong>Injectノードの設定:</strong></p>
                 <ul>
@@ -1104,7 +1104,7 @@ Buffer(4) → Buffer(4) → Buffer(4)</div>
             </details>
 
             <details>
-                <summary>✅ 解答例フロー</summary>
+                <summary>解答例フロー</summary>
                 <div class="flow-json">
 [
     {
@@ -1182,24 +1182,24 @@ Buffer(4) → Buffer(4) → Buffer(4)</div>
         
         <div class="exercise">
             <h3>演習2: 配列の分割と加工<span class="difficulty difficulty-medium">中級</span></h3>
-            
-            <p><strong>📝 課題:</strong></p>
+
+            <p><strong>課題:</strong></p>
             <p>数値の配列を分割し、各値を2倍にして出力してください。</p>
-            
-            <p><strong>🎯 要求仕様:</strong></p>
+
+            <p><strong>要求仕様:</strong></p>
             <ul>
                 <li>Inject、Split、Function、Debugノードを使用</li>
                 <li>入力: [10, 20, 30, 40, 50]</li>
                 <li>各値を2倍にして出力</li>
             </ul>
-            
-            <p><strong>📊 期待される動作:</strong></p>
+
+            <p><strong>期待される動作:</strong></p>
             <ul>
-                <li>Injectボタンをクリック → Debugに5つのメッセージが表示</li>
+                <li>Injectボタンをクリックすると、Debugに5つのメッセージが表示される</li>
                 <li>20 → 40 → 60 → 80 → 100</li>
             </ul>
-            
-            <p><strong>✅ 成功の条件:</strong></p>
+
+            <p><strong>成功の条件:</strong></p>
             <ul>
                 <li>デバッグパネルに5つのメッセージが個別に表示される</li>
                 <li>各メッセージのpayloadが数値型で 20、40、60、80、100 の順に出力される</li>
@@ -1207,14 +1207,14 @@ Buffer(4) → Buffer(4) → Buffer(4)</div>
             </ul>
 
             <details>
-                <summary>💡 ヒント</summary>
+                <summary>ヒント</summary>
                 <p><strong>Injectノードの設定:</strong></p>
                 <ul>
                     <li>payload: JSON型で [10, 20, 30, 40, 50]</li>
                 </ul>
                 <p><strong>Splitノード:</strong></p>
                 <ul>
-                    <li>配列は自動認識されるのでデフォルト設定でOK</li>
+                    <li>配列は自動認識されるため、デフォルト設定のままで動作する</li>
                 </ul>
                 <p><strong>Functionノード:</strong></p>
                 <ul>
@@ -1223,7 +1223,7 @@ Buffer(4) → Buffer(4) → Buffer(4)</div>
             </details>
             
             <details>
-                <summary>✅ 解答例フロー</summary>
+                <summary>解答例フロー</summary>
                 <div class="flow-json">
 [
     {
@@ -1320,23 +1320,23 @@ Buffer(4) → Buffer(4) → Buffer(4)</div>
         
         <div class="exercise">
             <h3>演習3: オブジェクトの分割と集計<span class="difficulty difficulty-medium">中級</span></h3>
-            
-            <p><strong>📝 課題:</strong></p>
+
+            <p><strong>課題:</strong></p>
             <p>商品と価格のオブジェクトを分割し、各商品の情報を整形して出力してください。</p>
-            
-            <p><strong>🎯 要求仕様:</strong></p>
+
+            <p><strong>要求仕様:</strong></p>
             <ul>
                 <li>Inject、Split、Function、Debugノードを使用</li>
                 <li>入力: {"りんご": 150, "みかん": 80, "バナナ": 120}</li>
                 <li>出力: "[商品名]: [価格]円" の形式</li>
             </ul>
-            
-            <p><strong>📊 期待される動作:</strong></p>
+
+            <p><strong>期待される動作:</strong></p>
             <ul>
                 <li>"りんご: 150円" → "みかん: 80円" → "バナナ: 120円"</li>
             </ul>
-            
-            <p><strong>✅ 成功の条件:</strong></p>
+
+            <p><strong>成功の条件:</strong></p>
             <ul>
                 <li>デバッグパネルに3つのメッセージが個別に表示される</li>
                 <li>各メッセージのpayloadが "りんご: 150円"、"みかん: 80円"、"バナナ: 120円" の形式になっている</li>
@@ -1344,22 +1344,22 @@ Buffer(4) → Buffer(4) → Buffer(4)</div>
             </ul>
 
             <details>
-                <summary>💡 ヒント</summary>
+                <summary>ヒント</summary>
                 <p><strong>Splitノードの設定:</strong></p>
                 <ul>
                     <li>キー追加先: msg.topic</li>
                 </ul>
                 <p><strong>Changeノード（JSONata式）:</strong></p>
                 <ul>
-                    <li>msg.topicにキー名(商品名)が入る</li>
-                    <li>msg.payloadに値(価格)が入る</li>
-                    <li>JSONata式でこれらを組み合わせて文字列を作成</li>
+                    <li>msg.topicにキー名（商品名）が入る</li>
+                    <li>msg.payloadに値（価格）が入る</li>
+                    <li>JSONata式でこれらを組み合わせて文字列を作成する</li>
                     <li><code>topic & ": " & $string(payload) & "円"</code></li>
                 </ul>
             </details>
             
             <details>
-                <summary>✅ 解答例フロー</summary>
+                <summary>解答例フロー</summary>
                 <div class="flow-json">
 [
     {
@@ -1464,47 +1464,47 @@ Buffer(4) → Buffer(4) → Buffer(4)</div>
         
         <div class="exercise">
             <h3>演習4: Split + Joinで配列を加工<span class="difficulty difficulty-hard">上級</span></h3>
-            
-            <p><strong>📝 課題:</strong></p>
+
+            <p><strong>課題:</strong></p>
             <p>文字列の配列を分割し、各文字列を大文字に変換して、再度配列に結合してください。</p>
-            
-            <p><strong>🎯 要求仕様:</strong></p>
+
+            <p><strong>要求仕様:</strong></p>
             <ul>
                 <li>Inject、Split、Function、Join、Debugノードを使用</li>
                 <li>入力: ["apple", "orange", "banana"]</li>
-                <li>各要素を大文字に変換</li>
+                <li>各要素を大文字に変換する</li>
                 <li>Joinノードで再結合して配列に戻す</li>
             </ul>
-            
-            <p><strong>📊 期待される動作:</strong></p>
+
+            <p><strong>期待される動作:</strong></p>
             <ul>
                 <li>入力: ["apple", "orange", "banana"]</li>
                 <li>出力: ["APPLE", "ORANGE", "BANANA"]</li>
             </ul>
-            
-            <p><strong>✅ 成功の条件:</strong></p>
+
+            <p><strong>成功の条件:</strong></p>
             <ul>
                 <li>デバッグパネルに1つのメッセージとして配列が出力される</li>
                 <li>出力配列が ["APPLE", "ORANGE", "BANANA"] になっている</li>
-                <li>配列の要素数が3個であり、すべて大文字に変換されている</li>
+                <li>配列の要素数が3個で、すべて大文字に変換されている</li>
                 <li>Joinによって元の配列形式に正しく再結合されている</li>
             </ul>
 
             <details>
-                <summary>💡 ヒント</summary>
+                <summary>ヒント</summary>
                 <p><strong>Changeノード（JSONata式）:</strong></p>
                 <ul>
                     <li>msg.payloadに <code>$uppercase(payload)</code> をセット</li>
                 </ul>
                 <p><strong>Joinノード:</strong></p>
                 <ul>
-                    <li>モード: 自動 (msg.partsを使用)</li>
-                    <li>Splitが付与したmsg.partsを使って自動結合</li>
+                    <li>モード: 自動（msg.partsを使用）</li>
+                    <li>Splitが付与したmsg.partsを使って自動結合する</li>
                 </ul>
             </details>
             
             <details>
-                <summary>✅ 解答例フロー</summary>
+                <summary>解答例フロー</summary>
                 <div class="flow-json">
 [
     {
@@ -1635,32 +1635,32 @@ Buffer(4) → Buffer(4) → Buffer(4)</div>
             </details>
         </div>
         
-        <h2>🎓 5. まとめ</h2>
-        
+        <h2>5. まとめ</h2>
+
         <div class="important">
-            <h3>Splitノードの重要ポイント</h3>
+            <h3>Splitノードの要点</h3>
             <ul>
-                <li>✅ <strong>文字列分割</strong>: 区切り文字または固定長で分割</li>
-                <li>✅ <strong>配列分割</strong>: 各要素を個別メッセージに</li>
-                <li>✅ <strong>オブジェクト分割</strong>: キー/値ペアに分割、キーはmsg.topicへ</li>
-                <li>✅ <strong>msg.parts</strong>: 分割情報を自動付与、Joinで再結合可能</li>
-                <li>✅ <strong>ストリームモード</strong>: 大きなデータを効率的に処理</li>
+                <li><strong>文字列分割</strong>: 区切り文字または固定長で分割</li>
+                <li><strong>配列分割</strong>: 各要素を個別メッセージに</li>
+                <li><strong>オブジェクト分割</strong>: キー/値ペアに分割し、キーはmsg.topicへ格納</li>
+                <li><strong>msg.parts</strong>: 分割情報を自動付与し、Joinで再結合可能</li>
+                <li><strong>ストリームモード</strong>: 大きなデータを効率的に処理</li>
             </ul>
         </div>
-        
+
         <div class="warning">
-            <h3>⚠️ よくある間違い</h3>
+            <h3>よくある間違い</h3>
             <ul>
                 <li><strong>区切り文字の指定ミス</strong>: \nは「改行」、\\nは「バックスラッシュとn」</li>
-                <li><strong>配列と文字列の混同</strong>: JSONの配列は自動認識されるが、文字列の"[1,2,3]"は配列ではない</li>
-                <li><strong>Joinで結合できない</strong>: msg.partsを保持していないと再結合不可</li>
-                <li><strong>順序の保証</strong>: 非同期処理を挟むと順序が変わる可能性あり</li>
+                <li><strong>配列と文字列の混同</strong>: JSONの配列は自動認識されるが、文字列の"[1,2,3]"は配列として扱われない</li>
+                <li><strong>Joinで結合できない</strong>: msg.partsを保持していないと再結合できない</li>
+                <li><strong>順序の保証</strong>: 非同期処理を挟むと順序が変わる場合がある</li>
             </ul>
         </div>
-        
+
         <div class="tip">
-            <h3>📚 次のステップ</h3>
-            <p>Splitノードをマスターしたら、以下のノードも学んでみましょう:</p>
+            <h3>次のステップ</h3>
+            <p>Splitノードの次は、以下のノードも参照してください。</p>
             <ul>
                 <li><strong>Joinノード</strong>: 分割したメッセージを再結合</li>
                 <li><strong>Sortノード</strong>: メッセージを並べ替え</li>
@@ -1669,8 +1669,8 @@ Buffer(4) → Buffer(4) → Buffer(4)</div>
             </ul>
         </div>
         
-        <h2>🔧 6. トラブルシューティング</h2>
-        
+        <h2>6. トラブルシューティング</h2>
+
         <h3>よくある問題と解決方法</h3>
         
         <table>
@@ -1706,45 +1706,45 @@ Buffer(4) → Buffer(4) → Buffer(4)</div>
             </tr>
         </table>
         
-        <h2>💡 7. 実務での活用例</h2>
-        
+        <h2>7. 実務での活用例</h2>
+
         <h3>ケース1: ログファイルの行ごと処理</h3>
         <div class="code-block">ログファイル読み込み
 ↓
-Split(改行で分割)
+Split（改行で分割）
 ↓
-各行を解析・フィルタリング
+各行を解析してフィルタリング
 ↓
-アラート or DB保存</div>
+アラート送信またはDB保存</div>
         
         <h3>ケース2: センサーデータのバッチ処理</h3>
         <div class="code-block">複数センサーからのデータ配列
 ↓
-Split(配列を分割)
+Split（配列を分割）
 ↓
 各センサーデータを個別処理
 ↓
-閾値チェック・アラート発報</div>
+閾値チェックとアラート発報</div>
         
         <h3>ケース3: APIレスポンスの個別処理</h3>
         <div class="code-block">API: ユーザー一覧取得
 ↓
-Split(配列を分割)
+Split（配列を分割）
 ↓
 各ユーザーにメール送信
 ↓
-Join(結果を集約)</div>
-        
+Join（結果を集約）</div>
+
         <h3>ケース4: 設定ファイルの解析</h3>
-        <div class="code-block">JSON設定ファイル(オブジェクト)
+        <div class="code-block">JSON設定ファイル（オブジェクト）
 ↓
-Split(キー/値に分割)
+Split（キー/値に分割）
 ↓
 各設定を個別に検証
 ↓
 エラーがあれば通知</div>
         
-        <h2>📗 8. 追加リソース</h2>
+        <h2>8. 追加リソース</h2>
         
         <ul>
             <li><a href="https://nodered.org/docs/user-guide/messages#splitting-messages" target="_blank">Node-RED公式ドキュメント: メッセージの分割</a></li>
@@ -1755,8 +1755,6 @@ Split(キー/値に分割)
         <hr>
         
         <p style="text-align: center; color: #999; margin-top: 40px;">
-            <small>このガイドが役に立ちましたら、実際のプロジェクトで練習してみてください!<br>
-            Splitノードはデータ処理の強力なツールです。</small><br>
             <small>参照元：NodeREDエディター内サンプルフロー</small>
         </p>
     </div>
