@@ -417,21 +417,31 @@
         
         <div class="tab-container">
             <div class="tab-buttons">
-                <button class="tab-button active" onclick="showTab('tab-setup')">Setup</button>
-                <button class="tab-button" onclick="showTab('tab-function')">Function</button>
-                <button class="tab-button" onclick="showTab('tab-close')">Close</button>
+                <button class="tab-button active" onclick="showTab('tab-config')">設定</button>
+                <button class="tab-button" onclick="showTab('tab-init')">初期化処理</button>
+                <button class="tab-button" onclick="showTab('tab-code')">コード</button>
+                <button class="tab-button" onclick="showTab('tab-finalize')">終了処理</button>
             </div>
-            <div id="tab-setup" class="tab-content active">
-                <h4>Setupタブ</h4>
-                <p>ノードが起動するときに<strong>1回だけ実行</strong>されるコード。初期化処理に使用。</p>
+            <div id="tab-config" class="tab-content active">
+                <h4>設定タブ</h4>
+                <p>出力数・タイムアウト・モジュールを設定するタブ。ここにはコードを書かない。</p>
+                <ul>
+                    <li>出力数：出力ポートの数</li>
+                    <li>タイムアウト：コードの実行時間の上限（秒、0で無制限）</li>
+                    <li>モジュール：コード内で使う npm モジュールの登録</li>
+                </ul>
+            </div>
+            <div id="tab-init" class="tab-content">
+                <h4>初期化処理タブ</h4>
+                <p>ノードが起動するときに<strong>1回だけ実行</strong>されるコード。初期化に使用。</p>
                 <ul>
                     <li>変数の初期化</li>
                     <li>外部リソースへの接続</li>
-                    <li>非同期処理も可能(Promiseを返す)</li>
+                    <li>非同期処理も可能（Promiseを返す）</li>
                 </ul>
             </div>
-            <div id="tab-function" class="tab-content">
-                <h4>Functionタブ</h4>
+            <div id="tab-code" class="tab-content">
+                <h4>コードタブ</h4>
                 <p>メッセージを受け取るたびに実行される<strong>メインのコード</strong>。</p>
                 <ul>
                     <li>msg.payloadの加工</li>
@@ -439,9 +449,9 @@
                     <li>データ変換</li>
                 </ul>
             </div>
-            <div id="tab-close" class="tab-content">
-                <h4>Closeタブ</h4>
-                <p>ノードが停止するときに<strong>1回だけ実行</strong>されるコード。クリーンアップ処理に使用。</p>
+            <div id="tab-finalize" class="tab-content">
+                <h4>終了処理タブ</h4>
+                <p>ノードが停止するときに<strong>1回だけ実行</strong>されるコード。後始末に使用。</p>
                 <ul>
                     <li>リソースの解放</li>
                     <li>ログ出力</li>
@@ -450,48 +460,56 @@
             </div>
         </div>
         
-        <h3>基本設定項目</h3>
-
+        <h3>設定項目一覧</h3>
+        <p>名前はノード上部に常に表示され、残りはタブに分かれます。出力数・タイムアウト・モジュールは「設定」タブにまとまり、初期化処理・コード・終了処理はそれぞれ同名タブのコード入力欄です。</p>
         <table>
             <tr>
                 <th>設定項目</th>
+                <th>タブ</th>
                 <th>説明</th>
-                <th>例</th>
+                <th>既定値</th>
             </tr>
             <tr>
                 <td><strong>名前</strong></td>
+                <td>（上部・常時）</td>
                 <td>ノードの表示名</td>
-                <td>"データ変換", "カウンター"</td>
+                <td>（なし）</td>
             </tr>
             <tr>
                 <td><strong>出力数</strong></td>
-                <td>出力ポートの数</td>
-                <td>1〜複数(条件分岐時に増やす)</td>
-            </tr>
-            <tr>
-                <td><strong>初期化処理</strong></td>
-                <td>初期化コード</td>
-                <td>context.set('count', 0);</td>
-            </tr>
-            <tr>
-                <td><strong>コード</strong></td>
-                <td>メイン処理コード</td>
-                <td>msg.payload = ...;</td>
-            </tr>
-            <tr>
-                <td><strong>終了処理</strong></td>
-                <td>終了処理コード</td>
-                <td>console.log("終了");</td>
+                <td>設定</td>
+                <td>出力ポートの数。条件分岐で送り先を分けるときに増やす（<code>wires</code> もこの数に合わせる）</td>
+                <td>1</td>
             </tr>
             <tr>
                 <td><strong>タイムアウト</strong></td>
-                <td>実行タイムアウト（ミリ秒、0=無制限）</td>
-                <td>0（デフォルト）</td>
+                <td>設定</td>
+                <td>コードの実行時間の上限（秒）。これを超えると実行を打ち切る。0 で無制限</td>
+                <td>0（秒）</td>
             </tr>
             <tr>
                 <td><strong>モジュール</strong></td>
-                <td>使用する外部モジュールのリスト</td>
-                <td>[]（設定で許可が必要）</td>
+                <td>設定</td>
+                <td>コード内で使う npm モジュールを登録する。利用には <code>settings.js</code> の functionExternalModules 許可が必要</td>
+                <td>（なし）</td>
+            </tr>
+            <tr>
+                <td><strong>初期化処理</strong></td>
+                <td>初期化処理</td>
+                <td>ノード起動時に1回だけ実行するコード（変数の初期化や外部接続）</td>
+                <td>（空）</td>
+            </tr>
+            <tr>
+                <td><strong>コード</strong></td>
+                <td>コード</td>
+                <td>メッセージを受け取るたびに実行するメインのコード</td>
+                <td>（空）</td>
+            </tr>
+            <tr>
+                <td><strong>終了処理</strong></td>
+                <td>終了処理</td>
+                <td>ノード停止時に1回だけ実行するコード（後始末）</td>
+                <td>（空）</td>
             </tr>
         </table>
         
