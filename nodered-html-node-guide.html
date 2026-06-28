@@ -92,23 +92,27 @@
         
         <h2 id="section2">2. 設定詳細</h2>
         
-        <h3>プロパティ</h3>
+        <h3>主要プロパティ</h3>
+        <p>エディターは上から順に、入力 HTML の取得元、抽出方法、出力先を指定する欄が並ぶ。</p>
         <table>
-            <tr><th>プロパティ</th><th>説明</th><th>デフォルト</th></tr>
-            <tr><td><strong>Selector</strong></td><td>CSSセレクタ（抽出対象を指定）</td><td>（空）</td></tr>
-            <tr><td><strong>Output</strong></td><td>出力形式（html/text/属性）</td><td>html</td></tr>
-            <tr><td><strong>Property</strong></td><td>入力HTMLのプロパティ</td><td>msg.payload</td></tr>
-            <tr><td><strong>Output to</strong></td><td>出力先のプロパティ</td><td>msg.payload</td></tr>
-            <tr><td><strong>as</strong></td><td>出力形式（単一/複数メッセージ）</td><td>single</td></tr>
-            <tr><td><strong>Prefix</strong></td><td>属性プレフィックス文字（出力がcomplの場合）</td><td>_</td></tr>
+            <tr><th>設定項目</th><th>説明</th><th>既定値</th></tr>
+            <tr><td><strong>プロパティ</strong></td><td>解析する HTML が入っている入力プロパティ。msg のどこに HTML 文字列があるかを指す</td><td>msg.payload</td></tr>
+            <tr><td><strong>抽出する要素</strong></td><td>取り出したい部分を指す CSS セレクタ（<code>h1</code>、<code>.title</code> など）。次章で詳しく解説する</td><td>（空）</td></tr>
+            <tr><td><strong>出力</strong></td><td>マッチした要素から何を取り出すか。下の「出力の種類」から選ぶ</td><td>要素内のHTML</td></tr>
+            <tr><td><strong>配列化した1つのメッセージ／要素毎の複数のメッセージ</strong></td><td>「出力」欄の下にあるセレクタ。複数の要素がマッチしたとき、結果を1つの配列にまとめて1メッセージで送るか、要素ごとに分けて複数メッセージで送るかを切り替える</td><td>配列化した1つのメッセージ</td></tr>
+            <tr><td><strong>対象</strong></td><td>抽出結果を書き込む出力先プロパティ</td><td>msg.payload</td></tr>
+            <tr><td><strong>HTMLコンテンツのプロパティ名</strong></td><td>「出力」で「要素やHTMLコンテンツの属性オブジェクト」を選んだときだけ表示される。属性に加えて要素内の HTML 本文を格納するキー名（接頭辞）</td><td>_</td></tr>
+            <tr><td><strong>名前</strong></td><td>エディター上のノード表示名</td><td>（空）</td></tr>
         </table>
-        
-        <h3>Output オプション</h3>
+
+        <h3>「出力」の種類</h3>
+        <p>「出力」セレクタで選べる4つの取り出し方。例は <code>&lt;p class="lead"&gt;&lt;b&gt;太字&lt;/b&gt;テキスト&lt;/p&gt;</code> の <code>p</code> 要素を抽出した場合を示す。</p>
         <table>
-            <tr><th>オプション</th><th>説明</th><th>出力例</th></tr>
-            <tr><td><strong>the html content</strong></td><td>要素の内部HTML</td><td>&lt;b&gt;太字&lt;/b&gt;テキスト</td></tr>
-            <tr><td><strong>only the text content</strong></td><td>テキストのみ</td><td>太字テキスト</td></tr>
-            <tr><td><strong>属性名を指定</strong></td><td>指定した属性の値</td><td>href属性なら URL</td></tr>
+            <tr><th>選択肢</th><th>説明</th><th>例</th></tr>
+            <tr><td><strong>要素内のHTML</strong></td><td>マッチした要素の内側の HTML をそのまま返す</td><td>&lt;b&gt;太字&lt;/b&gt;テキスト</td></tr>
+            <tr><td><strong>要素のテキストのみ</strong></td><td>タグを除いたテキストだけを返す</td><td>太字テキスト</td></tr>
+            <tr><td><strong>要素の全ての属性</strong></td><td>要素が持つ属性をオブジェクトにまとめて返す</td><td><code>{ "class": "lead" }</code></td></tr>
+            <tr><td><strong>要素やHTMLコンテンツの属性オブジェクト</strong></td><td>属性オブジェクトに要素内の HTML 本文も加える（本文は「HTMLコンテンツのプロパティ名」で指定したキーに入る）</td><td><code>{ "class": "lead", "_": "&lt;b&gt;太字&lt;/b&gt;テキスト" }</code></td></tr>
         </table>
         
         <h2 id="section3">3. CSSセレクタの基本</h2>
@@ -506,7 +510,7 @@ li:last-child        /* 最後のli */
             </ul>
             <details>
                 <summary>💡 ヒント</summary>
-                <p>Selector に <code>h2</code>、Output に <code>text</code> を設定します。</p>
+                <p>「抽出する要素」に <code>h2</code>、「出力」で「要素のテキストのみ」を選びます。</p>
             </details>
             <details>
                 <summary>✅ 解答例フロー</summary>
@@ -558,7 +562,7 @@ li:last-child        /* 最後のli */
             </ul>
             <details>
                 <summary>💡 ヒント</summary>
-                <p>Selector に <code>.highlight</code> を指定します。</p>
+                <p>「抽出する要素」に <code>.highlight</code> を指定します。</p>
             </details>
             <details>
                 <summary>✅ 解答例フロー</summary>
