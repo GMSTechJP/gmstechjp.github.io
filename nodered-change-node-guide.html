@@ -513,58 +513,96 @@ delete msg._msgid</div>
         </div>
         
         <h3>設定項目一覧</h3>
-        
+
+        <p>Change ノードは「ルール」を上から順に適用してメッセージを書き換える。ルールは何件でも追加でき、各ルールの先頭で操作の種類を選ぶと、その下に必要な入力欄が現れる。</p>
+
+        <h4>共通</h4>
         <table>
             <tr>
                 <th>設定項目</th>
                 <th>説明</th>
-                <th>使用例</th>
+                <th>既定値</th>
             </tr>
             <tr>
-                <td><strong>操作タイプ</strong></td>
-                <td>Set/Change/Delete/Moveから選択</td>
-                <td>代入、置換、削除、移動</td>
+                <td><strong>名前</strong></td>
+                <td>ノードに付ける表示名。指定するとフロー上のラベルになる。</td>
+                <td>（空）</td>
+            </tr>
+            <tr>
+                <td><strong>ルール</strong></td>
+                <td>適用する操作の並び。「ルールを追加」で増やし、ドラッグで順序を変えられる。上のルールから順に実行される。</td>
+                <td>「値の代入」1 件</td>
+            </tr>
+        </table>
+
+        <h4>操作の種類（各ルール先頭の選択）</h4>
+        <p>ルール先頭のドロップダウンで、そのルールが何をするかを選ぶ。選んだ種類に応じて下の入力欄が切り替わる。</p>
+        <table>
+            <tr>
+                <th>選択肢</th>
+                <th>内容</th>
+            </tr>
+            <tr>
+                <td><strong>値の代入</strong></td>
+                <td>対象プロパティに値を代入する（プロパティが無ければ新規作成）。</td>
+            </tr>
+            <tr>
+                <td><strong>値の置換</strong></td>
+                <td>対象プロパティの文字列から「検索する文字列」を探し、「置換後の文字列」に差し替える。</td>
+            </tr>
+            <tr>
+                <td><strong>値の削除</strong></td>
+                <td>対象プロパティを削除する。</td>
+            </tr>
+            <tr>
+                <td><strong>値の移動</strong></td>
+                <td>対象プロパティを別のプロパティへ移す（移動元は削除される）。</td>
+            </tr>
+        </table>
+
+        <h4>各ルールの入力欄</h4>
+        <p>操作の種類に応じて、次の欄が表示される。</p>
+        <table>
+            <tr>
+                <th>設定項目</th>
+                <th>説明</th>
+                <th>対象の操作</th>
             </tr>
             <tr>
                 <td><strong>対象プロパティ</strong></td>
-                <td>操作対象のプロパティを指定</td>
-                <td>msg.payload, flow.count</td>
+                <td>操作の対象。先頭のドロップダウンで msg / flow / global を選び、続けてプロパティ名を書く（例 payload）。</td>
+                <td>全操作</td>
             </tr>
             <tr>
-                <td><strong>プロパティタイプ</strong></td>
-                <td>msg/flow/global から選択</td>
-                <td>メッセージ、フロー変数、グローバル変数</td>
+                <td><strong>代入する値</strong></td>
+                <td>代入する値と、その型（文字列・数値・真偽値・JSON・msg/flow/global・環境変数・JSONata など。型の一覧は下表）。</td>
+                <td>値の代入</td>
             </tr>
             <tr>
-                <td><strong>値</strong></td>
-                <td>設定する値（Setの場合）</td>
-                <td>"Hello", 123, true</td>
+                <td><strong>値のディープコピー</strong></td>
+                <td>代入元が msg/flow/global/環境変数のとき、参照ではなく値を複製して代入する。</td>
+                <td>値の代入</td>
             </tr>
             <tr>
-                <td><strong>値のタイプ</strong></td>
-                <td>値の型を指定</td>
-                <td>文字列、数値、JSONata等</td>
+                <td><strong>検索する文字列</strong></td>
+                <td>置換のために探す文字列。型で「正規表現を使用」を選ぶとパターン検索になる。</td>
+                <td>値の置換</td>
             </tr>
             <tr>
-                <td><strong>検索文字列</strong></td>
-                <td>置換対象（Changeの場合）</td>
-                <td>"old", /pattern/g</td>
-            </tr>
-            <tr>
-                <td><strong>置換文字列</strong></td>
-                <td>置換後の値（Changeの場合）</td>
-                <td>"new"</td>
+                <td><strong>置換後の文字列</strong></td>
+                <td>見つかった部分を置き換える値。</td>
+                <td>値の置換</td>
             </tr>
             <tr>
                 <td><strong>移動先</strong></td>
-                <td>移動先プロパティ（Moveの場合）</td>
-                <td>msg.data, msg.result</td>
+                <td>プロパティの移し先（msg / flow / global）。</td>
+                <td>値の移動</td>
             </tr>
         </table>
         
         <h3>値のタイプ一覧</h3>
         
-        <p>Changeノードの「Set」操作では、様々なタイプの値を設定できます。</p>
+        <p>Change ノードの「値の代入」では、様々なタイプの値を設定できます（「代入する値」欄の型ドロップダウンで選びます）。</p>
         
         <table>
             <tr>
@@ -1298,7 +1336,7 @@ delete msg._msgid</div>
         <p><strong>設定例:</strong></p>
         <div class="code-block">ルール: 値の代入
 対象: msg.payload
-値: "Hello World!" (文字列)
+代入する値: "Hello World!"（文字列）
 
 入力: msg.payload = 1702345678901
 出力: msg.payload = "Hello World!"</div>
@@ -1365,7 +1403,7 @@ delete msg._msgid</div>
         <p><strong>設定例:</strong></p>
         <div class="code-block">ルール: 値の代入
 対象: msg.payload
-値: HOME (環境変数)
+代入する値: HOME（環境変数）
 
 出力: msg.payload = "/home/pi" (Raspberry Piの場合)</div>
         
@@ -1419,7 +1457,7 @@ delete msg._msgid</div>
         </div>
         
         <p><strong>設定例:</strong></p>
-        <div class="code-block">ルール: 削除
+        <div class="code-block">ルール: 値の削除
 対象: msg.payload
 
 入力: msg = {payload: 1702345678901, topic: "", _msgid: "xxx"}
@@ -1437,8 +1475,8 @@ delete msg._msgid</div>
         </div>
         
         <p><strong>設定例:</strong></p>
-        <div class="code-block">ルール: 移動
-移動元: msg.topic
+        <div class="code-block">ルール: 値の移動
+対象: msg.topic
 移動先: msg.payload
 
 入力: msg.topic = "Hello", msg.payload = 1702345678901
@@ -1483,7 +1521,7 @@ delete msg._msgid</div>
                     <li>ルール: 値の代入（Set）</li>
                     <li>対象: msg.payload</li>
                     <li>値のタイプ: JSON</li>
-                    <li>値: {"name": "Alice", "age": 25}</li>
+                    <li>代入する値: {"name": "Alice", "age": 25}</li>
                 </ul>
                 <p><strong>Debugノードの設定:</strong></p>
                 <ul>
@@ -1604,14 +1642,14 @@ delete msg._msgid</div>
                     <li>ルール: 値の代入（Set）</li>
                     <li>対象: msg.payload</li>
                     <li>値のタイプ: JSON</li>
-                    <li>値: {"sensor": {"temp": 0, "humidity": 0}}</li>
+                    <li>代入する値: {"sensor": {"temp": 0, "humidity": 0}}</li>
                 </ul>
                 <p><strong>2つ目のChangeノードの設定:</strong></p>
                 <ul>
                     <li>ルール: 値の代入（Set）</li>
                     <li>対象: msg.payload.sensor.temp（ネストしたパス）</li>
                     <li>値のタイプ: 数値</li>
-                    <li>値: 25</li>
+                    <li>代入する値: 25</li>
                 </ul>
             </details>
             
@@ -1753,11 +1791,11 @@ delete msg._msgid</div>
                 </ul>
                 <p><strong>Changeノードの設定:</strong></p>
                 <ul>
-                    <li>ルール: 置換（Change）</li>
+                    <li>ルール: 値の置換（Change）</li>
                     <li>対象: msg.payload</li>
-                    <li>検索: Node-RED</li>
-                    <li>置換: World</li>
-                    <li>正規表現: オフ</li>
+                    <li>検索する文字列: Node-RED</li>
+                    <li>置換後の文字列: World</li>
+                    <li>正規表現を使用: オフ</li>
                 </ul>
             </details>
             
