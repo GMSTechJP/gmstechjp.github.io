@@ -449,42 +449,36 @@ Buffer(4) → Buffer(4) → Buffer(4)</div>
         
         <h3>設定項目</h3>
 
+        <p>Split ノードは、指定したプロパティの値の型を見て分割方法を切り替える。エディターには文字列・バッファ、配列、オブジェクトのそれぞれに専用の設定欄が並び、入力の型に対応する欄だけが働く。</p>
+
+        <h4>基本</h4>
         <table>
-            <tr>
-                <th>設定項目</th>
-                <th>説明</th>
-                <th>例</th>
-            </tr>
-            <tr>
-                <td><strong>に基づく</strong></td>
-                <td>分割対象のメッセージプロパティ</td>
-                <td>msg.payload</td>
-            </tr>
-            <tr>
-                <td><strong>分割</strong></td>
-                <td>文字列の場合の区切り文字</td>
-                <td>\n（改行）、,（カンマ）、任意の文字</td>
-            </tr>
-            <tr>
-                <td><strong>固定長</strong></td>
-                <td>指定した文字数/バイト数で分割</td>
-                <td>4文字ごと、100バイトごと</td>
-            </tr>
-            <tr>
-                <td><strong>分割</strong></td>
-                <td>配列を指定個数ずつに分割</td>
-                <td>2個ずつ、10個ずつ</td>
-            </tr>
-            <tr>
-                <td><strong>keyのコピー先</strong></td>
-                <td>オブジェクト分割時のキー格納先</td>
-                <td>msg.topic, msg.key</td>
-            </tr>
-            <tr>
-                <td><strong>メッセージのストリームとして処理</strong></td>
-                <td>メッセージの区切りをまたいで分割</td>
-                <td>大きなファイルの処理</td>
-            </tr>
+            <tr><th>設定項目</th><th>説明</th><th>既定値</th></tr>
+            <tr><td><strong>名前</strong></td><td>エディター上の表示名。動作には影響しない。</td><td>（空）</td></tr>
+            <tr><td><strong>プロパティ</strong></td><td>分割の対象にする <code>msg</code> のプロパティ。この値の型（文字列・バッファ／配列／オブジェクト）に応じて、下のいずれかの欄が使われる。エディターでは「に基づく」と表示される欄。</td><td><code>msg.payload</code></td></tr>
+        </table>
+
+        <h4>文字列・バッファの分割</h4>
+        <p>プロパティの値が文字列またはバッファのときに使う。区切り文字で区切るか、決まった長さで区切るかを選ぶ。</p>
+        <table>
+            <tr><th>設定項目</th><th>説明</th><th>既定値</th></tr>
+            <tr><td><strong>分割</strong></td><td>区切り文字でメッセージを分割する。改行（<code>\n</code>）やカンマなど、ここに指定した文字で区切る。欄の型を「固定長」に切り替えると、次の行の方式に変わる。</td><td><code>\n</code>（改行）</td></tr>
+            <tr><td><strong>固定長</strong></td><td>「分割」欄の型を切り替えると選べる方式。決まった文字数（バッファならバイト数）ごとに区切る。</td><td>—</td></tr>
+            <tr><td><strong>メッセージのストリームとして処理</strong></td><td>分割対象が複数のメッセージに分かれて届く場合に、メッセージの区切りをまたいで分割を続ける。大きなデータを少しずつ受け取るときに使う。</td><td>オフ</td></tr>
+        </table>
+
+        <h4>配列の分割</h4>
+        <p>プロパティの値が配列のときに使う。</p>
+        <table>
+            <tr><th>設定項目</th><th>説明</th><th>既定値</th></tr>
+            <tr><td><strong>分割</strong></td><td>配列を何要素ずつのまとまりに分けるかを指定する。<code>1</code> なら要素ごとに 1 メッセージ、<code>2</code> なら 2 要素ずつまとめて送る。</td><td><code>1</code></td></tr>
+        </table>
+
+        <h4>オブジェクトの分割</h4>
+        <p>プロパティの値がオブジェクトのときに使う。各 key/value ペアを 1 メッセージずつ送信する。</p>
+        <table>
+            <tr><th>設定項目</th><th>説明</th><th>既定値</th></tr>
+            <tr><td><strong>keyのコピー先</strong></td><td>分割で取り出した key 名を、各メッセージのどのプロパティに入れるかを指定する。チェックを入れて格納先（例 <code>msg.topic</code>）を指定すると、value だけでなく元の key も後段で参照できる。</td><td>オフ</td></tr>
         </table>
         
         <h3>msg.partsオブジェクト</h3>
