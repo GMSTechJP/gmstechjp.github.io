@@ -236,33 +236,69 @@
             </ul>
         </div>
         
-        <h3>ブローカー設定のプロパティ</h3>
+        <h3>ブローカー設定ノードの設定項目</h3>
+        <p>ブローカー設定ノードのエディターは「接続」「セキュリティ」「メッセージ」の3タブに分かれます。以下も同じ区切りで示します。接続タブの<strong>プロトコル</strong>で MQTT V5 を選んだときだけ現れる欄には<strong>（V5）</strong>を付記します。</p>
+
+        <h4>接続タブ</h4>
         <table>
-            <tr><th>プロパティ</th><th>説明</th><th>例</th></tr>
-            <tr><td><strong>サーバ</strong></td><td>ブローカーのホスト名/IP</td><td>test.mosquitto.org</td></tr>
-            <tr><td><strong>ポート</strong></td><td>接続ポート</td><td>1883（非暗号化）, 8883（TLS）</td></tr>
-            <tr><td><strong>クライアントID</strong></td><td>クライアント識別子（空欄で自動生成）</td><td>nodered-client-001</td></tr>
-            <tr><td><strong><a href="#term-keepalive">Keep Alive</a></strong></td><td>接続維持間隔（秒）。1.5倍の時間で切断判定 → Last Will 発火</td><td>60</td></tr>
-            <tr><td><strong>セッション初期化</strong></td><td>接続時にセッションをクリア</td><td>true</td></tr>
+            <tr><th>設定項目</th><th>説明</th><th>例・既定</th></tr>
+            <tr><td><strong>名前</strong></td><td>このブローカー設定ノードの表示名。空欄ならサーバ名が表示される</td><td>（任意）</td></tr>
+            <tr><td><strong>サーバ</strong></td><td>ブローカーのホスト名または IP アドレス</td><td>test.mosquitto.org</td></tr>
+            <tr><td><strong>ポート</strong></td><td>接続ポート番号</td><td>1883（非暗号化）, 8883（TLS）</td></tr>
+            <tr><td><strong>自動接続</strong></td><td>デプロイ時に自動でブローカーへ接続するか。オフにすると接続/切断は MQTT 制御ノードなどで明示的に行う</td><td>オン</td></tr>
+            <tr><td><strong>TLSを使用</strong></td><td>暗号化接続（MQTTS）を使う。オンにすると TLS設定ノードを選ぶ欄が現れる</td><td>オフ</td></tr>
+            <tr><td><strong>プロトコル</strong></td><td>MQTT のバージョン。MQTT V3.1 (旧版) / MQTT V3.1.1 / MQTT V5 から選ぶ。V5 を選ぶと下記（V5）欄が有効になる</td><td>MQTT V3.1.1</td></tr>
+            <tr><td><strong>クライアント</strong></td><td>クライアント識別子。空欄ならランダムに自動生成される</td><td>nodered-client-001</td></tr>
+            <tr><td><strong><a href="#term-keepalive">キープアライブ時間</a></strong></td><td>接続維持のための間隔（秒）。この1.5倍の時間で通信が途絶えるとブローカーが切断と判定し、設定があれば Will メッセージを発火する</td><td>60</td></tr>
+            <tr><td><strong>セッションの初期化</strong></td><td>接続時に以前のセッション（購読状態や未送達メッセージ）を破棄する。MQTT V5 ではラベルが「クリーンスタート」に変わる</td><td>オン</td></tr>
+            <tr><td><strong>切断時に購読を自動解除</strong></td><td>セッションの初期化をオフ（セッション保持）にしたときのみ表示。切断時に購読を解除するか</td><td>オフ</td></tr>
+            <tr><td><strong>セッション有効期限 (秒)</strong>（V5）</td><td>切断後にブローカーがセッションを保持し続ける秒数</td><td>—</td></tr>
+            <tr><td><strong>ユーザプロパティ</strong>（V5）</td><td>接続時に送る任意のキー/値メタデータ</td><td>—</td></tr>
         </table>
-        
-        <h3>認証設定（Security タブ）</h3>
+
+        <h4>セキュリティタブ</h4>
         <table>
-            <tr><th>プロパティ</th><th>説明</th></tr>
-            <tr><td><strong>ユーザ名</strong></td><td>認証ユーザー名</td></tr>
-            <tr><td><strong>パスワード</strong></td><td>認証パスワード</td></tr>
-            <tr><td><strong>TLS</strong></td><td>暗号化接続の設定</td></tr>
+            <tr><th>設定項目</th><th>説明</th></tr>
+            <tr><td><strong>ユーザ名</strong></td><td>ブローカー認証のユーザー名</td></tr>
+            <tr><td><strong>パスワード</strong></td><td>ブローカー認証のパスワード</td></tr>
         </table>
-        
+        <div class="tip">
+            <p>暗号化（TLS）の有効化は接続タブの<strong>TLSを使用</strong>で行います。セキュリティタブにあるのは認証情報（ユーザ名・パスワード）だけです。</p>
+        </div>
+
+        <h4>メッセージタブ</h4>
+        <p>接続状態に応じてブローカーへ自動送信する3種類のメッセージを設定します。いずれもトピックを空欄にするとそのメッセージは無効になります。</p>
+        <table>
+            <tr><th>メッセージ</th><th>送信タイミング</th></tr>
+            <tr><td><strong>接続時の送信メッセージ(Birthメッセージ)</strong></td><td>ブローカーへ接続した直後に送信。オンライン通知などに使う</td></tr>
+            <tr><td><strong>予期しない切断時の送信メッセージ(Willメッセージ)</strong></td><td>異常切断をブローカーが検知したとき、クライアントに代わって送信（<a href="#term-lwt">Last Will</a>）</td></tr>
+            <tr><td><strong>切断前の送信メッセージ(Closeメッセージ)</strong></td><td>正常に切断する直前に送信。オフライン通知などに使う</td></tr>
+        </table>
+        <p>各メッセージで設定する欄は次のとおりです。</p>
+        <table>
+            <tr><th>設定項目</th><th>説明</th></tr>
+            <tr><td><strong>トピック</strong></td><td>送信先トピック（空欄でそのメッセージを無効化）</td></tr>
+            <tr><td><strong>ペイロード</strong></td><td>送信する本文</td></tr>
+            <tr><td><strong>QoS</strong></td><td>配信品質（0 / 1 / 2）</td></tr>
+            <tr><td><strong>保持</strong></td><td>保持メッセージとして残すか（する / しない）</td></tr>
+            <tr><td><strong>遅延</strong></td><td>Will メッセージのみ。切断検知から発火までの遅延（秒）</td></tr>
+            <tr><td><strong>コンテントタイプ / ユーザプロパティ / 返信トピック / コリレーション / 有効期限 (秒)</strong>（V5）</td><td>MQTT V5 で付与できる追加メタデータ</td></tr>
+        </table>
+
         <h2 id="section3">3. MQTT In / Out ノード</h2>
         
         <h3>MQTT In ノード（購読）</h3>
+        <p>下表の<strong>（V5）</strong>欄は、ブローカー設定のプロトコルが MQTT V5 のときだけ表示されます。</p>
         <table>
-            <tr><th>プロパティ</th><th>説明</th><th>例</th></tr>
-            <tr><td><strong>サーバ</strong></td><td>ブローカー設定</td><td>（設定ノード選択）</td></tr>
-            <tr><td><strong>トピック</strong></td><td>購読するトピック</td><td>sensors/+/temperature</td></tr>
-            <tr><td><strong>QoS</strong></td><td>サービス品質</td><td>0, 1, 2</td></tr>
-            <tr><td><strong>出力</strong></td><td>出力形式</td><td>auto, string, buffer, JSON</td></tr>
+            <tr><th>設定項目</th><th>説明</th><th>例</th></tr>
+            <tr><td><strong>サーバ</strong></td><td>使用するブローカー設定ノード</td><td>（設定ノード選択）</td></tr>
+            <tr><td><strong>動作</strong></td><td>購読方式。「1つのトピックを購読」は固定トピックを購読。「動的な購読」は受信した msg で購読/解除を制御する</td><td>1つのトピックを購読</td></tr>
+            <tr><td><strong>トピック</strong></td><td>購読するトピック（「1つのトピックを購読」時）。<code>+</code> / <code>#</code> のワイルドカードを使える</td><td>sensors/+/temperature</td></tr>
+            <tr><td><strong>QoS</strong></td><td>配信品質（0 / 1 / 2）</td><td>2</td></tr>
+            <tr><td><strong>フラグ</strong>（V5）</td><td>「このクライアントでパブリッシュされたメッセージを受信しない」「元のパブリッシュのretainフラグを保存する」の2つのチェック</td><td>—</td></tr>
+            <tr><td><strong>Retainメッセージ処理</strong>（V5）</td><td>購読時に保持メッセージを受け取る挙動。「Retainメッセージを送信」「新しいサブスクリプションのみ送信」「送信しない」</td><td>Retainメッセージを送信</td></tr>
+            <tr><td><strong>出力</strong></td><td>受信ペイロードの型。「自動判定(JSONオブジェクト、文字列もしくはバイナリバッファ)」「自動判定(文字列もしくはバイナリバッファ)」「バイナリバッファ」「文字列」「JSONオブジェクト」「Base64文字列」</td><td>自動判定(JSONオブジェクト…)</td></tr>
+            <tr><td><strong>名前</strong></td><td>ノードの表示名（任意）</td><td>（任意）</td></tr>
         </table>
         
         <p><strong>受信時の msg プロパティ:</strong></p>
@@ -275,12 +311,15 @@
         </table>
         
         <h3>MQTT Out ノード（発行）</h3>
+        <p>トピック・QoS・保持は空欄にすると、それぞれ <code>msg.topic</code> / <code>msg.qos</code> / <code>msg.retain</code> の値が使われます。下表の<strong>（V5）</strong>欄は、ブローカー設定のプロトコルが MQTT V5 のときだけ表示されます。</p>
         <table>
-            <tr><th>プロパティ</th><th>説明</th><th>例</th></tr>
-            <tr><td><strong>サーバ</strong></td><td>ブローカー設定</td><td>（設定ノード選択）</td></tr>
-            <tr><td><strong>トピック</strong></td><td>発行先トピック（空欄でmsg.topic使用）</td><td>devices/lamp/control</td></tr>
-            <tr><td><strong>QoS</strong></td><td>サービス品質</td><td>0, 1, 2</td></tr>
-            <tr><td><strong>保持</strong></td><td>メッセージを保持</td><td>true/false</td></tr>
+            <tr><th>設定項目</th><th>説明</th><th>例</th></tr>
+            <tr><td><strong>サーバ</strong></td><td>使用するブローカー設定ノード</td><td>（設定ノード選択）</td></tr>
+            <tr><td><strong>トピック</strong></td><td>発行先トピック（空欄なら <code>msg.topic</code> を使用）</td><td>devices/lamp/control</td></tr>
+            <tr><td><strong>QoS</strong></td><td>配信品質（0 / 1 / 2、空欄なら <code>msg.qos</code>）</td><td>1</td></tr>
+            <tr><td><strong>保持</strong></td><td>保持メッセージとして残すか（する / しない、空欄なら <code>msg.retain</code>）</td><td>しない</td></tr>
+            <tr><td><strong>ユーザプロパティ / 返信トピック / コリレーション / コンテントタイプ / 有効期限 (秒)</strong>（V5）</td><td>MQTT V5 で付与できる追加メタデータ</td><td>—</td></tr>
+            <tr><td><strong>名前</strong></td><td>ノードの表示名（任意）</td><td>（任意）</td></tr>
         </table>
         
         <h3>QoS（Quality of Service）レベル</h3>
