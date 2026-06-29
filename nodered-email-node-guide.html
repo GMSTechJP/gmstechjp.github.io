@@ -158,48 +158,62 @@ npm install node-red-node-email</div>
 
         <h3>ノード設定プロパティ</h3>
 
+        <p>送信ノードのエディターはおおむね日本語化されているが、認証方式まわりの一部の欄は locale 未翻訳で英語表示のまま残っている。下表の見出しはエディターの表示に合わせ、英語のままの欄には日本語訳を添えた。</p>
+
         <table>
             <tr>
-                <th>プロパティ</th>
-                <th>型</th>
+                <th>設定項目</th>
                 <th>説明</th>
+                <th>既定値</th>
             </tr>
             <tr>
-                <td><strong>To</strong></td>
-                <td>string</td>
-                <td>宛先メールアドレス（カンマ区切りで複数指定可）</td>
+                <td><strong>名前</strong></td>
+                <td>エディター上の表示名。空のときはパレット名「email」または宛先がラベルに表示される</td>
+                <td>（空）</td>
             </tr>
             <tr>
-                <td><strong>Server</strong></td>
-                <td>string</td>
-                <td>SMTPサーバーのホスト名（例: smtp.gmail.com）</td>
+                <td><strong>宛先</strong></td>
+                <td>送信先メールアドレス。カンマ区切りで複数指定できる。<code>msg.to</code> があればそちらで上書きされる</td>
+                <td>（空）</td>
             </tr>
             <tr>
-                <td><strong>Port</strong></td>
-                <td>number</td>
-                <td>SMTPポート番号（465: SSL, 587: STARTTLS, 25: 非暗号化）</td>
+                <td><strong>サーバ</strong></td>
+                <td>SMTP サーバーのホスト名（例: smtp.gmail.com）</td>
+                <td>smtp.gmail.com</td>
             </tr>
             <tr>
-                <td><strong>Use Secure Connection</strong></td>
-                <td>boolean</td>
-                <td>SSL/TLS接続を使用（ポート465の場合はオン）</td>
+                <td><strong>ポート</strong></td>
+                <td>SMTP ポート番号（465: SSL／587: STARTTLS／25: 非暗号化）</td>
+                <td>465</td>
             </tr>
             <tr>
-                <td><strong>Userid</strong></td>
-                <td>string</td>
-                <td>SMTP認証のユーザーID</td>
+                <td><strong>安全な接続を使用</strong></td>
+                <td>接続の最初から SSL/TLS で暗号化する。ポート 465 で使う（ポート欄の右側のチェックボックス）</td>
+                <td>オン</td>
             </tr>
             <tr>
-                <td><strong>Password</strong></td>
-                <td>string</td>
-                <td>SMTP認証のパスワード</td>
+                <td><strong>Auth type</strong>（認証方式）</td>
+                <td>認証の方式を選ぶ。Basic（ユーザIDとパスワード）／XOAuth2（OAuth2 トークン）／None（認証なし）</td>
+                <td>Basic</td>
             </tr>
             <tr>
-                <td><strong>Name</strong></td>
-                <td>string</td>
-                <td>エディタ上での表示名</td>
+                <td><strong>ユーザID</strong></td>
+                <td>SMTP 認証のユーザーID。認証方式が Basic か XOAuth2 のとき表示される</td>
+                <td>（空）</td>
+            </tr>
+            <tr>
+                <td><strong>パスワード</strong></td>
+                <td>SMTP 認証のパスワード。認証方式が Basic のとき表示される（Gmail などはアプリパスワードが必要）</td>
+                <td>（空）</td>
+            </tr>
+            <tr>
+                <td><strong>TLSオプション</strong></td>
+                <td>サーバ証明書を検証するかどうか。オンにすると「チェックサーバ証明書は有効です」となり、自己署名証明書などを拒否する</td>
+                <td>オン</td>
             </tr>
         </table>
+
+        <p>認証方式に <strong>XOAuth2</strong> を選ぶと、パスワードの代わりに <strong>Format to SASL</strong>（SASL 形式に変換するか）と <strong>Token</strong>（トークン。OAuth2 アクセストークンの参照先で、既定は <code>msg.oauth2Response.access_token</code>）が表示される。</p>
 
         <h3>入力メッセージプロパティ</h3>
 
@@ -336,56 +350,83 @@ return msg;</div>
 
         <h3>ノード設定プロパティ</h3>
 
+        <p>受信ノードのエディターも大半が日本語化されている。プロトコルに POP3 を選ぶと、IMAP 専用の欄（TLSを開始?・フォルダ・受信後の処理・条件）は隠れる。下表はエディターの表示順に並べ、IMAP 専用の欄にはその旨を記した。</p>
+
         <table>
             <tr>
-                <th>プロパティ</th>
-                <th>型</th>
+                <th>設定項目</th>
                 <th>説明</th>
+                <th>既定値</th>
             </tr>
             <tr>
-                <td><strong>Protocol</strong></td>
-                <td>select</td>
-                <td>受信プロトコル（IMAP4またはPOP3）</td>
+                <td><strong>名前</strong></td>
+                <td>エディター上の表示名</td>
+                <td>（空）</td>
             </tr>
             <tr>
-                <td><strong>Server</strong></td>
-                <td>string</td>
+                <td><strong>メール受信</strong></td>
+                <td>取得のきっかけを選ぶ。「自動」は一定間隔でサーバーをポーリングする。「トリガ時」は入力にメッセージが届いたときに取得する</td>
+                <td>自動</td>
+            </tr>
+            <tr>
+                <td><strong>更新</strong></td>
+                <td>「自動」のときのポーリング間隔（秒）。「メール受信」が自動のときだけ表示される</td>
+                <td>300（秒）</td>
+            </tr>
+            <tr>
+                <td><strong>プロトコル</strong></td>
+                <td>受信プロトコル。IMAP（サーバー側にメールを残し複数端末で扱える）／POP3（端末へ取り込む）</td>
+                <td>IMAP</td>
+            </tr>
+            <tr>
+                <td><strong>SSLを使用</strong></td>
+                <td>SSL/TLS で暗号化して接続する</td>
+                <td>オン</td>
+            </tr>
+            <tr>
+                <td><strong>TLSを開始?</strong></td>
+                <td>平文接続を STARTTLS で暗号化に切り替えるか。なし／必要な場合／常時。IMAP のとき表示される</td>
+                <td>なし</td>
+            </tr>
+            <tr>
+                <td><strong>サーバ</strong></td>
                 <td>受信サーバーのホスト名（例: imap.gmail.com）</td>
+                <td>imap.gmail.com</td>
             </tr>
             <tr>
-                <td><strong>Port</strong></td>
-                <td>number</td>
-                <td>ポート番号（IMAP: 993, POP3: 995）</td>
+                <td><strong>ポート</strong></td>
+                <td>ポート番号（IMAP+SSL: 993／POP3+SSL: 995。SSL を切ると 143／110）</td>
+                <td>993</td>
             </tr>
             <tr>
-                <td><strong>Use Secure Connection</strong></td>
-                <td>boolean</td>
-                <td>SSL/TLS接続を使用</td>
+                <td><strong>Auth type</strong>（認証方式）</td>
+                <td>認証の方式を選ぶ。Basic（ユーザIDとパスワード）／XOAuth2（OAuth2 トークン）／None（認証なし）</td>
+                <td>Basic</td>
             </tr>
             <tr>
-                <td><strong>Userid</strong></td>
-                <td>string</td>
+                <td><strong>ユーザID</strong></td>
                 <td>メールアカウントのユーザーID</td>
+                <td>（空）</td>
             </tr>
             <tr>
-                <td><strong>Password</strong></td>
-                <td>string</td>
-                <td>メールアカウントのパスワード</td>
+                <td><strong>パスワード</strong></td>
+                <td>メールアカウントのパスワード（Gmail などはアプリパスワードが必要）</td>
+                <td>（空）</td>
             </tr>
             <tr>
-                <td><strong>Folder</strong></td>
-                <td>string</td>
-                <td>監視するフォルダ（IMAP4の場合。デフォルト: INBOX）</td>
+                <td><strong>フォルダ</strong></td>
+                <td>監視するメールボックス。IMAP のとき表示される</td>
+                <td>INBOX</td>
             </tr>
             <tr>
-                <td><strong>Disposition</strong></td>
-                <td>select</td>
-                <td>受信後のメール処理（None / Mark Read / Delete）</td>
+                <td><strong>受信後の処理</strong></td>
+                <td>取得したメールをサーバー側でどう扱うか。なし／既読／削除。IMAP のとき表示される</td>
+                <td>既読</td>
             </tr>
             <tr>
-                <td><strong>Name</strong></td>
-                <td>string</td>
-                <td>エディタ上での表示名</td>
+                <td><strong>条件</strong></td>
+                <td>取得するメールの絞り込み条件。全て／返信済み／フラグ付き／既読／未返信／フラグ無し／未読／- msg.criteriaから使用 -。IMAP のとき表示される</td>
+                <td>未読</td>
             </tr>
         </table>
 
@@ -713,7 +754,7 @@ if (now - lastSent > interval) {
                     <li>Changeノードで<code>msg.topic</code>に件名を設定</li>
                     <li>Changeノードで<code>msg.payload</code>に本文を設定</li>
                     <li>e-mailノードのTo欄に宛先を設定</li>
-                    <li>Server, Port, Userid, Passwordを正しく設定</li>
+                    <li>サーバ・ポート・ユーザID・パスワードを正しく設定</li>
                 </ul>
             </details>
 
