@@ -233,59 +233,122 @@ npm install node-red-contrib-modbus</div>
         </div>
 
         <h2 id="section5">5. 設定項目一覧（プロパティ表）</h2>
-        <p>主要ノードの設定項目です。項目名は <code>node-red-contrib-modbus</code> v5.45.2 のエディター表示（英語。日本語ロケールは未提供）に一致させています。</p>
+        <p><code>node-red-contrib-modbus</code>（v5.45.2）のエディターは<strong>英語表示のみ</strong>で、日本語ロケールは提供されていません。そのため各項目は「<strong>英語ラベル</strong>（日本語訳）」の形で示します。設定画面は<strong>タブ</strong>（Settings と Optionals、設定ノードだけは Queues も）に分かれているので、本ガイドもそのタブの区切りに合わせて掲載します。まずは <strong>Settings</strong> タブの主要項目を押さえれば動かせます。<strong>Optionals</strong> タブはログ表示や IO ファイルなどの詳細設定で、多くは既定のままで構いません。</p>
 
         <h3>5-1. Modbus-Client（設定ノード）</h3>
-        <p>接続先を定義する設定ノードです。<strong>Type</strong> で TCP / Serial を切り替えると、表示される項目が変わります。</p>
+        <p>接続先を定義する設定ノードです。<strong>Type</strong>（接続方式）で TCP / Serial を切り替えると、表示される項目が変わります。</p>
+        <p><strong>Settings タブ</strong></p>
         <table>
             <tr><th>設定項目</th><th>説明</th><th>既定値 / 例</th></tr>
-            <tr><td><strong>Name</strong></td><td>設定ノードの名前</td><td>（任意）</td></tr>
-            <tr><td><strong>Type</strong></td><td>接続方式（TCP / Serial / Serial Expert）</td><td>TCP</td></tr>
-            <tr><td><strong>Host</strong></td><td>接続先 IP（TCP 時）</td><td>127.0.0.1</td></tr>
-            <tr><td><strong>Port</strong></td><td>接続先ポート（TCP 時）</td><td>502（標準。本サンプルは 10502）</td></tr>
-            <tr><td><strong>TCP Type</strong></td><td>TCP の種類</td><td>DEFAULT</td></tr>
-            <tr><td><strong>Serial port</strong></td><td>シリアルポート名（Serial 時）</td><td>/dev/ttyUSB、COM4 など</td></tr>
-            <tr><td><strong>Baud rate</strong></td><td>通信速度（Serial 時）</td><td>9600</td></tr>
-            <tr><td><strong>Parity / Data Bits / Stop Bits</strong></td><td>シリアル通信パラメータ</td><td>none / 8 / 1</td></tr>
-            <tr><td><strong><a href="#term-unit-id">Unit-Id</a></strong></td><td>スレーブ ID の既定値（TCP 0–255／Serial 0–247。1 対 1 接続なら通常 1）</td><td>1</td></tr>
-            <tr><td><strong>Timeout (ms)</strong></td><td>応答待ちタイムアウト</td><td>1000</td></tr>
-            <tr><td><strong>Reconnect on timeout</strong></td><td>タイムアウト時に再接続するか</td><td>有効</td></tr>
-            <tr><td><strong>Queue commands</strong></td><td>コマンドをキューにためて順次処理するか</td><td>有効</td></tr>
-            <tr><td><strong>Show Errors / Show Warnings / Show Logs</strong></td><td>ログ表示の制御</td><td>警告・ログは既定で表示</td></tr>
+            <tr><td><strong>Name</strong>（名前）</td><td>設定ノードの表示名</td><td>（任意）</td></tr>
+            <tr><td><strong>Type</strong>（接続方式）</td><td>TCP / Serial / Serial Expert。選んだ方式に応じて以下の欄が切り替わる</td><td>TCP</td></tr>
+            <tr><td><strong>Host</strong>（ホスト）</td><td>接続先の IP アドレスやホスト名（TCP 時）</td><td>127.0.0.1</td></tr>
+            <tr><td><strong>Port</strong>（ポート）</td><td>接続先ポート（TCP 時）</td><td>502（標準。本サンプルは 10502）</td></tr>
+            <tr><td><strong>TCP Type</strong>（TCP の種類）</td><td>DEFAULT / RTU-BUFFERED / TELNET / C701 / UDP</td><td>DEFAULT</td></tr>
+            <tr><td><strong>Serial port</strong>（シリアルポート）</td><td>シリアルポート名（Serial 時）</td><td>/dev/ttyUSB、COM4 など</td></tr>
+            <tr><td><strong>Serial type</strong>（シリアル方式）</td><td>RTU-BUFFERD / RTU / ASCII（Serial 時）</td><td>RTU-BUFFERD</td></tr>
+            <tr><td><strong>Baud rate</strong>（通信速度）</td><td>シリアルの通信速度（Serial 時）</td><td>9600</td></tr>
+            <tr><td><strong>Data Bits</strong>（データビット）</td><td>シリアルのデータビット長</td><td>8</td></tr>
+            <tr><td><strong>Stop Bits</strong>（ストップビット）</td><td>シリアルのストップビット</td><td>1</td></tr>
+            <tr><td><strong>Parity</strong>（パリティ）</td><td>シリアルのパリティ（None / Even / Odd ほか）</td><td>None</td></tr>
+            <tr><td><strong>Connection delay (ms)</strong>（接続遅延）</td><td>シリアル接続を開いてから通信を始めるまでの待ち時間</td><td>100</td></tr>
+            <tr><td><strong>ASCII response start delimiter</strong>（ASCII 応答の開始記号）</td><td>Serial ASCII 時に応答の先頭を示す区切り文字</td><td>0x3A</td></tr>
+            <tr><td><strong><a href="#term-unit-id">Unit-Id</a></strong>（スレーブ ID の既定値）</td><td>各ノードで未指定のときに使う既定 ID（TCP 0〜255、Serial 0〜247。1 対 1 接続なら通常 1）</td><td>1</td></tr>
+            <tr><td><strong>Timeout (ms)</strong>（応答タイムアウト）</td><td>応答を待つ上限時間</td><td>1000</td></tr>
+            <tr><td><strong>Reconnect on timeout</strong>（タイムアウト時に再接続）</td><td>応答が途絶えたとき自動で接続し直すか</td><td>有効</td></tr>
+            <tr><td><strong>Reconnect timeout (ms)</strong>（再接続までの待ち時間）</td><td>再接続を試みるまでの間隔</td><td>2000</td></tr>
+        </table>
+        <p><strong>Queues タブ</strong>（要求のため方を調整する。通常は既定のまま）</p>
+        <table>
+            <tr><th>設定項目</th><th>説明</th><th>既定値</th></tr>
+            <tr><td><strong>UnitId's in parallel queues</strong>（スレーブごとに並列キュー）</td><td>スレーブ ID ごとにキューを分けて並行処理する。シリアルでは無効が無難</td><td>有効</td></tr>
+            <tr><td><strong>Queue Logging</strong>（キュー状態のログ出力）</td><td>キューの動きをログに出すか</td><td>無効</td></tr>
+            <tr><td><strong>Queue commands</strong>（コマンドをキューイング）</td><td>要求をためて順番に送り、機器の取りこぼしを防ぐ</td><td>有効</td></tr>
+            <tr><td><strong>Queue delay (ms)</strong>（キュー送信間隔）</td><td>キューにためた要求を送り出す間隔</td><td>1</td></tr>
+        </table>
+        <p><strong>Optionals タブ</strong>（ログ表示の制御。学習中は既定で可）</p>
+        <table>
+            <tr><th>設定項目</th><th>説明</th><th>既定値</th></tr>
+            <tr><td><strong>Log states changes</strong>（状態変化をログ出力）</td><td>接続状態の変化をログに出すか</td><td>無効</td></tr>
+            <tr><td><strong>Log failures</strong>（失敗をログ出力）</td><td>通信失敗をログに出すか</td><td>有効</td></tr>
+            <tr><td><strong>Show Errors</strong>（エラーを表示）</td><td>エラーをノードステータスやログに表示するか</td><td>無効</td></tr>
+            <tr><td><strong>Show Warnings</strong>（警告を表示）</td><td>警告を表示するか</td><td>有効</td></tr>
+            <tr><td><strong>Show Logs</strong>（ログを表示）</td><td>一般のログを表示するか</td><td>有効</td></tr>
         </table>
 
         <h3>5-2. Modbus-Read（定期読取）</h3>
+        <p>設定した間隔で自動的に読み取るノードです。</p>
+        <p><strong>Settings タブ</strong></p>
         <table>
             <tr><th>設定項目</th><th>説明</th><th>例</th></tr>
-            <tr><td><strong>Name</strong></td><td>ノードの名前</td><td>保持レジスタ読取</td></tr>
-            <tr><td><strong>Topic</strong></td><td>出力 msg に付ける topic</td><td>holding</td></tr>
-            <tr><td><strong>Unit-Id</strong></td><td>スレーブ ID（空なら設定ノードの既定を使用）</td><td>1</td></tr>
-            <tr><td><strong>FC</strong></td><td>ファンクションコード（読取は FC1–4）</td><td>FC 3: Read Holding Registers</td></tr>
-            <tr><td><strong>Address</strong></td><td>読み取り開始アドレス（0 始まり、0–65535）</td><td>0</td></tr>
-            <tr><td><strong>Quantity</strong></td><td>読み取る点数（コイル数 / レジスタ数）</td><td>4</td></tr>
-            <tr><td><strong>Poll Rate</strong></td><td>ポーリング間隔（単位は ms / s / m / h）</td><td>5 秒</td></tr>
-            <tr><td><strong>Server</strong></td><td>参照する Modbus-Client 設定ノード</td><td>（設定ノードを選択）</td></tr>
-            <tr><td><strong>Empty msg on Modbus fail</strong></td><td>失敗時に空 msg を出すか</td><td>無効</td></tr>
-            <tr><td><strong>Show Activities / Errors / Warnings</strong></td><td>ステータス・ログ表示の制御</td><td>—</td></tr>
+            <tr><td><strong>Name</strong>（名前）</td><td>ノードの表示名</td><td>保持レジスタ読取</td></tr>
+            <tr><td><strong>Topic</strong>（トピック）</td><td>出力 msg.topic に付ける文字列</td><td>holding</td></tr>
+            <tr><td><strong>Unit-Id</strong>（スレーブ ID）</td><td>読み取り先のスレーブ ID（空なら設定ノードの既定を使用）</td><td>1</td></tr>
+            <tr><td><strong>FC</strong>（ファンクションコード）</td><td>読取の種類。FC 1: Read Coil Status / FC 2: Read Input Status / FC 3: Read Holding Registers / FC 4: Read Input Registers</td><td>FC 3: Read Holding Registers</td></tr>
+            <tr><td><strong>Address</strong>（アドレス）</td><td>読み取り開始アドレス（0 始まり、0〜65535）</td><td>0</td></tr>
+            <tr><td><strong>Quantity</strong>（点数）</td><td>読み取るコイル数やレジスタ数</td><td>4</td></tr>
+            <tr><td><strong>Poll Rate</strong>（ポーリング間隔）</td><td>読み取りを繰り返す間隔。数値と単位（millisecond(s) / second(s) / minute(s) / hour(s)）で指定</td><td>5 second(s)</td></tr>
+            <tr><td><strong>Delay to activate input</strong>（起動直後の入力を遅延）</td><td>デプロイ直後の読み取り開始を遅らせるか</td><td>無効</td></tr>
+            <tr><td><strong>Delay Time</strong>（遅延時間）</td><td>上を有効にしたときの待ち時間</td><td>（任意）</td></tr>
+            <tr><td><strong>Allow oversized messages</strong>（規格外サイズを許可）</td><td>Modbus 仕様の上限を超える長さの応答を許容するか</td><td>無効</td></tr>
+            <tr><td><strong>Server</strong>（接続先設定ノード）</td><td>参照する Modbus-Client 設定ノード</td><td>（設定ノードを選択）</td></tr>
+        </table>
+        <p><strong>Optionals タブ</strong>（表示制御と IO ファイル。多くは既定で可）</p>
+        <table>
+            <tr><th>設定項目</th><th>説明</th><th>既定値</th></tr>
+            <tr><td><strong>Empty msg on Modbus fail</strong>（失敗時に空 msg）</td><td>読み取り失敗時に空の msg を出力するか</td><td>無効</td></tr>
+            <tr><td><strong>Show Activities</strong>（処理状況を表示）</td><td>読み取り動作をノードステータスに表示するか</td><td>無効</td></tr>
+            <tr><td><strong>Show Errors</strong>（エラーを表示）</td><td>エラーを表示するか</td><td>無効</td></tr>
+            <tr><td><strong>Show Warnings</strong>（警告を表示）</td><td>警告を表示するか</td><td>有効</td></tr>
+            <tr><td><strong>Using IO-File</strong>（IO ファイルを使用）</td><td>レジスタ対応表（IO マッピング）を定義したファイルを使うか</td><td>無効</td></tr>
+            <tr><td><strong>Log IO</strong>（IO をログ出力）</td><td>IO マッピングの処理をログに出すか</td><td>無効</td></tr>
+            <tr><td><strong>IO's As Payload</strong>（IO を payload に）</td><td>マッピング適用後の値を payload として出力するか</td><td>無効</td></tr>
+            <tr><td><strong>IO-File</strong>（IO ファイル）</td><td>使用する IO 定義ファイル</td><td>（IO 使用時）</td></tr>
         </table>
 
         <h3>5-3. Modbus-Getter（要求時読取）</h3>
-        <p>入力 1 つ。<strong>メッセージを受けた時だけ</strong>読み取ります。FC・Address・Quantity・Unit-Id は Read とほぼ同じ。<strong>Poll Rate がない</strong>（トリガで動くため）点が違います。<code>Keep Msg Properties</code> で入力 msg のプロパティを引き継げます。</p>
+        <p>入力を 1 つ持ち、メッセージを受けた時だけ読み取ります。<strong>Settings タブ</strong>は Read とほぼ同じですが、<strong>Topic</strong> と <strong>Poll Rate</strong> がありません（トリガで動くため）。</p>
+        <table>
+            <tr><th>設定項目（Settings タブ）</th><th>説明</th></tr>
+            <tr><td><strong>Name</strong>（名前）</td><td>ノードの表示名</td></tr>
+            <tr><td><strong>Unit-Id</strong>（スレーブ ID）</td><td>読み取り先のスレーブ ID（空なら設定ノードの既定）</td></tr>
+            <tr><td><strong>FC</strong>（ファンクションコード）</td><td>FC 1〜4（Read と同じ読取系）</td></tr>
+            <tr><td><strong>Address</strong>（アドレス）</td><td>読み取り開始アドレス（0 始まり）</td></tr>
+            <tr><td><strong>Quantity</strong>（点数）</td><td>読み取るコイル数やレジスタ数</td></tr>
+            <tr><td><strong>Delay to activate input</strong>（起動直後の入力を遅延）</td><td>デプロイ直後の動作を遅らせるか（Read と同じ）</td></tr>
+            <tr><td><strong>Allow oversized messages</strong>（規格外サイズを許可）</td><td>仕様超の長さの応答を許容するか（Read と同じ）</td></tr>
+            <tr><td><strong>Delay Time</strong>（遅延時間）</td><td>遅延を有効にしたときの待ち時間</td></tr>
+            <tr><td><strong>Server</strong>（接続先設定ノード）</td><td>参照する Modbus-Client</td></tr>
+        </table>
+        <p><strong>Optionals タブ</strong>は Read と同じ項目に <strong>Keep Msg Properties</strong>（入力 msg のプロパティを保持）が加わります。入力 msg に付けたトピックなどを出力へ引き継ぎたいときに有効にします。</p>
 
         <h3>5-4. Modbus-Write（書込）</h3>
+        <p>値を書き込むノードです。<strong>FC</strong> が書込系（5 / 6 / 15 / 16）になります。</p>
         <table>
-            <tr><th>設定項目</th><th>説明</th><th>例</th></tr>
-            <tr><td><strong>Unit-Id</strong></td><td>スレーブ ID</td><td>1</td></tr>
-            <tr><td><strong>FC</strong></td><td>ファンクションコード（書込は FC5/6/15/16）</td><td>FC 16: Preset Multiple Registers</td></tr>
-            <tr><td><strong>Address</strong></td><td>書き込み開始アドレス（0 始まり）</td><td>0</td></tr>
-            <tr><td><strong>Quantity</strong></td><td>書き込む点数</td><td>2</td></tr>
-            <tr><td><strong>Server</strong></td><td>参照する設定ノード</td><td>（設定ノードを選択）</td></tr>
-            <tr><td><strong>Keep Msg Properties</strong></td><td>入力 msg のプロパティを保持するか</td><td>無効</td></tr>
+            <tr><th>設定項目（Settings タブ）</th><th>説明</th><th>例</th></tr>
+            <tr><td><strong>Name</strong>（名前）</td><td>ノードの表示名</td><td>（任意）</td></tr>
+            <tr><td><strong>Unit-Id</strong>（スレーブ ID）</td><td>書き込み先のスレーブ ID</td><td>1</td></tr>
+            <tr><td><strong>FC</strong>（ファンクションコード）</td><td>FC 5: Force Single Coil / FC 6: Preset Single Register / FC 15: Force Multiple Coils / FC 16: Preset Multiple Registers</td><td>FC 16: Preset Multiple Registers</td></tr>
+            <tr><td><strong>Address</strong>（アドレス）</td><td>書き込み開始アドレス（0 始まり）</td><td>0</td></tr>
+            <tr><td><strong>Quantity</strong>（点数）</td><td>書き込むコイル数やレジスタ数</td><td>2</td></tr>
+            <tr><td><strong>Delay to activate input</strong>（起動直後の入力を遅延）</td><td>デプロイ直後の書込を遅らせるか</td><td>無効</td></tr>
+            <tr><td><strong>Delay Time</strong>（遅延時間）</td><td>上を有効にしたときの待ち時間</td><td>（任意）</td></tr>
+            <tr><td><strong>Server</strong>（接続先設定ノード）</td><td>参照する設定ノード</td><td>（設定ノードを選択）</td></tr>
         </table>
-        <p>書き込む値は <strong><code>msg.payload</code></strong> で渡します。複数レジスタ書込（FC16）なら配列、例: <code>[111, 222]</code>。単一コイル書込（FC5）なら <code>true</code> / <code>false</code>。</p>
+        <p><strong>Optionals タブ</strong>には <strong>Empty msg on Modbus fail</strong>（失敗時に空 msg）、<strong>Keep Msg Properties</strong>（入力 msg のプロパティを保持）、<strong>Show Activities</strong>（処理状況を表示）、<strong>Show Errors</strong>（エラーを表示）、<strong>Show Warnings</strong>（警告を表示）があります。Read と違い IO ファイル関連の項目はありません。</p>
+        <p>書き込む値は <strong><code>msg.payload</code></strong> で渡します。複数レジスタ書込（FC 16）なら配列、例: <code>[111, 222]</code>。単一コイル書込（FC 5）なら <code>true</code> / <code>false</code>。</p>
 
         <h3>5-5. Modbus-Flex-Getter（柔軟読取）</h3>
-        <p>FC・Address・Quantity を<strong>設定画面ではなく <code>msg.payload</code> で指定</strong>するノードです。読み取る場所を動的に変えたいときや、1 つの設定で多数の番地を読みたいときに使います。</p>
+        <p>FC・アドレス・点数を<strong>設定画面ではなく <code>msg.payload</code> で指定</strong>するノードです。読み取る場所を動的に変えたいときや、1 つの設定で多数の番地を読みたいときに使います。そのため <strong>Settings タブ</strong>には FC / Address / Quantity / Unit-Id の欄がありません。</p>
+        <table>
+            <tr><th>設定項目（Settings タブ）</th><th>説明</th></tr>
+            <tr><td><strong>Name</strong>（名前）</td><td>ノードの表示名</td></tr>
+            <tr><td><strong>Server</strong>（接続先設定ノード）</td><td>参照する Modbus-Client</td></tr>
+            <tr><td><strong>Delay to activate input</strong>（起動直後の入力を遅延）</td><td>デプロイ直後の動作を遅らせるか</td></tr>
+            <tr><td><strong>Allow oversized messages</strong>（規格外サイズを許可）</td><td>仕様超の長さの応答を許容するか</td></tr>
+            <tr><td><strong>Delay Time</strong>（遅延時間）</td><td>遅延を有効にしたときの待ち時間</td></tr>
+        </table>
+        <p><strong>Optionals タブ</strong>は Read と同じ項目に <strong>Keep Msg Properties</strong>（入力 msg のプロパティを保持）を加えた構成です。読み取り条件は次の <code>msg.payload</code> で渡します。</p>
         <div class="code-block">// Flex-Getter に渡す msg.payload の例
 msg.payload = {
     value: msg.payload,        // 書込用（読取では未使用）
