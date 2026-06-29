@@ -146,55 +146,53 @@ npm install node-red-node-base64</div>
 
         <h2 id="section3">3. ノード設定プロパティ</h2>
 
+        <p>base64 ノードのエディターは日本語化されている。設定欄は上から「名前」「動作」「プロパティ」の3つで、いずれも既定のまま使える。変換方向を固定したいときは「動作」を、変換対象を変えたいときは「プロパティ」を調整する。</p>
+
         <table>
             <tr>
-                <th>プロパティ</th>
-                <th>型</th>
-                <th>デフォルト</th>
+                <th>設定項目</th>
                 <th>説明</th>
+                <th>既定値</th>
             </tr>
             <tr>
-                <td><strong>Action</strong></td>
-                <td>select</td>
-                <td>Convert to/from buffer</td>
-                <td>変換モード（自動判定 / エンコード / デコード）</td>
-            </tr>
-            <tr>
-                <td><strong>Property</strong></td>
-                <td>typedInput</td>
-                <td>msg.payload</td>
-                <td>操作対象のメッセージプロパティ</td>
-            </tr>
-            <tr>
-                <td><strong>Name</strong></td>
-                <td>string</td>
+                <td><strong>名前</strong></td>
+                <td>エディター上でこのノードに表示する任意の名前。フローを読みやすくするためのもので、変換処理には影響しない</td>
                 <td>（空）</td>
-                <td>エディタ上での表示名</td>
+            </tr>
+            <tr>
+                <td><strong>動作</strong></td>
+                <td>エンコードとデコードのどちらを行うかを選ぶ。3つの選択肢があり、既定は入力の型から向きを自動判別する「バッファ &lt;-&gt; Base64の変換」。詳細は下表</td>
+                <td>バッファ &lt;-&gt; Base64の変換</td>
+            </tr>
+            <tr>
+                <td><strong>プロパティ</strong></td>
+                <td>変換の対象にする <code>msg</code> のプロパティ。既定では <code>msg.payload</code> を変換する。別のプロパティを変換したいときに指定する（型は <code>msg.</code> 固定）</td>
+                <td>msg.payload</td>
             </tr>
         </table>
 
-        <h3>Actionモードの詳細</h3>
+        <h3>「動作」の選択肢</h3>
 
         <table>
             <tr>
-                <th>モード</th>
-                <th>動作</th>
+                <th>選択肢</th>
+                <th>意味</th>
                 <th>用途</th>
             </tr>
             <tr>
-                <td><strong>Convert to/from buffer</strong>（自動判定）</td>
-                <td>入力の型に応じてエンコードまたはデコードを自動選択</td>
+                <td><strong>バッファ &lt;-&gt; Base64の変換</strong>（既定）</td>
+                <td>入力の型を見て向きを自動で切り替える。Buffer（バイナリ）なら Base64 文字列へエンコードし、有効な Base64 文字列なら Buffer へデコードする。通常の文字列は Base64 へエンコードする</td>
                 <td>汎用的な変換処理</td>
             </tr>
             <tr>
-                <td><strong>Encode to base64</strong></td>
-                <td>入力を常にBase64文字列にエンコード</td>
+                <td><strong>Base64へエンコード</strong></td>
+                <td>入力の型にかかわらず、つねに Base64 文字列へエンコードする</td>
                 <td>確実にBase64化したい場合</td>
             </tr>
             <tr>
-                <td><strong>Decode from base64</strong></td>
-                <td>入力を常にBase64からデコード</td>
-                <td>確実にデコードしたい場合</td>
+                <td><strong>Base64から文字列へ変換</strong></td>
+                <td>入力を Base64 文字列とみなしてデコードし、文字列に戻す。自動モードと違い、出力は Buffer ではなく文字列になる</td>
+                <td>確実に文字列へ戻したい場合</td>
             </tr>
         </table>
 
@@ -249,11 +247,11 @@ npm install node-red-node-base64</div>
 出力: Buffer &lt;48 65 6c 6c 6f 2c 20 4e 6f 64 65 2d 52 45 44 21&gt;
      （"Hello, Node-RED!" のバイナリ表現）</div>
 
-        <h3>Propertyの設定</h3>
+        <h3>「プロパティ」欄の設定</h3>
         <p>デフォルトでは<code>msg.payload</code>を変換しますが、任意のプロパティを指定できます。</p>
 
         <div class="code-block">// 例: msg.data.image を変換対象に設定
-// Property欄に "msg.data.image" を指定
+// 「プロパティ」欄に "msg.data.image" を指定
 
 // 入力
 msg.data = {
@@ -786,7 +784,7 @@ return null;</div>
             <tr>
                 <td>エンコードされずにそのまま通過する</td>
                 <td>入力が有効なBase64文字列と判定されデコードされた</td>
-                <td>Actionを「Encode to base64」に明示的に設定する</td>
+                <td>「動作」を「Base64へエンコード」に明示的に設定する</td>
             </tr>
             <tr>
                 <td>出力がBufferになってしまう</td>
@@ -810,7 +808,7 @@ return null;</div>
         <div class="tip">
             <p><strong>推奨事項:</strong></p>
             <ul>
-                <li><strong>Actionモードの明示的設定:</strong> 意図した変換方向が決まっている場合は自動判定ではなく明示的にEncode/Decodeを指定する</li>
+                <li><strong>「動作」の明示的な指定:</strong> 意図した変換方向が決まっている場合は自動判定に頼らず、「Base64へエンコード」または「Base64から文字列へ変換」を明示的に選ぶ</li>
                 <li><strong>データサイズの考慮:</strong> Base64はデータを約33%増加させるため、大量のバイナリデータには不向き。必要な場合のみ使用する</li>
                 <li><strong>MIME型の管理:</strong> 画像をBase64化する際はMIME型（image/png等）を別プロパティで保持しておく</li>
                 <li><strong>Bufferの文字列化:</strong> デコード後のBufferを文字列として使う場合は<code>toString('utf-8')</code>を明示する</li>
