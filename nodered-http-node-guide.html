@@ -261,15 +261,15 @@ return msg;</div>
         <p>以下の認証不要で安定した公開APIを使ってテストできます：</p>
 
         <div class="api-card">
-            <h4>World Time API</h4>
+            <h4>timeapi.io</h4>
             <p>世界各地の現在時刻を取得</p>
-            <p><code>https://worldtimeapi.org/api/timezone/Asia/Tokyo</code></p>
+            <p><code>https://timeapi.io/api/Time/current/zone?timeZone=Asia/Tokyo</code></p>
         </div>
 
         <div class="api-card">
-            <h4>httpbin.org</h4>
+            <h4>postman-echo.com</h4>
             <p>HTTPリクエストのテストやデバッグ用</p>
-            <p><code>https://httpbin.org/get</code>, <code>/post</code>, <code>/status/200</code></p>
+            <p><code>https://postman-echo.com/get</code>, <code>/post</code>, <code>/status/200</code></p>
         </div>
 
         <div class="api-card">
@@ -510,7 +510,7 @@ return msg;</div>
         "type": "comment",
         "z": "http_sample_tab",
         "name": "━━━ 外部API呼び出し ━━━",
-        "info": "World Time APIで時刻取得",
+        "info": "timeapi.io で時刻取得",
         "x": 180,
         "y": 520,
         "wires": []
@@ -534,11 +534,11 @@ return msg;</div>
         "id": "http_request_time",
         "type": "http request",
         "z": "http_sample_tab",
-        "name": "World Time API",
+        "name": "timeapi.io",
         "method": "GET",
         "ret": "obj",
         "paytoqs": "ignore",
-        "url": "https://worldtimeapi.org/api/timezone/Asia/Tokyo",
+        "url": "https://timeapi.io/api/Time/current/zone?timeZone=Asia/Tokyo",
         "tls": "",
         "persist": false,
         "proxy": "",
@@ -555,7 +555,7 @@ return msg;</div>
         "type": "function",
         "z": "http_sample_tab",
         "name": "時刻を整形",
-        "func": "// APIレスポンスから時刻情報を抽出\nvar datetime = msg.payload.datetime;\nvar timezone = msg.payload.timezone;\n\nmsg.payload = {\n    timezone: timezone,\n    datetime: datetime,\n    formatted: new Date(datetime).toLocaleString('ja-JP')\n};\n\nreturn msg;",
+        "func": "// APIレスポンスから時刻情報を抽出\nvar timezone = msg.payload.timeZone;\nvar dateTime = msg.payload.dateTime;\nvar formatted = msg.payload.date + ' ' + msg.payload.time;\n\nmsg.payload = {\n    timezone: timezone,\n    datetime: dateTime,\n    formatted: formatted\n};\n\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "initialize": "",
@@ -615,7 +615,7 @@ return msg;</div>
         "method": "GET",
         "ret": "obj",
         "paytoqs": "ignore",
-        "url": "https://httpbin.org/status/404",
+        "url": "https://postman-echo.com/status/404",
         "tls": "",
         "persist": false,
         "proxy": "",
@@ -946,20 +946,20 @@ return msg;</div>
 
         <div class="exercise">
             <h3>演習2: 外部APIからデータ取得 <span class="difficulty difficulty-easy">初級</span></h3>
-            <p><strong>課題:</strong> World Time API を使って、ニューヨークの現在時刻を取得し、Debugノードに表示してください。</p>
+            <p><strong>課題:</strong> timeapi.io を使って、ニューヨークの現在時刻を取得し、Debugノードに表示してください。</p>
 
             <p><strong>要求仕様:</strong></p>
             <ul>
                 <li>Inject ノードでトリガー</li>
                 <li>HTTP Request ノードでGETリクエスト</li>
-                <li>URL: <code>https://worldtimeapi.org/api/timezone/America/New_York</code></li>
+                <li>URL: <code>https://timeapi.io/api/Time/current/zone?timeZone=America/New_York</code></li>
                 <li>レスポンスをJSONオブジェクトとして受信</li>
             </ul>
 
             <p><strong>成功の条件:</strong></p>
             <ul>
                 <li>Inject ボタンを押すとデバッグパネルに外部APIのレスポンスが表示される</li>
-                <li>デバッグパネルに <code>datetime</code> フィールドを含むJavaScriptオブジェクトが表示される</li>
+                <li>デバッグパネルに <code>dateTime</code> フィールドを含むJavaScriptオブジェクトが表示される</li>
                 <li>ノードステータスにニューヨークの現在日時が表示される</li>
             </ul>
 
@@ -980,8 +980,8 @@ return msg;</div>
                 <div class="flow-json">[
     {"id": "ex2_tab", "type": "tab", "label": "演習2"},
     {"id": "ex2_inject", "type": "inject", "z": "ex2_tab", "name": "NY時刻取得", "props": [], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "x": 150, "y": 100, "wires": [["ex2_http"]]},
-    {"id": "ex2_http", "type": "http request", "z": "ex2_tab", "name": "World Time API", "method": "GET", "ret": "obj", "paytoqs": "ignore", "url": "https://worldtimeapi.org/api/timezone/America/New_York", "tls": "", "persist": false, "proxy": "", "insecureHTTPParser": false, "authType": "", "senderr": false, "headers": [], "x": 360, "y": 100, "wires": [["ex2_debug"]]},
-    {"id": "ex2_debug", "type": "debug", "z": "ex2_tab", "name": "NY時刻", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "payload.datetime", "statusType": "msg", "x": 550, "y": 100, "wires": []}
+    {"id": "ex2_http", "type": "http request", "z": "ex2_tab", "name": "timeapi.io", "method": "GET", "ret": "obj", "paytoqs": "ignore", "url": "https://timeapi.io/api/Time/current/zone?timeZone=America/New_York", "tls": "", "persist": false, "proxy": "", "insecureHTTPParser": false, "authType": "", "senderr": false, "headers": [], "x": 360, "y": 100, "wires": [["ex2_debug"]]},
+    {"id": "ex2_debug", "type": "debug", "z": "ex2_tab", "name": "NY時刻", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "payload.dateTime", "statusType": "msg", "x": 550, "y": 100, "wires": []}
 ]</div>
             </details>
         </div>
@@ -1212,7 +1212,6 @@ return msg;</div>
         <div class="tip">
             <p><strong>代替APIリスト（サンプルAPIが使えない場合）:</strong></p>
             <ul>
-                <li><strong>時刻取得:</strong> <code>https://timeapi.io/api/Time/current/zone?timeZone=Asia/Tokyo</code></li>
                 <li><strong>HTTPテスト:</strong> <code>https://postman-echo.com/get</code>, <code>/post</code></li>
                 <li><strong>天気（認証不要）:</strong> <code>https://api.open-meteo.com/v1/forecast?latitude=35.68&longitude=139.76&current_weather=true</code></li>
             </ul>
