@@ -90,6 +90,17 @@
 
         <p>Node-RED には HTTP通信に関連する3つのノードが用意されています。これらを組み合わせることで、WebサーバーやAPIクライアントの機能を実装できます。</p>
 
+        <div class="tip">
+            <p><strong>💡 そもそも「API」とは？</strong></p>
+            <p>API（Application Programming Interface）とは、プログラム同士がデータをやり取りするための「窓口」です。レストランに例えると分かりやすくなります。</p>
+            <ul>
+                <li>あなた（<strong>クライアント</strong>）が、お店（<strong>サーバー</strong>）の店員（<strong>API</strong>）に注文（<strong>リクエスト</strong>）を伝える</li>
+                <li>店員が注文を受け取り、厨房で処理して料理を用意する</li>
+                <li>できあがった料理（<strong>レスポンス</strong>）があなたのもとに届く</li>
+            </ul>
+            <p>このガイドで扱う<strong>HTTP</strong>は、この「注文のやり取り」に使われる共通のルール（プロトコル）です。「APIを呼び出す」とは、決まった形式でリクエストを送り、レスポンスを受け取ることを指します。</p>
+        </div>
+
         <div class="node-compare">
             <div class="node-card">
                 <h4>HTTP In</h4>
@@ -1025,7 +1036,8 @@ return msg;</div>
 
         <div class="exercise">
             <h3>演習4: CRUD APIの作成 <span class="difficulty difficulty-hard">上級</span></h3>
-            <p><strong>課題:</strong> メモを管理するシンプルなREST APIを作成してください。</p>
+            <p><strong>💡 CRUDとは:</strong> データ操作の基本4種類 <strong>C</strong>reate（作成）・<strong>R</strong>ead（読み取り）・<strong>U</strong>pdate（更新）・<strong>D</strong>elete（削除）の頭文字です。この演習では、それぞれをHTTPメソッドの POST（作成）・GET（読み取り）・DELETE（削除）に対応させます。</p>
+            <p><strong>課題:</strong> メモを管理するシンプルなREST API（GET/POST/DELETEなどのHTTPメソッドで操作する、一般的なWeb APIの設計スタイル）を作成してください。</p>
 
             <p><strong>要求仕様:</strong></p>
             <ul>
@@ -1149,6 +1161,7 @@ return msg;</div>
         </table>
 
         <h3>CORSヘッダーの追加方法</h3>
+        <p><strong>💡 CORSとは:</strong> Cross-Origin Resource Sharing（クロスオリジン・リソース・シェアリング）の略です。ブラウザには「今見ているWebページと違うドメイン（オリジン）のAPIには、無断でJavaScriptからアクセスさせない」というセキュリティの仕組みがあります。これを<strong>クロスオリジン制限</strong>と呼び、制限に引っかかって通信がブロックされることを<strong>CORSエラー</strong>と呼びます。サーバー側（Node-RED）が「このオリジンからのアクセスは許可します」という許可証にあたるレスポンスヘッダーを付けて返すことで、ブラウザは通信を許可するようになります。</p>
         <div class="code-block">// Functionノードで設定
 msg.headers = {
     "Content-Type": "application/json",
