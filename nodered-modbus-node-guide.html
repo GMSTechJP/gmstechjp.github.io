@@ -170,8 +170,8 @@ npm install node-red-contrib-modbus</div>
 
         <table>
             <tr><th>データ種別</th><th>単位</th><th>読み書き</th><th>イメージ</th><th>用途例</th></tr>
-            <tr><td><strong>Coil（コイル）</strong></td><td>1 ビット</td><td>読み書き可</td><td>ON/OFF の出力スイッチ</td><td>リレー、ランプ、起動/停止</td></tr>
-            <tr><td><strong>Discrete Input（離散入力）</strong></td><td>1 ビット</td><td>読み取り専用</td><td>ON/OFF の入力接点</td><td>押しボタン、リミットスイッチ</td></tr>
+            <tr><td><strong>Coil（コイル）</strong></td><td>1 ビット</td><td>読み書き可</td><td>ON/OFF の出力スイッチ</td><td>リレー（電気信号でON/OFFを切り替える部品）、ランプ、起動/停止</td></tr>
+            <tr><td><strong>Discrete Input（離散入力）</strong></td><td>1 ビット</td><td>読み取り専用</td><td>ON/OFF の入力接点</td><td>押しボタン、リミットスイッチ（物が来たことを検知するスイッチ）</td></tr>
             <tr><td><strong>Input Register（入力レジスタ）</strong></td><td>16 ビット</td><td>読み取り専用</td><td>測定された数値</td><td>温度、電流などのセンサー値</td></tr>
             <tr><td><strong>Holding Register（保持レジスタ）</strong></td><td>16 ビット</td><td>読み書き可</td><td>設定できる数値</td><td>目標温度、回転数の設定値</td></tr>
         </table>
@@ -379,14 +379,14 @@ return msg;</div>
             <span class="arrow">→</span>
             <span class="node node-debug">debug</span>
         </div>
-        <p>Dashboard のボタンやスイッチで <code>msg.payload = true</code> を送り、Modbus-Write（FC5）で Coil を ON/OFF。装置の起動・停止やリレー制御に。</p>
+        <p>Dashboard のボタンやスイッチで <code>msg.payload = true</code> を送り、Modbus-Write（FC5）で Coil を ON/OFF。装置の起動・停止やリレー（電気信号でON/OFFを切り替える部品）制御に。</p>
 
         <h3>パターン3: 状態を要求時に確認（Getter）</h3>
         <p>「画面を開いたときだけ現在値を取りたい」「他の処理の途中で 1 回だけ読みたい」場合は、Modbus-Read（常時ポーリング）ではなく <strong>Modbus-Getter</strong> をトリガ起動で使います。通信量を抑えられます。</p>
 
         <div class="tip">
             <strong>💡 読み取った値はどこに入る？</strong><br>
-            読取系ノードの <strong>出力 1</strong> の <code>msg.payload</code> に、読み取った値の配列（PDU）が入ります。あわせて <code>msg.responseBuffer</code>（生のバイト列）や元の入力 msg も付きます。<strong>出力 2</strong> は同じ情報を順序違いで返すので、まずは<strong>出力 1 だけ</strong>を使えば十分です。
+            読取系ノードの <strong>出力 1</strong> の <code>msg.payload</code> に、読み取った値の配列（PDU＝Protocol Data Unit、実際のデータ部分）が入ります。あわせて <code>msg.responseBuffer</code>（生のバイト列）や元の入力 msg も付きます。<strong>出力 2</strong> は同じ情報を順序違いで返すので、まずは<strong>出力 1 だけ</strong>を使えば十分です。
         </div>
 
         <h2 id="section7">7. サンプルフローとシミュレータの準備</h2>
@@ -810,7 +810,7 @@ diagslave -m tcp -p 10502</div>
         <ul>
             <li><strong>範囲：</strong>有効値は <code>1〜247</code>（248〜255 は予約）。<code>0</code> は<strong>ブロードキャスト</strong>（全スレーブ宛て）として扱われる</li>
             <li><strong>マスター側にはアドレスが不要</strong>（送信元として暗黙）</li>
-            <li><strong>Modbus TCP では本来不要</strong>（IP アドレスで宛先を識別できるため）ですが、Modbus シリアルを TCP にブリッジするゲートウェイ越しに「シリアル先のどの機器か」を伝える目的で残されています</li>
+            <li><strong>Modbus TCP では本来不要</strong>（IP アドレスで宛先を識別できるため）ですが、Modbus シリアルを TCP にブリッジするゲートウェイ（RTU⇔TCP変換装置）越しに「シリアル先のどの機器か」を伝える目的で残されています</li>
             <li>1 対 1 接続のときは <code>1</code> でほぼ問題ありません</li>
         </ul>
 

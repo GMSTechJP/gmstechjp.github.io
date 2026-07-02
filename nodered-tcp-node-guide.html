@@ -87,7 +87,7 @@
         
         <h2 id="section1">📖 1. 概要</h2>
         
-        <p>TCP ノードは、<strong>低レベルのTCP/IPソケット通信</strong>を行うためのノードです。HTTPやMQTTなどの高レベルプロトコルを使わず、直接TCPで通信したい場合に使用します。</p>
+        <p>TCP ノードは、<strong>低レベルのTCP/IP<a href="nodered-network-basics-guide.html#glossary">ソケット</a>通信</strong>を行うためのノードです。HTTPやMQTTなどの高レベルプロトコルを使わず、直接TCPで通信したい場合に使用します。</p>
         
         <p>📞 <strong>電話に例えると</strong>：TCPは「糸電話」のようなものです。相手と1対1で線をつなぎ、その線を通じてデータを送り合います。HTTPやMQTTはこの「糸電話」の上に決まった会話ルール（プロトコル）を載せたものです。</p>
         
@@ -144,7 +144,9 @@
             <tr><td><strong>トピック</strong></td><td>出力する msg に設定する msg.topic の値。</td><td>（空）</td></tr>
             <tr><td><strong>名前</strong></td><td>エディター上のノード表示名。</td><td>（空）</td></tr>
         </table>
-        
+
+        <p><strong>バイナリバッファ（Buffer）</strong>とは、文字列ではなく生のバイト列（0と1の羅列）そのものを保持するデータ形式です。画像やファイルなど、テキストとして解釈すべきでないデータを扱うときに使います。</p>
+
         <h3>受信時の msg プロパティ</h3>
         <table>
             <tr><th>プロパティ</th><th>説明</th></tr>
@@ -838,7 +840,7 @@ return msg;</div>
             <p><strong>⚠️ 注意事項:</strong></p>
             <ul>
                 <li><strong>ポート番号</strong>: 1024以上を使用（1023以下はroot権限が必要）</li>
-                <li><strong>ファイアウォール</strong>: 必要なポートを開放</li>
+                <li><strong>ファイアウォール</strong>（ネットワークの通行を制限するセキュリティ機能。ルーターやOSの設定を確認）: 必要なポートを開放</li>
                 <li><strong>データ区切り</strong>: TCPはストリームなので、アプリケーション側でデータ境界を管理</li>
                 <li><strong>接続管理</strong>: 切断時の処理を考慮</li>
             </ul>
@@ -902,7 +904,7 @@ return msg;</div>
         <p>形式（後のドロップダウン）は「バイナリバッファ」「文字列」「Base64文字列」から選びます。「ストリーム」かつ「文字列」のときだけ「区切り文字」欄が現れ、改行（<code>\n</code>）などで msg を区切れます。</p>
 
         <h3 id="term-segment">📦 セグメント（segment）</h3>
-        <p>TCP がネットワーク上で運ぶ <strong>1 回分のデータ単位</strong>。アプリが <code>send()</code> したバイト列は、TCP 層で <strong>セグメント</strong>（多くは MTU - ヘッダ分のサイズ）に切り分けられ、受信側で組み立て直されます。</p>
+        <p>TCP がネットワーク上で運ぶ <strong>1 回分のデータ単位</strong>。アプリが <code>send()</code> したバイト列は、TCP 層で <strong>セグメント</strong>（多くは MTU（1 回で送れるデータの最大サイズ）から ヘッダ（宛先などの制御情報が書かれた先頭部分）を差し引いたサイズ）に切り分けられ、受信側で組み立て直されます。</p>
         <ul>
             <li>セグメントの大きさは <strong>MSS（Maximum Segment Size）</strong>で決まる（Ethernet では通常 1460 バイト）</li>
             <li>1 つでも欠ければ、TCP が<strong>自動再送</strong>して順番どおりに組み立てるため、アプリ側は意識しなくてよい</li>
