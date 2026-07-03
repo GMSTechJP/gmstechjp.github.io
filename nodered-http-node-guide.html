@@ -849,9 +849,17 @@ return msg;</div>
             <ul>
                 <li><strong>HTTP Request ノード（追加ツール不要）:</strong> 上のサンプルフローの「セルフテスト」部分のように、Node-RED内にInject→HTTP Requestノードを置いて自分のAPIを呼び出します。新しいツールを覚える必要がなく、GET以外のメソッドも試せます。</li>
                 <li><strong>ブラウザ:</strong> GETリクエストのみですが、アドレスバーにURL（例: <code>http://[Node-REDのホスト]/api/hello</code>）を入力するだけで確認できます。POST/PUT/DELETEはブラウザから直接送信できません。</li>
-                <li><strong>curl（任意・コマンドライン操作に慣れている場合）:</strong> ターミナル/コマンドプロンプトからHTTPリクエストを送れるコマンドラインツールです。多くのOSに標準搭載されています。例: <code>curl http://[Node-REDのホスト]/api/hello</code><br>Basic認証が必要なAPIには <code>-u</code> オプションでユーザー名とパスワードを渡せます。例: <code>curl -u ユーザー名:パスワード http://[Node-REDのホスト]/api/hello</code></li>
+                <li><strong>curl（任意・コマンドライン操作に慣れている場合）:</strong> ターミナル/コマンドプロンプトからHTTPリクエストを送れるコマンドラインツールです。多くのOSに標準搭載されています。例: <code>curl http://[Node-REDのホスト]/api/hello</code>（オプションを付けない場合は常にGETリクエストになります。POST/DELETE等を送るには下記のオプション早見表を参照）。</li>
                 <li><strong>Postman（任意・GUIで操作したい場合）:</strong> 無料でダウンロードできる、画面操作でHTTPリクエストを組み立てて送信できる専用アプリです。POSTのボディ入力なども視覚的に行えます。</li>
             </ul>
+            <p id="curl-cheatsheet"><strong>💡 よく使うcurlオプション早見表:</strong></p>
+            <table>
+                <tr><th>オプション</th><th>意味</th><th>例</th></tr>
+                <tr><td><code>-X</code></td><td>HTTPメソッドを指定（省略時は常にGET）</td><td><code>-X POST</code> / <code>-X DELETE</code></td></tr>
+                <tr><td><code>-H</code></td><td>リクエストヘッダーを指定</td><td><code>-H "Content-Type: application/json"</code></td></tr>
+                <tr><td><code>-d</code></td><td>送信するデータ（ボディ）を指定</td><td><code>-d '{"text":"hello"}'</code></td></tr>
+                <tr><td><code>-u</code></td><td>Basic認証のユーザー名とパスワード</td><td><code>-u ユーザー名:パスワード</code></td></tr>
+            </table>
         </div>
 
         <h3>パターン1: シンプルなGET API</h3>
@@ -873,7 +881,7 @@ return msg;</div>
             <span class="node node-http-response">Response</span>
         </div>
         <p><strong>用途:</strong> センサーデータの受信、フォーム送信の処理</p>
-        <p><strong>💡 テスト方法（重要）:</strong> このパターンはPOST専用のため、ブラウザでURLを開いたり <code>curl URL</code> だけを実行したりすると<strong>GETリクエストになってしまい</strong>、「Cannot GET /api/data」のようなエラーになります。<code>-X POST</code> でメソッドを指定し、<code>-H</code> でヘッダー、<code>-d</code> で送信データを指定してください。</p>
+        <p><strong>💡 テスト方法（重要）:</strong> このパターンはPOST専用のため、ブラウザでURLを開いたり <code>curl URL</code> だけを実行したりすると<strong>GETリクエストになってしまい</strong>、「Cannot GET /api/data」のようなエラーになります。<code>-X POST</code> でメソッドを指定してください（オプションの詳細は<a href="#curl-cheatsheet">curlオプション早見表</a>参照）。</p>
         <div class="code-block">curl -X POST -H "Content-Type: application/json" -d '{"text":"テストデータ"}' http://[Node-REDのホスト]/api/data</div>
 
         <h3>パターン3: 外部API呼び出し</h3>
@@ -1055,7 +1063,7 @@ return msg;</div>
             <ul>
                 <li><code>curl -X POST -H "Content-Type: application/json" -d '{"text":"テストメモ"}' http://localhost:1880/api/notes</code> でメモが作成されHTTPステータス201が返ってくる</li>
                 <li><code>curl http://localhost:1880/api/notes</code> で作成済みのメモ一覧が返ってくる</li>
-                <li>取得したメモIDを使って <code>curl -X DELETE http://localhost:1880/api/notes/取得したID</code>（<code>-X DELETE</code> の指定が必須。省略するとGETになってしまう）を実行するとメモが削除され、その後の一覧に含まれない</li>
+                <li>取得したメモIDを使って <code>curl -X DELETE http://localhost:1880/api/notes/取得したID</code> を実行するとメモが削除され、その後の一覧に含まれない（<code>-X DELETE</code> の指定が必須。省略するとGETになる点は<a href="#curl-cheatsheet">curlオプション早見表</a>参照）</li>
                 <li>存在しないIDへの <code>curl http://localhost:1880/api/notes/999</code>（GET）や <code>curl -X DELETE http://localhost:1880/api/notes/999</code>（DELETE）で HTTPステータス404が返ってくる</li>
             </ul>
 
