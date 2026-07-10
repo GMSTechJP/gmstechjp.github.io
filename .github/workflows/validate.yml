@@ -1,0 +1,27 @@
+name: サンプルフロー JSON を検証
+
+# デプロイ前ゲート（deploy.yml）だけでは main へマージした後にしか止まらない。
+# PR の時点で壊れたフローを弾くため、pull_request でも同じ検証を走らせる。
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: チェックアウト
+        uses: actions/checkout@v4
+
+      - name: Python セットアップ
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: サンプルフロー JSON を検証
+        run: python3 scripts/validate-flow-json.py

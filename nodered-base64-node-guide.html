@@ -613,7 +613,7 @@ return null;</div>
         "type": "function",
         "z": "base64_tab_1",
         "name": "Data URI HTML生成",
-        "func": "var ext = (msg.filename || '').split('.').pop().toLowerCase();\nvar mimeMap = { 'png': 'image/png', 'jpg': 'image/jpeg', 'jpeg': 'image/jpeg', 'gif': 'image/gif' };\nvar mime = mimeMap[ext] || 'image/png';\n\nvar dataUri = 'data:' + mime + ';base64,' + msg.payload;\nmsg.payload = '<html><body><h2>Base64埋め込み画像</h2><img src=\"' + dataUri + '\" style=\"max-width:400px\"></body></html>';\nreturn msg;",
+        "func": "var ext = (msg.filename || '').split('.').pop().toLowerCase();\nvar mimeMap = { 'png': 'image/png', 'jpg': 'image/jpeg', 'jpeg': 'image/jpeg', 'gif': 'image/gif' };\nvar mime = mimeMap[ext] || 'image/png';\n\nvar dataUri = 'data:' + mime + ';base64,' + msg.payload;\nmsg.payload = '&lt;html>&lt;body>&lt;h2>Base64埋め込み画像&lt;/h2>&lt;img src=\"' + dataUri + '\" style=\"max-width:400px\">&lt;/body>&lt;/html>';\nreturn msg;",
         "wires": [
             [
                 "b64_ex2_debug"
@@ -846,7 +846,10 @@ return null;</div>
                 button.className = 'copy-button';
                 button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
                 button.addEventListener('click', function() {
-                    var code = block.textContent.replace(/コピー(しました!)?$/, '').trim();
+                    // 要素ノード（コピーボタン）を除き、直下のテキストだけを取り出す
+                    var code = Array.prototype.filter.call(block.childNodes, function(n) {
+                        return n.nodeType === Node.TEXT_NODE;
+                    }).map(function(n) { return n.textContent; }).join('').trim();
                     navigator.clipboard.writeText(code).then(function() {
                         button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>コピーしました!';
                         button.classList.add('copied');

@@ -1801,7 +1801,10 @@ Debug (コンソール): 全データをログファイルに記録
                 // クリックイベントを追加
                 button.addEventListener('click', function() {
                     // コードブロックのテキストを取得（ボタンテキストを除外）
-                    var code = block.textContent.replace(/コピー(しました!)?$/, '').trim();
+                    // 要素ノード（コピーボタン）を除き、直下のテキストだけを取り出す
+                    var code = Array.prototype.filter.call(block.childNodes, function(n) {
+                        return n.nodeType === Node.TEXT_NODE;
+                    }).map(function(n) { return n.textContent; }).join('').trim();
                     
                     // 改行を適切に処理（Node-REDにペースト時に見やすくする）
                     if (block.classList.contains('js-code')) {

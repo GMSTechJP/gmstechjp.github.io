@@ -1414,7 +1414,10 @@ msg.payload を次の値に設定:
     <script>
         function copyCode(button) {
             const codeBlock = button.parentElement;
-            const code = codeBlock.textContent.replace('Copy', '').trim();
+            // 要素ノード（コピーボタン）を除き、直下のテキストだけを取り出す
+            const code = Array.prototype.filter.call(codeBlock.childNodes, function(n) {
+                return n.nodeType === Node.TEXT_NODE;
+            }).map(function(n) { return n.textContent; }).join('').trim();
 
             navigator.clipboard.writeText(code).then(function() {
                 button.classList.add('copied');

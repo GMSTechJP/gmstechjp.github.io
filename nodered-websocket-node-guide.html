@@ -950,7 +950,10 @@ return msg;</div>
     <script>
         document.querySelectorAll('.flow-json').forEach(function(block) {
             // ボタンを追加する前にJSONテキストを保存
-            var jsonText = block.textContent;
+            // 要素ノード（コピーボタン）を除き、直下のテキストだけを取り出す
+            var jsonText = Array.prototype.filter.call(block.childNodes, function(n) {
+                return n.nodeType === Node.TEXT_NODE;
+            }).map(function(n) { return n.textContent; }).join('').trim();
 
             var btn = document.createElement('button');
             btn.className = 'copy-btn';
