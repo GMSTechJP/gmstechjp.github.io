@@ -920,7 +920,10 @@ Slack/メールで通知</div>
                 button.className = 'copy-button';
                 button.textContent = 'コピー';
                 button.addEventListener('click', function() {
-                    var code = block.textContent.replace(/コピー(しました!)?$/, '').trim();
+                    // 要素ノード（コピーボタン）を除き、直下のテキストだけを取り出す
+                    var code = Array.prototype.filter.call(block.childNodes, function(n) {
+                        return n.nodeType === Node.TEXT_NODE;
+                    }).map(function(n) { return n.textContent; }).join('').trim();
                     navigator.clipboard.writeText(code).then(function() {
                         button.textContent = 'コピーしました!';
                         button.classList.add('copied');
