@@ -137,19 +137,23 @@ curl https://raw.githubusercontent.com/node-red/node-red/master/packages/node_mo
 
 **必須要件**:
 - [ ] JSON構文が有効（`JSON.parse()` でエラーなし）
+- [ ] **`<` を含む値はすべて `&lt;` にエスケープ**（後述の「フローJSONに生のタグを書かない」を参照）
 - [ ] `defaults` の全プロパティを網羅（アクティブ + エディタ非表示）
 - [ ] Config Nodeのプロパティも完全
 - [ ] tabノードを含む
 - [ ] 各ノードに `z` プロパティを含む
 - [ ] 複数出力ノードは `outputs` と `wires` のサイズが一致
+- [ ] `python3 scripts/validate-flow-json.py` が通る
 
 **フォーマット**:
+
+`<div class="flow-json">` の直下に JSON テキストのみを置く。`<textarea>` や `<pre>` で
+包まない。コピーボタンは JavaScript が実行時に追加するため、HTMLに直接書かない。
+
 ```html
 <details>
     <summary>📋 サンプルフロー（クリックで展開）</summary>
-    <div class="flow-json">
-        <textarea readonly>
-[
+    <div class="flow-json">[
     {
         "id": "tab_id",
         "type": "tab",
@@ -160,15 +164,42 @@ curl https://raw.githubusercontent.com/node-red/node-red/master/packages/node_mo
     },
     {
         "id": "node_id",
-        "type": "inject",
+        "type": "template",
         "z": "tab_id",
-        "name": "example",
-        // ... 全プロパティ
+        "template": "&lt;h1&gt;Hello&lt;/h1&gt;"
     }
-]
-        </textarea>
-    </div>
+]</div>
 </details>
+```
+
+##### フローJSONに生のタグを書かない（必須）
+
+`template` や `function` の値にHTMLやXMLを含めるときは、`<` を必ず `&lt;` と書く。
+
+`div` は `textarea` と違い、中身がHTMLとして解釈される。生のタグを書くと、ブラウザは
+それをDOMの要素に変換してしまう。コピーボタンは `textContent` を読むため、**利用者の
+手元にはタグが消えた文字列が届く**。しかも破損後もJSONとしては valid なので、
+`JSON.parse()` による検証も、Node-REDへのインポートも成功してしまう。
+
+```html
+<!-- ❌ NG: コピーすると <!DOCTYPE html> 等が消える -->
+"template": "<!DOCTYPE html>\n<html>\n<body>Hello</body>\n</html>"
+
+<!-- ✅ OK: コピー時に textContent が元の文字列へ復元される -->
+"template": "&lt;!DOCTYPE html&gt;\n&lt;html&gt;\n&lt;body&gt;Hello&lt;/body&gt;\n&lt;/html&gt;"
+```
+
+同じ理由で、`&` は `&amp;` と書く。
+
+##### ノードの実行順に注意する（必須）
+
+`template` ノードの mustache（`{{foo}}`）が展開されるのは、そのノードが実行された
+時点である。値をセットする `change` ノードは、必ず `template` より**前**に置く。
+順序を逆にすると、その項目は空欄のまま出力される。
+
+```text
+✅ http in → change（値をセット） → template（描画） → http response
+❌ http in → template（描画） → change（値をセット） → http response
 ```
 
 #### 7. 演習問題の作成
@@ -251,20 +282,27 @@ curl https://raw.githubusercontent.com/node-red/node-red/master/packages/node_mo
 
 **必須検証**:
 ```bash
-# すべてのHTMLファイルのJSONブロックを検証
-for file in nodered-*-guide.html; do
-    python3 -c "import json, sys; json.loads(sys.stdin.read())" < \
-        <(grep -Pzo '(?<=<textarea[^>]*>).*?(?=</textarea>)' "$file")
-    if [ $? -eq 0 ]; then
-        echo "✅ $file: Valid JSON"
-    else
-        echo "❌ $file: Invalid JSON"
-    fi
-done
+# 全ファイル。CI（.github/workflows/deploy.yml）でも同じものが走る
+python3 scripts/validate-flow-json.py
+
+# ファイルを絞る場合
+python3 scripts/validate-flow-json.py nodered-http-node-guide.html
 ```
 
+**検証していること**:
+
+このスクリプトは「ソースに書いたJSON」ではなく、**利用者がコピーボタンで受け取るJSON**を
+検査する。具体的には、ブラウザの `textContent` を再現した文字列とソースを突き合わせ、
+両者が一致するかを見る。
+
+なぜパース成功だけでは足りないのか。生のタグを書いてしまうと、コピーされる文字列からは
+タグだけが消える。残った文字列は**JSONとしては valid** なので、`JSON.parse()` も
+Node-REDへのインポートも通ってしまう。壊れているのは `template` 等の値の中身だけであり、
+それはJSON構文検査では原理的に検出できない。
+
 **合格基準**:
-- すべてのJSONブロックがエラーなくパース可能
+
+- `python3 scripts/validate-flow-json.py` が終了コード 0 を返す
 - インデントが適切（読みやすさ）
 - 文字列内の改行は `\n` でエスケープ
 
@@ -485,6 +523,26 @@ grep -A 20 '"type": "ui-base"' nodered-dashboard2-widgets-display.html
 <email>user[at]example.com</email>
 ```
 
+#### 問題5: コピーしたフローからHTMLタグが消える
+
+**症状**: サイトのコピーボタンで取得したフローをNode-REDに読み込むと、`template` ノードの
+HTMLからタグだけが消え、CSSや文字列がそのまま画面に表示される。
+
+**原因**: `<div class="flow-json">` に生のタグを書いている。`div` の中身はHTMLとして
+解釈されるため、ブラウザがタグをDOM要素に変換してしまう。コピーボタンは `textContent` を
+読むので、利用者にはタグの抜けた文字列が渡る。
+
+**紛らわしい点**: 破損してもJSONとしては valid なままなので、`JSON.parse()` による検証も
+Node-REDへのインポートも成功する。ソースを目視しても正しく見える。**チャットやツール経由の
+コピペでサニタイズされたわけではない**。
+
+**解決方法**: フローJSON内の `<` を `&lt;` に、`&` を `&amp;` にエスケープする。
+`python3 scripts/validate-flow-json.py` で検出できる。
+
+**切り分け**: `curl -i http://<host>:1880/page` でレスポンス本文とヘッダーを直接見る。
+`<h1>` などのタグが返ってくればテンプレートは正常で、原因は `Content-Type` 側にある。
+ブラウザのレンダリング結果だけでは、タグが無いのかContent-Typeが違うのか区別できない。
+
 ---
 
 ## メンテナンス
@@ -561,12 +619,7 @@ curl https://api.github.com/repos/FlowFuse/node-red-dashboard/releases/latest
 
 **JSON検証（一括）**:
 ```bash
-#!/bin/bash
-for file in nodered-*-guide.html; do
-    echo "Validating $file..."
-    python3 -c "import json, sys; json.loads(sys.stdin.read())" < \
-        <(grep -Pzo '(?<=<textarea[^>]*>).*?(?=</textarea>)' "$file") 2>&1
-done
+python3 scripts/validate-flow-json.py
 ```
 
 **プロパティ表の抽出**:
