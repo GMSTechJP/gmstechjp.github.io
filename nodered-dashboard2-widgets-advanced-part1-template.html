@@ -275,21 +275,6 @@
             background-color: #f9f9f9;
         }
         
-        textarea.flow-json {
-            width: 100%;
-            height: 400px;
-            background-color: #263238;
-            color: #aed581;
-            padding: 15px;
-            padding-top: 45px;
-            border-radius: 5px;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            border: none;
-            resize: vertical;
-            position: relative;
-        }
-        
         .flow-json {
             background-color: #263238;
             color: #aed581;
@@ -302,6 +287,7 @@
             max-height: 400px;
             overflow-y: auto;
             position: relative;
+            white-space: pre;
         }
         
         details {
@@ -526,7 +512,7 @@
         <details>
             <summary>📋 template サンプルフロー（クリックで展開）</summary>
             <p style="margin: 10px 0; color: #666;"><small>参照元：FlowFuse Dashboard 2.0 公式ドキュメント</small></p>
-            <textarea class="flow-json" readonly>[
+            <div class="flow-json">[
   {
     "id": "template_sample_tab",
     "type": "tab",
@@ -555,7 +541,7 @@
     "order": 1,
     "width": 0,
     "height": 0,
-    "format": "&lt;template&gt;\n    &lt;div class=\"counter-widget\"&gt;\n        &lt;h3&gt;カウンター&lt;/h3&gt;\n        &lt;div class=\"count-display\"&gt;{{ count }}&lt;/div&gt;\n        &lt;div class=\"button-group\"&gt;\n            &lt;v-btn color=\"error\" @click=\"decrement\"&gt;-&lt;/v-btn&gt;\n            &lt;v-btn color=\"primary\" @click=\"increment\"&gt;+&lt;/v-btn&gt;\n            &lt;v-btn color=\"secondary\" @click=\"reset\"&gt;リセット&lt;/v-btn&gt;\n        &lt;/div&gt;\n        &lt;p class=\"info\"&gt;合計: {{ formattedCount }}&lt;/p&gt;\n    &lt;/div&gt;\n&lt;/template&gt;\n\n&lt;script&gt;\nexport default {\n    data() {\n        return {\n            count: 0\n        };\n    },\n    computed: {\n        formattedCount() {\n            return this.count.toLocaleString() + ' 回';\n        }\n    },\n    methods: {\n        increment() {\n            this.count++;\n            this.sendCount();\n        },\n        decrement() {\n            if (this.count &gt; 0) this.count--;\n            this.sendCount();\n        },\n        reset() {\n            this.count = 0;\n            this.sendCount();\n        },\n        sendCount() {\n            this.send({ payload: this.count, topic: 'counter' });\n        }\n    },\n    watch: {\n        msg(newMsg) {\n            if (typeof newMsg.payload === 'number') {\n                this.count = newMsg.payload;\n            }\n        }\n    }\n}\n&lt;/script&gt;\n\n&lt;style scoped&gt;\n.counter-widget {\n    text-align: center;\n    padding: 20px;\n}\n.count-display {\n    font-size: 48px;\n    font-weight: bold;\n    color: #b92d5d;\n    margin: 20px 0;\n}\n.button-group {\n    display: flex;\n    gap: 10px;\n    justify-content: center;\n}\n.info {\n    margin-top: 15px;\n    color: #666;\n}\n&lt;/style&gt;",
+    "format": "&lt;template>\n    &lt;div class=\"counter-widget\">\n        &lt;h3>カウンター&lt;/h3>\n        &lt;div class=\"count-display\">{{ count }}&lt;/div>\n        &lt;div class=\"button-group\">\n            &lt;v-btn color=\"error\" @click=\"decrement\">-&lt;/v-btn>\n            &lt;v-btn color=\"primary\" @click=\"increment\">+&lt;/v-btn>\n            &lt;v-btn color=\"secondary\" @click=\"reset\">リセット&lt;/v-btn>\n        &lt;/div>\n        &lt;p class=\"info\">合計: {{ formattedCount }}&lt;/p>\n    &lt;/div>\n&lt;/template>\n\n&lt;script>\nexport default {\n    data() {\n        return {\n            count: 0\n        };\n    },\n    computed: {\n        formattedCount() {\n            return this.count.toLocaleString() + ' 回';\n        }\n    },\n    methods: {\n        increment() {\n            this.count++;\n            this.sendCount();\n        },\n        decrement() {\n            if (this.count > 0) this.count--;\n            this.sendCount();\n        },\n        reset() {\n            this.count = 0;\n            this.sendCount();\n        },\n        sendCount() {\n            this.send({ payload: this.count, topic: 'counter' });\n        }\n    },\n    watch: {\n        msg(newMsg) {\n            if (typeof newMsg.payload === 'number') {\n                this.count = newMsg.payload;\n            }\n        }\n    }\n}\n&lt;/script>\n\n&lt;style scoped>\n.counter-widget {\n    text-align: center;\n    padding: 20px;\n}\n.count-display {\n    font-size: 48px;\n    font-weight: bold;\n    color: #b92d5d;\n    margin: 20px 0;\n}\n.button-group {\n    display: flex;\n    gap: 10px;\n    justify-content: center;\n}\n.info {\n    margin-top: 15px;\n    color: #666;\n}\n&lt;/style>",
     "passthru": true,
     "templateScope": "local",
     "className": "",
@@ -630,7 +616,7 @@
     "order": 2,
     "width": 0,
     "height": 0,
-    "format": "&lt;template&gt;\n    &lt;v-card class=\"msg-card\"&gt;\n        &lt;v-card-title&gt;📨 受信メッセージ&lt;/v-card-title&gt;\n        &lt;v-card-text&gt;\n            &lt;div v-if=\"lastMsg\"&gt;\n                &lt;p&gt;&lt;strong&gt;Payload:&lt;/strong&gt; {{ lastMsg.payload }}&lt;/p&gt;\n                &lt;p&gt;&lt;strong&gt;Topic:&lt;/strong&gt; {{ lastMsg.topic || '(なし)' }}&lt;/p&gt;\n                &lt;p&gt;&lt;strong&gt;受信時刻:&lt;/strong&gt; {{ receivedTime }}&lt;/p&gt;\n            &lt;/div&gt;\n            &lt;div v-else class=\"no-msg\"&gt;\n                メッセージを待機中...\n            &lt;/div&gt;\n        &lt;/v-card-text&gt;\n    &lt;/v-card&gt;\n&lt;/template&gt;\n\n&lt;script&gt;\nexport default {\n    data() {\n        return {\n            lastMsg: null,\n            receivedTime: ''\n        };\n    },\n    watch: {\n        msg(newMsg) {\n            this.lastMsg = newMsg;\n            this.receivedTime = new Date().toLocaleTimeString('ja-JP');\n        }\n    }\n}\n&lt;/script&gt;\n\n&lt;style scoped&gt;\n.msg-card {\n    margin: 10px;\n}\n.no-msg {\n    color: #999;\n    font-style: italic;\n}\n&lt;/style&gt;",
+    "format": "&lt;template>\n    &lt;v-card class=\"msg-card\">\n        &lt;v-card-title>📨 受信メッセージ&lt;/v-card-title>\n        &lt;v-card-text>\n            &lt;div v-if=\"lastMsg\">\n                &lt;p>&lt;strong>Payload:&lt;/strong> {{ lastMsg.payload }}&lt;/p>\n                &lt;p>&lt;strong>Topic:&lt;/strong> {{ lastMsg.topic || '(なし)' }}&lt;/p>\n                &lt;p>&lt;strong>受信時刻:&lt;/strong> {{ receivedTime }}&lt;/p>\n            &lt;/div>\n            &lt;div v-else class=\"no-msg\">\n                メッセージを待機中...\n            &lt;/div>\n        &lt;/v-card-text>\n    &lt;/v-card>\n&lt;/template>\n\n&lt;script>\nexport default {\n    data() {\n        return {\n            lastMsg: null,\n            receivedTime: ''\n        };\n    },\n    watch: {\n        msg(newMsg) {\n            this.lastMsg = newMsg;\n            this.receivedTime = new Date().toLocaleTimeString('ja-JP');\n        }\n    }\n}\n&lt;/script>\n\n&lt;style scoped>\n.msg-card {\n    margin: 10px;\n}\n.no-msg {\n    color: #999;\n    font-style: italic;\n}\n&lt;/style>",
     "passthru": true,
     "templateScope": "local",
     "className": "",
@@ -719,7 +705,7 @@
     "order": 1,
     "width": 0,
     "height": 0,
-    "format": "&lt;template&gt;\n    &lt;v-card class=\"upload-card\"&gt;\n        &lt;v-card-title&gt;📁 ファイルアップロード&lt;/v-card-title&gt;\n        &lt;v-card-text&gt;\n            &lt;div&gt;\n                &lt;v-file-input\n                    v-model=\"selectedFile\"\n                    label=\"ファイルを選択\"\n                    prepend-icon=\"mdi-paperclip\"\n                    show-size\n                    @change=\"onFileSelect\"\n                /&gt;\n            &lt;/div&gt;\n            &lt;div v-if=\"uploading\" class=\"my-3\"&gt;\n                &lt;v-progress-linear\n                    :model-value=\"progress\"\n                    color=\"primary\"\n                    height=\"20\"\n                &gt;\n                    {{ progress }}%\n                &lt;/v-progress-linear&gt;\n            &lt;/div&gt;\n            &lt;div class=\"mt-3\"&gt;\n                &lt;v-btn\n                    color=\"primary\"\n                    :disabled=\"!selectedFile || uploading\"\n                    @click=\"uploadFile\"\n                    block\n                &gt;\n                    アップロード\n                &lt;/v-btn&gt;\n            &lt;/div&gt;\n        &lt;/v-card-text&gt;\n    &lt;/v-card&gt;\n&lt;/template&gt;\n\n&lt;script&gt;\nexport default {\n    data() {\n        return {\n            selectedFile: null,\n            uploading: false,\n            progress: 0\n        };\n    },\n    methods: {\n        onFileSelect(e) {\n            this.progress = 0;\n        },\n        uploadFile() {\n            if (!this.selectedFile) return;\n            \n            this.uploading = true;\n            const reader = new FileReader();\n            \n            reader.onprogress = (e) =&gt; {\n                if (e.lengthComputable) {\n                    this.progress = Math.round((e.loaded / e.total) * 100);\n                }\n            };\n            \n            reader.onload = (e) =&gt; {\n                this.send({\n                    payload: e.target.result,\n                    filename: this.selectedFile.name,\n                    size: this.selectedFile.size,\n                    type: this.selectedFile.type\n                });\n                this.uploading = false;\n                this.progress = 100;\n            };\n            \n            reader.readAsArrayBuffer(this.selectedFile);\n        }\n    }\n}\n&lt;/script&gt;\n\n&lt;style scoped&gt;\n.upload-card {\n    margin: 10px;\n}\n&lt;/style&gt;",
+    "format": "&lt;template>\n    &lt;v-card class=\"upload-card\">\n        &lt;v-card-title>📁 ファイルアップロード&lt;/v-card-title>\n        &lt;v-card-text>\n            &lt;div>\n                &lt;v-file-input\n                    v-model=\"selectedFile\"\n                    label=\"ファイルを選択\"\n                    prepend-icon=\"mdi-paperclip\"\n                    show-size\n                    @change=\"onFileSelect\"\n                />\n            &lt;/div>\n            &lt;div v-if=\"uploading\" class=\"my-3\">\n                &lt;v-progress-linear\n                    :model-value=\"progress\"\n                    color=\"primary\"\n                    height=\"20\"\n                >\n                    {{ progress }}%\n                &lt;/v-progress-linear>\n            &lt;/div>\n            &lt;div class=\"mt-3\">\n                &lt;v-btn\n                    color=\"primary\"\n                    :disabled=\"!selectedFile || uploading\"\n                    @click=\"uploadFile\"\n                    block\n                >\n                    アップロード\n                &lt;/v-btn>\n            &lt;/div>\n        &lt;/v-card-text>\n    &lt;/v-card>\n&lt;/template>\n\n&lt;script>\nexport default {\n    data() {\n        return {\n            selectedFile: null,\n            uploading: false,\n            progress: 0\n        };\n    },\n    methods: {\n        onFileSelect(e) {\n            this.progress = 0;\n        },\n        uploadFile() {\n            if (!this.selectedFile) return;\n            \n            this.uploading = true;\n            const reader = new FileReader();\n            \n            reader.onprogress = (e) => {\n                if (e.lengthComputable) {\n                    this.progress = Math.round((e.loaded / e.total) * 100);\n                }\n            };\n            \n            reader.onload = (e) => {\n                this.send({\n                    payload: e.target.result,\n                    filename: this.selectedFile.name,\n                    size: this.selectedFile.size,\n                    type: this.selectedFile.type\n                });\n                this.uploading = false;\n                this.progress = 100;\n            };\n            \n            reader.readAsArrayBuffer(this.selectedFile);\n        }\n    }\n}\n&lt;/script>\n\n&lt;style scoped>\n.upload-card {\n    margin: 10px;\n}\n&lt;/style>",
     "passthru": true,
     "templateScope": "local",
     "className": "",
@@ -769,7 +755,7 @@
     "order": 2,
     "width": 0,
     "height": 0,
-    "format": "&lt;template&gt;\n    &lt;div class=\"rating-widget\"&gt;\n        &lt;h3&gt;⭐ 評価してください&lt;/h3&gt;\n        &lt;v-rating\n            v-model=\"rating\"\n            color=\"amber\"\n            hover\n            length=\"5\"\n            size=\"x-large\"\n            @update:model-value=\"onRatingChange\"\n        /&gt;\n        &lt;p class=\"rating-text\"&gt;{{ ratingText }}&lt;/p&gt;\n    &lt;/div&gt;\n&lt;/template&gt;\n\n&lt;script&gt;\nexport default {\n    data() {\n        return {\n            rating: 0\n        };\n    },\n    computed: {\n        ratingText() {\n            const texts = ['未評価', '不満', 'やや不満', '普通', '満足', '大満足'];\n            return texts[this.rating] || '未評価';\n        }\n    },\n    methods: {\n        onRatingChange(value) {\n            this.send({ \n                payload: value, \n                topic: 'rating',\n                text: this.ratingText\n            });\n        }\n    },\n    watch: {\n        msg(newMsg) {\n            if (typeof newMsg.payload === 'number') {\n                this.rating = Math.min(5, Math.max(0, newMsg.payload));\n            }\n        }\n    }\n}\n&lt;/script&gt;\n\n&lt;style scoped&gt;\n.rating-widget {\n    text-align: center;\n    padding: 20px;\n}\n.rating-text {\n    margin-top: 10px;\n    font-size: 18px;\n    color: #666;\n}\n&lt;/style&gt;",
+    "format": "&lt;template>\n    &lt;div class=\"rating-widget\">\n        &lt;h3>⭐ 評価してください&lt;/h3>\n        &lt;v-rating\n            v-model=\"rating\"\n            color=\"amber\"\n            hover\n            length=\"5\"\n            size=\"x-large\"\n            @update:model-value=\"onRatingChange\"\n        />\n        &lt;p class=\"rating-text\">{{ ratingText }}&lt;/p>\n    &lt;/div>\n&lt;/template>\n\n&lt;script>\nexport default {\n    data() {\n        return {\n            rating: 0\n        };\n    },\n    computed: {\n        ratingText() {\n            const texts = ['未評価', '不満', 'やや不満', '普通', '満足', '大満足'];\n            return texts[this.rating] || '未評価';\n        }\n    },\n    methods: {\n        onRatingChange(value) {\n            this.send({ \n                payload: value, \n                topic: 'rating',\n                text: this.ratingText\n            });\n        }\n    },\n    watch: {\n        msg(newMsg) {\n            if (typeof newMsg.payload === 'number') {\n                this.rating = Math.min(5, Math.max(0, newMsg.payload));\n            }\n        }\n    }\n}\n&lt;/script>\n\n&lt;style scoped>\n.rating-widget {\n    text-align: center;\n    padding: 20px;\n}\n.rating-text {\n    margin-top: 10px;\n    font-size: 18px;\n    color: #666;\n}\n&lt;/style>",
     "passthru": true,
     "templateScope": "local",
     "className": "",
@@ -844,7 +830,7 @@
     "order": 3,
     "width": 6,
     "height": 6,
-    "format": "&lt;template&gt;\n    &lt;v-card class=\"chart-card\"&gt;\n        &lt;v-card-title&gt;📊 センサーデータ&lt;/v-card-title&gt;\n        &lt;v-card-text&gt;\n            &lt;div class=\"chart-wrapper\"&gt;\n                &lt;canvas ref=\"chartCanvas\"&gt;&lt;/canvas&gt;\n            &lt;/div&gt;\n        &lt;/v-card-text&gt;\n    &lt;/v-card&gt;\n&lt;/template&gt;\n\n&lt;script&gt;\nexport default {\n    data() {\n        return {\n            chart: null,\n            chartData: [12, 19, 8, 15, 12, 8, 14]\n        };\n    },\n    mounted() {\n        this.loadChartJS();\n    },\n    methods: {\n        loadChartJS() {\n            if (window.Chart) {\n                this.initChart();\n                return;\n            }\n            const script = document.createElement('script');\n            script.src = 'https://cdn.jsdelivr.net/npm/chart.js';\n            script.onload = () =&gt; {\n                this.initChart();\n            };\n            document.head.appendChild(script);\n        },\n        initChart() {\n            const ctx = this.$refs.chartCanvas;\n            if (!ctx) return;\n            \n            this.chart = new Chart(ctx, {\n                type: 'line',\n                data: {\n                    labels: ['月', '火', '水', '木', '金', '土', '日'],\n                    datasets: [{\n                        label: 'センサー値',\n                        data: this.chartData,\n                        borderColor: '#b92d5d',\n                        backgroundColor: 'rgba(185, 45, 93, 0.1)',\n                        fill: true,\n                        tension: 0.4\n                    }]\n                },\n                options: {\n                    responsive: true,\n                    maintainAspectRatio: false,\n                    plugins: {\n                        legend: { position: 'top' }\n                    },\n                    scales: {\n                        y: { beginAtZero: true }\n                    }\n                }\n            });\n        },\n        updateChart(newData) {\n            if (this.chart && Array.isArray(newData)) {\n                this.chart.data.datasets[0].data = newData;\n                this.chart.update();\n            }\n        }\n    },\n    watch: {\n        msg(newMsg) {\n            if (Array.isArray(newMsg.payload)) {\n                this.updateChart(newMsg.payload);\n            }\n        }\n    },\n    beforeUnmount() {\n        if (this.chart) {\n            this.chart.destroy();\n        }\n    }\n}\n&lt;/script&gt;\n\n&lt;style scoped&gt;\n.chart-card {\n    margin: 10px;\n}\n.chart-wrapper {\n    height: 280px;\n    position: relative;\n}\n&lt;/style&gt;",
+    "format": "&lt;template>\n    &lt;v-card class=\"chart-card\">\n        &lt;v-card-title>📊 センサーデータ&lt;/v-card-title>\n        &lt;v-card-text>\n            &lt;div class=\"chart-wrapper\">\n                &lt;canvas ref=\"chartCanvas\">&lt;/canvas>\n            &lt;/div>\n        &lt;/v-card-text>\n    &lt;/v-card>\n&lt;/template>\n\n&lt;script>\nexport default {\n    data() {\n        return {\n            chart: null,\n            chartData: [12, 19, 8, 15, 12, 8, 14]\n        };\n    },\n    mounted() {\n        this.loadChartJS();\n    },\n    methods: {\n        loadChartJS() {\n            if (window.Chart) {\n                this.initChart();\n                return;\n            }\n            const script = document.createElement('script');\n            script.src = 'https://cdn.jsdelivr.net/npm/chart.js';\n            script.onload = () => {\n                this.initChart();\n            };\n            document.head.appendChild(script);\n        },\n        initChart() {\n            const ctx = this.$refs.chartCanvas;\n            if (!ctx) return;\n            \n            this.chart = new Chart(ctx, {\n                type: 'line',\n                data: {\n                    labels: ['月', '火', '水', '木', '金', '土', '日'],\n                    datasets: [{\n                        label: 'センサー値',\n                        data: this.chartData,\n                        borderColor: '#b92d5d',\n                        backgroundColor: 'rgba(185, 45, 93, 0.1)',\n                        fill: true,\n                        tension: 0.4\n                    }]\n                },\n                options: {\n                    responsive: true,\n                    maintainAspectRatio: false,\n                    plugins: {\n                        legend: { position: 'top' }\n                    },\n                    scales: {\n                        y: { beginAtZero: true }\n                    }\n                }\n            });\n        },\n        updateChart(newData) {\n            if (this.chart &amp;&amp; Array.isArray(newData)) {\n                this.chart.data.datasets[0].data = newData;\n                this.chart.update();\n            }\n        }\n    },\n    watch: {\n        msg(newMsg) {\n            if (Array.isArray(newMsg.payload)) {\n                this.updateChart(newMsg.payload);\n            }\n        }\n    },\n    beforeUnmount() {\n        if (this.chart) {\n            this.chart.destroy();\n        }\n    }\n}\n&lt;/script>\n\n&lt;style scoped>\n.chart-card {\n    margin: 10px;\n}\n.chart-wrapper {\n    height: 280px;\n    position: relative;\n}\n&lt;/style>",
     "passthru": true,
     "templateScope": "local",
     "className": "",
@@ -917,7 +903,7 @@
     "order": 0,
     "width": 0,
     "height": 0,
-    "format": "&lt;style&gt;\n/* カスタムフォント */\n@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');\n\n/* サイト全体のスタイル */\nbody {\n    font-family: 'Noto Sans JP', sans-serif !important;\n}\n\n/* ナビゲーションバーのグラデーション */\n.v-toolbar {\n    background: linear-gradient(90deg, #b92d5d 0%, #c00000 100%) !important;\n}\n\n/* カード影の強化 */\n.v-card {\n    box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;\n}\n\n/* プライマリボタンのホバー効果 */\n.v-btn--variant-elevated:hover {\n    transform: translateY(-2px);\n    transition: transform 0.2s;\n}\n&lt;/style&gt;",
+    "format": "&lt;style>\n/* カスタムフォント */\n@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&amp;display=swap');\n\n/* サイト全体のスタイル */\nbody {\n    font-family: 'Noto Sans JP', sans-serif !important;\n}\n\n/* ナビゲーションバーのグラデーション */\n.v-toolbar {\n    background: linear-gradient(90deg, #b92d5d 0%, #c00000 100%) !important;\n}\n\n/* カード影の強化 */\n.v-card {\n    box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;\n}\n\n/* プライマリボタンのホバー効果 */\n.v-btn--variant-elevated:hover {\n    transform: translateY(-2px);\n    transition: transform 0.2s;\n}\n&lt;/style>",
     "passthru": true,
     "templateScope": "site:style",
     "className": "",
@@ -1025,7 +1011,7 @@
       "density": "default"
     }
   }
-]</textarea>
+]</div>
         </details>
         
         <h2 id="section1">🎯 1. templateとは？</h2>
@@ -2486,12 +2472,10 @@ PDF生成 or メール送信</div>
                 button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
                 
                 button.addEventListener('click', function() {
-                    var code;
-                    if (block.tagName === 'TEXTAREA') {
-                        code = block.value;
-                    } else {
-                        code = block.textContent.replace(/コピー(しました!)?$/, '').trim();
-                    }
+                    // 要素ノード（コピーボタン）を除き、直下のテキストだけを取り出す
+                    var code = Array.prototype.filter.call(block.childNodes, function(n) {
+                        return n.nodeType === Node.TEXT_NODE;
+                    }).map(function(n) { return n.textContent; }).join('').trim();
                     
                     if (block.classList.contains('js-code')) {
                         code = block.innerText.replace(/コピー(しました!)?$/, '').trim();
