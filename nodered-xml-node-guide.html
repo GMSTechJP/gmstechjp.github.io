@@ -224,7 +224,7 @@
         "fieldType": "msg",
         "format": "text",
         "syntax": "plain",
-        "template": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<catalog>\n  <book id=\"001\">\n    <title>Node-RED入門</title>\n    <author>山田太郎</author>\n    <price currency=\"JPY\">2500</price>\n  </book>\n  <book id=\"002\">\n    <title>IoT実践ガイド</title>\n    <author>鈴木花子</author>\n    <price currency=\"JPY\">3000</price>\n  </book>\n</catalog>",
+        "template": "&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?>\n&lt;catalog>\n  &lt;book id=\"001\">\n    &lt;title>Node-RED入門&lt;/title>\n    &lt;author>山田太郎&lt;/author>\n    &lt;price currency=\"JPY\">2500&lt;/price>\n  &lt;/book>\n  &lt;book id=\"002\">\n    &lt;title>IoT実践ガイド&lt;/title>\n    &lt;author>鈴木花子&lt;/author>\n    &lt;price currency=\"JPY\">3000&lt;/price>\n  &lt;/book>\n&lt;/catalog>",
         "output": "str",
         "x": 290,
         "y": 100,
@@ -359,7 +359,7 @@
         "fieldType": "msg",
         "format": "text",
         "syntax": "plain",
-        "template": "<sensors>\n  <sensor id=\"temp01\" type=\"temperature\">\n    <value unit=\"celsius\">25.5</value>\n    <timestamp>2024-01-15T10:30:00</timestamp>\n  </sensor>\n  <sensor id=\"hum01\" type=\"humidity\">\n    <value unit=\"percent\">60</value>\n    <timestamp>2024-01-15T10:30:00</timestamp>\n  </sensor>\n</sensors>",
+        "template": "&lt;sensors>\n  &lt;sensor id=\"temp01\" type=\"temperature\">\n    &lt;value unit=\"celsius\">25.5&lt;/value>\n    &lt;timestamp>2024-01-15T10:30:00&lt;/timestamp>\n  &lt;/sensor>\n  &lt;sensor id=\"hum01\" type=\"humidity\">\n    &lt;value unit=\"percent\">60&lt;/value>\n    &lt;timestamp>2024-01-15T10:30:00&lt;/timestamp>\n  &lt;/sensor>\n&lt;/sensors>",
         "output": "str",
         "x": 290,
         "y": 380,
@@ -481,7 +481,7 @@
                 <div class="flow-json">[
     {"id": "ex1_tab", "type": "tab", "label": "演習1"},
     {"id": "ex1_inject", "type": "inject", "z": "ex1_tab", "name": "実行", "props": [], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "x": 130, "y": 100, "wires": [["ex1_template"]]},
-    {"id": "ex1_template", "type": "template", "z": "ex1_tab", "name": "XML", "field": "payload", "fieldType": "msg", "format": "text", "syntax": "plain", "template": "<user><name>山田太郎</name><email>yamada@example.com</email></user>", "output": "str", "x": 270, "y": 100, "wires": [["ex1_xml"]]},
+    {"id": "ex1_template", "type": "template", "z": "ex1_tab", "name": "XML", "field": "payload", "fieldType": "msg", "format": "text", "syntax": "plain", "template": "&lt;user>&lt;name>山田太郎&lt;/name>&lt;email>yamada@example.com&lt;/email>&lt;/user>", "output": "str", "x": 270, "y": 100, "wires": [["ex1_xml"]]},
     {"id": "ex1_xml", "type": "xml", "z": "ex1_tab", "name": "XML→Obj", "property": "payload", "attr": "", "chr": "", "x": 410, "y": 100, "wires": [["ex1_debug"]]},
     {"id": "ex1_debug", "type": "debug", "z": "ex1_tab", "name": "結果", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "x": 550, "y": 100, "wires": []}
 ]</div>
@@ -533,7 +533,7 @@
                 <div class="flow-json">[
     {"id": "ex3_tab", "type": "tab", "label": "演習3"},
     {"id": "ex3_inject", "type": "inject", "z": "ex3_tab", "name": "実行", "props": [], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "x": 130, "y": 100, "wires": [["ex3_template"]]},
-    {"id": "ex3_template", "type": "template", "z": "ex3_tab", "name": "属性付きXML", "field": "payload", "fieldType": "msg", "format": "text", "syntax": "plain", "template": "<item id=\"ITM001\" category=\"electronics\">\n  <name>スマートフォン</name>\n  <price currency=\"JPY\">50000</price>\n</item>", "output": "str", "x": 290, "y": 100, "wires": [["ex3_xml"]]},
+    {"id": "ex3_template", "type": "template", "z": "ex3_tab", "name": "属性付きXML", "field": "payload", "fieldType": "msg", "format": "text", "syntax": "plain", "template": "&lt;item id=\"ITM001\" category=\"electronics\">\n  &lt;name>スマートフォン&lt;/name>\n  &lt;price currency=\"JPY\">50000&lt;/price>\n&lt;/item>", "output": "str", "x": 290, "y": 100, "wires": [["ex3_xml"]]},
     {"id": "ex3_xml", "type": "xml", "z": "ex3_tab", "name": "XML→Obj", "property": "payload", "attr": "", "chr": "", "x": 450, "y": 100, "wires": [["ex3_change"]]},
     {"id": "ex3_change", "type": "change", "z": "ex3_tab", "name": "属性抽出", "rules": [{"t": "set", "p": "payload", "pt": "msg", "to": "{\n    \"id\": payload.item.`$`.id,\n    \"category\": payload.item.`$`.category,\n    \"name\": payload.item.name[0],\n    \"price\": payload.item.price[0].`_`,\n    \"currency\": payload.item.price[0].`$`.currency\n}", "tot": "jsonata"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 600, "y": 100, "wires": [["ex3_debug"]]},
     {"id": "ex3_debug", "type": "debug", "z": "ex3_tab", "name": "抽出結果", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "x": 750, "y": 100, "wires": []}
