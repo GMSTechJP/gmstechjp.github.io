@@ -391,8 +391,8 @@
             <strong>このガイドの対象環境</strong>
             <ul>
                 <li><strong>OS:</strong> Windows 11（Windows 10でも同様の手順で動作します）</li>
-                <li><strong>Node.js:</strong> v24.x LTS（2025年1月時点の推奨）</li>
-                <li><strong>Node-RED:</strong> v4.x</li>
+                <li><strong>Node.js:</strong> v24.x LTS（2026年7月時点の推奨）</li>
+                <li><strong>Node-RED:</strong> v5.x（Node.js 22 以上が必要。本ガイドの Node 24 なら条件を満たします）</li>
             </ul>
         </div>
         
@@ -473,9 +473,9 @@
                 <h3>インストーラーを直接ダウンロード</h3>
                 <p>以下のボタンをクリックすると、Windows用のNode.js LTS版インストーラーが直接ダウンロードされます。</p>
                 
-                <p><a href="https://nodejs.org/dist/v24.13.0/node-v24.13.0-x64.msi" class="download-link">⬇️ Node.js v24 LTS (Windows 64bit) をダウンロード</a></p>
-                
-                <p style="margin-top: 10px;"><small>※ 上記リンクは v24.13.0 LTS です。最新版は<a href="https://nodejs.org/en/download" target="_blank">公式ダウンロードページ</a>で確認してください。</small></p>
+                <p><a href="https://nodejs.org/dist/v24.18.0/node-v24.18.0-x64.msi" class="download-link">⬇️ Node.js v24 LTS (Windows 64bit) をダウンロード</a></p>
+
+                <p style="margin-top: 10px;"><small>※ 上記リンクは v24.18.0 LTS です。最新版は<a href="https://nodejs.org/en/download" target="_blank">公式ダウンロードページ</a>で確認してください。</small></p>
             </div>
         </div>
         
@@ -513,7 +513,7 @@
             <div class="step-number">2</div>
             <div class="step-content">
                 <h3>インストーラーを実行</h3>
-                <p>ダウンロードした <code>node-v24.13.0-x64.msi</code> ファイルをダブルクリックして実行します。</p>
+                <p>ダウンロードした <code>node-v24.18.0-x64.msi</code> ファイルをダブルクリックして実行します。</p>
                 
                 <div class="screenshot-placeholder">
                     <div class="icon">📁</div>
@@ -555,10 +555,10 @@
                 <div class="code-block powershell">
                     <button class="copy-button" onclick="copyCode(this)">コピー</button>
                     <span class="prompt">PS C:\Users\YourName&gt;</span> node --version
-<span class="output">v24.13.0</span>
+<span class="output">v24.18.0</span>
 
 <span class="prompt">PS C:\Users\YourName&gt;</span> npm --version
-<span class="output">11.3.0</span></div>
+<span class="output">11.16.0</span></div>
                 
                 <div class="tip">
                     <p><strong>PowerShellの開き方</strong></p>
@@ -595,14 +595,13 @@
                 
                 <div class="code-block powershell">
                     <button class="copy-button" onclick="copyCode(this)">コピー</button>
-npm install -g --unsafe-perm node-red</div>
+npm install -g node-red</div>
                 
                 <div class="important">
                     <p><strong>コマンドの意味</strong></p>
                     <ul>
                         <li><code>npm install</code> - npmを使ってパッケージをインストール</li>
                         <li><code>-g</code> - グローバルインストール（どこからでも使えるようにする）</li>
-                        <li><code>--unsafe-perm</code> - 権限関連の問題を回避するオプション</li>
                         <li><code>node-red</code> - インストールするパッケージ名</li>
                     </ul>
                 </div>
@@ -649,8 +648,8 @@ node-red</div>
 Welcome to Node-RED
 ===================
 
-XX Jan XX:XX:XX - [info] Node-RED version: v4.1.x
-XX Jan XX:XX:XX - [info] Node.js  version: v24.13.0
+XX Jan XX:XX:XX - [info] Node-RED version: v5.0.x
+XX Jan XX:XX:XX - [info] Node.js  version: v24.18.0
 XX Jan XX:XX:XX - [info] Windows_NT 10.0.22631 x64 LE
 XX Jan XX:XX:XX - [info] Loading palette nodes
 XX Jan XX:XX:XX - [info] Settings file  : C:\Users\YourName\.node-red\settings.js
@@ -874,6 +873,13 @@ pm2 save</div>
                 </td>
             </tr>
             <tr>
+                <td>Node-REDが起動しない<br>（<code>Unsupported version of Node.js</code> 等のエラー）</td>
+                <td>Node.jsのバージョンが古い（22未満）。Node-RED 5.x は Node.js 22 以上が必要</td>
+                <td>
+                    セクション1の手順で Node.js v24 LTS に入れ直す。<code>node --version</code> で v22 以上（推奨は v24.x）になっているか確認
+                </td>
+            </tr>
+            <tr>
                 <td>Node-REDが起動しない</td>
                 <td>ポート1880が他のアプリケーションで使用中</td>
                 <td>
@@ -1005,7 +1011,7 @@ Remove-Item -Recurse -Force $env:USERPROFILE\.node-red</div>
         </ul>
         
         <p style="text-align: center; color: #999; margin-top: 40px;">
-            <small>このガイドは2025年1月時点の情報に基づいています。</small><br>
+            <small>このガイドは2026年7月時点の情報に基づいています。</small><br>
             <small>最新の情報は公式ドキュメントを参照してください。</small>
         </p>
     </div>
@@ -1019,7 +1025,7 @@ Remove-Item -Recurse -Force $env:USERPROFILE\.node-red</div>
             // プロンプト部分を除去
             code = code.replace(/PS C:\\Users\\YourName> /g, '').trim();
             // 出力行（緑色の部分）を除去
-            const lines = code.split('\n').filter(line => !line.match(/^v\d+\.\d+\.\d+$/));
+            const lines = code.split('\n').filter(line => !line.match(/^v?\d+\.\d+\.\d+$/));
             code = lines.join('\n');
             
             navigator.clipboard.writeText(code).then(() => {
