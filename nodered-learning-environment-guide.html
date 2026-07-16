@@ -136,7 +136,7 @@
         </div>
 
         <p>このサイトの学習は、まず1台の共有クラウドサーバー（学習者ごとにポート違いのNode-RED）で進めます。手軽で、準備が要らず、ほとんどのノードはこれで十分に学べます。</p>
-        <p>ただし、通信を待ち受ける系のノードや物理センサーを扱う段になると、共有クラウドでは不都合が出ます。次の2層モデルがその切り分けを示します。</p>
+        <p>ただし、通信を待ち受ける系のノードや物理センサーを扱う段になると、共有クラウドでは不都合が出ます。HTTP・WebSocketのように、公式サンプルが <code>localhost:1880</code>（自分自身）への接続を前提とするガイドも同様です。次の2層モデルがその切り分けを示します。</p>
 
         <h2>1. 2 層モデル：クラウドで進み、必要になったらラズパイ／ローカルへ</h2>
 
@@ -145,15 +145,15 @@
                 <div class="icon">☁️</div>
                 <div class="body">
                     <h4>第1層：共有クラウド（できるところまで）</h4>
-                    <p>概念、ロジック、データ変換、ダッシュボード、HTTP/WebSocket/MQTT など<strong>全体の約8割</strong>はここで完結します。追加の準備は不要です。</p>
+                    <p>概念、ロジック、データ変換、ダッシュボード、MQTT など<strong>全体の約8割</strong>はここで完結します。追加の準備は不要です。</p>
                 </div>
             </div>
-            <div class="tier-arrow">⬇ 通信の待受や物理ハードが必要になったら</div>
+            <div class="tier-arrow">⬇ HTTP・WebSocket、通信の待受、物理ハードが必要になったら</div>
             <div class="tier edge">
                 <div class="icon">🍓🖥️</div>
                 <div class="body">
                     <h4>第2層：ラズパイ／ローカルPC（その先）</h4>
-                    <p>TCP/UDPの自由な実験、MODBUS実機、ブロードキャスト、GPIOやセンサー。<strong>ラズパイ</strong>が本命で、WindowsのローカルPCでも代用できます。</p>
+                    <p>HTTP・WebSocketの公式サンプル、TCP/UDPの自由な実験、MODBUS実機、ブロードキャスト、GPIOやセンサー。<strong>ラズパイ</strong>が本命で、WindowsのローカルPCでも代用できます。</p>
                 </div>
             </div>
         </div>
@@ -164,18 +164,18 @@
         <div class="cap-ladder">
             <div class="cap cap-pi">🍓 ラズパイ<span class="adds">＝ ローカルPCの全部 ＋ GPIOやSense HATなどオンボードの物理ハード</span></div>
             <div class="cap cap-local">🖥️ ローカルPC<span class="adds">＝ クラウドの全部 ＋ 自由なポート、ブロードキャスト、USBシリアル機器、GUIシミュレータ</span></div>
-            <div class="cap cap-cloud">☁️ クラウド<span class="adds">＝ 概念、ロジック、データ変換、Web(HTTP/WS)、MQTT、Dashboard（全体の約8割）</span></div>
+            <div class="cap cap-cloud">☁️ クラウド<span class="adds">＝ 概念、ロジック、データ変換、MQTT、Dashboard（全体の約8割）</span></div>
             <div class="cap-foot">⬆ 上の段は、下の段でできることを<strong>すべて含みます</strong>（上位互換）</div>
         </div>
 
         <div class="tip">
             <strong>ヒント：自分のPCやラズパイだけで全部やってもOK</strong><br>
-            手元のローカルPCやラズパイにNode-REDを入れれば、このサイトの全カリキュラムをそこだけで学べます。共有クラウドは手軽に始められる共通の場にすぎません。クラウドで進めて、ハードや自由なポートが要る所だけローカルやラズパイに移ると、準備の手間が最小になります。
+            手元のローカルPCやラズパイにNode-REDを入れれば、このサイトの全カリキュラムをそこだけで学べます。共有クラウドは手軽に始められる共通の場にすぎません。クラウドで進めて、必要になった所（HTTP・WebSocket、ハード、自由なポートなど）だけローカルやラズパイに移ると、準備の手間が最小になります。
         </div>
 
         <div class="tip">
             <strong>ヒント：ひとことで</strong><br>
-            読み物やロジック、Web系はクラウドで手軽に。通信の待受とハードはラズパイやローカルで。迷ったら、この後の<a href="#map">環境マップ</a>を見てください。
+            読み物やロジック、画面（Dashboard）、MQTTはクラウドで手軽に。HTTP・WebSocket、通信の待受、ハードはラズパイやローカルで。迷ったら、この後の<a href="#map">環境マップ</a>を見てください。
         </div>
 
         <h2>2. 環境バッジの凡例（サイト共通の印）</h2>
@@ -230,9 +230,14 @@
                 <td>メッセージの分割・結合・変換</td>
             </tr>
             <tr>
-                <td>HTTP（In／Response／Request）・WebSocket・通信の基礎</td>
+                <td>通信の基礎（ネットワーク入門）</td>
                 <td><span class="env-badge env-cloud">☁️</span></td>
-                <td>Node-RED自身のポートに相乗り、または外向き通信。学習者ごとに独立</td>
+                <td>概念解説が中心。どの環境でも読み進められる</td>
+            </tr>
+            <tr>
+                <td>HTTP（In／Response／Request）・WebSocket</td>
+                <td><span class="env-badge env-local">🖥️</span></td>
+                <td>公式サンプルが <code>localhost:1880</code> への接続（自分自身の呼び出し）を前提とするため、ローカル環境で学習する</td>
             </tr>
             <tr>
                 <td>MQTT・e-mail</td>
@@ -337,7 +342,7 @@
         <ul>
             <li><strong>ローカルPCやラズパイはクラウドの上位互換</strong>。クラウドでできることはそのまま実行でき、その上に物理ハードなどが加わる（クラウド ⊂ ローカル ⊂ ラズパイ）。</li>
             <li>学習は<strong>共有クラウドで進められるところまで進む</strong>（全体の約8割）。環境を分けるのは縄張りではなく、準備の手間を最小化するため。</li>
-            <li>クラウドが苦手なのは、通信の待受（TCP/UDP/MODBUS）、ブロードキャスト、物理ハードの3つ。</li>
+            <li>クラウドが苦手なのは、通信の待受（TCP/UDP/MODBUS）、ブロードキャスト、物理ハード、そして公式サンプルが <code>localhost:1880</code> への接続を前提とするガイド（HTTP・WebSocket）の4つ。</li>
             <li>待受系は<strong>自分専用ポート</strong>でクラウド継続も可。自由にやるならローカルやラズパイへ。</li>
             <li>ハードは<strong>ラズパイ必須</strong>。シミュレータ中心ならローカルPCでも代用可。</li>
             <li>各ガイドの環境バッジ（☁️/⚠️/🖥️/🍓）で、その場で判断できます。</li>

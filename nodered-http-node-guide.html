@@ -65,7 +65,7 @@
 <body>
     <div class="container">
         <h1>Node-RED HTTP ノードガイド</h1>
-        <div data-envbadge="1" style="margin:12px 0;"><span style="display:inline-block;padding:3px 12px;border-radius:12px;font-size:0.85em;font-weight:bold;background:#e3f2fd;color:#0d47a1;border:1px solid #90caf9;">☁️ クラウドOK</span> <a href="nodered-learning-environment-guide.html" style="font-size:0.82em;">環境とは？</a></div>
+        <div data-envbadge="1" style="margin:12px 0;"><span style="display:inline-block;padding:3px 12px;border-radius:12px;font-size:0.85em;font-weight:bold;background:#f3e5f5;color:#6a1b9a;border:1px solid #ce93d8;">🖥️ ローカル/ラズパイ向け</span> <a href="nodered-learning-environment-guide.html" style="font-size:0.82em;">環境とは？</a></div>
 
         <div class="tip">
             <strong>通信が初めての方へ：</strong> サーバーとクライアント、ポート、プロトコルの全体像は <a href="nodered-network-basics-guide.html">通信の基礎（ネットワーク入門）</a> でまとめて解説しています。先に読むと本ガイドが理解しやすくなります。
@@ -188,12 +188,11 @@
 
         <h3>エンドポイントのアクセス方法</h3>
         <div class="endpoint-box">
-            http://[Node-REDのホスト]/[設定したURL]
+            http://localhost:1880/[設定したURL]
         </div>
-        <p><code>[Node-REDのホスト]</code> は、お使いのNode-REDエディタを開いているアドレスの「ホスト名:ポート番号」部分に置き換えてください（ローカル環境なら <code>localhost:1880</code>、共有クラウド環境ならブラウザのアドレスバーに表示されているホスト名とポート番号。学習者ごとにポートが異なる場合があります）。<strong>アドレスバーが <code>https://</code> で始まっている場合は、下記の例の <code>http://</code> も <code>https://</code> に読み替えてください。</strong></p>
         <p>例: URLを <code>/api/hello</code> に設定した場合</p>
         <div class="endpoint-box">
-            http://[Node-REDのホスト]/api/hello
+            http://localhost:1880/api/hello
         </div>
 
         <h2 id="section3">3. HTTP Response ノード</h2>
@@ -293,17 +292,1122 @@ return msg;</div>
         <h2 id="section5">5. 実用的な使用パターン</h2>
 
         <div class="important">
-            <p><strong>サンプルフローのインポート方法:</strong></p>
+            <p><strong>📥 サンプルフローを試す手順:</strong></p>
+            <p>フローJSONは、Node-REDエディタの「読み込み」画面に貼り付けるためのものです。ブラウザの開発者ツール（Console）に貼り付けても何も起きません。</p>
             <ol>
-                <li>下のサンプルフローJSONをコピー</li>
-                <li>Node-REDエディタで <strong>メニュー → 読み込み</strong> を選択</li>
-                <li>JSONをペーストして「読み込み」をクリック</li>
+                <li>Node-REDを起動し、ブラウザでエディタを開く（<code>http://localhost:1880</code>）</li>
+                <li>下の「公式サンプルフローJSON」を「コピー」ボタンでコピー</li>
+                <li>エディタ右上の <strong>メニュー → 読み込み</strong> を選択し、JSONを貼り付けて「読み込み」をクリック</li>
+                <li>エディタ右上の<strong>「デプロイ」ボタンをクリック</strong>（クリックするまでフローは動きません）</li>
+                <li>後述の「<a href="#test-methods">動作確認方法</a>」の手順で、動作を確認する</li>
             </ol>
-            <p>このサンプルフローには、以下で説明するパターンの実例が含まれています。</p>
         </div>
 
+        <h3>公式サンプルフロー</h3>
+        <p>最初のサンプルフローは、Node-RED本体に同梱されている公式サンプル（「Create HTTP endpoint」から「Working with cookies」までの7例）を1つのタブにまとめ、ノード名を日本語化したものです。エディタの <strong>メニュー → 読み込み → サンプル → network → http</strong> からも同じものを開けます。</p>
         <details>
-            <summary>&#128229; サンプルフローJSON（クリックで展開）</summary>
+            <summary>📥 公式サンプルフローJSON（クリックで展開）</summary>
+            <div class="flow-json">[
+    {
+        "id": "http_examples_tab",
+        "type": "tab",
+        "label": "http",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "87bd706a.aec93",
+        "type": "comment",
+        "z": "http_examples_tab",
+        "name": "Create an HTTP Endpoint",
+        "info": "The `HTTP In` and `HTTP Response` pair of nodes are the starting point for all HTTP endpoints you create.\n\nAny flow that starts with an `HTTP In` node must have a path to an `HTTP Response` node otherwise requests will eventually timeout.\n\nThe `HTTP Response` node uses the `payload` property of messages it receives as the body of the response. Other properties can be used to further customize the response - they are covered in other recipes.\n\nThe `Template` node provides a convenient way to embed a body of content into a flow. It may be desirable to maintain such static content outside of the flow.\n\nSee Node-RED cookbook [item](https://cookbook.nodered.org/http/create-an-http-endpoint) for details.",
+        "x": 230,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "7f10afe.b1faa5",
+        "type": "http in",
+        "z": "http_examples_tab",
+        "name": "",
+        "url": "/hello",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 240,
+        "y": 80,
+        "wires": [
+            [
+                "db134063.83b7a"
+            ]
+        ]
+    },
+    {
+        "id": "d5ce67fc.e6e608",
+        "type": "http response",
+        "z": "http_examples_tab",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 490,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "5a89ce70.db6d5",
+        "type": "http request",
+        "z": "http_examples_tab",
+        "name": "",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "http://localhost:1880/hello",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "x": 390,
+        "y": 220,
+        "wires": [
+            [
+                "18b48ed8.1072e1"
+            ]
+        ]
+    },
+    {
+        "id": "31f7aabb.3fbe06",
+        "type": "inject",
+        "z": "http_examples_tab",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 240,
+        "y": 220,
+        "wires": [
+            [
+                "5a89ce70.db6d5"
+            ]
+        ]
+    },
+    {
+        "id": "18b48ed8.1072e1",
+        "type": "debug",
+        "z": "http_examples_tab",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 550,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "3c61c12c.5abaae",
+        "type": "comment",
+        "z": "http_examples_tab",
+        "name": "Send HTTP request: http://localhost:1880/hello",
+        "info": "`http request` node can be used to make an **HTTP GET** request.\n\nSee Node-RED cookbook [item](https://cookbook.nodered.org/http/simple-get-request) for details.",
+        "x": 300,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "db134063.83b7a",
+        "type": "template",
+        "z": "http_examples_tab",
+        "name": "ページ生成",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "html",
+        "syntax": "mustache",
+        "template": "&lt;html>\n    &lt;head>&lt;/head>\n    &lt;body>\n        &lt;h1>Hello World!&lt;/h1>\n    &lt;/body>\n&lt;/html>",
+        "output": "str",
+        "x": 370,
+        "y": 80,
+        "wires": [
+            [
+                "d5ce67fc.e6e608"
+            ]
+        ]
+    },
+    {
+        "id": "83e766b1.154438",
+        "type": "http request",
+        "z": "http_examples_tab",
+        "name": "",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "x": 390,
+        "y": 300,
+        "wires": [
+            [
+                "188bc18.5487a3f"
+            ]
+        ]
+    },
+    {
+        "id": "89c4d7a7.f8d798",
+        "type": "inject",
+        "z": "http_examples_tab",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "url",
+                "v": "http://localhost:1880/hello",
+                "vt": "str"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 240,
+        "y": 300,
+        "wires": [
+            [
+                "83e766b1.154438"
+            ]
+        ]
+    },
+    {
+        "id": "188bc18.5487a3f",
+        "type": "debug",
+        "z": "http_examples_tab",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 550,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "a65364a3.c72a58",
+        "type": "comment",
+        "z": "http_examples_tab",
+        "name": "Set URL in HTTP request node setting panel",
+        "info": "`http request` node can be used to make an **HTTP GET** request.\n\nSee Node-RED cookbook [item](https://cookbook.nodered.org/http/simple-get-request) for details.",
+        "x": 490,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "47396a8e.6804f4",
+        "type": "comment",
+        "z": "http_examples_tab",
+        "name": "Set URL via url property of input message of HTTP request node",
+        "info": "Target URL of `http request` node can be specified via `url` property of input message.\n\nSee Node-RED cookbook [item](https://cookbook.nodered.org/http/set-request-url) for details.",
+        "x": 550,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "ac0b58f6.c85138",
+        "type": "http in",
+        "z": "http_examples_tab",
+        "name": "",
+        "url": "/hello-query",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 260,
+        "y": 440,
+        "wires": [
+            [
+                "d9c345c7.c2e148"
+            ]
+        ]
+    },
+    {
+        "id": "c110b7f7.22f238",
+        "type": "http response",
+        "z": "http_examples_tab",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 530,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "976b2bb3.f5ff98",
+        "type": "comment",
+        "z": "http_examples_tab",
+        "name": "Handle query parameters passed to an HTTP endpoint",
+        "info": "The `HTTP in` node can accept query parameters passwd to an HTTP endpoint.  It use the `msg.req.query` property of the message sent by the HTTP In node to access the parameters.\n\nSee Node-RED cookbook [item](https://cookbook.nodered.org/http/handle-query-parameters) for details.",
+        "x": 320,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "77a6b44f.4695ac",
+        "type": "inject",
+        "z": "http_examples_tab",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 240,
+        "y": 540,
+        "wires": [
+            [
+                "9094aba0.095678"
+            ]
+        ]
+    },
+    {
+        "id": "f523b8e.b5c8c48",
+        "type": "debug",
+        "z": "http_examples_tab",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 550,
+        "y": 540,
+        "wires": []
+    },
+    {
+        "id": "9a63c9c5.949128",
+        "type": "comment",
+        "z": "http_examples_tab",
+        "name": "Send HTTP GET request: http://localhost:1880/hello-query?name=Nick",
+        "info": "`http request` node can be used to send **HTTP GET** request.",
+        "x": 370,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "d9c345c7.c2e148",
+        "type": "template",
+        "z": "http_examples_tab",
+        "name": "ページ生成",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "html",
+        "syntax": "mustache",
+        "template": "&lt;html>\n    &lt;head>&lt;/head>\n    &lt;body>\n        &lt;h1>Hello {{req.query.name}}!&lt;/h1>\n    &lt;/body>\n&lt;/html>",
+        "output": "str",
+        "x": 410,
+        "y": 440,
+        "wires": [
+            [
+                "c110b7f7.22f238"
+            ]
+        ]
+    },
+    {
+        "id": "9094aba0.095678",
+        "type": "http request",
+        "z": "http_examples_tab",
+        "name": "",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "http://localhost:1880/hello-query?name=Nick",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "x": 390,
+        "y": 540,
+        "wires": [
+            [
+                "f523b8e.b5c8c48"
+            ]
+        ]
+    },
+    {
+        "id": "9b2d7459.8dd598",
+        "type": "http in",
+        "z": "http_examples_tab",
+        "name": "",
+        "url": "/hello-param/:name",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 290,
+        "y": 680,
+        "wires": [
+            [
+                "83753c80.5e271"
+            ]
+        ]
+    },
+    {
+        "id": "7fe50f46.46209",
+        "type": "http response",
+        "z": "http_examples_tab",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 590,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "6e88d2b.828a92c",
+        "type": "comment",
+        "z": "http_examples_tab",
+        "name": "Handle URL parameters in an HTTP endpoint",
+        "info": "Named path parameters (e.g. `:name`) in the URL property can be used to identify parts of the path that can vary between requests.\n\nThe `msg.req.params` property is an object of key/value pairs for each path parameter.",
+        "x": 290,
+        "y": 640,
+        "wires": []
+    },
+    {
+        "id": "214bc398.b3482c",
+        "type": "http request",
+        "z": "http_examples_tab",
+        "name": "",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "http://localhost:1880/hello-param/Nick",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "x": 390,
+        "y": 780,
+        "wires": [
+            [
+                "70c0eba4.5f0dc4"
+            ]
+        ]
+    },
+    {
+        "id": "70c0eba4.5f0dc4",
+        "type": "debug",
+        "z": "http_examples_tab",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 550,
+        "y": 780,
+        "wires": []
+    },
+    {
+        "id": "83753c80.5e271",
+        "type": "template",
+        "z": "http_examples_tab",
+        "name": "ページ生成",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "html",
+        "syntax": "mustache",
+        "template": "&lt;html>\n    &lt;head>&lt;/head>\n    &lt;body>\n        &lt;h1>Hello {{req.params.name}}!&lt;/h1>\n    &lt;/body>\n&lt;/html>",
+        "output": "str",
+        "x": 470,
+        "y": 680,
+        "wires": [
+            [
+                "7fe50f46.46209"
+            ]
+        ]
+    },
+    {
+        "id": "89523bfe.6e5c18",
+        "type": "inject",
+        "z": "http_examples_tab",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 240,
+        "y": 780,
+        "wires": [
+            [
+                "214bc398.b3482c"
+            ]
+        ]
+    },
+    {
+        "id": "6276a6cd.5c3b18",
+        "type": "comment",
+        "z": "http_examples_tab",
+        "name": "Send HTTP GET request: http://localhost:1880/hello-param/Nick",
+        "info": "`http request` node can be used to send **HTTP GET** request.",
+        "x": 350,
+        "y": 740,
+        "wires": []
+    },
+    {
+        "id": "1ccc20e.71730df",
+        "type": "http in",
+        "z": "http_examples_tab",
+        "name": "",
+        "url": "/hello-headers",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 270,
+        "y": 920,
+        "wires": [
+            [
+                "3a62f641.2c0e8a"
+            ]
+        ]
+    },
+    {
+        "id": "bc626348.1496d",
+        "type": "http response",
+        "z": "http_examples_tab",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 550,
+        "y": 920,
+        "wires": []
+    },
+    {
+        "id": "b13b7c19.79cbd",
+        "type": "comment",
+        "z": "http_examples_tab",
+        "name": "Access HTTP request headers",
+        "info": " `msg.req.headers` property of the message sent by the `HTTP In` node to access the headers.\n\nSee Node-RED cookbook [item](https://cookbook.nodered.org/http/access-http-request-headers) for details.",
+        "x": 240,
+        "y": 880,
+        "wires": []
+    },
+    {
+        "id": "7fe0fee5.f3ed7",
+        "type": "http request",
+        "z": "http_examples_tab",
+        "name": "",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "http://localhost:1880/hello-headers",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "x": 390,
+        "y": 1020,
+        "wires": [
+            [
+                "65b13d57.700074"
+            ]
+        ]
+    },
+    {
+        "id": "65b13d57.700074",
+        "type": "debug",
+        "z": "http_examples_tab",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 550,
+        "y": 1020,
+        "wires": []
+    },
+    {
+        "id": "3a62f641.2c0e8a",
+        "type": "template",
+        "z": "http_examples_tab",
+        "name": "ページ生成",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "html",
+        "syntax": "mustache",
+        "template": "&lt;html>\n    &lt;head>&lt;/head>\n    &lt;body>\n        &lt;h1>User agent: {{req.headers.user-agent}}&lt;/h1>\n    &lt;/body>\n&lt;/html>",
+        "output": "str",
+        "x": 430,
+        "y": 920,
+        "wires": [
+            [
+                "bc626348.1496d"
+            ]
+        ]
+    },
+    {
+        "id": "757fe655.e28558",
+        "type": "inject",
+        "z": "http_examples_tab",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "headers",
+                "v": "{\"User-Agent\":\"Node-RED\"}",
+                "vt": "json"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 240,
+        "y": 1020,
+        "wires": [
+            [
+                "7fe0fee5.f3ed7"
+            ]
+        ]
+    },
+    {
+        "id": "5195095.03b4cf8",
+        "type": "comment",
+        "z": "http_examples_tab",
+        "name": "Set HTTP request header &amp; send HTTP GET request: http://localhost:1880/hello-headers",
+        "info": "The field value pairs of the request headers \nyou would like to include in the message sent to the `HTTP request` node can be specified by setting `the msg.headers` field.\n\nSee Node-RED cookbook [item](https://cookbook.nodered.org/http/set-request-header) for details.",
+        "x": 430,
+        "y": 980,
+        "wires": []
+    },
+    {
+        "id": "69a64e3d.84da3",
+        "type": "http in",
+        "z": "http_examples_tab",
+        "name": "",
+        "url": "/hello-raw",
+        "method": "post",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 260,
+        "y": 1160,
+        "wires": [
+            [
+                "38d357a7.b69d08"
+            ]
+        ]
+    },
+    {
+        "id": "43e49c36.dc7624",
+        "type": "http response",
+        "z": "http_examples_tab",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 530,
+        "y": 1160,
+        "wires": []
+    },
+    {
+        "id": "8cb4b74e.602c28",
+        "type": "comment",
+        "z": "http_examples_tab",
+        "name": "Post data to a flow",
+        "info": "The `HTTP In` node can listen for POST requests.  It returns the posted data as `msg.payload`.\n\nSee Node-RED cookbook items(\n[post raw data(https://cookbook.nodered.org/http/post-raw-data-to-a-flow), [post form data](https://cookbook.nodered.org/http/post-form-data-to-a-flow), [post JSON data](https://cookbook.nodered.org/http/post-json-data-to-a-flow)\n) for details.",
+        "x": 210,
+        "y": 1120,
+        "wires": []
+    },
+    {
+        "id": "ec661b6b.c3c2b8",
+        "type": "http request",
+        "z": "http_examples_tab",
+        "name": "",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "http://localhost:1880/hello-raw",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "x": 370,
+        "y": 1260,
+        "wires": [
+            [
+                "7c2812c.c6ee7ec"
+            ]
+        ]
+    },
+    {
+        "id": "7c2812c.c6ee7ec",
+        "type": "debug",
+        "z": "http_examples_tab",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 530,
+        "y": 1260,
+        "wires": []
+    },
+    {
+        "id": "38d357a7.b69d08",
+        "type": "template",
+        "z": "http_examples_tab",
+        "name": "ページ生成",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "html",
+        "syntax": "mustache",
+        "template": "&lt;html>\n    &lt;head>&lt;/head>\n    &lt;body>\n        &lt;h1>Hello {{payload}}&lt;/h1>\n    &lt;/body>\n&lt;/html>",
+        "output": "str",
+        "x": 410,
+        "y": 1160,
+        "wires": [
+            [
+                "43e49c36.dc7624"
+            ]
+        ]
+    },
+    {
+        "id": "e45041b6.9ec13",
+        "type": "inject",
+        "z": "http_examples_tab",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "Nick",
+        "payloadType": "str",
+        "x": 230,
+        "y": 1260,
+        "wires": [
+            [
+                "ec661b6b.c3c2b8"
+            ]
+        ]
+    },
+    {
+        "id": "af33dae7.b21138",
+        "type": "comment",
+        "z": "http_examples_tab",
+        "name": "Send HTTP POST request: http://localhost:1880/hello-raw",
+        "info": "",
+        "x": 330,
+        "y": 1220,
+        "wires": []
+    },
+    {
+        "id": "59760c9d.172d94",
+        "type": "http in",
+        "z": "http_examples_tab",
+        "name": "",
+        "url": "/hello-upload",
+        "method": "post",
+        "upload": true,
+        "swaggerDoc": "",
+        "x": 270,
+        "y": 1580,
+        "wires": [
+            [
+                "e30073f3.ad429"
+            ]
+        ]
+    },
+    {
+        "id": "d0b3e8b4.2cfde8",
+        "type": "comment",
+        "z": "http_examples_tab",
+        "name": "Post file to a flow",
+        "info": "The `HTTP In` node can listen for POST requests for file upload.  Information for uploaded files can be accessed from `msg.req.files`.\n",
+        "x": 200,
+        "y": 1360,
+        "wires": []
+    },
+    {
+        "id": "a888a043.ebb72",
+        "type": "http in",
+        "z": "http_examples_tab",
+        "name": "",
+        "url": "/hello-upload",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 270,
+        "y": 1480,
+        "wires": [
+            [
+                "14b950b.0ed5aaf"
+            ]
+        ]
+    },
+    {
+        "id": "2ccb67c7.02c568",
+        "type": "http response",
+        "z": "http_examples_tab",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 590,
+        "y": 1480,
+        "wires": []
+    },
+    {
+        "id": "14b950b.0ed5aaf",
+        "type": "template",
+        "z": "http_examples_tab",
+        "name": "",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "html",
+        "syntax": "mustache",
+        "template": "&lt;html>\n    &lt;head>&lt;/head>\n    &lt;body>\n        &lt;form method=\"POST\" enctype=\"multipart/form-data\">\n            &lt;div>\n                &lt;label for=\"file\">Select file to upload:&lt;/label>\n                &lt;input type=\"file\" id=\"file\" name=\"file\"/>\n            &lt;/div>\n            &lt;div>\n                &lt;button type=\"submit\">OK&lt;/button>\n            &lt;/div>\n        &lt;/form>\n    &lt;/body>\n&lt;/html>",
+        "output": "str",
+        "x": 440,
+        "y": 1480,
+        "wires": [
+            [
+                "2ccb67c7.02c568"
+            ]
+        ]
+    },
+    {
+        "id": "54f2edb5.62fca4",
+        "type": "http response",
+        "z": "http_examples_tab",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 590,
+        "y": 1580,
+        "wires": []
+    },
+    {
+        "id": "e30073f3.ad429",
+        "type": "template",
+        "z": "http_examples_tab",
+        "name": "",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "html",
+        "syntax": "mustache",
+        "template": "&lt;html>\n    &lt;head>&lt;/head>\n    &lt;body>\n        &lt;h1>Hello {{req.files.0.originalname}}&lt;/h1>\n    &lt;/body>\n&lt;/html>",
+        "output": "str",
+        "x": 440,
+        "y": 1580,
+        "wires": [
+            [
+                "54f2edb5.62fca4"
+            ]
+        ]
+    },
+    {
+        "id": "6c3c1bf.48cc2e4",
+        "type": "comment",
+        "z": "http_examples_tab",
+        "name": "Create HTTP page for file upload: open http://localhost:1880/hello-upload \\n from Web browser.  Then upload a file.",
+        "info": "",
+        "x": 440,
+        "y": 1420,
+        "wires": []
+    },
+    {
+        "id": "c6242caa.8ec63",
+        "type": "comment",
+        "z": "http_examples_tab",
+        "name": "Serve POST request for file upload",
+        "info": "",
+        "x": 320,
+        "y": 1540,
+        "wires": []
+    },
+    {
+        "id": "c362b989.954ae8",
+        "type": "http in",
+        "z": "http_examples_tab",
+        "name": "",
+        "url": "/hello-cookie",
+        "method": "get",
+        "swaggerDoc": "",
+        "x": 250,
+        "y": 1780,
+        "wires": [
+            [
+                "21ddf71f.d00518"
+            ]
+        ]
+    },
+    {
+        "id": "21ddf71f.d00518",
+        "type": "function",
+        "z": "http_examples_tab",
+        "name": "Cookieを整形",
+        "func": "msg.payload = JSON.stringify(msg.req.cookies,null,4);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 460,
+        "y": 1780,
+        "wires": [
+            [
+                "f3aa98c1.befc18"
+            ]
+        ]
+    },
+    {
+        "id": "f3aa98c1.befc18",
+        "type": "template",
+        "z": "http_examples_tab",
+        "name": "ページ生成",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "html",
+        "syntax": "mustache",
+        "template": "&lt;html>\n    &lt;head>&lt;/head>\n    &lt;body>\n        &lt;h1>Cookies&lt;/h1>\n        &lt;a href=\"hello-cookie/add\">Add a cookie&lt;/a>&lt;br/>\n        &lt;a href=\"hello-cookie/clear\">Clear cookies&lt;/a>&lt;br/>\n        &lt;pre>{{ payload }}&lt;/pre>\n    &lt;/body>\n&lt;/html>",
+        "output": "str",
+        "x": 650,
+        "y": 1780,
+        "wires": [
+            [
+                "f52e2880.180968"
+            ]
+        ]
+    },
+    {
+        "id": "f52e2880.180968",
+        "type": "http response",
+        "z": "http_examples_tab",
+        "name": "",
+        "x": 870,
+        "y": 1780,
+        "wires": []
+    },
+    {
+        "id": "9a2a9a4.0fc0768",
+        "type": "change",
+        "z": "http_examples_tab",
+        "name": "/hello-cookie へリダイレクト",
+        "rules": [
+            {
+                "t": "set",
+                "p": "statusCode",
+                "pt": "msg",
+                "to": "302",
+                "tot": "num"
+            },
+            {
+                "t": "set",
+                "p": "headers",
+                "pt": "msg",
+                "to": "{}",
+                "tot": "json"
+            },
+            {
+                "t": "set",
+                "p": "headers.location",
+                "pt": "msg",
+                "to": "/hello-cookie",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 670,
+        "y": 1840,
+        "wires": [
+            [
+                "f52e2880.180968"
+            ]
+        ]
+    },
+    {
+        "id": "afefb90.53dcf48",
+        "type": "function",
+        "z": "http_examples_tab",
+        "name": "Cookieを追加",
+        "func": "msg.cookies = { };\nmsg.cookies[\"demo-\"+(Math.floor(Math.random()*1000))] = Date.now();\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 450,
+        "y": 1820,
+        "wires": [
+            [
+                "9a2a9a4.0fc0768"
+            ]
+        ]
+    },
+    {
+        "id": "d5205a2c.db9018",
+        "type": "function",
+        "z": "http_examples_tab",
+        "name": "Cookieを削除",
+        "func": "// Find demo cookies and clear them\nvar cookieNames = Object.keys(msg.req.cookies).filter(function(cookieName) { return /^demo-/.test(cookieName);});\nmsg.cookies = {};\n\ncookieNames.forEach(function(cookieName) {\n    msg.cookies[cookieName] = null;\n});\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 460,
+        "y": 1860,
+        "wires": [
+            [
+                "9a2a9a4.0fc0768"
+            ]
+        ]
+    },
+    {
+        "id": "fda60c66.04975",
+        "type": "http in",
+        "z": "http_examples_tab",
+        "name": "",
+        "url": "/hello-cookie/add",
+        "method": "get",
+        "swaggerDoc": "",
+        "x": 260,
+        "y": 1820,
+        "wires": [
+            [
+                "afefb90.53dcf48"
+            ]
+        ]
+    },
+    {
+        "id": "35285a76.1f8636",
+        "type": "http in",
+        "z": "http_examples_tab",
+        "name": "",
+        "url": "/hello-cookie/clear",
+        "method": "get",
+        "swaggerDoc": "",
+        "x": 260,
+        "y": 1860,
+        "wires": [
+            [
+                "d5205a2c.db9018"
+            ]
+        ]
+    },
+    {
+        "id": "cb094c2f.7e34d",
+        "type": "comment",
+        "z": "http_examples_tab",
+        "name": "Working with cookies",
+        "info": "The messages sent by the `HTTP In` node include the `msg.req.cookies` property that lists the cookies set on the current request.\n\nThe `HTTP Response` node will use the `msg.cookies` property in order to set or clear cookies.\n\nSee Node-RED cookbook [item](https://cookbook.nodered.org/http/work-with-cookies) for details.\n",
+        "x": 220,
+        "y": 1680,
+        "wires": []
+    },
+    {
+        "id": "287a9146.683afe",
+        "type": "comment",
+        "z": "http_examples_tab",
+        "name": "Create HTTP page for testing cookies: open http://localhost:1880/hello-cookie from Web browser. ",
+        "info": "",
+        "x": 500,
+        "y": 1740,
+        "wires": []
+    }
+]</div>
+        </details>
+
+        <h3 id="test-methods">動作確認方法</h3>
+        <div class="warning">
+            <p><strong>⚠️ 動作確認の前提:</strong> フローを読み込んで「デプロイ」ボタンをクリックした後に行ってください。デプロイ前はエンドポイントがまだ存在しないため、すべて失敗します。</p>
+        </div>
+        <p>例1〜5は「エンドポイント（http in → http response）」と「それを呼び出すテスト用フロー（inject → http request → debug）」のセットになっており、エディタ内とブラウザの両方で確認できます。例6・7はブラウザから直接確認します。</p>
+        <ol>
+            <li>例1〜5: 各例の injectノードの左端のボタンをクリックすると、debugサイドバー（右パネルの虫アイコン）に、エンドポイントが返したレスポンス（HTMLやテキスト）が表示されます</li>
+            <li>ブラウザでも確認できます: <code>http://localhost:1880/hello</code>、<code>http://localhost:1880/hello-query?name=Taro</code>、<code>http://localhost:1880/hello-param/Taro</code>、<code>http://localhost:1880/hello-headers</code> を開くと、フローが生成したページが表示されます</li>
+            <li>例6（ファイルアップロード）: ブラウザで <code>http://localhost:1880/hello-upload</code> を開き、ファイルを選択して送信すると、受信結果が表示されます</li>
+            <li>例7（Cookie）: ブラウザで <code>http://localhost:1880/hello-cookie</code> を開くと現在のCookie一覧が表示され、ページ内の「Add a cookie」「Clear cookies」リンクで追加・削除を試せます</li>
+        </ol>
+        <div class="important">
+            <p><strong>🖥️ 本ガイドはローカル環境前提です:</strong> サンプルフローのHTTP Requestノードは <code>http://localhost:1880/...</code> へ接続する（自分自身のAPIを呼び出す）設定です。httpsで公開された共有クラウド環境では、この接続先が存在しないため公式サンプルは動作しません（同じループバック構成のwebsocketガイドで実測確認済み）。自分のPCにインストールしたNode-REDで学習してください（<a href="nodered-windows-install-guide.html">Windowsインストールガイド</a>／<a href="nodered-raspberry-pi-install-guide.html">Raspberry Piインストールガイド</a>）。なお、Raspberry Pi上のNode-REDを別のPCのブラウザから操作している場合、ブラウザで開くURLの <code>localhost</code> はPiのアドレス（例: <code>http://raspberrypi.local:1880</code>）になります。フロー内部の <code>http://localhost:1880/...</code> はPi自身への接続なので、そのままで動きます。</p>
+        </div>
+
+        <h3>応用（サイト独自）: 実用パターン集</h3>
+        <p>ここから先は公式サンプルではなく、<strong>本サイトが用意した応用教材</strong>です。JSONを返すAPI、flow変数へのデータ保存、外部API呼び出し（timeapi.io）、ステータスコードによるエラーハンドリング、セルフテストを1つのタブにまとめたもので、以下で説明する使用パターンの実例になっています。</p>
+        <details>
+            <summary>📥 応用フローJSON（クリックで展開）</summary>
             <div class="flow-json">[
     {
         "id": "http_sample_tab",
@@ -842,14 +1946,14 @@ return msg;</div>
 ]</div>
         </details>
 
+        <h3>応用フローの動作確認</h3>
         <div class="tip">
             <p><strong>作成したAPIの動作確認方法:</strong></p>
-            <p>サンプルフローをデプロイしたら、以下のいずれかの方法でHTTPリクエストを送って動作を確認できます。初心者の方は、まず「HTTP Request ノード」か「ブラウザ」から試すのがおすすめです。</p>
-            <p><small>※ 以下の例の <code>[Node-REDのホスト]</code> は、お使いのNode-REDエディタを開いているアドレスの「ホスト名:ポート番号」部分に置き換えてください（ローカル環境なら <code>localhost:1880</code>、共有クラウド環境ならエディタのURLと同じホスト・ポート）。<strong>エディタのアドレスバーが <code>https://</code> で始まっている場合は、以下の例の <code>http://</code> も <code>https://</code> に読み替えてください。</strong></small></p>
+            <p>応用フローをデプロイしたら、以下のいずれかの方法でHTTPリクエストを送って動作を確認できます。初心者の方は、まず「HTTP Request ノード」か「ブラウザ」から試すのがおすすめです。</p>
             <ul>
-                <li><strong>HTTP Request ノード（追加ツール不要）:</strong> 上のサンプルフローの「セルフテスト」部分のように、Node-RED内にInject→HTTP Requestノードを置いて自分のAPIを呼び出します。新しいツールを覚える必要がなく、GET以外のメソッドも試せます。</li>
-                <li><strong>ブラウザ:</strong> GETリクエストのみですが、アドレスバーにURL（例: <code>http://[Node-REDのホスト]/api/hello</code>）を入力するだけで確認できます。POST/PUT/DELETEはブラウザから直接送信できません。</li>
-                <li><strong>curl（任意・コマンドライン操作に慣れている場合）:</strong> ターミナル/コマンドプロンプトからHTTPリクエストを送れるコマンドラインツールです。多くのOSに標準搭載されています。例: <code>curl http://[Node-REDのホスト]/api/hello</code>（オプションを付けない場合は常にGETリクエストになります。POST/DELETE等を送るには下記のオプション早見表を参照）。</li>
+                <li><strong>HTTP Request ノード（追加ツール不要）:</strong> 上の応用フローの「セルフテスト」部分のように、Node-RED内にInject→HTTP Requestノードを置いて自分のAPIを呼び出します。新しいツールを覚える必要がなく、GET以外のメソッドも試せます。</li>
+                <li><strong>ブラウザ:</strong> GETリクエストのみですが、アドレスバーにURL（例: <code>http://localhost:1880/api/hello</code>）を入力するだけで確認できます。POST/PUT/DELETEはブラウザから直接送信できません。</li>
+                <li><strong>curl（任意・コマンドライン操作に慣れている場合）:</strong> ターミナル/コマンドプロンプトからHTTPリクエストを送れるコマンドラインツールです。多くのOSに標準搭載されています。例: <code>curl http://localhost:1880/api/hello</code>（オプションを付けない場合は常にGETリクエストになります。POST/DELETE等を送るには下記のオプション早見表を参照）。</li>
                 <li><strong>Postman（任意・GUIで操作したい場合）:</strong> 無料でダウンロードできる、画面操作でHTTPリクエストを組み立てて送信できる専用アプリです。POSTのボディ入力なども視覚的に行えます。</li>
             </ul>
             <p id="curl-cheatsheet"><strong>💡 よく使うcurlオプション早見表:</strong></p>
@@ -860,8 +1964,7 @@ return msg;</div>
                 <tr><td><code>-d</code></td><td>送信するデータ（ボディ）を指定</td><td><code>-d '{"text":"hello"}'</code></td></tr>
                 <tr><td><code>-u</code></td><td>Basic認証のユーザー名とパスワード</td><td><code>-u ユーザー名:パスワード</code></td></tr>
             </table>
-            <p><small>※ 共有クラウド環境によっては、個々のAPI（フロー）の認証設定とは別に、Node-REDサーバー全体がBasic認証で保護されている場合があります。この場合はAPI自体に認証を設定していなくても、上記の <code>-u</code> オプションで環境から配布されたユーザー名・パスワードを指定しないとアクセスできません（コースの案内や講師に確認してください）。</small></p>
-            <p><small>※ <strong>Windows PowerShellを使う場合の注意:</strong> PowerShellでは <code>curl</code> という名前がPowerShell独自の別コマンド（<code>Invoke-WebRequest</code>）に割り当てられており、上記のオプションのままでは正しく動作しません。<strong><code>curl.exe</code></strong> と拡張子まで明示すると、本来のcurlコマンドを呼び出せます。また <code>-d</code> でJSONデータを渡す際は、内側の二重引用符を <code>\"</code> のようにエスケープしてください。例: <code>curl.exe -X POST -H "Content-Type: application/json" -d '{\"sensor\":\"temp\",\"value\":25.3}' http://[Node-REDのホスト]/api/data</code></small></p>
+            <p><small>※ <strong>Windows PowerShellを使う場合の注意:</strong> PowerShellでは <code>curl</code> という名前がPowerShell独自の別コマンド（<code>Invoke-WebRequest</code>）に割り当てられており、上記のオプションのままでは正しく動作しません。<strong><code>curl.exe</code></strong> と拡張子まで明示すると、本来のcurlコマンドを呼び出せます。また <code>-d</code> でJSONデータを渡す際は、内側の二重引用符を <code>\"</code> のようにエスケープしてください。例: <code>curl.exe -X POST -H "Content-Type: application/json" -d '{\"sensor\":\"temp\",\"value\":25.3}' http://localhost:1880/api/data</code></small></p>
         </div>
 
         <h3>パターン1: シンプルなGET API</h3>
@@ -884,7 +1987,7 @@ return msg;</div>
         </div>
         <p><strong>用途:</strong> センサーデータの受信、フォーム送信の処理</p>
         <p><strong>💡 テスト方法（重要）:</strong> このパターンはPOST専用のため、ブラウザでURLを開いたり <code>curl URL</code> だけを実行したりすると<strong>GETリクエストになってしまい</strong>、「Cannot GET /api/data」のようなエラーになります。<code>-X POST</code> でメソッドを指定してください（オプションの詳細は<a href="#curl-cheatsheet">curlオプション早見表</a>参照）。</p>
-        <div class="code-block">curl -X POST -H "Content-Type: application/json" -d '{"sensor":"temp","value":25.4}' http://[Node-REDのホスト]/api/data</div>
+        <div class="code-block">curl -X POST -H "Content-Type: application/json" -d '{"sensor":"temp","value":25.4}' http://localhost:1880/api/data</div>
 
         <h3>パターン3: 外部API呼び出し</h3>
         <div class="node-example">
@@ -924,8 +2027,6 @@ return msg;</div>
         <p><strong>注意:</strong> テンプレート内の <code>{{timestamp}}</code> は template ノードが実行された時点の値に置き換わります。値をセットする change ノードは、必ず template ノードより<strong>前</strong>に置いてください。順序を逆にすると、その項目は空欄で出力されます。</p>
 
         <h2 id="section6">6. 演習問題</h2>
-
-        <p><small>💡 以下の演習例に出てくる <code>localhost:1880</code> はローカル環境での例です。共有クラウド環境などでは、ご利用のNode-REDエディタを開いているアドレス（ホスト名:ポート番号）に置き換えてください。<strong>エディタのアドレスバーが <code>https://</code> で始まっている場合は、例中の <code>http://</code> も <code>https://</code> に読み替えてください。</strong>また、環境によってはBasic認証（<code>curl -u ユーザー名:パスワード ...</code>）が別途必要な場合があります（詳しくは<a href="#curl-cheatsheet">curlオプション早見表</a>参照）。</small></p>
 
         <div class="exercise">
             <h3>演習1: シンプルなJSON API <span class="difficulty difficulty-easy">初級</span></h3>
@@ -1091,7 +2192,7 @@ return msg;</div>
     {"id": "ex4_get_one", "type": "http in", "z": "ex4_tab", "name": "GET /api/notes/:id", "url": "/api/notes/:id", "method": "get", "upload": false, "skipBodyParsing": false, "swaggerDoc": "", "x": 180, "y": 200, "wires": [["ex4_func_get_one"]]},
     {"id": "ex4_func_get_one", "type": "function", "z": "ex4_tab", "name": "1件取得", "func": "var notes = flow.get('notes') || [];\nvar noteId = parseInt(msg.req.params.id);\nvar note = notes.find(function(n) { return n.id === noteId; });\nif (note) {\n    msg.payload = {success: true, note: note};\n    msg.statusCode = 200;\n} else {\n    msg.payload = {success: false, error: \"Not found\"};\n    msg.statusCode = 404;\n}\nmsg.headers = {\"Content-Type\": \"application/json\"};\nreturn msg;", "outputs": 1, "timeout": 0, "initialize": "", "finalize": "", "libs": [], "x": 370, "y": 200, "wires": [["ex4_response"]]},
     {"id": "ex4_delete", "type": "http in", "z": "ex4_tab", "name": "DELETE /api/notes/:id", "url": "/api/notes/:id", "method": "delete", "upload": false, "skipBodyParsing": false, "swaggerDoc": "", "x": 190, "y": 260, "wires": [["ex4_func_delete"]]},
-    {"id": "ex4_func_delete", "type": "function", "z": "ex4_tab", "name": "削除", "func": "var notes = flow.get('notes') || [];\nvar noteId = parseInt(msg.req.params.id);\nvar originalLength = notes.length;\nnotes = notes.filter(function(n) { return n.id !== noteId; });\nflow.set('notes', notes);\nif (notes.length < originalLength) {\n    msg.payload = {success: true, message: \"Deleted\"};\n    msg.statusCode = 200;\n} else {\n    msg.payload = {success: false, error: \"Not found\"};\n    msg.statusCode = 404;\n}\nmsg.headers = {\"Content-Type\": \"application/json\"};\nreturn msg;", "outputs": 1, "timeout": 0, "initialize": "", "finalize": "", "libs": [], "x": 370, "y": 260, "wires": [["ex4_response"]]},
+    {"id": "ex4_func_delete", "type": "function", "z": "ex4_tab", "name": "削除", "func": "var notes = flow.get('notes') || [];\nvar noteId = parseInt(msg.req.params.id);\nvar originalLength = notes.length;\nnotes = notes.filter(function(n) { return n.id !== noteId; });\nflow.set('notes', notes);\nif (notes.length &lt; originalLength) {\n    msg.payload = {success: true, message: \"Deleted\"};\n    msg.statusCode = 200;\n} else {\n    msg.payload = {success: false, error: \"Not found\"};\n    msg.statusCode = 404;\n}\nmsg.headers = {\"Content-Type\": \"application/json\"};\nreturn msg;", "outputs": 1, "timeout": 0, "initialize": "", "finalize": "", "libs": [], "x": 370, "y": 260, "wires": [["ex4_response"]]},
     {"id": "ex4_response", "type": "http response", "z": "ex4_tab", "name": "Response", "statusCode": "", "headers": {}, "x": 560, "y": 160, "wires": []}
 ]</div>
             </details>
