@@ -1393,7 +1393,7 @@ return msg;</div>
         <div class="warning">
             <p><strong>⚠️ 動作確認の前提:</strong> フローを読み込んで「デプロイ」ボタンをクリックした後に行ってください。デプロイ前はエンドポイントがまだ存在しないため、すべて失敗します。</p>
         </div>
-        <p>各例は「エンドポイント（http in → http response）」と「それを呼び出すテスト用フロー（inject → http request → debug）」のセットになっています。エディタ内とブラウザの両方で確認できます。</p>
+        <p>例1〜5は「エンドポイント（http in → http response）」と「それを呼び出すテスト用フロー（inject → http request → debug）」のセットになっており、エディタ内とブラウザの両方で確認できます。例6・7はブラウザから直接確認します。</p>
         <ol>
             <li>例1〜5: 各例の injectノードの左端のボタンをクリックすると、debugサイドバー（右パネルの虫アイコン）に、エンドポイントが返したレスポンス（HTMLやテキスト）が表示されます</li>
             <li>ブラウザでも確認できます: <code>http://localhost:1880/hello</code>、<code>http://localhost:1880/hello-query?name=Taro</code>、<code>http://localhost:1880/hello-param/Taro</code>、<code>http://localhost:1880/hello-headers</code> を開くと、フローが生成したページが表示されます</li>
@@ -1401,7 +1401,7 @@ return msg;</div>
             <li>例7（Cookie）: ブラウザで <code>http://localhost:1880/hello-cookie</code> を開くと現在のCookie一覧が表示され、ページ内の「Add a cookie」「Clear cookies」リンクで追加・削除を試せます</li>
         </ol>
         <div class="important">
-            <p><strong>🖥️ 本ガイドはローカル環境前提です:</strong> サンプルフローのHTTP Requestノードは <code>http://localhost:1880/...</code> へ接続する（自分自身のAPIを呼び出す）設定です。httpsで公開された共有クラウド環境では、この接続先が存在しないため公式サンプルは動作しません（同じループバック構成のwebsocketガイドで実測確認済み）。自分のPCにインストールしたNode-REDで学習してください（<a href="nodered-windows-install-guide.html">Windowsインストールガイド</a>／<a href="nodered-raspberry-pi-install-guide.html">Raspberry Piインストールガイド</a>）。</p>
+            <p><strong>🖥️ 本ガイドはローカル環境前提です:</strong> サンプルフローのHTTP Requestノードは <code>http://localhost:1880/...</code> へ接続する（自分自身のAPIを呼び出す）設定です。httpsで公開された共有クラウド環境では、この接続先が存在しないため公式サンプルは動作しません（同じループバック構成のwebsocketガイドで実測確認済み）。自分のPCにインストールしたNode-REDで学習してください（<a href="nodered-windows-install-guide.html">Windowsインストールガイド</a>／<a href="nodered-raspberry-pi-install-guide.html">Raspberry Piインストールガイド</a>）。なお、Raspberry Pi上のNode-REDを別のPCのブラウザから操作している場合、ブラウザで開くURLの <code>localhost</code> はPiのアドレス（例: <code>http://raspberrypi.local:1880</code>）になります。フロー内部の <code>http://localhost:1880/...</code> はPi自身への接続なので、そのままで動きます。</p>
         </div>
 
         <h3>応用（サイト独自）: 実用パターン集</h3>
@@ -2192,7 +2192,7 @@ return msg;</div>
     {"id": "ex4_get_one", "type": "http in", "z": "ex4_tab", "name": "GET /api/notes/:id", "url": "/api/notes/:id", "method": "get", "upload": false, "skipBodyParsing": false, "swaggerDoc": "", "x": 180, "y": 200, "wires": [["ex4_func_get_one"]]},
     {"id": "ex4_func_get_one", "type": "function", "z": "ex4_tab", "name": "1件取得", "func": "var notes = flow.get('notes') || [];\nvar noteId = parseInt(msg.req.params.id);\nvar note = notes.find(function(n) { return n.id === noteId; });\nif (note) {\n    msg.payload = {success: true, note: note};\n    msg.statusCode = 200;\n} else {\n    msg.payload = {success: false, error: \"Not found\"};\n    msg.statusCode = 404;\n}\nmsg.headers = {\"Content-Type\": \"application/json\"};\nreturn msg;", "outputs": 1, "timeout": 0, "initialize": "", "finalize": "", "libs": [], "x": 370, "y": 200, "wires": [["ex4_response"]]},
     {"id": "ex4_delete", "type": "http in", "z": "ex4_tab", "name": "DELETE /api/notes/:id", "url": "/api/notes/:id", "method": "delete", "upload": false, "skipBodyParsing": false, "swaggerDoc": "", "x": 190, "y": 260, "wires": [["ex4_func_delete"]]},
-    {"id": "ex4_func_delete", "type": "function", "z": "ex4_tab", "name": "削除", "func": "var notes = flow.get('notes') || [];\nvar noteId = parseInt(msg.req.params.id);\nvar originalLength = notes.length;\nnotes = notes.filter(function(n) { return n.id !== noteId; });\nflow.set('notes', notes);\nif (notes.length < originalLength) {\n    msg.payload = {success: true, message: \"Deleted\"};\n    msg.statusCode = 200;\n} else {\n    msg.payload = {success: false, error: \"Not found\"};\n    msg.statusCode = 404;\n}\nmsg.headers = {\"Content-Type\": \"application/json\"};\nreturn msg;", "outputs": 1, "timeout": 0, "initialize": "", "finalize": "", "libs": [], "x": 370, "y": 260, "wires": [["ex4_response"]]},
+    {"id": "ex4_func_delete", "type": "function", "z": "ex4_tab", "name": "削除", "func": "var notes = flow.get('notes') || [];\nvar noteId = parseInt(msg.req.params.id);\nvar originalLength = notes.length;\nnotes = notes.filter(function(n) { return n.id !== noteId; });\nflow.set('notes', notes);\nif (notes.length &lt; originalLength) {\n    msg.payload = {success: true, message: \"Deleted\"};\n    msg.statusCode = 200;\n} else {\n    msg.payload = {success: false, error: \"Not found\"};\n    msg.statusCode = 404;\n}\nmsg.headers = {\"Content-Type\": \"application/json\"};\nreturn msg;", "outputs": 1, "timeout": 0, "initialize": "", "finalize": "", "libs": [], "x": 370, "y": 260, "wires": [["ex4_response"]]},
     {"id": "ex4_response", "type": "http response", "z": "ex4_tab", "name": "Response", "statusCode": "", "headers": {}, "x": 560, "y": 160, "wires": []}
 ]</div>
             </details>
