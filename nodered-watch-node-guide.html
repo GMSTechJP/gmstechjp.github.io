@@ -307,7 +307,7 @@
         "tostatus": true,
         "complete": "file",
         "targetType": "msg",
-        "statusVal": "\"CSV: \" & file",
+        "statusVal": "\"CSV: \" &amp; file",
         "statusType": "jsonata",
         "x": 560,
         "y": 340,
@@ -324,7 +324,7 @@
         "tostatus": true,
         "complete": "file",
         "targetType": "msg",
-        "statusVal": "\"IMG: \" & file",
+        "statusVal": "\"IMG: \" &amp; file",
         "statusType": "jsonata",
         "x": 560,
         "y": 380,
@@ -341,7 +341,7 @@
         "tostatus": true,
         "complete": "file",
         "targetType": "msg",
-        "statusVal": "\"JSON: \" & file",
+        "statusVal": "\"JSON: \" &amp; file",
         "statusType": "jsonata",
         "x": 560,
         "y": 420,
@@ -358,7 +358,7 @@
         "tostatus": true,
         "complete": "file",
         "targetType": "msg",
-        "statusVal": "\"OTHER: \" & file",
+        "statusVal": "\"OTHER: \" &amp; file",
         "statusType": "jsonata",
         "x": 550,
         "y": 460,
@@ -414,7 +414,7 @@
         "tostatus": true,
         "complete": "payload",
         "targetType": "msg",
-        "statusVal": "\"大: \" & $string(size) & \" bytes\"",
+        "statusVal": "\"大: \" &amp; $string(size) &amp; \" bytes\"",
         "statusType": "jsonata",
         "x": 500,
         "y": 580,
@@ -431,7 +431,7 @@
         "tostatus": true,
         "complete": "payload",
         "targetType": "msg",
-        "statusVal": "\"小: \" & $string(size) & \" bytes\"",
+        "statusVal": "\"小: \" &amp; $string(size) &amp; \" bytes\"",
         "statusType": "jsonata",
         "x": 500,
         "y": 620,
@@ -653,7 +653,7 @@ msg.size = 1024</div>
 [
     {"id": "ex1_tab", "type": "tab", "label": "演習1", "disabled": false, "info": ""},
     {"id": "ex1_watch", "type": "watch", "name": "mywatch監視", "files": "/tmp/mywatch", "recursive": false, "x": 160, "y": 100, "wires": [["ex1_debug"]], "z": "ex1_tab"},
-    {"id": "ex1_debug", "type": "debug", "name": "ファイル情報", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "true", "targetType": "full", "statusVal": "file & \": \" & $string(size) & \" bytes\"", "statusType": "jsonata", "x": 370, "y": 100, "wires": [], "z": "ex1_tab"}
+    {"id": "ex1_debug", "type": "debug", "name": "ファイル情報", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "true", "targetType": "full", "statusVal": "file &amp; \": \" &amp; $string(size) &amp; \" bytes\"", "statusType": "jsonata", "x": 370, "y": 100, "wires": [], "z": "ex1_tab"}
 ]
 </div>
             </details>
@@ -751,7 +751,7 @@ msg.size = 1024</div>
     {"id": "ex3_tab", "type": "tab", "label": "演習3", "disabled": false, "info": ""},
     {"id": "ex3_watch", "type": "watch", "name": "画像フォルダ監視", "files": "/tmp/images", "recursive": true, "x": 170, "y": 100, "wires": [["ex3_switch"]], "z": "ex3_tab"},
     {"id": "ex3_switch", "type": "switch", "name": "画像のみ", "property": "file", "propertyType": "msg", "rules": [{"t": "regex", "v": "\\.(jpg|jpeg|png)$", "vt": "str", "case": true}], "checkall": "true", "repair": false, "outputs": 1, "x": 350, "y": 100, "wires": [["ex3_change"]], "z": "ex3_tab"},
-    {"id": "ex3_change", "type": "change", "name": "ログ整形", "rules": [{"t": "set", "p": "payload", "pt": "msg", "to": "$now('[Y0001]-[M01]-[D01]T[H01]:[m01]:[s01].[f001]Z') & \",\" & file & \",\" & $string(size)", "tot": "jsonata"}], "x": 510, "y": 100, "wires": [["ex3_write", "ex3_debug"]], "z": "ex3_tab"},
+    {"id": "ex3_change", "type": "change", "name": "ログ整形", "rules": [{"t": "set", "p": "payload", "pt": "msg", "to": "$now('[Y0001]-[M01]-[D01]T[H01]:[m01]:[s01].[f001]Z') &amp; \",\" &amp; file &amp; \",\" &amp; $string(size)", "tot": "jsonata"}], "x": 510, "y": 100, "wires": [["ex3_write", "ex3_debug"]], "z": "ex3_tab"},
     {"id": "ex3_write", "type": "file", "name": "ログ追記", "filename": "/tmp/image_log.csv", "filenameType": "str", "appendNewline": true, "createDir": true, "overwriteFile": "false", "encoding": "utf8", "x": 680, "y": 80, "wires": [[]], "z": "ex3_tab"},
     {"id": "ex3_debug", "type": "debug", "name": "画像検出", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "payload", "statusType": "msg", "x": 680, "y": 120, "wires": [], "z": "ex3_tab"}
 ]
@@ -807,7 +807,7 @@ msg.size = 1024</div>
     {"id": "ex4_csv", "type": "csv", "name": "CSV解析", "sep": ",", "hdrin": true, "hdrout": "none", "multi": "mult", "ret": "\\n", "temp": "", "skip": "0", "strings": true, "include_empty_strings": false, "include_null_values": false, "x": 700, "y": 100, "wires": [["ex4_func"]], "z": "ex4_tab"},
     {"id": "ex4_func", "type": "function", "name": "JSON変換", "func": "var baseName = msg.file.replace('.csv', '');\nvar result = {\n    originalFile: msg.filename,\n    processedAt: new Date().toISOString(),\n    recordCount: msg.payload.length,\n    data: msg.payload\n};\nmsg.payload = JSON.stringify(result, null, 2);\nmsg.outputFile = \"/tmp/ftp_processed/\" + baseName + \".json\";\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 150, "y": 180, "wires": [["ex4_write_json"]], "z": "ex4_tab"},
     {"id": "ex4_write_json", "type": "file", "name": "JSON保存", "filename": "outputFile", "filenameType": "msg", "appendNewline": false, "createDir": true, "overwriteFile": "true", "encoding": "utf8", "x": 310, "y": 180, "wires": [["ex4_debug"]], "z": "ex4_tab"},
-    {"id": "ex4_debug", "type": "debug", "name": "処理完了", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "outputFile", "targetType": "msg", "statusVal": "\"処理完了: \" & file", "statusType": "jsonata", "x": 470, "y": 180, "wires": [], "z": "ex4_tab"}
+    {"id": "ex4_debug", "type": "debug", "name": "処理完了", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "outputFile", "targetType": "msg", "statusVal": "\"処理完了: \" &amp; file", "statusType": "jsonata", "x": 470, "y": 180, "wires": [], "z": "ex4_tab"}
 ]
 </div>
             </details>
