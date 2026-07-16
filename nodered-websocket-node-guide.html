@@ -62,7 +62,7 @@
 <body>
     <div class="container">
         <h1>🔌 Node-RED WebSocket ノード完全ガイド</h1>
-        <div data-envbadge="1" style="margin:12px 0;"><span style="display:inline-block;padding:3px 12px;border-radius:12px;font-size:0.85em;font-weight:bold;background:#e3f2fd;color:#0d47a1;border:1px solid #90caf9;">☁️ クラウドOK</span> <a href="nodered-learning-environment-guide.html" style="font-size:0.82em;">環境とは？</a></div>
+        <div data-envbadge="1" style="margin:12px 0;"><span style="display:inline-block;padding:3px 12px;border-radius:12px;font-size:0.85em;font-weight:bold;background:#f3e5f5;color:#6a1b9a;border:1px solid #ce93d8;">🖥️ ローカル/ラズパイ向け</span> <a href="nodered-learning-environment-guide.html" style="font-size:0.82em;">環境とは？</a></div>
 
         <div class="tip">
             🧭 <strong>通信が初めての方へ：</strong> サーバー／クライアント、ポート、プロトコルの全体像は <a href="nodered-network-basics-guide.html">通信の基礎（ネットワーク入門）</a> でまとめて解説しています。先に読むと本ガイドが理解しやすくなります。
@@ -235,20 +235,239 @@ ws://localhost:1880/ws/chat</div>
         
         <h2 id="section4">🔧 4. 実用的な使用パターン</h2>
         <div class="important">
-            <p><strong>📥 サンプルフローのインポート方法:</strong></p>
+            <p><strong>📥 サンプルフローを試す手順:</strong></p>
+            <p>フローJSONは、Node-REDエディタの「読み込み」画面に貼り付けるためのものです。ブラウザの開発者ツール（Console）に貼り付けても何も起きません。</p>
             <ol>
-                <li>下のサンプルフローJSONをコピー</li>
-                <li>Node-REDエディタで <strong>メニュー → 読み込み</strong> を選択</li>
-                <li>JSONをペーストして「読み込み」をクリック</li>
+                <li>Node-REDを起動し、ブラウザでエディタを開く（<code>http://localhost:1880</code>）</li>
+                <li>下の「公式サンプルフローJSON」を「コピー」ボタンでコピー</li>
+                <li>エディタ右上の <strong>メニュー → 読み込み</strong> を選択し、JSONを貼り付けて「読み込み」をクリック</li>
+                <li>エディタ右上の<strong>「デプロイ」ボタンをクリック</strong>（クリックするまでフローは動きません）</li>
+                <li>後述の「<a href="#test-methods">動作確認方法</a>」の手順で、動作を確認する</li>
             </ol>
-            <p>このサンプルフローには、以下で説明するパターンの実例が含まれています。</p>
         </div>
 
-        
-
-        
+        <h3>公式サンプルフロー</h3>
+        <p>最初のサンプルフローは、Node-RED本体に同梱されている公式サンプル（「Connect to websocket in server」「Connect to websocket out server」の2例）を1つのタブにまとめ、ノード名を日本語化したものです。エディタの <strong>メニュー → 読み込み → サンプル → network → websocket</strong> からも同じものを開けます。</p>
         <details>
-            <summary>📥 サンプルフローJSON（クリックで展開）</summary>
+            <summary>📥 公式サンプルフローJSON（クリックで展開）</summary>
+            <div class="flow-json">[
+    {
+        "id": "ws_examples_tab",
+        "type": "tab",
+        "label": "websocket",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "c88f97a9.4410f8",
+        "type": "comment",
+        "z": "ws_examples_tab",
+        "name": "Connect to websocket in server",
+        "info": "`websocket out` node can connect to web socket server.  `websocket in` node can serve a web socket server.\n",
+        "x": 290,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "6788839e.04576c",
+        "type": "inject",
+        "z": "ws_examples_tab",
+        "name": "「Hello, World!」を送信",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "Hello, World!",
+        "payloadType": "str",
+        "x": 290,
+        "y": 120,
+        "wires": [
+            [
+                "438c232a.06c2cc"
+            ]
+        ]
+    },
+    {
+        "id": "438c232a.06c2cc",
+        "type": "websocket out",
+        "z": "ws_examples_tab",
+        "name": "clientとして送信",
+        "server": "",
+        "client": "63620788.bda128",
+        "x": 500,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "13410716.69c9d9",
+        "type": "websocket in",
+        "z": "ws_examples_tab",
+        "name": "サーバー(/ws1)で受信",
+        "server": "89db22b6.9aa36",
+        "client": "",
+        "x": 300,
+        "y": 180,
+        "wires": [
+            [
+                "c2541f10.59544"
+            ]
+        ]
+    },
+    {
+        "id": "c2541f10.59544",
+        "type": "debug",
+        "z": "ws_examples_tab",
+        "name": "受信確認1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 500,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "c3fbc602.2e7f08",
+        "type": "comment",
+        "z": "ws_examples_tab",
+        "name": "Connect to websocket out server",
+        "info": "`websocket out` node can connect to web socket server.  `websocket in` node can serve a web socket server.\n",
+        "x": 290,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "aa2fe781.e92b28",
+        "type": "inject",
+        "z": "ws_examples_tab",
+        "name": "「Goodbye, World!」を送信",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "Goodbye, World!",
+        "payloadType": "str",
+        "x": 300,
+        "y": 300,
+        "wires": [
+            [
+                "f8bdbc9b.d82dd"
+            ]
+        ]
+    },
+    {
+        "id": "f8bdbc9b.d82dd",
+        "type": "websocket out",
+        "z": "ws_examples_tab",
+        "name": "サーバー(/ws2)から配信",
+        "server": "40bd4295.3e4ecc",
+        "client": "",
+        "x": 530,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "759c0b2b.8a0484",
+        "type": "websocket in",
+        "z": "ws_examples_tab",
+        "name": "clientとして受信",
+        "server": "",
+        "client": "1d80bd86.93f372",
+        "x": 300,
+        "y": 360,
+        "wires": [
+            [
+                "1f7a7454.cb65ec"
+            ]
+        ]
+    },
+    {
+        "id": "1f7a7454.cb65ec",
+        "type": "debug",
+        "z": "ws_examples_tab",
+        "name": "受信確認2",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 500,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "89db22b6.9aa36",
+        "type": "websocket-listener",
+        "path": "/ws1",
+        "wholemsg": "false"
+    },
+    {
+        "id": "63620788.bda128",
+        "type": "websocket-client",
+        "path": "ws://localhost:1880/ws1",
+        "tls": "",
+        "wholemsg": "false"
+    },
+    {
+        "id": "40bd4295.3e4ecc",
+        "type": "websocket-listener",
+        "path": "/ws2",
+        "wholemsg": "false"
+    },
+    {
+        "id": "1d80bd86.93f372",
+        "type": "websocket-client",
+        "path": "ws://localhost:1880/ws2",
+        "tls": "",
+        "wholemsg": "false"
+    }
+]</div>
+        </details>
+
+        <h3 id="test-methods">動作確認方法</h3>
+        <div class="warning">
+            <p><strong>⚠️ 動作確認の前提:</strong> フローを読み込んで「デプロイ」ボタンをクリックした後に行ってください。デプロイ前は接続先がまだ存在しないため、接続に失敗します。</p>
+        </div>
+        <p>公式サンプルフローの動作確認は、エディタ内だけで完結します。ブラウザの操作も追加ツールも不要です。</p>
+        <ol>
+            <li>「Hello, World!」injectノードの左端のボタンをクリックする</li>
+            <li>debugサイドバー（右パネルの虫アイコン）に <code>Hello, World!</code> と表示されれば、例1（clientとして送信 → サーバー(/ws1)で受信）の成功です</li>
+            <li>「Goodbye, World!」側のボタンもクリックし、例2（サーバー(/ws2)から配信 → clientとして受信）も確認する</li>
+        </ol>
+        <div class="important">
+            <p><strong>🖥️ 本ガイドはローカル環境前提です:</strong> サンプルフローのwebsocket-clientは <code>ws://localhost:1880/ws1</code> へ接続する設定です。httpsで公開された共有クラウド環境では、この接続先が存在しないため公式サンプルは動作しません（実測確認済み）。自分のPCにインストールしたNode-REDで学習してください（<a href="nodered-windows-install-guide.html">Windowsインストールガイド</a>／<a href="nodered-raspberry-pi-install-guide.html">Raspberry Piインストールガイド</a>）。</p>
+        </div>
+
+        <h3>応用（サイト独自）: ブラウザからWebSocketに接続する</h3>
+        <p>ここから先は公式サンプルではなく、<strong>本サイトが用意した応用教材</strong>です。ブラウザのJavaScriptからNode-REDのWebSocketサーバーに接続します。エコーサーバー、チャット（ブロードキャスト）、ブラウザテスト用ページ（/ws-test）が含まれ、以下で説明する使用パターンの実例になっています。</p>
+        <details>
+            <summary>📥 応用フローJSON（クリックで展開）</summary>
             <div class="flow-json">[
     {
         "id": "ws_sample_tab",
@@ -507,7 +726,7 @@ ws://localhost:1880/ws/chat</div>
         "fieldType": "msg",
         "format": "html",
         "syntax": "plain",
-        "template": "&lt;!DOCTYPE html&gt;\n&lt;html&gt;\n&lt;head&gt;\n    &lt;meta charset=\"UTF-8\"&gt;\n    &lt;title&gt;WebSocket テスト&lt;/title&gt;\n    &lt;style&gt;\n        body { font-family: Arial, sans-serif; padding: 20px; background: #f0f0f0; }\n        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; }\n        h1 { color: #b92d5d; }\n        .status { padding: 10px; border-radius: 5px; margin: 10px 0; }\n        .connected { background: #c8e6c9; color: #2e7d32; }\n        .disconnected { background: #ffcdd2; color: #c62828; }\n        #messages { height: 200px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; margin: 10px 0; background: #fafafa; }\n        .message { padding: 5px; border-bottom: 1px solid #eee; }\n        input, button { padding: 10px; margin: 5px 0; }\n        input { width: 70%; }\n        button { background: #b92d5d; color: white; border: none; cursor: pointer; border-radius: 5px; }\n        button:hover { background: #8e2347; }\n    &lt;/style&gt;\n&lt;/head&gt;\n&lt;body&gt;\n    &lt;div class=\"container\"&gt;\n        &lt;h1&gt;🔌 WebSocket テスト&lt;/h1&gt;\n        \n        &lt;div id=\"status\" class=\"status disconnected\"&gt;切断中&lt;/div&gt;\n        \n        &lt;div&gt;\n            &lt;button onclick=\"connectEcho()\"&gt;Echoサーバーに接続&lt;/button&gt;\n            &lt;button onclick=\"connectChat()\"&gt;Chatサーバーに接続&lt;/button&gt;\n            &lt;button onclick=\"disconnect()\"&gt;切断&lt;/button&gt;\n        &lt;/div&gt;\n        \n        &lt;div id=\"messages\"&gt;&lt;/div&gt;\n        \n        &lt;div&gt;\n            &lt;input type=\"text\" id=\"messageInput\" placeholder=\"メッセージを入力...\"&gt;\n            &lt;button onclick=\"sendMessage()\"&gt;送信&lt;/button&gt;\n        &lt;/div&gt;\n    &lt;/div&gt;\n    \n    &lt;script&gt;\n        var ws = null;\n        \n        function connectEcho() {\n            connect('ws://' + location.host + '/ws/echo');\n        }\n        \n        function connectChat() {\n            connect('ws://' + location.host + '/ws/chat');\n        }\n        \n        function connect(url) {\n            if (ws) ws.close();\n            \n            ws = new WebSocket(url);\n            \n            ws.onopen = function() {\n                document.getElementById('status').className = 'status connected';\n                document.getElementById('status').textContent = '接続中: ' + url;\n                addMessage('システム', '接続しました');\n            };\n            \n            ws.onmessage = function(event) {\n                try {\n                    var data = JSON.parse(event.data);\n                    addMessage('受信', JSON.stringify(data, null, 2));\n                } catch(e) {\n                    addMessage('受信', event.data);\n                }\n            };\n            \n            ws.onclose = function() {\n                document.getElementById('status').className = 'status disconnected';\n                document.getElementById('status').textContent = '切断中';\n                addMessage('システム', '切断しました');\n            };\n            \n            ws.onerror = function(error) {\n                addMessage('エラー', 'WebSocket エラー');\n            };\n        }\n        \n        function disconnect() {\n            if (ws) ws.close();\n        }\n        \n        function sendMessage() {\n            var input = document.getElementById('messageInput');\n            if (ws && ws.readyState === WebSocket.OPEN && input.value) {\n                ws.send(input.value);\n                addMessage('送信', input.value);\n                input.value = '';\n            }\n        }\n        \n        function addMessage(type, text) {\n            var messages = document.getElementById('messages');\n            var div = document.createElement('div');\n            div.className = 'message';\n            div.innerHTML = '&lt;strong&gt;' + type + ':&lt;/strong&gt; &lt;pre style=\"margin:0;white-space:pre-wrap;\"&gt;' + text + '&lt;/pre&gt;';\n            messages.appendChild(div);\n            messages.scrollTop = messages.scrollHeight;\n        }\n        \n        document.getElementById('messageInput').addEventListener('keypress', function(e) {\n            if (e.key === 'Enter') sendMessage();\n        });\n    &lt;/script&gt;\n&lt;/body&gt;\n&lt;/html&gt;",
+        "template": "&lt;!DOCTYPE html&gt;\n&lt;html&gt;\n&lt;head&gt;\n    &lt;meta charset=\"UTF-8\"&gt;\n    &lt;title&gt;WebSocket テスト&lt;/title&gt;\n    &lt;style&gt;\n        body { font-family: Arial, sans-serif; padding: 20px; background: #f0f0f0; }\n        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; }\n        h1 { color: #b92d5d; }\n        .status { padding: 10px; border-radius: 5px; margin: 10px 0; }\n        .connected { background: #c8e6c9; color: #2e7d32; }\n        .disconnected { background: #ffcdd2; color: #c62828; }\n        #messages { height: 200px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; margin: 10px 0; background: #fafafa; }\n        .message { padding: 5px; border-bottom: 1px solid #eee; }\n        input, button { padding: 10px; margin: 5px 0; }\n        input { width: 70%; }\n        button { background: #b92d5d; color: white; border: none; cursor: pointer; border-radius: 5px; }\n        button:hover { background: #8e2347; }\n    &lt;/style&gt;\n&lt;/head&gt;\n&lt;body&gt;\n    &lt;div class=\"container\"&gt;\n        &lt;h1&gt;🔌 WebSocket テスト&lt;/h1&gt;\n        \n        &lt;div id=\"status\" class=\"status disconnected\"&gt;切断中&lt;/div&gt;\n        \n        &lt;div&gt;\n            &lt;button onclick=\"connectEcho()\"&gt;Echoサーバーに接続&lt;/button&gt;\n            &lt;button onclick=\"connectChat()\"&gt;Chatサーバーに接続&lt;/button&gt;\n            &lt;button onclick=\"disconnect()\"&gt;切断&lt;/button&gt;\n        &lt;/div&gt;\n        \n        &lt;div id=\"messages\"&gt;&lt;/div&gt;\n        \n        &lt;div&gt;\n            &lt;input type=\"text\" id=\"messageInput\" placeholder=\"メッセージを入力...\"&gt;\n            &lt;button onclick=\"sendMessage()\"&gt;送信&lt;/button&gt;\n        &lt;/div&gt;\n    &lt;/div&gt;\n    \n    &lt;script&gt;\n        var ws = null;\n        \n        function connectEcho() {\n            connect((location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/ws/echo');\n        }\n        \n        function connectChat() {\n            connect((location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/ws/chat');\n        }\n        \n        function connect(url) {\n            if (ws) ws.close();\n            \n            ws = new WebSocket(url);\n            \n            ws.onopen = function() {\n                document.getElementById('status').className = 'status connected';\n                document.getElementById('status').textContent = '接続中: ' + url;\n                addMessage('システム', '接続しました');\n            };\n            \n            ws.onmessage = function(event) {\n                try {\n                    var data = JSON.parse(event.data);\n                    addMessage('受信', JSON.stringify(data, null, 2));\n                } catch(e) {\n                    addMessage('受信', event.data);\n                }\n            };\n            \n            ws.onclose = function() {\n                document.getElementById('status').className = 'status disconnected';\n                document.getElementById('status').textContent = '切断中';\n                addMessage('システム', '切断しました');\n            };\n            \n            ws.onerror = function(error) {\n                addMessage('エラー', 'WebSocket エラー');\n            };\n        }\n        \n        function disconnect() {\n            if (ws) ws.close();\n        }\n        \n        function sendMessage() {\n            var input = document.getElementById('messageInput');\n            if (ws && ws.readyState === WebSocket.OPEN && input.value) {\n                ws.send(input.value);\n                addMessage('送信', input.value);\n                input.value = '';\n            }\n        }\n        \n        function addMessage(type, text) {\n            var messages = document.getElementById('messages');\n            var div = document.createElement('div');\n            div.className = 'message';\n            div.innerHTML = '&lt;strong&gt;' + type + ':&lt;/strong&gt; &lt;pre style=\"margin:0;white-space:pre-wrap;\"&gt;' + text + '&lt;/pre&gt;';\n            messages.appendChild(div);\n            messages.scrollTop = messages.scrollHeight;\n        }\n        \n        document.getElementById('messageInput').addEventListener('keypress', function(e) {\n            if (e.key === 'Enter') sendMessage();\n        });\n    &lt;/script&gt;\n&lt;/body&gt;\n&lt;/html&gt;",
         "output": "str",
         "x": 390,
         "y": 660,
@@ -527,21 +746,31 @@ ws://localhost:1880/ws/chat</div>
 ]</div>
         </details>
 
+        <h3>応用フローの動作確認</h3>
+
         <div class="warning">
-            <p><strong>⚠️ 動作確認方法:</strong></p>
-            <p>サンプルフローをデプロイしたら、WebSocket接続を張ってメッセージを送受信してみて動作を確認できます。初心者の方は、まず追加インストール不要な「ブラウザの開発者ツール」から試すのがおすすめです。</p>
-            <ul>
-                <li><strong>ブラウザの開発者ツール（追加ツール不要）:</strong> ブラウザに標準搭載されているコンソール画面から、JavaScriptで直接WebSocket接続をテストできます。下のコード例を参照してください。</li>
-                <li><strong>wscat（任意）:</strong> ターミナル（コマンドプロンプト）からWebSocket通信を試せるコマンドラインツールです。事前に <code>npm install -g wscat</code> でのインストールが必要です。</li>
-                <li><strong>Postman（任意）:</strong> 無料でダウンロードできる、画面操作でAPIやWebSocket通信を試せる専用アプリです。WebSocketのテスト機能も搭載しています。</li>
-                <li><strong>Simple WebSocket Client（任意）:</strong> ブラウザに追加できる拡張機能です。画面操作でWebSocket接続をテストできます。</li>
-            </ul>
+            <p><strong>⚠️ 動作確認の前提:</strong> 以下のテストはすべて、応用フローを読み込んで「デプロイ」ボタンをクリックした後に行ってください。デプロイ前は接続先（<code>/ws/echo</code> など）がまだ存在しないため、どの方法でも接続に失敗します。</p>
         </div>
-        
-        <h3>ブラウザでのテスト方法</h3>
-        <p>ブラウザで任意のページを開き、開発者ツール（F12キーなど）のConsoleタブに以下のコードを貼り付けて実行すると、サンプルフローのエコーサーバーと通信できます。<code>[Node-REDのホスト]</code> は、お使いのNode-REDエディタを開いているアドレスに置き換えてください（ローカル環境なら <code>localhost:1880</code>）。</p>
-        <div class="code-block">// ブラウザの開発者ツール (Console) で実行
-var ws = new WebSocket("ws://[Node-REDのホスト]/ws/echo");
+
+        <h4>方法1: テスト用ページで確認する（おすすめ）</h4>
+        <p>応用フローには、WebSocketの送受信を画面操作だけで試せるテスト用ページが含まれています（後述のパターン4）。追加のツールもコードの入力も不要なので、初心者の方はまずこの方法で試してください。</p>
+        <ol>
+            <li>ブラウザで、Node-REDエディタと同じアドレスの <code>/ws-test</code> を開く（ローカル環境なら <code>http://localhost:1880/ws-test</code>）</li>
+            <li>「Echoサーバーに接続」ボタンをクリックし、ステータスが「接続中」に変わることを確認する</li>
+            <li>メッセージを入力して「送信」をクリックする。受信欄に、入力した内容を含むJSON（<code>original</code> に入力値、<code>timestamp</code> に時刻など）が表示されれば成功です</li>
+        </ol>
+
+        <h4>方法2: 開発者ツールのConsoleで確認する</h4>
+        <p>ブラウザの開発者ツール（F12キーなど）のConsoleタブから、JavaScriptで直接WebSocket接続をテストすることもできます。実行前に次の2点に注意してください。</p>
+        <ul>
+            <li><strong>Node-REDエディタのページ上で実行する:</strong> エディタ（<code>http://localhost:1880</code> など）を開いたタブで開発者ツールを起動してください。下のコードは、開いているページのアドレスから接続先を自動的に組み立てるため、無関係のサイトを開いたまま実行すると失敗します。</li>
+            <li><strong>Chromeの貼り付けブロックに対処する:</strong> Consoleへの貼り付け時に、警告が表示されて貼り付けが無効化されることがあります。表示された場合は、貼り付けようとしている内容を自分で確認したうえで、警告の指示どおり <code>allow pasting</code> をキーボードから直接入力してEnterキーを押すと、貼り付けられるようになります。</li>
+        </ul>
+        <p>以下のコードを貼り付けて実行すると、応用フローのエコーサーバーと通信できます。接続先のアドレスとプロトコル（<code>ws://</code> / <code>wss://</code>）は、開いているページから自動で決まるため、書き換えは不要です。</p>
+        <div class="code-block">// Node-REDエディタを開いたタブの開発者ツール (Console) で実行
+var ws = new WebSocket(
+    (location.protocol === "https:" ? "wss://" : "ws://") + location.host + "/ws/echo"
+);
 
 ws.onopen = function() {
     console.log("接続成功!");
@@ -556,15 +785,23 @@ ws.onclose = function() {
     console.log("切断");
 };
 
-// メッセージ送信
-ws.send("テストメッセージ");</div>
-        
-        
+// 追加でメッセージを送りたいときは、Consoleに「接続成功!」と
+// 表示されるのを待ってから、次の1行を入力して実行する
+// ws.send("テストメッセージ");</div>
+
+        <h4>方法3: 専用ツールで確認する</h4>
+        <p>次のようなツールでもWebSocket通信をテストできます。いずれも別途インストールが必要です。</p>
+        <ul>
+            <li><strong>wscat:</strong> ターミナル（コマンドプロンプト）からWebSocket通信を試せるコマンドラインツールです。事前に <code>npm install -g wscat</code> でのインストールが必要です。</li>
+            <li><strong>Postman:</strong> 無料でダウンロードできる、画面操作でAPIやWebSocket通信を試せる専用アプリです。WebSocketのテスト機能も搭載しています。</li>
+            <li><strong>Simple WebSocket Client:</strong> ブラウザに追加できる拡張機能です。画面操作でWebSocket接続をテストできます。</li>
+        </ul>
+
         <h3>使用パターン</h3>
-        <p>サンプルフローに含まれる代表的な使用パターンを紹介します。</p>
+        <p>応用フローに含まれる代表的な使用パターンを紹介します。</p>
 
         <h3>パターン1: エコーサーバー（受信→返信）</h3>
-        <p>サンプルフローの「エコーサーバー（受信→返信）」を参照してください。</p>
+        <p>応用フローの「エコーサーバー（受信→返信）」を参照してください。</p>
         <div class="node-example">
             <span class="node node-websocket-in">WS In</span>
             <span class="arrow">→</span>
@@ -579,7 +816,7 @@ ws.send("テストメッセージ");</div>
         </ul>
         
         <h3>パターン2: ブロードキャスト（全員に配信）</h3>
-        <p>サンプルフローの「ブロードキャスト（全員に配信）」を参照してください。</p>
+        <p>応用フローの「ブロードキャスト（全員に配信）」を参照してください。</p>
         <div class="node-example">
             <span class="node node-inject">データ生成</span>
             <span class="arrow">→</span>
@@ -594,7 +831,7 @@ ws.send("テストメッセージ");</div>
         </ul>
         
         <h3>パターン3: サーバーからのプッシュ配信</h3>
-        <p>サンプルフローの「サーバーからのプッシュ配信」を参照してください。</p>
+        <p>応用フローの「サーバーからのプッシュ配信」を参照してください。</p>
         <div class="node-example">
             <span class="node node-inject">定期実行</span>
             <span class="arrow">→</span>
@@ -609,7 +846,7 @@ ws.send("テストメッセージ");</div>
         </ul>
         
         <h3>パターン4: ブラウザテスト用HTMLページ</h3>
-        <p>サンプルフローの「ブラウザテスト用HTMLページ」を参照してください。</p>
+        <p>応用フローの「ブラウザテスト用HTMLページ」を参照してください。</p>
         <div class="node-example">
             <span class="node node-http-in">HTTP In</span>
             <span class="arrow">→</span>
