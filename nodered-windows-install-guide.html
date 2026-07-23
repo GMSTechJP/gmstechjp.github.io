@@ -582,8 +582,9 @@
         <div class="step">
             <div class="step-number">1</div>
             <div class="step-content">
-                <h3>PowerShellを開く</h3>
-                <p>PowerShell（またはコマンドプロンプト）を開きます。管理者権限は不要です。</p>
+                <h3>PowerShellを開き直す</h3>
+                <p>PowerShell（またはコマンドプロンプト）を<strong>新しく開き直します</strong>。Node.jsのインストールより前から開いていたウィンドウには、インストールで追加された設定（環境変数）が反映されておらず、次のステップのコマンドが「認識されません」というエラーになります。セクション1の確認作業で開いたウィンドウは、そのまま使えます。</p>
+                <p>管理者権限は通常は不要です（Node-REDはユーザー専用のフォルダにインストールされるため）。ただし、環境によっては権限エラーで失敗することがあります。その場合の対処はステップ3の注意書きを参照してください。</p>
             </div>
         </div>
         
@@ -620,6 +621,11 @@ added XXX packages in XXs</div>
                 <div class="warning">
                     <p><strong>WARN メッセージについて</strong></p>
                     <p>インストール中に「WARN」（警告）メッセージが表示されることがありますが、多くの場合は問題ありません。「ERR!」（エラー）が表示されなければ成功です。</p>
+                </div>
+
+                <div class="warning">
+                    <p><strong>エラーで失敗する場合（管理者権限で再実行）</strong></p>
+                    <p>環境によっては、「ERR!」とともに <code>EACCES</code> や <code>EPERM</code> といった権限エラーでインストールに失敗することがあります。その場合は、<kbd>Win</kbd> + <kbd>X</kbd> → 「ターミナル（管理者）」でPowerShellを<strong>管理者権限で開き直し</strong>、同じコマンドを再実行してください。管理者権限でインストールしても、Node-REDの利用（起動・フロー作成）は通常のユーザー権限のままで行えます。</p>
                 </div>
             </div>
         </div>
@@ -873,6 +879,13 @@ pm2 save</div>
                 </td>
             </tr>
             <tr>
+                <td>「スクリプトの実行が無効になっているため、…npm.ps1 を読み込むことができません」と表示される</td>
+                <td>PowerShellの実行ポリシーがスクリプトの実行を禁止している</td>
+                <td>
+                    コマンドプロンプトを開いて同じコマンドを実行する（PowerShellのまま実行する場合は <code>npm.cmd install -g node-red</code> のように <code>npm.cmd</code> を使う）
+                </td>
+            </tr>
+            <tr>
                 <td>Node-REDが起動しない<br>（起動ログに <code>Unsupported version of Node.js: ...</code> / <code>Node-RED requires Node.js v22.9 or later</code>）</td>
                 <td>Node.jsのバージョンが古い（22.9未満）。Node-RED 5.x は Node.js 22.9 以上が必要</td>
                 <td>
@@ -894,10 +907,10 @@ pm2 save</div>
                 </td>
             </tr>
             <tr>
-                <td>「EACCES」エラーが表示される</td>
-                <td>権限の問題</td>
+                <td>「<code>EACCES</code>」「<code>EPERM</code>」エラーが表示される</td>
+                <td>フォルダやファイルへのアクセス権限の問題（セキュリティソフトの干渉を含む）</td>
                 <td>
-                    管理者権限でPowerShellを開いて再実行
+                    <kbd>Win</kbd> + <kbd>X</kbd> → 「ターミナル（管理者）」でPowerShellを管理者権限で開いて再実行
                 </td>
             </tr>
             <tr>
