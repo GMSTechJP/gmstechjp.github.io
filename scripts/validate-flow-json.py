@@ -118,7 +118,7 @@ class FlowJsonExtractor(HTMLParser):
             self.unclosed = self.line
 
 
-def raw_char_errors(path, block):
+def raw_char_errors(path, block, src):
     """タグとして解釈されない生の `<` と、曖昧な `&` を検出する。
 
     どちらも現在のブラウザではコピー結果を壊さない（壊すものは既存の検査で捕まる）が、
@@ -131,7 +131,9 @@ def raw_char_errors(path, block):
         ("曖昧な `&`。`&amp;` と書くこと", AMBIGUOUS_AMP.finditer(block["raw"])),
     ):
         for m in matches:
-            line = block["line"] + block["raw"][:m.start()].count("\n")
+            # block["line"] は開始タグの行なので、タグが複数行に渡ると起点がずれる。
+            # ブロック内容の絶対オフセットから数え直す。
+            line = src.count("\n", 0, block["start"] + m.start()) + 1
             context = block["raw"][max(0, m.start() - 20):m.start() + 20]
             errors.append(f"{path}:{line}: {label}: {context!r}")
     return errors
@@ -222,7 +224,7 @@ def check(path):
         if block["delivered"] != html.unescape(block["raw"]):
             errors.append(f"{path_line}: ソースとコピー結果が一致しない")
             continue
-        errors.extend(raw_char_errors(path, block))
+        errors.extend(raw_char_errors(path, block, src))
         errors.extend(check_flow(path, block["line"], block["delivered"]))
 
     return errors
