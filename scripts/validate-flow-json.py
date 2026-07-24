@@ -8,6 +8,11 @@
 
 そこで「ソースに書いた JSON」と「利用者が受け取る JSON」を突き合わせる。
 
+加えて、現時点ではコピー結果を壊さない生の文字も拒否する。タグと解釈されない生の `<` と、
+`&amp;` / `&lt;` / `&gt;` 以外の `&` である。後者はブラウザが実体参照として解釈した場合
+（例: &copy; → ©）、コピー結果と html.unescape が同じように変換するため突き合わせでは
+原理的に検出できない。
+
 ブロックの切り出しは正規表現ではなく HTMLParser で行う。JSON 文字列の中に `<div` が現れる
 ケースを正規表現で数えると、閉じタグを取り違えてブロックを1件も返さず、検査ごと素通りする。
 それは検出したい不具合そのものと同じ「静かにすり抜ける」失敗である。
@@ -23,6 +28,12 @@ from html.parser import HTMLParser
 CLASS_ATTR = re.compile(r'class="[^"]*\bflow-json\b[^"]*"')
 VOID = {"area", "base", "br", "col", "embed", "hr", "img", "input",
         "link", "meta", "param", "source", "track", "wbr"}
+
+# ブロック内で許すのは規約どおりのエスケープ（&amp; / &lt;）と、同様に一意に復元される
+# &gt; のみ。それ以外の & は、ブラウザが実体参照として解釈するか否かが書き手の意図と
+# 無関係に決まる「曖昧な &」であり、解釈された場合（例: &copy; → ©）はコピー結果と
+# html.unescape の両方が同じように変換するため、不一致検査では原理的に捕まらない。
+AMBIGUOUS_AMP = re.compile(r"&(?!amp;|lt;|gt;)")
 
 
 class FlowJsonExtractor(HTMLParser):
@@ -73,6 +84,7 @@ class FlowJsonExtractor(HTMLParser):
             raw = self.src[self.start:self._offset()]
             self.blocks.append({
                 "line": self.line, "tag": self.open_tag, "raw": raw,
+                "start": self.start, "end": self._offset(),
                 "delivered": "".join(self.parts), "markup": self.markup,
             })
             self._reset_block()
@@ -104,6 +116,25 @@ class FlowJsonExtractor(HTMLParser):
         super().close()
         if self.open_tag is not None:
             self.unclosed = self.line
+
+
+def raw_char_errors(path, block):
+    """タグとして解釈されない生の `<` と、曖昧な `&` を検出する。
+
+    どちらも現在のブラウザではコピー結果を壊さない（壊すものは既存の検査で捕まる）が、
+    規約（`<` は `&lt;`、`&` は `&amp;`）に反し、周囲の編集しだいでタグや実体参照として
+    解釈される側に転ぶ。転んだ後では検出できないものもあるため、ソースの時点で拒否する。
+    """
+    errors = []
+    for label, matches in (
+        ("タグ以外の生の `<`。`&lt;` と書くこと", re.finditer(r"<", block["raw"])),
+        ("曖昧な `&`。`&amp;` と書くこと", AMBIGUOUS_AMP.finditer(block["raw"])),
+    ):
+        for m in matches:
+            line = block["line"] + block["raw"][:m.start()].count("\n")
+            context = block["raw"][max(0, m.start() - 20):m.start() + 20]
+            errors.append(f"{path}:{line}: {label}: {context!r}")
+    return errors
 
 
 def escaped_entities(value):
@@ -191,6 +222,7 @@ def check(path):
         if block["delivered"] != html.unescape(block["raw"]):
             errors.append(f"{path_line}: ソースとコピー結果が一致しない")
             continue
+        errors.extend(raw_char_errors(path, block))
         errors.extend(check_flow(path, block["line"], block["delivered"]))
 
     return errors
