@@ -585,6 +585,11 @@
                 <h3>PowerShellを開き直す</h3>
                 <p>PowerShell（またはコマンドプロンプト）を<strong>新しく開き直します</strong>。Node.jsのインストールより前から開いていたウィンドウには、インストールで追加された設定（環境変数）が反映されておらず、次のステップのコマンドが「認識されません」というエラーになります。セクション1の確認作業で開いたウィンドウは、そのまま使えます。</p>
                 <p>管理者権限は通常は不要です（Node-REDはユーザー専用のフォルダにインストールされるため）。ただし、環境によっては権限エラーで失敗することがあります。その場合の対処はステップ3の注意書きを参照してください。</p>
+
+                <div class="tip">
+                    <p><strong>スクリプトの実行が制限されているPCではコマンドプロンプトを使う</strong></p>
+                    <p>会社支給のPCなどでPowerShellのスクリプト実行が制限されていると、<code>npm</code> や <code>node-red</code> のコマンドが「スクリプトの実行が無効になっているため…」というエラーでブロックされます。PowerShellはこれらのコマンドを <code>npm.ps1</code> のような「スクリプト」として実行しようとするためです。この場合は、PowerShellの代わりに<strong>コマンドプロンプト</strong>を使ってください。コマンドプロンプトはこの制限の影響を受けず、本ガイドのコマンドはすべてそのまま実行できます。開き方: スタートメニューで「cmd」と検索し、「コマンドプロンプト」を選択。</p>
+                </div>
             </div>
         </div>
         
@@ -624,8 +629,13 @@ added XXX packages in XXs</div>
                 </div>
 
                 <div class="warning">
+                    <p><strong>「スクリプトの実行が無効になっているため…」と表示される場合</strong></p>
+                    <p>PowerShellの実行ポリシーによる制限です（Windowsの初期設定や企業の管理設定で有効なことがあります）。<strong>コマンドプロンプトで同じコマンドを実行</strong>してください（ステップ1のヒント参照）。自分で設定を変更できる個人PCであれば、PowerShellで <code>Set-ExecutionPolicy -Scope CurrentUser RemoteSigned</code> を実行（管理者権限は不要）すると、以降はPowerShellのままでも実行できます。企業の管理PCではこの変更自体がブロックされることがあるため、コマンドプロンプトの利用が確実です。</p>
+                </div>
+
+                <div class="warning">
                     <p><strong>エラーで失敗する場合（管理者権限で再実行）</strong></p>
-                    <p>環境によっては、「ERR!」とともに <code>EACCES</code> や <code>EPERM</code> といった権限エラーでインストールに失敗することがあります。その場合は、<kbd>Win</kbd> + <kbd>X</kbd> → 「ターミナル（管理者）」でPowerShellを<strong>管理者権限で開き直し</strong>、同じコマンドを再実行してください。管理者権限でインストールしても、Node-REDの利用（起動・フロー作成）は通常のユーザー権限のままで行えます。</p>
+                    <p>環境によっては、「ERR!」とともに <code>EACCES</code> や <code>EPERM</code> といった権限エラーでインストールに失敗することがあります。その場合は<strong>管理者権限で開き直して再実行</strong>してください。スタートメニューで「cmd」と検索し「管理者として実行」を選ぶと、コマンドプロンプトを管理者権限で開けます（スクリプト実行が制限されたPCでも使えます）。制限のないPCであれば <kbd>Win</kbd> + <kbd>X</kbd> → 「ターミナル（管理者）」（PowerShell）でも構いません。管理者権限でインストールしても、Node-REDの利用（起動・フロー作成）は通常のユーザー権限のままで行えます。</p>
                 </div>
             </div>
         </div>
@@ -642,7 +652,7 @@ added XXX packages in XXs</div>
             <div class="step-number">1</div>
             <div class="step-content">
                 <h3>Node-REDを起動</h3>
-                <p>PowerShellで以下のコマンドを実行します。</p>
+                <p>PowerShell（またはコマンドプロンプト）で以下のコマンドを実行します。スクリプトの実行が制限されたPCでは、<code>node-red</code> コマンドもインストール時と同じ制限を受けるため、ここでもコマンドプロンプトを使ってください。</p>
                 
                 <div class="code-block powershell">
                     <button class="copy-button" onclick="copyCode(this)">コピー</button>
@@ -714,7 +724,7 @@ http://localhost:1880</div>
         </div>
         
         <h3>Node-REDを停止するには</h3>
-        <p>Node-REDを停止するには、起動したPowerShellウィンドウで <kbd>Ctrl</kbd> + <kbd>C</kbd> を押します。</p>
+        <p>Node-REDを停止するには、起動したPowerShell（またはコマンドプロンプト）のウィンドウで <kbd>Ctrl</kbd> + <kbd>C</kbd> を押します。</p>
         
         <!-- ===== セクション4: 初めてのフロー作成 ===== -->
         <h2 id="section4">4. 初めてのフロー作成</h2>
@@ -879,10 +889,10 @@ pm2 save</div>
                 </td>
             </tr>
             <tr>
-                <td>「スクリプトの実行が無効になっているため、…npm.ps1 を読み込むことができません」と表示される</td>
-                <td>PowerShellの実行ポリシーがスクリプトの実行を禁止している</td>
+                <td>「スクリプトの実行が無効になっているため、…npm.ps1（または node-red.ps1）を読み込むことができません」と表示される</td>
+                <td>PowerShellの実行ポリシーがスクリプトの実行を禁止している（<code>npm</code> も <code>node-red</code> も同じ制限を受ける）</td>
                 <td>
-                    コマンドプロンプトを開いて同じコマンドを実行する（PowerShellのまま実行する場合は <code>npm.cmd install -g node-red</code> のように <code>npm.cmd</code> を使う）
+                    コマンドプロンプトを開いて同じコマンドを実行する。自分で設定を変更できる個人PCなら、PowerShellで <code>Set-ExecutionPolicy -Scope CurrentUser RemoteSigned</code> を一度実行すると恒久的に解消できる（企業の管理PCでは変更がブロックされることがある）
                 </td>
             </tr>
             <tr>
@@ -910,7 +920,7 @@ pm2 save</div>
                 <td>「<code>EACCES</code>」「<code>EPERM</code>」エラーが表示される</td>
                 <td>フォルダやファイルへのアクセス権限の問題（セキュリティソフトの干渉を含む）</td>
                 <td>
-                    <kbd>Win</kbd> + <kbd>X</kbd> → 「ターミナル（管理者）」でPowerShellを管理者権限で開いて再実行
+                    コマンドプロンプトを「管理者として実行」で開いて再実行（スクリプト制限のないPCなら <kbd>Win</kbd> + <kbd>X</kbd> → 「ターミナル（管理者）」でも可）
                 </td>
             </tr>
             <tr>
