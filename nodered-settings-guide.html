@@ -416,30 +416,65 @@
 
         <h3 id="section1-edit">settings.jsの編集方法</h3>
 
-        <p>settings.jsはテキストエディタで編集します。OS別のコマンド例：</p>
+        <p>settings.jsはテキストエディタで編集します。コメントを1行外す程度ならOSに付属するエディタで足り、設定を何度も書き換えるなら構文ハイライトのあるコードエディタが向いています。</p>
+
+        <h4>方法1: OSに付属するテキストエディタ</h4>
+
+        <p>どのPCにも最初から入っているため、インストールが要りません。以下のコマンドで、settings.jsを直接開けます。</p>
 
         <table>
             <tr>
                 <th>OS</th>
+                <th>エディタ</th>
                 <th>コマンド例</th>
             </tr>
             <tr>
                 <td>Windows</td>
+                <td>メモ帳</td>
                 <td><code>notepad %USERPROFILE%\.node-red\settings.js</code></td>
             </tr>
             <tr>
                 <td>macOS</td>
+                <td>テキストエディット</td>
                 <td><code>open -e ~/.node-red/settings.js</code></td>
             </tr>
             <tr>
                 <td>Linux / Raspberry Pi</td>
+                <td>nano</td>
                 <td><code>nano ~/.node-red/settings.js</code></td>
             </tr>
         </table>
 
+        <p>ただし、これらのエディタはJavaScriptの構文を認識しません。カンマの付け忘れや括弧の閉じ忘れがあっても表示は変わらないため、書式エラーは編集後の構文チェックで見つけることになります。</p>
+
+        <h4>方法2: Visual Studio Code</h4>
+
+        <p>コードエディタを使うと、JavaScriptの構文が色分けされ、閉じていない括弧や余分なカンマがその場で指摘されます。settings.jsの書式エラーはNode-REDが起動しなくなる原因になるため、この指摘があるだけで原因探しの手間が減ります。無償で配布されているVisual Studio Code（VS Code）が広く使われています。</p>
+
+        <table>
+            <tr>
+                <th>OS</th>
+                <th>インストール手順</th>
+            </tr>
+            <tr>
+                <td>Windows</td>
+                <td><a href="https://code.visualstudio.com/" target="_blank">公式サイト</a>の「Download for Windows」からインストーラー（<code>VSCodeUserSetup-x64-&lt;バージョン&gt;.exe</code>）をダウンロードして実行します。既定のUser Installerは管理者権限が不要で、<code>%LOCALAPPDATA%\Programs\Microsoft VS Code</code> に入ります</td>
+            </tr>
+            <tr>
+                <td>macOS</td>
+                <td><a href="https://code.visualstudio.com/" target="_blank">公式サイト</a>から <code>.dmg</code> をダウンロードし、開いたウィンドウの「Visual Studio Code.app」を「アプリケーション」フォルダへドラッグします</td>
+            </tr>
+            <tr>
+                <td>Linux / Raspberry Pi</td>
+                <td>Raspberry Pi OSは公式のAPTリポジトリから配布されているため、<code>sudo apt update</code> の後に <code>sudo apt install code</code> でインストールできます。その他のDebian系は公式サイトの <code>.deb</code> をダウンロードし、<code>sudo apt install ./&lt;ファイル名&gt;.deb</code> を実行します</td>
+            </tr>
+        </table>
+
+        <p>インストールしたら、「ファイル」メニューの「ファイルを開く」からsettings.jsを開きます。拡張子が <code>.js</code> のためJavaScriptとして認識され、構文ハイライトとエラー表示が有効になります。</p>
+
         <div class="tip">
-            <p><strong>ヒント</strong></p>
-            <p>VS Codeなどのコードエディタを使用すると、構文のハイライトやエラー検出が有効になるため編集が容易です。</p>
+            <p><strong>ヒント</strong>：会社から貸与されたPCの場合</p>
+            <p>ソフトウェアのインストールが制限されているPCでは、管理者権限の要らないUser Installerでも組織のポリシーでブロックされることがあります。その場合は方法1で進めます。settings.jsの編集そのものはメモ帳でもできます。</p>
         </div>
 
         <div class="warning">
@@ -500,10 +535,11 @@ module.exports = {
             <p><strong>プロジェクト機能のメリット</strong></p>
             <ul>
                 <li>フローの変更履歴を管理できる</li>
-                <li>GitHubやGitLabと連携してリモートバックアップ</li>
                 <li>複数のプロジェクトを切り替えて使用できる</li>
+                <li>GitHubやGitLabと連携してリモートへバックアップできる（任意）</li>
                 <li>チームでの共同開発が容易になる</li>
             </ul>
+            <p>プロジェクトは、Node-REDがユーザーディレクトリの下に作るローカルのGitリポジトリです。リモートリポジトリの登録は任意で、登録しなくても変更履歴の管理とプロジェクトの切り替えは使えます。GitHubやGitLabが必要になるのは、別のマシンへ複製する場合やチームで共有する場合です。</p>
         </div>
         
         <h3>設定方法</h3>
@@ -512,11 +548,11 @@ module.exports = {
             <div class="step-number">1</div>
             <div class="step-content">
                 <h4>Gitのインストール確認</h4>
-                <p>プロジェクト機能を使用するには、Gitがインストールされている必要があります。</p>
+                <p>プロジェクト機能はGitの上に作られているため、Gitのインストールが前提になります。必要なバージョンは2.x以上です。</p>
                 <div class="code-block powershell">
                     <button class="copy-button" onclick="copyCode(this)">コピー</button>
 git --version</div>
-                <p>バージョンが表示されればOKです。表示されない場合は <a href="https://git-scm.com/" target="_blank">Git公式サイト</a> からインストールしてください。</p>
+                <p>2から始まるバージョンが表示されればOKです。何も表示されない場合や1.xだった場合は、<a href="https://git-scm.com/" target="_blank">Git公式サイト</a> からインストールしてください。Node-REDは起動時にGitのバージョンを調べ、条件を満たさなければ次のステップで設定を有効にしてもプロジェクト機能を無効に戻します。</p>
             </div>
         </div>
         
@@ -544,9 +580,32 @@ git --version</div>
             <div class="step-content">
                 <h4>Node-REDを再起動</h4>
                 <p>設定を反映するために、Node-REDを再起動します。</p>
-                <p>起動時のログで以下のような警告が出なければ成功です：</p>
+                <p>起動時のログに <code>Projects disabled</code> で始まる警告が出なければ成功です。</p>
                 <div class="code-block">
-<span style="color: #ff6b6b;">[warn] Projects disabled : editorTheme.projects.enabled=false</span>  ← これが表示されなければOK</div>
+<span style="color: #ff6b6b;">[warn] Projects disabled : git command not found</span>  ← これが表示されなければOK</div>
+                <p>警告が出た場合は、続く文言で原因が分かります。</p>
+                <table>
+                    <tr>
+                        <th>ログの文言</th>
+                        <th>原因と対処</th>
+                    </tr>
+                    <tr>
+                        <td><code>set editorTheme.projects.enabled=true to enable</code></td>
+                        <td>settings.jsに設定が入っていません。ステップ2の記述場所を確認します</td>
+                    </tr>
+                    <tr>
+                        <td><code>editorTheme.projects.enabled=false</code></td>
+                        <td>設定はありますが <code>false</code> のままです</td>
+                    </tr>
+                    <tr>
+                        <td><code>git command not found</code></td>
+                        <td>Gitが入っていないか、PATHが通っていません</td>
+                    </tr>
+                    <tr>
+                        <td><code>git 1.x.x not supported. Requires 2.x</code></td>
+                        <td>Gitが古いバージョンです。2.x以上へ更新します</td>
+                    </tr>
+                </table>
             </div>
         </div>
         
