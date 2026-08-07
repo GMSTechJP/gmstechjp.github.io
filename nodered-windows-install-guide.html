@@ -155,11 +155,6 @@
             color: #ffffff;
         }
         
-        .code-block.powershell {
-            background-color: #012456;
-            color: #ffffff;
-        }
-        
         .prompt {
             color: #ffcc00;
             user-select: none;
@@ -530,23 +525,28 @@
                 <h3>インストール完了を確認</h3>
                 <p>「Completed」と表示されたら「Finish」をクリックしてインストール完了です。</p>
                 
-                <p><strong>確認作業:</strong> PowerShellまたはコマンドプロンプトを開いて、以下のコマンドを実行してバージョンを確認します。</p>
-                
-                <div class="code-block powershell">
+                <p><strong>確認作業:</strong> コマンドプロンプトを開いて、以下のコマンドを実行してバージョンを確認します。</p>
+
+                <div class="code-block cmd">
                     <button class="copy-button" onclick="copyCode(this)">コピー</button>
-                    <span class="prompt">PS C:\Users\YourName&gt;</span> node --version
+                    <span class="prompt">C:\Users\YourName&gt;</span> node --version
 <span class="output">v24.18.0</span>
 
-<span class="prompt">PS C:\Users\YourName&gt;</span> npm --version
+<span class="prompt">C:\Users\YourName&gt;</span> npm --version
 <span class="output">11.16.0</span></div>
-                
+
                 <div class="tip">
-                    <p><strong>PowerShellの開き方</strong></p>
+                    <p><strong>コマンドプロンプトの開き方</strong></p>
                     <ol>
-                        <li>キーボードで <kbd>Win</kbd> + <kbd>X</kbd> を押す</li>
-                        <li>表示されたメニューから「ターミナル」または「Windows PowerShell」を選択</li>
+                        <li>スタートメニューで「cmd」と検索</li>
+                        <li>「コマンドプロンプト」を選択</li>
                     </ol>
-                    <p>または、スタートメニューで「powershell」と検索して開くこともできます。</p>
+                    <p>または、<kbd>Win</kbd> + <kbd>R</kbd> を押して「cmd」と入力し、Enterキーを押しても開けます。</p>
+                </div>
+
+                <div class="important">
+                    <p><strong>本ガイドではコマンドプロンプトを使います</strong></p>
+                    <p>会社支給のPCなどでは、PowerShellのスクリプト実行が制限されていることがあります。その環境でPowerShellを使うと、<code>npm</code> や <code>node-red</code> のコマンドが「スクリプトの実行が無効になっているため…」というエラーでブロックされます。PowerShellはこれらのコマンドを <code>npm.ps1</code> のような「スクリプト」として実行しようとするためです。コマンドプロンプトはこの制限の影響を受けないため、本ガイドのコマンドはすべてコマンドプロンプトで実行します。制限のない個人PCであれば、同じコマンドをPowerShellで実行しても構いません。</p>
                 </div>
             </div>
         </div>
@@ -562,14 +562,9 @@
         <div class="step">
             <div class="step-number">1</div>
             <div class="step-content">
-                <h3>PowerShellを開き直す</h3>
-                <p>PowerShell（またはコマンドプロンプト）を<strong>新しく開き直します</strong>。Node.jsのインストールより前から開いていたウィンドウには、インストールで追加された設定（環境変数）が反映されておらず、次のステップのコマンドが「認識されません」というエラーになります。セクション1の確認作業で開いたウィンドウは、そのまま使えます。</p>
+                <h3>コマンドプロンプトを開き直す</h3>
+                <p>コマンドプロンプトを<strong>新しく開き直します</strong>。Node.jsのインストールより前から開いていたウィンドウには、インストールで追加された設定（環境変数）が反映されておらず、次のステップのコマンドが「認識されません」というエラーになります。セクション1の確認作業で開いたウィンドウは、そのまま使えます。</p>
                 <p>管理者権限は通常は不要です（Node-REDはユーザー専用のフォルダにインストールされるため）。ただし、環境によっては権限エラーで失敗することがあります。その場合の対処はステップ3の注意書きを参照してください。</p>
-
-                <div class="tip">
-                    <p><strong>スクリプトの実行が制限されているPCではコマンドプロンプトを使う</strong></p>
-                    <p>会社支給のPCなどでPowerShellのスクリプト実行が制限されていると、<code>npm</code> や <code>node-red</code> のコマンドが「スクリプトの実行が無効になっているため…」というエラーでブロックされます。PowerShellはこれらのコマンドを <code>npm.ps1</code> のような「スクリプト」として実行しようとするためです。この場合は、PowerShellの代わりに<strong>コマンドプロンプト</strong>を使ってください。コマンドプロンプトはこの制限の影響を受けず、本ガイドのコマンドはすべてそのまま実行できます。開き方: スタートメニューで「cmd」と検索し、「コマンドプロンプト」を選択。</p>
-                </div>
             </div>
         </div>
         
@@ -579,7 +574,7 @@
                 <h3>Node-REDをインストール</h3>
                 <p>以下のコマンドを入力してEnterキーを押します。</p>
                 
-                <div class="code-block powershell">
+                <div class="code-block cmd">
                     <button class="copy-button" onclick="copyCode(this)">コピー</button>
 npm install -g node-red</div>
                 
@@ -610,7 +605,7 @@ added XXX packages in XXs</div>
 
                 <div class="warning">
                     <p><strong>「スクリプトの実行が無効になっているため…」と表示される場合</strong></p>
-                    <p>PowerShellの実行ポリシーによる制限です（Windowsの初期設定や企業の管理設定で有効なことがあります）。<strong>コマンドプロンプトで同じコマンドを実行</strong>してください（ステップ1のヒント参照）。自分で設定を変更できる個人PCであれば、PowerShellで <code>Set-ExecutionPolicy -Scope CurrentUser RemoteSigned</code> を実行（管理者権限は不要）すると、以降はPowerShellのままでも実行できます。企業の管理PCではこの変更自体がブロックされることがあるため、コマンドプロンプトの利用が確実です。</p>
+                    <p>PowerShellで実行したときに、実行ポリシーによる制限で表示されるエラーです（Windowsの初期設定や企業の管理設定で有効なことがあります）。<strong>コマンドプロンプトで同じコマンドを実行</strong>してください（セクション1の「本ガイドではコマンドプロンプトを使います」参照）。自分で設定を変更できる個人PCであれば、PowerShellで <code>Set-ExecutionPolicy -Scope CurrentUser RemoteSigned</code> を実行（管理者権限は不要）すると、以降はPowerShellのままでも実行できます。企業の管理PCではこの変更自体がブロックされることがあるため、コマンドプロンプトの利用が確実です。</p>
                 </div>
 
                 <div class="warning">
@@ -632,9 +627,9 @@ added XXX packages in XXs</div>
             <div class="step-number">1</div>
             <div class="step-content">
                 <h3>Node-REDを起動</h3>
-                <p>PowerShell（またはコマンドプロンプト）で以下のコマンドを実行します。スクリプトの実行が制限されたPCでは、<code>node-red</code> コマンドもインストール時と同じ制限を受けるため、ここでもコマンドプロンプトを使ってください。</p>
-                
-                <div class="code-block powershell">
+                <p>コマンドプロンプトで以下のコマンドを実行します。<code>node-red</code> コマンドも、PowerShellではインストール時と同じスクリプト実行の制限を受けるため、ここでもコマンドプロンプトを使います。</p>
+
+                <div class="code-block cmd">
                     <button class="copy-button" onclick="copyCode(this)">コピー</button>
 node-red</div>
                 
@@ -697,7 +692,7 @@ http://localhost:1880</div>
         </div>
         
         <h3>Node-REDを停止するには</h3>
-        <p>Node-REDを停止するには、起動したPowerShell（またはコマンドプロンプト）のウィンドウで <kbd>Ctrl</kbd> + <kbd>C</kbd> を押します。</p>
+        <p>Node-REDを停止するには、起動したコマンドプロンプトのウィンドウで <kbd>Ctrl</kbd> + <kbd>C</kbd> を押します。</p>
         
         <!-- ===== セクション4: 初めてのフロー作成 ===== -->
         <h2 id="section4">4. 初めてのフロー作成</h2>
@@ -818,16 +813,12 @@ http://localhost:1880</div>
             <summary>PM2を使用した方法（上級者向け）</summary>
             <div class="content">
                 <p>PM2はNode.jsのプロセスマネージャーで、自動再起動などの機能を提供します。</p>
-                
-                <div class="code-block powershell">
+                <p>以下のコマンドを上から順に実行します（PM2のインストール → Node-REDをPM2で起動 → Windows起動時の自動起動を設定 → 設定を保存）。</p>
+
+                <div class="code-block cmd">
                     <button class="copy-button" onclick="copyCode(this)">コピー</button>
-# PM2をインストール
 npm install -g pm2
-
-# Node-REDをPM2で起動
 pm2 start node-red
-
-# Windows起動時に自動起動を設定
 pm2 startup
 pm2 save</div>
                 
@@ -900,7 +891,7 @@ pm2 save</div>
                 <td>日本語が文字化けする</td>
                 <td>コンソールの文字コード設定</td>
                 <td>
-                    PowerShellで <code>chcp 65001</code> を実行してUTF-8に変更
+                    コマンドプロンプトで <code>chcp 65001</code> を実行してUTF-8に変更
                 </td>
             </tr>
         </table>
@@ -936,7 +927,7 @@ C:\Users\&lt;ユーザー名&gt;\.node-red\</div>
             <summary>アンインストール手順（クリックで展開）</summary>
             <div class="content">
                 <h4>Node-REDのアンインストール</h4>
-                <div class="code-block powershell">
+                <div class="code-block cmd">
                     <button class="copy-button" onclick="copyCode(this)">コピー</button>
 npm uninstall -g node-red</div>
                 
@@ -948,11 +939,10 @@ npm uninstall -g node-red</div>
                 </ol>
                 
                 <h4>ユーザーデータの削除（任意）</h4>
-                <p>作成したフローなどのデータを完全に削除する場合：</p>
-                <div class="code-block powershell">
+                <p>作成したフローなどのデータを完全に削除する場合は、コマンドプロンプトでユーザーデータフォルダを削除します。</p>
+                <div class="code-block cmd">
                     <button class="copy-button" onclick="copyCode(this)">コピー</button>
-# ユーザーデータフォルダを削除
-Remove-Item -Recurse -Force $env:USERPROFILE\.node-red</div>
+rmdir /s /q "%USERPROFILE%\.node-red"</div>
                 
                 <div class="warning">
                     <p><strong>注意</strong></p>
@@ -1027,7 +1017,7 @@ Remove-Item -Recurse -Force $env:USERPROFILE\.node-red</div>
             // ボタンのテキストを除いたコード部分を取得
             let code = codeBlock.innerText.replace('コピー', '').trim();
             // プロンプト部分を除去
-            code = code.replace(/PS C:\\Users\\YourName> /g, '').trim();
+            code = code.replace(/(PS )?C:\\Users\\YourName> /g, '').trim();
             // 出力行（緑色の部分）を除去
             const lines = code.split('\n').filter(line => !line.match(/^v?\d+\.\d+\.\d+$/));
             code = lines.join('\n');
