@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Git for Windows インストールガイド（Node-REDプロジェクト機能向け）</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        h1 {
+            color: #8f0000;
+            border-bottom: 3px solid #8f0000;
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            color: #c00000;
+            margin-top: 40px;
+            border-left: 5px solid #c00000;
+            padding-left: 15px;
+        }
+
+        h3 {
+            color: #555;
+            margin-top: 25px;
+        }
+
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        /* 目次 */
+        .toc {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px 30px;
+            margin: 20px 0;
+        }
+
+        .toc h3 {
+            margin-top: 0;
+            color: #8f0000;
+        }
+
+        .toc ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .toc li {
+            padding: 5px 0;
+        }
+
+        .toc a {
+            color: #1976d2;
+            text-decoration: none;
+        }
+
+        .toc a:hover {
+            text-decoration: underline;
+        }
+
+        /* 手順のステップ */
+        .step {
+            background-color: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            position: relative;
+        }
+
+        .step-number {
+            position: absolute;
+            top: -15px;
+            left: 20px;
+            background: linear-gradient(135deg, #c00000, #8f0000);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .step-content {
+            margin-top: 15px;
+        }
+
+        /* 情報ボックス */
+        .important {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .tip {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .warning {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .success {
+            background-color: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        /* コードブロック */
+        .code-block {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 14px;
+            position: relative;
+        }
+
+        .code-block.cmd {
+            background-color: #012456;
+            color: #ffffff;
+        }
+
+        .prompt {
+            color: #ffcc00;
+            user-select: none;
+        }
+
+        .output {
+            color: #00ff00;
+        }
+
+        /* コピーボタン */
+        .copy-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 6px 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background-color 0.2s;
+        }
+
+        .copy-button:hover {
+            background-color: #0056b3;
+        }
+
+        .copy-button.copied {
+            background-color: #28a745;
+        }
+
+        /* テーブル */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #8f0000;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        /* ダウンロードリンク */
+        .download-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #68a063, #3c873a);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 10px 0;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .download-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        kbd {
+            background-color: #eee;
+            border: 1px solid #b4b4b4;
+            border-radius: 3px;
+            box-shadow: 0 1px 1px rgba(0,0,0,0.2);
+            font-size: 0.85em;
+            padding: 2px 6px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Git for Windows インストールガイド</h1>
+
+        <p>このガイドでは、WindowsにGitを「<strong>コマンドプロンプトから <code>git</code> コマンドが使える状態</strong>」でインストールする手順を解説します。Node-REDの<a href="nodered-settings-guide.html#section2">プロジェクト機能</a>を使うための準備として書かれていますが、Gitのインストール手順そのものは他の用途でも同じです。</p>
+        <p>インストーラーの画面はすべて文章で説明します。画面に表示される項目名は英語の原文どおりに記載するので、手元の画面と見比べながら進めてください（Git for Windows 2.55時点）。</p>
+
+        <div class="toc">
+            <h3>📖 目次</h3>
+            <ul>
+                <li><a href="#section1">1. 「パスが通る」とは</a></li>
+                <li><a href="#section2">2. インストーラーのダウンロード</a></li>
+                <li><a href="#section3">3. インストールウィザードの進め方</a></li>
+                <li><a href="#section4">4. インストール後の確認</a></li>
+                <li><a href="#section5">5. トラブルシューティング</a></li>
+                <li><a href="#section6">6. 次のステップ</a></li>
+            </ul>
+        </div>
+
+        <!-- ===== セクション1 ===== -->
+        <h2 id="section1">1. 「パスが通る」とは</h2>
+
+        <p>Windowsには<strong>環境変数 Path</strong>という設定があります。コマンドプロンプトで <code>git</code> のようにコマンド名だけを入力したとき、Windowsはこの Path に登録されたフォルダを順に探して、実行するプログラムを見つけます。探すフォルダの一覧にGitのフォルダが含まれている状態を、「パスが通っている」と言います。</p>
+        <p>パスが通っていないと、Gitをインストールしてあっても、コマンドプロンプトでは「<code>'git' は、内部コマンドまたは外部コマンド、操作可能なプログラムまたはバッチ ファイルとして認識されていません。</code>」というエラーになります。</p>
+
+        <div class="important">
+            <p><strong>Node-REDのプロジェクト機能はパスが通っていることが前提</strong></p>
+            <p>Node-REDは起動時に、環境変数 Path を頼りにGitを探します。パスが通っていないと、Gitがインストール済みでもNode-REDからは「Gitがない」ように見え、settings.jsでプロジェクト機能を有効にしても起動時に無効へ戻されます。</p>
+            <p>「パスが通っているか」は、新しいコマンドプロンプトで <code>git --version</code> が実行できるかで確認できます（セクション4）。</p>
+        </div>
+
+        <p>Git for Windowsのインストーラーには、このパスを通すかどうかを決める選択画面があります。既定の選択のままなら自動でパスが通りますが、途中で別の項目を選ぶとパスが通らないままインストールが完了します。本ガイドではこの選択画面を重点的に説明します。</p>
+
+        <!-- ===== セクション2 ===== -->
+        <h2 id="section2">2. インストーラーのダウンロード</h2>
+
+        <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+                <h3>公式サイトからダウンロード</h3>
+                <p><a href="https://git-scm.com/download/win" target="_blank">Git公式サイトのWindows向けダウンロードページ</a>を開き、「<strong>64-bit Git for Windows Setup</strong>」をクリックします。<code>Git-&lt;バージョン&gt;-64-bit.exe</code> という名前のインストーラーがダウンロードされます。</p>
+                <p><a href="https://git-scm.com/download/win" target="_blank" class="download-link">📥 Git for Windows をダウンロード</a></p>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+                <h3>インストーラーを実行</h3>
+                <p>ダウンロードしたファイルをダブルクリックして実行します。</p>
+                <div class="tip">
+                    <p><strong>管理者権限がなくても実行できます</strong></p>
+                    <p>管理者権限のない環境では、自分のユーザー専用としてインストールが進みます。この場合のインストール先は <code>%LOCALAPPDATA%\Programs\Git</code> になります。管理者としてインストールした場合は <code>C:\Program Files\Git</code> です。どちらでもパスの通し方は変わりません。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== セクション3 ===== -->
+        <h2 id="section3">3. インストールウィザードの進め方</h2>
+
+        <p>Git for Windowsのインストーラーは設定画面が10以上続きますが、<strong>選択を確認する必要があるのは「Adjusting your PATH environment」の1画面だけ</strong>です。それ以外の画面は既定のまま「Next」で進めて問題ありません。各画面のタイトルと内容は次のとおりです。</p>
+
+        <table>
+            <tr>
+                <th style="width: 45%;">画面タイトル（英語表示）</th>
+                <th>内容と操作</th>
+            </tr>
+            <tr>
+                <td>（ライセンス表示）</td>
+                <td>GNU General Public Licenseの本文が表示されます。「Next」で進みます</td>
+            </tr>
+            <tr>
+                <td><strong>Select Destination Location</strong></td>
+                <td>インストール先フォルダ。既定のまま「Next」</td>
+            </tr>
+            <tr>
+                <td><strong>Select Components</strong></td>
+                <td>追加コンポーネントの選択。既定のまま「Next」</td>
+            </tr>
+            <tr>
+                <td><strong>Select Start Menu Folder</strong></td>
+                <td>スタートメニューの登録先。既定のまま「Next」</td>
+            </tr>
+            <tr>
+                <td><strong>Choosing the default editor used by Git</strong></td>
+                <td>Gitがコミットメッセージの編集などに使うエディタ。どれを選んでもNode-REDの動作には影響しません。既定のまま「Next」</td>
+            </tr>
+            <tr>
+                <td><strong>Adjusting the name of the initial branch in new repositories</strong></td>
+                <td>新規リポジトリの最初のブランチ名。既定（Let Git decide）のまま「Next」</td>
+            </tr>
+            <tr>
+                <td><strong>Adjusting your PATH environment</strong></td>
+                <td><strong>⚠️ この画面だけ必ず確認します（次項で詳述）</strong></td>
+            </tr>
+            <tr>
+                <td><strong>Choosing HTTPS transport backend</strong></td>
+                <td>HTTPS通信に使うライブラリ。既定のまま「Next」</td>
+            </tr>
+            <tr>
+                <td><strong>Configuring the line ending conversions</strong></td>
+                <td>改行コードの自動変換。既定のまま「Next」</td>
+            </tr>
+            <tr>
+                <td><strong>Configuring the terminal emulator to use with Git Bash</strong></td>
+                <td>Git Bashが使う端末。既定のまま「Next」</td>
+            </tr>
+            <tr>
+                <td><strong>Choose the default behavior of `git pull`</strong></td>
+                <td><code>git pull</code> 実行時の既定動作。既定のまま「Next」</td>
+            </tr>
+            <tr>
+                <td><strong>Choose a credential helper</strong></td>
+                <td>GitHub等への接続時に認証情報を記憶する仕組み。既定のまま「Next」</td>
+            </tr>
+            <tr>
+                <td><strong>Configuring extra options</strong></td>
+                <td>その他のオプション。既定のまま「Next」</td>
+            </tr>
+            <tr>
+                <td><strong>Configuring experimental options</strong></td>
+                <td>実験的機能。チェックを入れずに「Install」でインストールを開始します</td>
+            </tr>
+        </table>
+
+        <p>環境によっては、このほかに「Choosing the SSH executable」（PuTTYなどのSSHクライアントが検出された場合）や「Security options」（特定のセキュリティ設定が有効な場合）が表示されることがあります。いずれも既定のまま「Next」で問題ありません。</p>
+
+        <h3>「Adjusting your PATH environment」画面での選択</h3>
+
+        <p>この画面には「How would you like to use Git from the command line?」（コマンドラインからGitをどう使いますか？）という問いと、3つの選択肢が表示されます。<strong>2番目の「Git from the command line and also from 3rd-party software」を選びます</strong>。それぞれの意味は次のとおりです。</p>
+
+        <table>
+            <tr>
+                <th style="width: 42%;">選択肢（英語表示）</th>
+                <th>動作</th>
+                <th style="width: 10%;">選択</th>
+            </tr>
+            <tr>
+                <td><strong>Use Git from Git Bash only</strong></td>
+                <td>環境変数 Path を一切変更しません。Gitは付属の「Git Bash」という専用画面からしか使えず、コマンドプロンプトやNode-REDなどの他のソフトからは見つけられません。<strong>これを選ぶとプロジェクト機能が動きません</strong></td>
+                <td style="text-align: center;">❌</td>
+            </tr>
+            <tr>
+                <td><strong>Git from the command line and also from 3rd-party software</strong></td>
+                <td>Gitのコマンド用フォルダ（<code>cmd</code>）だけを Path に追加します。Git Bashに加えて、コマンドプロンプト、PowerShell、そして Path からGitを探すサードパーティ製ソフト（Node-REDを含む）から使えるようになります。画面上に赤字で「(Recommended)」と表示され、初回インストールでは最初から選択されています</td>
+                <td style="text-align: center;">✅</td>
+            </tr>
+            <tr>
+                <td><strong>Use Git and optional Unix tools from the Command Prompt</strong></td>
+                <td>Gitに加えて、付属のUnix系ツール一式も Path に追加します。Windows標準の <code>find</code> や <code>sort</code> コマンドが同名のUnixツールで置き換わる副作用があるため（画面上にも赤字で警告が表示されます）、影響を理解している場合以外は選びません</td>
+                <td style="text-align: center;">❌</td>
+            </tr>
+        </table>
+
+        <div class="warning">
+            <p><strong>再インストール時は「前回の選択」が復元される</strong></p>
+            <p>インストーラーは前回インストール時の選択内容を記憶しており、入れ直すと各画面は<strong>推奨の既定値ではなく、前回選んだ状態</strong>で表示されます。過去に「Use Git from Git Bash only」を選んでしまった環境をインストーラーの再実行で直す場合は、既定に戻っているだろうと思い込んで「Next」を連打せず、この画面で必ず2番目を選び直してください。</p>
+        </div>
+
+        <!-- ===== セクション4 ===== -->
+        <h2 id="section4">4. インストール後の確認</h2>
+
+        <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+                <h3>コマンドプロンプトを新しく開く</h3>
+                <p>スタートメニューで「cmd」と検索し、「コマンドプロンプト」を選択します。<strong>インストール前から開いていたウィンドウは使えません</strong>。環境変数 Path はウィンドウの起動時に読み込まれるため、インストールで追加された分は開き直すまで反映されないからです。</p>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+                <h3>バージョンを確認</h3>
+                <p>以下のコマンドを実行します。</p>
+                <div class="code-block cmd">
+                    <button class="copy-button" onclick="copyCode(this)">コピー</button>
+                    <span class="prompt">C:\Users\YourName&gt;</span> git --version
+<span class="output">git version 2.55.0.windows.3</span></div>
+                <p>このように <code>git version 2.x.x</code> が表示されれば、Gitのインストールとパスの設定は完了です。</p>
+            </div>
+        </div>
+
+        <div class="success">
+            <p><strong>インストール完了</strong></p>
+            <p>コマンドプロンプトから <code>git</code> コマンドが使える状態になりました。Node-REDからもGitを見つけられます。</p>
+        </div>
+
+        <!-- ===== セクション5 ===== -->
+        <h2 id="section5">5. トラブルシューティング</h2>
+
+        <table>
+            <tr>
+                <th style="width: 32%;">症状</th>
+                <th style="width: 28%;">原因</th>
+                <th>解決方法</th>
+            </tr>
+            <tr>
+                <td rowspan="3"><code>'git' は、内部コマンドまたは外部コマンド、操作可能なプログラムまたはバッチ ファイルとして認識されていません。</code></td>
+                <td>インストール前から開いていたコマンドプロンプトを使っている</td>
+                <td>ウィンドウを閉じて、新しいコマンドプロンプトを開き直す</td>
+            </tr>
+            <tr>
+                <td>インストール時に「Use Git from Git Bash only」を選んだ</td>
+                <td>インストーラーを再実行し、「Adjusting your PATH environment」で2番目の「Git from the command line and also from 3rd-party software」を選び直す（前回の選択が復元されるため、この画面まで来たら必ず確認する）</td>
+            </tr>
+            <tr>
+                <td>インストーラーを再実行できない事情がある</td>
+                <td>環境変数 Path にGitのコマンド用フォルダを手動で追加する（下記の手順）</td>
+            </tr>
+            <tr>
+                <td>Node-REDのプロジェクト機能を有効にしても、起動時に無効へ戻される</td>
+                <td>Node-REDがGitを見つけられていない</td>
+                <td>まず新しいコマンドプロンプトで <code>git --version</code> を確認する。表示されるのにNode-REDで有効にならない場合は、Node-REDを一度停止し、<strong>新しいコマンドプロンプトから</strong>起動し直す（起動中のNode-REDはGitインストール前の Path を持ち続けているため）</td>
+            </tr>
+        </table>
+
+        <h3>環境変数 Path への手動追加</h3>
+
+        <p>インストーラーでの選び直しができない場合は、次の手順でパスを手動で通せます。</p>
+
+        <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+                <h3>環境変数の編集画面を開く</h3>
+                <p>スタートメニューで「環境変数」と検索し、「<strong>アカウントの環境変数を編集</strong>」を選択します（管理者権限は不要です）。</p>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+                <h3>Path にGitのフォルダを追加</h3>
+                <p>上段（ユーザー環境変数）の一覧から「<strong>Path</strong>」を選んで「編集」→「新規」をクリックし、Gitのコマンド用フォルダを追加して「OK」で閉じます。追加するフォルダはインストール方法によって異なります。</p>
+                <table>
+                    <tr>
+                        <th>インストール方法</th>
+                        <th>追加するフォルダ</th>
+                    </tr>
+                    <tr>
+                        <td>管理者としてインストールした場合</td>
+                        <td><code>C:\Program Files\Git\cmd</code></td>
+                    </tr>
+                    <tr>
+                        <td>ユーザー専用としてインストールした場合</td>
+                        <td><code>%LOCALAPPDATA%\Programs\Git\cmd</code></td>
+                    </tr>
+                </table>
+                <p>どちらか分からない場合は、エクスプローラーで両方のフォルダを探し、<code>git.exe</code> が入っているほうを指定します。</p>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+                <h3>反映を確認</h3>
+                <p>新しいコマンドプロンプトを開き、<code>git --version</code> でバージョンが表示されることを確認します（セクション4と同じ手順です）。</p>
+            </div>
+        </div>
+
+        <!-- ===== セクション6 ===== -->
+        <h2 id="section6">6. 次のステップ</h2>
+
+        <p>Gitの準備ができたら、settings.jsガイドに戻ってプロジェクト機能を有効にします。Gitが何をするツールなのかを先に知っておきたい場合は、超入門ガイドを参照してください。</p>
+        <ul>
+            <li><a href="nodered-settings-guide.html#section2">settings.js 設定ガイド「2. プロジェクト機能の有効化」</a></li>
+            <li><a href="nodered-git-basics-guide.html">Git バージョン管理 超入門（仕組みと基本機能）</a></li>
+        </ul>
+
+        <h3>追加リソース</h3>
+        <ul>
+            <li><a href="https://git-scm.com/download/win" target="_blank">Git for Windows ダウンロード（公式）</a></li>
+            <li><a href="https://gitforwindows.org/" target="_blank">Git for Windows プロジェクトサイト（英語）</a></li>
+        </ul>
+
+        <p style="text-align: center; color: #999; margin-top: 40px;">
+            <small>このガイドは2026年8月時点の情報（Git for Windows 2.55）に基づいています。</small><br>
+            <small>インストーラーの画面構成はバージョンによって変わることがあります。最新の情報は公式サイトを参照してください。</small>
+        </p>
+    </div>
+
+    <!-- コピーボタン用JavaScript -->
+    <script>
+        function copyCode(button) {
+            const codeBlock = button.parentElement;
+            // ボタンのテキストを除いたコード部分を取得
+            let code = codeBlock.innerText.replace('コピー', '').trim();
+            // プロンプト部分を除去
+            code = code.replace(/C:\\Users\\YourName> /g, '').trim();
+            // 出力行（緑色の部分）を除去
+            const lines = code.split('\n').filter(line => !line.match(/^git version /));
+            code = lines.join('\n');
+
+            navigator.clipboard.writeText(code).then(() => {
+                button.textContent = 'コピーしました!';
+                button.classList.add('copied');
+                setTimeout(() => {
+                    button.textContent = 'コピー';
+                    button.classList.remove('copied');
+                }, 2000);
+            });
+        }
+    </script>
+
+    <!-- フローティングホームボタン -->
+    <a href="index.html" style="position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px; background: linear-gradient(135deg, #42b883 0%, #35495e 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; transition: transform 0.3s, box-shadow 0.3s;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 6px 16px rgba(0,0,0,0.4)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.3)';" title="トップページへ">🏠</a>
+</body>
+</html>

@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Git バージョン管理 超入門（仕組みと基本機能）</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        h1 {
+            color: #8f0000;
+            border-bottom: 3px solid #8f0000;
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            color: #c00000;
+            margin-top: 40px;
+            border-left: 5px solid #c00000;
+            padding-left: 15px;
+        }
+
+        h3 {
+            color: #555;
+            margin-top: 25px;
+        }
+
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        /* 目次 */
+        .toc {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px 30px;
+            margin: 20px 0;
+        }
+
+        .toc h3 {
+            margin-top: 0;
+            color: #8f0000;
+        }
+
+        .toc ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .toc li {
+            padding: 5px 0;
+        }
+
+        .toc a {
+            color: #1976d2;
+            text-decoration: none;
+        }
+
+        .toc a:hover {
+            text-decoration: underline;
+        }
+
+        /* 情報ボックス */
+        .important {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .tip {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .success {
+            background-color: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        /* コードブロック */
+        .code-block {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 14px;
+            position: relative;
+        }
+
+        .code-block.shell {
+            background-color: #012456;
+            color: #ffffff;
+        }
+
+        .output {
+            color: #00ff00;
+        }
+
+        /* コピーボタン */
+        .copy-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 6px 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background-color 0.2s;
+        }
+
+        .copy-button:hover {
+            background-color: #0056b3;
+        }
+
+        .copy-button.copied {
+            background-color: #28a745;
+        }
+
+        /* テーブル */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #8f0000;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        /* コミットの図 */
+        .diagram {
+            background-color: #2d3133;
+            color: #eee;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .commit {
+            display: inline-block;
+            background-color: #c00000;
+            color: white;
+            border-radius: 20px;
+            padding: 6px 14px;
+            margin: 4px 2px;
+            font-size: 14px;
+        }
+
+        .commit.branch {
+            background-color: #1976d2;
+        }
+
+        .diagram .arrow {
+            color: #aaa;
+            margin: 0 4px;
+        }
+
+        details {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin: 20px 0;
+        }
+
+        summary {
+            cursor: pointer;
+            font-weight: bold;
+            color: #1976d2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Git バージョン管理 超入門</h1>
+
+        <p>このガイドでは、バージョン管理ツール<strong>Git</strong>の仕組みと基本機能だけを、できるだけ短く説明します。コマンドの習得や共同開発の作法には踏み込みません。「Gitが裏で何をしているのか」のイメージを持つことが目的です。</p>
+        <p>Node-REDの<a href="nodered-settings-guide.html#section2">プロジェクト機能</a>を使う方の補助教材として書かれていますが、内容はNode-REDに限らないGit一般の話です。</p>
+
+        <div class="toc">
+            <h3>📖 目次</h3>
+            <ul>
+                <li><a href="#section1">1. バージョン管理とは</a></li>
+                <li><a href="#section2">2. 仕組み：リポジトリとコミット</a></li>
+                <li><a href="#section3">3. 基本機能は5つ</a></li>
+                <li><a href="#section4">4. Node-REDとの関係</a></li>
+                <li><a href="#section5">5. 用語ミニ辞典</a></li>
+            </ul>
+        </div>
+
+        <!-- ===== セクション1 ===== -->
+        <h2 id="section1">1. バージョン管理とは</h2>
+
+        <p>ファイルの変更を続けていると、「前の状態に戻したい」「いつ、何を変えたのか知りたい」という場面が必ず出てきます。よくある自衛策は、<code>企画書_最終版.docx</code>、<code>企画書_最終版2.docx</code>、<code>企画書_最終版2_修正.docx</code> のようにコピーを取っておくことですが、どれが本当に最新なのか分からなくなり、何をどう変えたのかはファイル名からは読み取れません。</p>
+        <p><strong>バージョン管理</strong>は、この「履歴を取っておいて、いつでも戻れるようにする」作業を、コピーの手作業ではなく仕組みとして行う方法です。Gitはその代表的なツールで、次の3つができます。</p>
+        <ul>
+            <li>ファイル一式の状態を、メッセージ付きの<strong>記録ポイント</strong>として残す</li>
+            <li>記録の一覧と、各記録で何を変えたかを<strong>あとから確認</strong>する</li>
+            <li>任意の記録ポイントの状態を<strong>取り出して戻す</strong></li>
+        </ul>
+
+        <!-- ===== セクション2 ===== -->
+        <h2 id="section2">2. 仕組み：リポジトリとコミット</h2>
+
+        <p>Gitの仕組みは、2つの言葉で説明できます。</p>
+        <p><strong>リポジトリ</strong>は、履歴の保管庫です。管理したいフォルダの中に <code>.git</code> という隠しフォルダとして作られ、履歴はすべてこの中に保存されます。保管庫は自分のPCの中で完結していて、インターネット接続や外部のサーバーは必要ありません。</p>
+        <p><strong>コミット</strong>は、記録ポイント1つのことです。「その時点のファイル一式の状態」に、変更内容を説明するメッセージ、日時、記録した人の名前を添えて保存されます。コミットを重ねると、履歴は次の図のように時系列の鎖になります。</p>
+
+        <div class="diagram">
+            <span class="commit">初版を作成</span><span class="arrow">──→</span><span class="commit">グラフ画面を追加</span><span class="arrow">──→</span><span class="commit">しきい値の誤りを修正</span><span class="arrow">──→</span><span style="color: #aaa;">（今ここ）</span>
+        </div>
+
+        <p>この鎖には大事な性質があります。<strong>コミットは末尾に追加されていくだけで、過去のコミットが消えたり書き換わったりすることはありません</strong>。昨日の状態も1か月前の状態も保管庫に残り続けているので、「戻したい」と思ったときに、いつでもその時点を取り出せます。コピーファイルを何個も作る必要がなくなるのは、この性質のおかげです。</p>
+
+        <div class="tip">
+            <p><strong>差分ではなく「その時点の全体」を記録している</strong></p>
+            <p>コミットは「前回からの変更メモ」ではなく、その時点のファイル一式の状態そのものを指しています。だから、途中のコミットを順にたどり直さなくても、任意の時点へ一足飛びに戻れます（保存領域は中身の重複をGitがうまく共有するため、コピーを重ねるほどには増えません）。</p>
+        </div>
+
+        <!-- ===== セクション3 ===== -->
+        <h2 id="section3">3. 基本機能は5つ</h2>
+
+        <p>Gitには多くのコマンドがありますが、機能としては次の5つに整理できます。上の3つが日常の中心で、下の2つは必要になったときに使う機能です。</p>
+
+        <table>
+            <tr>
+                <th style="width: 18%;">機能</th>
+                <th>内容</th>
+                <th style="width: 28%;">代表的なコマンド</th>
+            </tr>
+            <tr>
+                <td><strong>記録する</strong></td>
+                <td>変更したファイルのうち記録したいものを選び（ステージング）、メッセージを付けてコミットを作る</td>
+                <td><code>git add</code> → <code>git commit</code></td>
+            </tr>
+            <tr>
+                <td><strong>見る</strong></td>
+                <td>コミットの一覧（いつ、誰が、何のために）や、変更したファイルの中身の差分を確認する</td>
+                <td><code>git log</code>、<code>git diff</code></td>
+            </tr>
+            <tr>
+                <td><strong>戻す</strong></td>
+                <td>ファイルを過去のコミットの状態に戻す。コミット前の編集を取り消すこともできる</td>
+                <td><code>git restore</code>、<code>git checkout</code></td>
+            </tr>
+            <tr>
+                <td><strong>分ける</strong></td>
+                <td>履歴を枝分かれ（ブランチ）させ、本流に影響を与えずに試作を進める。うまくいったら本流に合流（マージ）する</td>
+                <td><code>git branch</code>、<code>git merge</code></td>
+            </tr>
+            <tr>
+                <td><strong>共有する</strong></td>
+                <td>GitHubなどのサーバー上の保管庫（リモートリポジトリ）と履歴をやり取りし、バックアップや複数人での共有に使う。<strong>使わなくてもGitは完結する</strong></td>
+                <td><code>git push</code>、<code>git pull</code></td>
+            </tr>
+        </table>
+
+        <p>「分ける」のイメージは次のとおりです。青い枝（ブランチ）で試作を進めている間も、赤い本流はそのまま残っています。</p>
+
+        <div class="diagram">
+            <span class="commit">初版</span><span class="arrow">──→</span><span class="commit">機能追加</span><span class="arrow">──→</span><span class="commit">合流（マージ）</span><br>
+            <span style="color: #aaa;">└─→</span><span class="commit branch">試作1</span><span class="arrow">──→</span><span class="commit branch">試作2</span><span style="color: #aaa;">──┘</span>
+        </div>
+
+        <details>
+            <summary>💻 手を動かして確かめたい場合（5分）</summary>
+            <p>Gitがインストール済みなら（Windowsは<a href="nodered-git-install-windows-guide.html">Git for Windows インストールガイド</a>参照）、空のフォルダで次を試すと「記録する」「見る」を体感できます。コマンドはコマンドプロンプトでもmacOS/Linuxのターミナルでも同じです。</p>
+            <p>フォルダを保管庫にします（<code>.git</code> が作られます）：</p>
+            <div class="code-block shell">
+                <button class="copy-button" onclick="copyCode(this)">コピー</button>
+git init</div>
+            <p>メモ帳などでファイルを1つ作って保存したら、記録します：</p>
+            <div class="code-block shell">
+                <button class="copy-button" onclick="copyCode(this)">コピー</button>
+git add .
+git commit -m "最初の記録"</div>
+            <p>ファイルを少し編集して、もう一度 <code>git add .</code> と <code>git commit -m "2回目の記録"</code> を実行し、履歴を見てみます：</p>
+            <div class="code-block shell">
+                <button class="copy-button" onclick="copyCode(this)">コピー</button>
+git log --oneline</div>
+            <p>コミットが2行表示されれば、ここまでの説明がそのまま画面で確認できたことになります。</p>
+            <div class="tip">
+                <p><strong>初回だけ名前とメールアドレスの登録を求められることがあります</strong></p>
+                <p>コミットには「記録した人」が入るためです。画面の指示に従い、<code>git config --global user.name "自分の名前"</code> と <code>git config --global user.email "メールアドレス"</code> を一度実行すれば、以降は聞かれません。</p>
+            </div>
+        </details>
+
+        <!-- ===== セクション4 ===== -->
+        <h2 id="section4">4. Node-REDとの関係</h2>
+
+        <p>Node-REDの<a href="nodered-settings-guide.html#section2">プロジェクト機能</a>は、このGitの上に作られています。プロジェクトを作ると、Node-REDがフローのフォルダをリポジトリにし、エディタの画面から「記録する（コミット）」「見る（履歴の表示）」「共有する（リモートとの同期）」を操作できるようにしてくれます。</p>
+        <p>つまり、コマンドを覚えなくてもプロジェクト機能は使えますが、画面に出てくる「コミット」「ブランチ」「リモート」という言葉の意味は、ここで説明したものと同じです。裏で何が起きているかが分かっていると、操作に迷ったときや元に戻したいときに、状況を落ち着いて判断できます。</p>
+
+        <!-- ===== セクション5 ===== -->
+        <h2 id="section5">5. 用語ミニ辞典</h2>
+
+        <table>
+            <tr>
+                <th style="width: 25%;">用語</th>
+                <th>意味</th>
+            </tr>
+            <tr>
+                <td><strong>リポジトリ</strong></td>
+                <td>履歴の保管庫。フォルダ内の <code>.git</code> に実体がある</td>
+            </tr>
+            <tr>
+                <td><strong>コミット</strong></td>
+                <td>記録ポイント。ある時点のファイル一式＋メッセージ＋日時＋作者</td>
+            </tr>
+            <tr>
+                <td><strong>ステージング</strong></td>
+                <td>次のコミットに含める変更を選ぶこと（<code>git add</code>）</td>
+            </tr>
+            <tr>
+                <td><strong>ブランチ</strong></td>
+                <td>履歴の枝分かれ。本流と並行して別の変更を進められる</td>
+            </tr>
+            <tr>
+                <td><strong>マージ</strong></td>
+                <td>枝分かれした履歴を合流させること</td>
+            </tr>
+            <tr>
+                <td><strong>リモートリポジトリ</strong></td>
+                <td>サーバー上（GitHub等）の保管庫。push で送り、pull で受け取る。利用は任意</td>
+            </tr>
+        </table>
+
+        <div class="success">
+            <p><strong>まとめ</strong></p>
+            <p>Gitは「コミットという記録ポイントをリポジトリに積み重ね、いつでも見返せる・戻せるようにする道具」です。この一文が腑に落ちていれば、本ガイドの目的は達成です。</p>
+        </div>
+
+        <h3>関連ガイド</h3>
+        <ul>
+            <li><a href="nodered-git-install-windows-guide.html">Git for Windows インストールガイド</a></li>
+            <li><a href="nodered-settings-guide.html#section2">settings.js 設定ガイド「2. プロジェクト機能の有効化」</a></li>
+        </ul>
+
+        <p style="text-align: center; color: #999; margin-top: 40px;">
+            <small>このガイドは2026年8月時点の情報に基づいています。</small>
+        </p>
+    </div>
+
+    <!-- コピーボタン用JavaScript -->
+    <script>
+        function copyCode(button) {
+            const codeBlock = button.parentElement;
+            // ボタンのテキストを除いたコード部分を取得
+            const code = codeBlock.innerText.replace('コピー', '').trim();
+
+            navigator.clipboard.writeText(code).then(() => {
+                button.textContent = 'コピーしました!';
+                button.classList.add('copied');
+                setTimeout(() => {
+                    button.textContent = 'コピー';
+                    button.classList.remove('copied');
+                }, 2000);
+            });
+        }
+    </script>
+
+    <!-- フローティングホームボタン -->
+    <a href="index.html" style="position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px; background: linear-gradient(135deg, #42b883 0%, #35495e 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; transition: transform 0.3s, box-shadow 0.3s;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 6px 16px rgba(0,0,0,0.4)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.3)';" title="トップページへ">🏠</a>
+</body>
+</html>
