@@ -129,7 +129,7 @@
             white-space: pre;
         }
         
-        .code-block.powershell {
+        .code-block.shell {
             background-color: #012456;
             color: #ffffff;
         }
@@ -487,14 +487,24 @@
                 <li>コロン（<code>:</code>）の付け忘れ</li>
                 <li>文字列のクォート（<code>"</code> または <code>'</code>）の閉じ忘れ</li>
             </ul>
-            <p>編集前にバックアップを取っておきます：</p>
-            <div class="code-block powershell">
+            <p>編集前にバックアップを取っておきます。</p>
+            <p>macOS / Linux / Raspberry Pi の場合：</p>
+            <div class="code-block shell">
                 <button class="copy-button" onclick="copyCode(this)">コピー</button>
 cp ~/.node-red/settings.js ~/.node-red/settings.js.bak</div>
-            <p>編集後、以下のコマンドで構文チェックができます：</p>
-            <div class="code-block powershell">
+            <p>Windows（コマンドプロンプト）の場合：</p>
+            <div class="code-block shell">
+                <button class="copy-button" onclick="copyCode(this)">コピー</button>
+copy "%USERPROFILE%\.node-red\settings.js" "%USERPROFILE%\.node-red\settings.js.bak"</div>
+            <p>編集後、以下のコマンドで構文チェックができます。</p>
+            <p>macOS / Linux / Raspberry Pi の場合：</p>
+            <div class="code-block shell">
                 <button class="copy-button" onclick="copyCode(this)">コピー</button>
 node -c ~/.node-red/settings.js</div>
+            <p>Windows（コマンドプロンプト）の場合：</p>
+            <div class="code-block shell">
+                <button class="copy-button" onclick="copyCode(this)">コピー</button>
+node -c "%USERPROFILE%\.node-red\settings.js"</div>
             <p>エラーがなければ何も表示されず、エラーがあれば行番号とともにエラー内容が表示されます。</p>
         </div>
 
@@ -549,7 +559,7 @@ module.exports = {
             <div class="step-content">
                 <h4>Gitのインストール確認</h4>
                 <p>プロジェクト機能はGitの上に作られているため、Gitのインストールが前提になります。必要なバージョンは2.x以上です。</p>
-                <div class="code-block powershell">
+                <div class="code-block shell">
                     <button class="copy-button" onclick="copyCode(this)">コピー</button>
 git --version</div>
                 <p>2から始まるバージョンが表示されればOKです。何も表示されない場合や1.xだった場合は、次の表に沿ってインストールします。Node-REDは起動時にGitのバージョンを調べ、条件を満たさなければ次のステップで設定を有効にしてもプロジェクト機能を無効に戻します。</p>
@@ -809,13 +819,24 @@ git --version</div>
         <p>HelloWorld 的に動作確認するなら、以下 4 ステップで完了します。</p>
 
         <p><strong>ステップ 1: 配信ディレクトリと HTML を用意</strong></p>
-        <div class="code-block powershell">
+        <p>macOS / Linux / Raspberry Pi の場合：</p>
+        <div class="code-block shell">
             <button class="copy-button" onclick="copyCode(this)">コピー</button>
 mkdir -p ~/.node-red/public
 cat &gt; ~/.node-red/public/index.html &lt;&lt;'EOF'
 &lt;!DOCTYPE html&gt;
 &lt;html&gt;&lt;body&gt;&lt;h1&gt;Hello from Node-RED static!&lt;/h1&gt;&lt;/body&gt;&lt;/html&gt;
 EOF</div>
+        <p>Windows（コマンドプロンプト）の場合は、フォルダを作ってからメモ帳でHTMLファイルを作成します：</p>
+        <div class="code-block shell">
+            <button class="copy-button" onclick="copyCode(this)">コピー</button>
+mkdir "%USERPROFILE%\.node-red\public"
+notepad "%USERPROFILE%\.node-red\public\index.html"</div>
+        <p>メモ帳が「ファイルが見つかりません。新しく作成しますか?」と確認してくるので「はい」を選び、以下の内容を貼り付けて保存します：</p>
+        <div class="code-block">
+            <button class="copy-button" onclick="copyCode(this)">コピー</button>
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;&lt;body&gt;&lt;h1&gt;Hello from Node-RED static!&lt;/h1&gt;&lt;/body&gt;&lt;/html&gt;</div>
 
         <p><strong>ステップ 2: <code>settings.js</code> を編集</strong></p>
         <div class="code-block js">
@@ -825,6 +846,7 @@ EOF</div>
 
     // 配信URLのプレフィックス（推奨：必ず設定する）
     httpStaticRoot: '/static/',</div>
+        <p>Windowsの場合、パスは <code>httpStatic: 'C:/Users/&lt;ユーザー名&gt;/.node-red/public/'</code> のように書きます。区切りは <code>/</code> でよく、<code>\</code> を使う場合は <code>\\</code> と二重に書きます。</p>
 
         <p><strong>ステップ 3: Node-RED を再起動</strong></p>
         <p>設定ファイルの変更は再起動後に反映されます。</p>
@@ -904,13 +926,12 @@ EOF</div>
         <p>settings.jsに記述するパスワードは、<strong>bcrypt形式でハッシュ化</strong>する必要があります。平文のパスワードを直接書くことはできません。</p>
         
         <h4>方法1: node-red-adminコマンド（推奨）</h4>
-        
-        <div class="code-block powershell">
-            <button class="copy-button" onclick="copyCode(this)">コピー</button>
-# node-red-adminをインストール
-npm install -g node-red-admin
 
-# パスワードハッシュを生成
+        <p>以下のコマンドを順に実行します（node-red-adminのインストール → パスワードハッシュの生成）。</p>
+
+        <div class="code-block shell">
+            <button class="copy-button" onclick="copyCode(this)">コピー</button>
+npm install -g node-red-admin
 node-red-admin hash-pw</div>
         
         <p>コマンドを実行すると、パスワードの入力を求められます。入力後、ハッシュ化された文字列が表示されます。</p>
@@ -924,7 +945,7 @@ $2b$08$xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         
         <p>node-red-adminをインストールしたくない場合：</p>
         
-        <div class="code-block powershell">
+        <div class="code-block shell">
             <button class="copy-button" onclick="copyCode(this)">コピー</button>
 node -e "console.log(require('bcryptjs').hashSync(process.argv[1], 8));" your-password-here</div>
         
@@ -933,7 +954,7 @@ node -e "console.log(require('bcryptjs').hashSync(process.argv[1], 8));" your-pa
         <div class="important">
             <p><strong>bcryptjsがない場合</strong></p>
             <p>エラーが出る場合は、先にbcryptjsをインストールしてください：</p>
-            <div class="code-block powershell">
+            <div class="code-block shell">
 npm install bcryptjs</div>
         </div>
         
@@ -1046,6 +1067,8 @@ npm install bcryptjs</div>
             }
         }
     },</div>
+
+        <p><code>dir</code> は省略するとユーザーディレクトリ配下の <code>context</code> フォルダが使われます。Windowsで明示する場合は <code>dir: "C:/Users/&lt;ユーザー名&gt;/.node-red/context"</code> のように <code>/</code> 区切りで書きます。</p>
         
         <div class="success">
             <p><strong>コンテキスト永続化の設定完了</strong></p>
@@ -1213,10 +1236,14 @@ return msg;</div>
         
         <div class="tip">
             <p><strong>構文エラーのデバッグ方法</strong></p>
-            <p>settings.jsの構文エラーを確認するには：</p>
-            <div class="code-block powershell">
+            <p>settings.jsの構文エラーを確認するには、macOS / Linux / Raspberry Pi では：</p>
+            <div class="code-block shell">
                 <button class="copy-button" onclick="copyCode(this)">コピー</button>
 node -c ~/.node-red/settings.js</div>
+            <p>Windows（コマンドプロンプト）では：</p>
+            <div class="code-block shell">
+                <button class="copy-button" onclick="copyCode(this)">コピー</button>
+node -c "%USERPROFILE%\.node-red\settings.js"</div>
             <p>エラーがなければ何も表示されません。エラーがあれば行番号とともに表示されます。</p>
         </div>
         
