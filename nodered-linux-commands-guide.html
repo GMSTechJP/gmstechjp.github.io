@@ -1,0 +1,1398 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linux / Raspberry Pi OS 基本コマンドガイド</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        h1 {
+            color: #8f0000;
+            border-bottom: 3px solid #8f0000;
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            color: #c00000;
+            margin-top: 40px;
+            border-left: 5px solid #c00000;
+            padding-left: 15px;
+        }
+
+        h3 {
+            color: #555;
+            margin-top: 25px;
+        }
+
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .toc {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px 30px;
+            margin: 20px 0;
+        }
+
+        .toc h3 {
+            margin-top: 0;
+            color: #8f0000;
+        }
+
+        .toc ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .toc li {
+            padding: 5px 0;
+        }
+
+        .toc a {
+            color: #1976d2;
+            text-decoration: none;
+        }
+
+        .toc a:hover {
+            text-decoration: underline;
+        }
+
+        .important {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .tip {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .success {
+            background-color: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .warning {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .code-block {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 14px;
+            position: relative;
+            white-space: pre;
+        }
+
+        .code-block.shell {
+            background-color: #012456;
+            color: #ffffff;
+        }
+
+        .output {
+            color: #7ec699;
+        }
+
+        .copy-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 6px 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background-color 0.2s;
+        }
+
+        .copy-button:hover {
+            background-color: #0056b3;
+        }
+
+        .copy-button.copied {
+            background-color: #28a745;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background-color: #8f0000;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        code {
+            background-color: #eef1f4;
+            color: #b02a37;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.92em;
+        }
+
+        .next-box {
+            background-color: #eef7ff;
+            border: 1px solid #b6d9f7;
+            border-radius: 8px;
+            padding: 20px 25px;
+            margin: 25px 0;
+        }
+
+        .next-box h3 {
+            margin-top: 0;
+            color: #0d47a1;
+        }
+
+        .next-box a {
+            color: #1976d2;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .next-box a:hover {
+            text-decoration: underline;
+        }
+
+        details {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin: 20px 0;
+        }
+
+        summary {
+            cursor: pointer;
+            font-weight: bold;
+            color: #1976d2;
+        }
+
+        .series-nav {
+            background-color: #fdf6e3;
+            border: 1px solid #e8dcc0;
+            border-radius: 8px;
+            padding: 12px 20px;
+            margin: 20px 0;
+            font-size: 0.95em;
+        }
+
+        .series-nav strong {
+            color: #8f0000;
+        }
+
+        .exercise {
+            background-color: #f3e5f5;
+            border-left: 4px solid #8e24aa;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .exercise h4 {
+            margin-top: 0;
+            color: #6a1b9a;
+        }
+
+        /* コマンド書式の分解図 */
+        .syntax {
+            background-color: #2d3133;
+            color: #eee;
+            padding: 20px 25px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-family: 'Consolas', 'Courier New', monospace;
+            overflow-x: auto;
+        }
+
+        .syntax .part {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            margin: 0 3px;
+            font-weight: bold;
+        }
+
+        .s-cmd  { background-color: #1976d2; color: #fff; }
+        .s-opt  { background-color: #e65100; color: #fff; }
+        .s-arg  { background-color: #2e7d32; color: #fff; }
+
+        .syntax .legend {
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 0.9em;
+            color: #cfd8dc;
+            margin-top: 12px;
+            line-height: 1.9;
+        }
+
+        .keycap {
+            display: inline-block;
+            background-color: #fff;
+            border: 1px solid #999;
+            border-bottom-width: 3px;
+            border-radius: 4px;
+            padding: 1px 8px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.9em;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Linux / Raspberry Pi OS 基本コマンドガイド</h1>
+
+        <p>ラズパイで Node-RED を運用するとき、実際に打つ機会があるコマンドは、意外なほど限られています。このガイドでは<strong>「その限られたコマンドを、意味が分かった状態で使える」</strong>ところまで持っていきます。</p>
+        <p>網羅よりも、使う場面ごとの整理を優先しました。上から順に読んでも、目次から必要な節だけ拾っても構いません。</p>
+
+        <div class="series-nav">
+            <strong>📚 Linux 入門シリーズ（全4回）</strong>：
+            <a href="nodered-linux-basics-guide.html">① 仕組み</a> →
+            <a href="nodered-linux-directory-guide.html">② ディレクトリ構成</a> →
+            <strong>③ 基本コマンド（このページ）</strong> →
+            <a href="nodered-linux-glossary-guide.html">④ 用語辞典・困ったとき</a>
+        </div>
+
+        <div class="toc">
+            <h3>📖 目次</h3>
+            <ul>
+                <li><a href="#section1">1. ターミナルを開く・プロンプトを読む</a></li>
+                <li><a href="#section2">2. コマンドの書式と調べ方</a></li>
+                <li><a href="#section3">3. 移動と確認（pwd / ls / cd）</a></li>
+                <li><a href="#section4">4. ファイル操作（mkdir / cp / mv / rm）</a></li>
+                <li><a href="#section5">5. 中身を見る（cat / less / tail / grep）</a></li>
+                <li><a href="#section6">6. ファイルを編集する（nano）</a></li>
+                <li><a href="#section7">7. 権限を扱う（chmod / chown / sudo）</a></li>
+                <li><a href="#section8">8. プロセスと負荷（ps / top / kill / free）</a></li>
+                <li><a href="#section9">9. サービスとログ（systemctl / journalctl）</a></li>
+                <li><a href="#section10">10. ソフトの導入と更新（apt）</a></li>
+                <li><a href="#section11">11. ネットワーク（ip / ping / ss / ssh）</a></li>
+                <li><a href="#section12">12. ストレージと時刻・終了</a></li>
+                <li><a href="#section13">13. 入力を速くする小技</a></li>
+                <li><a href="#section14">14. Node-RED 運用の頻出コマンド15選</a></li>
+                <li><a href="#section15">15. Exec ノードから実行するときの注意</a></li>
+                <li><a href="#section16">16. 打ってはいけないコマンド</a></li>
+                <li><a href="#section17">17. 演習</a></li>
+                <li><a href="#section18">18. まとめ</a></li>
+            </ul>
+        </div>
+
+        <!-- ===== セクション1 ===== -->
+        <h2 id="section1">1. ターミナルを開く・プロンプトを読む</h2>
+
+        <h3>開き方は3通り</h3>
+        <table>
+            <tr>
+                <th style="width: 26%;">方法</th>
+                <th>手順</th>
+            </tr>
+            <tr>
+                <td><strong>デスクトップから</strong></td>
+                <td>画面上部のターミナルのアイコンをクリック（<span class="keycap">Ctrl</span>+<span class="keycap">Alt</span>+<span class="keycap">T</span> でも開く）</td>
+            </tr>
+            <tr>
+                <td><strong>SSH で遠隔から</strong></td>
+                <td>PC 側のターミナル（Windows ならコマンドプロンプトや PowerShell）で <code>ssh ユーザー名@ラズパイのIPアドレス</code></td>
+            </tr>
+            <tr>
+                <td><strong>Node-RED から</strong></td>
+                <td>Exec ノードでコマンドを実行する（画面はないが、実行される場所は同じ）</td>
+            </tr>
+        </table>
+
+        <h3>プロンプトの読み方</h3>
+        <p>ターミナルを開くと、次のような文字列が表示されます。これを<strong>プロンプト</strong>と呼び、入力待ちであることを示します。</p>
+
+        <div class="syntax">
+            <span class="part s-cmd">taro</span>@<span class="part s-arg">raspberrypi</span>:<span class="part s-opt">~</span> $
+            <div class="legend">
+                <strong style="color:#64b5f6;">taro</strong>：ログイン中のユーザー名 ／
+                <strong style="color:#81c784;">raspberrypi</strong>：機器の名前（ホスト名） ／
+                <strong style="color:#ffb74d;">~</strong>：今いる場所（この場合はホーム）<br>
+                <strong>$</strong>：一般ユーザーの印。root で作業していると <strong>#</strong> になる
+            </div>
+        </div>
+
+        <div class="important">
+            <p><strong>記事に出てくる <code>$</code> や <code>#</code> は入力しません</strong></p>
+            <p>ネット上の解説で <code>$ sudo apt update</code> と書かれていたら、打つのは <code>sudo apt update</code> の部分だけです。先頭の <code>$</code> は「ここからがコマンド」という目印にすぎません。本ガイドのコード欄には目印を付けていないので、そのままコピーできます。</p>
+        </div>
+
+        <!-- ===== セクション2 ===== -->
+        <h2 id="section2">2. コマンドの書式と調べ方</h2>
+
+        <p>Linux のコマンドは、ほぼ例外なく次の3要素でできています。</p>
+
+        <div class="syntax">
+            <span class="part s-cmd">ls</span> <span class="part s-opt">-l</span> <span class="part s-arg">/home/taro</span>
+            <div class="legend">
+                <strong style="color:#64b5f6;">コマンド</strong>：何をするか（一覧する）<br>
+                <strong style="color:#ffb74d;">オプション</strong>：どうやるか（詳しく表示する）。<code>-</code> か <code>--</code> で始まる<br>
+                <strong style="color:#81c784;">引数</strong>：何に対してやるか（このフォルダに対して）
+            </div>
+        </div>
+
+        <p>オプションは組み合わせられます。<code>ls -l -a</code> は <code>ls -la</code> とまとめて書けます。</p>
+
+        <h3>使い方が分からなくなったら</h3>
+        <table>
+            <tr>
+                <th style="width: 32%;">調べ方</th>
+                <th>内容</th>
+            </tr>
+            <tr>
+                <td><code>コマンド名 --help</code></td>
+                <td>オプションの一覧を短く表示する。まずはこれ</td>
+            </tr>
+            <tr>
+                <td><code>man コマンド名</code></td>
+                <td>詳しい説明書を開く。<span class="keycap">q</span> で閉じる、<span class="keycap">↑</span><span class="keycap">↓</span> で移動</td>
+            </tr>
+            <tr>
+                <td><code>which コマンド名</code></td>
+                <td>そのコマンドの実体がどこにあるかを表示する</td>
+            </tr>
+        </table>
+
+        <div class="tip">
+            <p><strong><code>man</code> から抜けられなくなったら <span class="keycap">q</span></strong></p>
+            <p><code>man</code> や <code>less</code> で開いた画面は、<span class="keycap">q</span>（quit の q）で閉じます。プロンプトが戻ってこないときは、まず <span class="keycap">q</span>、それでも駄目なら <span class="keycap">Ctrl</span>+<span class="keycap">C</span> を試してください。</p>
+        </div>
+
+        <!-- ===== セクション3 ===== -->
+        <h2 id="section3">3. 移動と確認（pwd / ls / cd）</h2>
+
+        <p>ファイル操作は「今どこにいるか」を把握することから始まります。</p>
+
+        <table>
+            <tr>
+                <th style="width: 30%;">コマンド</th>
+                <th>意味</th>
+            </tr>
+            <tr>
+                <td><code>pwd</code></td>
+                <td>今いる場所を絶対パスで表示する（print working directory）</td>
+            </tr>
+            <tr>
+                <td><code>ls</code></td>
+                <td>今いる場所のファイル一覧（list）</td>
+            </tr>
+            <tr>
+                <td><code>ls -l</code></td>
+                <td>権限・所有者・サイズ・日付付きで一覧する</td>
+            </tr>
+            <tr>
+                <td><code>ls -a</code></td>
+                <td>隠しファイル（<code>.</code> で始まる名前）も表示する</td>
+            </tr>
+            <tr>
+                <td><code>ls -lh</code></td>
+                <td>サイズを KB/MB 単位の読みやすい形で表示する</td>
+            </tr>
+            <tr>
+                <td><code>cd フォルダ名</code></td>
+                <td>そのフォルダへ移動する（change directory）</td>
+            </tr>
+            <tr>
+                <td><code>cd ..</code></td>
+                <td>1つ上のフォルダへ戻る</td>
+            </tr>
+            <tr>
+                <td><code>cd</code>（引数なし）</td>
+                <td>ホームへ戻る。迷子になったときの帰還コマンド</td>
+            </tr>
+            <tr>
+                <td><code>cd -</code></td>
+                <td>直前にいたフォルダへ戻る</td>
+            </tr>
+        </table>
+
+        <div class="code-block shell">
+            <button class="copy-button" onclick="copyCode(this)">コピー</button>
+pwd
+<span class="output">/home/taro</span>
+
+cd ~/.node-red
+ls -lh
+<span class="output">total 44K</span>
+<span class="output">-rw-r--r-- 1 taro taro 4.5K Aug  5 09:12 flows.json</span>
+<span class="output">-rw-r--r-- 1 taro taro  20K Jul 30 14:02 settings.js</span>
+<span class="output">drwxr-xr-x 8 taro taro 4.0K Jul 30 14:05 node_modules</span>
+
+cd
+pwd
+<span class="output">/home/taro</span></div>
+
+        <!-- ===== セクション4 ===== -->
+        <h2 id="section4">4. ファイル操作（mkdir / cp / mv / rm）</h2>
+
+        <table>
+            <tr>
+                <th style="width: 36%;">コマンド</th>
+                <th>意味</th>
+            </tr>
+            <tr>
+                <td><code>mkdir data</code></td>
+                <td><code>data</code> フォルダを作る</td>
+            </tr>
+            <tr>
+                <td><code>mkdir -p a/b/c</code></td>
+                <td>途中のフォルダもまとめて作る。既にあってもエラーにしない</td>
+            </tr>
+            <tr>
+                <td><code>touch memo.txt</code></td>
+                <td>空のファイルを作る（既存なら更新日時だけ変える）</td>
+            </tr>
+            <tr>
+                <td><code>cp 元 先</code></td>
+                <td>コピーする</td>
+            </tr>
+            <tr>
+                <td><code>cp -r 元 先</code></td>
+                <td>フォルダごとコピーする（recursive）</td>
+            </tr>
+            <tr>
+                <td><code>mv 元 先</code></td>
+                <td>移動する。<strong>名前の変更も同じコマンド</strong></td>
+            </tr>
+            <tr>
+                <td><code>rm ファイル</code></td>
+                <td>削除する</td>
+            </tr>
+            <tr>
+                <td><code>rm -i ファイル</code></td>
+                <td>確認してから削除する。慣れるまではこちらが安全</td>
+            </tr>
+            <tr>
+                <td><code>rm -r フォルダ</code></td>
+                <td>フォルダごと削除する</td>
+            </tr>
+        </table>
+
+        <div class="warning">
+            <p><strong>Linux の <code>rm</code> にゴミ箱はありません</strong></p>
+            <p>削除したファイルは戻せません。特に <code>rm -rf</code> は確認なしで消し切るため、パスの打ち間違いが致命傷になります。慣れるまでは、消す前に <code>ls</code> で対象を確認する習慣をつけてください。</p>
+            <div class="code-block">
+ls ~/data/old/     <span class="output"># 消す前に中身を確認</span>
+rm -r ~/data/old/  <span class="output"># 確認してから削除</span></div>
+        </div>
+
+        <p>設定ファイルを編集する前には、控えを取っておきます。この一手間が復旧を可能にします。</p>
+
+        <div class="code-block shell">
+            <button class="copy-button" onclick="copyCode(this)">コピー</button>
+cp ~/.node-red/settings.js ~/.node-red/settings.js.bak</div>
+
+        <!-- ===== セクション5 ===== -->
+        <h2 id="section5">5. 中身を見る（cat / less / tail / grep）</h2>
+
+        <table>
+            <tr>
+                <th style="width: 36%;">コマンド</th>
+                <th>意味と使い分け</th>
+            </tr>
+            <tr>
+                <td><code>cat ファイル</code></td>
+                <td>全部を一度に表示する。短いファイル向け</td>
+            </tr>
+            <tr>
+                <td><code>less ファイル</code></td>
+                <td>スクロールしながら読む。長いファイル向け。<span class="keycap">q</span> で終了</td>
+            </tr>
+            <tr>
+                <td><code>head -n 20 ファイル</code></td>
+                <td>先頭20行だけ表示する</td>
+            </tr>
+            <tr>
+                <td><code>tail -n 50 ファイル</code></td>
+                <td>末尾50行だけ表示する。ログを見るときの基本</td>
+            </tr>
+            <tr>
+                <td><code>tail -f ファイル</code></td>
+                <td><strong>追記されるのを待ち受けて表示し続ける</strong>。<span class="keycap">Ctrl</span>+<span class="keycap">C</span> で終了</td>
+            </tr>
+            <tr>
+                <td><code>grep 文字列 ファイル</code></td>
+                <td>その文字列を含む行だけ抜き出す</td>
+            </tr>
+            <tr>
+                <td><code>grep -i 文字列 ファイル</code></td>
+                <td>大文字小文字を区別せずに探す</td>
+            </tr>
+            <tr>
+                <td><code>grep -rn 文字列 フォルダ</code></td>
+                <td>フォルダ以下を再帰的に探し、行番号も表示する</td>
+            </tr>
+            <tr>
+                <td><code>wc -l ファイル</code></td>
+                <td>行数を数える</td>
+            </tr>
+        </table>
+
+        <div class="code-block shell">
+            <button class="copy-button" onclick="copyCode(this)">コピー</button>
+<span class="output"># CSV の先頭3行だけ確認する</span>
+head -n 3 ~/data/sensor.csv
+<span class="output">time,temp,humid</span>
+<span class="output">2026-08-07T09:00:00,24.5,52</span>
+<span class="output">2026-08-07T10:00:00,25.1,51</span>
+
+<span class="output"># 設定ファイルからポート番号の行を探す</span>
+grep -n "uiPort" ~/.node-red/settings.js
+<span class="output">125:    uiPort: process.env.PORT || 1880,</span></div>
+
+        <h3>パイプとリダイレクト</h3>
+        <p>コマンドは組み合わせられます。この2つを覚えると、できることが一気に広がります。</p>
+
+        <table>
+            <tr>
+                <th style="width: 14%;">記号</th>
+                <th style="width: 30%;">意味</th>
+                <th>例</th>
+            </tr>
+            <tr>
+                <td><code>|</code></td>
+                <td>前のコマンドの出力を、次のコマンドの入力に渡す（パイプ）</td>
+                <td><code>ls -l | grep json</code>（一覧から json を含む行だけ表示）</td>
+            </tr>
+            <tr>
+                <td><code>&gt;</code></td>
+                <td>出力をファイルに保存する（<strong>上書き</strong>）</td>
+                <td><code>ls -l &gt; list.txt</code></td>
+            </tr>
+            <tr>
+                <td><code>&gt;&gt;</code></td>
+                <td>出力をファイルの末尾に追記する</td>
+                <td><code>date &gt;&gt; log.txt</code></td>
+            </tr>
+        </table>
+
+        <div class="warning">
+            <p><strong><code>&gt;</code> は既存の内容を消します</strong></p>
+            <p><code>&gt;</code> は「ファイルを空にしてから書き込む」動作です。大事なファイルに対して打つと、中身が一瞬で消えます。追記したいときは必ず <code>&gt;&gt;</code> を使ってください。</p>
+        </div>
+
+        <!-- ===== セクション6 ===== -->
+        <h2 id="section6">6. ファイルを編集する（nano）</h2>
+
+        <p>Linux には複数のテキストエディタがありますが、初心者が最初に使うべきなのは <strong>nano</strong> です。画面下部に操作方法が常に表示されるため、迷いません。</p>
+
+        <div class="code-block shell">
+            <button class="copy-button" onclick="copyCode(this)">コピー</button>
+nano ~/.node-red/settings.js</div>
+
+        <p>システムの設定ファイル（<code>/etc</code> 以下）を編集するときは <code>sudo</code> が必要です。付け忘れると、編集はできても保存時に権限エラーになります。</p>
+
+        <div class="code-block shell">
+            <button class="copy-button" onclick="copyCode(this)">コピー</button>
+sudo nano /etc/hostname</div>
+
+        <h3>nano のキー操作</h3>
+        <table>
+            <tr>
+                <th style="width: 30%;">キー</th>
+                <th>動作</th>
+            </tr>
+            <tr>
+                <td><span class="keycap">Ctrl</span>+<span class="keycap">O</span> → <span class="keycap">Enter</span></td>
+                <td>保存する（Write Out）。ファイル名の確認が出るので Enter</td>
+            </tr>
+            <tr>
+                <td><span class="keycap">Ctrl</span>+<span class="keycap">X</span></td>
+                <td>終了する。未保存なら保存するか聞かれる（<span class="keycap">Y</span> → <span class="keycap">Enter</span>）</td>
+            </tr>
+            <tr>
+                <td><span class="keycap">Ctrl</span>+<span class="keycap">W</span></td>
+                <td>文字列を検索する（Where is）</td>
+            </tr>
+            <tr>
+                <td><span class="keycap">Ctrl</span>+<span class="keycap">K</span></td>
+                <td>カーソル行を切り取る</td>
+            </tr>
+            <tr>
+                <td><span class="keycap">Ctrl</span>+<span class="keycap">U</span></td>
+                <td>切り取った行を貼り付ける</td>
+            </tr>
+        </table>
+
+        <div class="important">
+            <p><strong>画面下部の <code>^</code> は Ctrl キーのことです</strong></p>
+            <p>nano の画面下に <code>^O Write Out</code> と表示されているのは、「<span class="keycap">Ctrl</span>+<span class="keycap">O</span> で保存」という意味です。<code>^</code> を Shift と勘違いしやすいので注意してください。</p>
+        </div>
+
+        <div class="tip">
+            <p><strong><code>vi</code> が開いてしまったときの脱出方法</strong></p>
+            <p>コマンドによっては <code>vi</code>（または <code>vim</code>）という別のエディタが開くことがあります。これは操作方法が大きく異なり、そのままでは終了すらできません。<strong><span class="keycap">Esc</span> を押してから <code>:q!</code> と打って <span class="keycap">Enter</span></strong> で、変更を破棄して抜けられます。</p>
+        </div>
+
+        <!-- ===== セクション7 ===== -->
+        <h2 id="section7">7. 権限を扱う（chmod / chown / sudo）</h2>
+
+        <p><a href="nodered-linux-basics-guide.html#section6">①仕組み入門</a>で説明した権限を、実際に操作するコマンドです。</p>
+
+        <h3>権限を変える：chmod</h3>
+        <p>指定方法は2通りありますが、初心者は記号の方式で十分です。</p>
+
+        <table>
+            <tr>
+                <th style="width: 38%;">コマンド</th>
+                <th>意味</th>
+            </tr>
+            <tr>
+                <td><code>chmod +x script.sh</code></td>
+                <td>実行できるようにする。自作スクリプトを動かす前に必要</td>
+            </tr>
+            <tr>
+                <td><code>chmod -x script.sh</code></td>
+                <td>実行権限を外す</td>
+            </tr>
+            <tr>
+                <td><code>chmod 644 data.csv</code></td>
+                <td>所有者は読み書き、他は読むだけ（一般的なデータファイル）</td>
+            </tr>
+            <tr>
+                <td><code>chmod 755 script.sh</code></td>
+                <td>所有者は全部、他は読みと実行（一般的なスクリプト）</td>
+            </tr>
+        </table>
+
+        <p>数字の意味は、読み＝4、書き＝2、実行＝1 の合計です。<code>644</code> なら「所有者 6（4+2 で読み書き）、グループ 4（読み）、その他 4（読み）」となります。</p>
+
+        <div class="warning">
+            <p><strong><code>chmod 777</code> を安易に使わないでください</strong></p>
+            <p>誰でも読み書き実行できる状態になり、権限の意味が消えます。ネットの記事には「権限エラーは 777 にすれば直る」という記述が散見されますが、これは問題を隠しているだけで、セキュリティ上も危険です。正しい対処は、<strong>所有者を適切に設定する（<code>chown</code>）</strong>ことです。</p>
+        </div>
+
+        <h3>所有者を変える：chown</h3>
+        <div class="code-block shell">
+            <button class="copy-button" onclick="copyCode(this)">コピー</button>
+<span class="output"># 誤って root の持ち物になったファイルを、自分の持ち物に戻す</span>
+sudo chown taro:taro ~/data/sensor.csv
+
+<span class="output"># フォルダ以下すべてに適用する</span>
+sudo chown -R taro:taro ~/.node-red</div>
+
+        <p>書式は <code>ユーザー名:グループ名</code> です。ラズパイでは通常、ユーザー名とグループ名が同じになります。</p>
+
+        <div class="tip">
+            <p><strong>自分が誰で、どのグループに属しているか</strong></p>
+            <p><code>whoami</code> でユーザー名、<code>groups</code> で所属グループを確認できます。GPIO やシリアルポートを扱うには <code>gpio</code>、<code>dialout</code> といったグループへの所属が必要で、権限エラーの原因がここにあることもあります。</p>
+        </div>
+
+        <!-- ===== セクション8 ===== -->
+        <h2 id="section8">8. プロセスと負荷（ps / top / kill / free）</h2>
+
+        <table>
+            <tr>
+                <th style="width: 34%;">コマンド</th>
+                <th>用途</th>
+            </tr>
+            <tr>
+                <td><code>ps aux</code></td>
+                <td>実行中のプロセスを全部表示する</td>
+            </tr>
+            <tr>
+                <td><code>ps aux | grep node-red</code></td>
+                <td>Node-RED のプロセスだけを絞り込む</td>
+            </tr>
+            <tr>
+                <td><code>pgrep -a node</code></td>
+                <td>node を含むプロセスの PID とコマンドを表示する</td>
+            </tr>
+            <tr>
+                <td><code>top</code></td>
+                <td>CPU・メモリの使用状況を実時間で表示する。<span class="keycap">q</span> で終了</td>
+            </tr>
+            <tr>
+                <td><code>free -h</code></td>
+                <td>メモリの空き状況を表示する</td>
+            </tr>
+            <tr>
+                <td><code>uptime</code></td>
+                <td>連続稼働時間と負荷の平均値を表示する</td>
+            </tr>
+            <tr>
+                <td><code>kill PID番号</code></td>
+                <td>そのプロセスに終了を要求する</td>
+            </tr>
+            <tr>
+                <td><code>kill -9 PID番号</code></td>
+                <td>強制終了する。<strong>最後の手段</strong>。データが保存されないことがある</td>
+            </tr>
+        </table>
+
+        <div class="code-block shell">
+            <button class="copy-button" onclick="copyCode(this)">コピー</button>
+ps aux | grep node-red
+<span class="output">taro   842  2.1  8.4 1024364 82344 ?  Ssl  09:00   0:31 node-red</span>
+<span class="output">taro  1503  0.0  0.1    7360   644 pts/0 S+ 10:22   0:00 grep node-red</span></div>
+
+        <p>2行目は「今実行した <code>grep</code> 自身」が引っかかったものなので、無視して構いません。1行目の <code>842</code> が Node-RED の PID です。</p>
+
+        <div class="important">
+            <p><strong>Node-RED を止めるときに <code>kill</code> は使わないでください</strong></p>
+            <p>サービスとして動いている Node-RED を <code>kill</code> で止めても、systemd が自動的に再起動させるため止まりません。正しくは <code>sudo systemctl stop nodered</code> です。<code>kill</code> が必要になるのは、手動で <code>node-red</code> と打って起動したプロセスが残ってしまった場合などです。</p>
+        </div>
+
+        <p>ラズパイでは、本体の温度と電源状態の確認も重要です。</p>
+
+        <div class="code-block shell">
+            <button class="copy-button" onclick="copyCode(this)">コピー</button>
+vcgencmd measure_temp
+<span class="output">temp=48.3'C</span>
+
+vcgencmd get_throttled
+<span class="output">throttled=0x0</span></div>
+
+        <p><code>throttled=0x0</code> なら正常です。0 以外の値は、電源の電圧不足や高温による性能制限が起きた記録を示します。原因不明の不安定動作は、電源アダプタの容量不足であることが少なくありません。</p>
+
+        <!-- ===== セクション9 ===== -->
+        <h2 id="section9">9. サービスとログ（systemctl / journalctl）</h2>
+
+        <h3>サービスの操作</h3>
+        <div class="code-block shell">
+            <button class="copy-button" onclick="copyCode(this)">コピー</button>
+systemctl status nodered          <span class="output"># 状態を確認（sudo 不要）</span>
+sudo systemctl start nodered      <span class="output"># 起動</span>
+sudo systemctl stop nodered       <span class="output"># 停止</span>
+sudo systemctl restart nodered    <span class="output"># 再起動</span>
+sudo systemctl enable nodered     <span class="output"># 自動起動を有効化</span>
+systemctl is-enabled nodered      <span class="output"># 自動起動の設定を確認</span></div>
+
+        <p><code>status</code> の出力で見るべきは次の2行です。</p>
+
+        <div class="code-block">
+     <span class="output">Loaded: loaded (/lib/systemd/system/nodered.service; enabled; ...)</span>
+     <span class="output">Active: active (running) since Fri 2026-08-07 09:00:11 JST; 1h 22min ago</span></div>
+
+        <table>
+            <tr>
+                <th style="width: 32%;">表示</th>
+                <th>意味</th>
+            </tr>
+            <tr>
+                <td><code>Active: active (running)</code></td>
+                <td>正常に動いている</td>
+            </tr>
+            <tr>
+                <td><code>Active: inactive (dead)</code></td>
+                <td>止まっている</td>
+            </tr>
+            <tr>
+                <td><code>Active: failed</code></td>
+                <td>起動に失敗した。原因はログで確認する</td>
+            </tr>
+            <tr>
+                <td><code>enabled</code> / <code>disabled</code></td>
+                <td>自動起動が有効か無効か</td>
+            </tr>
+        </table>
+
+        <h3>ログを読む</h3>
+        <table>
+            <tr>
+                <th style="width: 46%;">コマンド</th>
+                <th>用途</th>
+            </tr>
+            <tr>
+                <td><code>node-red-log</code></td>
+                <td>Node-RED のログを流し見る（公式スクリプト導入時）</td>
+            </tr>
+            <tr>
+                <td><code>journalctl -u nodered -f</code></td>
+                <td>Node-RED のログを追い続ける。<span class="keycap">Ctrl</span>+<span class="keycap">C</span> で終了</td>
+            </tr>
+            <tr>
+                <td><code>journalctl -u nodered -n 100</code></td>
+                <td>直近100行だけ表示する</td>
+            </tr>
+            <tr>
+                <td><code>journalctl -u nodered --since "1 hour ago"</code></td>
+                <td>1時間前以降のログを表示する</td>
+            </tr>
+            <tr>
+                <td><code>journalctl -b</code></td>
+                <td>今回の起動以降のシステム全体のログ</td>
+            </tr>
+            <tr>
+                <td><code>journalctl -p err -b</code></td>
+                <td>エラー以上のログだけに絞る</td>
+            </tr>
+        </table>
+
+        <div class="tip">
+            <p><strong>トラブル時の定番の流れ</strong></p>
+            <p>「Node-RED が動かない」ときは、次の順で切り分けます。<br>
+            ① <code>systemctl status nodered</code> で動いているか確認 → ② 止まっていれば <code>journalctl -u nodered -n 50</code> で直前のエラーを読む → ③ <code>df -h</code> でディスクの空きを確認 → ④ <code>free -h</code> でメモリを確認。<br>
+            大半の原因はこの4つのどれかで見つかります。</p>
+        </div>
+
+        <!-- ===== セクション10 ===== -->
+        <h2 id="section10">10. ソフトの導入と更新（apt）</h2>
+
+        <table>
+            <tr>
+                <th style="width: 44%;">コマンド</th>
+                <th>意味</th>
+            </tr>
+            <tr>
+                <td><code>sudo apt update</code></td>
+                <td>ソフト置き場の一覧（カタログ）を取り直す</td>
+            </tr>
+            <tr>
+                <td><code>sudo apt upgrade</code></td>
+                <td>導入済みのソフトを最新版に更新する</td>
+            </tr>
+            <tr>
+                <td><code>sudo apt install パッケージ名</code></td>
+                <td>新しく導入する</td>
+            </tr>
+            <tr>
+                <td><code>sudo apt remove パッケージ名</code></td>
+                <td>削除する（設定ファイルは残る）</td>
+            </tr>
+            <tr>
+                <td><code>sudo apt autoremove</code></td>
+                <td>不要になった依存パッケージを掃除する</td>
+            </tr>
+            <tr>
+                <td><code>apt search キーワード</code></td>
+                <td>パッケージを検索する</td>
+            </tr>
+            <tr>
+                <td><code>apt list --installed</code></td>
+                <td>導入済みの一覧を表示する</td>
+            </tr>
+        </table>
+
+        <div class="code-block shell">
+            <button class="copy-button" onclick="copyCode(this)">コピー</button>
+<span class="output"># 定期メンテナンスの定番。update と upgrade は続けて実行する</span>
+sudo apt update &amp;&amp; sudo apt upgrade -y</div>
+
+        <p><code>&amp;&amp;</code> は「前のコマンドが成功したら次を実行する」という意味です。<code>-y</code> は確認の質問にすべて「はい」と答えるオプションです。</p>
+
+        <div class="important">
+            <p><strong>Node-RED 本体の更新は apt ではありません</strong></p>
+            <p>ラズパイの Node-RED は公式スクリプトで導入されるため、更新も専用のスクリプトで行います。<code>apt upgrade</code> では新しくなりません。更新手順は<a href="nodered-raspberry-pi-install-guide.html">Raspberry Pi インストールガイド</a>を参照してください。</p>
+        </div>
+
+        <div class="tip">
+            <p><strong>Python で <code>pip install</code> が拒否されたら</strong></p>
+            <p>bookworm 以降では、システムの Python を守るため <code>pip install</code> が <code>externally-managed-environment</code> というエラーで拒否されます。対処は、<code>sudo apt install python3-〇〇</code> で apt から入れるか、<code>python3 -m venv ~/myenv</code> で専用の環境（仮想環境）を作ってその中で入れるかのどちらかです。</p>
+        </div>
+
+        <!-- ===== セクション11 ===== -->
+        <h2 id="section11">11. ネットワーク（ip / ping / ss / ssh）</h2>
+
+        <table>
+            <tr>
+                <th style="width: 42%;">コマンド</th>
+                <th>用途</th>
+            </tr>
+            <tr>
+                <td><code>hostname -I</code></td>
+                <td><strong>自分の IP アドレスを表示する</strong>。最も手軽</td>
+            </tr>
+            <tr>
+                <td><code>ip a</code></td>
+                <td>全ネットワーク機器の詳細な状態</td>
+            </tr>
+            <tr>
+                <td><code>ping -c 4 8.8.8.8</code></td>
+                <td>相手に届くか4回試す。インターネット接続の確認</td>
+            </tr>
+            <tr>
+                <td><code>ping -c 4 google.com</code></td>
+                <td>名前解決（DNS）が効いているかの確認</td>
+            </tr>
+            <tr>
+                <td><code>sudo ss -tulpn</code></td>
+                <td>待ち受け中のポート一覧。1880 が出れば Node-RED が待機中</td>
+            </tr>
+            <tr>
+                <td><code>curl http://localhost:1880/</code></td>
+                <td>自分自身の Node-RED に HTTP でアクセスしてみる</td>
+            </tr>
+            <tr>
+                <td><code>nmcli device wifi list</code></td>
+                <td>周囲の Wi-Fi 一覧（bookworm 以降）</td>
+            </tr>
+            <tr>
+                <td><code>ssh taro@192.168.1.50</code></td>
+                <td>他の機器へ遠隔ログインする</td>
+            </tr>
+            <tr>
+                <td><code>scp ファイル taro@192.168.1.50:~/</code></td>
+                <td>ファイルを別の機器へ転送する</td>
+            </tr>
+        </table>
+
+        <div class="code-block shell">
+            <button class="copy-button" onclick="copyCode(this)">コピー</button>
+hostname -I
+<span class="output">192.168.1.50</span>
+
+<span class="output"># このアドレスを使い、PC のブラウザから http://192.168.1.50:1880/ で接続できる</span>
+
+sudo ss -tulpn | grep 1880
+<span class="output">tcp   LISTEN 0  511  *:1880   *:*   users:(("node-red",pid=842,fd=19))</span></div>
+
+        <div class="tip">
+            <p><strong>切り分けの順番</strong></p>
+            <p>「ブラウザから Node-RED に繋がらない」ときは、下の層から順に確認します。<br>
+            ① <code>hostname -I</code> で IP が取れているか（取れなければネットワーク未接続）→ ② PC からラズパイへ <code>ping</code> が届くか → ③ <code>sudo ss -tulpn | grep 1880</code> で Node-RED が待機しているか → ④ <code>curl http://localhost:1880/</code> でラズパイ自身からは繋がるか。<br>
+            ④ が成功して PC から繋がらない場合は、ネットワークやファイアウォールの問題に絞り込めます。</p>
+        </div>
+
+        <!-- ===== セクション12 ===== -->
+        <h2 id="section12">12. ストレージと時刻・終了</h2>
+
+        <h3>ストレージ</h3>
+        <table>
+            <tr>
+                <th style="width: 42%;">コマンド</th>
+                <th>用途</th>
+            </tr>
+            <tr>
+                <td><code>df -h</code></td>
+                <td>各領域の空き容量を表示する</td>
+            </tr>
+            <tr>
+                <td><code>du -sh ~/*</code></td>
+                <td>ホーム直下の各フォルダの容量を表示する</td>
+            </tr>
+            <tr>
+                <td><code>lsblk</code></td>
+                <td>接続されているストレージと領域の一覧</td>
+            </tr>
+            <tr>
+                <td><code>sudo mount /dev/sda1 /mnt/usb</code></td>
+                <td>USB メモリを手動で接続する（Lite 版など）</td>
+            </tr>
+            <tr>
+                <td><code>sudo umount /mnt/usb</code></td>
+                <td>取り外す。<strong>抜く前に必ず実行する</strong></td>
+            </tr>
+        </table>
+
+        <h3>時刻</h3>
+        <p>ラズパイには時計用の電池がなく、電源を切ると時刻を忘れます。通常はネットワーク経由で自動的に合わせるため、<strong>ネットワークに繋がらない環境では時刻がずれます</strong>。ログのタイムスタンプが妙なときは、ここを疑ってください。</p>
+
+        <div class="code-block shell">
+            <button class="copy-button" onclick="copyCode(this)">コピー</button>
+date
+<span class="output">2026年  8月  7日 金曜日 10:35:02 JST</span>
+
+timedatectl
+<span class="output">               Local time: Fri 2026-08-07 10:35:02 JST</span>
+<span class="output">                Time zone: Asia/Tokyo (JST, +0900)</span>
+<span class="output">System clock synchronized: yes</span></div>
+
+        <h3>終了と再起動</h3>
+        <div class="code-block shell">
+            <button class="copy-button" onclick="copyCode(this)">コピー</button>
+sudo reboot              <span class="output"># 再起動</span>
+sudo shutdown -h now     <span class="output"># 電源を切る準備をする</span></div>
+
+        <div class="warning">
+            <p><strong>電源プラグを抜く前に必ずシャットダウンを</strong></p>
+            <p><code>sudo shutdown -h now</code> を実行し、緑色の LED が点滅しなくなってから電源を抜きます。この手順を省くと SD カードのファイルが壊れ、最悪の場合は OS が起動しなくなります。</p>
+        </div>
+
+        <!-- ===== セクション13 ===== -->
+        <h2 id="section13">13. 入力を速くする小技</h2>
+
+        <p>コマンドを覚えるより、これらを先に体に入れたほうが作業は速くなります。</p>
+
+        <table>
+            <tr>
+                <th style="width: 28%;">操作</th>
+                <th>効果</th>
+            </tr>
+            <tr>
+                <td><span class="keycap">Tab</span></td>
+                <td><strong>入力の補完</strong>。途中まで打って Tab を押すと続きが補われる。打ち間違いも防げる</td>
+            </tr>
+            <tr>
+                <td><span class="keycap">Tab</span> 2回</td>
+                <td>候補が複数あるとき、その一覧を表示する</td>
+            </tr>
+            <tr>
+                <td><span class="keycap">↑</span> <span class="keycap">↓</span></td>
+                <td>過去に打ったコマンドを呼び出す</td>
+            </tr>
+            <tr>
+                <td><span class="keycap">Ctrl</span>+<span class="keycap">R</span></td>
+                <td>履歴を文字列で検索する。もう一度押すとさらに過去へ</td>
+            </tr>
+            <tr>
+                <td><span class="keycap">Ctrl</span>+<span class="keycap">C</span></td>
+                <td>実行中のコマンドを中断する</td>
+            </tr>
+            <tr>
+                <td><span class="keycap">Ctrl</span>+<span class="keycap">L</span></td>
+                <td>画面を消して見やすくする（<code>clear</code> と同じ）</td>
+            </tr>
+            <tr>
+                <td><span class="keycap">Ctrl</span>+<span class="keycap">D</span></td>
+                <td>ターミナルを終了する（<code>exit</code> と同じ）</td>
+            </tr>
+            <tr>
+                <td><span class="keycap">Ctrl</span>+<span class="keycap">A</span> / <span class="keycap">Ctrl</span>+<span class="keycap">E</span></td>
+                <td>行頭 / 行末へカーソルを移動する</td>
+            </tr>
+            <tr>
+                <td><code>history</code></td>
+                <td>過去のコマンドを一覧表示する</td>
+            </tr>
+            <tr>
+                <td><code>*</code></td>
+                <td>任意の文字列を表す。<code>ls *.csv</code> で CSV だけ一覧</td>
+            </tr>
+        </table>
+
+        <div class="tip">
+            <p><strong>Tab 補完は最強の防御策です</strong></p>
+            <p><code>cd ~/.no</code> まで打って <span class="keycap">Tab</span> を押せば <code>cd ~/.node-red/</code> まで補われます。補完されないときは、<strong>そのパスが存在しない</strong>ということです。打ち間違いをその場で検知できるので、長いパスほど Tab を使う価値があります。</p>
+        </div>
+
+        <div class="important">
+            <p><strong>ターミナルでの貼り付けは <span class="keycap">Ctrl</span>+<span class="keycap">Shift</span>+<span class="keycap">V</span></strong></p>
+            <p>ターミナルでは <span class="keycap">Ctrl</span>+<span class="keycap">V</span> ではなく <span class="keycap">Ctrl</span>+<span class="keycap">Shift</span>+<span class="keycap">V</span> で貼り付けます（<span class="keycap">Ctrl</span>+<span class="keycap">C</span> が中断の意味を持つため、コピーも <span class="keycap">Ctrl</span>+<span class="keycap">Shift</span>+<span class="keycap">C</span>）。右クリックで貼り付けられる場合もあります。</p>
+        </div>
+
+        <!-- ===== セクション14 ===== -->
+        <h2 id="section14">14. Node-RED 運用の頻出コマンド15選</h2>
+
+        <p>実際の運用で打つ機会が多いものをまとめました。この表だけ手元に置いても機能します。</p>
+
+        <table>
+            <tr>
+                <th style="width: 6%;">#</th>
+                <th style="width: 46%;">コマンド</th>
+                <th>場面</th>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td><code>hostname -I</code></td>
+                <td>ブラウザで接続するための IP を調べる</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td><code>systemctl status nodered</code></td>
+                <td>動いているかを確認する</td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td><code>sudo systemctl restart nodered</code></td>
+                <td>settings.js を変更したあとに反映する</td>
+            </tr>
+            <tr>
+                <td>4</td>
+                <td><code>journalctl -u nodered -f</code></td>
+                <td>エラーの原因をログで追う</td>
+            </tr>
+            <tr>
+                <td>5</td>
+                <td><code>sudo systemctl enable nodered</code></td>
+                <td>電源投入時に自動起動させる</td>
+            </tr>
+            <tr>
+                <td>6</td>
+                <td><code>nano ~/.node-red/settings.js</code></td>
+                <td>設定を編集する</td>
+            </tr>
+            <tr>
+                <td>7</td>
+                <td><code>cd ~/.node-red &amp;&amp; ls -lh</code></td>
+                <td>フローや設定のファイルを確認する</td>
+            </tr>
+            <tr>
+                <td>8</td>
+                <td><code>df -h</code></td>
+                <td>SD カードの空き容量を確認する</td>
+            </tr>
+            <tr>
+                <td>9</td>
+                <td><code>free -h</code></td>
+                <td>メモリ不足を確認する</td>
+            </tr>
+            <tr>
+                <td>10</td>
+                <td><code>sudo apt update &amp;&amp; sudo apt upgrade -y</code></td>
+                <td>OS を最新に保つ</td>
+            </tr>
+            <tr>
+                <td>11</td>
+                <td><code>ls /dev/tty*</code></td>
+                <td>シリアル機器が認識されたか確認する</td>
+            </tr>
+            <tr>
+                <td>12</td>
+                <td><code>sudo ss -tulpn | grep 1880</code></td>
+                <td>ポートの使用状況を確認する</td>
+            </tr>
+            <tr>
+                <td>13</td>
+                <td><code>cp ~/.node-red/flows.json ~/backup/</code></td>
+                <td>フローをバックアップする</td>
+            </tr>
+            <tr>
+                <td>14</td>
+                <td><code>vcgencmd measure_temp</code></td>
+                <td>本体の温度を確認する</td>
+            </tr>
+            <tr>
+                <td>15</td>
+                <td><code>sudo shutdown -h now</code></td>
+                <td>安全に電源を切る</td>
+            </tr>
+        </table>
+
+        <!-- ===== セクション15 ===== -->
+        <h2 id="section15">15. Exec ノードから実行するときの注意</h2>
+
+        <p>Node-RED の <a href="nodered-exec-node-guide.html">Exec ノード</a>を使えば、フローの中からこれらのコマンドを実行できます。ただし、ターミナルで打つ場合とは条件が異なるため、次の3点に注意が必要です。</p>
+
+        <table>
+            <tr>
+                <th style="width: 26%;">注意点</th>
+                <th>内容と対策</th>
+            </tr>
+            <tr>
+                <td><strong>実行するユーザーが違う</strong></td>
+                <td>Node-RED をサービスとして動かしている場合、コマンドはそのサービスのユーザー権限で実行される。ターミナルで動いたのに Exec ノードでは権限エラーになるのはこのため</td>
+            </tr>
+            <tr>
+                <td><strong>パスが通っていないことがある</strong></td>
+                <td>ターミナルとは環境変数が異なるため、コマンド名だけでは見つからない場合がある。<code>which コマンド名</code> で調べた<strong>絶対パス</strong>（例：<code>/usr/bin/vcgencmd</code>）で書くと確実</td>
+            </tr>
+            <tr>
+                <td><strong>sudo は使えないと考える</strong></td>
+                <td>パスワードを入力できないため、<code>sudo</code> が必要なコマンドは基本的に失敗する。どうしても必要なら sudoers の設定が要るが、セキュリティ上の判断が伴うため安易に行わない</td>
+            </tr>
+        </table>
+
+        <div class="tip">
+            <p><strong>まずターミナルで動かしてから Exec ノードに載せる</strong></p>
+            <p>フローに書く前に、必ずターミナルで同じコマンドを実行して結果を確認してください。ターミナルで動かないものは Exec ノードでも動きません。逆に、ターミナルで動いて Exec ノードで動かない場合は、上の3点のどれかが原因です。</p>
+        </div>
+
+        <!-- ===== セクション16 ===== -->
+        <h2 id="section16">16. 打ってはいけないコマンド</h2>
+
+        <p>ネット上のコピー＆ペーストで事故が起きやすいものを挙げます。<strong>意味が分からないコマンドは実行しない</strong>のが原則です。</p>
+
+        <table>
+            <tr>
+                <th style="width: 40%;">コマンド</th>
+                <th>何が起きるか</th>
+            </tr>
+            <tr>
+                <td><code>sudo rm -rf /</code></td>
+                <td>システム全体を削除する。復旧不可能</td>
+            </tr>
+            <tr>
+                <td><code>rm -rf ~</code></td>
+                <td>ホームディレクトリを丸ごと削除する。フローも設定も消える</td>
+            </tr>
+            <tr>
+                <td><code>sudo chmod -R 777 /</code></td>
+                <td>全ファイルの権限を壊す。セキュリティが崩壊し、起動しなくなることもある</td>
+            </tr>
+            <tr>
+                <td><code>sudo dd if=... of=/dev/mmcblk0</code></td>
+                <td>SD カードを直接上書きする。指定を誤ると OS ごと消える</td>
+            </tr>
+            <tr>
+                <td><code>sudo mkfs.ext4 /dev/sda1</code></td>
+                <td>指定した領域を初期化する。中のデータは全部消える</td>
+            </tr>
+            <tr>
+                <td><code>&gt; 大事なファイル</code></td>
+                <td>ファイルの中身が空になる</td>
+            </tr>
+        </table>
+
+        <div class="warning">
+            <p><strong>「とりあえず sudo を付ける」をやめる</strong></p>
+            <p>上記のコマンドが致命傷になるのは、ほぼすべて <code>sudo</code> が付いているときです。<code>sudo</code> なしなら権限エラーで止まり、被害は出ません。<strong><code>sudo</code> を打つときは一呼吸置いて、コマンドの意味を確認する</strong>。これだけで大半の事故は防げます。</p>
+        </div>
+
+        <!-- ===== セクション17 ===== -->
+        <h2 id="section17">17. 演習</h2>
+
+        <div class="exercise">
+            <h4>演習1（初級）：バックアップを取る</h4>
+            <p>ホームに <code>backup</code> というフォルダを作り、<code>~/.node-red/flows.json</code> をその中にコピーしてください。最後に、コピーされたことを一覧で確認します。</p>
+        </div>
+
+        <details>
+            <summary>解答を見る</summary>
+            <div class="code-block shell">
+                <button class="copy-button" onclick="copyCode(this)">コピー</button>
+mkdir -p ~/backup
+cp ~/.node-red/flows.json ~/backup/
+ls -lh ~/backup/</div>
+            <p><code>mkdir -p</code> を使うと、フォルダが既にある場合でもエラーになりません。繰り返し実行する手順の中では、この形が扱いやすくなります。</p>
+        </details>
+
+        <div class="exercise">
+            <h4>演習2（初級）：ログからエラーを探す</h4>
+            <p>Node-RED のログの直近100行から、<code>Error</code> という文字を含む行だけを表示してください。</p>
+        </div>
+
+        <details>
+            <summary>解答を見る</summary>
+            <div class="code-block shell">
+                <button class="copy-button" onclick="copyCode(this)">コピー</button>
+journalctl -u nodered -n 100 | grep -i error</div>
+            <p>パイプ（<code>|</code>）で <code>journalctl</code> の出力を <code>grep</code> に渡しています。<code>-i</code> を付けているので <code>error</code>、<code>Error</code>、<code>ERROR</code> のいずれも拾えます。</p>
+        </details>
+
+        <div class="exercise">
+            <h4>演習3（中級）：容量を食っている犯人を探す</h4>
+            <p>SD カードの空き容量が少なくなっています。① 全体の使用状況を確認し、② ホーム直下でどのフォルダが大きいかを調べ、③ <code>/var/log</code> の中で大きいものを特定してください。</p>
+        </div>
+
+        <details>
+            <summary>解答を見る</summary>
+            <div class="code-block shell">
+                <button class="copy-button" onclick="copyCode(this)">コピー</button>
+df -h
+du -sh ~/*
+sudo du -sh /var/log/* | sort -h | tail -n 5</div>
+            <p>3行目の <code>sort -h</code> は容量の単位を理解して並べ替えるオプションで、<code>tail -n 5</code> と組み合わせることで「大きいほうから5件」が得られます。Node-RED 環境では <code>~/.node-red/node_modules</code> が数百 MB になっていることが多く、これは正常です。</p>
+        </details>
+
+        <div class="exercise">
+            <h4>演習4（中級）：ポートの使用状況を調べる</h4>
+            <p>Node-RED を起動しようとしたら「ポート 1880 は使用中」というエラーが出ました。何が 1880 番を使っているかを特定してください。</p>
+        </div>
+
+        <details>
+            <summary>解答を見る</summary>
+            <div class="code-block shell">
+                <button class="copy-button" onclick="copyCode(this)">コピー</button>
+sudo ss -tulpn | grep 1880</div>
+            <p>出力の末尾に <code>users:(("node-red",pid=842,...))</code> のようにプロセス名と PID が表示されます。多くの場合、サービスとして動いている Node-RED がすでに 1880 番を使っているところに、手動で <code>node-red</code> を起動したことが原因です。手動起動をやめるか、<code>sudo systemctl stop nodered</code> でサービスを止めてから起動してください。</p>
+        </details>
+
+        <div class="exercise">
+            <h4>演習5（中級）：CPU 温度を記録する</h4>
+            <p>CPU 温度の値を、時刻付きで <code>~/data/temp.log</code> に1行追記するコマンドを書いてください（<code>~/data</code> は作成済みとします）。</p>
+        </div>
+
+        <details>
+            <summary>解答を見る</summary>
+            <div class="code-block shell">
+                <button class="copy-button" onclick="copyCode(this)">コピー</button>
+echo "$(date '+%Y-%m-%d %H:%M:%S') $(vcgencmd measure_temp)" &gt;&gt; ~/data/temp.log</div>
+            <p><code>$( )</code> は「中のコマンドを実行し、その結果に置き換える」書き方です。<code>&gt;&gt;</code> で追記しているため、実行するたびに行が増えていきます（<code>&gt;</code> にすると毎回上書きされ、1行しか残りません）。</p>
+            <p>Node-RED でやるなら、Inject ノード（繰り返し1分）→ Exec ノード（このコマンド）という2ノードで同じことが実現できます。定期実行を Linux の <code>cron</code> でやるか Node-RED でやるかは、フローと一緒に管理したいかどうかで選んでください。</p>
+        </details>
+
+        <!-- ===== セクション18 ===== -->
+        <h2 id="section18">18. まとめ</h2>
+
+        <div class="success">
+            <p><strong>このガイドの要点</strong></p>
+            <ul>
+                <li>コマンドは「コマンド＋オプション＋引数」の3要素。困ったら <code>--help</code></li>
+                <li>移動と確認は <code>pwd</code> / <code>ls -la</code> / <code>cd</code>。迷子になったら <code>cd</code> だけ打てばホームへ戻る</li>
+                <li>ログは <code>tail -f</code> と <code>journalctl -u nodered -f</code>。トラブル対応の主戦場</li>
+                <li>編集は <code>nano</code>。保存は <span class="keycap">Ctrl</span>+<span class="keycap">O</span>、終了は <span class="keycap">Ctrl</span>+<span class="keycap">X</span></li>
+                <li>権限エラーの正解は <code>chmod 777</code> ではなく <code>chown</code> で所有者を直すこと</li>
+                <li><span class="keycap">Tab</span> 補完と <span class="keycap">↑</span> 履歴を使うと、速さと正確さが同時に手に入る</li>
+                <li><code>sudo</code> を打つ前に一呼吸。事故のほぼすべてはここで防げる</li>
+            </ul>
+        </div>
+
+        <div class="next-box">
+            <h3>▶ 次に読むガイド</h3>
+            <ul>
+                <li><a href="nodered-linux-glossary-guide.html">④ 用語辞典・困ったとき</a> — 用語の索引と、よく出るエラーメッセージ別の対処法</li>
+                <li><a href="nodered-linux-basics-guide.html">① 仕組み入門</a> — なぜこう動くのかの背景（未読ならこちら）</li>
+                <li><a href="nodered-linux-directory-guide.html">② ディレクトリ構成</a> — パスとファイルの居場所</li>
+            </ul>
+            <h3>関連ガイド</h3>
+            <ul>
+                <li><a href="nodered-exec-node-guide.html">Exec ノードガイド</a> — フローからコマンドを実行する</li>
+                <li><a href="nodered-raspberry-pi-install-guide.html">Raspberry Pi インストールガイド</a> — 導入と更新の手順</li>
+                <li><a href="nodered-network-basics-guide.html">通信の基礎入門</a> — IP アドレスやポートの考え方</li>
+            </ul>
+        </div>
+
+        <p style="text-align: center; color: #999; margin-top: 40px;">
+            <small>このガイドは2026年8月時点の Raspberry Pi OS（trixie / bookworm）に基づいています。</small>
+        </p>
+    </div>
+
+    <script>
+        function copyCode(button) {
+            const codeBlock = button.parentElement;
+            const code = codeBlock.innerText.replace('コピー', '').trim();
+
+            navigator.clipboard.writeText(code).then(() => {
+                button.textContent = 'コピーしました!';
+                button.classList.add('copied');
+                setTimeout(() => {
+                    button.textContent = 'コピー';
+                    button.classList.remove('copied');
+                }, 2000);
+            });
+        }
+    </script>
+
+    <a href="index.html" style="position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px; background: linear-gradient(135deg, #42b883 0%, #35495e 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; transition: transform 0.3s, box-shadow 0.3s;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 6px 16px rgba(0,0,0,0.4)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.3)';" title="トップページへ">🏠</a>
+</body>
+</html>

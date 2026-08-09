@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linux / Raspberry Pi OS 用語辞典・困ったとき</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        h1 {
+            color: #8f0000;
+            border-bottom: 3px solid #8f0000;
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            color: #c00000;
+            margin-top: 40px;
+            border-left: 5px solid #c00000;
+            padding-left: 15px;
+        }
+
+        h3 {
+            color: #555;
+            margin-top: 25px;
+        }
+
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .toc {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px 30px;
+            margin: 20px 0;
+        }
+
+        .toc h3 {
+            margin-top: 0;
+            color: #8f0000;
+        }
+
+        .toc ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .toc li {
+            padding: 5px 0;
+        }
+
+        .toc a {
+            color: #1976d2;
+            text-decoration: none;
+        }
+
+        .toc a:hover {
+            text-decoration: underline;
+        }
+
+        .important {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .tip {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .success {
+            background-color: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .warning {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .code-block {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 14px;
+            position: relative;
+            white-space: pre;
+        }
+
+        .code-block.shell {
+            background-color: #012456;
+            color: #ffffff;
+        }
+
+        .code-block.err {
+            background-color: #3b1418;
+            color: #ffcdd2;
+        }
+
+        .output {
+            color: #7ec699;
+        }
+
+        .copy-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 6px 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background-color 0.2s;
+        }
+
+        .copy-button:hover {
+            background-color: #0056b3;
+        }
+
+        .copy-button.copied {
+            background-color: #28a745;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background-color: #8f0000;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        code {
+            background-color: #eef1f4;
+            color: #b02a37;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.92em;
+        }
+
+        .next-box {
+            background-color: #eef7ff;
+            border: 1px solid #b6d9f7;
+            border-radius: 8px;
+            padding: 20px 25px;
+            margin: 25px 0;
+        }
+
+        .next-box h3 {
+            margin-top: 0;
+            color: #0d47a1;
+        }
+
+        .next-box a {
+            color: #1976d2;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .next-box a:hover {
+            text-decoration: underline;
+        }
+
+        details {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin: 20px 0;
+        }
+
+        summary {
+            cursor: pointer;
+            font-weight: bold;
+            color: #1976d2;
+        }
+
+        .series-nav {
+            background-color: #fdf6e3;
+            border: 1px solid #e8dcc0;
+            border-radius: 8px;
+            padding: 12px 20px;
+            margin: 20px 0;
+            font-size: 0.95em;
+        }
+
+        .series-nav strong {
+            color: #8f0000;
+        }
+
+        /* 用語カテゴリのジャンプボタン */
+        .jump-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 20px 0;
+        }
+
+        .jump-nav a {
+            background-color: #8f0000;
+            color: #fff;
+            text-decoration: none;
+            padding: 6px 14px;
+            border-radius: 16px;
+            font-size: 0.9em;
+        }
+
+        .jump-nav a:hover {
+            background-color: #c00000;
+        }
+
+        /* エラー事例カード */
+        .err-case {
+            border: 1px solid #e0c0c4;
+            border-radius: 8px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .err-case h3 {
+            background-color: #f8d7da;
+            color: #8f0000;
+            margin: 0;
+            padding: 12px 18px;
+            font-size: 1.02em;
+        }
+
+        .err-case .body {
+            padding: 5px 18px 15px;
+        }
+
+        .err-case .label {
+            font-weight: bold;
+            color: #8f0000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Linux / Raspberry Pi OS 用語辞典・困ったとき</h1>
+
+        <p>このページは、シリーズの締めくくりとなる<strong>索引と応急処置</strong>のガイドです。前半は用語をカテゴリ別に引ける辞典、後半は実際に出るエラーメッセージから対処法を逆引きできる一覧になっています。</p>
+        <p>通読する必要はありません。分からない言葉やエラーに出会ったときに開いてください。</p>
+
+        <div class="series-nav">
+            <strong>📚 Linux 入門シリーズ（全4回）</strong>：
+            <a href="nodered-linux-basics-guide.html">① 仕組み</a> →
+            <a href="nodered-linux-directory-guide.html">② ディレクトリ構成</a> →
+            <a href="nodered-linux-commands-guide.html">③ 基本コマンド</a> →
+            <strong>④ 用語辞典・困ったとき（このページ）</strong>
+        </div>
+
+        <div class="toc">
+            <h3>📖 目次</h3>
+            <ul>
+                <li><a href="#glossary">A. 用語辞典（カテゴリ別）</a></li>
+                <li><a href="#errors">B. エラーメッセージ逆引き</a></li>
+                <li><a href="#symptoms">C. 症状別トラブルシューティング</a></li>
+                <li><a href="#checklist">D. 困ったときの初動チェックリスト</a></li>
+            </ul>
+        </div>
+
+        <!-- ===== A 用語辞典 ===== -->
+        <h2 id="glossary">A. 用語辞典（カテゴリ別）</h2>
+
+        <div class="jump-nav">
+            <a href="#g1">1. OS の基礎</a>
+            <a href="#g2">2. ファイルとパス</a>
+            <a href="#g3">3. ユーザーと権限</a>
+            <a href="#g4">4. プロセスとサービス</a>
+            <a href="#g5">5. ソフトの管理</a>
+            <a href="#g6">6. ネットワーク</a>
+            <a href="#g7">7. ラズパイ固有</a>
+        </div>
+
+        <h3 id="g1">1. OS の基礎</h3>
+        <table>
+            <tr>
+                <th style="width: 24%;">用語</th>
+                <th>意味</th>
+            </tr>
+            <tr>
+                <td><strong>カーネル</strong></td>
+                <td>OS の中核。CPU・メモリ・機器を直接管理する。厳密にはこれ自体が「Linux」</td>
+            </tr>
+            <tr>
+                <td><strong>ディストリビューション</strong></td>
+                <td>カーネルにコマンド群や設定を加えて配布物にまとめたもの。Debian、Ubuntu など</td>
+            </tr>
+            <tr>
+                <td><strong>Debian</strong></td>
+                <td>Raspberry Pi OS のベースになっているディストリビューション</td>
+            </tr>
+            <tr>
+                <td><strong>コードネーム</strong></td>
+                <td>Debian の版につく愛称。trixie（13）、bookworm（12）、bullseye（11）</td>
+            </tr>
+            <tr>
+                <td><strong>シェル</strong></td>
+                <td>打ち込んだコマンドを解釈して実行するプログラム。標準は <code>bash</code></td>
+            </tr>
+            <tr>
+                <td><strong>ターミナル</strong></td>
+                <td>文字を表示し入力を受け取る「窓」。その中でシェルが動く</td>
+            </tr>
+            <tr>
+                <td><strong>CLI / GUI</strong></td>
+                <td>文字で操作する方式 / 画面をマウスで操作する方式</td>
+            </tr>
+            <tr>
+                <td><strong>プロンプト</strong></td>
+                <td>入力待ちを示す表示。<code>taro@raspberrypi:~ $</code> の部分</td>
+            </tr>
+            <tr>
+                <td><strong>ヘッドレス</strong></td>
+                <td>モニタ・キーボードを繋がず、ネットワーク越しに操作する運用形態</td>
+            </tr>
+            <tr>
+                <td><strong>環境変数</strong></td>
+                <td>シェルやプログラムが参照する設定値。<code>echo $PATH</code> で確認できる</td>
+            </tr>
+            <tr>
+                <td><strong>PATH</strong></td>
+                <td>コマンドを探しに行くフォルダの一覧。ここにないコマンドは名前だけでは実行できない</td>
+            </tr>
+            <tr>
+                <td><strong>シェルスクリプト</strong></td>
+                <td>コマンドを並べて書いたファイル。<code>.sh</code> が慣習。実行には実行権限が必要</td>
+            </tr>
+            <tr>
+                <td><strong>標準出力 / 標準エラー出力</strong></td>
+                <td>コマンドの通常の出力 / エラー用の出力。別々に扱える</td>
+            </tr>
+            <tr>
+                <td><strong>リダイレクト</strong></td>
+                <td>出力先をファイルに変えること。<code>&gt;</code>（上書き）、<code>&gt;&gt;</code>（追記）</td>
+            </tr>
+            <tr>
+                <td><strong>パイプ</strong></td>
+                <td>コマンドの出力を次のコマンドの入力に渡すこと（<code>|</code>）</td>
+            </tr>
+            <tr>
+                <td><strong>cron</strong></td>
+                <td>指定した時刻にコマンドを自動実行する仕組み。<code>crontab -e</code> で設定</td>
+            </tr>
+            <tr>
+                <td><strong>ロケール / タイムゾーン</strong></td>
+                <td>言語と文字の設定 / 時刻の地域設定。<code>raspi-config</code> で変更できる</td>
+            </tr>
+        </table>
+
+        <h3 id="g2">2. ファイルとパス</h3>
+        <table>
+            <tr>
+                <th style="width: 24%;">用語</th>
+                <th>意味</th>
+            </tr>
+            <tr>
+                <td><strong>ディレクトリ</strong></td>
+                <td>Windows でいうフォルダ</td>
+            </tr>
+            <tr>
+                <td><strong>ルート（<code>/</code>）</strong></td>
+                <td>ツリーの最上位。管理者ユーザーの root とは別物</td>
+            </tr>
+            <tr>
+                <td><strong>絶対パス / 相対パス</strong></td>
+                <td><code>/</code> から始まる完全な住所 / 今いる場所を起点にした住所</td>
+            </tr>
+            <tr>
+                <td><strong>ホームディレクトリ</strong></td>
+                <td>利用者ごとの作業場所。<code>/home/ユーザー名</code>、略記は <code>~</code></td>
+            </tr>
+            <tr>
+                <td><strong>隠しファイル</strong></td>
+                <td>名前が <code>.</code> で始まるファイル。<code>ls -a</code> で表示される</td>
+            </tr>
+            <tr>
+                <td><strong>シンボリックリンク</strong></td>
+                <td>他のファイルを指す目印。Windows のショートカットに近い。<code>ls -l</code> で <code>l</code> と表示される</td>
+            </tr>
+            <tr>
+                <td><strong>マウント</strong></td>
+                <td>ストレージをツリーの一部として繋ぐこと。USB メモリは <code>/media/...</code> に繋がれる</td>
+            </tr>
+            <tr>
+                <td><strong>アンマウント</strong></td>
+                <td>接続を解除すること。取り外す前に必要（<code>umount</code>）</td>
+            </tr>
+            <tr>
+                <td><strong>パーティション</strong></td>
+                <td>ストレージを区切った領域。SD カードは起動用と本体用の2つ</td>
+            </tr>
+            <tr>
+                <td><strong>ファイルシステム</strong></td>
+                <td>データの記録形式。Linux 本体は <code>ext4</code>、起動領域は <code>FAT32</code></td>
+            </tr>
+            <tr>
+                <td><strong>inode</strong></td>
+                <td>ファイルの管理情報。数が尽きると、容量が空いていてもファイルを作れなくなる</td>
+            </tr>
+            <tr>
+                <td><strong>スワップ</strong></td>
+                <td>メモリが足りないときに、ストレージを一時的なメモリとして使う領域</td>
+            </tr>
+        </table>
+
+        <h3 id="g3">3. ユーザーと権限</h3>
+        <table>
+            <tr>
+                <th style="width: 24%;">用語</th>
+                <th>意味</th>
+            </tr>
+            <tr>
+                <td><strong>root</strong></td>
+                <td>すべての操作が許された管理者ユーザー</td>
+            </tr>
+            <tr>
+                <td><strong>sudo</strong></td>
+                <td>そのコマンド1回だけを管理者として実行する仕組み</td>
+            </tr>
+            <tr>
+                <td><strong>グループ</strong></td>
+                <td>ユーザーのまとまり。<code>dialout</code>（シリアル）、<code>gpio</code>（GPIO）などの所属で権限が決まる</td>
+            </tr>
+            <tr>
+                <td><strong>パーミッション</strong></td>
+                <td>読み（r）・書き（w）・実行（x）の許可。<code>rw-r--r--</code> のように表示される</td>
+            </tr>
+            <tr>
+                <td><strong>所有者</strong></td>
+                <td>そのファイルを持っているユーザー。<code>chown</code> で変更する</td>
+            </tr>
+            <tr>
+                <td><strong>実行権限</strong></td>
+                <td>スクリプトを動かすために必要な許可。<code>chmod +x</code> で付与する</td>
+            </tr>
+            <tr>
+                <td><strong>sudoers</strong></td>
+                <td>誰がどのコマンドを sudo できるかの設定。編集は <code>visudo</code> で行う</td>
+            </tr>
+        </table>
+
+        <h3 id="g4">4. プロセスとサービス</h3>
+        <table>
+            <tr>
+                <th style="width: 24%;">用語</th>
+                <th>意味</th>
+            </tr>
+            <tr>
+                <td><strong>プロセス</strong></td>
+                <td>実行中のプログラム。メモリ上に存在する実体</td>
+            </tr>
+            <tr>
+                <td><strong>PID</strong></td>
+                <td>プロセスに割り振られる番号。<code>kill</code> するときに指定する</td>
+            </tr>
+            <tr>
+                <td><strong>デーモン</strong></td>
+                <td>画面を持たず裏で常駐するプロセス。名前の末尾が <code>d</code> のものが多い</td>
+            </tr>
+            <tr>
+                <td><strong>サービス</strong></td>
+                <td>systemd が管理する常駐プログラム。Node-RED もこの形で動く</td>
+            </tr>
+            <tr>
+                <td><strong>systemd</strong></td>
+                <td>サービスの起動・停止・自動起動を統括する仕組み。最初に起動するプロセス（PID 1）</td>
+            </tr>
+            <tr>
+                <td><strong>ユニット</strong></td>
+                <td>systemd が扱う設定の単位。<code>nodered.service</code> がその1つ</td>
+            </tr>
+            <tr>
+                <td><strong>enable / start</strong></td>
+                <td>次回以降の自動起動を設定する / 今すぐ起動する。<strong>別の操作</strong></td>
+            </tr>
+            <tr>
+                <td><strong>ジャーナル</strong></td>
+                <td>systemd が集めるログ。<code>journalctl</code> で読む</td>
+            </tr>
+            <tr>
+                <td><strong>シグナル</strong></td>
+                <td>プロセスへの合図。<span style="white-space:nowrap;"><code>Ctrl</code>+<code>C</code></span> は中断、<code>kill -9</code> は強制終了の合図</td>
+            </tr>
+            <tr>
+                <td><strong>終了コード</strong></td>
+                <td>コマンドの結果を表す数値。0 が成功、それ以外は失敗。<code>echo $?</code> で確認できる</td>
+            </tr>
+        </table>
+
+        <h3 id="g5">5. ソフトの管理</h3>
+        <table>
+            <tr>
+                <th style="width: 24%;">用語</th>
+                <th>意味</th>
+            </tr>
+            <tr>
+                <td><strong>パッケージ</strong></td>
+                <td>インストール可能な形にまとめられたソフト</td>
+            </tr>
+            <tr>
+                <td><strong>リポジトリ</strong></td>
+                <td>パッケージの公式な置き場所（配布元のサーバー）</td>
+            </tr>
+            <tr>
+                <td><strong>apt</strong></td>
+                <td>パッケージを取り寄せて導入・更新・削除する道具</td>
+            </tr>
+            <tr>
+                <td><strong>dpkg</strong></td>
+                <td>apt の下で実際にパッケージを展開する仕組み。<code>.deb</code> ファイルを直接扱う</td>
+            </tr>
+            <tr>
+                <td><strong>依存関係</strong></td>
+                <td>そのソフトが動くために必要な別のソフト。apt が自動で解決する</td>
+            </tr>
+            <tr>
+                <td><strong>npm</strong></td>
+                <td>Node.js のライブラリを管理する道具。Node-RED の追加ノードはこちら</td>
+            </tr>
+            <tr>
+                <td><strong>仮想環境（venv）</strong></td>
+                <td>Python で、システムと切り離した専用の環境を作る仕組み</td>
+            </tr>
+            <tr>
+                <td><strong>armhf / arm64</strong></td>
+                <td>32bit 版 / 64bit 版の CPU 種別。パッケージの対応可否に関わる</td>
+            </tr>
+        </table>
+
+        <h3 id="g6">6. ネットワーク</h3>
+        <table>
+            <tr>
+                <th style="width: 24%;">用語</th>
+                <th>意味</th>
+            </tr>
+            <tr>
+                <td><strong>IP アドレス</strong></td>
+                <td>ネットワーク上の住所。<code>hostname -I</code> で確認する</td>
+            </tr>
+            <tr>
+                <td><strong>ホスト名</strong></td>
+                <td>機器の名前。初期値は <code>raspberrypi</code>。<code>raspberrypi.local</code> で参照できることもある</td>
+            </tr>
+            <tr>
+                <td><strong>ポート</strong></td>
+                <td>1台の機器の中でサービスを区別する番号。Node-RED は 1880</td>
+            </tr>
+            <tr>
+                <td><strong>localhost / 127.0.0.1</strong></td>
+                <td>自分自身を指す名前とアドレス</td>
+            </tr>
+            <tr>
+                <td><strong>DHCP</strong></td>
+                <td>IP アドレスを自動で配る仕組み。再起動でアドレスが変わることがある</td>
+            </tr>
+            <tr>
+                <td><strong>DNS</strong></td>
+                <td>名前を IP アドレスに変換する仕組み</td>
+            </tr>
+            <tr>
+                <td><strong>SSH</strong></td>
+                <td>暗号化された遠隔操作の仕組み。ラズパイ運用の主要な入り口</td>
+            </tr>
+            <tr>
+                <td><strong>NetworkManager</strong></td>
+                <td>bookworm 以降のネットワーク管理の仕組み。<code>nmcli</code> / <code>nmtui</code> で操作する</td>
+            </tr>
+            <tr>
+                <td><strong>ファイアウォール</strong></td>
+                <td>通信を選別する仕組み。ラズパイの標準構成では通常無効</td>
+            </tr>
+        </table>
+
+        <h3 id="g7">7. ラズパイ固有</h3>
+        <table>
+            <tr>
+                <th style="width: 24%;">用語</th>
+                <th>意味</th>
+            </tr>
+            <tr>
+                <td><strong>Raspberry Pi Imager</strong></td>
+                <td>SD カードに OS を書き込む公式ツール。ユーザー名や SSH の初期設定もここで行う</td>
+            </tr>
+            <tr>
+                <td><strong>raspi-config</strong></td>
+                <td>ラズパイ用の設定ツール。<code>sudo raspi-config</code> で起動する</td>
+            </tr>
+            <tr>
+                <td><strong>Control Centre</strong></td>
+                <td>trixie でデスクトップの設定画面が統合されたアプリ</td>
+            </tr>
+            <tr>
+                <td><strong>config.txt</strong></td>
+                <td>ハードウェア設定のファイル。<code>/boot/firmware/</code> にある（bookworm 以降）</td>
+            </tr>
+            <tr>
+                <td><strong>GPIO</strong></td>
+                <td>基板上のピン。センサーや LED を接続する入出力端子</td>
+            </tr>
+            <tr>
+                <td><strong>I2C / SPI / UART</strong></td>
+                <td>機器と通信する方式。使う前に <code>raspi-config</code> で有効化が必要</td>
+            </tr>
+            <tr>
+                <td><strong>スロットリング</strong></td>
+                <td>高温や電圧不足のときに性能を落とす保護動作。<code>vcgencmd get_throttled</code> で確認</td>
+            </tr>
+            <tr>
+                <td><strong>Lite 版</strong></td>
+                <td>デスクトップ画面を含まない軽量版の Raspberry Pi OS</td>
+            </tr>
+            <tr>
+                <td><strong>Wayland / labwc</strong></td>
+                <td>現在のデスクトップ画面を描画している仕組み（bookworm 以降）</td>
+            </tr>
+        </table>
+
+        <!-- ===== B エラー逆引き ===== -->
+        <h2 id="errors">B. エラーメッセージ逆引き</h2>
+
+        <p>実際に画面に出るメッセージから、原因と対処を引けるようにまとめました。</p>
+
+        <div class="err-case">
+            <h3>Permission denied</h3>
+            <div class="body">
+                <div class="code-block err">
+-bash: /etc/hostname: Permission denied</div>
+                <p><span class="label">意味：</span>そのファイルを操作する権限がない。</p>
+                <p><span class="label">対処：</span>システムの領域なら <code>sudo</code> を付ける（<code>sudo nano /etc/hostname</code>）。自分のホーム内でこれが出る場合は、<strong>過去に <code>sudo</code> で作ったせいで所有者が root になっている</strong>可能性が高い。<code>ls -l</code> で所有者を確認し、<code>sudo chown ユーザー名:ユーザー名 ファイル名</code> で戻す。</p>
+            </div>
+        </div>
+
+        <div class="err-case">
+            <h3>command not found</h3>
+            <div class="body">
+                <div class="code-block err">
+-bash: nmcli: command not found</div>
+                <p><span class="label">意味：</span>そのコマンドが見つからない。</p>
+                <p><span class="label">対処：</span>① 綴りを確認する（Tab 補完を使えば防げる）。② そもそも入っていない場合は <code>sudo apt install パッケージ名</code> で導入する。③ 入っているのに出る場合は PATH の問題なので、<code>which</code> や <code>ls /usr/bin/</code> で実体を探し、絶対パスで実行する。</p>
+            </div>
+        </div>
+
+        <div class="err-case">
+            <h3>No such file or directory</h3>
+            <div class="body">
+                <div class="code-block err">
+cat: /home/taro/data/Sensor.csv: No such file or directory</div>
+                <p><span class="label">意味：</span>指定したパスにファイルがない。</p>
+                <p><span class="label">対処：</span><strong>大文字と小文字の違い</strong>を最初に疑う（<code>Sensor.csv</code> と <code>sensor.csv</code> は別物）。次に <code>ls</code> で本当に存在するか確認する。相対パスで打っている場合は <code>pwd</code> で現在地を確認する。</p>
+            </div>
+        </div>
+
+        <div class="err-case">
+            <h3>Error: listen EADDRINUSE: address already in use :::1880</h3>
+            <div class="body">
+                <div class="code-block err">
+Error: listen EADDRINUSE: address already in use :::1880</div>
+                <p><span class="label">意味：</span>1880 番ポートを既に別のプロセスが使っている。</p>
+                <p><span class="label">対処：</span>サービスとして動いている Node-RED があるところに、手動で <code>node-red</code> を起動したケースがほとんど。<code>sudo ss -tulpn | grep 1880</code> で使用者を特定し、手動起動をやめるか、<code>sudo systemctl stop nodered</code> でサービスを止めてから起動する。</p>
+            </div>
+        </div>
+
+        <div class="err-case">
+            <h3>externally-managed-environment</h3>
+            <div class="body">
+                <div class="code-block err">
+error: externally-managed-environment
+× This environment is externally managed</div>
+                <p><span class="label">意味：</span>システムの Python を守るため、<code>pip install</code> が拒否された（bookworm 以降の仕様）。</p>
+                <p><span class="label">対処：</span>① <code>sudo apt install python3-パッケージ名</code> で apt から入れる。② <code>python3 -m venv ~/myenv</code> で仮想環境を作り、<code>source ~/myenv/bin/activate</code> してから <code>pip install</code> する。<strong><code>--break-system-packages</code> での強行は避ける</strong>（システムの Python を壊す恐れがある）。</p>
+            </div>
+        </div>
+
+        <div class="err-case">
+            <h3>Unable to locate package</h3>
+            <div class="body">
+                <div class="code-block err">
+E: Unable to locate package nodejs</div>
+                <p><span class="label">意味：</span>そのパッケージがカタログに見当たらない。</p>
+                <p><span class="label">対処：</span>まず <code>sudo apt update</code> でカタログを取り直す。それでも出る場合は、パッケージ名の綴り違いか、そのリポジトリに存在しないパッケージ。<code>apt search キーワード</code> で正しい名前を探す。</p>
+            </div>
+        </div>
+
+        <div class="err-case">
+            <h3>No space left on device</h3>
+            <div class="body">
+                <div class="code-block err">
+Error: ENOSPC: no space left on device, write</div>
+                <p><span class="label">意味：</span>ストレージが満杯。フローの保存もログの記録もできない状態。</p>
+                <p><span class="label">対処：</span><code>df -h</code> で確認し、<code>sudo du -sh /var/log/* | sort -h | tail</code> で犯人を特定する。ログが原因なら <code>sudo journalctl --vacuum-size=100M</code> で古いジャーナルを削減できる。<code>sudo apt autoremove</code> と <code>sudo apt clean</code> も効果がある。</p>
+            </div>
+        </div>
+
+        <div class="err-case">
+            <h3>Read-only file system</h3>
+            <div class="body">
+                <div class="code-block err">
+touch: cannot touch 'test.txt': Read-only file system</div>
+                <p><span class="label">意味：</span>書き込み禁止の状態になっている。SD カードの異常を検知して、保護のため読み取り専用に切り替わった可能性が高い。</p>
+                <p><span class="label">対処：</span><strong>SD カードの寿命または破損を疑う</strong>。まず <code>flows.json</code> などの重要ファイルを別の場所へ退避し、<code>journalctl -p err -b</code> でストレージ関連のエラーを確認する。再起動で一時的に戻ることもあるが、根本的にはカードの交換が必要。</p>
+            </div>
+        </div>
+
+        <div class="err-case">
+            <h3>Connection refused</h3>
+            <div class="body">
+                <div class="code-block err">
+curl: (7) Failed to connect to 192.168.1.50 port 1880: Connection refused</div>
+                <p><span class="label">意味：</span>そのアドレスには届いたが、指定のポートで待ち受けているものがない。</p>
+                <p><span class="label">対処：</span>アドレスまでは到達しているので、原因はサービス側。<code>systemctl status nodered</code> で Node-RED が動いているかを確認する。動いていない場合は <code>journalctl -u nodered -n 50</code> で起動失敗の原因を読む。</p>
+            </div>
+        </div>
+
+        <div class="err-case">
+            <h3>ssh: connect to host ... Connection timed out</h3>
+            <div class="body">
+                <div class="code-block err">
+ssh: connect to host 192.168.1.50 port 22: Connection timed out</div>
+                <p><span class="label">意味：</span>相手まで届いていない。</p>
+                <p><span class="label">対処：</span>① IP アドレスが変わっていないか確認する（DHCP では変わることがある）。② ラズパイの電源とネットワークの接続を確認する。③ SSH が有効になっているか確認する（<code>sudo raspi-config</code> の Interface Options）。</p>
+            </div>
+        </div>
+
+        <div class="err-case">
+            <h3>WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!</h3>
+            <div class="body">
+                <div class="code-block err">
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@  WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!  @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@</div>
+                <p><span class="label">意味：</span>以前に接続した相手と鍵が違う。<strong>OS を再インストールした</strong>ときや、同じ IP を別の機器が使い始めたときに出る。</p>
+                <p><span class="label">対処：</span>心当たり（再インストール等）があるなら、PC 側で古い記録を消す：<code>ssh-keygen -R 192.168.1.50</code>。心当たりがない場合は、接続先が本当に目的の機器かを確認してから対処する。</p>
+            </div>
+        </div>
+
+        <div class="err-case">
+            <h3>sudo: a terminal is required to read the password</h3>
+            <div class="body">
+                <div class="code-block err">
+sudo: a terminal is required to read the password</div>
+                <p><span class="label">意味：</span>パスワードの入力が必要だが、入力できない状況にある。Exec ノードやスクリプトから <code>sudo</code> を実行したときに出る。</p>
+                <p><span class="label">対処：</span>フローから <code>sudo</code> を使わない設計に変える。どうしても必要なら sudoers の設定が要るが、セキュリティ上の判断が伴うため慎重に。2026年4月以降の新規インストールでは <code>sudo</code> にパスワードが必要になった点も併せて確認する。</p>
+            </div>
+        </div>
+
+        <!-- ===== C 症状別 ===== -->
+        <h2 id="symptoms">C. 症状別トラブルシューティング</h2>
+
+        <details>
+            <summary>ブラウザから Node-RED に繋がらない</summary>
+            <ol>
+                <li><code>hostname -I</code> でラズパイの IP を確認する（表示されなければネットワーク未接続）</li>
+                <li>アドレスが変わっていないか確認する。ブラウザには <code>http://その IP:1880/</code> と入力する</li>
+                <li><code>systemctl status nodered</code> で <code>active (running)</code> かを確認する</li>
+                <li>動いていなければ <code>journalctl -u nodered -n 50</code> でエラーを読む</li>
+                <li>ラズパイ自身から <code>curl http://localhost:1880/</code> を試す。ここで成功して PC から失敗するなら、ネットワーク側の問題</li>
+            </ol>
+        </details>
+
+        <details>
+            <summary>電源を入れ直したら Node-RED が起動しない</summary>
+            <p>自動起動の設定が有効になっていない可能性が最も高いです。</p>
+            <div class="code-block shell">
+                <button class="copy-button" onclick="copyCode(this)">コピー</button>
+systemctl is-enabled nodered
+<span class="output">disabled</span>
+
+sudo systemctl enable nodered</div>
+            <p><code>enabled</code> と表示されるのに起動しない場合は、起動時のエラーを <code>journalctl -u nodered -b</code> で確認してください。<code>flows.json</code> が壊れていると起動に失敗します。</p>
+        </details>
+
+        <details>
+            <summary>フローを保存したのに、再起動すると消えている</summary>
+            <ul>
+                <li>ディスクが満杯で保存に失敗している：<code>df -h</code> を確認する</li>
+                <li>ファイルが読み取り専用になっている：<code>ls -l ~/.node-red/flows.json</code> で権限と所有者を確認する</li>
+                <li>複数の Node-RED が別々のユーザーディレクトリで動いている：起動ログの <code>User directory</code> の表示を確認する</li>
+                <li>電源を直接抜いた：書き込み途中のデータが失われる。<code>sudo shutdown -h now</code> で終了する習慣をつける</li>
+            </ul>
+        </details>
+
+        <details>
+            <summary>動作が急に遅くなった・不安定になった</summary>
+            <ol>
+                <li><code>vcgencmd measure_temp</code> で温度を確認する（80℃ を超えると性能が落ちる）</li>
+                <li><code>vcgencmd get_throttled</code> が <code>0x0</code> 以外なら、電源の容量不足か高温が起きている</li>
+                <li><code>free -h</code> でメモリの空きを確認する</li>
+                <li><code>top</code> で CPU を占有しているプロセスを特定する</li>
+                <li><code>df -h</code> でディスクの空きを確認する</li>
+            </ol>
+            <p>ラズパイの不安定動作は、電源アダプタの容量不足が原因であることが少なくありません。公式または相応の出力を持つアダプタを使ってください。</p>
+        </details>
+
+        <details>
+            <summary>USB シリアル機器（MODBUS など）が認識されない</summary>
+            <ol>
+                <li>挿す前後で <code>ls /dev/tty*</code> を実行し、増えたものを特定する</li>
+                <li>何も増えなければ、ケーブルやドライバの問題。<code>dmesg | tail -n 20</code> で接続時のログを確認する</li>
+                <li>デバイスは見えるのに権限エラーが出る場合は、<code>dialout</code> グループへの所属を確認する：<code>groups</code></li>
+                <li>所属していなければ <code>sudo usermod -aG dialout ユーザー名</code> を実行し、<strong>再ログイン</strong>する（反映には再ログインが必要）</li>
+            </ol>
+        </details>
+
+        <details>
+            <summary>SSH で入れなくなった</summary>
+            <ol>
+                <li>IP アドレスが変わっていないか確認する。ルーターの管理画面や、<code>ping raspberrypi.local</code> を試す</li>
+                <li>それでも不明なら、モニタとキーボードを繋いで直接 <code>hostname -I</code> を実行する</li>
+                <li>鍵の警告が出る場合は、上の「REMOTE HOST IDENTIFICATION HAS CHANGED」を参照する</li>
+                <li>固定 IP にしておくと、この問題の大半は起きなくなる</li>
+            </ol>
+        </details>
+
+        <!-- ===== D チェックリスト ===== -->
+        <h2 id="checklist">D. 困ったときの初動チェックリスト</h2>
+
+        <p>原因が分からないときは、この5つを順に実行してください。ほとんどの問題は、この段階で当たりがつきます。</p>
+
+        <div class="code-block shell">
+            <button class="copy-button" onclick="copyCode(this)">コピー</button>
+systemctl status nodered          <span class="output"># ① 動いているか</span>
+journalctl -u nodered -n 50       <span class="output"># ② 直前に何が起きたか</span>
+df -h                             <span class="output"># ③ ディスクは空いているか</span>
+free -h                           <span class="output"># ④ メモリは足りているか</span>
+hostname -I                       <span class="output"># ⑤ ネットワークに繋がっているか</span></div>
+
+        <div class="tip">
+            <p><strong>エラーメッセージは省略せずに読む</strong></p>
+            <p>Linux のエラーは、多くの場合「何が」「どこで」「なぜ」失敗したかを含んでいます。<code>cat: /home/taro/data/Sensor.csv: No such file or directory</code> なら、<strong>cat が</strong>、<strong>そのパスで</strong>、<strong>ファイルがないために</strong>失敗した、と読めます。検索するときも、この3要素を含めたほうが的確な情報にたどり着けます。</p>
+        </div>
+
+        <div class="success">
+            <p><strong>シリーズのまとめ</strong></p>
+            <p>ここまでの4本で、Node-RED をラズパイで運用するために必要な Linux の知識は一通り揃いました。すべてを覚える必要はありません。<strong>「どこを見れば分かるか」が分かっている</strong>状態が、実務では最も強い状態です。困ったときにこのページへ戻ってこられるよう、ブックマークしておくことをお勧めします。</p>
+        </div>
+
+        <div class="next-box">
+            <h3>▶ シリーズの他のガイド</h3>
+            <ul>
+                <li><a href="nodered-linux-basics-guide.html">① Linux / Raspberry Pi OS の仕組み入門</a></li>
+                <li><a href="nodered-linux-directory-guide.html">② ディレクトリ構成ガイド</a></li>
+                <li><a href="nodered-linux-commands-guide.html">③ 基本コマンドガイド</a></li>
+            </ul>
+            <h3>関連ガイド</h3>
+            <ul>
+                <li><a href="nodered-raspberry-pi-install-guide.html">Raspberry Pi インストールガイド</a></li>
+                <li><a href="nodered-chapter0-debugging.html">動かないときの進め方</a> — Node-RED 側の切り分け方</li>
+                <li><a href="nodered-network-basics-guide.html">通信の基礎入門</a> — IP アドレスやポートの考え方</li>
+            </ul>
+        </div>
+
+        <p style="text-align: center; color: #999; margin-top: 40px;">
+            <small>このガイドは2026年8月時点の Raspberry Pi OS（trixie / bookworm）に基づいています。</small>
+        </p>
+    </div>
+
+    <script>
+        function copyCode(button) {
+            const codeBlock = button.parentElement;
+            const code = codeBlock.innerText.replace('コピー', '').trim();
+
+            navigator.clipboard.writeText(code).then(() => {
+                button.textContent = 'コピーしました!';
+                button.classList.add('copied');
+                setTimeout(() => {
+                    button.textContent = 'コピー';
+                    button.classList.remove('copied');
+                }, 2000);
+            });
+        }
+    </script>
+
+    <a href="index.html" style="position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px; background: linear-gradient(135deg, #42b883 0%, #35495e 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; transition: transform 0.3s, box-shadow 0.3s;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 6px 16px rgba(0,0,0,0.4)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.3)';" title="トップページへ">🏠</a>
+</body>
+</html>

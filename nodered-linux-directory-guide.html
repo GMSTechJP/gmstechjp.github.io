@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linux / Raspberry Pi OS ディレクトリ構成ガイド</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        h1 {
+            color: #8f0000;
+            border-bottom: 3px solid #8f0000;
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            color: #c00000;
+            margin-top: 40px;
+            border-left: 5px solid #c00000;
+            padding-left: 15px;
+        }
+
+        h3 {
+            color: #555;
+            margin-top: 25px;
+        }
+
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .toc {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px 30px;
+            margin: 20px 0;
+        }
+
+        .toc h3 {
+            margin-top: 0;
+            color: #8f0000;
+        }
+
+        .toc ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .toc li {
+            padding: 5px 0;
+        }
+
+        .toc a {
+            color: #1976d2;
+            text-decoration: none;
+        }
+
+        .toc a:hover {
+            text-decoration: underline;
+        }
+
+        .important {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .tip {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .success {
+            background-color: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .warning {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .code-block {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 14px;
+            position: relative;
+            white-space: pre;
+        }
+
+        .code-block.shell {
+            background-color: #012456;
+            color: #ffffff;
+        }
+
+        .output {
+            color: #7ec699;
+        }
+
+        .copy-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 6px 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background-color 0.2s;
+        }
+
+        .copy-button:hover {
+            background-color: #0056b3;
+        }
+
+        .copy-button.copied {
+            background-color: #28a745;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background-color: #8f0000;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        code {
+            background-color: #eef1f4;
+            color: #b02a37;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.92em;
+        }
+
+        /* ツリー表示 */
+        .tree {
+            background-color: #2d3133;
+            color: #e6e6e6;
+            padding: 20px 25px;
+            border-radius: 8px;
+            margin: 20px 0;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre;
+        }
+
+        .tree .dir { color: #63b3ed; font-weight: bold; }
+        .tree .cmt { color: #9aa5b1; }
+        .tree .hot { color: #f6ad55; font-weight: bold; }
+
+        .next-box {
+            background-color: #eef7ff;
+            border: 1px solid #b6d9f7;
+            border-radius: 8px;
+            padding: 20px 25px;
+            margin: 25px 0;
+        }
+
+        .next-box h3 {
+            margin-top: 0;
+            color: #0d47a1;
+        }
+
+        .next-box a {
+            color: #1976d2;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .next-box a:hover {
+            text-decoration: underline;
+        }
+
+        details {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin: 20px 0;
+        }
+
+        summary {
+            cursor: pointer;
+            font-weight: bold;
+            color: #1976d2;
+        }
+
+        .series-nav {
+            background-color: #fdf6e3;
+            border: 1px solid #e8dcc0;
+            border-radius: 8px;
+            padding: 12px 20px;
+            margin: 20px 0;
+            font-size: 0.95em;
+        }
+
+        .series-nav strong {
+            color: #8f0000;
+        }
+
+        .exercise {
+            background-color: #f3e5f5;
+            border-left: 4px solid #8e24aa;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .exercise h4 {
+            margin-top: 0;
+            color: #6a1b9a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Linux / Raspberry Pi OS ディレクトリ構成ガイド</h1>
+
+        <p>ラズパイのターミナルで <code>ls /</code> と打つと、見慣れない短い名前のフォルダが20個ほど並びます。<code>etc</code>、<code>var</code>、<code>usr</code>、<code>proc</code>——どれが何なのか分からないままだと、「設定ファイルはどこ？」「ログはどこ？」で毎回つまずきます。</p>
+        <p>このガイドは、その並びを<strong>意味の分かる地図に変える</strong>ためのものです。最後には、Node-RED のファイルがどこに置かれているかまで辿れるようになります。</p>
+
+        <div class="series-nav">
+            <strong>📚 Linux 入門シリーズ（全4回）</strong>：
+            <a href="nodered-linux-basics-guide.html">① 仕組み</a> →
+            <strong>② ディレクトリ構成（このページ）</strong> →
+            <a href="nodered-linux-commands-guide.html">③ 基本コマンド</a> →
+            <a href="nodered-linux-glossary-guide.html">④ 用語辞典・困ったとき</a>
+        </div>
+
+        <div class="toc">
+            <h3>📖 目次</h3>
+            <ul>
+                <li><a href="#section1">1. ドライブレターがない世界</a></li>
+                <li><a href="#section2">2. パスの読み方・書き方</a></li>
+                <li><a href="#section3">3. ルート直下の全体像</a></li>
+                <li><a href="#section4">4. 主要ディレクトリの役割</a></li>
+                <li><a href="#section5">5. 覚え方は3原則で足りる</a></li>
+                <li><a href="#section6">6. Raspberry Pi 固有のディレクトリ</a></li>
+                <li><a href="#section7">7. Node-RED ファイルの居場所マップ</a></li>
+                <li><a href="#section8">8. 自分のファイルはどこに置くべきか</a></li>
+                <li><a href="#section9">9. 場所を調べるコマンド</a></li>
+                <li><a href="#section10">10. 触らない場所・バックアップする場所</a></li>
+                <li><a href="#section11">11. 演習</a></li>
+                <li><a href="#section12">12. まとめ</a></li>
+            </ul>
+        </div>
+
+        <!-- ===== セクション1 ===== -->
+        <h2 id="section1">1. ドライブレターがない世界</h2>
+
+        <p>Windows では、SSD が <code>C:</code>、USB メモリが <code>D:</code> というように、装置ごとに独立したツリーがあります。Linux にはこの区別がありません。<strong>すべてが <code>/</code>（ルート）を頂点とする1本のツリーに収まります</strong>。</p>
+
+        <p>では USB メモリはどう扱われるのか。<strong>ツリーのどこかのフォルダに「接続」して、その中身として見せます</strong>。この接続をマウントと呼びます。デスクトップ版の Raspberry Pi OS に USB メモリを挿すと、自動的に <code>/media/ユーザー名/ラベル名</code> にマウントされ、そのフォルダを開けば中のファイルが見えます。</p>
+
+        <table>
+            <tr>
+                <th style="width: 40%;">Windows</th>
+                <th>Linux</th>
+            </tr>
+            <tr>
+                <td><code>C:\Users\taro\data.csv</code></td>
+                <td><code>/home/taro/data.csv</code></td>
+            </tr>
+            <tr>
+                <td><code>D:\log\sensor.txt</code>（USB メモリ）</td>
+                <td><code>/media/taro/USB16GB/log/sensor.txt</code></td>
+            </tr>
+            <tr>
+                <td>区切りは <code>\</code>（円記号・バックスラッシュ）</td>
+                <td>区切りは <code>/</code>（スラッシュ）</td>
+            </tr>
+        </table>
+
+        <div class="important">
+            <p><strong>大文字と小文字は区別されます</strong></p>
+            <p>Windows では <code>Data.csv</code> と <code>data.csv</code> は同じファイルですが、Linux では<strong>別のファイル</strong>です。Node-RED の File ノードでパスを指定してもファイルが見つからないとき、この打ち間違いが原因のことがよくあります。</p>
+        </div>
+
+        <!-- ===== セクション2 ===== -->
+        <h2 id="section2">2. パスの読み方・書き方</h2>
+
+        <p>パスとは、ファイルやフォルダの住所です。書き方は2種類あります。</p>
+
+        <table>
+            <tr>
+                <th style="width: 20%;">種類</th>
+                <th style="width: 34%;">例</th>
+                <th>意味</th>
+            </tr>
+            <tr>
+                <td><strong>絶対パス</strong></td>
+                <td><code>/home/taro/.node-red/flows.json</code></td>
+                <td><code>/</code> から始まる完全な住所。どこから実行しても同じ場所を指す</td>
+            </tr>
+            <tr>
+                <td><strong>相対パス</strong></td>
+                <td><code>.node-red/flows.json</code></td>
+                <td>今いる場所を起点にした住所。今いる場所が変われば、指す先も変わる</td>
+            </tr>
+        </table>
+
+        <p>パスの中で使える特別な記号は次の4つです。</p>
+
+        <table>
+            <tr>
+                <th style="width: 14%;">記号</th>
+                <th style="width: 34%;">意味</th>
+                <th>使用例</th>
+            </tr>
+            <tr>
+                <td><code>/</code></td>
+                <td>ルート（最上位）、または区切り文字</td>
+                <td><code>cd /</code> でルートへ移動</td>
+            </tr>
+            <tr>
+                <td><code>~</code></td>
+                <td>自分のホームディレクトリ（<code>/home/ユーザー名</code>）</td>
+                <td><code>cd ~/.node-red</code></td>
+            </tr>
+            <tr>
+                <td><code>.</code></td>
+                <td>今いるディレクトリ</td>
+                <td><code>./script.sh</code> で今いる場所のスクリプトを実行</td>
+            </tr>
+            <tr>
+                <td><code>..</code></td>
+                <td>1つ上のディレクトリ</td>
+                <td><code>cd ..</code> で親へ戻る</td>
+            </tr>
+        </table>
+
+        <div class="tip">
+            <p><strong>先頭が <code>.</code> のファイルは「隠しファイル」です</strong></p>
+            <p><code>.node-red</code>、<code>.bashrc</code> のように名前がドットで始まるものは、通常の <code>ls</code> では表示されません。見るには <code>ls -a</code> を使います。設定ファイルの多くはこの形なので、「フォルダが見当たらない」ときはまず <code>ls -a</code> を試してください。Node-RED の作業フォルダ <code>~/.node-red</code> も隠しフォルダです。</p>
+        </div>
+
+        <div class="warning">
+            <p><strong>スペースを含むパスは要注意</strong></p>
+            <p><code>/home/taro/my data/log.csv</code> のようにスペースがあると、コマンドはそこを区切りだと解釈します。引用符で囲むか（<code>"my data"</code>）、そもそもファイル名やフォルダ名にスペースと日本語を使わないのが安全です。Node-RED のファイルパス指定でも同じ注意が要ります。</p>
+        </div>
+
+        <!-- ===== セクション3 ===== -->
+        <h2 id="section3">3. ルート直下の全体像</h2>
+
+        <p><code>ls /</code> で見えるフォルダを、役割ごとに整理したものが次の図です。オレンジ色は Node-RED の運用でよく触る場所です。</p>
+
+        <div class="tree"><span class="dir">/</span>                          <span class="cmt">← すべての出発点（ルート）</span>
+├── <span class="dir">bin</span>  <span class="dir">sbin</span>  <span class="dir">lib</span>      <span class="cmt">← 基本コマンドと部品（実体は usr の中）</span>
+├── <span class="dir">usr</span>/                     <span class="cmt">← インストールされたソフト本体</span>
+│   ├── bin/                <span class="cmt">← 一般ユーザー向けコマンド（node, git, python3）</span>
+│   ├── sbin/               <span class="cmt">← 管理者向けコマンド</span>
+│   ├── lib/                <span class="cmt">← ライブラリ、systemd のサービス定義</span>
+│   ├── share/              <span class="cmt">← アイコン・説明書などのデータ</span>
+│   └── local/              <span class="cmt">← 自分で入れたソフト（apt 以外）</span>
+├── <span class="hot">etc</span>/                     <span class="cmt">← システム全体の設定ファイル置き場</span>
+├── <span class="hot">var</span>/                     <span class="cmt">← 動くほどに増減するデータ（ログ、キャッシュ）</span>
+│   ├── log/                <span class="cmt">← ログファイル</span>
+│   └── tmp/                <span class="cmt">← 再起動しても消えない一時ファイル</span>
+├── <span class="hot">home</span>/                    <span class="cmt">← 各利用者の作業場所</span>
+│   └── taro/               <span class="cmt">← ~ が指す場所</span>
+│       └── <span class="hot">.node-red</span>/      <span class="cmt">← Node-RED のフロー・設定・追加ノード</span>
+├── <span class="dir">root</span>/                    <span class="cmt">← root 専用のホーム（/ とは別物）</span>
+├── <span class="hot">boot</span>/                    <span class="cmt">← 起動に必要なファイル</span>
+│   └── <span class="hot">firmware</span>/           <span class="cmt">← config.txt などの設定（bookworm 以降）</span>
+├── <span class="hot">dev</span>/                     <span class="cmt">← 装置がファイルとして並ぶ（USB、GPIO、SD）</span>
+├── <span class="dir">proc</span>/  <span class="dir">sys</span>/             <span class="cmt">← カーネルの内部情報。実体のない仮想フォルダ</span>
+├── <span class="dir">tmp</span>/                     <span class="cmt">← 一時ファイル。再起動で消える</span>
+├── <span class="dir">mnt</span>/  <span class="dir">media</span>/           <span class="cmt">← 外付け装置の接続先（USB メモリなど）</span>
+├── <span class="dir">opt</span>/                     <span class="cmt">← 大きな追加ソフトの置き場</span>
+└── <span class="dir">srv</span>/                     <span class="cmt">← サーバー用の公開データ（あまり使わない）</span></div>
+
+        <div class="tip">
+            <p><strong><code>/bin</code> と <code>/usr/bin</code> が両方あるのはなぜか</strong></p>
+            <p>歴史的な事情で分かれていましたが、現在の Debian／Raspberry Pi OS では <code>/bin</code> は <code>/usr/bin</code> への<strong>ショートカット（シンボリックリンク）</strong>になっており、中身は同じです。<code>/lib</code> と <code>/usr/lib</code>、<code>/sbin</code> と <code>/usr/sbin</code> も同様です。どちらのパスで書かれた記事も同じ場所を指していると考えて構いません。</p>
+        </div>
+
+        <!-- ===== セクション4 ===== -->
+        <h2 id="section4">4. 主要ディレクトリの役割</h2>
+
+        <p>名前の由来を添えた一覧です。由来を知っておくと記憶に残りやすくなります。</p>
+
+        <table>
+            <tr>
+                <th style="width: 16%;">ディレクトリ</th>
+                <th style="width: 20%;">名前の由来</th>
+                <th>役割と、そこで出会うもの</th>
+            </tr>
+            <tr>
+                <td><code>/bin</code><br><code>/usr/bin</code></td>
+                <td>binary（実行ファイル）</td>
+                <td>コマンドの実体。<code>ls</code>、<code>cat</code>、<code>node</code>、<code>git</code> などがファイルとして置かれている</td>
+            </tr>
+            <tr>
+                <td><code>/sbin</code><br><code>/usr/sbin</code></td>
+                <td>system binary</td>
+                <td>管理者向けコマンド。<code>reboot</code>、<code>shutdown</code>、<code>fdisk</code> など</td>
+            </tr>
+            <tr>
+                <td><code>/etc</code></td>
+                <td>etcetera（諸々）</td>
+                <td><strong>システム全体の設定ファイル</strong>。すべてテキストなので読める。<code>/etc/hostname</code>（機器名）、<code>/etc/fstab</code>（起動時のマウント設定）など</td>
+            </tr>
+            <tr>
+                <td><code>/var</code></td>
+                <td>variable（変動する）</td>
+                <td>使ううちに増減するデータ。ログ（<code>/var/log</code>）、キャッシュ、データベースの実体</td>
+            </tr>
+            <tr>
+                <td><code>/home</code></td>
+                <td>home</td>
+                <td>利用者ごとの作業場所。ユーザー <code>taro</code> なら <code>/home/taro</code>。<strong>自分のファイルはここに置く</strong></td>
+            </tr>
+            <tr>
+                <td><code>/root</code></td>
+                <td>root</td>
+                <td>管理者 root 専用のホーム。<code>/</code>（ルート）とは別のフォルダなので混同しないこと</td>
+            </tr>
+            <tr>
+                <td><code>/usr</code></td>
+                <td>Unix System Resources</td>
+                <td>OS 標準やインストール済みソフトの本体。<code>/usr/local</code> は apt を通さずに自分で入れたソフト用</td>
+            </tr>
+            <tr>
+                <td><code>/tmp</code></td>
+                <td>temporary</td>
+                <td>一時ファイル。<strong>再起動すると消える</strong>ため、残したいデータを置いてはいけない</td>
+            </tr>
+            <tr>
+                <td><code>/dev</code></td>
+                <td>device（装置）</td>
+                <td>装置がファイルの形で並ぶ。<code>/dev/ttyUSB0</code>（USB シリアル）、<code>/dev/gpiochip0</code>（GPIO）、<code>/dev/mmcblk0</code>（SD カード）</td>
+            </tr>
+            <tr>
+                <td><code>/proc</code></td>
+                <td>process</td>
+                <td>実行中プロセスとカーネルの情報。ディスク上に実体はなく、読むたびに生成される。<code>/proc/cpuinfo</code>、<code>/proc/meminfo</code></td>
+            </tr>
+            <tr>
+                <td><code>/sys</code></td>
+                <td>system</td>
+                <td>ハードウェアの状態と設定。CPU 温度（<code>/sys/class/thermal/...</code>）や LED の制御もここ</td>
+            </tr>
+            <tr>
+                <td><code>/boot</code></td>
+                <td>boot（起動）</td>
+                <td>起動に必要なカーネル本体と設定。ラズパイでは <code>/boot/firmware</code> が実質の設定置き場</td>
+            </tr>
+            <tr>
+                <td><code>/media</code></td>
+                <td>media</td>
+                <td>USB メモリなどの自動マウント先。<code>/media/ユーザー名/ラベル</code></td>
+            </tr>
+            <tr>
+                <td><code>/mnt</code></td>
+                <td>mount</td>
+                <td>手動でマウントするときの場所。ネットワーク共有などをここに繋ぐ</td>
+            </tr>
+            <tr>
+                <td><code>/opt</code></td>
+                <td>optional</td>
+                <td>配布元がひとまとまりで提供する大きなソフトの置き場</td>
+            </tr>
+            <tr>
+                <td><code>/lib</code><br><code>/usr/lib</code></td>
+                <td>library</td>
+                <td>共通部品。systemd のサービス定義（<code>nodered.service</code> など）もここ</td>
+            </tr>
+        </table>
+
+        <!-- ===== セクション5 ===== -->
+        <h2 id="section5">5. 覚え方は3原則で足りる</h2>
+
+        <p>20個すべてを覚える必要はありません。日常的に必要なのは次の3つです。</p>
+
+        <div class="success">
+            <ol>
+                <li><strong>設定は <code>/etc</code></strong>：システムの設定を変えたいときに探す場所</li>
+                <li><strong>ログや増えるデータは <code>/var</code></strong>：状況を調べたいときに見る場所</li>
+                <li><strong>自分のものは <code>/home</code>（<code>~</code>）</strong>：自分で作る・置く・バックアップする場所</li>
+            </ol>
+        </div>
+
+        <p>これにラズパイ特有の <code>/boot/firmware</code>（ハードウェア設定）と <code>/dev</code>（装置）を足せば、実務で困る場面はほぼ網羅できます。</p>
+
+        <!-- ===== セクション6 ===== -->
+        <h2 id="section6">6. Raspberry Pi 固有のディレクトリ</h2>
+
+        <h3>/boot/firmware：ハードウェアの設定置き場</h3>
+        <p>SD カードには2つの領域があり、1つ目は Windows でも読める FAT32 形式です。ここに起動用のファイルが入っており、Linux 側からは <code>/boot/firmware</code> として見えます。</p>
+
+        <table>
+            <tr>
+                <th style="width: 30%;">ファイル</th>
+                <th>役割</th>
+            </tr>
+            <tr>
+                <td><code>config.txt</code></td>
+                <td>ハードウェアの設定。I2C や SPI の有効化、画面解像度、オーバークロックなど。<code>raspi-config</code> で設定を変えると、実際にはこのファイルが書き換わる</td>
+            </tr>
+            <tr>
+                <td><code>cmdline.txt</code></td>
+                <td>カーネルに渡す起動オプション。<strong>1行で書く決まり</strong>があり、改行を入れると起動しなくなる</td>
+            </tr>
+            <tr>
+                <td><code>*.dtb</code>、<code>overlays/</code></td>
+                <td>接続する機器の構成情報。センサー基板の有効化などで使う</td>
+            </tr>
+        </table>
+
+        <div class="important">
+            <p><strong>OS のバージョンで場所が違います</strong></p>
+            <p>bookworm 以降は <code>/boot/firmware/config.txt</code>、bullseye 以前は <code>/boot/config.txt</code> です。ネット上の古い記事のとおりに <code>/boot/config.txt</code> を編集しても効かない場合は、この違いが原因です。自分の環境は <code>ls /boot/firmware/</code> を実行し、中身が表示されるかどうかで判別できます。</p>
+        </div>
+
+        <div class="tip">
+            <p><strong>SD カードを PC に挿すと、この領域だけが見えます</strong></p>
+            <p>FAT32 の領域は Windows からも読み書きできます。そのため、ラズパイが起動しなくなったときでも、PC に SD カードを挿して <code>config.txt</code> を直せば復旧できることがあります。ヘッドレス設定で <code>ssh</code> という空ファイルをここに置く手法も、この仕組みを使っています。</p>
+        </div>
+
+        <h3>/dev：ラズパイでよく使う装置ファイル</h3>
+
+        <table>
+            <tr>
+                <th style="width: 34%;">パス</th>
+                <th>内容</th>
+            </tr>
+            <tr>
+                <td><code>/dev/ttyUSB0</code>、<code>/dev/ttyACM0</code></td>
+                <td>USB 接続のシリアル機器（USB-RS485 変換器、Arduino など）。MODBUS RTU の設定で指定する</td>
+            </tr>
+            <tr>
+                <td><code>/dev/serial0</code></td>
+                <td>本体の GPIO ピンにあるシリアルポートへの別名</td>
+            </tr>
+            <tr>
+                <td><code>/dev/i2c-1</code></td>
+                <td>I2C バス。センサー基板の接続に使う（<code>raspi-config</code> での有効化が必要）</td>
+            </tr>
+            <tr>
+                <td><code>/dev/gpiochip0</code></td>
+                <td>GPIO ピン群</td>
+            </tr>
+            <tr>
+                <td><code>/dev/mmcblk0</code></td>
+                <td>SD カード本体。<code>p1</code>、<code>p2</code> が各領域</td>
+            </tr>
+            <tr>
+                <td><code>/dev/sda1</code></td>
+                <td>USB 接続のストレージ（USB メモリ、SSD）</td>
+            </tr>
+        </table>
+
+        <p>USB シリアル機器を挿したあとに <code>ls /dev/tty*</code> を実行し、増えたものが今挿した機器です。この確認は MODBUS やシリアル通信の設定で頻繁に使います。</p>
+
+        <!-- ===== セクション7 ===== -->
+        <h2 id="section7">7. Node-RED ファイルの居場所マップ</h2>
+
+        <p>Node-RED 関連のファイルがどこにあるかをまとめます。<strong>ユーザー名が <code>taro</code> の場合</strong>の例です。</p>
+
+        <div class="tree"><span class="dir">/home/taro/.node-red/</span>        <span class="cmt">← ユーザーディレクトリ。フローの本拠地</span>
+├── <span class="hot">flows.json</span>            <span class="cmt">← フローの実体。バックアップの最重要ファイル</span>
+├── <span class="hot">flows_cred.json</span>       <span class="cmt">← パスワード等の認証情報（暗号化されている）</span>
+├── <span class="hot">settings.js</span>           <span class="cmt">← 設定ファイル。ポート番号、認証、テーマなど</span>
+├── package.json          <span class="cmt">← 導入済み追加ノードの一覧</span>
+├── node_modules/         <span class="cmt">← 追加ノードの実体（サイズが大きい）</span>
+├── lib/                  <span class="cmt">← エディタから保存したフローや関数の断片</span>
+└── projects/             <span class="cmt">← プロジェクト機能を使う場合の Git リポジトリ</span>
+
+<span class="dir">/usr/lib/systemd/system/</span>
+└── <span class="hot">nodered.service</span>       <span class="cmt">← 自動起動の定義（/lib/systemd/system/ でも同じ場所）</span>
+
+<span class="dir">/usr/bin/</span>
+├── node                  <span class="cmt">← Node.js 本体</span>
+├── node-red              <span class="cmt">← Node-RED 起動コマンド</span>
+├── node-red-start        <span class="cmt">← サービスとして起動（公式スクリプト導入時）</span>
+├── node-red-stop         <span class="cmt">← サービス停止</span>
+└── node-red-log          <span class="cmt">← ログ表示</span></div>
+
+        <table>
+            <tr>
+                <th style="width: 34%;">やりたいこと</th>
+                <th>見る場所・打つコマンド</th>
+            </tr>
+            <tr>
+                <td>フローをバックアップしたい</td>
+                <td><code>~/.node-red/</code> の <code>flows.json</code>、<code>flows_cred.json</code>、<code>settings.js</code>、<code>package.json</code> をコピーする。<code>node_modules</code> は <code>npm install</code> で復元できるので不要</td>
+            </tr>
+            <tr>
+                <td>ポート番号や認証を変えたい</td>
+                <td><code>~/.node-red/settings.js</code> を編集し、<code>sudo systemctl restart nodered</code></td>
+            </tr>
+            <tr>
+                <td>ログを見たい</td>
+                <td><code>node-red-log</code>、または <code>journalctl -u nodered -f</code></td>
+            </tr>
+            <tr>
+                <td>自動起動の設定を確認したい</td>
+                <td><code>systemctl is-enabled nodered</code></td>
+            </tr>
+            <tr>
+                <td>導入済みノードを確認したい</td>
+                <td><code>cat ~/.node-red/package.json</code></td>
+            </tr>
+        </table>
+
+        <div class="warning">
+            <p><strong><code>flows_cred.json</code> は単体では復元できません</strong></p>
+            <p>認証情報は <code>settings.js</code> の <code>credentialSecret</code>（または自動生成された鍵）で暗号化されています。バックアップから戻すときは <strong><code>settings.js</code> と対で扱う</strong>必要があります。片方だけ戻すと、MQTT やデータベースのパスワードが復号できません。</p>
+        </div>
+
+        <div class="tip">
+            <p><strong>ユーザーディレクトリの場所は変更できます</strong></p>
+            <p>標準は <code>~/.node-red</code> ですが、起動時に <code>node-red -u /path/to/dir</code> と指定すれば別の場所を使えます。実際にどこが使われているかは、起動ログの冒頭に <code>User directory : /home/taro/.node-red</code> として表示されます。</p>
+        </div>
+
+        <!-- ===== セクション8 ===== -->
+        <h2 id="section8">8. 自分のファイルはどこに置くべきか</h2>
+
+        <p>センサーのログ、自作スクリプト、CSV の出力先——これらをどこに置くかは、次の基準で決めます。</p>
+
+        <table>
+            <tr>
+                <th style="width: 30%;">置くもの</th>
+                <th style="width: 32%;">推奨する場所</th>
+                <th>理由</th>
+            </tr>
+            <tr>
+                <td>Node-RED が書き出すログ・CSV</td>
+                <td><code>/home/taro/data/</code></td>
+                <td>権限の問題が起きず、バックアップもホームごとで済む</td>
+            </tr>
+            <tr>
+                <td>自作のシェルスクリプト</td>
+                <td><code>/home/taro/bin/</code></td>
+                <td>Exec ノードから絶対パスで呼べる。システム領域を汚さない</td>
+            </tr>
+            <tr>
+                <td>一時的な作業ファイル</td>
+                <td><code>/tmp/</code></td>
+                <td>再起動で自動的に消えるので、掃除の手間が不要</td>
+            </tr>
+            <tr>
+                <td>大量に書き込むログ</td>
+                <td>USB メモリや SSD（<code>/media/...</code>）</td>
+                <td>SD カードは書き込み回数に寿命がある。長期運用では外部ストレージが安全</td>
+            </tr>
+        </table>
+
+        <div class="warning">
+            <p><strong>SD カードへの大量書き込みは寿命を縮めます</strong></p>
+            <p>1秒ごとにセンサー値を追記するようなフローを SD カードだけで長期間動かすと、数か月でカードが壊れることがあります。書き込み間隔を長くする、まとめて書く（Batch ノード）、外部ストレージやデータベースに送る、といった対策を検討してください。</p>
+        </div>
+
+        <!-- ===== セクション9 ===== -->
+        <h2 id="section9">9. 場所を調べるコマンド</h2>
+
+        <p>地図を覚えるより、探せるほうが実用的です。次の6つを押さえておけば足ります。</p>
+
+        <table>
+            <tr>
+                <th style="width: 38%;">コマンド</th>
+                <th>用途</th>
+            </tr>
+            <tr>
+                <td><code>pwd</code></td>
+                <td>今いる場所を絶対パスで表示する</td>
+            </tr>
+            <tr>
+                <td><code>ls -la</code></td>
+                <td>隠しファイルも含め、権限・所有者・サイズ付きで一覧する</td>
+            </tr>
+            <tr>
+                <td><code>which node</code></td>
+                <td>コマンドの実体がどこにあるかを表示する</td>
+            </tr>
+            <tr>
+                <td><code>find ~ -name "flows.json"</code></td>
+                <td>ホーム以下から名前でファイルを探す</td>
+            </tr>
+            <tr>
+                <td><code>du -sh ~/.node-red</code></td>
+                <td>そのフォルダが使っている容量を表示する</td>
+            </tr>
+            <tr>
+                <td><code>df -h</code></td>
+                <td>SD カードの空き容量を確認する</td>
+            </tr>
+        </table>
+
+        <div class="code-block shell">
+            <button class="copy-button" onclick="copyCode(this)">コピー</button>
+cd ~/.node-red
+pwd
+<span class="output">/home/taro/.node-red</span>
+
+ls -la
+<span class="output">-rw-r--r--  1 taro taro   4521 Aug  5 09:12 flows.json</span>
+<span class="output">-rw-r--r--  1 taro taro    120 Aug  5 09:12 flows_cred.json</span>
+<span class="output">-rw-r--r--  1 taro taro  20481 Jul 30 14:02 settings.js</span>
+
+df -h /
+<span class="output">Filesystem      Size  Used Avail Use% Mounted on</span>
+<span class="output">/dev/mmcblk0p2   29G  6.2G   22G  23% /</span></div>
+
+        <div class="tip">
+            <p><strong>ディスクが満杯だと Node-RED は保存に失敗します</strong></p>
+            <p><code>df -h</code> の <code>Use%</code> が 100% になっていると、フローの保存もログの記録もできません。原因の多くはログの肥大化です。容量を食っている場所は <code>sudo du -sh /var/log/*</code> で特定できます。</p>
+        </div>
+
+        <!-- ===== セクション10 ===== -->
+        <h2 id="section10">10. 触らない場所・バックアップする場所</h2>
+
+        <h3>むやみに触らない場所</h3>
+        <table>
+            <tr>
+                <th style="width: 26%;">場所</th>
+                <th>理由</th>
+            </tr>
+            <tr>
+                <td><code>/usr</code>、<code>/bin</code>、<code>/lib</code></td>
+                <td>OS 本体。ファイルを消すとコマンドが動かなくなる。変更は <code>apt</code> に任せる</td>
+            </tr>
+            <tr>
+                <td><code>/proc</code>、<code>/sys</code></td>
+                <td>カーネルの内部。書き込みが直接ハードウェアの動作を変える。意味を理解せずに書かない</td>
+            </tr>
+            <tr>
+                <td><code>/boot/firmware/cmdline.txt</code></td>
+                <td>1行の書式が崩れると起動しなくなる。編集前に必ずコピーを取る</td>
+            </tr>
+            <tr>
+                <td><code>/etc</code> 全般</td>
+                <td>編集する前に <code>sudo cp ファイル名 ファイル名.bak</code> で控えを取る習慣をつける</td>
+            </tr>
+        </table>
+
+        <h3>バックアップすべき場所</h3>
+        <p>ラズパイの故障や SD カードの寿命に備えて、最低限これだけは別の場所に保存しておきます。</p>
+
+        <div class="code-block shell">
+            <button class="copy-button" onclick="copyCode(this)">コピー</button>
+<span class="output"># ホームに日付名のフォルダを作り、必要な4点をコピーする</span>
+mkdir -p ~/backup-20260807
+cp ~/.node-red/flows.json      ~/backup-20260807/
+cp ~/.node-red/flows_cred.json ~/backup-20260807/
+cp ~/.node-red/settings.js     ~/backup-20260807/
+cp ~/.node-red/package.json    ~/backup-20260807/</div>
+
+        <p>作成したフォルダは、USB メモリや PC など<strong>ラズパイの外</strong>にコピーして初めてバックアップとして機能します。SD カードの中に置いたままでは、カードが壊れたときに一緒に失われます。</p>
+
+        <!-- ===== セクション11 ===== -->
+        <h2 id="section11">11. 演習</h2>
+
+        <div class="exercise">
+            <h4>演習1（初級）</h4>
+            <p>ユーザー名が <code>taro</code> のとき、次のパスはそれぞれ何を指しますか。</p>
+            <ol>
+                <li><code>~/.node-red/settings.js</code></li>
+                <li><code>/etc/hostname</code></li>
+                <li><code>../data/log.csv</code>（今いる場所が <code>/home/taro/work</code> のとき）</li>
+            </ol>
+        </div>
+
+        <details>
+            <summary>解答を見る</summary>
+            <ol>
+                <li><code>/home/taro/.node-red/settings.js</code>。<code>~</code> は自分のホームを指すので、絶対パスに直すとこうなる。Node-RED の設定ファイル</li>
+                <li>この機器のホスト名が書かれた設定ファイル。<code>/etc</code> なのでシステム全体の設定</li>
+                <li><code>/home/taro/data/log.csv</code>。<code>..</code> で <code>/home/taro</code> に上がってから <code>data/log.csv</code> へ降りる</li>
+            </ol>
+        </details>
+
+        <div class="exercise">
+            <h4>演習2（初級）</h4>
+            <p>次の目的に対して、どのディレクトリを見ればよいか答えてください。</p>
+            <ol>
+                <li>I2C を有効にする設定を書き換えたい（Raspberry Pi OS bookworm 以降）</li>
+                <li>USB シリアル変換器が認識されているか確かめたい</li>
+                <li>OS の起動時のエラーメッセージを探したい</li>
+            </ol>
+        </div>
+
+        <details>
+            <summary>解答を見る</summary>
+            <ol>
+                <li><code>/boot/firmware/config.txt</code>。ただし通常は直接編集せず、<code>sudo raspi-config</code> から設定するほうが安全</li>
+                <li><code>/dev</code>。<code>ls /dev/ttyUSB*</code> で確認する</li>
+                <li><code>/var/log</code>。ただし現在の Raspberry Pi OS ではジャーナル形式が中心なので、<code>journalctl -b</code> のほうが確実</li>
+            </ol>
+        </details>
+
+        <div class="exercise">
+            <h4>演習3（中級）</h4>
+            <p>Node-RED の File ノードで、センサーの値を毎時 CSV に追記したい。保存先のパスとして適切なものを選び、理由を説明してください。</p>
+            <ol>
+                <li><code>/tmp/sensor.csv</code></li>
+                <li><code>/home/taro/data/sensor.csv</code></li>
+                <li><code>/etc/sensor.csv</code></li>
+            </ol>
+        </div>
+
+        <details>
+            <summary>解答を見る</summary>
+            <p><strong>正解は 2 です。</strong></p>
+            <ul>
+                <li><strong>1（<code>/tmp</code>）</strong>：書き込みはできるが、再起動でファイルごと消える。蓄積したいデータには不向き</li>
+                <li><strong>2（<code>/home/taro/data</code>）</strong>：Node-RED を動かしているユーザーの所有物なので権限の問題が起きず、バックアップもしやすい。<code>mkdir -p ~/data</code> で事前にフォルダを作っておくこと</li>
+                <li><strong>3（<code>/etc</code>）</strong>：システム設定用の場所であり、用途が違う。書き込みには <code>sudo</code> が必要で、一般ユーザーで動く Node-RED からは書き込めない</li>
+            </ul>
+            <p>長期運用で書き込み量が多くなる場合は、USB メモリや SSD を <code>/media</code> にマウントして、そちらへ書くことも検討してください。</p>
+        </details>
+
+        <!-- ===== セクション12 ===== -->
+        <h2 id="section12">12. まとめ</h2>
+
+        <div class="success">
+            <p><strong>このガイドの要点</strong></p>
+            <ul>
+                <li>Linux はドライブレターを持たず、すべてが <code>/</code> から始まる1本のツリーに収まる</li>
+                <li>大文字と小文字は別物。パスの打ち間違いはここが多い</li>
+                <li><code>~</code> は自分のホーム、<code>.</code> で始まる名前は隠しファイル</li>
+                <li>覚えるのは3つ：設定は <code>/etc</code>、ログは <code>/var</code>、自分のものは <code>/home</code></li>
+                <li>ラズパイ固有は <code>/boot/firmware</code>（ハード設定）と <code>/dev</code>（装置）</li>
+                <li>Node-RED の本拠地は <code>~/.node-red</code>。バックアップは <code>flows.json</code>・<code>flows_cred.json</code>・<code>settings.js</code>・<code>package.json</code> の4点</li>
+            </ul>
+        </div>
+
+        <div class="next-box">
+            <h3>▶ 次に読むガイド</h3>
+            <ul>
+                <li><a href="nodered-linux-commands-guide.html">③ 基本コマンドガイド</a> — ここで出てきた <code>ls</code>、<code>cd</code>、<code>find</code> などを実際に打って覚えます</li>
+                <li><a href="nodered-linux-glossary-guide.html">④ 用語辞典・困ったとき</a> — マウント、シンボリックリンクなどの用語と、エラーの対処</li>
+                <li><a href="nodered-linux-basics-guide.html">① 仕組み入門</a> — 権限やサービスの考え方（未読ならこちらが先）</li>
+            </ul>
+            <h3>関連ガイド</h3>
+            <ul>
+                <li><a href="nodered-file-node-guide.html">File ノードガイド</a> — フローからファイルを読み書きする</li>
+                <li><a href="nodered-settings-guide.html">settings.js 設定ガイド</a> — <code>~/.node-red/settings.js</code> の中身</li>
+                <li><a href="nodered-watch-node-guide.html">Watch ノードガイド</a> — フォルダの変更を監視する</li>
+            </ul>
+        </div>
+
+        <p style="text-align: center; color: #999; margin-top: 40px;">
+            <small>このガイドは2026年8月時点の Raspberry Pi OS（trixie / bookworm）に基づいています。</small>
+        </p>
+    </div>
+
+    <script>
+        function copyCode(button) {
+            const codeBlock = button.parentElement;
+            const code = codeBlock.innerText.replace('コピー', '').trim();
+
+            navigator.clipboard.writeText(code).then(() => {
+                button.textContent = 'コピーしました!';
+                button.classList.add('copied');
+                setTimeout(() => {
+                    button.textContent = 'コピー';
+                    button.classList.remove('copied');
+                }, 2000);
+            });
+        }
+    </script>
+
+    <a href="index.html" style="position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px; background: linear-gradient(135deg, #42b883 0%, #35495e 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; transition: transform 0.3s, box-shadow 0.3s;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 6px 16px rgba(0,0,0,0.4)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.3)';" title="トップページへ">🏠</a>
+</body>
+</html>

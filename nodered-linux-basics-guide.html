@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linux / Raspberry Pi OS の仕組み入門</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        h1 {
+            color: #8f0000;
+            border-bottom: 3px solid #8f0000;
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            color: #c00000;
+            margin-top: 40px;
+            border-left: 5px solid #c00000;
+            padding-left: 15px;
+        }
+
+        h3 {
+            color: #555;
+            margin-top: 25px;
+        }
+
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        /* 目次 */
+        .toc {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px 30px;
+            margin: 20px 0;
+        }
+
+        .toc h3 {
+            margin-top: 0;
+            color: #8f0000;
+        }
+
+        .toc ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .toc li {
+            padding: 5px 0;
+        }
+
+        .toc a {
+            color: #1976d2;
+            text-decoration: none;
+        }
+
+        .toc a:hover {
+            text-decoration: underline;
+        }
+
+        /* 情報ボックス */
+        .important {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .tip {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .success {
+            background-color: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .warning {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        /* コードブロック */
+        .code-block {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 14px;
+            position: relative;
+            white-space: pre;
+        }
+
+        .code-block.shell {
+            background-color: #012456;
+            color: #ffffff;
+        }
+
+        .output {
+            color: #7ec699;
+        }
+
+        /* コピーボタン */
+        .copy-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 6px 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background-color 0.2s;
+        }
+
+        .copy-button:hover {
+            background-color: #0056b3;
+        }
+
+        .copy-button.copied {
+            background-color: #28a745;
+        }
+
+        /* テーブル */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background-color: #8f0000;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        code {
+            background-color: #eef1f4;
+            color: #b02a37;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.92em;
+        }
+
+        /* 階層図 */
+        .layer-diagram {
+            background-color: #2d3133;
+            color: #eee;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+
+        .layer {
+            border-radius: 6px;
+            padding: 12px 16px;
+            margin: 8px 0;
+            text-align: center;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .layer .sub {
+            display: block;
+            font-weight: normal;
+            font-size: 0.85em;
+            opacity: 0.9;
+            margin-top: 4px;
+        }
+
+        .layer-app    { background-color: #1976d2; }
+        .layer-shell  { background-color: #00897b; }
+        .layer-lib    { background-color: #6a1b9a; }
+        .layer-kernel { background-color: #c62828; }
+        .layer-hw     { background-color: #455a64; }
+
+        .layer-arrow {
+            text-align: center;
+            color: #aaa;
+            font-size: 18px;
+        }
+
+        /* 次に読むガイド */
+        .next-box {
+            background-color: #eef7ff;
+            border: 1px solid #b6d9f7;
+            border-radius: 8px;
+            padding: 20px 25px;
+            margin: 25px 0;
+        }
+
+        .next-box h3 {
+            margin-top: 0;
+            color: #0d47a1;
+        }
+
+        .next-box a {
+            color: #1976d2;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .next-box a:hover {
+            text-decoration: underline;
+        }
+
+        details {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin: 20px 0;
+        }
+
+        summary {
+            cursor: pointer;
+            font-weight: bold;
+            color: #1976d2;
+        }
+
+        .series-nav {
+            background-color: #fdf6e3;
+            border: 1px solid #e8dcc0;
+            border-radius: 8px;
+            padding: 12px 20px;
+            margin: 20px 0;
+            font-size: 0.95em;
+        }
+
+        .series-nav strong {
+            color: #8f0000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Linux / Raspberry Pi OS の仕組み入門</h1>
+
+        <p>Node-RED をラズベリーパイ（Raspberry Pi）で動かすと、必ず「黒い画面」に出会います。インストール手順に書かれた <code>sudo apt update</code> を、意味が分からないままコピー＆ペーストしている、というのはよくある状態です。このガイドは、そこから一歩進んで<strong>「Linux が裏で何をしているのか」</strong>を理解するためのものです。</p>
+        <p>扱うのは仕組みの話だけです。実際に打つコマンドは<a href="nodered-linux-commands-guide.html">基本コマンドガイド</a>、フォルダの意味は<a href="nodered-linux-directory-guide.html">ディレクトリ構成ガイド</a>に分けてあります。</p>
+
+        <div class="series-nav">
+            <strong>📚 Linux 入門シリーズ（全4回）</strong>：
+            <strong>① 仕組み（このページ）</strong> →
+            <a href="nodered-linux-directory-guide.html">② ディレクトリ構成</a> →
+            <a href="nodered-linux-commands-guide.html">③ 基本コマンド</a> →
+            <a href="nodered-linux-glossary-guide.html">④ 用語辞典・困ったとき</a>
+        </div>
+
+        <div class="toc">
+            <h3>📖 目次</h3>
+            <ul>
+                <li><a href="#section1">1. なぜ Node-RED 利用者が Linux を知る必要があるのか</a></li>
+                <li><a href="#section2">2. OS は何をしている道具なのか</a></li>
+                <li><a href="#section3">3. Linux の構造：カーネル・シェル・アプリ</a></li>
+                <li><a href="#section4">4. Raspberry Pi OS の正体（Debian との関係）</a></li>
+                <li><a href="#section5">5. 「すべてはファイル」という考え方</a></li>
+                <li><a href="#section6">6. ユーザーと権限：root と sudo</a></li>
+                <li><a href="#section7">7. プロセスとサービス：Node-RED が動き続ける仕組み</a></li>
+                <li><a href="#section8">8. 電源を入れてから使えるようになるまで</a></li>
+                <li><a href="#section9">9. パッケージ管理：ソフトの入れ方が Windows と違う</a></li>
+                <li><a href="#section10">10. Windows との対応表</a></li>
+                <li><a href="#section11">11. まとめ</a></li>
+            </ul>
+        </div>
+
+        <!-- ===== セクション1 ===== -->
+        <h2 id="section1">1. なぜ Node-RED 利用者が Linux を知る必要があるのか</h2>
+
+        <p>Node-RED はブラウザだけで操作できるので、Linux を知らなくてもフローは作れます。それでも Linux の知識が必要になるのは、次のような場面です。</p>
+
+        <table>
+            <tr>
+                <th style="width: 34%;">場面</th>
+                <th>必要になる知識</th>
+            </tr>
+            <tr>
+                <td><strong>インストール・追加ノードの導入</strong></td>
+                <td>パッケージ管理（<code>apt</code>）、権限（<code>sudo</code>）、ホームディレクトリの意味</td>
+            </tr>
+            <tr>
+                <td><strong>電源を入れたら自動で Node-RED を起動したい</strong></td>
+                <td>サービスと <code>systemctl</code>、自動起動の設定</td>
+            </tr>
+            <tr>
+                <td><strong>設定を変更したい（settings.js、ポート番号）</strong></td>
+                <td>ファイルの場所（<code>~/.node-red</code>）、テキストエディタ、ファイルの権限</td>
+            </tr>
+            <tr>
+                <td><strong>Exec ノードでコマンドを実行したい</strong></td>
+                <td>コマンドの書式、実行ユーザー、パスの通し方</td>
+            </tr>
+            <tr>
+                <td><strong>File / Watch ノードでファイルを読み書きしたい</strong></td>
+                <td>絶対パスの書き方、読み書き権限</td>
+            </tr>
+            <tr>
+                <td><strong>動かなくなった原因を調べたい</strong></td>
+                <td>ログの見方（<code>journalctl</code>）、プロセスの確認、ディスク容量の確認</td>
+            </tr>
+        </table>
+
+        <p>言い換えると、<strong>フローの中だけで完結する作業に Linux は要らず、フローの外側（起動・設定・ファイル・トラブル対応）に踏み出した瞬間に必要になる</strong>ということです。このシリーズは、その外側だけを扱います。</p>
+
+        <div class="tip">
+            <p><strong>ラズパイを持っていなくても読む価値はあります</strong></p>
+            <p>ここで説明する内容は Linux 全般に共通します。クラウド上の Node-RED が動いているのも Linux ですし、Windows でも WSL や Docker を使えば同じ世界に触れることになります。</p>
+        </div>
+
+        <!-- ===== セクション2 ===== -->
+        <h2 id="section2">2. OS は何をしている道具なのか</h2>
+
+        <p>OS（オペレーティングシステム）は、<strong>ハードウェアとアプリケーションの間に立つ仲介役</strong>です。もし OS がなければ、Node-RED は「SD カードのどの位置にデータを書き込むか」「ネットワークチップにどの信号を送るか」まで自分で面倒を見る必要があります。OS はその面倒を肩代わりし、アプリには「ファイルに書き込む」「通信する」という簡単な形で見せてくれます。</p>
+
+        <p>OS の主な仕事は次の5つです。</p>
+
+        <table>
+            <tr>
+                <th style="width: 24%;">仕事</th>
+                <th>内容</th>
+                <th style="width: 30%;">Node-RED での現れ方</th>
+            </tr>
+            <tr>
+                <td><strong>CPU の割り振り</strong></td>
+                <td>複数のプログラムに CPU の時間を細かく分け与え、同時に動いているように見せる</td>
+                <td>Node-RED と他のソフトが同時に動く。重い処理を書くと全体が遅くなる</td>
+            </tr>
+            <tr>
+                <td><strong>メモリの管理</strong></td>
+                <td>各プログラムに作業領域を割り当て、互いに侵食しないよう隔離する</td>
+                <td>メモリが尽きると Node-RED が強制終了される</td>
+            </tr>
+            <tr>
+                <td><strong>ファイルの管理</strong></td>
+                <td>ストレージ上のデータに名前と場所を与え、読み書きを仲介する</td>
+                <td>フローが <code>flows.json</code> というファイルとして保存される</td>
+            </tr>
+            <tr>
+                <td><strong>機器の操作</strong></td>
+                <td>USB、ネットワーク、GPIO などの装置を、統一された方法で扱えるようにする</td>
+                <td>GPIO ノードやシリアルノードが機器にアクセスできる</td>
+            </tr>
+            <tr>
+                <td><strong>利用者の管理</strong></td>
+                <td>誰がどのファイルを読み書きできるかを制御する</td>
+                <td>権限のないファイルを読もうとするとエラーになる</td>
+            </tr>
+        </table>
+
+        <p>この5つは Windows でも macOS でも同じです。違うのは「その仕事のやり方」と「利用者への見せ方」だけです。</p>
+
+        <!-- ===== セクション3 ===== -->
+        <h2 id="section3">3. Linux の構造：カーネル・シェル・アプリ</h2>
+
+        <p>Linux は層構造になっています。下に行くほどハードウェアに近く、上に行くほど人間に近い層です。</p>
+
+        <div class="layer-diagram">
+            <div class="layer layer-app">アプリケーション<span class="sub">Node-RED、ブラウザ、Python、テキストエディタ</span></div>
+            <div class="layer-arrow">▲ ▼</div>
+            <div class="layer layer-shell">シェル（bash）／デスクトップ画面<span class="sub">人間の入力を、アプリやカーネルへの指示に変換する</span></div>
+            <div class="layer-arrow">▲ ▼</div>
+            <div class="layer layer-lib">ライブラリ・システムサービス<span class="sub">共通部品と、常駐して働くプログラム（systemd など）</span></div>
+            <div class="layer-arrow">▲ ▼</div>
+            <div class="layer layer-kernel">カーネル（Linux 本体）<span class="sub">CPU・メモリ・ファイル・機器を直接管理する中核</span></div>
+            <div class="layer-arrow">▲ ▼</div>
+            <div class="layer layer-hw">ハードウェア<span class="sub">CPU、メモリ、SD カード、USB、ネットワーク、GPIO ピン</span></div>
+        </div>
+
+        <h3>カーネル：本来「Linux」と呼ばれているもの</h3>
+        <p>厳密には、<strong>「Linux」とはこのカーネルの部分だけを指す言葉</strong>です。カーネルはハードウェアを直接管理し、アプリからの「ファイルを開きたい」「通信したい」という要求を受け付けます。アプリが直接ハードウェアを触ることはできず、必ずカーネルを通します。この仕切りがあるおかげで、1つのアプリが暴走してもシステム全体は生き残れます。</p>
+        <p>使用中のカーネルのバージョンは <code>uname -r</code> で確認できます。</p>
+
+        <h3>シェル：コマンドを受け付ける係</h3>
+        <p><strong>シェル</strong>は、人間が打ち込んだコマンドを解釈して実行する専用のプログラムです。「黒い画面」に文字を打つとき、その文字を最初に読んでいるのはシェルです。Raspberry Pi OS の標準シェルは <code>bash</code>（バッシュ）です。</p>
+        <p>混同しやすいのが<strong>ターミナル</strong>との違いです。ターミナルは文字を表示して入力を受け取る「窓」であり、その窓の中で動いてコマンドを実行しているのがシェルです。窓（ターミナル）と中の人（シェル）は別物、と考えると整理できます。</p>
+
+        <div class="tip">
+            <p><strong>GUI は必須ではない</strong></p>
+            <p>Windows ではデスクトップ画面が OS と一体ですが、Linux では画面表示は上に乗せた別のソフトです。そのため、モニタもキーボードも繋がずネットワーク越しに操作する<strong>ヘッドレス</strong>運用が普通にできます。Node-RED をラズパイで運用する場合は、この形が最も一般的です。デスクトップなしの Raspberry Pi OS Lite が用意されているのもこのためです。</p>
+        </div>
+
+        <!-- ===== セクション4 ===== -->
+        <h2 id="section4">4. Raspberry Pi OS の正体（Debian との関係）</h2>
+
+        <p>カーネル単体では何もできないので、シェル、コマンド群、設定ファイル、インストーラなどを一式にまとめたものが配布されます。これを<strong>ディストリビューション</strong>（配布物）と呼びます。Debian、Ubuntu、Red Hat Enterprise Linux などは、すべてこのディストリビューションの名前です。</p>
+
+        <p><strong>Raspberry Pi OS は、Debian（デビアン）というディストリビューションをラズベリーパイ向けに調整したもの</strong>です。したがって、インターネットで「Debian の設定方法」「Ubuntu のコマンド」として書かれている情報の多くは、そのまま通用します（Ubuntu も Debian の派生です）。</p>
+
+        <h3>バージョンの呼び名</h3>
+        <p>Debian は各バージョンにコードネームを付けており、Raspberry Pi OS もそれをそのまま引き継いでいます。ネット上の記事は「Bookworm では〜」のようにコードネームで書かれることが多いので、対応を知っておくと調べ物が楽になります。</p>
+
+        <table>
+            <tr>
+                <th style="width: 22%;">コードネーム</th>
+                <th style="width: 18%;">Debian</th>
+                <th>位置づけと主な特徴</th>
+            </tr>
+            <tr>
+                <td><strong>trixie</strong>（トリクシー）</td>
+                <td>Debian 13</td>
+                <td>現在の標準。設定画面が「Control Centre」に統合された。2026年4月以降の新規インストールでは <code>sudo</code> にパスワードが必要（後述）</td>
+            </tr>
+            <tr>
+                <td><strong>bookworm</strong>（ブックワーム）</td>
+                <td>Debian 12</td>
+                <td>1つ前の版。まだ広く使われている。画面表示が Wayland 方式になり、ネットワーク管理が NetworkManager に変わった版</td>
+            </tr>
+            <tr>
+                <td><strong>bullseye</strong>（ブルズアイ）</td>
+                <td>Debian 11</td>
+                <td>さらに古い版。ネットワーク設定は <code>dhcpcd</code> で、起動用フォルダの位置も異なる（<a href="nodered-linux-directory-guide.html">②ディレクトリ構成ガイド</a>で解説）</td>
+            </tr>
+        </table>
+
+        <p>自分の環境がどれなのかは、次のコマンドで確認できます。</p>
+
+        <div class="code-block shell">
+            <button class="copy-button" onclick="copyCode(this)">コピー</button>
+cat /etc/os-release</div>
+
+        <p>表示された <code>VERSION_CODENAME=</code> の行がコードネームです。</p>
+
+        <div class="important">
+            <p><strong>32bit 版と 64bit 版があります</strong></p>
+            <p>Raspberry Pi OS には 32bit 版（armhf）と 64bit 版（arm64）があり、Pi 3 以降なら 64bit 版を選べます。Node-RED を使う分にはどちらでも動きますが、追加ノードによっては 64bit 版しか対応していないことがあります。確認は <code>uname -m</code> で、<code>aarch64</code> と表示されれば 64bit 版です。</p>
+        </div>
+
+        <!-- ===== セクション5 ===== -->
+        <h2 id="section5">5. 「すべてはファイル」という考え方</h2>
+
+        <p>Linux を理解するうえで最も効く考え方が、<strong>「すべてはファイルとして扱う」</strong>という設計思想です。文書や画像はもちろん、次のようなものまでファイルの形で見えます。</p>
+
+        <table>
+            <tr>
+                <th style="width: 36%;">見え方（ファイル名）</th>
+                <th>実体</th>
+            </tr>
+            <tr>
+                <td><code>/dev/ttyUSB0</code></td>
+                <td>USB 接続のシリアル変換器。ここに書き込むと機器にデータが送られる</td>
+            </tr>
+            <tr>
+                <td><code>/dev/gpiochip0</code></td>
+                <td>ラズパイの GPIO ピン群</td>
+            </tr>
+            <tr>
+                <td><code>/proc/cpuinfo</code></td>
+                <td>CPU の情報。ディスク上には実在せず、読んだ瞬間にカーネルが内容を作る</td>
+            </tr>
+            <tr>
+                <td><code>/sys/class/thermal/thermal_zone0/temp</code></td>
+                <td>CPU の温度（1000倍の値）。読み出すたびに現在値が入る</td>
+            </tr>
+            <tr>
+                <td><code>/dev/null</code></td>
+                <td>捨て場。ここに書いたデータは消える。出力を捨てたいときに使う</td>
+            </tr>
+        </table>
+
+        <p>この思想の実利は大きく、<strong>ファイルを読み書きする方法さえ覚えれば、機器の操作や情報の取得も同じやり方でできる</strong>ことを意味します。実際、Node-RED の File ノードで <code>/sys/class/thermal/thermal_zone0/temp</code> を読むだけで CPU 温度が取れます。専用のノードは要りません。</p>
+
+        <details>
+            <summary>💻 試してみる：CPU 温度をファイルから読む</summary>
+            <p>ターミナルで次を実行します。</p>
+            <div class="code-block shell">
+                <button class="copy-button" onclick="copyCode(this)">コピー</button>
+cat /sys/class/thermal/thermal_zone0/temp</div>
+            <p><code>48312</code> のような数字が出れば成功です。これは1000倍された値なので、実際の温度は 48.312 ℃ です。Node-RED でやるなら、File in ノードでこのパスを指定し、Function ノードで <code>msg.payload = Number(msg.payload) / 1000;</code> とすれば温度になります。</p>
+        </details>
+
+        <!-- ===== セクション6 ===== -->
+        <h2 id="section6">6. ユーザーと権限：root と sudo</h2>
+
+        <p>Linux は元々、1台のコンピュータを複数人で共有する前提で作られています。ラズパイを1人で使う場合でもこの仕組みは生きていて、権限エラーの多くはここに原因があります。</p>
+
+        <h3>root は特別扱いの管理者</h3>
+        <p><strong>root</strong>（ルート）は、すべての操作が許された管理者ユーザーです。システムのどのファイルも書き換えられる代わりに、間違えれば OS を壊すこともできます。そのため普段は一般ユーザーとして作業し、管理者権限が必要なときだけ <code>sudo</code> を頭に付けて、そのコマンド1回だけを root として実行します。</p>
+
+        <div class="code-block shell">
+            <button class="copy-button" onclick="copyCode(this)">コピー</button>
+apt install git          <span class="output"># 権限がなく失敗する</span>
+sudo apt install git     <span class="output"># このコマンドだけ管理者として実行</span></div>
+
+        <div class="important">
+            <p><strong>sudo でパスワードを聞かれるようになりました</strong></p>
+            <p>従来の Raspberry Pi OS は <code>sudo</code> にパスワードが不要でしたが、2026年4月13日版以降の<strong>新規インストール</strong>では、セキュリティ強化のためパスワードの入力が求められます。設定を変えた覚えがないのに聞かれるのはこのためです（既存環境をアップデートした場合は従来どおり）。入力するのは、そのユーザー自身のログインパスワードです。パスワードなしに戻したい場合は <code>sudo raspi-config</code> または Control Centre から変更できます。</p>
+            <p>なお、パスワード入力中は画面に <code>*</code> すら表示されません。打てていないように見えますが、そのまま入力して Enter を押してください。</p>
+        </div>
+
+        <h3>ファイルには「所有者」と「許可」が付いている</h3>
+        <p>すべてのファイルとフォルダには、所有者（ユーザー）、所属グループ、そして「誰に何を許すか」の情報が付いています。<code>ls -l</code> で表示される先頭の記号がそれです。</p>
+
+        <div class="code-block">
+-rw-r--r--  1 pi   pi    2048 Aug  1 10:23 flows.json
+drwxr-xr-x  2 root root  4096 Jul 20 08:00 nodes</div>
+
+        <p>先頭10文字の読み方は次のとおりです。</p>
+
+        <table>
+            <tr>
+                <th style="width: 18%;">位置</th>
+                <th style="width: 22%;">例</th>
+                <th>意味</th>
+            </tr>
+            <tr>
+                <td>1文字目</td>
+                <td><code>-</code> / <code>d</code></td>
+                <td><code>-</code> は通常ファイル、<code>d</code> はディレクトリ（フォルダ）、<code>l</code> はショートカット（シンボリックリンク）</td>
+            </tr>
+            <tr>
+                <td>2〜4文字目</td>
+                <td><code>rw-</code></td>
+                <td><strong>所有者</strong>の権限。読み(r)・書き(w)・実行(x)</td>
+            </tr>
+            <tr>
+                <td>5〜7文字目</td>
+                <td><code>r--</code></td>
+                <td><strong>所属グループ</strong>の権限</td>
+            </tr>
+            <tr>
+                <td>8〜10文字目</td>
+                <td><code>r--</code></td>
+                <td><strong>その他全員</strong>の権限</td>
+            </tr>
+        </table>
+
+        <p>上の例なら、<code>flows.json</code> は「所有者 pi は読み書きでき、他の人は読むだけ」という状態です。Node-RED でファイル書き込みが失敗する場合は、この権限と、Node-RED を実行しているユーザーが誰なのかを確認することになります。</p>
+
+        <div class="warning">
+            <p><strong>困ったら <code>sudo</code> を付ける、という癖はつけないでください</strong></p>
+            <p>権限エラーを <code>sudo</code> で押し切ると、作られたファイルの所有者が root になり、次から一般ユーザーで扱えなくなることがあります。Node-RED 関連では <code>sudo npm install</code> がこの罠の代表格です。追加ノードの導入は、<strong>エディタの「パレットの管理」画面か、<code>sudo</code> を付けない <code>npm install</code></strong> で行ってください。</p>
+        </div>
+
+        <!-- ===== セクション7 ===== -->
+        <h2 id="section7">7. プロセスとサービス：Node-RED が動き続ける仕組み</h2>
+
+        <h3>プロセスは「実行中のプログラム」</h3>
+        <p>ディスク上のプログラムを起動すると、メモリ上に実体が作られます。これが<strong>プロセス</strong>で、それぞれに PID（プロセス ID）という番号が付きます。同じプログラムを2回起動すれば、プロセスは2つになります。Node-RED が二重に起動して「ポートが使用中（EADDRINUSE）」というエラーになるのは、この状態です。</p>
+
+        <h3>サービス（デーモン）は裏で常駐するプロセス</h3>
+        <p>画面を持たず、起動しっぱなしで仕事をするプロセスを<strong>サービス</strong>、あるいは<strong>デーモン</strong>と呼びます。Node-RED をラズパイで運用するときは、このサービスとして動かすのが基本形です。ターミナルを閉じても、ログアウトしても動き続けます。</p>
+
+        <h3>systemd がサービスをまとめて管理する</h3>
+        <p>サービスの起動・停止・自動起動・再起動を一手に引き受けているのが <strong>systemd</strong>（システムディー）です。Raspberry Pi OS でも Node-RED は systemd の管理下に置かれ、次のコマンドで操作します。</p>
+
+        <table>
+            <tr>
+                <th style="width: 46%;">コマンド</th>
+                <th>意味</th>
+            </tr>
+            <tr>
+                <td><code>sudo systemctl start nodered</code></td>
+                <td>今すぐ起動する</td>
+            </tr>
+            <tr>
+                <td><code>sudo systemctl stop nodered</code></td>
+                <td>停止する</td>
+            </tr>
+            <tr>
+                <td><code>sudo systemctl restart nodered</code></td>
+                <td>再起動する（settings.js を変更したあとに使う）</td>
+            </tr>
+            <tr>
+                <td><code>sudo systemctl enable nodered</code></td>
+                <td>電源投入時に<strong>自動起動するようにする</strong></td>
+            </tr>
+            <tr>
+                <td><code>sudo systemctl disable nodered</code></td>
+                <td>自動起動をやめる</td>
+            </tr>
+            <tr>
+                <td><code>systemctl status nodered</code></td>
+                <td>今動いているか、直近のログはどうかを確認する</td>
+            </tr>
+        </table>
+
+        <div class="tip">
+            <p><strong><code>start</code> と <code>enable</code> は別物です</strong></p>
+            <p><code>start</code> は「今この場で起動する」、<code>enable</code> は「次回以降の電源投入時に自動で起動する」設定です。「電源を入れ直したら Node-RED が上がってこない」という相談の大半は、<code>enable</code> をしていないことが原因です。両方まとめてなら <code>sudo systemctl enable --now nodered</code> で済みます。</p>
+        </div>
+
+        <p>ラズパイの公式スクリプトで Node-RED を導入した場合は、<code>node-red-start</code> と <code>node-red-stop</code> という短いコマンドも用意されています。これらは内部で上記の <code>systemctl</code> を呼んでいるだけです。</p>
+
+        <!-- ===== セクション8 ===== -->
+        <h2 id="section8">8. 電源を入れてから使えるようになるまで</h2>
+
+        <p>ラズパイの電源を入れてから Node-RED の画面を開けるようになるまでには、次の順で処理が進みます。トラブル時に「どこまで進んだか」を切り分けるための地図として使えます。</p>
+
+        <table>
+            <tr>
+                <th style="width: 6%;">順</th>
+                <th style="width: 28%;">段階</th>
+                <th>内容</th>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>ブートローダー</td>
+                <td>本体のチップが SD カードの先頭（FAT32 の領域）を読み、起動用ファイルを探す</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>設定ファイルの読み込み</td>
+                <td><code>config.txt</code> と <code>cmdline.txt</code> を読み、ハードウェアの設定を決める</td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td>カーネルの起動</td>
+                <td>Linux カーネルがメモリに読み込まれ、CPU・メモリ・機器を初期化する</td>
+            </tr>
+            <tr>
+                <td>4</td>
+                <td>ルートファイルシステムの接続</td>
+                <td>SD カードの2つ目の領域（ext4）を <code>/</code> として接続し、全フォルダが見える状態にする</td>
+            </tr>
+            <tr>
+                <td>5</td>
+                <td>systemd の開始</td>
+                <td>最初のプロセス（PID 1）として起動し、以降のサービスを順に立ち上げる</td>
+            </tr>
+            <tr>
+                <td>6</td>
+                <td>各サービスの起動</td>
+                <td>ネットワーク、SSH、そして自動起動が有効なら Node-RED が起動する</td>
+            </tr>
+            <tr>
+                <td>7</td>
+                <td>ログイン待ち</td>
+                <td>デスクトップ画面、またはログインプロンプトが表示される</td>
+            </tr>
+        </table>
+
+        <p>Node-RED は 6 の段階で起動しますが、起動完了までには数十秒かかります。電源投入直後にブラウザで開こうとして繋がらない場合は、まだこの途中にいる可能性があります。</p>
+
+        <div class="warning">
+            <p><strong>電源をいきなり抜かないでください</strong></p>
+            <p>Linux は書き込み内容を一時的にメモリへ溜めてから SD カードに書きます。電源を直接切ると、この途中のデータが失われ、ファイルが壊れます。フローを保存した直後なら <code>flows.json</code> が壊れることもあります。終了は必ず <code>sudo shutdown -h now</code>（またはデスクトップのシャットダウン）で行い、緑の LED が点滅しなくなってから電源を抜いてください。</p>
+        </div>
+
+        <!-- ===== セクション9 ===== -->
+        <h2 id="section9">9. パッケージ管理：ソフトの入れ方が Windows と違う</h2>
+
+        <p>Windows では、配布サイトから <code>.exe</code> をダウンロードして実行するのが普通です。Linux では、<strong>公式のソフト置き場（リポジトリ）から、コマンドで取り寄せて入れる</strong>のが基本です。この仕組みを担当するのが <code>apt</code> です。</p>
+
+        <div class="code-block shell">
+            <button class="copy-button" onclick="copyCode(this)">コピー</button>
+sudo apt update                <span class="output"># ソフト置き場の最新の一覧を取り直す</span>
+sudo apt upgrade               <span class="output"># 入っているソフトを最新版に更新する</span>
+sudo apt install パッケージ名   <span class="output"># 新しく導入する</span></div>
+
+        <p>この方式には次の利点があります。</p>
+        <ul>
+            <li>ダウンロード先を探す必要がなく、偽サイトを踏む危険がない</li>
+            <li>必要な関連ソフト（依存関係）を自動でまとめて入れてくれる</li>
+            <li>入っているソフト全部を <code>apt upgrade</code> の一発で更新できる</li>
+        </ul>
+
+        <div class="important">
+            <p><strong><code>apt update</code> は「更新」ではありません</strong></p>
+            <p>名前から誤解されやすいのですが、<code>apt update</code> がするのは<strong>カタログの取り寄せ</strong>だけで、ソフト自体は新しくなりません。実際に新しくするのは <code>apt upgrade</code> です。カタログが古いままだと最新版を見つけられないため、<code>sudo apt update &amp;&amp; sudo apt upgrade</code> と続けて実行するのが慣例になっています。</p>
+        </div>
+
+        <h3>apt と npm は別の世界</h3>
+        <p>Node-RED を使っていると <code>npm</code> というもう一つのインストール手段も出てきます。両者は管理する対象が違います。</p>
+
+        <table>
+            <tr>
+                <th style="width: 16%;">道具</th>
+                <th style="width: 32%;">管理するもの</th>
+                <th>Node-RED での使いどころ</th>
+            </tr>
+            <tr>
+                <td><code>apt</code></td>
+                <td>OS 全体のソフト（Node.js 本体、Python、Git など）</td>
+                <td>導入時と、OS の更新時</td>
+            </tr>
+            <tr>
+                <td><code>npm</code></td>
+                <td>Node.js のライブラリ（追加ノード）</td>
+                <td>追加ノードの導入。通常はエディタの「パレットの管理」画面から行うため、直接打つ機会は少ない</td>
+            </tr>
+        </table>
+
+        <!-- ===== セクション10 ===== -->
+        <h2 id="section10">10. Windows との対応表</h2>
+
+        <p>Windows での経験を Linux に読み替えるための対応表です。完全に同じものではありませんが、最初のとっかかりとしては十分機能します。</p>
+
+        <table>
+            <tr>
+                <th style="width: 30%;">Windows</th>
+                <th style="width: 32%;">Linux / Raspberry Pi OS</th>
+                <th>補足</th>
+            </tr>
+            <tr>
+                <td>エクスプローラー</td>
+                <td><code>ls</code>、<code>cd</code>（ファイルマネージャもある）</td>
+                <td>ヘッドレス運用ではコマンドが中心になる</td>
+            </tr>
+            <tr>
+                <td>コマンドプロンプト / PowerShell</td>
+                <td>ターミナル + bash</td>
+                <td>コマンド名はほぼ別物</td>
+            </tr>
+            <tr>
+                <td><code>C:\</code>、<code>D:\</code> のドライブレター</td>
+                <td><code>/</code> から始まる単一のツリー</td>
+                <td>USB メモリなどはツリーの一部として接続（マウント）される</td>
+            </tr>
+            <tr>
+                <td><code>C:\Users\名前</code></td>
+                <td><code>/home/名前</code>（略記は <code>~</code>）</td>
+                <td>自分のデータはここに置く</td>
+            </tr>
+            <tr>
+                <td>Program Files</td>
+                <td><code>/usr/bin</code>、<code>/usr/lib</code> など</td>
+                <td>役割ごとに置き場所が分かれる</td>
+            </tr>
+            <tr>
+                <td>レジストリ</td>
+                <td><code>/etc</code> 以下のテキストファイル</td>
+                <td>設定は普通のテキストなので、エディタで読み書きできる</td>
+            </tr>
+            <tr>
+                <td>管理者として実行</td>
+                <td><code>sudo</code> を頭に付ける</td>
+                <td>コマンド1回だけ管理者になる</td>
+            </tr>
+            <tr>
+                <td>タスクマネージャー</td>
+                <td><code>top</code>、<code>ps</code></td>
+                <td>プロセスと負荷の確認</td>
+            </tr>
+            <tr>
+                <td>サービス（services.msc）</td>
+                <td><code>systemctl</code></td>
+                <td>Node-RED の自動起動もこれで設定する</td>
+            </tr>
+            <tr>
+                <td>イベントビューアー</td>
+                <td><code>journalctl</code></td>
+                <td>ログの確認</td>
+            </tr>
+            <tr>
+                <td>インストーラ（.exe）</td>
+                <td><code>apt install</code></td>
+                <td>公式の置き場から取り寄せる</td>
+            </tr>
+            <tr>
+                <td>拡張子でファイル種別を判断</td>
+                <td>中身と実行権限で判断</td>
+                <td>Linux では拡張子は人間向けの目印にすぎない</td>
+            </tr>
+        </table>
+
+        <!-- ===== セクション11 ===== -->
+        <h2 id="section11">11. まとめ</h2>
+
+        <div class="success">
+            <p><strong>このガイドの要点</strong></p>
+            <ul>
+                <li>OS は「ハードとアプリの仲介役」。Linux はカーネルが中核で、シェルや画面はその上に乗った別のソフト</li>
+                <li>Raspberry Pi OS は Debian ベース。コードネーム（trixie / bookworm）で情報を調べると当たりが早い</li>
+                <li>機器も情報も「ファイル」として見える。ファイルの読み書きを覚えると応用が利く</li>
+                <li>普段は一般ユーザー、必要なときだけ <code>sudo</code>。むやみな <code>sudo</code> は後の権限トラブルを生む</li>
+                <li>Node-RED は systemd のサービスとして常駐させる。<code>start</code> は今すぐ、<code>enable</code> は次回から</li>
+                <li>ソフトの導入は <code>apt</code>。<code>apt update</code> はカタログの取り寄せで、更新は <code>apt upgrade</code></li>
+            </ul>
+        </div>
+
+        <div class="next-box">
+            <h3>▶ 次に読むガイド</h3>
+            <ul>
+                <li><a href="nodered-linux-directory-guide.html">② ディレクトリ構成ガイド</a> — <code>/etc</code> や <code>/var</code> が何のフォルダなのか、Node-RED のファイルがどこにあるのかを地図にします</li>
+                <li><a href="nodered-linux-commands-guide.html">③ 基本コマンドガイド</a> — 実際に打つコマンドを、用途別に手を動かしながら覚えます</li>
+                <li><a href="nodered-linux-glossary-guide.html">④ 用語辞典・困ったとき</a> — 用語の索引と、よく出るエラーメッセージの読み解き方</li>
+            </ul>
+            <h3>関連ガイド</h3>
+            <ul>
+                <li><a href="nodered-raspberry-pi-install-guide.html">Raspberry Pi インストールガイド</a> — 実機に Node-RED を導入する手順</li>
+                <li><a href="nodered-settings-guide.html">settings.js 設定ガイド</a> — 設定ファイルの各項目の意味</li>
+                <li><a href="nodered-exec-node-guide.html">Exec ノードガイド</a> — フローから Linux コマンドを実行する</li>
+            </ul>
+        </div>
+
+        <p style="text-align: center; color: #999; margin-top: 40px;">
+            <small>このガイドは2026年8月時点の Raspberry Pi OS（trixie / bookworm）に基づいています。</small>
+        </p>
+    </div>
+
+    <!-- コピーボタン用JavaScript -->
+    <script>
+        function copyCode(button) {
+            const codeBlock = button.parentElement;
+            const code = codeBlock.innerText.replace('コピー', '').trim();
+
+            navigator.clipboard.writeText(code).then(() => {
+                button.textContent = 'コピーしました!';
+                button.classList.add('copied');
+                setTimeout(() => {
+                    button.textContent = 'コピー';
+                    button.classList.remove('copied');
+                }, 2000);
+            });
+        }
+    </script>
+
+    <!-- フローティングホームボタン -->
+    <a href="index.html" style="position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px; background: linear-gradient(135deg, #42b883 0%, #35495e 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; transition: transform 0.3s, box-shadow 0.3s;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 6px 16px rgba(0,0,0,0.4)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.3)';" title="トップページへ">🏠</a>
+</body>
+</html>
