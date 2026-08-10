@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED 本番運用ガイド（現場に置く前にやること）</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.8; max-width: 1000px; margin: 0 auto; padding: 20px; background-color: #f5f5f5; color: #333; }
+        h1 { color: #37474f; border-bottom: 3px solid #37474f; padding-bottom: 10px; }
+        h2 { color: #455a64; margin-top: 40px; border-left: 5px solid #455a64; padding-left: 15px; }
+        h3 { color: #555; margin-top: 25px; }
+        h4 { color: #666; margin-top: 20px; }
+        .container { background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .node-example { background-color: #2d3133; padding: 20px; border-radius: 5px; margin: 20px 0; color: white; font-family: 'Courier New', monospace; display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
+        .node { display: inline-block; padding: 8px 15px; border-radius: 4px; margin: 5px; font-weight: bold; font-size: 14px; }
+        .node-inject { background-color: #3fadb5; color: white; }
+        .node-debug { background-color: #87a48d; color: white; }
+        .node-function { background-color: #fdd0a2; color: #333; }
+        .node-exec { background-color: #f3b567; color: #333; }
+        .node-switch { background-color: #e2d96e; color: #333; }
+        .arrow { color: #999; font-size: 20px; margin: 0 10px; }
+        .important { background-color: #eceff1; border-left: 4px solid #37474f; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .tip { background-color: #e8f5e9; border-left: 4px solid #4caf50; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .warning { background-color: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .danger { background-color: #ffebee; border-left: 4px solid #e53935; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .code-block { background-color: #2d3133; color: #f8f8f2; padding: 15px; border-radius: 5px; margin: 15px 0; overflow-x: auto; font-family: 'Courier New', Consolas, monospace; font-size: 14px; white-space: pre; }
+        .flow-json { background-color: #1a1a2e; color: #a6e22e; padding: 15px; border-radius: 5px; font-family: 'Courier New', Consolas, monospace; font-size: 12px; overflow-x: auto; white-space: pre; position: relative; max-height: 400px; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; vertical-align: top; }
+        th { background-color: #455a64; color: white; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        details { background-color: #f5f5f5; padding: 10px 15px; border-radius: 5px; margin: 10px 0; }
+        details summary { cursor: pointer; font-weight: bold; color: #455a64; }
+        details[open] summary { margin-bottom: 10px; }
+        .toc { background-color: #fafafa; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .toc h3 { margin-top: 0; color: #37474f; }
+        .toc ul { list-style: none; padding-left: 0; }
+        .toc li { padding: 5px 0; }
+        .toc a { color: #1976d2; text-decoration: none; }
+        .toc a:hover { text-decoration: underline; }
+        .copy-button { position: absolute; top: 8px; right: 8px; padding: 6px 12px; background-color: #455a64; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-family: 'Segoe UI', sans-serif; transition: background-color 0.2s; z-index: 10; display: flex; align-items: center; gap: 4px; }
+        .copy-button:hover { background-color: #37474f; }
+        .copy-button.copied { background-color: #28a745; }
+        .copy-button svg { width: 14px; height: 14px; fill: currentColor; }
+        .checklist { background: #fafafa; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .checklist ul { list-style: none; padding-left: 0; }
+        .checklist li { padding: 6px 0; border-bottom: 1px dashed #e0e0e0; }
+        .checklist li:last-child { border-bottom: none; }
+        .diagram-box { background: #2d3133; color: white; padding: 20px; border-radius: 8px; font-family: monospace; margin: 15px 0; white-space: pre-wrap; }
+        code { background: #eceff1; padding: 2px 6px; border-radius: 3px; font-family: 'Courier New', monospace; font-size: 0.95em; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Node-RED 本番運用ガイド</h1>
+
+        <div class="important">
+            <strong>このガイドの前提</strong><br>
+            扱う内容は Raspberry Pi OS や Ubuntu などの Linux 上で Node-RED を常時稼働させる運用である。OS のコマンドと systemd を扱うため、共有クラウド環境ではそのまま実行できない。コマンドの読み方は<a href="nodered-linux-commands-guide.html">基本コマンドガイド</a>、ディレクトリの意味は<a href="nodered-linux-directory-guide.html">ディレクトリ構成ガイド</a>を参照。
+        </div>
+
+        <div class="toc">
+            <h3>目次</h3>
+            <ul>
+                <li><a href="#section1">1. 学習環境と本番環境は何が違うのか</a></li>
+                <li><a href="#section2">2. 自動起動（systemd）</a></li>
+                <li><a href="#section3">3. ログの見方と量の管理</a></li>
+                <li><a href="#section4">4. バックアップと復元</a></li>
+                <li><a href="#section5">5. 別の機械への引っ越し</a></li>
+                <li><a href="#section6">6. SD カードの寿命と書き込み削減</a></li>
+                <li><a href="#section7">7. 時刻の同期</a></li>
+                <li><a href="#section8">8. 電源断への備え</a></li>
+                <li><a href="#section9">9. 死活監視と自動復旧</a></li>
+                <li><a href="#section10">10. セキュリティの最低線</a></li>
+                <li><a href="#section11">11. 更新の運用</a></li>
+                <li><a href="#section12">12. 本番投入前チェックリスト</a></li>
+                <li><a href="#section13">13. まとめ</a></li>
+            </ul>
+        </div>
+
+        <h2 id="section1">1. 学習環境と本番環境は何が違うのか</h2>
+
+        <p>手元で動いたフローを現場の機器に載せた時点で、前提が 3 つ変わる。人が見ていない、電源が落ちる、そして誰も再起動しに行けない。</p>
+
+        <table>
+            <tr>
+                <th>観点</th>
+                <th>学習環境</th>
+                <th>本番環境</th>
+            </tr>
+            <tr>
+                <td>起動</td>
+                <td>使うときに自分で立ち上げる</td>
+                <td>電源投入だけで復帰する必要がある</td>
+            </tr>
+            <tr>
+                <td>異常</td>
+                <td>画面を見て気づく</td>
+                <td>誰も見ていない。気づく仕組みが要る</td>
+            </tr>
+            <tr>
+                <td>停止</td>
+                <td>いつ止めてもよい</td>
+                <td>電源が突然落ちる前提で作る</td>
+            </tr>
+            <tr>
+                <td>フローの変更</td>
+                <td>壊れたら作り直す</td>
+                <td>戻せる状態を常に保つ</td>
+            </tr>
+            <tr>
+                <td>寿命</td>
+                <td>考えない</td>
+                <td>SD カードの書き込み回数に上限がある</td>
+            </tr>
+        </table>
+
+        <p>以下は、この差を埋めるために現場投入前に済ませておく作業である。</p>
+
+        <h2 id="section2">2. 自動起動（systemd）</h2>
+
+        <h3>サービスとして登録する</h3>
+
+        <p>Raspberry Pi 向けの公式インストールスクリプトで導入した場合、<code>nodered.service</code> という systemd のサービス定義が一緒に入る。ただし<strong>自動起動は既定で有効になっていない</strong>。次のコマンドで有効化する。</p>
+
+        <div class="code-block">sudo systemctl enable nodered.service</div>
+
+        <p>解除する場合は <code>disable</code> を使う。</p>
+
+        <div class="code-block">sudo systemctl disable nodered.service</div>
+
+        <h3>起動、停止、状態確認</h3>
+
+        <table>
+            <tr><th>操作</th><th>Raspberry Pi 用スクリプト</th><th>systemd の標準コマンド</th></tr>
+            <tr><td>起動</td><td><code>node-red-start</code></td><td><code>sudo systemctl start nodered</code></td></tr>
+            <tr><td>停止</td><td><code>node-red-stop</code></td><td><code>sudo systemctl stop nodered</code></td></tr>
+            <tr><td>再起動</td><td><code>node-red-restart</code></td><td><code>sudo systemctl restart nodered</code></td></tr>
+            <tr><td>フローの再読み込み</td><td><code>node-red-reload</code></td><td><code>sudo systemctl reload nodered</code></td></tr>
+            <tr><td>状態確認</td><td>（なし）</td><td><code>sudo systemctl status nodered</code></td></tr>
+            <tr><td>ログ表示</td><td><code>node-red-log</code></td><td><code>sudo journalctl -f -u nodered</code></td></tr>
+        </table>
+
+        <p><code>node-red-restart</code> と <code>node-red-reload</code> も、公式インストールスクリプトが <code>/usr/bin</code> に配置する。前者は再起動、後者は Node-RED を止めずにフローだけを読み込み直す。</p>
+
+        <p><code>node-red-log</code> は内部で <code>sudo journalctl -f -n 25 -u nodered -o cat</code> を実行している。直近 25 行を出したあと、新しい行が出るたびに追記表示する。行数を変えたい場合は <code>node-red-log -n 100</code> のように指定する。</p>
+
+        <h3>サービス定義で押さえておく設定</h3>
+
+        <p>公式の <code>nodered.service</code> には、運用に効く設定が最初から入っている。中身を知っておくと、異常時の切り分けが早くなる。</p>
+
+        <table>
+            <tr><th>設定</th><th>意味</th></tr>
+            <tr><td><code>Restart=on-failure</code></td><td>異常終了したら自動で起動し直す</td></tr>
+            <tr><td><code>RestartSec=20</code></td><td>再起動までの待ち時間は 20 秒</td></tr>
+            <tr><td><code>KillSignal=SIGINT</code></td><td>停止時は中断信号を送り、Node-RED に後始末をさせる</td></tr>
+            <tr><td><code>User=</code> と <code>Group=</code></td><td>実行する利用者。別の利用者で動かすならここを変える</td></tr>
+            <tr><td><code>NODE_OPTIONS=--max_old_space_size=</code></td><td>使用メモリの上限（メガバイト）。大量のデータを扱って落ちる場合に見直す箇所</td></tr>
+            <tr><td><code>EnvironmentFile=-</code>（ユーザーディレクトリ内の <code>environment</code>）</td><td>環境変数を外部ファイルから読む。ファイルが無くても起動する</td></tr>
+            <tr><td><code>SyslogIdentifier=Node-RED</code></td><td>ログ上の識別名</td></tr>
+        </table>
+
+        <div class="important">
+            <strong>値はインストール時に書き換えられる</strong><br>
+            公式リポジトリにある <code>nodered.service</code> は雛形であり、インストールスクリプトが実環境に合わせて次の値を書き換える。手元のファイルを見るときは、雛形の値ではなく実際に入っている値を確認する。
+            <ul>
+                <li><strong>メモリ上限</strong>：搭載メモリ量に応じて <code>256</code> / <code>512</code> / <code>1024</code> / <code>2048</code> のいずれかに置き換わる（雛形の初期値は 512）</li>
+                <li><strong><code>User</code> と <code>Group</code></strong>：インストールを実行した利用者に置き換わる（雛形は <code>pi</code>）</li>
+                <li><strong><code>WorkingDirectory</code> と <code>EnvironmentFile</code></strong>：その利用者のホームディレクトリを基準に置き換わる</li>
+            </ul>
+        </div>
+
+        <div class="tip">
+            <strong>認証情報をフローに書かない手段</strong><br>
+            <code>EnvironmentFile</code> の指す <code>~/.node-red/environment</code> に <code>MQTT_PASSWORD=...</code> のように書いておくと、フロー側からは環境変数として参照できる。フロー JSON に平文の認証情報を残さずに済むため、フローを Git で管理する場合に有効である。
+        </div>
+
+        <div class="warning">
+            <strong>編集したら再読み込みが要る</strong><br>
+            サービス定義（通常は <code>/lib/systemd/system/nodered.service</code>）を書き換えたときは、systemd に読み直させてから再起動する。
+            <div class="code-block">sudo systemctl daemon-reload
+sudo systemctl restart nodered</div>
+        </div>
+
+        <h2 id="section3">3. ログの見方と量の管理</h2>
+
+        <h3>必要な範囲だけ見る</h3>
+
+        <p><code>journalctl</code> は範囲を絞れる。全部流すと目的の行を見失う。</p>
+
+        <div class="code-block"># 直近100行だけ
+sudo journalctl -u nodered -n 100
+
+# 今日のぶんだけ
+sudo journalctl -u nodered --since today
+
+# 特定の時刻以降
+sudo journalctl -u nodered --since "2026-08-09 08:00"
+
+# 前回の起動時のログ（再起動の原因を追うとき）
+sudo journalctl -u nodered -b -1</div>
+
+        <h3>ログを出しすぎない</h3>
+
+        <p>Debug ノードをサイドバー出力のまま放置すると、そのぶんログとメモリを消費する。現場に置くフローでは、常時流れる Debug ノードを無効化するか、必要なものだけ残す。</p>
+
+        <div class="warning">
+            <strong>ログ量はディスクと SD カードの消費に直結する</strong><br>
+            1 秒ごとに 1 行出すだけで 1 日 86,400 行になる。journald の保存量には上限を設定できる（<code>/etc/systemd/journald.conf</code> の <code>SystemMaxUse</code> など）。何も設定しないと、空き容量に応じてログが増え続ける。
+        </div>
+
+        <h2 id="section4">4. バックアップと復元</h2>
+
+        <p>Node-RED の設定と作ったものは、すべて<strong>ユーザーディレクトリ</strong>（通常は <code>~/.node-red</code>）に入っている。バックアップの対象はこのディレクトリの一部である。</p>
+
+        <table>
+            <tr><th>対象</th><th>内容</th><th>バックアップ</th></tr>
+            <tr><td><code>flows.json</code></td><td>フロー本体</td><td>必須</td></tr>
+            <tr><td><code>flows_cred.json</code></td><td>認証情報（暗号化されている）</td><td>必須</td></tr>
+            <tr><td><code>settings.js</code></td><td>設定ファイル</td><td>必須</td></tr>
+            <tr><td><code>package.json</code></td><td>追加したノードの一覧</td><td>必須</td></tr>
+            <tr><td><code>package-lock.json</code></td><td>追加ノードの版の固定</td><td>推奨</td></tr>
+            <tr><td><code>lib/</code></td><td>ライブラリに保存したフローや関数</td><td>使っていれば必須</td></tr>
+            <tr><td><code>.config</code> で始まる隠しファイル</td><td>実行時の内部設定。認証情報の復号鍵を自動生成した場合はここに入る</td><td>後述の理由により必須</td></tr>
+            <tr><td><code>node_modules/</code></td><td>追加ノードの実体</td><td>不要（<code>package.json</code> から入れ直せる）</td></tr>
+        </table>
+
+        <div class="danger">
+            <strong>ユーザーディレクトリの外にあるデータを忘れない</strong><br>
+            バックアップの対象はユーザーディレクトリだけではない。フローが書き出したファイルやデータベースを別の場所に置いている場合、そこも含めなければ<strong>フローと認証情報は戻るのに、蓄積したデータだけが失われる</strong>。<br><br>
+            たとえば <a href="nodered-sqlite-node-guide.html">SQLite ガイド</a>のサンプルはデータベースを <code>/home/pi/data/sensor.db</code> に置いている。この場合、<code>~/.node-red</code> を固めただけでは測定値が 1 件も残らない。<br><br>
+            対処は 2 通りある。
+            <ul>
+                <li><strong>置き場所をユーザーディレクトリの中にそろえる</strong>（例：<code>~/.node-red/data/sensor.db</code>）。バックアップ対象が 1 か所になるので管理が楽になる</li>
+                <li><strong>バックアップ対象に明示的に加える</strong>。SQLite の場合、<code>*.db</code> に加えて同名の <code>*.db-wal</code> と <code>*.db-shm</code> が存在すればそれらも含める</li>
+            </ul>
+        </div>
+
+        <div class="warning">
+            <strong>稼働中のデータベースを単純コピーしない</strong><br>
+            書き込みの最中にファイルをコピーすると、中途半端な状態のまま固めてしまうことがある。確実な方法は次の 2 つである。
+            <ul>
+                <li>Node-RED を停止してからコピーする（<code>node-red-stop</code> のあとにバックアップ、終わったら <code>node-red-start</code>）</li>
+                <li>稼働させたまま取るなら、SQLite に整合性を保ったまま複製させる。<code>sqlite3</code> コマンドが使える環境では <code>VACUUM INTO</code> が簡単である</li>
+            </ul>
+            <div class="code-block">sqlite3 /home/pi/data/sensor.db "VACUUM INTO '/home/pi/backup/sensor-$(date +%Y%m%d).db'"</div>
+        </div>
+
+        <div class="danger">
+            <strong>認証情報が復元できない事故</strong><br>
+            <code>flows_cred.json</code> は暗号化されている。復号の鍵を <code>settings.js</code> の <code>credentialSecret</code> で明示していない場合、Node-RED は鍵を自動生成し、<code>.config</code> で始まる隠しファイルに保存する。<code>flows.json</code> だけをコピーして移設すると、この鍵が付いてこないため<strong>認証情報だけが復元できず、MQTT やメールの接続がすべて落ちる</strong>。<br><br>
+            対策は 2 つある。どちらかを必ず行う。
+            <ul>
+                <li><code>settings.js</code> に <code>credentialSecret: "任意の文字列"</code> を明示する（推奨。移設先でも同じ文字列を設定すれば復号できる）</li>
+                <li>隠しファイルを含めてユーザーディレクトリごとバックアップする</li>
+            </ul>
+            設定ファイルの詳細は<a href="nodered-settings-guide.html">settings.js ガイド</a>を参照。
+        </div>
+
+        <h3>手動バックアップ</h3>
+
+        <p>ユーザーディレクトリだけを固める場合は次のようになる。</p>
+
+        <div class="code-block">cd ~
+tar czf nodered-backup-$(date +%Y%m%d).tar.gz --exclude='.node-red/node_modules' .node-red</div>
+
+        <p>データベースなどを別ディレクトリに置いているなら、その場所も一緒に含める。</p>
+
+        <div class="code-block">cd ~
+tar czf nodered-backup-$(date +%Y%m%d).tar.gz --exclude='.node-red/node_modules' .node-red data</div>
+
+        <p>作った書庫は、機器の外（NAS、社内ファイルサーバー、別の PC）に置く。同じ SD カードの中に置いても、そのカードが壊れれば一緒に失われる。</p>
+
+        <div class="tip">
+            <strong>復元できるかを試すまでがバックアップ</strong><br>
+            取得したつもりで中身が空だった、鍵が入っていなかった、という事故は復元時にしか分からない。別の機器か検証用の環境へ一度戻し、フローが動き、接続先につながることを確認しておく。手順はセクション 5 にある。
+        </div>
+
+        <h3>Git で管理する</h3>
+
+        <p>フローの変更履歴を残したい場合は Git を使う。Node-RED にはプロジェクト機能があり、ユーザーディレクトリを Git リポジトリとして扱える。考え方は<a href="nodered-git-basics-guide.html">Git 超入門</a>、Windows での準備は<a href="nodered-git-install-windows-guide.html">Git for Windows インストールガイド</a>にまとめてある。</p>
+
+        <div class="warning">
+            <strong>Git に載せるときの注意</strong><br>
+            <code>flows_cred.json</code> は暗号化されているとはいえ認証情報である。公開リポジトリには置かない。<code>credentialSecret</code> を書いた <code>settings.js</code> も同様に扱う。
+        </div>
+
+        <h2 id="section5">5. 別の機械への引っ越し</h2>
+
+        <p>検証機で作ったフローを本番機へ移す、あるいは故障した機器を入れ替える手順である。順番を守ると失敗が減る。</p>
+
+        <ol>
+            <li>移行先に同じか近い版の Node.js と Node-RED を入れる</li>
+            <li>移行先の Node-RED を止める（<code>node-red-stop</code>）</li>
+            <li>バックアップした <code>settings.js</code> を置く。<code>credentialSecret</code> が移行元と同じであることを確認する</li>
+            <li><code>package.json</code> を置き、<code>cd ~/.node-red</code> のあと <code>npm install</code> で追加ノードを入れ直す</li>
+            <li>ネイティブモジュールを使うノード（<a href="nodered-sqlite-node-guide.html">SQLite</a> など）があれば、この時点でビルドが走る。時間がかかるので待つ</li>
+            <li><code>flows.json</code> と <code>flows_cred.json</code> を置く</li>
+            <li>Node-RED を起動し、ログにエラーが出ていないか確認する（<code>node-red-log</code>）</li>
+            <li>エディターを開き、パレットに欠けているノードがないか確認する</li>
+            <li>接続先（MQTT ブローカー、データベース、機器の IP アドレス）が移行先の環境と合っているか確認する</li>
+        </ol>
+
+        <div class="tip">
+            <strong>IP アドレスやパスは環境変数にしておく</strong><br>
+            接続先を各ノードに直接書くと、引っ越しのたびに全ノードを開いて直すことになる。<code>~/.node-red/environment</code> に書いて環境変数から参照するようにしておけば、書き換えるのは 1 ファイルで済む。
+        </div>
+
+        <h2 id="section6">6. SD カードの寿命と書き込み削減</h2>
+
+        <p>Raspberry Pi で最も多い故障は SD カードの寿命である。フラッシュメモリには書き込み回数の上限があり、同じ場所に書き続けると先に寿命が来る。ログとデータベースが主な消費源になる。</p>
+
+        <h3>書き込みを減らす</h3>
+
+        <table>
+            <tr><th>対象</th><th>やること</th></tr>
+            <tr><td>Debug ノード</td><td>常時流れるものを無効化する</td></tr>
+            <tr><td>ログ</td><td>journald の保存量に上限を設ける</td></tr>
+            <tr><td>データベース</td><td>記録周期を見直す。1 秒ごとが本当に要るのかを確認する</td></tr>
+            <tr><td>context 変数</td><td>ファイル保存を使っている場合、保存間隔を延ばす</td></tr>
+            <tr><td>集計</td><td>生データを貯め続けず、一定期間で集計して古い行を消す</td></tr>
+        </table>
+
+        <div class="tip">
+            <strong>周期を決める考え方</strong><br>
+            現場で本当に必要な粒度から逆算する。1 分平均で判断できる設備を 1 秒ごとに記録しても、判断は変わらないまま書き込み量だけが 60 倍になる。削除と集計の書き方は<a href="nodered-sqlite-node-guide.html">SQLite ガイド</a>のセクション 7 にある。
+        </div>
+
+        <h3>媒体を変える</h3>
+
+        <table>
+            <tr><th>選択肢</th><th>特徴</th></tr>
+            <tr><td>一般的な SD カード</td><td>安いが寿命が読めない。検証用まで</td></tr>
+            <tr><td>高耐久 SD カード（産業用）</td><td>書き込み耐性が高い製品がある。常時記録する用途ではこちらを選ぶ</td></tr>
+            <tr><td>USB 接続の SSD</td><td>耐性と速度で有利。Raspberry Pi 4 以降は USB からの起動に対応している</td></tr>
+        </table>
+
+        <h2 id="section7">7. 時刻の同期</h2>
+
+        <p>時刻がずれた機器の記録は、あとから突き合わせられない。複数台のデータを比べるなら、時刻同期は記録そのものと同じくらい重要になる。</p>
+
+        <div class="code-block">timedatectl status</div>
+
+        <p><code>System clock synchronized: yes</code> と <code>NTP service: active</code> になっていれば同期している。工場内でインターネットに出られない場合は、社内の NTP サーバーを参照するよう設定する。</p>
+
+        <div class="important">
+            <strong>起動直後の記録がずれる問題</strong><br>
+            電源投入直後は時刻同期が終わっておらず、その間に記録した行だけ時刻がおかしくなることがある。公式の <code>nodered.service</code> には、時刻同期の完了を待ってから起動する設定が<strong>コメントアウトされた状態で用意されている</strong>。記録の正確さが重要な用途では、この行を有効にすることを検討する。
+            <div class="code-block">#ExecStartPre=/bin/bash -c '/bin/journalctl -b -u systemd-timesyncd | /bin/grep -q "systemd-timesyncd.* Synchronized to time server"'</div>
+            先頭の <code>#</code> を外し、<code>sudo systemctl daemon-reload</code> を実行する。同期できない環境では起動しなくなるため、時刻源が確実にある環境でのみ使う。
+        </div>
+
+        <h2 id="section8">8. 電源断への備え</h2>
+
+        <p>工場では、装置の主電源とともにエッジ機器の電源も落ちる運用が珍しくない。Linux は書き込み途中に電源が切れるとファイルシステムが壊れることがあり、起動しなくなる形で表面化する。</p>
+
+        <table>
+            <tr><th>対策</th><th>内容</th></tr>
+            <tr><td>正しく停止する運用</td><td><code>sudo shutdown -h now</code> で停止してから電源を切る手順を現場に周知する</td></tr>
+            <tr><td>無停電電源（UPS）</td><td>停電を検知して安全に停止する時間を稼ぐ。数分持てば足りる</td></tr>
+            <tr><td>書き込みを減らす</td><td>書き込み中の確率が下がるため、破損の確率も下がる（セクション 6）</td></tr>
+            <tr><td>復旧手段を用意する</td><td>設定済みの SD カードの複製を予備として保管しておく</td></tr>
+        </table>
+
+        <div class="tip">
+            <strong>再起動後に自動で戻るか確認する</strong><br>
+            現場に置く前に、電源を抜いて入れ直す試験を一度行う。自動起動が有効なら、そのままフローが動き出すはずである。ここで戻らなければ、現場では誰も戻せない。
+        </div>
+
+        <h2 id="section9">9. 死活監視と自動復旧</h2>
+
+        <p>systemd の <code>Restart=on-failure</code> は、Node-RED のプロセスが落ちた場合に復帰させる。しかし現場で多いのは「プロセスは生きているが、データが来ていない」という状態である。これは systemd では検知できない。フロー側で見張る必要がある。</p>
+
+        <h3>ディスクの空き容量を監視する</h3>
+
+        <p>データベースやログでディスクが埋まると、書き込みが止まり、原因が分かりにくい形で不具合が出る。定期的に使用率を確認し、閾値を超えたら知らせる。</p>
+
+        <div class="node-example">
+            <span class="node node-inject">inject</span>
+            <span class="arrow">&rarr;</span>
+            <span class="node node-exec">exec</span>
+            <span class="arrow">&rarr;</span>
+            <span class="node node-function">function</span>
+            <span class="arrow">&rarr;</span>
+            <span class="node node-switch">switch</span>
+            <span class="arrow">&rarr;</span>
+            <span class="node node-debug">debug</span>
+        </div>
+
+        <details>
+            <summary>サンプルフロー：ディスク使用率の監視（クリックで展開）</summary>
+            <div class="flow-json">[
+    {
+        "id": "tab_ops_disk",
+        "type": "tab",
+        "label": "運用 ディスク監視",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "disk_inject",
+        "type": "inject",
+        "z": "tab_ops_disk",
+        "name": "1時間ごとに確認",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "3600",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 30,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 190,
+        "y": 120,
+        "wires": [
+            [
+                "disk_exec"
+            ]
+        ]
+    },
+    {
+        "id": "disk_exec",
+        "type": "exec",
+        "z": "tab_ops_disk",
+        "command": "df -h /",
+        "addpay": false,
+        "append": "",
+        "useSpawn": "false",
+        "timer": "10",
+        "winHide": false,
+        "oldrc": false,
+        "name": "df -h /",
+        "x": 410,
+        "y": 120,
+        "wires": [
+            [
+                "disk_parse"
+            ],
+            [],
+            []
+        ]
+    },
+    {
+        "id": "disk_parse",
+        "type": "function",
+        "z": "tab_ops_disk",
+        "name": "使用率を取り出す",
+        "func": "// df の出力を空白で分割し、末尾から2番目が使用率（例 29%）\nconst cols = String(msg.payload).trim().split(/\\s+/);\nmsg.payload = parseInt(cols[cols.length - 2], 10);\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 620,
+        "y": 120,
+        "wires": [
+            [
+                "disk_switch"
+            ]
+        ]
+    },
+    {
+        "id": "disk_switch",
+        "type": "switch",
+        "z": "tab_ops_disk",
+        "name": "80% を超えたか",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "gt",
+                "v": "80",
+                "vt": "num"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 840,
+        "y": 120,
+        "wires": [
+            [
+                "disk_alert"
+            ]
+        ]
+    },
+    {
+        "id": "disk_alert",
+        "type": "change",
+        "z": "tab_ops_disk",
+        "name": "警告メッセージ",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "ディスク使用率が閾値を超えました",
+                "tot": "str"
+            }
+        ],
+        "x": 1060,
+        "y": 120,
+        "wires": [
+            [
+                "disk_debug"
+            ]
+        ]
+    },
+    {
+        "id": "disk_debug",
+        "type": "debug",
+        "z": "tab_ops_disk",
+        "name": "警告",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "msg",
+        "x": 1250,
+        "y": 120,
+        "wires": []
+    }
+]</div>
+        </details>
+
+        <p>実運用では末尾の Debug を<a href="nodered-email-node-guide.html">メール</a>やチャットへの通知に差し替える。<code>exec</code> ノードの詳細は<a href="nodered-exec-node-guide.html">Exec ノードガイド</a>にある。</p>
+
+        <h3>データが途絶えたことを検知する</h3>
+
+        <p>最後にデータを受け取った時刻を記録しておき、一定時間更新されなければ異常とみなす。設備側の停止、ネットワーク断、接続先の再起動を、まとめて 1 つの仕組みで捉えられる。</p>
+
+        <details>
+            <summary>サンプルフロー：無通信の検知（クリックで展開）</summary>
+            <div class="flow-json">[
+    {
+        "id": "tab_ops_watchdog",
+        "type": "tab",
+        "label": "運用 無通信の検知",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "wd_data",
+        "type": "inject",
+        "z": "tab_ops_watchdog",
+        "name": "データ受信（模擬）",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "10",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 200,
+        "y": 100,
+        "wires": [
+            [
+                "wd_mark"
+            ]
+        ]
+    },
+    {
+        "id": "wd_mark",
+        "type": "function",
+        "z": "tab_ops_watchdog",
+        "name": "最終受信時刻を記録",
+        "func": "// 実際はセンサーや MQTT からの入力をここへつなぐ\nflow.set(\"lastSeen\", Date.now());\nreturn null;",
+        "outputs": 1,
+        "timeout": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 440,
+        "y": 100,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "wd_check",
+        "type": "inject",
+        "z": "tab_ops_watchdog",
+        "name": "60秒ごとに点検",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "60",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 200,
+        "y": 200,
+        "wires": [
+            [
+                "wd_elapsed"
+            ]
+        ]
+    },
+    {
+        "id": "wd_elapsed",
+        "type": "function",
+        "z": "tab_ops_watchdog",
+        "name": "経過秒数を計算",
+        "func": "const last = flow.get(\"lastSeen\");\nif (!last) {\n    // 一度も受信していない\n    msg.payload = 99999;\n} else {\n    msg.payload = Math.round((Date.now() - last) / 1000);\n}\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 430,
+        "y": 200,
+        "wires": [
+            [
+                "wd_switch"
+            ]
+        ]
+    },
+    {
+        "id": "wd_switch",
+        "type": "switch",
+        "z": "tab_ops_watchdog",
+        "name": "180秒を超えたか",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "gt",
+                "v": "180",
+                "vt": "num"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 650,
+        "y": 200,
+        "wires": [
+            [
+                "wd_alert"
+            ]
+        ]
+    },
+    {
+        "id": "wd_alert",
+        "type": "change",
+        "z": "tab_ops_watchdog",
+        "name": "警告メッセージ",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "データが一定時間届いていません",
+                "tot": "str"
+            }
+        ],
+        "x": 870,
+        "y": 200,
+        "wires": [
+            [
+                "wd_debug"
+            ]
+        ]
+    },
+    {
+        "id": "wd_debug",
+        "type": "debug",
+        "z": "tab_ops_watchdog",
+        "name": "無通信の警告",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "msg",
+        "x": 1080,
+        "y": 200,
+        "wires": []
+    }
+]</div>
+        </details>
+
+        <div class="warning">
+            <strong>flow context は再起動で消える</strong><br>
+            サンプルは <code>flow.set</code> を使っているため、Node-RED を再起動すると最終受信時刻が消える。再起動直後は「一度も受信していない」と判定され、実データが来るまで警告が出る。この扱いが困る場合は、判定の開始を起動から数分遅らせるか、記録先を<a href="nodered-sqlite-node-guide.html">データベース</a>にする。
+        </div>
+
+        <div class="tip">
+            <strong>通知は鳴らしすぎない</strong><br>
+            60 秒ごとの点検で異常が続けば、通知も 60 秒ごとに飛ぶ。<a href="nodered-filter-node-guide.html">Filter (RBE)</a> ノードで状態が変化したときだけ通す、あるいは <a href="nodered-trigger-node-guide.html">Trigger</a> ノードで再通知の間隔を空けるといった調整を入れる。鳴り続ける通知は、やがて誰も見なくなる。
+        </div>
+
+        <h2 id="section10">10. セキュリティの最低線</h2>
+
+        <p>Node-RED のエディターは、既定では誰でも開ける。フローを書き換えられるということは、その機器で任意の処理を実行できるということでもある。現場に置く前に、少なくとも次を確認する。</p>
+
+        <table>
+            <tr><th>項目</th><th>内容</th></tr>
+            <tr><td>エディターの認証</td><td><code>settings.js</code> の <code>adminAuth</code> で利用者名とパスワードを設定する</td></tr>
+            <tr><td>作った Web 画面の認証</td><td><code>httpNodeAuth</code> で HTTP ノードやダッシュボードに認証をかける</td></tr>
+            <tr><td>待ち受け範囲</td><td>外部に見せる必要がなければ <code>uiHost</code> で待ち受けを限定する</td></tr>
+            <tr><td>通信の暗号化</td><td>社内 LAN の外を通るなら HTTPS を有効にする</td></tr>
+            <tr><td>インターネットへの直接公開</td><td>行わない。必要なら VPN 越しにする</td></tr>
+            <tr><td>認証情報の置き場所</td><td>フローに直接書かず、環境変数か認証情報欄を使う</td></tr>
+        </table>
+
+        <p>各設定の書き方は<a href="nodered-settings-guide.html">settings.js ガイド</a>にまとめてある。</p>
+
+        <div class="danger">
+            <strong>工場のネットワークに置く場合</strong><br>
+            制御系のネットワーク（設備が動いている側）と情報系のネットワークを直結しない。エッジ機器を両方につなぐ構成にするなら、通す通信を必要最小限に絞り、情報システム部門と事前に合意しておく。ネットワークの基礎は<a href="nodered-network-basics-guide.html">通信の基礎</a>を参照。
+        </div>
+
+        <h2 id="section11">11. 更新の運用</h2>
+
+        <p>Raspberry Pi や Debian 系（Debian、Ubuntu、Raspberry Pi OS）では、公式の更新スクリプトで Node.js と Node-RED をまとめて更新できる。次は公式リポジトリ <code>node-red/linux-installers</code> の README が案内している形である。</p>
+
+        <div class="code-block">bash &lt;(curl -sL https://github.com/node-red/linux-installers/releases/latest/download/install-update-nodered-deb)</div>
+
+        <p>このコマンドは初回インストールにも更新にも使える。RPM 系（Fedora、RHEL など）は別のスクリプトが用意されているため、README で確認する。</p>
+
+        <table>
+            <tr><th>順番</th><th>やること</th></tr>
+            <tr><td>1</td><td>バックアップを取る（セクション 4）</td></tr>
+            <tr><td>2</td><td>更新を実行する</td></tr>
+            <tr><td>3</td><td>ネイティブモジュールを使うノードを再ビルドする（<code>cd ~/.node-red</code> のあと <code>npm rebuild</code>）</td></tr>
+            <tr><td>4</td><td>起動してログを確認する</td></tr>
+            <tr><td>5</td><td>主要なフローが動くことを確認する</td></tr>
+        </table>
+
+        <div class="warning">
+            <strong>稼働中の設備で更新しない</strong><br>
+            更新には再起動が伴い、追加ノードの再ビルドで時間もかかる。設備を止めてよい時間帯に行う。可能なら、同じ構成の検証機で先に試す。
+        </div>
+
+        <h2 id="section12">12. 本番投入前チェックリスト</h2>
+
+        <div class="checklist">
+            <h4>起動と復帰</h4>
+            <ul>
+                <li>□ <code>sudo systemctl enable nodered.service</code> を実行した</li>
+                <li>□ 電源を抜き差しして、フローが自動で動き出すことを確認した</li>
+                <li>□ <code>systemctl status nodered</code> が正常を示す</li>
+            </ul>
+            <h4>データと復元</h4>
+            <ul>
+                <li>□ <code>settings.js</code> に <code>credentialSecret</code> を明示した</li>
+                <li>□ ユーザーディレクトリの外にあるデータ（データベース、出力ファイル）もバックアップ対象に入れた</li>
+                <li>□ バックアップを取得し、機器の外に保存した</li>
+                <li>□ バックアップから復元する手順を一度試した</li>
+            </ul>
+            <h4>寿命と容量</h4>
+            <ul>
+                <li>□ 常時流れる Debug ノードを無効化した</li>
+                <li>□ データの記録周期と保持期間を決めた</li>
+                <li>□ 古いデータを削除するフローを組んだ</li>
+                <li>□ ディスク使用率の監視を入れた</li>
+            </ul>
+            <h4>正確さと監視</h4>
+            <ul>
+                <li>□ <code>timedatectl status</code> で時刻同期を確認した</li>
+                <li>□ 無通信を検知する仕組みを入れた</li>
+                <li>□ 異常の通知先と、通知が鳴りすぎない調整を決めた</li>
+            </ul>
+            <h4>セキュリティ</h4>
+            <ul>
+                <li>□ エディターに認証をかけた</li>
+                <li>□ インターネットへ直接公開していない</li>
+                <li>□ 認証情報をフロー内に平文で書いていない</li>
+            </ul>
+        </div>
+
+        <h2 id="section13">13. まとめ</h2>
+
+        <table>
+            <tr><th>論点</th><th>結論</th></tr>
+            <tr><td>自動起動</td><td>インストールしただけでは有効にならない。<code>systemctl enable</code> が必要</td></tr>
+            <tr><td>バックアップ</td><td><code>flows.json</code> だけでは足りない。<code>credentialSecret</code> を明示し、ユーザーディレクトリの外に置いたデータベースも対象に含める</td></tr>
+            <tr><td>SD カード</td><td>書き込み量が寿命を決める。記録周期と保持期間を先に決める</td></tr>
+            <tr><td>時刻</td><td>ずれた記録は突き合わせられない。同期を確認する</td></tr>
+            <tr><td>監視</td><td>プロセスの死活だけでは足りない。データが来ているかを見る</td></tr>
+            <tr><td>セキュリティ</td><td>エディターは既定で誰でも開ける。認証をかける</td></tr>
+        </table>
+
+        <h3>関連ガイド</h3>
+
+        <ul>
+            <li><a href="nodered-settings-guide.html">settings.js ガイド</a>：<code>credentialSecret</code>、<code>adminAuth</code>、ログ設定の書き方</li>
+            <li><a href="nodered-sqlite-node-guide.html">SQLite ガイド</a>：データの蓄積、集計、保持期間の管理</li>
+            <li><a href="nodered-linux-commands-guide.html">基本コマンドガイド</a>：<code>systemctl</code>、<code>journalctl</code>、<code>df</code> の使い方</li>
+            <li><a href="nodered-linux-glossary-guide.html">用語辞典・困ったとき</a>：エラーメッセージからの逆引き</li>
+            <li><a href="nodered-git-basics-guide.html">Git 超入門</a>：フローの変更履歴を残す</li>
+            <li><a href="nodered-catch-node-guide.html">Catch ノード</a>：フロー内のエラーを拾って通知につなげる</li>
+        </ul>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.flow-json').forEach(function(block) {
+                var button = document.createElement('button');
+                button.className = 'copy-button';
+                button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                button.addEventListener('click', function() {
+                    // 要素ノード（コピーボタン）を除き、直下のテキストだけを取り出す
+                    var code = Array.prototype.filter.call(block.childNodes, function(n) {
+                        return n.nodeType === Node.TEXT_NODE;
+                    }).map(function(n) { return n.textContent; }).join('').trim();
+                    navigator.clipboard.writeText(code).then(function() {
+                        button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>コピーしました!';
+                        button.classList.add('copied');
+                        setTimeout(function() {
+                            button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                            button.classList.remove('copied');
+                        }, 2000);
+                    });
+                });
+                block.style.position = 'relative';
+                block.appendChild(button);
+            });
+        });
+    </script>
+    <!-- フローティングホームボタン -->
+    <a href="index.html" style="position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px; background: linear-gradient(135deg, #42b883 0%, #35495e 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; transition: transform 0.3s, box-shadow 0.3s;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 6px 16px rgba(0,0,0,0.4)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.3)';" title="トップページへ">🏠</a>
+</body>
+</html>

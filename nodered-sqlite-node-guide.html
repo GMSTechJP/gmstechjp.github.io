@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED SQLite ノードガイド（サードパーティ）</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.8; max-width: 1000px; margin: 0 auto; padding: 20px; background-color: #f5f5f5; color: #333; }
+        h1 { color: #37474f; border-bottom: 3px solid #37474f; padding-bottom: 10px; }
+        h2 { color: #455a64; margin-top: 40px; border-left: 5px solid #455a64; padding-left: 15px; }
+        h3 { color: #555; margin-top: 25px; }
+        h4 { color: #666; margin-top: 20px; }
+        .container { background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .node-example { background-color: #2d3133; padding: 20px; border-radius: 5px; margin: 20px 0; color: white; font-family: 'Courier New', monospace; display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
+        .node { display: inline-block; padding: 8px 15px; border-radius: 4px; margin: 5px; font-weight: bold; font-size: 14px; }
+        .node-inject { background-color: #3fadb5; color: white; }
+        .node-debug { background-color: #87a48d; color: white; }
+        .node-function { background-color: #fdd0a2; color: #333; }
+        .node-sqlite { background-color: #e97b00; color: white; }
+        .arrow { color: #999; font-size: 20px; margin: 0 10px; }
+        .important { background-color: #eceff1; border-left: 4px solid #37474f; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .tip { background-color: #e8f5e9; border-left: 4px solid #4caf50; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .warning { background-color: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .thirdparty { background: linear-gradient(135deg, #eceff1 0%, #cfd8dc 100%); border: 2px solid #607d8b; border-radius: 8px; padding: 18px 22px; margin: 20px 0; }
+        .thirdparty h3 { margin-top: 0; color: #37474f; }
+        .code-block { background-color: #2d3133; color: #f8f8f2; padding: 15px; border-radius: 5px; margin: 15px 0; overflow-x: auto; font-family: 'Courier New', Consolas, monospace; font-size: 14px; white-space: pre; }
+        .flow-json { background-color: #1a1a2e; color: #a6e22e; padding: 15px; border-radius: 5px; font-family: 'Courier New', Consolas, monospace; font-size: 12px; overflow-x: auto; white-space: pre; position: relative; max-height: 400px; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; vertical-align: top; }
+        th { background-color: #455a64; color: white; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .exercise { background-color: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0; border: 2px solid #2196f3; }
+        .exercise h3 { color: #1976d2; margin-top: 0; }
+        .difficulty { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; margin-left: 10px; }
+        .difficulty-easy { background-color: #c8e6c9; color: #2e7d32; }
+        .difficulty-medium { background-color: #fff9c4; color: #f57f17; }
+        .difficulty-hard { background-color: #ffcdd2; color: #c62828; }
+        details { background-color: #f5f5f5; padding: 10px 15px; border-radius: 5px; margin: 10px 0; }
+        details summary { cursor: pointer; font-weight: bold; color: #455a64; }
+        details[open] summary { margin-bottom: 10px; }
+        .toc { background-color: #fafafa; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .toc h3 { margin-top: 0; color: #37474f; }
+        .toc ul { list-style: none; padding-left: 0; }
+        .toc li { padding: 5px 0; }
+        .toc a { color: #1976d2; text-decoration: none; }
+        .toc a:hover { text-decoration: underline; }
+        .copy-button { position: absolute; top: 8px; right: 8px; padding: 6px 12px; background-color: #455a64; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-family: 'Segoe UI', sans-serif; transition: background-color 0.2s; z-index: 10; display: flex; align-items: center; gap: 4px; }
+        .copy-button:hover { background-color: #37474f; }
+        .copy-button.copied { background-color: #28a745; }
+        .copy-button svg { width: 14px; height: 14px; fill: currentColor; }
+        .node-compare { display: flex; gap: 20px; flex-wrap: wrap; margin: 20px 0; }
+        .node-card { background: #f9f9f9; border: 1px solid #ddd; border-radius: 8px; padding: 15px; flex: 1; min-width: 200px; }
+        .node-card h4 { margin-top: 0; color: #455a64; }
+        .diagram-box { background: #2d3133; color: white; padding: 20px; border-radius: 8px; font-family: monospace; margin: 15px 0; white-space: pre-wrap; }
+        code { background: #eceff1; padding: 2px 6px; border-radius: 3px; font-family: 'Courier New', monospace; font-size: 0.95em; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Node-RED SQLite ノードガイド</h1>
+
+        <div class="thirdparty">
+            <h3>このガイドで扱うノードについて</h3>
+            <p>SQLite ノードは Node-RED の標準ノードに含まれていない<strong>追加パッケージ</strong>である。パッケージ名は <code>node-red-node-sqlite</code>、本ガイド執筆時点の版は <strong>v2.0.1</strong>（2026-04-17 更新）。</p>
+            <table>
+                <tr><th>項目</th><th>内容</th></tr>
+                <tr><td>パッケージ名</td><td><code>node-red-node-sqlite</code></td></tr>
+                <tr><td>版</td><td>v2.0.1</td></tr>
+                <tr><td>提供元</td><td>Node-RED 公式の <code>node-red-nodes</code> リポジトリ内（作者 Dave Conway-Jones）</td></tr>
+                <tr><td>ライセンス</td><td>Apache-2.0</td></tr>
+                <tr><td>ソース</td><td><a href="https://github.com/node-red/node-red-nodes/tree/master/storage/sqlite" target="_blank">github.com/node-red/node-red-nodes/tree/master/storage/sqlite</a></td></tr>
+                <tr><td>動作要件</td><td>Node.js 18 以上、Node-RED 3.0 以上</td></tr>
+            </table>
+            <p><strong>免責</strong>：本ガイドの内容は上記の版のソースコードに基づく。パッケージの更新により設定項目や挙動が変わる場合がある。導入にあたっては公式リポジトリの README を確認すること。本ガイドの記述に起因する損害について責任を負わない。</p>
+        </div>
+
+        <div class="toc">
+            <h3>目次</h3>
+            <ul>
+                <li><a href="#section1">1. 概要：なぜデータを貯めるのか</a></li>
+                <li><a href="#section2">2. インストール方法</a></li>
+                <li><a href="#section3">3. SQLite の基礎知識</a></li>
+                <li><a href="#section4">4. ノード構成</a></li>
+                <li><a href="#section5">5. 設定項目一覧（プロパティ表）</a></li>
+                <li><a href="#section6">6. SQL クエリの 4 モード</a></li>
+                <li><a href="#section7">7. 実用的な使用パターン</a></li>
+                <li><a href="#section8">8. サンプルフロー</a></li>
+                <li><a href="#section9">9. 演習問題</a></li>
+                <li><a href="#section10">10. まとめ</a></li>
+                <li><a href="#section11">11. トラブルシューティング</a></li>
+            </ul>
+        </div>
+
+        <h2 id="section1">1. 概要：なぜデータを貯めるのか</h2>
+
+        <p>センサーの値を Debug サイドバーに出すところまでは、<a href="nodered-inject-node-guide.html">Inject</a> と <a href="nodered-debug-node-guide.html">Debug</a> だけでできる。ところが現場で「先週の平均は」「あの停止は何時何分だったか」と聞かれた瞬間に、流れていった値は取り戻せない。</p>
+
+        <p>値を残す方法は 3 段階ある。</p>
+
+        <table>
+            <tr>
+                <th>方法</th>
+                <th>できること</th>
+                <th>限界</th>
+            </tr>
+            <tr>
+                <td><a href="nodered-variable-types-2-guide.html">context 変数</a></td>
+                <td>直前の値との比較、カウンタの保持</td>
+                <td>メモリ上のため再起動で消える。ファイル保存を設定しても、大量の履歴を持つ用途には向かない</td>
+            </tr>
+            <tr>
+                <td><a href="nodered-file-node-guide.html">ファイル（CSV）</a></td>
+                <td>追記していく記録、表計算ソフトへの受け渡し</td>
+                <td>「直近 1 時間の平均」のような絞り込みは、全行を読んで自分で計算することになる</td>
+            </tr>
+            <tr>
+                <td><strong>データベース（SQLite）</strong></td>
+                <td>条件を指定した絞り込み、期間集計、古い行の削除</td>
+                <td>SQL という別の言語を覚える必要がある</td>
+            </tr>
+        </table>
+
+        <p>SQLite を選ぶ理由は、データベースサーバーを別に立てなくてよい点にある。ファイルが 1 つあればそれがデータベースであり、Node-RED と同じ機械の中で完結する。工場の現場に置いたエッジ機器で「まずデータを貯める」を始めるとき、追加のサーバーもネットワーク設定も要らないという条件は大きい。</p>
+
+        <div class="tip">
+            <strong>使い分けの目安</strong><br>
+            1 台の機器で数十万件までを扱い、そこで集計まで済ませるなら SQLite で足りる。複数拠点のデータを 1 か所に集め、長期のトレンドを何年も保持するなら、時系列データベース（InfluxDB など）やサーバー型のデータベース（PostgreSQL など）が向く。SQLite はその手前の、最初の一歩を踏み出すための選択肢である。
+        </div>
+
+        <h2 id="section2">2. インストール方法</h2>
+
+        <p>サードパーティノードは Node-RED エディターの「パレットの管理」から導入する。手順は追加ノード共通である。</p>
+
+        <ol>
+            <li>右上のメニュー（三本線）から「パレットの管理」を開く</li>
+            <li>「ノードを追加」タブを選ぶ</li>
+            <li>検索欄に <code>node-red-node-sqlite</code> と入力する</li>
+            <li>「ノードを追加」ボタンを押す</li>
+            <li>完了後、左のパレットの storage カテゴリに <code>sqlite</code> ノードが現れる</li>
+        </ol>
+
+        <p>コマンドから入れる場合は、Node-RED のユーザーディレクトリ（通常は <code>~/.node-red</code>）で次を実行する。</p>
+
+        <div class="code-block">cd ~/.node-red
+npm i node-red-node-sqlite</div>
+
+        <div class="warning">
+            <strong>導入に時間がかかる</strong><br>
+            このノードは内部で <code>sqlite3</code> というネイティブモジュール（C 言語で書かれ、環境ごとにコンパイルが要る部品）を使う。公式 README によれば、Raspberry Pi のような機器ではビルドに <strong>15 分から 20 分</strong>かかることがある。画面が止まったように見えても、完了するまで待つこと。
+        </div>
+
+        <div class="warning">
+            <strong>Node.js を更新したら再ビルドが要る</strong><br>
+            ネイティブモジュールは Node.js の版に結びついている。Node.js を上げたあとにノードが読み込めなくなった場合は、ユーザーディレクトリで再ビルドする。
+            <div class="code-block">cd ~/.node-red
+npm rebuild</div>
+            v2.x では環境によってビルド済みバイナリが用意されておらず、<code>GLIBC_2.38 not found</code> のような読み込みエラーが出ることがある。その場合は <code>sqlite3</code> のディレクトリで直接再ビルドする。
+            <div class="code-block">cd ~/.node-red/node_modules/sqlite3
+npm run rebuild</div>
+        </div>
+
+        <h2 id="section3">3. SQLite の基礎知識</h2>
+
+        <h3>データベースはファイル 1 つ</h3>
+
+        <p>MySQL や PostgreSQL は常駐するサーバープログラムであり、接続にはホスト名やポート、利用者名が要る。SQLite にはサーバーがない。<code>/home/pi/data/sensor.db</code> のようなファイルが 1 つあり、プログラムがそのファイルを直接読み書きする。バックアップはそのファイルをコピーするだけで済む。</p>
+
+        <h3>テーブルと列</h3>
+
+        <p>データは表（テーブル）の形で入る。列（カラム）にはあらかじめ名前と型を決めておく。測定値を貯めるなら、次のような形になる。</p>
+
+        <div class="diagram-box">readings テーブル
+
+ id  |  ts                    |  name         |  value
+-----+------------------------+---------------+--------
+  1  |  2026-08-09T10:00:00Z  |  temperature  |  22.4
+  2  |  2026-08-09T10:01:00Z  |  temperature  |  22.6
+  3  |  2026-08-09T10:01:00Z  |  humidity     |  48.0</div>
+
+        <p>この表を作る SQL が <code>CREATE TABLE</code> である。</p>
+
+        <div class="code-block">CREATE TABLE IF NOT EXISTS readings (
+    id    INTEGER PRIMARY KEY AUTOINCREMENT,
+    ts    TEXT NOT NULL,
+    name  TEXT NOT NULL,
+    value REAL
+);</div>
+
+        <p><code>IF NOT EXISTS</code> を付けておくと、すでに表があるときは何もしない。フローを起動するたびに実行しても壊れないため、初期化用の Inject と組み合わせやすい。</p>
+
+        <h3>型の扱いがゆるい</h3>
+
+        <p>SQLite の型は、他のデータベースほど厳密ではない。列に <code>INTEGER</code> と書いても、文字列を入れると入ってしまう。使う型は実質 5 種類である。</p>
+
+        <table>
+            <tr><th>型</th><th>用途</th></tr>
+            <tr><td><code>INTEGER</code></td><td>整数。カウント、UNIX 時刻</td></tr>
+            <tr><td><code>REAL</code></td><td>小数。温度、電流値</td></tr>
+            <tr><td><code>TEXT</code></td><td>文字列。センサー名、日時（ISO 8601 形式）</td></tr>
+            <tr><td><code>BLOB</code></td><td>バイナリ。画像など</td></tr>
+            <tr><td><code>NUMERIC</code></td><td>上記に当てはめて解釈される汎用型</td></tr>
+        </table>
+
+        <div class="important">
+            <strong>日時専用の型はない</strong><br>
+            SQLite に日付型や時刻型は存在しない。実務では次の 2 通りのどちらかに決めて、混在させないことが重要になる。
+            <ul>
+                <li><strong>TEXT で ISO 8601</strong>（<code>2026-08-09T10:00:00.000Z</code>）：そのまま読めるので調査が楽。<strong>同じ形式どうしなら</strong>、文字列の大小比較がそのまま時刻の前後比較になる</li>
+                <li><strong>INTEGER で UNIX 時刻</strong>（ミリ秒）：計算が速く場所も取らないが、人が読めない</li>
+            </ul>
+            本ガイドは読みやすさを優先して TEXT の ISO 8601 で統一する。ただし比較する相手の形式をそろえないと誤判定が起きる。この落とし穴はセクション 7 で扱う。
+        </div>
+
+        <h3>書き込みは 1 つずつ</h3>
+
+        <p>SQLite はファイルにロックをかけて書き込む。同じファイルを複数のプログラムから同時に書き込もうとすると待たされ、混み合えばエラーになる。Node-RED から 1 つのデータベース設定ノードを通して使う限り問題にならないが、別のプログラムから同じファイルを書きに行く構成は避けるほうがよい。</p>
+
+        <h2 id="section4">4. ノード構成</h2>
+
+        <p>SQLite は 2 種類のノードで構成される。</p>
+
+        <div class="node-compare">
+            <div class="node-card">
+                <h4>sqlite（処理ノード）</h4>
+                <p>フローに置いて SQL を実行する。入力 1、出力 1。実行結果は <code>msg.payload</code> に配列で返る。</p>
+            </div>
+            <div class="node-card">
+                <h4>sqlitedb（設定ノード）</h4>
+                <p>データベースファイルの場所と開き方を持つ。フロー上には現れず、sqlite ノードの設定画面から作る。複数の sqlite ノードで共有できる。</p>
+            </div>
+        </div>
+
+        <div class="node-example">
+            <span class="node node-inject">inject</span>
+            <span class="arrow">&rarr;</span>
+            <span class="node node-function">function</span>
+            <span class="arrow">&rarr;</span>
+            <span class="node node-sqlite">sqlite</span>
+            <span class="arrow">&rarr;</span>
+            <span class="node node-debug">debug</span>
+        </div>
+
+        <h2 id="section5">5. 設定項目一覧（プロパティ表）</h2>
+
+        <p>このノードは日本語ロケールを持つため、エディターの表示は日本語である。以下は実際の表示名で示す。</p>
+
+        <h3>sqlitedb（設定ノード）</h3>
+
+        <table>
+            <tr>
+                <th>設定項目</th>
+                <th>説明</th>
+                <th>備考</th>
+            </tr>
+            <tr>
+                <td><strong>データベース</strong></td>
+                <td>データベースファイルのパス。ここで指定したファイルが読み書きの対象になる</td>
+                <td>入力欄の例示は <code>/tmp/sqlite</code>。実運用では絶対パスを推奨（後述）</td>
+            </tr>
+            <tr>
+                <td><strong>モード</strong></td>
+                <td>ファイルの開き方。3 択</td>
+                <td>既定は「読み取り-書き込み-作成」</td>
+            </tr>
+        </table>
+
+        <h4>モードの 3 択</h4>
+
+        <table>
+            <tr><th>表示</th><th>内部値</th><th>意味</th></tr>
+            <tr><td>読み取り-書き込み-作成</td><td><code>RWC</code></td><td>読み書きし、ファイルが無ければ作る。最初はこれを使う</td></tr>
+            <tr><td>読み取り-書き込み</td><td><code>RW</code></td><td>読み書きするが、ファイルが無い場合は作らずエラーにする</td></tr>
+            <tr><td>読み取りのみ</td><td><code>RO</code></td><td>参照専用。誤って書き換える事故を防ぎたい参照用フローに向く</td></tr>
+        </table>
+
+        <div class="tip">
+            <strong>メモリ上のデータベース</strong><br>
+            データベース名に <code>:memory:</code> と入れると、ファイルを作らずメモリ上に一時的なデータベースを作る。Node-RED を再起動すると内容は消える。SQL の練習や、その場限りの集計に使える。
+        </div>
+
+        <div class="warning">
+            <strong>ディレクトリは自動では作られない</strong><br>
+            「読み取り-書き込み-作成」はファイルを作るが、その置き場所のディレクトリまでは作らない。<code>/home/pi/data/sensor.db</code> を指定するなら、先に <code>mkdir -p /home/pi/data</code> でディレクトリを用意しておく（コマンドの意味は<a href="nodered-linux-commands-guide.html">基本コマンドガイド</a>を参照）。
+        </div>
+
+        <h3>sqlite（処理ノード）</h3>
+
+        <table>
+            <tr>
+                <th>設定項目</th>
+                <th>説明</th>
+                <th>備考</th>
+            </tr>
+            <tr>
+                <td><strong>名前</strong></td>
+                <td>フロー上に表示するノード名</td>
+                <td>未入力ならデータベース設定ノードの名前が表示される</td>
+            </tr>
+            <tr>
+                <td><strong>データベース</strong></td>
+                <td>使用する sqlitedb 設定ノードの選択</td>
+                <td>必須。鉛筆ボタンから新規作成できる</td>
+            </tr>
+            <tr>
+                <td><strong>SQLクエリ</strong></td>
+                <td>SQL をどこから受け取り、どう実行するかの方式。4 択</td>
+                <td>既定は「msg.topic経由」。詳細はセクション 6</td>
+            </tr>
+            <tr>
+                <td><strong>SQL文</strong></td>
+                <td>ノードに固定で持たせる SQL。SQL 用のエディター（構文に色が付く）で編集する</td>
+                <td>「固定文」「事前定義文」を選んだときだけ表示される。「msg.topic経由」「一括(応答なし)」では SQL をメッセージで渡すため非表示になる</td>
+            </tr>
+        </table>
+
+        <h2 id="section6">6. SQL クエリの 4 モード</h2>
+
+        <p>4 つのモードは「SQL をどこから渡すか」と「値の埋め込みを安全に処理するか」で分かれる。ここが SQLite ノードで最初に迷うところである。</p>
+
+        <table>
+            <tr>
+                <th>モード</th>
+                <th>SQL の場所</th>
+                <th>値の渡し方</th>
+                <th>結果</th>
+            </tr>
+            <tr>
+                <td><strong>msg.topic経由</strong></td>
+                <td><code>msg.topic</code></td>
+                <td><code>msg.payload</code> の配列（条件つき、後述）</td>
+                <td><code>msg.payload</code> に行の配列</td>
+            </tr>
+            <tr>
+                <td><strong>固定文</strong></td>
+                <td>ノードの「SQL文」欄</td>
+                <td>渡せない（SQL は固定）</td>
+                <td><code>msg.payload</code> に行の配列</td>
+            </tr>
+            <tr>
+                <td><strong>事前定義文</strong></td>
+                <td>ノードの「SQL文」欄</td>
+                <td><code>msg.params</code> のオブジェクト</td>
+                <td><code>msg.payload</code> に行の配列</td>
+            </tr>
+            <tr>
+                <td><strong>一括(応答なし)</strong></td>
+                <td><code>msg.topic</code></td>
+                <td>渡せない</td>
+                <td><code>msg.payload</code> は空配列</td>
+            </tr>
+        </table>
+
+        <h3>msg.topic経由</h3>
+
+        <p>SQL 文そのものを <code>msg.topic</code> に入れて渡す。Inject ノードのトピック欄に SQL を書いておけば、それだけで実行できるので試行に向く。</p>
+
+        <p>値を埋め込むこともできる。ただし条件があり、<code>msg.payload</code> が配列で、その要素数が <code>msg.topic</code> に含まれる <code>$</code> の個数と一致したときにだけ、バインド値として使われる。一致しない場合は黙って無視され、値なしで実行される。</p>
+
+        <div class="code-block">msg.topic = "INSERT INTO user_table (name, surname) VALUES ($name, $surname)";
+msg.payload = ["John", "Smith"];
+return msg;</div>
+
+        <h3>固定文</h3>
+
+        <p>SQL をノードに固定で書く。毎回同じ問い合わせを投げる用途（「直近 20 件を読む」など）に向く。値を差し替える手段がないため、条件が変わる問い合わせには使えない。</p>
+
+        <h3>事前定義文</h3>
+
+        <p>SQL をノードに書き、値は <code>msg.params</code> というオブジェクトで渡す。<strong>外から来た値を SQL に入れるときは、このモードを使う。</strong></p>
+
+        <div class="code-block">msg.params = {
+    $id: 1,
+    $name: "John Doe"
+};
+return msg;</div>
+
+        <p>SQL 側は次のように書く。</p>
+
+        <div class="code-block">INSERT INTO user_table (user_id, user) VALUES ($id, $name);</div>
+
+        <div class="warning">
+            <strong>キーの先頭の <code>$</code> を落とさない</strong><br>
+            <code>msg.params</code> のキー名は、SQL 中のプレースホルダと完全に一致させる。<code>$</code> を書き忘れて <code>{ id: 1 }</code> とすると <code>SQLITE_RANGE: bind or column index out of range</code> というエラーになる。
+        </div>
+
+        <h3>一括(応答なし)</h3>
+
+        <p><code>msg.topic</code> に入れた複数の SQL 文をまとめて実行する。セミコロンで区切って何文でも書ける。結果は返らず、<code>msg.payload</code> は空配列になる。テーブルと索引をまとめて作る初期化処理に向く。</p>
+
+        <h3>SQL インジェクションという落とし穴</h3>
+
+        <p>「msg.topic経由」と「固定文」は、受け取った文字列をそのまま実行する。したがって、外から来た値を文字列連結で SQL に埋め込むと、値のつもりで渡したものが命令として解釈されうる。これが SQL インジェクションである。</p>
+
+        <div class="code-block">// 危険：入力値をそのまま連結している
+msg.topic = "SELECT * FROM readings WHERE name = '" + msg.payload + "'";</div>
+
+        <p><code>msg.payload</code> に <code>' OR 1=1; DROP TABLE readings; --</code> のような文字列が入れば、表ごと消える。公式 README も、この 2 モードは「その性質上 SQL インジェクションである」と明記している。</p>
+
+        <div class="important">
+            <strong>判断の基準</strong><br>
+            SQL の中身が自分で書いた固定の文字列だけなら「msg.topic経由」「固定文」でよい。<a href="nodered-http-node-guide.html">HTTP</a> や <a href="nodered-mqtt-node-guide.html">MQTT</a> から受け取った値、ダッシュボードの入力欄の値など、<strong>外から来た値を含むなら「事前定義文」を使う</strong>。事前定義文は値を値として扱うため、命令として解釈されることがない。
+        </div>
+
+        <h2 id="section7">7. 実用的な使用パターン</h2>
+
+        <h3>パターン 1：起動時に一度だけテーブルを作る</h3>
+
+        <p>Inject ノードの「Node-RED 起動の◯秒後」を有効にし、<code>CREATE TABLE IF NOT EXISTS</code> を実行する。すでにあれば何も起きないので、毎回の起動で安全に走る。</p>
+
+        <h3>パターン 2：一定周期で測定値を記録する</h3>
+
+        <p>Inject の繰り返し設定でセンサー読み取りを起動し、Function で <code>msg.params</code> を組み立て、事前定義文の sqlite ノードで書き込む。</p>
+
+        <div class="warning">
+            <strong>書き込み周期は控えめに決める</strong><br>
+            1 秒ごとの書き込みは 1 日で 86,400 行になる。データ量そのものより、SD カードの書き込み回数を消費することが問題になりやすい。現場に置く機器では、記録周期と保持期間を先に決めること。詳しくは<a href="nodered-production-operation-guide.html">本番運用ガイド</a>で扱う。
+        </div>
+
+        <h3>パターン 3：期間を指定して集計する</h3>
+
+        <p>SQLite には日時を扱う関数がある。<code>strftime</code> で時刻を任意の粒度に丸め、<code>GROUP BY</code> でまとめると、1 時間ごとの平均が 1 つの SQL で得られる。</p>
+
+        <div class="code-block">SELECT strftime('%Y-%m-%d %H:00', ts) AS hour,
+       name,
+       ROUND(AVG(value), 2) AS avg_value,
+       COUNT(*) AS n
+FROM readings
+GROUP BY hour, name
+ORDER BY hour DESC
+LIMIT 24;</div>
+
+        <p>同じことをファイルで行うと、全行を読み込んで時刻を解釈し、自分でグループ分けして平均を出すことになる。データベースを使う利点がはっきり出る場面である。</p>
+
+        <h3>パターン 4：時刻で絞り込むときの落とし穴</h3>
+
+        <p>ここが本ガイドで最も間違えやすい箇所である。「30 日より古い行を消す」「直近 1 時間を集計する」のように時刻で絞り込むとき、<strong>比較する 2 つの値の形式をそろえないと、静かに誤った結果が返る</strong>。</p>
+
+        <p>原因は SQLite の <code>datetime()</code> 関数が返す形式にある。</p>
+
+        <table>
+            <tr><th>値</th><th>形式</th><th>例</th></tr>
+            <tr><td>保存した <code>ts</code>（JavaScript の <code>toISOString()</code>）</td><td>日付と時刻の間が <code>T</code></td><td><code>2026-08-10T00:22:39.253Z</code></td></tr>
+            <tr><td><code>datetime('now', '-1 hour')</code> の戻り値</td><td>日付と時刻の間が<strong>半角空白</strong></td><td><code>2026-08-10 00:52:39</code></td></tr>
+        </table>
+
+        <p>この 2 つを文字列として比べると、11 文字目で <code>T</code> と半角空白を比較することになる。文字コードは <code>T</code> のほうが大きいため、<strong>同じ日付の行はすべて「新しい」と判定される</strong>。日付が違えば先頭の <code>YYYY-MM-DD</code> で決着するので正しく動いてしまい、当日ぶんだけが誤るという気づきにくい形で表面化する。</p>
+
+        <div class="code-block">-- 誤り：形式が違うため、当日の行はすべて条件に合致してしまう
+SELECT * FROM readings WHERE ts &gt;= datetime('now', '-1 hour');
+
+-- 正しい：比較する側も同じ ISO 8601 の形式で作る
+SELECT * FROM readings
+WHERE ts &gt;= strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-1 hour');</div>
+
+        <p><code>strftime('%Y-%m-%dT%H:%M:%fZ', ...)</code> は <code>2026-08-10T00:52:39.253Z</code> を返し、<code>toISOString()</code> の出力と完全に一致する。</p>
+
+        <div class="tip">
+            <strong>もう 1 つのやり方と、その代償</strong><br>
+            <code>datetime(ts) &gt;= datetime('now', '-1 hour')</code> のように<strong>両辺を <code>datetime()</code> で正規化</strong>しても正しく動く。ただし <code>ts</code> に関数を適用すると、パターン 6 で作る索引が使われなくなり、行数が増えたときに遅くなる。列にそのまま比較できる前者を勧める。
+        </div>
+
+        <h3>パターン 5：古いデータを消して容量を保つ</h3>
+
+        <p>放置すればファイルは増え続ける。1 日 1 回、保持期間を超えた行を削除するフローを組んでおく。比較する側の形式は、パターン 4 のとおり保存形式にそろえる。</p>
+
+        <div class="code-block">DELETE FROM readings
+WHERE ts &lt; strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-30 days');</div>
+
+        <div class="tip">
+            <strong>削除してもファイルは小さくならない</strong><br>
+            SQLite は削除した領域を再利用するため、行を消してもファイルサイズはすぐには縮まない。実際に縮めたい場合は <code>VACUUM;</code> を実行する。ただし実行中は一時的に元のファイルと同程度の空き容量を使うため、余裕のあるときに行う。
+        </div>
+
+        <h3>パターン 6：検索を速くする</h3>
+
+        <p>行が数万を超えると、時刻での絞り込みが目に見えて遅くなる。よく条件に使う列には索引（インデックス）を作る。</p>
+
+        <div class="code-block">CREATE INDEX IF NOT EXISTS idx_readings_ts ON readings (ts);</div>
+
+        <h2 id="section8">8. サンプルフロー</h2>
+
+        <div class="important">
+            <strong>サイト独自のサンプルである</strong><br>
+            <code>node-red-node-sqlite</code> には公式の同梱サンプルフローが用意されていない（リポジトリに <code>examples</code> ディレクトリが存在しない）。以下は本サイトが作成したものである。
+        </div>
+
+        <div class="warning">
+            <strong>実行前の準備</strong><br>
+            サンプルのデータベースパスは <code>/home/pi/data/sensor.db</code> としている。実行前に <code>mkdir -p /home/pi/data</code> でディレクトリを作るか、設定ノードのパスを自分の環境に合わせて変更すること。
+        </div>
+
+        <div class="important">
+            <strong>置き場所はバックアップの範囲に直結する</strong><br>
+            データベースを <code>~/.node-red</code> の外に置くと、ユーザーディレクトリだけを固めるバックアップから漏れる。フローと認証情報は戻るのに測定値だけが失われる、という形で表面化する。置き場所を <code>~/.node-red/data/</code> の中にそろえるか、バックアップ対象に明示的に加えること。詳しくは<a href="nodered-production-operation-guide.html">本番運用ガイド</a>のセクション 4 を参照。
+        </div>
+
+        <h3>サンプル 1：作る、書く、読む</h3>
+
+        <p>テーブル作成、測定値の記録（事前定義文）、直近の読み出しの 3 つを 1 つのタブにまとめている。Inject を上から順に押していく。</p>
+
+        <details>
+            <summary>サンプルフロー（クリックで展開）</summary>
+            <div class="flow-json">[
+    {
+        "id": "tab_sqlite_basic",
+        "type": "tab",
+        "label": "SQLite 基本",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "sqlitedb_basic",
+        "type": "sqlitedb",
+        "db": "/home/pi/data/sensor.db",
+        "mode": "RWC"
+    },
+    {
+        "id": "sqlite_inj_create",
+        "type": "inject",
+        "z": "tab_sqlite_basic",
+        "name": "1. テーブルを作る",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "CREATE TABLE IF NOT EXISTS readings (id INTEGER PRIMARY KEY AUTOINCREMENT, ts TEXT NOT NULL, name TEXT NOT NULL, value REAL);",
+        "payload": "",
+        "payloadType": "date",
+        "x": 180,
+        "y": 100,
+        "wires": [
+            [
+                "sqlite_by_topic"
+            ]
+        ]
+    },
+    {
+        "id": "sqlite_inj_insert",
+        "type": "inject",
+        "z": "tab_sqlite_basic",
+        "name": "2. 測定値を記録",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 180,
+        "y": 180,
+        "wires": [
+            [
+                "sqlite_fn_params"
+            ]
+        ]
+    },
+    {
+        "id": "sqlite_fn_params",
+        "type": "function",
+        "z": "tab_sqlite_basic",
+        "name": "パラメータを組み立てる",
+        "func": "// 実際はセンサーから読んだ値を入れる\nconst value = Math.round((20 + Math.random() * 5) * 10) / 10;\n\nmsg.params = {\n    $ts: new Date().toISOString(),\n    $name: \"temperature\",\n    $value: value\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 420,
+        "y": 180,
+        "wires": [
+            [
+                "sqlite_prepared"
+            ]
+        ]
+    },
+    {
+        "id": "sqlite_prepared",
+        "type": "sqlite",
+        "z": "tab_sqlite_basic",
+        "mydb": "sqlitedb_basic",
+        "sqlquery": "prepared",
+        "sql": "INSERT INTO readings (ts, name, value) VALUES ($ts, $name, $value);",
+        "name": "記録（事前定義文）",
+        "x": 660,
+        "y": 180,
+        "wires": [
+            [
+                "sqlite_dbg"
+            ]
+        ]
+    },
+    {
+        "id": "sqlite_inj_select",
+        "type": "inject",
+        "z": "tab_sqlite_basic",
+        "name": "3. 直近20件を読む",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "SELECT id, ts, name, value FROM readings ORDER BY id DESC LIMIT 20;",
+        "payload": "",
+        "payloadType": "date",
+        "x": 180,
+        "y": 260,
+        "wires": [
+            [
+                "sqlite_by_topic"
+            ]
+        ]
+    },
+    {
+        "id": "sqlite_by_topic",
+        "type": "sqlite",
+        "z": "tab_sqlite_basic",
+        "mydb": "sqlitedb_basic",
+        "sqlquery": "msg.topic",
+        "sql": "",
+        "name": "SQL実行（msg.topic経由）",
+        "x": 480,
+        "y": 100,
+        "wires": [
+            [
+                "sqlite_dbg"
+            ]
+        ]
+    },
+    {
+        "id": "sqlite_dbg",
+        "type": "debug",
+        "z": "tab_sqlite_basic",
+        "name": "実行結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 800,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "sqlite_catch",
+        "type": "catch",
+        "z": "tab_sqlite_basic",
+        "name": "SQLエラー",
+        "scope": null,
+        "uncaught": false,
+        "x": 180,
+        "y": 340,
+        "wires": [
+            [
+                "sqlite_dbg_err"
+            ]
+        ]
+    },
+    {
+        "id": "sqlite_dbg_err",
+        "type": "debug",
+        "z": "tab_sqlite_basic",
+        "name": "エラー内容",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "error.message",
+        "targetType": "msg",
+        "statusVal": "error.message",
+        "statusType": "msg",
+        "x": 420,
+        "y": 340,
+        "wires": []
+    }
+]</div>
+        </details>
+
+        <p>「2. 測定値を記録」を何度か押してから「3. 直近20件を読む」を押すと、Debug サイドバーに行の配列が並ぶ。<a href="nodered-catch-node-guide.html">Catch</a> ノードを置いてあるので、SQL の書き間違いはエラー内容として表示される。</p>
+
+        <h3>サンプル 2：集計と後始末</h3>
+
+        <p>1 時間ごとの平均を出す集計、保持期間を過ぎた行の削除、テーブルと索引をまとめて作る初期化（一括モード）の 3 つを収めている。</p>
+
+        <details>
+            <summary>サンプルフロー（クリックで展開）</summary>
+            <div class="flow-json">[
+    {
+        "id": "tab_sqlite_agg",
+        "type": "tab",
+        "label": "SQLite 集計と後始末",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "sqlitedb_agg",
+        "type": "sqlitedb",
+        "db": "/home/pi/data/sensor.db",
+        "mode": "RWC"
+    },
+    {
+        "id": "agg_inj_init",
+        "type": "inject",
+        "z": "tab_sqlite_agg",
+        "name": "初期化（表と索引をまとめて）",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 1,
+        "topic": "CREATE TABLE IF NOT EXISTS readings (id INTEGER PRIMARY KEY AUTOINCREMENT, ts TEXT NOT NULL, name TEXT NOT NULL, value REAL); CREATE INDEX IF NOT EXISTS idx_readings_ts ON readings (ts);",
+        "payload": "",
+        "payloadType": "date",
+        "x": 220,
+        "y": 100,
+        "wires": [
+            [
+                "agg_sqlite_batch"
+            ]
+        ]
+    },
+    {
+        "id": "agg_sqlite_batch",
+        "type": "sqlite",
+        "z": "tab_sqlite_agg",
+        "mydb": "sqlitedb_agg",
+        "sqlquery": "batch",
+        "sql": "",
+        "name": "初期化（一括）",
+        "x": 540,
+        "y": 100,
+        "wires": [
+            [
+                "agg_dbg"
+            ]
+        ]
+    },
+    {
+        "id": "agg_inj_hourly",
+        "type": "inject",
+        "z": "tab_sqlite_agg",
+        "name": "1時間ごとに集計",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "3600",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "SELECT strftime('%Y-%m-%d %H:00', ts) AS hour, name, ROUND(AVG(value), 2) AS avg_value, COUNT(*) AS n FROM readings GROUP BY hour, name ORDER BY hour DESC LIMIT 24;",
+        "payload": "",
+        "payloadType": "date",
+        "x": 220,
+        "y": 180,
+        "wires": [
+            [
+                "agg_sqlite_query"
+            ]
+        ]
+    },
+    {
+        "id": "agg_inj_cleanup",
+        "type": "inject",
+        "z": "tab_sqlite_agg",
+        "name": "1日ごとに古い行を削除",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "86400",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "DELETE FROM readings WHERE ts &lt; strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-30 days');",
+        "payload": "",
+        "payloadType": "date",
+        "x": 220,
+        "y": 260,
+        "wires": [
+            [
+                "agg_sqlite_query"
+            ]
+        ]
+    },
+    {
+        "id": "agg_sqlite_query",
+        "type": "sqlite",
+        "z": "tab_sqlite_agg",
+        "mydb": "sqlitedb_agg",
+        "sqlquery": "msg.topic",
+        "sql": "",
+        "name": "SQL実行",
+        "x": 540,
+        "y": 220,
+        "wires": [
+            [
+                "agg_dbg"
+            ]
+        ]
+    },
+    {
+        "id": "agg_dbg",
+        "type": "debug",
+        "z": "tab_sqlite_agg",
+        "name": "結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 760,
+        "y": 160,
+        "wires": []
+    }
+]</div>
+        </details>
+
+        <div class="tip">
+            <strong>Inject の繰り返しと時刻</strong><br>
+            「1日ごと」を秒数（86400）で指定すると、Node-RED を再起動するたびに起点がずれる。毎日決まった時刻に走らせたい場合は、Inject の繰り返し設定で「指定した時刻」を選ぶ。
+        </div>
+
+        <h2 id="section9">9. 演習問題</h2>
+
+        <div class="exercise">
+            <h3>演習 1：湿度を記録する<span class="difficulty difficulty-easy">初級</span></h3>
+            <p>サンプル 1 のフローを改造し、<code>name</code> が <code>humidity</code>、<code>value</code> が 40 から 60 の間の値になる記録用の Inject と Function を追加せよ。事前定義文のノードは既存のものを共有してよい。</p>
+            <p><strong>ヒント</strong>：追加するのは Inject と Function だけである。Function の中で <code>msg.params</code> の <code>$name</code> と <code>$value</code> を変えればよい。</p>
+            <details>
+                <summary>解答例（クリックで展開）</summary>
+                <div class="flow-json">[
+    {
+        "id": "tab_sqlite_ex1",
+        "type": "tab",
+        "label": "演習1 湿度の記録",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "sqlitedb_ex1",
+        "type": "sqlitedb",
+        "db": "/home/pi/data/sensor.db",
+        "mode": "RWC"
+    },
+    {
+        "id": "ex1_inj",
+        "type": "inject",
+        "z": "tab_sqlite_ex1",
+        "name": "湿度を記録",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 170,
+        "y": 100,
+        "wires": [
+            [
+                "ex1_fn"
+            ]
+        ]
+    },
+    {
+        "id": "ex1_fn",
+        "type": "function",
+        "z": "tab_sqlite_ex1",
+        "name": "湿度パラメータ",
+        "func": "const value = Math.round((40 + Math.random() * 20) * 10) / 10;\n\nmsg.params = {\n    $ts: new Date().toISOString(),\n    $name: \"humidity\",\n    $value: value\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 380,
+        "y": 100,
+        "wires": [
+            [
+                "ex1_sqlite"
+            ]
+        ]
+    },
+    {
+        "id": "ex1_sqlite",
+        "type": "sqlite",
+        "z": "tab_sqlite_ex1",
+        "mydb": "sqlitedb_ex1",
+        "sqlquery": "prepared",
+        "sql": "INSERT INTO readings (ts, name, value) VALUES ($ts, $name, $value);",
+        "name": "記録",
+        "x": 590,
+        "y": 100,
+        "wires": [
+            [
+                "ex1_dbg"
+            ]
+        ]
+    },
+    {
+        "id": "ex1_dbg",
+        "type": "debug",
+        "z": "tab_sqlite_ex1",
+        "name": "結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 770,
+        "y": 100,
+        "wires": []
+    }
+]</div>
+            </details>
+        </div>
+
+        <div class="exercise">
+            <h3>演習 2：直近 1 時間の最大、最小、平均<span class="difficulty difficulty-medium">中級</span></h3>
+            <p><code>temperature</code> について、直近 1 時間の最大値、最小値、平均値、件数を 1 行で返す SQL を書き、実行するフローを作れ。</p>
+            <p><strong>ヒント</strong>：集計関数は <code>MAX()</code>、<code>MIN()</code>、<code>AVG()</code>、<code>COUNT(*)</code>。1 時間前の時刻は、保存形式にそろえて <code>strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-1 hour')</code> で作る。<code>datetime('now', '-1 hour')</code> を使うとパターン 4 の落とし穴を踏む。</p>
+            <details>
+                <summary>解答例（クリックで展開）</summary>
+                <div class="flow-json">[
+    {
+        "id": "tab_sqlite_ex2",
+        "type": "tab",
+        "label": "演習2 直近1時間の統計",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "sqlitedb_ex2",
+        "type": "sqlitedb",
+        "db": "/home/pi/data/sensor.db",
+        "mode": "RO"
+    },
+    {
+        "id": "ex2_inj",
+        "type": "inject",
+        "z": "tab_sqlite_ex2",
+        "name": "統計を取得",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 170,
+        "y": 100,
+        "wires": [
+            [
+                "ex2_sqlite"
+            ]
+        ]
+    },
+    {
+        "id": "ex2_sqlite",
+        "type": "sqlite",
+        "z": "tab_sqlite_ex2",
+        "mydb": "sqlitedb_ex2",
+        "sqlquery": "fixed",
+        "sql": "SELECT COUNT(*) AS n, ROUND(MIN(value), 2) AS min_value, ROUND(MAX(value), 2) AS max_value, ROUND(AVG(value), 2) AS avg_value FROM readings WHERE name = 'temperature' AND ts &gt;= strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-1 hour');",
+        "name": "直近1時間の統計（固定文）",
+        "x": 420,
+        "y": 100,
+        "wires": [
+            [
+                "ex2_dbg"
+            ]
+        ]
+    },
+    {
+        "id": "ex2_dbg",
+        "type": "debug",
+        "z": "tab_sqlite_ex2",
+        "name": "統計",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 670,
+        "y": 100,
+        "wires": []
+    }
+]</div>
+            </details>
+            <p><strong>補足</strong>：解答例では設定ノードのモードを「読み取りのみ」にしている。参照専用のフローで書き換え事故を防ぐ使い方である。なお <code>strftime(..., 'now', ...)</code> は UTC を返すため、記録側も UTC の ISO 8601（<code>toISOString()</code> の出力）でそろえておく必要がある。</p>
+        </div>
+
+        <div class="exercise">
+            <h3>演習 3：閾値超過を別テーブルに残す<span class="difficulty difficulty-hard">上級</span></h3>
+            <p>測定値が 24.0 を超えたときだけ、<code>alerts</code> テーブルに記録するフローを作れ。<code>alerts</code> は <code>id</code>、<code>ts</code>、<code>name</code>、<code>value</code> を持つものとする。判定には Switch ノードを使うこと。</p>
+            <p><strong>ヒント</strong>：Function で <code>msg.params</code> を組み立てたあと、<a href="nodered-switch-node-guide.html">Switch</a> で <code>msg.params.$value</code> を評価する。SQL 側は事前定義文にする。</p>
+            <details>
+                <summary>解答例（クリックで展開）</summary>
+                <div class="flow-json">[
+    {
+        "id": "tab_sqlite_ex3",
+        "type": "tab",
+        "label": "演習3 閾値超過の記録",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "sqlitedb_ex3",
+        "type": "sqlitedb",
+        "db": "/home/pi/data/sensor.db",
+        "mode": "RWC"
+    },
+    {
+        "id": "ex3_inj_init",
+        "type": "inject",
+        "z": "tab_sqlite_ex3",
+        "name": "alerts テーブルを作る",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 1,
+        "topic": "CREATE TABLE IF NOT EXISTS alerts (id INTEGER PRIMARY KEY AUTOINCREMENT, ts TEXT NOT NULL, name TEXT NOT NULL, value REAL);",
+        "payload": "",
+        "payloadType": "date",
+        "x": 200,
+        "y": 100,
+        "wires": [
+            [
+                "ex3_sqlite_init"
+            ]
+        ]
+    },
+    {
+        "id": "ex3_sqlite_init",
+        "type": "sqlite",
+        "z": "tab_sqlite_ex3",
+        "mydb": "sqlitedb_ex3",
+        "sqlquery": "msg.topic",
+        "sql": "",
+        "name": "初期化",
+        "x": 470,
+        "y": 100,
+        "wires": [
+            [
+                "ex3_dbg"
+            ]
+        ]
+    },
+    {
+        "id": "ex3_inj_read",
+        "type": "inject",
+        "z": "tab_sqlite_ex3",
+        "name": "測定（5秒ごと）",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "5",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 200,
+        "y": 200,
+        "wires": [
+            [
+                "ex3_fn"
+            ]
+        ]
+    },
+    {
+        "id": "ex3_fn",
+        "type": "function",
+        "z": "tab_sqlite_ex3",
+        "name": "パラメータを組み立てる",
+        "func": "const value = Math.round((20 + Math.random() * 8) * 10) / 10;\n\nmsg.params = {\n    $ts: new Date().toISOString(),\n    $name: \"temperature\",\n    $value: value\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 420,
+        "y": 200,
+        "wires": [
+            [
+                "ex3_switch"
+            ]
+        ]
+    },
+    {
+        "id": "ex3_switch",
+        "type": "switch",
+        "z": "tab_sqlite_ex3",
+        "name": "24.0 を超えたか",
+        "property": "params.$value",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "gt",
+                "v": "24.0",
+                "vt": "num"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 650,
+        "y": 200,
+        "wires": [
+            [
+                "ex3_sqlite_alert"
+            ]
+        ]
+    },
+    {
+        "id": "ex3_sqlite_alert",
+        "type": "sqlite",
+        "z": "tab_sqlite_ex3",
+        "mydb": "sqlitedb_ex3",
+        "sqlquery": "prepared",
+        "sql": "INSERT INTO alerts (ts, name, value) VALUES ($ts, $name, $value);",
+        "name": "alerts に記録",
+        "x": 880,
+        "y": 200,
+        "wires": [
+            [
+                "ex3_dbg"
+            ]
+        ]
+    },
+    {
+        "id": "ex3_dbg",
+        "type": "debug",
+        "z": "tab_sqlite_ex3",
+        "name": "結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 1090,
+        "y": 150,
+        "wires": []
+    }
+]</div>
+            </details>
+            <p><strong>補足</strong>：Switch の判定対象は <code>msg.params.$value</code> である。プロパティ欄には <code>msg.</code> を除いた <code>params.$value</code> を指定する。</p>
+        </div>
+
+        <h2 id="section10">10. まとめ</h2>
+
+        <table>
+            <tr><th>覚えること</th><th>内容</th></tr>
+            <tr><td>ノードは 2 種類</td><td>SQL を実行する <code>sqlite</code> と、ファイルの場所を持つ <code>sqlitedb</code>（設定ノード）</td></tr>
+            <tr><td>モードの選択</td><td>外から来た値を含むなら「事前定義文」と <code>msg.params</code>。自分で書いた固定の SQL なら「msg.topic経由」か「固定文」</td></tr>
+            <tr><td>結果の受け取り</td><td>どのモードでも <code>msg.payload</code> に行の配列が返る（一括モードは空配列）</td></tr>
+            <tr><td>日時の扱い</td><td>専用の型はない。TEXT の ISO 8601 か INTEGER の UNIX 時刻に統一する</td></tr>
+            <tr><td>時刻での絞り込み</td><td>比較する側も保存形式にそろえる。ISO 8601 で保存したなら <code>strftime('%Y-%m-%dT%H:%M:%fZ', 'now', ...)</code> を使う。<code>datetime('now', ...)</code> と直接比べると当日ぶんが誤判定される</td></tr>
+            <tr><td>置きっぱなしにする前に</td><td>保持期間を決めて削除フローを組む。索引を作る。書き込み周期を決める</td></tr>
+        </table>
+
+        <h3>次に読むとよいガイド</h3>
+
+        <ul>
+            <li><a href="nodered-production-operation-guide.html">本番運用ガイド</a>：バックアップ、自動起動、SD カードの寿命対策。データベースを現場に置き続けるための前提</li>
+            <li><a href="nodered-dashboard2-widgets-visualization.html">可視化ウィジェット</a>：集計した結果をチャートで見せる</li>
+            <li><a href="nodered-csv-node-guide.html">CSV ノード</a>：集計結果を表計算ソフトへ渡す</li>
+            <li><a href="nodered-catch-node-guide.html">Catch ノード</a>：SQL エラーを検知して通知につなげる</li>
+        </ul>
+
+        <h2 id="section11">11. トラブルシューティング</h2>
+
+        <table>
+            <tr>
+                <th>症状</th>
+                <th>原因</th>
+                <th>対処</th>
+            </tr>
+            <tr>
+                <td>ノードが読み込めない、パレットに現れない</td>
+                <td>ネイティブモジュールのビルドが済んでいない、または Node.js の版と合っていない</td>
+                <td><code>cd ~/.node-red</code> のあと <code>npm rebuild</code>。直らなければ <code>cd ~/.node-red/node_modules/sqlite3</code> のあと <code>npm run rebuild</code></td>
+            </tr>
+            <tr>
+                <td><code>SQLITE_CANTOPEN</code></td>
+                <td>指定したパスのディレクトリが無い、または書き込み権限が無い</td>
+                <td>ディレクトリを作る（<code>mkdir -p</code>）。Node-RED の実行利用者に書き込み権限があるか確認する</td>
+            </tr>
+            <tr>
+                <td><code>SQLITE_RANGE: bind or column index out of range</code></td>
+                <td>事前定義文で <code>msg.params</code> のキーに <code>$</code> が付いていない、または SQL 側のプレースホルダ名と一致していない</td>
+                <td>キー名を <code>$ts</code> のように <code>$</code> 付きにし、SQL 中の名前と完全に一致させる</td>
+            </tr>
+            <tr>
+                <td>事前定義文で「msg.params not defined」</td>
+                <td>手前のノードで <code>msg.params</code> を設定していない</td>
+                <td>Function または <a href="nodered-change-node-guide.html">Change</a> ノードで <code>msg.params</code> をオブジェクトとして作る</td>
+            </tr>
+            <tr>
+                <td>msg.topic経由で値が入らない</td>
+                <td><code>msg.payload</code> の配列の要素数と、SQL 中の <code>$</code> の個数が一致していない</td>
+                <td>個数をそろえる。確実に渡したい場合は事前定義文へ切り替える</td>
+            </tr>
+            <tr>
+                <td>SQL は正しいのに結果が空</td>
+                <td>参照しているデータベースファイルが想定と違う</td>
+                <td>設定ノードのパスを確認する。相対パスは Node-RED の起動時の作業ディレクトリ基準になるため、絶対パスにする</td>
+            </tr>
+            <tr>
+                <td>再起動したらデータが消えた</td>
+                <td>データベース名に <code>:memory:</code> を指定している</td>
+                <td>ファイルパスに変更する</td>
+            </tr>
+            <tr>
+                <td>行を消したのにファイルが小さくならない</td>
+                <td>SQLite は削除領域を再利用するため</td>
+                <td>空き容量に余裕のあるときに <code>VACUUM;</code> を実行する</td>
+            </tr>
+            <tr>
+                <td>ノードのステータスが出ない、ログに接続失敗が続く</td>
+                <td>ファイルを開けず、再接続を繰り返している</td>
+                <td>パスと権限を直す。再接続の間隔は <code>settings.js</code> に <code>sqliteReconnectTime: 20000,</code>（ミリ秒）を書いて変更できる</td>
+            </tr>
+        </table>
+
+        <div class="tip">
+            <strong>ノードのステータス表示</strong><br>
+            sqlite ノードの下には、接続中のモード（<code>RWC</code>、<code>RW</code>、<code>RO</code>）が緑の点とともに表示される。ここが出ていなければ、設定ノードが選ばれていないか、ファイルを開けていない。
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.flow-json').forEach(function(block) {
+                var button = document.createElement('button');
+                button.className = 'copy-button';
+                button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                button.addEventListener('click', function() {
+                    // 要素ノード（コピーボタン）を除き、直下のテキストだけを取り出す
+                    var code = Array.prototype.filter.call(block.childNodes, function(n) {
+                        return n.nodeType === Node.TEXT_NODE;
+                    }).map(function(n) { return n.textContent; }).join('').trim();
+                    navigator.clipboard.writeText(code).then(function() {
+                        button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>コピーしました!';
+                        button.classList.add('copied');
+                        setTimeout(function() {
+                            button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                            button.classList.remove('copied');
+                        }, 2000);
+                    });
+                });
+                block.style.position = 'relative';
+                block.appendChild(button);
+            });
+        });
+    </script>
+    <!-- フローティングホームボタン -->
+    <a href="index.html" style="position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px; background: linear-gradient(135deg, #42b883 0%, #35495e 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; transition: transform 0.3s, box-shadow 0.3s;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 6px 16px rgba(0,0,0,0.4)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.3)';" title="トップページへ">🏠</a>
+</body>
+</html>
