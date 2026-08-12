@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED PLCレジスタの読み方ガイド</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.8; max-width: 1000px; margin: 0 auto; padding: 20px; background-color: #f5f5f5; color: #333; }
+        h1 { color: #37474f; border-bottom: 3px solid #37474f; padding-bottom: 10px; }
+        h2 { color: #455a64; margin-top: 40px; border-left: 5px solid #455a64; padding-left: 15px; }
+        h3 { color: #555; margin-top: 25px; }
+        h4 { color: #666; margin-top: 20px; }
+        .container { background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .node-example { background-color: #2d3133; padding: 20px; border-radius: 5px; margin: 20px 0; color: white; font-family: 'Courier New', monospace; display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
+        .node { display: inline-block; padding: 8px 15px; border-radius: 4px; margin: 5px; font-weight: bold; font-size: 14px; }
+        .node-inject { background-color: #3fadb5; color: white; }
+        .node-debug { background-color: #87a48d; color: white; }
+        .node-function { background-color: #fdd0a2; color: #333; }
+        .arrow { color: #999; font-size: 20px; margin: 0 10px; }
+        .important { background-color: #eceff1; border-left: 4px solid #37474f; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .tip { background-color: #e8f5e9; border-left: 4px solid #4caf50; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .warning { background-color: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .code-block { background-color: #2d3133; color: #f8f8f2; padding: 15px; border-radius: 5px; margin: 15px 0; overflow-x: auto; font-family: 'Courier New', Consolas, monospace; font-size: 14px; white-space: pre; }
+        .flow-json { background-color: #1a1a2e; color: #a6e22e; padding: 15px; border-radius: 5px; font-family: 'Courier New', Consolas, monospace; font-size: 12px; overflow-x: auto; white-space: pre; position: relative; max-height: 400px; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; vertical-align: top; }
+        th { background-color: #455a64; color: white; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .exercise { background-color: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0; border: 2px solid #2196f3; }
+        .exercise h3 { color: #1976d2; margin-top: 0; }
+        .difficulty { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; margin-left: 10px; }
+        .difficulty-easy { background-color: #c8e6c9; color: #2e7d32; }
+        .difficulty-medium { background-color: #fff9c4; color: #f57f17; }
+        .difficulty-hard { background-color: #ffcdd2; color: #c62828; }
+        details { background-color: #f5f5f5; padding: 10px 15px; border-radius: 5px; margin: 10px 0; }
+        details summary { cursor: pointer; font-weight: bold; color: #455a64; }
+        details[open] summary { margin-bottom: 10px; }
+        .toc { background-color: #fafafa; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .toc h3 { margin-top: 0; color: #37474f; }
+        .toc ul { list-style: none; padding-left: 0; }
+        .toc li { padding: 5px 0; }
+        .toc a { color: #1976d2; text-decoration: none; }
+        .toc a:hover { text-decoration: underline; }
+        .copy-button { position: absolute; top: 8px; right: 8px; padding: 6px 12px; background-color: #455a64; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-family: 'Segoe UI', sans-serif; transition: background-color 0.2s; z-index: 10; display: flex; align-items: center; gap: 4px; }
+        .copy-button:hover { background-color: #37474f; }
+        .copy-button.copied { background-color: #28a745; }
+        .copy-button svg { width: 14px; height: 14px; fill: currentColor; }
+        .diagram-box { background: #2d3133; color: white; padding: 20px; border-radius: 8px; font-family: monospace; margin: 15px 0; white-space: pre-wrap; }
+        code { background: #eceff1; padding: 2px 6px; border-radius: 3px; font-family: 'Courier New', monospace; font-size: 0.95em; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Node-RED PLCレジスタの読み方ガイド</h1>
+        <div data-envbadge="1" style="margin:12px 0;"><span style="display:inline-block;padding:3px 12px;border-radius:12px;font-size:0.85em;font-weight:bold;background:#e3f2fd;color:#0d47a1;border:1px solid #90caf9;">☁️ クラウドOK</span> <a href="nodered-learning-environment-guide.html" style="font-size:0.82em;">環境とは？</a></div>
+
+        <div class="important">
+            <h3 style="margin-top:0;">このガイドが扱う範囲</h3>
+            <p>PLC や産業機器から取り出した数値が、期待した値にならない。この一点に絞って原因と直し方を扱う。実機や追加パッケージは不要で、サンプルフローは標準ノードだけで動く。</p>
+            <p>隣接する話題は既存のガイドが担当する。</p>
+            <ul>
+                <li>通信の設定とアドレスの指定 → <a href="nodered-modbus-node-guide.html">MODBUS ノードガイド</a></li>
+                <li>バイト順を設定だけで吸収する道具 → <a href="nodered-buffer-parser-node-guide.html">buffer-parser ノードガイド</a></li>
+                <li>バイトと文字コードそのものの基礎 → <a href="nodered-variable-types-guide.html#binary">変数ガイド Part 1：バイナリデータとBuffer</a></li>
+            </ul>
+        </div>
+
+        <div class="toc">
+            <h3>目次</h3>
+            <ul>
+                <li><a href="#s1">1. 通信は成功しているのに値が合わない</a></li>
+                <li><a href="#s2">2. レジスタという器</a></li>
+                <li><a href="#s3">3. 症状から原因を引く</a></li>
+                <li><a href="#s4">4. 符号ありと符号なし</a></li>
+                <li><a href="#s5">5. 32bit の値は2つのレジスタに跨る</a></li>
+                <li><a href="#s6">6. 生値と実際の値（スケーリング）</a></li>
+                <li><a href="#s7">7. 1つのレジスタに複数の情報</a></li>
+                <li><a href="#s8">8. 実機で正体を突き止める手順</a></li>
+                <li><a href="#s9">9. Node-RED での実装</a></li>
+                <li><a href="#s10">10. サンプルフロー</a></li>
+                <li><a href="#s11">11. 演習問題</a></li>
+                <li><a href="#s12">12. まとめ</a></li>
+                <li><a href="#s13">13. トラブルシューティング</a></li>
+            </ul>
+        </div>
+
+        <h2 id="s1">1. 通信は成功しているのに値が合わない</h2>
+
+        <p>MODBUS の設定が正しく通り、debug ノードに数値が並んだ。ところが表示器が 25.3℃ を示しているのに、Node-RED には 253 が届く。冷えていて −1.3℃ のはずの場所が 65523 になる。温度が小数で来るはずの機器から 2.34e-41 という見たこともない値が返る。</p>
+
+        <p>これらはいずれも通信の失敗ではない。数値は正しく届いている。届いた数値を<strong>どう解釈するか</strong>が決まっていないだけである。</p>
+
+        <div class="important">
+            <p><strong>レジスタは型を持たない。</strong>1つのレジスタは 16 個のビットが並んだ箱でしかなく、その中身が温度なのか、カウンタの下半分なのか、16 個のスイッチの状態なのかは、箱を見ても分からない。解釈のしかたは機器の仕様書に書いてあり、それを読む側が設定する。</p>
+        </div>
+
+        <p>解釈のずれは4種類に絞れる。符号、ワード順、倍率、詰め込み方である。この4つを順に確かめれば、値の食い違いはたいてい解ける。アドレスの指定そのものが誤っている場合は、この4つでは直らない。</p>
+
+        <h2 id="s2">2. レジスタという器</h2>
+
+        <p>PLC やインバータの内部は、番号のついた小さな箱が並んだ構造になっている。この箱1つが<strong>レジスタ</strong>で、大きさは 16 ビット（2バイト）と決まっている。</p>
+
+        <table>
+            <tr>
+                <th>単位</th>
+                <th>大きさ</th>
+                <th>そのまま入る値の範囲</th>
+                <th>使われ方</th>
+            </tr>
+            <tr>
+                <td>ビット</td>
+                <td>1 bit</td>
+                <td>0 か 1</td>
+                <td>運転中や異常ありといった ON/OFF</td>
+            </tr>
+            <tr>
+                <td>ワード</td>
+                <td>16 bit（レジスタ1個）</td>
+                <td>0 〜 65535</td>
+                <td>温度、圧力、設定値などの整数</td>
+            </tr>
+            <tr>
+                <td>ダブルワード</td>
+                <td>32 bit（レジスタ2個）</td>
+                <td>0 〜 4294967295</td>
+                <td>積算カウンタ、小数を含む実数</td>
+            </tr>
+        </table>
+
+        <p>16 ビットで表せるのは 0 から 65535 までである。これより大きい値、負の値、小数を含む値は、この箱にそのままでは入らない。そこで機器のメーカーは、何らかの工夫をして押し込む。その工夫が、読む側から見た「解釈のしかた」になる。</p>
+
+        <div class="tip">
+            <p><strong>コイルとレジスタの区別：</strong> MODBUS には ON/OFF 専用の入れ物（Coil・Discrete Input）と、16 ビットの入れ物（Input Register・Holding Register）の4種類がある。このガイドが扱うのは後者2つで、4種類の使い分けは <a href="nodered-modbus-node-guide.html">MODBUS ノードガイド</a>の「データモデル」で説明している。</p>
+        </div>
+
+        <h3>Node-RED にはどう届くか</h3>
+
+        <p>MODBUS ノードでレジスタを読むと、<code>msg.payload</code> には数値の配列が入る。読み出し個数を3個に指定したなら、要素が3つの配列になる。</p>
+
+        <div class="code-block">msg.payload = [253, 65523, 40000]
+             ↑    ↑      ↑
+        アドレス+0  +1     +2</div>
+
+        <p>この配列の各要素が、上の表の「ワード」に相当する。値はすべて 0 〜 65535 の範囲で届く。負の数や小数がここに現れることはない。届いた時点では、まだ何の解釈もされていない生の値である。</p>
+
+        <h2 id="s3">3. 症状から原因を引く</h2>
+
+        <p>値が合わないとき、症状を見れば原因はおおよそ絞れる。</p>
+
+        <table>
+            <tr>
+                <th>症状</th>
+                <th>疑う原因</th>
+                <th>参照</th>
+            </tr>
+            <tr>
+                <td>桁だけが違う（25.3 が 253、12.34 が 1234）</td>
+                <td>倍率が掛かっている</td>
+                <td><a href="#s6">6. スケーリング</a></td>
+            </tr>
+            <tr>
+                <td>負のはずの値が 65000 台の大きな数になる</td>
+                <td>符号ありの値を符号なしで読んでいる</td>
+                <td><a href="#s4">4. 符号</a></td>
+            </tr>
+            <tr>
+                <td>正のはずの値が突然マイナスになる</td>
+                <td>符号なしの値を符号ありで読んでいる</td>
+                <td><a href="#s4">4. 符号</a></td>
+            </tr>
+            <tr>
+                <td>2.34e-41 や 20 億のような極端な値になる</td>
+                <td>32bit 値のワード順が逆</td>
+                <td><a href="#s5">5. ワード順</a></td>
+            </tr>
+            <tr>
+                <td>小数のはずが整数しか出ない、値が飛び飛びになる</td>
+                <td>32bit の値を 16bit として読んでいる</td>
+                <td><a href="#s5">5. 2レジスタに跨る値</a></td>
+            </tr>
+            <tr>
+                <td>表示器の 1234 が 4660 として届く</td>
+                <td>BCD 形式</td>
+                <td><a href="#s7">7. BCD</a></td>
+            </tr>
+            <tr>
+                <td>0 か 1 のはずが 5 や 13 になる</td>
+                <td>1つのレジスタに複数のビットが詰まっている</td>
+                <td><a href="#s7">7. ビットの取り出し</a></td>
+            </tr>
+            <tr>
+                <td>値がまったく変化しない、常に 0</td>
+                <td>アドレスがずれている（解釈の問題ではない）</td>
+                <td><a href="nodered-modbus-node-guide.html">MODBUS ガイドの 0 始まり問題</a></td>
+            </tr>
+        </table>
+
+        <h2 id="s4">4. 符号ありと符号なし</h2>
+
+        <p>16 ビットの箱には 0 〜 65535 しか入らない。ではマイナス 13 をどう表すか。上位半分（32768 以上）を負の数の領域として割り当てる方法が使われる。これを<strong>符号あり</strong>（signed）といい、−32768 〜 32767 の範囲を表せる。</p>
+
+        <div class="diagram-box">符号なし (unsigned) :  0 ─────── 32767 │ 32768 ─────── 65535
+符号あり (signed)   :  0 ─────── 32767 │ -32768 ─────── -1
+                                        ↑
+                         同じビットの並びを、境界の先でどう読むかが違う</div>
+
+        <p>境界より下では両者は一致する。食い違うのは 32768 以上に入ったときだけである。</p>
+
+        <table>
+            <tr>
+                <th>届いた値</th>
+                <th>16進</th>
+                <th>符号なしとして</th>
+                <th>符号ありとして</th>
+                <th>0.1 倍したとき</th>
+            </tr>
+            <tr>
+                <td>253</td>
+                <td>00 FD</td>
+                <td>253</td>
+                <td>253</td>
+                <td>25.3</td>
+            </tr>
+            <tr>
+                <td>65523</td>
+                <td>FF F3</td>
+                <td>65523</td>
+                <td>−13</td>
+                <td>−1.3</td>
+            </tr>
+            <tr>
+                <td>65535</td>
+                <td>FF FF</td>
+                <td>65535</td>
+                <td>−1</td>
+                <td>−0.1</td>
+            </tr>
+            <tr>
+                <td>40000</td>
+                <td>9C 40</td>
+                <td>40000</td>
+                <td>−25536</td>
+                <td>−2553.6</td>
+            </tr>
+        </table>
+
+        <p>65523 と −13 は、同じビットの並びである。どちらが正しいかはデータの意味で決まる。</p>
+
+        <h3>どちらで読むかの見分け方</h3>
+
+        <ul>
+            <li>仕様書に「signed」「符号付き」「−32768〜32767」とあれば符号あり</li>
+            <li>負の値がありうる量（温度、電流の向き、偏差、傾き）は符号ありが多い</li>
+            <li>負になりえない量（積算値、回転数、圧力）は符号なしが多い</li>
+            <li>普段は小さい正の値なのに、ある条件で急に 65000 台に跳ぶなら符号あり</li>
+        </ul>
+
+        <div class="warning">
+            <p><strong>40000 の行に注意：</strong> 符号ありとして読むと −25536 になる。もし積算流量のような「負にならない量」でこの値が出たなら、符号なしで読むのが正しい。逆に、温度が突然 −25536℃ になったら符号の取り違えを疑う。値の妥当性が判断材料になる。</p>
+        </div>
+
+        <h3>Node-RED での変換</h3>
+
+        <p>MODBUS ノードから届く配列は、すべて符号なしの値である。符号ありとして扱うには変換が要る。境界を超えていたら 65536 を引く、という処理になる。</p>
+
+        <div class="code-block">const raw = msg.payload[0];
+const signed = raw &gt; 32767 ? raw - 65536 : raw;
+
+msg.payload = signed;
+return msg;</div>
+
+        <h2 id="s5">5. 32bit の値は2つのレジスタに跨る</h2>
+
+        <p>積算カウンタや小数を含む実数は、16 ビットに収まらない。そこでレジスタ2個を1組にして 32 ビットとして使う。ここで問題になるのが、<strong>2つのレジスタのどちらが上位か</strong>である。</p>
+
+        <h3>まず、跨いでいることに気づく</h3>
+
+        <p>32 ビットの値を 16 ビットとして読むと、上半分か下半分だけが見えることになる。</p>
+
+        <div class="code-block">積算カウンタ 100000 = 0x000186A0
+
+  レジスタに入っている姿  : [1, 34464]
+  上位のレジスタだけ読むと : 1        ← 「値が 1 のまま増えない」
+  下位のレジスタだけ読むと : 34464    ← 「65535 を超えると 0 に戻ってしまう」</div>
+
+        <p>カウンタが増えないように見える、あるいは 65535 で一周してしまう場合は、2レジスタ組で読むべき値を1つだけ読んでいる可能性が高い。</p>
+
+        <h3>ワード順とバイト順</h3>
+
+        <p>32 ビットは4バイトからなる。この4バイトを、上位から順に <strong>A B C D</strong> と呼ぶ約束が、PLC の仕様書では広く使われる。機器がどの順で送ってくるかは、この4文字の並びで表記される。</p>
+
+        <table>
+            <tr>
+                <th>表記</th>
+                <th>仕様書での呼ばれ方</th>
+                <th>何が入れ替わるか</th>
+            </tr>
+            <tr>
+                <td><strong>ABCD</strong></td>
+                <td>Big Endian / High word first</td>
+                <td>入れ替えなし。MODBUS の標準的な並び</td>
+            </tr>
+            <tr>
+                <td><strong>CDAB</strong></td>
+                <td>Word Swap / Low word first</td>
+                <td>ワード（2バイト）の順が逆。最も多い食い違い</td>
+            </tr>
+            <tr>
+                <td><strong>BADC</strong></td>
+                <td>Byte Swap</td>
+                <td>各ワードの中のバイトが逆</td>
+            </tr>
+            <tr>
+                <td><strong>DCBA</strong></td>
+                <td>Little Endian</td>
+                <td>4バイトが完全に逆順</td>
+            </tr>
+        </table>
+
+        <div class="tip">
+            <p>バイト順とワード順が別々に入れ替わる仕組みそのものは、<a href="nodered-buffer-parser-node-guide.html#s3">buffer-parser ガイドの「基礎知識：バイト順とワード」</a>で図解している。ここでは、この4通りが実際の値としてどう見えるかに絞る。</p>
+        </div>
+
+        <h3>4通りで読むとどうなるか</h3>
+
+        <p>温度 12.5℃ を 32 ビットの小数（float）で送る機器を例にする。12.5 のバイト列は <code>41 48 00 00</code> で、これがレジスタ配列 <code>[16712, 0]</code> として届いたとする。この配列を4通りに解釈すると、次のようになる。</p>
+
+        <table>
+            <tr>
+                <th>解釈</th>
+                <th>並べ替え後のバイト列</th>
+                <th>読み取れる値</th>
+            </tr>
+            <tr>
+                <td>ABCD（そのまま）</td>
+                <td>41 48 00 00</td>
+                <td><strong>12.5</strong></td>
+            </tr>
+            <tr>
+                <td>CDAB（ワード入れ替え）</td>
+                <td>00 00 41 48</td>
+                <td>2.3418e-41</td>
+            </tr>
+            <tr>
+                <td>BADC（ワード内で入れ替え）</td>
+                <td>48 41 00 00</td>
+                <td>197632</td>
+            </tr>
+            <tr>
+                <td>DCBA（完全に逆）</td>
+                <td>00 00 48 41</td>
+                <td>2.5920e-41</td>
+            </tr>
+        </table>
+
+        <p>意味の通る値は 12.5 だけである。よってこの機器は ABCD だと判断できる。</p>
+
+        <p>逆に、同じ 12.5℃ をワード順が逆の機器から受け取ると、配列は <code>[0, 16712]</code> になる。このときは CDAB として読んだ場合だけが 12.5 になり、そのまま読むと 2.3418e-41 が出る。</p>
+
+        <div class="important">
+            <p><strong>float の取り違えは見分けやすい。</strong>ワード順を間違えた float は、e-41 のような極端に小さい値か、桁が大幅に違う値になる。温度や圧力としてありえない値が出たら、まずワード順を疑えばよい。</p>
+        </div>
+
+        <div class="warning">
+            <p><strong>32bit 整数の取り違えは見分けにくい：</strong> float と違い、整数はワード順を間違えても「それらしい大きな数」になる。100000 のワード順を逆に読むと 2258632705 になり、一見すると単に大きなカウンタに見える。値を動かしながら、増え方が滑らかかどうかで確かめる必要がある。</p>
+        </div>
+
+        <h3>メーカーによって違う</h3>
+
+        <p>ワード順は MODBUS の規格で決められていない。同じ float であっても、メーカーごと、機種ごと、さらには同じ機種でも設定によって変わる。仕様書では「Word Order」「Byte Order」「Data Format」「32bit register order」といった見出しで書かれていることが多い。</p>
+
+        <p>複数メーカーの機器を1つのフローで扱う場合、機器ごとに別々の解釈を用意することになる。</p>
+
+        <h2 id="s6">6. 生値と実際の値（スケーリング）</h2>
+
+        <p>整数のレジスタで小数を表す方法として、あらかじめ 10 倍や 100 倍した値を入れておく方式が広く使われる。25.3℃ なら 253 を、12.34 kW なら 1234 を格納する。</p>
+
+        <div class="code-block">実際の値 = 生値 × 係数 + オフセット
+
+  25.3℃  ← 253  × 0.1
+  12.34kW ← 1234 × 0.01
+  -13℃   ← 65523 を符号ありにして -13、× 1.0</div>
+
+        <p>仕様書では「分解能 0.1℃」「単位 0.01kW」「スケール 1/10」といった書き方をされる。倍率だけの食い違いは、値の桁を見ればすぐ分かる。表示器の数字と届いた数字を並べ、小数点の位置だけがずれているなら倍率である。</p>
+
+        <table>
+            <tr>
+                <th>仕様書の記述</th>
+                <th>掛ける数</th>
+                <th>例</th>
+            </tr>
+            <tr>
+                <td>分解能 0.1℃ / 単位 0.1℃</td>
+                <td>0.1</td>
+                <td>253 → 25.3</td>
+            </tr>
+            <tr>
+                <td>1/100 単位 / 0.01kW</td>
+                <td>0.01</td>
+                <td>1234 → 12.34</td>
+            </tr>
+            <tr>
+                <td>×10 倍値で格納</td>
+                <td>0.1</td>
+                <td>1005 → 100.5</td>
+            </tr>
+        </table>
+
+        <h3>オフセットが要る場合</h3>
+
+        <p>0 から始まらない量を扱う機器では、下限値がオフセットとして加わる。たとえば 4〜20mA の信号を 0〜65535 の範囲に割り当てて、その両端に 0〜100% を対応させる機器がある。</p>
+
+        <div class="code-block">実際の値 = 生値 × (最大値 - 最小値) / 65535 + 最小値
+
+  生値 32768 、範囲 0〜100% のとき
+  → 32768 × 100 / 65535 + 0 ≒ 50.0%</div>
+
+        <div class="tip">
+            <p>この形の変換は <a href="nodered-range-node-guide.html">Range ノード</a>が担当する。入力の範囲と出力の範囲を指定するだけで、Function を書かずに変換できる。倍率だけなら <a href="nodered-change-node-guide.html">Change ノード</a>の JSONata でも足りる。</p>
+        </div>
+
+        <h3>書き込むときは逆にする</h3>
+
+        <p>設定値を機器へ書き込む場合、同じ係数で割る必要がある。目標温度 25.3℃ を設定するなら、レジスタへ書くのは 253 である。読むときの変換だけを実装して書き込み側を忘れると、設定値が 10 分の 1 になる。</p>
+
+        <h2 id="s7">7. 1つのレジスタに複数の情報</h2>
+
+        <p>16 ビットを1つの数値として使わず、細かく分けて使う機器も多い。</p>
+
+        <h3>ビット単位の状態</h3>
+
+        <p>運転中、異常、準備完了といった ON/OFF を、1つのレジスタに 16 個まで詰め込める。この場合、レジスタの値を数値として読んでも意味をなさない。</p>
+
+        <div class="code-block">レジスタ値 13 = 2進で 0000 0000 0000 1101
+
+  bit0 = 1  運転中
+  bit1 = 0  停止中ではない
+  bit2 = 1  警報あり
+  bit3 = 1  メンテナンス要求</div>
+
+        <p>「状態が 0 か 1 のはずなのに 5 や 13 が返る」という症状は、この形式であることのサインである。特定のビットを取り出すには、右へずらして最下位だけを見る。</p>
+
+        <div class="code-block">// bit2 を取り出す
+const raw = msg.payload;
+const bit2 = (raw &gt;&gt; 2) &amp; 1;
+
+msg.payload = bit2 === 1;
+return msg;</div>
+
+        <div class="warning">
+            <p><strong>ビット番号の数え方に注意：</strong> 仕様書によって最下位を bit0 と呼ぶ場合と bit1 と呼ぶ場合がある。1つずれると、隣の状態を読んでしまう。機器を実際に動かし、想定したビットが変化するかを確かめてから確定する。</p>
+        </div>
+
+        <h3>BCD（表示用の10進形式）</h3>
+
+        <p>表示器やカウンタでは、10 進数の各桁を4ビットずつに割り当てる <strong>BCD</strong> という形式が使われることがある。1234 という表示値は、16 進で <code>0x1234</code> として格納される。これを普通の整数として読むと 4660 になる。</p>
+
+        <table>
+            <tr>
+                <th>レジスタ値</th>
+                <th>16進表記</th>
+                <th>整数として読むと</th>
+                <th>BCD として読むと</th>
+            </tr>
+            <tr>
+                <td>4660</td>
+                <td>0x1234</td>
+                <td>4660</td>
+                <td>1234</td>
+            </tr>
+            <tr>
+                <td>595</td>
+                <td>0x0253</td>
+                <td>595</td>
+                <td>253</td>
+            </tr>
+            <tr>
+                <td>13</td>
+                <td>0x000D</td>
+                <td>13</td>
+                <td>成立しない</td>
+            </tr>
+        </table>
+
+        <p>BCD かどうかは、値の見た目から判断できる。16 進で表したときに A〜F が現れたら、そのデータは BCD ではない。各桁が 0〜9 に収まっているデータで、表示器の数字と 16 進表記が一致するなら BCD である。</p>
+
+        <div class="code-block">// BCD として読む（各桁が 0〜9 のときだけ成立する）
+let bcd = 0;
+let isBcd = true;
+for (let i = 3; i &gt;= 0; i--) {
+    const digit = (msg.payload &gt;&gt; (i * 4)) &amp; 15;
+    if (digit &gt; 9) { isBcd = false; break; }
+    bcd = bcd * 10 + digit;
+}
+
+msg.payload = isBcd ? bcd : null;
+return msg;</div>
+
+        <h2 id="s8">8. 実機で正体を突き止める手順</h2>
+
+        <p>仕様書が手元にある場合は、そこに答えが書いてある。無い場合や記述が曖昧な場合は、実物から突き止めることになる。</p>
+
+        <h3>手順1：仕様書の該当欄を探す</h3>
+
+        <p>通信仕様の章に、次のような見出しがある。訳語は各社まちまちである。</p>
+
+        <table>
+            <tr>
+                <th>探す語</th>
+                <th>分かること</th>
+            </tr>
+            <tr>
+                <td>Data Type / データ形式 / signed・unsigned</td>
+                <td>符号の有無、16bit か 32bit か</td>
+            </tr>
+            <tr>
+                <td>Word Order / Byte Order / エンディアン</td>
+                <td>2レジスタ組のワード順</td>
+            </tr>
+            <tr>
+                <td>分解能 / Resolution / Scale / 単位</td>
+                <td>掛けるべき係数</td>
+            </tr>
+            <tr>
+                <td>ビット定義 / Bit assignment</td>
+                <td>1レジスタ内のビットの割り当て</td>
+            </tr>
+        </table>
+
+        <h3>手順2：既知の値を作って照合する</h3>
+
+        <p>機器の表示器に出ている値、あるいは自分で設定した値と、届いた生値を突き合わせる。これが最も確実である。</p>
+
+        <ul>
+            <li>表示が 25.3℃ のとき 253 が届いたなら、係数は 0.1</li>
+            <li>設定値を 0 にしたとき 0 が返り、100 にしたとき 10000 が返るなら、係数は 0.01</li>
+            <li>値をゆっくり動かし、届く数値が滑らかに追随するかを見る</li>
+        </ul>
+
+        <h3>手順3：4通りを総当たりする</h3>
+
+        <p>32 ビット値のワード順が分からないときは、4通り全部で読んで、意味の通る値を選ぶ。後述のサンプルフローがこれを一度に表示する。</p>
+
+        <h3>手順4：妥当な範囲で絞る</h3>
+
+        <p>解釈の候補が複数残ったら、物理的にありえるかどうかで判断する。</p>
+
+        <ul>
+            <li>室温が −300℃ や 1e38 になっていたら、その解釈は誤り</li>
+            <li>積算流量が減ることはない。減っているなら符号かワード順が誤り</li>
+            <li>回転数が毎秒 100 万回転になっていたら、桁が誤り</li>
+        </ul>
+
+        <div class="tip">
+            <p><strong>順番のこつ：</strong> 符号 → ワード順 → 係数 の順に確かめると早い。係数は最後に効くため、符号やワード順が誤ったまま係数だけを合わせようとしても、値は合わない。</p>
+        </div>
+
+        <h2 id="s9">9. Node-RED での実装</h2>
+
+        <p>解釈が決まったら、変換を Node-RED で実装する。方法は2つある。</p>
+
+        <h3>Function ノードで書く</h3>
+
+        <p>取り出す項目が少ないなら、Function ノードで直接書くのが手早い。レジスタ配列を Buffer に組み立ててから読むと、符号やワード順の扱いを標準のメソッドに任せられる。</p>
+
+        <div class="code-block">// レジスタ2個から 32bit float を取り出す（ABCD の機器の場合）
+const w = msg.payload;
+
+const buf = Buffer.alloc(4);
+buf.writeUInt16BE(w[0], 0);
+buf.writeUInt16BE(w[1], 2);
+
+msg.payload = buf.readFloatBE(0);
+return msg;</div>
+
+        <table>
+            <tr>
+                <th>読みたい型</th>
+                <th>使うメソッド</th>
+                <th>必要なレジスタ数</th>
+            </tr>
+            <tr>
+                <td>符号なし 16bit</td>
+                <td><code>readUInt16BE(0)</code></td>
+                <td>1</td>
+            </tr>
+            <tr>
+                <td>符号あり 16bit</td>
+                <td><code>readInt16BE(0)</code></td>
+                <td>1</td>
+            </tr>
+            <tr>
+                <td>符号なし 32bit</td>
+                <td><code>readUInt32BE(0)</code></td>
+                <td>2</td>
+            </tr>
+            <tr>
+                <td>符号あり 32bit</td>
+                <td><code>readInt32BE(0)</code></td>
+                <td>2</td>
+            </tr>
+            <tr>
+                <td>32bit 小数</td>
+                <td><code>readFloatBE(0)</code></td>
+                <td>2</td>
+            </tr>
+        </table>
+
+        <p>ワード順が CDAB の機器なら、Buffer へ書き込む順を入れ替えるだけでよい。</p>
+
+        <div class="code-block">// CDAB の機器：下位ワードが先に届く
+buf.writeUInt16BE(w[1], 0);
+buf.writeUInt16BE(w[0], 2);</div>
+
+        <h3>buffer-parser ノードで設定にする</h3>
+
+        <p>取り出す項目が多い場合、Function のコードは長くなり、型やオフセットの取り違えを見つけにくくなる。<a href="nodered-buffer-parser-node-guide.html">buffer-parser ノード</a>を使うと、同じ変換を表形式の設定として書ける。ワード順の入れ替えは Byte swap の設定で吸収でき、係数は scale 欄に書ける。</p>
+
+        <table>
+            <tr>
+                <th>状況</th>
+                <th>向いている方法</th>
+            </tr>
+            <tr>
+                <td>取り出す項目が1〜2個</td>
+                <td>Function ノード</td>
+            </tr>
+            <tr>
+                <td>取り出す項目が多い、機器ごとに設定が違う</td>
+                <td>buffer-parser ノード</td>
+            </tr>
+            <tr>
+                <td>解釈を探っている最中</td>
+                <td>Function ノード（4通りを一度に出せる）</td>
+            </tr>
+            <tr>
+                <td>追加パッケージを入れられない環境</td>
+                <td>Function ノード</td>
+            </tr>
+        </table>
+
+        <h2 id="s10">10. サンプルフロー</h2>
+
+        <p>実機がなくても解釈の練習ができるよう、レジスタの値を inject ノードで模擬する。届いた配列を Function で解釈し、debug に出す構成である。標準ノードだけを使うため、追加パッケージは要らない。</p>
+
+        <div class="node-example">
+            <span class="node node-inject">inject（模擬レジスタ）</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">function（解釈）</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">debug</span>
+        </div>
+
+        <p>3本のラインが入っている。</p>
+
+        <ul>
+            <li><strong>符号の確認</strong> — <code>[253, 65523, 40000]</code> を符号なしと符号ありの両方で表示する</li>
+            <li><strong>ワード順の総当たり</strong> — 2レジスタを4通りに解釈し、意味の通る値を探す</li>
+            <li><strong>ビットと BCD</strong> — 1レジスタの中身をビット単位と BCD の両方で表示する</li>
+        </ul>
+
+        <details>
+            <summary>📋 サンプルフロー（クリックで展開）</summary>
+            <div class="flow-json">[
+    {
+        "id": "tab_plc_register",
+        "type": "tab",
+        "label": "PLCレジスタの読み方",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "cmt_signed",
+        "type": "comment",
+        "z": "tab_plc_register",
+        "name": "1. 符号あり・符号なし",
+        "info": "同じビットの並びを2通りに読む",
+        "x": 190,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "inj_signed",
+        "type": "inject",
+        "z": "tab_plc_register",
+        "name": "模擬レジスタ [253, 65523, 40000]",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[253,65523,40000]",
+        "payloadType": "json",
+        "x": 230,
+        "y": 110,
+        "wires": [
+            [
+                "fn_signed"
+            ]
+        ]
+    },
+    {
+        "id": "fn_signed",
+        "type": "function",
+        "z": "tab_plc_register",
+        "name": "符号ありとして読み直す",
+        "func": "// MODBUS から届いた 16bit レジスタは、すべて符号なしの値である\nconst regs = msg.payload;\n\nmsg.payload = regs.map(function (raw, i) {\n    const signed = raw &gt; 32767 ? raw - 65536 : raw;\n    return {\n        'レジスタ番号': i,\n        '生値（符号なし）': raw,\n        '符号ありとして': signed,\n        '0.1倍した値': Number((signed * 0.1).toFixed(1))\n    };\n});\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 530,
+        "y": 110,
+        "wires": [
+            [
+                "dbg_signed"
+            ]
+        ]
+    },
+    {
+        "id": "dbg_signed",
+        "type": "debug",
+        "z": "tab_plc_register",
+        "name": "符号の結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 780,
+        "y": 110,
+        "wires": []
+    },
+    {
+        "id": "cmt_order",
+        "type": "comment",
+        "z": "tab_plc_register",
+        "name": "2. ワード順の総当たり",
+        "info": "2レジスタを4通りに解釈する",
+        "x": 190,
+        "y": 190,
+        "wires": []
+    },
+    {
+        "id": "inj_order_abcd",
+        "type": "inject",
+        "z": "tab_plc_register",
+        "name": "ABCD の機器 [16712, 0]",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[16712,0]",
+        "payloadType": "json",
+        "x": 220,
+        "y": 240,
+        "wires": [
+            [
+                "fn_order"
+            ]
+        ]
+    },
+    {
+        "id": "inj_order_cdab",
+        "type": "inject",
+        "z": "tab_plc_register",
+        "name": "CDAB の機器 [0, 16712]",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[0,16712]",
+        "payloadType": "json",
+        "x": 220,
+        "y": 290,
+        "wires": [
+            [
+                "fn_order"
+            ]
+        ]
+    },
+    {
+        "id": "fn_order",
+        "type": "function",
+        "z": "tab_plc_register",
+        "name": "4通りで読む",
+        "func": "// 2つのレジスタに跨る 32bit float を、4通りの並びで読む\nconst w = msg.payload;\n\nconst buf = Buffer.alloc(4);\nbuf.writeUInt16BE(w[0], 0);\nbuf.writeUInt16BE(w[1], 2);\n\nconst a = buf[0], b = buf[1], c = buf[2], d = buf[3];\nconst read = function (bytes) {\n    return Buffer.from(bytes).readFloatBE(0);\n};\n\nmsg.payload = {\n    '届いたレジスタ': w,\n    'ABCD（そのまま）': read([a, b, c, d]),\n    'CDAB（ワード入れ替え）': read([c, d, a, b]),\n    'BADC（ワード内で入れ替え）': read([b, a, d, c]),\n    'DCBA（完全に逆）': read([d, c, b, a])\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 530,
+        "y": 265,
+        "wires": [
+            [
+                "dbg_order"
+            ]
+        ]
+    },
+    {
+        "id": "dbg_order",
+        "type": "debug",
+        "z": "tab_plc_register",
+        "name": "4通りの結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 780,
+        "y": 265,
+        "wires": []
+    },
+    {
+        "id": "cmt_bits",
+        "type": "comment",
+        "z": "tab_plc_register",
+        "name": "3. ビットと BCD",
+        "info": "1レジスタに詰め込まれた情報を取り出す",
+        "x": 180,
+        "y": 370,
+        "wires": []
+    },
+    {
+        "id": "inj_bits",
+        "type": "inject",
+        "z": "tab_plc_register",
+        "name": "状態フラグ 13",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "13",
+        "payloadType": "num",
+        "x": 200,
+        "y": 420,
+        "wires": [
+            [
+                "fn_bits"
+            ]
+        ]
+    },
+    {
+        "id": "inj_bcd",
+        "type": "inject",
+        "z": "tab_plc_register",
+        "name": "表示器の値 4660",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "4660",
+        "payloadType": "num",
+        "x": 210,
+        "y": 470,
+        "wires": [
+            [
+                "fn_bits"
+            ]
+        ]
+    },
+    {
+        "id": "fn_bits",
+        "type": "function",
+        "z": "tab_plc_register",
+        "name": "ビットと BCD で読む",
+        "func": "// 1つのレジスタに詰め込まれた情報を取り出す\nconst raw = msg.payload;\n\nconst bits = {};\nfor (let i = 0; i &lt; 4; i++) {\n    bits['bit' + i] = ((raw &gt;&gt; i) &amp; 1) === 1;\n}\n\n// BCD として読む（各桁が 0〜9 のときだけ成立する）\nlet bcd = 0;\nlet isBcd = true;\nfor (let i = 3; i &gt;= 0; i--) {\n    const digit = (raw &gt;&gt; (i * 4)) &amp; 15;\n    if (digit &gt; 9) { isBcd = false; break; }\n    bcd = bcd * 10 + digit;\n}\n\nmsg.payload = {\n    '生値': raw,\n    '16進': '0x' + raw.toString(16).toUpperCase().padStart(4, '0'),\n    '2進': raw.toString(2).padStart(16, '0'),\n    'ビット': bits,\n    'BCDとして': isBcd ? bcd : 'BCDではない'\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 520,
+        "y": 445,
+        "wires": [
+            [
+                "dbg_bits"
+            ]
+        ]
+    },
+    {
+        "id": "dbg_bits",
+        "type": "debug",
+        "z": "tab_plc_register",
+        "name": "ビットと BCD の結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 800,
+        "y": 445,
+        "wires": []
+    }
+]</div>
+        </details>
+
+        <h3>動かして確かめる</h3>
+
+        <p>デプロイして、上から順に inject をクリックする。debug タブに次の値が出る。</p>
+
+        <table>
+            <tr>
+                <th>inject</th>
+                <th>出力</th>
+                <th>読み取れること</th>
+            </tr>
+            <tr>
+                <td>模擬レジスタ [253, 65523, 40000]</td>
+                <td>253 → 25.3 / 65523 → −1.3 / 40000 → −2553.6</td>
+                <td>65523 が −13 になる。40000 は温度としてありえない値になり、符号なしが正しいと分かる</td>
+            </tr>
+            <tr>
+                <td>ABCD の機器 [16712, 0]</td>
+                <td>ABCD だけが 12.5</td>
+                <td>他の3通りは極端な値になる</td>
+            </tr>
+            <tr>
+                <td>CDAB の機器 [0, 16712]</td>
+                <td>CDAB だけが 12.5</td>
+                <td>同じ 12.5 でも、機器によって届く配列が違う</td>
+            </tr>
+            <tr>
+                <td>状態フラグ 13</td>
+                <td>bit0、bit2、bit3 が true、BCD は成立しない</td>
+                <td>0x000D に D が含まれるため BCD ではない</td>
+            </tr>
+            <tr>
+                <td>表示器の値 4660</td>
+                <td>16進 0x1234、BCD として 1234</td>
+                <td>表示器の数字と 16 進表記が一致する</td>
+            </tr>
+        </table>
+
+        <h2 id="s11">11. 演習問題</h2>
+
+        <div class="exercise">
+            <h3>演習1：電力計の値を直す<span class="difficulty difficulty-easy">初級</span></h3>
+            <p>電力計から <code>[1234]</code> が届いた。表示器は 12.34 kW を示している。仕様書には「単位 0.01kW」とある。実際の値を出す Function ノードを書きなさい。</p>
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>配列の1つ目の要素に係数を掛ける。浮動小数の計算では 12.340000000000002 のような値になることがあるため、桁を丸めるとよい。</p>
+            </details>
+            <details>
+                <summary>✅ 解答例</summary>
+                <div class="flow-json">[
+    {
+        "id": "tab_plc_ex1",
+        "type": "tab",
+        "label": "演習1 スケーリング",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "ex1_inj",
+        "type": "inject",
+        "z": "tab_plc_ex1",
+        "name": "電力計の生値 [1234]",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[1234]",
+        "payloadType": "json",
+        "x": 210,
+        "y": 100,
+        "wires": [
+            [
+                "ex1_fn"
+            ]
+        ]
+    },
+    {
+        "id": "ex1_fn",
+        "type": "function",
+        "z": "tab_plc_ex1",
+        "name": "0.01 を掛ける",
+        "func": "// 仕様書の「単位 0.01kW」に従って係数を掛ける\nconst raw = msg.payload[0];\n\nmsg.payload = {\n    '生値': raw,\n    '電力(kW)': Number((raw * 0.01).toFixed(2))\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 460,
+        "y": 100,
+        "wires": [
+            [
+                "ex1_dbg"
+            ]
+        ]
+    },
+    {
+        "id": "ex1_dbg",
+        "type": "debug",
+        "z": "tab_plc_ex1",
+        "name": "結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 670,
+        "y": 100,
+        "wires": []
+    }
+]</div>
+                <p>出力は <code>{ '生値': 1234, '電力(kW)': 12.34 }</code> になる。</p>
+            </details>
+        </div>
+
+        <div class="exercise">
+            <h3>演習2：補正値が負になる<span class="difficulty difficulty-medium">中級</span></h3>
+            <p>32bit の補正値カウンタから <code>[65535, 65526]</code> が届いた。上位ワードが先（ABCD）で、値は符号ありと仕様書にある。正しい値を出しなさい。また、上位 × 65536 + 下位 という素朴な計算では何が起きるかも確かめなさい。</p>
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>2つのレジスタを Buffer に組み立ててから <code>readInt32BE</code> を使う。素朴な掛け算では符号の扱いが抜け落ちる。</p>
+            </details>
+            <details>
+                <summary>✅ 解答例</summary>
+                <div class="flow-json">[
+    {
+        "id": "tab_plc_ex2",
+        "type": "tab",
+        "label": "演習2 32bit 符号あり",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "ex2_inj",
+        "type": "inject",
+        "z": "tab_plc_ex2",
+        "name": "補正値 [65535, 65526]",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[65535,65526]",
+        "payloadType": "json",
+        "x": 230,
+        "y": 100,
+        "wires": [
+            [
+                "ex2_fn"
+            ]
+        ]
+    },
+    {
+        "id": "ex2_fn",
+        "type": "function",
+        "z": "tab_plc_ex2",
+        "name": "32bit として読む",
+        "func": "// 上位ワードが先（ABCD）の 32bit 値を組み立てる\nconst w = msg.payload;\n\nconst buf = Buffer.alloc(4);\nbuf.writeUInt16BE(w[0], 0);\nbuf.writeUInt16BE(w[1], 2);\n\nmsg.payload = {\n    '符号ありとして': buf.readInt32BE(0),\n    '符号なしとして': buf.readUInt32BE(0),\n    '素朴な計算': w[0] * 65536 + w[1]\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 490,
+        "y": 100,
+        "wires": [
+            [
+                "ex2_dbg"
+            ]
+        ]
+    },
+    {
+        "id": "ex2_dbg",
+        "type": "debug",
+        "z": "tab_plc_ex2",
+        "name": "結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 710,
+        "y": 100,
+        "wires": []
+    }
+]</div>
+                <p>符号ありとして読むと <strong>−10</strong>、符号なしなら 4294967286 になる。素朴な掛け算は符号を考えないため、後者と同じ 4294967286 を返す。補正値のように負になりうる量では、この差が問題になる。</p>
+            </details>
+        </div>
+
+        <div class="exercise">
+            <h3>演習3：ワード順の分からない機器<span class="difficulty difficulty-hard">上級</span></h3>
+            <p>温度センサーから <code>[26214, 16842]</code> が届いた。仕様書には 32bit の小数とだけ書かれ、ワード順の記載がない。現場の温度計は 25℃ 前後を示している。この機器のワード順を突き止めなさい。</p>
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>サンプルフローの「4通りで読む」と同じ処理を使い、値が 25 付近になる解釈を探す。</p>
+            </details>
+            <details>
+                <summary>✅ 解答例</summary>
+                <div class="flow-json">[
+    {
+        "id": "tab_plc_ex3",
+        "type": "tab",
+        "label": "演習3 ワード順の判別",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "ex3_inj",
+        "type": "inject",
+        "z": "tab_plc_ex3",
+        "name": "温度センサー [26214, 16842]",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[26214,16842]",
+        "payloadType": "json",
+        "x": 240,
+        "y": 100,
+        "wires": [
+            [
+                "ex3_fn"
+            ]
+        ]
+    },
+    {
+        "id": "ex3_fn",
+        "type": "function",
+        "z": "tab_plc_ex3",
+        "name": "4通りで読んで妥当な値を選ぶ",
+        "func": "// 4通りすべてで読み、温度としてありえる範囲のものに印を付ける\nconst w = msg.payload;\n\nconst buf = Buffer.alloc(4);\nbuf.writeUInt16BE(w[0], 0);\nbuf.writeUInt16BE(w[1], 2);\n\nconst a = buf[0], b = buf[1], c = buf[2], d = buf[3];\nconst read = function (bytes) {\n    return Buffer.from(bytes).readFloatBE(0);\n};\n\nconst candidates = {\n    ABCD: read([a, b, c, d]),\n    CDAB: read([c, d, a, b]),\n    BADC: read([b, a, d, c]),\n    DCBA: read([d, c, b, a])\n};\n\nconst result = {};\nObject.keys(candidates).forEach(function (key) {\n    const v = candidates[key];\n    const ok = v &gt; -50 &amp;&amp; v &lt; 150;\n    result[key] = ok ? v + '  ← 温度としてありえる' : v;\n});\n\nmsg.payload = result;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 550,
+        "y": 100,
+        "wires": [
+            [
+                "ex3_dbg"
+            ]
+        ]
+    },
+    {
+        "id": "ex3_dbg",
+        "type": "debug",
+        "z": "tab_plc_ex3",
+        "name": "判別結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 810,
+        "y": 100,
+        "wires": []
+    }
+]</div>
+                <p>妥当な範囲に入るのは <strong>CDAB</strong> の 25.299999237060547 だけである。他は 2.7e+23 や −3168665.5 になる。この機器はワード順が逆（下位ワードが先）だと分かる。</p>
+                <p>25.3 ちょうどにならないのは、32bit の小数が 25.3 を正確に表せないためである。表示に使うときは <code>toFixed(1)</code> などで丸める。</p>
+            </details>
+        </div>
+
+        <h2 id="s12">12. まとめ</h2>
+
+        <table>
+            <tr>
+                <th>論点</th>
+                <th>要点</th>
+            </tr>
+            <tr>
+                <td>レジスタ</td>
+                <td>16 ビットの箱。型の情報を持たないため、解釈は読む側が決める</td>
+            </tr>
+            <tr>
+                <td>符号</td>
+                <td>32768 以上が負の領域になる。65523 と −13 は同じビットの並び</td>
+            </tr>
+            <tr>
+                <td>ワード順</td>
+                <td>32bit 値は 2 レジスタに跨る。ABCD / CDAB / BADC / DCBA の4通りがあり、規格で決まっていない</td>
+            </tr>
+            <tr>
+                <td>スケーリング</td>
+                <td>整数で小数を表すため、10 倍や 100 倍された値が入っている。書き込むときは逆に割る</td>
+            </tr>
+            <tr>
+                <td>詰め込み</td>
+                <td>1レジスタに 16 個の ON/OFF、あるいは BCD の 4 桁が入ることがある</td>
+            </tr>
+            <tr>
+                <td>調べ方</td>
+                <td>符号 → ワード順 → 係数 の順に確かめる。既知の値との照合が最も確実</td>
+            </tr>
+        </table>
+
+        <h3>次に読むとよいガイド</h3>
+
+        <ul>
+            <li><a href="nodered-modbus-node-guide.html">MODBUS ノードガイド</a> — 通信の設定とアドレスの指定</li>
+            <li><a href="nodered-buffer-parser-node-guide.html">buffer-parser ノードガイド</a> — 変換を設定だけで済ませる</li>
+            <li><a href="nodered-variable-types-guide.html#binary">変数ガイド Part 1：バイナリデータとBuffer</a> — バイトと文字コードの基礎</li>
+            <li><a href="nodered-range-node-guide.html">Range ノードガイド</a> — 範囲の変換を Function なしで行う</li>
+        </ul>
+
+        <h2 id="s13">13. トラブルシューティング</h2>
+
+        <table>
+            <tr>
+                <th>症状</th>
+                <th>原因</th>
+                <th>対処</th>
+            </tr>
+            <tr>
+                <td>値が 10 倍や 100 倍で表示される</td>
+                <td>係数を掛けていない</td>
+                <td>仕様書の分解能を確認し、0.1 や 0.01 を掛ける</td>
+            </tr>
+            <tr>
+                <td>負のはずが 65000 台になる</td>
+                <td>符号ありの値を符号なしで読んでいる</td>
+                <td>32767 を超えたら 65536 を引く、または <code>readInt16BE</code> を使う</td>
+            </tr>
+            <tr>
+                <td>正のはずが負になる</td>
+                <td>符号なしの値を符号ありで読んでいる</td>
+                <td><code>readUInt16BE</code> に変える</td>
+            </tr>
+            <tr>
+                <td>小数が 2.34e-41 のような値になる</td>
+                <td>32bit float のワード順が逆</td>
+                <td>Buffer へ書き込む順を入れ替える（CDAB として読む）</td>
+            </tr>
+            <tr>
+                <td>カウンタが 65535 で 0 に戻る</td>
+                <td>32bit 値を 16bit として読んでいる</td>
+                <td>2レジスタを読み、<code>readUInt32BE</code> で組み立てる</td>
+            </tr>
+            <tr>
+                <td>カウンタの値が 1 のまま増えない</td>
+                <td>32bit 値の上位ワードだけを読んでいる</td>
+                <td>読み出し個数を 2 にする</td>
+            </tr>
+            <tr>
+                <td>状態が 0 か 1 でなく 5 や 13 になる</td>
+                <td>1レジスタに複数のビットが詰まっている</td>
+                <td>目的のビットを <code>(raw &gt;&gt; n) &amp; 1</code> で取り出す</td>
+            </tr>
+            <tr>
+                <td>取り出したビットが隣の状態を指す</td>
+                <td>仕様書のビット番号が 1 始まり</td>
+                <td>実機を動かして、変化するビットの位置を確かめる</td>
+            </tr>
+            <tr>
+                <td>表示器の 1234 が 4660 になる</td>
+                <td>BCD を整数として読んでいる</td>
+                <td>16 進の各桁を 10 進の桁として組み立て直す</td>
+            </tr>
+            <tr>
+                <td>値がまったく変化しない</td>
+                <td>解釈ではなくアドレスの問題</td>
+                <td>アドレスの 0 始まりを確認する（<a href="nodered-modbus-node-guide.html">MODBUS ガイド</a>）</td>
+            </tr>
+            <tr>
+                <td>読みは合うのに書き込みが 10 分の 1 になる</td>
+                <td>書き込み側で係数を割っていない</td>
+                <td>書き込む前に係数で割る</td>
+            </tr>
+        </table>
+    </div>
+<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.flow-json').forEach(function(block) {
+                var button = document.createElement('button');
+                button.className = 'copy-button';
+                button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                button.addEventListener('click', function() {
+                    // 要素ノード（コピーボタン）を除き、直下のテキストだけを取り出す
+                    var code = Array.prototype.filter.call(block.childNodes, function(n) {
+                        return n.nodeType === Node.TEXT_NODE;
+                    }).map(function(n) { return n.textContent; }).join('').trim();
+                    navigator.clipboard.writeText(code).then(function() {
+                        button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>コピーしました!';
+                        button.classList.add('copied');
+                        setTimeout(function() {
+                            button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                            button.classList.remove('copied');
+                        }, 2000);
+                    });
+                });
+                block.style.position = 'relative';
+                block.appendChild(button);
+            });
+        });
+    </script>
+    <!-- フローティングホームボタン -->
+    <a href="index.html" style="position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px; background: linear-gradient(135deg, #42b883 0%, #35495e 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; transition: transform 0.3s, box-shadow 0.3s;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 6px 16px rgba(0,0,0,0.4)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.3)';" title="トップページへ">🏠</a>
+</body>
+</html>
