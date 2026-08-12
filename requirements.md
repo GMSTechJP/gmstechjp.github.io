@@ -6,8 +6,8 @@
 [docs/style-guide.md](docs/style-guide.md) を正とする。
 
 作成日：2026-06-29
-最終更新：2026-08-12（テーマ A・B-1・C の完了を反映）
-ステータス：D・E 完了（2026-08-10）／A・B-1・C 完了（2026-08-12）／B-2 未着手
+最終更新：2026-08-13（テーマ B-2 の完了を反映）
+ステータス：全 6 テーマ完了（D・E 2026-08-10／A・B-1・C 2026-08-12／B-2 2026-08-13）
 
 ---
 
@@ -40,10 +40,10 @@
 | 用途 | パッケージ | 補足 |
 | --- | --- | --- |
 | B-1 変換 | `node-red-contrib-buffer-parser` | v3.2.2（2022-01-30、2026-08-12 再確認）。DL 約 11,243/月、MIT、依存なし。`buffer-parser` と `buffer-maker` の 2 ノードを同梱。ja locale 無し |
-| B-2 FTP クライアント | `node-red-contrib-ftp` | DL・star 最多 |
-| B-2 FTP サーバー | `node-red-contrib-ftp-server` | DL・star 最多 |
-| B-2 SFTP クライアント | `node-red-contrib-ssh-sftp`（第一）／ `node-red-contrib-sftp`（実績） | 前者は近年更新・ssh2-sftp-client ベース |
-| B-2 SFTP サーバー | `node-red-contrib-sftp-server` | 選択肢が乏しい。OS の SSH デーモン代替も補足 |
+| B-2 FTP クライアント | `node-red-contrib-ftp` の `ftp in` ノード | v0.0.8（2022-06-20、2026-08-13 再確認）。Apache、DL 約 12,440/月。ja locale あり |
+| B-2 SFTP クライアント | `node-red-contrib-ftp` の `sftp in` ノード | 同一パッケージに同梱。ssh2-sftp-client ベースで鍵認証に対応。導入が 1 回で済む。代替候補は `node-red-contrib-sftp-ssh2` v0.1.4（2024-07-20、DL 約 217/月） |
+| B-2 FTP サーバー | `node-red-contrib-ftp-server` | v1.0.4（2022-03-19、2026-08-13 再確認）。MIT、DL 約 134/月。TLS 非対応。受信ファイルはメモリ上のみ |
+| B-2 SFTP サーバー | パッケージ追加なし | Node-RED ノードは npm 上に存在しない。OS の OpenSSH（sftp サブシステム）で立てる手順を本文に置く |
 | D データ蓄積 | `node-red-node-sqlite` | v2.0.1（2026-04-17 更新）。node-red-nodes 公式リポジトリ内。ja locale あり |
 | E 本番運用 | パッケージ追加なし | 公式 `linux-installers` の `nodered.service` と付属スクリプトを一次情報とする |
 
@@ -71,7 +71,10 @@ D・E は施策 2 として 2026-08-09 に先行着手する。施策 1（A・B-
 - 公開リポジトリ。機密情報・API キーを含めない。
 - 平文 FTP は認証情報が平文で流れる。LAN 内・検証用に限定し、インターネット越しでは
   SFTP/FTPS を勧める注記を必須とする。
-- FTP/SFTP サーバー系パッケージは更新が停滞している。トレードオフを本文に明記する。
+- FTP サーバーのパッケージは更新が停滞し、TLS にも対応しない。SFTP サーバーの Node-RED
+  ノードは npm 上に存在しないため、OS の OpenSSH（sftp サブシステム）で立てる手順を本文に置く。
+  このトレードオフを本文に明記する。
+- B-2 は FTP サーバーの待ち受けポートと OS 操作（sshd の設定）を含むため、環境バッジは 🖥️ とする。
 - C は `modbus` ガイドと重複させない。アドレス体系（0 始まり・4xxxx）は既出のため、
   C は「レジスタ値のバイト解釈」に特化する。
 - D は `sqlite3` のネイティブビルドを伴う。Raspberry Pi では導入に時間がかかり、
@@ -97,4 +100,6 @@ D・E は施策 2 として 2026-08-09 に先行着手する。施策 1（A・B-
 | 2026-08-12 | ステータス行を更新（D・E を完了、A を着手中に変更） | D・E の成果物を 2026-08-10 に追加済みで、記載が実態と食い違っていたため |
 | 2026-08-12 | 第 2 章スコープ表の A 行を「part2 軸」から「Part 1 軸」へ変更 | 追記先の前提が実ファイルと食い違っていたため。Part 2 は context 系変数（保存スコープ）が主題で Buffer 言及は 0 件、データ型の解説と Buffer 言及 4 件は Part 1 にある。利用者の判断（A 案）により追記先を Part 1 へ修正した |
 | 2026-08-12 | テーマ A・B-1 を完了。第 3 章のパッケージ表に buffer-maker の同梱を追記 | B-1 の `node-red-contrib-buffer-parser` には逆変換の `buffer-maker` が同梱されており、第 4 章の「入力 Buffer → 出力オブジェクト、その逆」を満たすには両ノードが要るため |
+| 2026-08-13 | テーマ B-2 を完了（成果物 `nodered-ftp-sftp-node-guide.html`）。第 2〜7 章の本文は変更なし | 第 2 章「server / client 両対応」を、FTP はノードで、SFTP はクライアントをノード・サーバーを OS の OpenSSH で満たした。第 5 章の品質要件は全項目を満たしている（設定項目は ja locale の有無をソースで確認し、訳語のある欄は日本語表示、無い欄は「English Label（日本語訳）」形式。フロー JSON は検証スクリプトが 56 ファイル 0 件）。第 6 章の平文 FTP 注記は独立した警告ボックスとセクション 9 に置いた |
+| 2026-08-13 | 第 3 章の B-2 パッケージ表 4 行を差し替え、第 6 章に SFTP サーバーの代替方針と環境バッジ 🖥️ を追記 | 第 3 章「着手時に各パッケージの最新版・DL 数・更新状況を再確認する」に従って npm を再調査したところ、指定していた `node-red-contrib-ssh-sftp` と `node-red-contrib-sftp-server` が npm 上から消滅していた（HTTP 404）。SFTP サーバーは代替の Node-RED ノードも存在せず、第 2 章「server / client 両対応」を SFTP について満たせないため、利用者の判断（A 案）で OS の OpenSSH による代替へ切り替えた。あわせて `node-red-contrib-ftp` が `ftp in` と `sftp in` の 2 ノードを同梱している実態（roadmap の記載と相違）を反映し、SFTP クライアントを同パッケージに一本化した |
 | 2026-08-12 | テーマ C を完了（成果物 `nodered-plc-register-guide.html`）。要件本文は変更なし | 第 6 章「C は modbus ガイドと重複させない。C はレジスタ値のバイト解釈に特化する」に従い、アドレス体系は modbus ガイド、バイト順の仕組みは buffer-parser ガイドへ委ね、C は症状から解釈のずれ（符号、ワード順、倍率、詰め込み）を特定する内容に絞った。標準ノードだけで完結するため環境バッジは ☁️ |

@@ -1,0 +1,1839 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED FTP / SFTP ノード ガイド</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.8; max-width: 1000px; margin: 0 auto; padding: 20px; background-color: #f5f5f5; color: #333; }
+        h1 { color: #37474f; border-bottom: 3px solid #37474f; padding-bottom: 10px; }
+        h2 { color: #455a64; margin-top: 40px; border-left: 5px solid #455a64; padding-left: 15px; }
+        h3 { color: #555; margin-top: 25px; }
+        h4 { color: #666; margin-top: 20px; }
+        .container { background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .node-example { background-color: #2d3133; padding: 20px; border-radius: 5px; margin: 20px 0; color: white; font-family: 'Courier New', monospace; display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
+        .node { display: inline-block; padding: 8px 15px; border-radius: 4px; margin: 5px; font-weight: bold; font-size: 14px; }
+        .node-inject { background-color: #3fadb5; color: white; }
+        .node-debug { background-color: #87a48d; color: white; }
+        .node-function { background-color: #fdd0a2; color: #333; }
+        .node-ftp { background-color: #deb887; color: #333; }
+        .node-server { background-color: #f37a33; color: white; }
+        .node-file { background-color: #c0c0c0; color: #333; }
+        .node-catch { background-color: #e6e0f8; color: #333; }
+        .arrow { color: #999; font-size: 20px; margin: 0 10px; }
+        .important { background-color: #eceff1; border-left: 4px solid #37474f; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .tip { background-color: #e8f5e9; border-left: 4px solid #4caf50; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .warning { background-color: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .danger { background-color: #ffebee; border-left: 4px solid #e53935; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .thirdparty { background: linear-gradient(135deg, #eceff1 0%, #cfd8dc 100%); border: 2px solid #607d8b; border-radius: 8px; padding: 18px 22px; margin: 20px 0; }
+        .thirdparty h3 { margin-top: 0; color: #37474f; }
+        .code-block { background-color: #2d3133; color: #f8f8f2; padding: 15px; border-radius: 5px; margin: 15px 0; overflow-x: auto; font-family: 'Courier New', Consolas, monospace; font-size: 14px; white-space: pre; }
+        .flow-json { background-color: #1a1a2e; color: #a6e22e; padding: 15px; border-radius: 5px; font-family: 'Courier New', Consolas, monospace; font-size: 12px; overflow-x: auto; white-space: pre; position: relative; max-height: 400px; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; vertical-align: top; }
+        th { background-color: #455a64; color: white; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .exercise { background-color: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0; border: 2px solid #2196f3; }
+        .exercise h3 { color: #1976d2; margin-top: 0; }
+        .difficulty { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; margin-left: 10px; }
+        .difficulty-easy { background-color: #c8e6c9; color: #2e7d32; }
+        .difficulty-medium { background-color: #fff9c4; color: #f57f17; }
+        .difficulty-hard { background-color: #ffcdd2; color: #c62828; }
+        details { background-color: #f5f5f5; padding: 10px 15px; border-radius: 5px; margin: 10px 0; }
+        details summary { cursor: pointer; font-weight: bold; color: #455a64; }
+        details[open] summary { margin-bottom: 10px; }
+        .toc { background-color: #fafafa; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .toc h3 { margin-top: 0; color: #37474f; }
+        .toc ul { list-style: none; padding-left: 0; }
+        .toc li { padding: 5px 0; }
+        .toc a { color: #1976d2; text-decoration: none; }
+        .toc a:hover { text-decoration: underline; }
+        .copy-button { position: absolute; top: 8px; right: 8px; padding: 6px 12px; background-color: #455a64; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-family: 'Segoe UI', sans-serif; transition: background-color 0.2s; z-index: 10; display: flex; align-items: center; gap: 4px; }
+        .copy-button:hover { background-color: #37474f; }
+        .copy-button.copied { background-color: #28a745; }
+        .copy-button svg { width: 14px; height: 14px; fill: currentColor; }
+        .node-compare { display: flex; gap: 20px; flex-wrap: wrap; margin: 20px 0; }
+        .node-card { background: #f9f9f9; border: 1px solid #ddd; border-radius: 8px; padding: 15px; flex: 1; min-width: 200px; }
+        .node-card h4 { margin-top: 0; color: #455a64; }
+        .diagram-box { background: #2d3133; color: white; padding: 20px; border-radius: 8px; font-family: monospace; margin: 15px 0; white-space: pre-wrap; }
+        code { background: #eceff1; padding: 2px 6px; border-radius: 3px; font-family: 'Courier New', monospace; font-size: 0.95em; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Node-RED FTP / SFTP ノードガイド</h1>
+        <div data-envbadge="1" style="margin:12px 0;"><span style="display:inline-block;padding:3px 12px;border-radius:12px;font-size:0.85em;font-weight:bold;background:#ede7f6;color:#4527a0;border:1px solid #b39ddb;">🖥️🍓 ローカル/ラズパイ</span> <a href="nodered-learning-environment-guide.html" style="font-size:0.82em;">環境とは？</a></div>
+
+        <div class="thirdparty">
+            <h3>このガイドで扱うノードについて</h3>
+            <p>FTP と SFTP のノードは Node-RED の標準ノードに含まれていない<strong>追加パッケージ</strong>である。使うのは次の2つ。</p>
+            <table>
+                <tr>
+                    <th>パッケージ</th>
+                    <th>版（執筆時点）</th>
+                    <th>提供するノード</th>
+                    <th>ライセンス</th>
+                </tr>
+                <tr>
+                    <td><code>node-red-contrib-ftp</code></td>
+                    <td>v0.0.8（2022-06-20 公開）</td>
+                    <td><code>ftp in</code>（FTP クライアント）<br><code>sftp in</code>（SFTP クライアント）</td>
+                    <td>Apache</td>
+                </tr>
+                <tr>
+                    <td><code>node-red-contrib-ftp-server</code></td>
+                    <td>v1.0.4（2022-03-19 公開）</td>
+                    <td><code>ftp server</code>（FTP サーバー）</td>
+                    <td>MIT</td>
+                </tr>
+            </table>
+            <ul>
+                <li>GitHub: <a href="https://github.com/joeartsea/node-red-contrib-ftp">joeartsea/node-red-contrib-ftp</a>（作者 Atsushi Kojo）</li>
+                <li>GitHub: <a href="https://github.com/biddster/node-red-contrib-ftp-server">biddster/node-red-contrib-ftp-server</a>（作者 @biddster）</li>
+            </ul>
+            <p><code>node-red-contrib-ftp</code> は日本語の表示ファイルを同梱している。そのため設定項目は原則として日本語表示をそのまま示し、訳語が用意されていない項目だけ「<strong>English Label</strong>（日本語訳）」の形式で書く。<code>node-red-contrib-ftp-server</code> は日本語表示を持たないため、すべて英語ラベルに訳を添える。</p>
+            <p><strong>免責：</strong> 本ガイドは上記バージョンでの動作を前提に書いている。どちらも 2022 年以降の更新がなく、Node-RED 本体や Node.js の更新で挙動が変わる可能性がある。導入前に最新の状況を確認してほしい。</p>
+        </div>
+
+        <div class="warning">
+            <strong>SFTP サーバーのノードは存在しない：</strong>
+            <p>Node-RED を SFTP の<strong>サーバー</strong>にするノードは、2026-08-13 時点で npm 上に見つからない。かつて候補だったパッケージは公開が取り下げられている。SFTP は SSH の機能の一つなので、サーバー側は OS の SSH デーモンで用意する。手順は<a href="#s8">セクション 8</a> で扱う。</p>
+        </div>
+
+        <div class="toc">
+            <h3>目次</h3>
+            <ul>
+                <li><a href="#s1">1. 概要：ファイルを受け渡す4つの立ち位置</a></li>
+                <li><a href="#s2">2. FTP と SFTP と FTPS の違い</a></li>
+                <li><a href="#s3">3. インストール方法</a></li>
+                <li><a href="#s4">4. ノード構成</a></li>
+                <li><a href="#s5">5. 設定項目一覧</a></li>
+                <li><a href="#s6">6. 操作ごとの挙動</a></li>
+                <li><a href="#s7">7. FTP サーバーとして受け取る</a></li>
+                <li><a href="#s8">8. SFTP サーバーは OS 側で立てる</a></li>
+                <li><a href="#s9">9. セキュリティと運用の注意</a></li>
+                <li><a href="#s10">10. サンプルフロー</a></li>
+                <li><a href="#s11">11. 演習問題</a></li>
+                <li><a href="#s12">12. まとめ</a></li>
+                <li><a href="#s13">13. トラブルシューティング</a></li>
+            </ul>
+        </div>
+
+        <h2 id="s1">1. 概要：ファイルを受け渡す4つの立ち位置</h2>
+        <p>現場でファイル転送が必要になる場面は、たいてい次のどちらかである。計測器が日次の CSV を吐くので回収したい。ネットワークカメラが動体検知の画像を送りつけてくるので受け止めたい。前者は Node-RED が取りに行く側、後者は Node-RED が受ける側になる。</p>
+
+        <p>取りに行く側を<strong>クライアント</strong>、受ける側を<strong>サーバー</strong>と呼ぶ。これに暗号化の有無を掛け合わせると、立ち位置は4つになる。</p>
+
+        <table>
+            <tr>
+                <th>立ち位置</th>
+                <th>何をするか</th>
+                <th>使うもの</th>
+            </tr>
+            <tr>
+                <td>FTP クライアント</td>
+                <td>相手の FTP サーバーへ接続し、ファイルを取得したり送ったりする</td>
+                <td><code>ftp in</code> ノード</td>
+            </tr>
+            <tr>
+                <td>SFTP クライアント</td>
+                <td>同じことを SSH の上で行う</td>
+                <td><code>sftp in</code> ノード</td>
+            </tr>
+            <tr>
+                <td>FTP サーバー</td>
+                <td>Node-RED 自身が待ち受け、機器から送られたファイルを受け取る</td>
+                <td><code>ftp server</code> ノード</td>
+            </tr>
+            <tr>
+                <td>SFTP サーバー</td>
+                <td>同じことを暗号化して行う</td>
+                <td>OS の OpenSSH（Node-RED のノードは無い）</td>
+            </tr>
+        </table>
+
+        <p>どの立ち位置になるかは、相手の機器が決めることが多い。カメラや計測器の設定画面に「FTP サーバーのアドレス」を入れる欄があれば、機器がクライアントで Node-RED がサーバーである。逆に相手が置き場所を用意しているだけなら、Node-RED が取りに行く。</p>
+
+        <div class="tip">
+            <strong>ファイルの中身を扱う手前の話：</strong>
+            <p>転送したファイルを Node-RED の中で読み書きするのは、標準の <a href="nodered-file-node-guide.html">file ノード</a>の役目である。フォルダにファイルが増えたことを検知するのは <a href="nodered-watch-node-guide.html">watch ノード</a>が担う。このガイドは「マシンの間でファイルを動かす」部分だけを扱う。</p>
+        </div>
+
+        <h2 id="s2">2. FTP と SFTP と FTPS の違い</h2>
+        <p>名前が似ている3つを並べて整理する。</p>
+
+        <table>
+            <tr>
+                <th></th>
+                <th>FTP</th>
+                <th>FTPS</th>
+                <th>SFTP</th>
+            </tr>
+            <tr>
+                <td><strong>通信の暗号化</strong></td>
+                <td>なし</td>
+                <td>TLS</td>
+                <td>SSH</td>
+            </tr>
+            <tr>
+                <td><strong>既定のポート</strong></td>
+                <td>21（制御用）とデータ用の別ポート</td>
+                <td>21 または 990</td>
+                <td>22</td>
+            </tr>
+            <tr>
+                <td><strong>認証</strong></td>
+                <td>ID とパスワード（平文で流れる）</td>
+                <td>ID とパスワード</td>
+                <td>ID とパスワード、または公開鍵</td>
+            </tr>
+            <tr>
+                <td><strong>土台になる仕組み</strong></td>
+                <td>FTP という独立したプロトコル</td>
+                <td>FTP に TLS をかぶせたもの</td>
+                <td>SSH の機能の一つ</td>
+            </tr>
+            <tr>
+                <td><strong>このガイドで扱う手段</strong></td>
+                <td><code>ftp in</code> と <code>ftp server</code></td>
+                <td>扱わない</td>
+                <td><code>sftp in</code> と OS の OpenSSH</td>
+            </tr>
+        </table>
+
+        <p>誤解されやすいのは SFTP の位置づけである。名前は FTP に S が付いた形だが、FTP を暗号化したものではない。SSH という別の仕組みの中に用意されたファイル転送機能であり、プロトコルもポートも FTP とは無関係である。FTP を暗号化したものは FTPS のほうで、こちらは名前が紛らわしいわりに現場で見かける機会が少ない。</p>
+
+        <div class="danger">
+            <strong>平文 FTP の危険：</strong>
+            <p>FTP はユーザー名とパスワードを暗号化せずに送る。同じネットワークを流れるパケットを見られる立場の相手には、そのまま読み取られる。ファイルの中身も同様である。</p>
+            <p>使ってよいのは、外部から到達できない LAN の中と検証環境に限る。インターネットを越えてファイルを運ぶ用途では SFTP か FTPS を選ぶ。古い機器が FTP しか話せない場合は、機器と Node-RED を同じ閉じたネットワークに置き、そこから先を SFTP で中継する構成にする。</p>
+        </div>
+
+        <h3>パッシブモードとアクティブモード</h3>
+        <p>FTP には、他のプロトコルにあまり無い癖がある。命令のやり取りとファイルの中身を、別々の接続で運ぶ。この2本目をどちらから張るかで2つのモードに分かれる。</p>
+
+        <div class="diagram-box">パッシブ（PASV）モード
+  クライアント ──接続──&gt; サーバー   （制御用、ポート 21）
+  クライアント ──接続──&gt; サーバー   （データ用、サーバーが指定したポート）
+
+アクティブモード
+  クライアント ──接続──&gt; サーバー   （制御用、ポート 21）
+  クライアント &lt;──接続── サーバー   （データ用、クライアントが指定したポート）</div>
+
+        <p>アクティブモードはサーバーからクライアントへ接続を張るため、クライアント側にファイアウォールがあると弾かれる。そのため現在はパッシブモードが既定になっている。</p>
+
+        <p>サーバーを立てる側から見ると、パッシブモードでは制御用のポートに加えてデータ用のポートも開けておく必要がある。どのポートを使うかはサーバーが接続のたびに選ぶため、既定のままだと範囲が定まらずファイアウォールの設定を書けない。<code>ftp server</code> ノードの「Passive Mode Port Range」は、この範囲を固定するための欄である。</p>
+
+        <h2 id="s3">3. インストール方法</h2>
+        <p>Node-RED エディターの「パレットの管理」から導入する。2つのパッケージを別々に入れる。</p>
+
+        <ol>
+            <li>エディター右上のメニュー（三本線）から「パレットの管理」を開く</li>
+            <li>「ノードを追加」タブを選ぶ</li>
+            <li>検索欄に <code>node-red-contrib-ftp</code> と入力し、「ノードを追加」ボタンを押す</li>
+            <li>続けて <code>node-red-contrib-ftp-server</code> を検索し、同じように追加する</li>
+            <li>インストール後、パレットの「ストレージ」に ftp と sftp、「入力」に ftp server が現れる</li>
+        </ol>
+
+        <p>コマンドラインから入れる場合は、Node-RED のユーザーディレクトリ（多くは <code>~/.node-red</code>、Windows では <code>%userprofile%\.node-red</code>）で次を実行する。</p>
+
+        <div class="code-block">npm install node-red-contrib-ftp node-red-contrib-ftp-server</div>
+
+        <div class="tip">
+            <strong>SFTP も同じパッケージに入っている：</strong>
+            <p><code>node-red-contrib-ftp</code> というパッケージ名からは FTP だけに見えるが、中には <code>sftp</code> ノードも同梱されている。SFTP を使うために別のパッケージを探す必要はない。</p>
+        </div>
+
+        <div class="warning">
+            <strong>メンテナンスの状況：</strong>
+            <p>どちらのパッケージも 2022 年以降の更新がない。<code>node-red-contrib-ftp</code> が内部で使う <code>ftp</code> パッケージはさらに古い。動いているうちは問題ないが、Node.js や Node-RED を新しくしたときに壊れる可能性はある。</p>
+            <p>SFTP クライアントだけが必要で、更新の新しさを重視するなら <code>node-red-contrib-sftp-ssh2</code>（v0.1.4、2024-07-20）という別の選択肢もある。ただし設定項目の作りが異なるため、本ガイドの説明はそのまま当てはまらない。</p>
+        </div>
+
+        <h2 id="s4">4. ノード構成</h2>
+        <p>5種類のノードが登場する。うち2つは接続先を保持するコンフィグノードで、フロー上には現れない。</p>
+
+        <div class="node-compare">
+            <div class="node-card">
+                <h4>ftp（コンフィグ）</h4>
+                <p>接続先の FTP サーバーの住所と認証情報を持つ。複数の <code>ftp in</code> ノードから共有できる。</p>
+            </div>
+            <div class="node-card">
+                <h4>ftp in</h4>
+                <p><strong>FTP クライアント</strong></p>
+                <p>メッセージを受けて一度だけ接続し、指定した操作を行って結果を出す。</p>
+            </div>
+            <div class="node-card">
+                <h4>sftp（コンフィグ）</h4>
+                <p>接続先の SFTP サーバーの情報を持つ。パスワードのほか秘密鍵も指定できる。</p>
+            </div>
+            <div class="node-card">
+                <h4>sftp in</h4>
+                <p><strong>SFTP クライアント</strong></p>
+                <p><code>ftp in</code> と同じ操作を SSH の上で行う。一覧の絞り込みができる点が異なる。</p>
+            </div>
+            <div class="node-card">
+                <h4>ftp server</h4>
+                <p><strong>FTP サーバー</strong></p>
+                <p>入力を持たず、指定ポートで待ち受ける。ファイルが届くと出力へ流す。</p>
+            </div>
+        </div>
+
+        <div class="node-example">
+            <span class="node node-inject">inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-ftp">ftp in（取りに行く）</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">debug</span>
+        </div>
+
+        <div class="node-example">
+            <span class="node node-server">ftp server（待ち受ける）</span>
+            <span class="arrow">→</span>
+            <span class="node node-file">file</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">debug</span>
+        </div>
+
+        <p><code>ftp in</code> と <code>sftp in</code> は入力を持つ。inject や他のノードからメッセージが届いたときに、はじめて接続して転送を行う。常時つながっているわけではない。</p>
+
+        <h2 id="s5">5. 設定項目一覧</h2>
+        <p><code>node-red-contrib-ftp</code> は日本語の表示ファイルを持つため、エディターの多くの欄は日本語で表示される。訳語が用意されていない欄だけ英語のまま表示されるので、その場合は英語ラベルに訳を添えて示す。</p>
+
+        <h3>5-1. FTP の接続設定（ftp コンフィグノード）</h3>
+
+        <table>
+            <tr>
+                <th>設定項目</th>
+                <th>説明</th>
+                <th>未入力のときの値</th>
+            </tr>
+            <tr>
+                <td><strong>ホスト</strong></td>
+                <td>接続先の FTP サーバーのホスト名または IP アドレス。</td>
+                <td>localhost</td>
+            </tr>
+            <tr>
+                <td><strong>ポート</strong></td>
+                <td>制御用の接続に使うポート番号。</td>
+                <td>21</td>
+            </tr>
+            <tr>
+                <td><strong>ユーザ名</strong></td>
+                <td>認証に使うユーザー名。</td>
+                <td>anonymous</td>
+            </tr>
+            <tr>
+                <td><strong>パスワード</strong></td>
+                <td>認証に使うパスワード。フローをエクスポートしても書き出されず、Node-RED の資格情報ファイルへ別に保存される。</td>
+                <td>anonymous@</td>
+            </tr>
+            <tr>
+                <td><strong>接続タイムアウト</strong></td>
+                <td>制御用の接続が確立するまで待つ時間（ミリ秒）。相手が応答しない場合にここで打ち切る。</td>
+                <td>10000</td>
+            </tr>
+            <tr>
+                <td><strong>PASVタイムアウト</strong></td>
+                <td>パッシブモードのデータ接続が確立するまで待つ時間（ミリ秒）。ファイアウォールでデータ用ポートが塞がれていると、ここで時間切れになる。</td>
+                <td>10000</td>
+            </tr>
+            <tr>
+                <td><strong>Keepalive</strong></td>
+                <td>接続を維持するために無害な命令（NOOP）を送る間隔（ミリ秒）。</td>
+                <td>10000</td>
+            </tr>
+            <tr>
+                <td><strong>Data connection encryption</strong>（データ接続の暗号化）</td>
+                <td>制御用とデータ用の両方の接続を TLS で暗号化する指定。チェックボックス。</td>
+                <td>オフ</td>
+            </tr>
+            <tr>
+                <td><strong>Secure Options</strong>（TLS の追加オプション）</td>
+                <td>TLS の接続時に渡す追加の設定。自己署名証明書を受け入れる場合などに使う。</td>
+                <td>（空）</td>
+            </tr>
+        </table>
+
+        <div class="warning">
+            <strong>FTPS は当てにしないほうがよい：</strong>
+            <p>「Data connection encryption」のチェックボックスは、ソースを読むと入力欄の id がコンフィグノードの命名規則（<code>node-config-input-</code> で始まる形）から外れている。他の欄と揃っていないため、チェックした値が保存されない可能性がある。</p>
+            <p>暗号化した転送が必要なら、このチェックボックスに頼らず SFTP を使う。相手が FTPS しか話せないなら、Node-RED のノードではなく <a href="nodered-exec-node-guide.html">exec ノード</a>から <code>curl</code> や <code>lftp</code> を呼ぶ構成のほうが確実である。</p>
+        </div>
+
+        <h3>5-2. ftp in（FTP の操作ノード）</h3>
+
+        <table>
+            <tr>
+                <th>設定項目</th>
+                <th>説明</th>
+                <th>既定値</th>
+            </tr>
+            <tr>
+                <td><strong>Add new FTP Server</strong>（接続先の FTP サーバー）</td>
+                <td>使用する ftp コンフィグノードを選ぶ。鉛筆ボタンから新規作成もできる。指定は必須。</td>
+                <td>（未選択）</td>
+            </tr>
+            <tr>
+                <td><strong>Operation</strong>（操作）</td>
+                <td>行う操作。list / get / put / append / delete / mkdir から選ぶ。選んだ操作に応じて、下の入力欄の表示が切り替わる。</td>
+                <td>list</td>
+            </tr>
+            <tr>
+                <td><strong>ファイル名</strong></td>
+                <td>サーバー側のパスまたはファイル名。list では一覧を取るディレクトリ、mkdir では作るディレクトリを指す。</td>
+                <td>（空）</td>
+            </tr>
+            <tr>
+                <td><strong>ローカルファイル名</strong></td>
+                <td>Node-RED が動いているマシン側のパス。get の保存先、put と append の読み出し元になる。get / put / append を選んだときだけ表示される。</td>
+                <td>（空）</td>
+            </tr>
+            <tr>
+                <td><strong>名前</strong></td>
+                <td>エディター上のノード表示名。</td>
+                <td>（空）</td>
+            </tr>
+        </table>
+
+        <div class="important">
+            <strong>欄が空のときだけメッセージの値が使われる：</strong>
+            <p>「ファイル名」と「ローカルファイル名」は、<code>msg.filename</code> と <code>msg.localFilename</code> でも渡せる。ただし優先されるのはノードの設定であり、欄に何か書いてあると、そちらが常に勝つ。メッセージごとにファイル名を変えたい場合は、ノードの欄を空にしておく。</p>
+        </div>
+
+        <div class="tip">
+            <strong>ローカルとはどのマシンか：</strong>
+            <p>「ローカルファイル名」が指すのは、Node-RED が動いているマシンのファイルシステムである。ブラウザを開いているマシンではない。Raspberry Pi の Node-RED を手元の PC から操作している場合、ここに書くのは Pi 側のパスになる。</p>
+        </div>
+
+        <h3>5-3. SFTP の接続設定（sftp コンフィグノード）</h3>
+        <p>項目が多いため、よく使うものと既定のままでよいものに分けて示す。</p>
+
+        <h4>よく使う項目</h4>
+
+        <table>
+            <tr>
+                <th>設定項目</th>
+                <th>説明</th>
+                <th>未入力のときの値</th>
+            </tr>
+            <tr>
+                <td><strong>ホスト</strong></td>
+                <td>接続先の SSH サーバーのホスト名または IP アドレス。</td>
+                <td>localhost</td>
+            </tr>
+            <tr>
+                <td><strong>ポート</strong></td>
+                <td>SSH のポート番号。</td>
+                <td>22</td>
+            </tr>
+            <tr>
+                <td><strong>ユーザ名</strong></td>
+                <td>SSH のユーザー名。</td>
+                <td>anonymous</td>
+            </tr>
+            <tr>
+                <td><strong>パスワード</strong></td>
+                <td>パスワード認証を使う場合のパスワード。鍵認証を使うなら空でよい。</td>
+                <td>（空）</td>
+            </tr>
+            <tr>
+                <td><strong>秘密鍵</strong></td>
+                <td>鍵認証に使う秘密鍵ファイルの<strong>パス</strong>。鍵の中身を貼り付ける欄ではない。Node-RED が動いているマシン上のパスを書く（例：<code>/home/pi/.ssh/id_ed25519</code>）。</td>
+                <td>（空）</td>
+            </tr>
+            <tr>
+                <td><strong>パスフレーズ</strong></td>
+                <td>秘密鍵が暗号化されている場合のパスフレーズ。</td>
+                <td>（空）</td>
+            </tr>
+        </table>
+
+        <h4>既定のままでよい項目</h4>
+
+        <table>
+            <tr>
+                <th>設定項目</th>
+                <th>説明</th>
+                <th>未入力のときの値</th>
+            </tr>
+            <tr>
+                <td><strong>IPv4アドレス経由でのみ接続する</strong></td>
+                <td>名前解決が IPv4 と IPv6 の両方を返す環境で、IPv4 に限定する。</td>
+                <td>オフ</td>
+            </tr>
+            <tr>
+                <td><strong>IPv6アドレス経由でのみ接続する</strong></td>
+                <td>同じく IPv6 に限定する。</td>
+                <td>オフ</td>
+            </tr>
+            <tr>
+                <td><strong>agent</strong>（SSH エージェント）</td>
+                <td>鍵を保持している SSH エージェントのソケットパス。エージェント経由で認証する場合に指定する。</td>
+                <td>（空）</td>
+            </tr>
+            <tr>
+                <td><strong>準備完了タイムアウト</strong></td>
+                <td>SSH のハンドシェイクが終わるまで待つ時間（ミリ秒）。</td>
+                <td>20000</td>
+            </tr>
+            <tr>
+                <td><strong>厳密なサーバーベンダーチェックを実行する</strong></td>
+                <td>接続先の SSH 実装の種類を厳密に確認する。</td>
+                <td>オン</td>
+            </tr>
+            <tr>
+                <td><strong>デバッグ</strong></td>
+                <td>詳細なログを受け取る関数を書くための欄。エディター内に JavaScript の入力欄が開く。</td>
+                <td>（空）</td>
+            </tr>
+            <tr>
+                <td><strong>リトライ回数</strong></td>
+                <td>接続に失敗したときのやり直し回数。</td>
+                <td>2</td>
+            </tr>
+            <tr>
+                <td><strong>リトライ係数</strong></td>
+                <td>やり直しの待ち時間を何倍ずつ伸ばすか。2 なら待ち時間が倍々に増える。</td>
+                <td>2</td>
+            </tr>
+            <tr>
+                <td><strong>リトライ最小タイムアウト</strong></td>
+                <td>最初のやり直しまでの待ち時間（ミリ秒）。</td>
+                <td>2000</td>
+            </tr>
+        </table>
+
+        <div class="tip">
+            <strong>鍵認証を勧める理由：</strong>
+            <p>パスワードをコンフィグノードへ書くと、Node-RED の資格情報ファイルに保存される。鍵認証にすれば、Node-RED 側に持つのは秘密鍵ファイルのパスだけになり、鍵そのものは OS のファイルパーミッションで守れる。鍵は接続元のマシンで <code>ssh-keygen -t ed25519</code> で作り、公開鍵だけを接続先の <code>~/.ssh/authorized_keys</code> へ登録する。</p>
+        </div>
+
+        <h3>5-4. sftp in（SFTP の操作ノード）</h3>
+
+        <table>
+            <tr>
+                <th>設定項目</th>
+                <th>説明</th>
+                <th>既定値</th>
+            </tr>
+            <tr>
+                <td><strong>Add new SFTP Server</strong>（接続先の SFTP サーバー）</td>
+                <td>使用する sftp コンフィグノードを選ぶ。指定は必須。</td>
+                <td>（未選択）</td>
+            </tr>
+            <tr>
+                <td><strong>Operation</strong>（操作）</td>
+                <td>行う操作。list / get / put / append / delete / mkdir から選ぶ。</td>
+                <td>list</td>
+            </tr>
+            <tr>
+                <td><strong>ディレクトリパス</strong></td>
+                <td>サーバー側のディレクトリ。list の対象と mkdir で作る場所に使う。list / mkdir を選んだときだけ表示される。</td>
+                <td>./</td>
+            </tr>
+            <tr>
+                <td><strong>パターン</strong></td>
+                <td>一覧を絞り込む条件。<code>*.csv</code> のようなワイルドカードを書く。list を選んだときだけ表示される。</td>
+                <td>（空、絞り込みなし）</td>
+            </tr>
+            <tr>
+                <td><strong>ファイル名</strong></td>
+                <td>サーバー側のファイルのパス。get / put / append / delete で使う。</td>
+                <td>（空）</td>
+            </tr>
+            <tr>
+                <td><strong>ローカルファイル名</strong></td>
+                <td>Node-RED 側のパス。get の保存先、put と append の読み出し元。</td>
+                <td>（空）</td>
+            </tr>
+            <tr>
+                <td><strong>名前</strong></td>
+                <td>エディター上のノード表示名。</td>
+                <td>（空）</td>
+            </tr>
+        </table>
+
+        <p>操作によって表示される欄が変わる。対応は次のとおり。</p>
+
+        <table>
+            <tr>
+                <th>Operation</th>
+                <th>ftp in で表示される欄</th>
+                <th>sftp in で表示される欄</th>
+            </tr>
+            <tr>
+                <td>list</td>
+                <td>ファイル名</td>
+                <td>ディレクトリパス、パターン</td>
+            </tr>
+            <tr>
+                <td>get / put / append</td>
+                <td>ファイル名、ローカルファイル名</td>
+                <td>ファイル名、ローカルファイル名</td>
+            </tr>
+            <tr>
+                <td>delete</td>
+                <td>ファイル名</td>
+                <td>ファイル名</td>
+            </tr>
+            <tr>
+                <td>mkdir</td>
+                <td>ファイル名</td>
+                <td>ディレクトリパス</td>
+            </tr>
+        </table>
+
+        <div class="important">
+            <strong>同じ list でも指定する欄が違う：</strong>
+            <p>FTP と SFTP は操作名が同じでも、対象を書く欄が異なる。一覧を取るとき、FTP は「ファイル名」にディレクトリを書き、SFTP は「ディレクトリパス」に書く。片方の設定を見ながらもう片方を組むと、ここで空振りする。</p>
+        </div>
+
+        <h3>5-5. ftp server（FTP サーバーノード）</h3>
+        <p>このパッケージは日本語の表示ファイルを持たないため、すべて英語で表示される。</p>
+
+        <table>
+            <tr>
+                <th>設定項目</th>
+                <th>説明</th>
+                <th>既定値</th>
+            </tr>
+            <tr>
+                <td><strong>Name</strong>（名前）</td>
+                <td>エディター上のノード表示名。</td>
+                <td>（空）</td>
+            </tr>
+            <tr>
+                <td><strong>IP</strong>（待ち受けアドレス）</td>
+                <td>待ち受けに使う IP アドレス。空にすると、そのマシンのアドレスを自動で検出して使う。複数のネットワークに接続しているマシンで待ち受け先を固定したい場合に指定する。</td>
+                <td>（空、自動検出）</td>
+            </tr>
+            <tr>
+                <td><strong>Port</strong>（ポート）</td>
+                <td>制御用の接続を待ち受けるポート。FTP の標準は 21 だが、1024 未満のポートは管理者権限が要るため、既定は 7021 になっている。</td>
+                <td>7021</td>
+            </tr>
+            <tr>
+                <td><strong>Username</strong>（ユーザー名）</td>
+                <td>接続を許可するユーザー名。<strong>空にすると動的認証モード</strong>になり、認証の判断をフロー側で行う。</td>
+                <td>（空、動的認証）</td>
+            </tr>
+            <tr>
+                <td><strong>Password</strong>（パスワード）</td>
+                <td>接続を許可するパスワード。Username を指定したときに使う。</td>
+                <td>（空）</td>
+            </tr>
+            <tr>
+                <td><strong>Passive Mode Port Range</strong>（パッシブモードのポート範囲）</td>
+                <td>データ用の接続に使うポートの範囲。<code>7022-7032</code> のように範囲で書く。数字1つだけ書くとそのポートに固定される。空のときは任意のポートが選ばれるため、ファイアウォールの設定を書けない。</td>
+                <td>（空、毎回変わる）</td>
+            </tr>
+        </table>
+
+        <h2 id="s6">6. 操作ごとの挙動</h2>
+        <p>6つの操作それぞれについて、することと出力される <code>msg.payload</code> を整理する。</p>
+
+        <table>
+            <tr>
+                <th>Operation</th>
+                <th>すること</th>
+                <th>出力される payload</th>
+            </tr>
+            <tr>
+                <td><strong>list</strong></td>
+                <td>ディレクトリの中身を一覧する</td>
+                <td>ファイル情報の配列。名前、種別、サイズ、更新日時などを含む</td>
+            </tr>
+            <tr>
+                <td><strong>get</strong></td>
+                <td>サーバーのファイルをローカルへ保存する</td>
+                <td><code>Get operation successful. </code> に続けてローカルのパスを並べた文字列</td>
+            </tr>
+            <tr>
+                <td><strong>put</strong></td>
+                <td>ローカルのファイルをサーバーへ送る</td>
+                <td>FTP は <code>Put operation successful.</code> という文字列。SFTP は転送結果の文字列</td>
+            </tr>
+            <tr>
+                <td><strong>append</strong></td>
+                <td>サーバー側の既存ファイルの末尾へ書き足す</td>
+                <td><code>Append operation successful.</code> という文字列</td>
+            </tr>
+            <tr>
+                <td><strong>delete</strong></td>
+                <td>サーバー側のファイルを削除する</td>
+                <td>実質的に空</td>
+            </tr>
+            <tr>
+                <td><strong>mkdir</strong></td>
+                <td>サーバー側にディレクトリを作る。途中の階層も作られる</td>
+                <td>FTP は <code>mkdir operation successful.</code> という文字列</td>
+            </tr>
+        </table>
+
+        <div class="important">
+            <strong>get はファイルの中身を返さない：</strong>
+            <p>最も間違えやすい点である。get は取得したファイルを<strong>ローカルへ書き出すだけ</strong>で、<code>msg.payload</code> に入るのは成功を伝える文字列にすぎない。中身を Node-RED の中で使いたいなら、get の後ろに <a href="nodered-file-node-guide.html">file in ノード</a>を繋いで、保存されたファイルを読み直す。</p>
+        </div>
+
+        <div class="node-example">
+            <span class="node node-ftp">sftp in（get）</span>
+            <span class="arrow">→</span>
+            <span class="node node-file">file in（保存先を読む）</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">debug</span>
+        </div>
+
+        <p>操作のあと、メッセージには実際に使われたパスが書き戻される。<code>msg.filename</code> と <code>msg.localFilename</code> は常にセットされ、SFTP ではこれに加えて <code>msg.path</code> と <code>msg.pattern</code> も付く。後段でログを残すときに使える。</p>
+
+        <h3>失敗したときの振る舞い</h3>
+        <p>接続できない、ファイルが見つからない、権限がない、といった失敗が起きると、ノードは出力へ何も流さずエラーを発生させる。ノードのステータスは赤くなり、エラーメッセージが表示される。</p>
+
+        <p>このエラーは <a href="nodered-catch-node-guide.html">catch ノード</a>で捕まえられる。転送は相手のマシンやネットワークの状態に左右されるため、失敗したことに気づける経路を用意しておく。</p>
+
+        <div class="node-example">
+            <span class="node node-ftp">ftp in</span>
+            <span class="arrow">✗</span>
+            <span class="node node-catch">catch</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">debug（通知）</span>
+        </div>
+
+        <h2 id="s7">7. FTP サーバーとして受け取る</h2>
+        <p><code>ftp server</code> ノードは入力を持たず、デプロイした時点でポートを開いて待ち受ける。出力は2つある。</p>
+
+        <table>
+            <tr>
+                <th>出力</th>
+                <th>ラベル</th>
+                <th>いつ流れるか</th>
+                <th>メッセージの中身</th>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>upload file</td>
+                <td>ファイルが送られてきたとき</td>
+                <td><code>msg.topic</code> にファイル名、<code>msg.payload</code> にファイルの中身（Buffer）</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>authenticate</td>
+                <td>Username 欄が空のとき、接続のたび</td>
+                <td><code>msg.payload</code> に <code>{username, password}</code>、<code>msg.authenticate</code> に判定を返す関数</td>
+            </tr>
+        </table>
+
+        <div class="danger">
+            <strong>受け取ったファイルはディスクに残らない：</strong>
+            <p>このノードはメモリ上の仮想ファイルシステムにファイルを書き、<strong>5秒後に消す</strong>。Raspberry Pi のような機器でメモリを使い切らないための作りである。</p>
+            <p>そのため、出力1をどこにも繋がなければファイルは失われる。保存したいなら <a href="nodered-file-node-guide.html">file ノード</a>へ繋いで自分で書き出す。「FTP サーバーを立てたのにファイルがどこにも見当たらない」という詰まり方は、ほぼこれが原因である。</p>
+        </div>
+
+        <h3>動的認証モード</h3>
+        <p>Username 欄を空にすると、ユーザー名とパスワードの判定をフロー側で行う。接続のたびに出力2へメッセージが流れるので、function ノードで <code>msg.authenticate(true)</code> または <code>msg.authenticate(false)</code> を呼んで返事をする。</p>
+
+        <div class="code-block">// 出力2 に繋いだ function ノード
+// パッケージの公式ヘルプに載っている書き方に沿っている
+msg.authenticate(
+    msg.payload.username === 'camera' &amp;&amp;
+    msg.payload.password === 'change-me'
+);
+msg.payload = undefined;
+return msg;</div>
+
+        <p>この仕組みが役に立つのは、機器ごとに違うユーザー名を使い分けたいときや、認証情報を<a href="nodered-settings-guide.html">環境変数</a>から読みたいときである。判定を返さないと接続は成立しないため、出力2を使う設定にした場合は必ず繋いでおく。</p>
+
+        <div class="warning">
+            <strong>TLS には対応していない：</strong>
+            <p>このノードのヘルプには、TLS 対応が今後の課題として挙がったまま残っている。つまり通信は平文である。カメラなどの機器から画像を受ける用途では、機器と Node-RED を同じ閉じたネットワークに置く。</p>
+        </div>
+
+        <h2 id="s8">8. SFTP サーバーは OS 側で立てる</h2>
+        <p>Node-RED を SFTP サーバーにするノードは、2026-08-13 時点で npm 上に存在しない。もっとも、SFTP は SSH の機能の一つなので、<strong>SSH サーバーが動いていれば、それがそのまま SFTP サーバーになる</strong>。Raspberry Pi OS や Ubuntu なら OpenSSH がその役目を担う。追加のパッケージは要らない。</p>
+
+        <h3>手順</h3>
+        <p>Raspberry Pi OS を例に、受け取り専用のユーザーを作るところまでを示す。</p>
+
+        <div class="code-block"># 1. SSH を有効にする（無効な場合）
+sudo systemctl enable --now ssh
+
+# 2. 受け取り専用のユーザーを作る（ログインシェルは与えない）
+sudo useradd -m -s /usr/sbin/nologin sensor-upload
+sudo passwd sensor-upload
+
+# 3. 受信フォルダを用意する
+sudo mkdir -p /var/spool/sensor-upload
+sudo chown sensor-upload:sensor-upload /var/spool/sensor-upload
+
+# 4. 別のマシンから接続を確認する
+sftp sensor-upload@192.168.1.20</div>
+
+        <p>ここまでで、機器や別のマシンから SFTP でファイルを置けるようになる。Node-RED 側は転送そのものに関わらず、置かれたファイルを見つけて処理する役に回る。</p>
+
+        <div class="node-example">
+            <span class="node node-file">watch（フォルダを監視）</span>
+            <span class="arrow">→</span>
+            <span class="node node-file">file in（読む）</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">function（処理）</span>
+        </div>
+
+        <p><a href="nodered-watch-node-guide.html">watch ノード</a>に <code>/var/spool/sensor-upload</code> を指定すると、ファイルが増えたときにメッセージが流れる。</p>
+
+        <div class="tip">
+            <strong>役割を分けておく利点：</strong>
+            <p>転送を OS が担うため、Node-RED を再起動してもファイルの受け取りは止まらない。フローの編集中に届いたファイルも、あとから watch ノードや file in ノードで拾える。Node-RED 内で待ち受ける構成に比べて、止められる範囲が狭い。</p>
+        </div>
+
+        <div class="warning">
+            <strong>書き込み途中のファイルを読まないようにする：</strong>
+            <p>watch ノードはファイルが作られた時点でも反応するため、転送の途中で読みに行くと中身が欠けたファイルを掴むことがある。送信側で「一時的な名前で送り、完了後に本来の名前へ変える」運用にするか、受信側で <a href="nodered-delay-node-guide.html">delay ノード</a>を挟んで少し待つ。</p>
+        </div>
+
+        <p>受け取り専用ユーザーを自分のフォルダの外へ出したくない場合は、OpenSSH の設定ファイル <code>/etc/ssh/sshd_config</code> で <code>ChrootDirectory</code> を使って閉じ込められる。ただし閉じ込め先のフォルダは所有者が root で、かつ他者に書き込み権限がないことが求められるなど条件が細かい。SSH と Linux の権限まわりは <a href="nodered-linux-directory-guide.html">Linux ディレクトリガイド</a>と<a href="nodered-production-operation-guide.html">本番運用ガイド</a>も参照してほしい。</p>
+
+        <h2 id="s9">9. セキュリティと運用の注意</h2>
+
+        <h3>認証情報の置き場所</h3>
+        <p>コンフィグノードのパスワード欄に入れた値は、フローをエクスポートしても書き出されない。Node-RED はこれを <code>flows_cred.json</code> という別のファイルへ暗号化して保存する。</p>
+
+        <p>ただし暗号化の鍵は、設定していなければ Node-RED が自動生成したものになる。フローファイルと資格情報ファイルを一緒にバックアップして別のマシンへ置くと、鍵が違うため復号できない。<code>settings.js</code> の <code>credentialSecret</code> を自分で決めておくと、移行のときに困らない。詳しくは <a href="nodered-settings-guide.html">settings ガイド</a>を参照してほしい。</p>
+
+        <h3>ポートを開ける範囲</h3>
+        <p>FTP サーバーを立てる場合、開けるポートは制御用とデータ用の両方になる。「Passive Mode Port Range」を <code>7022-7032</code> のように決めておくと、ファイアウォールの設定を書ける。</p>
+
+        <div class="code-block"># ufw を使っている場合の例（LAN からのみ許可する）
+sudo ufw allow from 192.168.1.0/24 to any port 7021 proto tcp
+sudo ufw allow from 192.168.1.0/24 to any port 7022:7032 proto tcp</div>
+
+        <p>ここで <code>from</code> を付けずに開けると、ルーターの設定によっては外部から届くようになる。平文の FTP を外部へ晒すことになるため、範囲は絞っておく。</p>
+
+        <h3>手段の選び方</h3>
+
+        <table>
+            <tr>
+                <th>状況</th>
+                <th>選ぶもの</th>
+            </tr>
+            <tr>
+                <td>同じ LAN 内の古い機器からファイルを受ける</td>
+                <td><code>ftp server</code> ノード。ポート範囲を絞り、LAN からのみ許可する</td>
+            </tr>
+            <tr>
+                <td>別拠点やクラウドとファイルをやり取りする</td>
+                <td>SFTP。鍵認証にする</td>
+            </tr>
+            <tr>
+                <td>相手から Node-RED へ送りつけてもらう（暗号化あり）</td>
+                <td>OS の OpenSSH と watch ノード</td>
+            </tr>
+            <tr>
+                <td>相手が FTPS しか話せない</td>
+                <td><a href="nodered-exec-node-guide.html">exec ノード</a>から <code>curl</code> や <code>lftp</code> を呼ぶ</td>
+            </tr>
+        </table>
+
+        <h2 id="s10">10. サンプルフロー</h2>
+        <p>このパッケージには公式のサンプルフローが同梱されていないため、ここに載せるのは本サイトで作成したものである。読み込んだあと、コンフィグノードのホスト名とユーザー名を自分の環境に合わせて書き換えて使う。パスワードはエクスポートに含まれないため、読み込み後に入力する。</p>
+
+        <h3>クライアントとして使う</h3>
+        <p>3つの操作と、失敗を捕まえる経路をまとめたフローである。</p>
+
+        <details>
+            <summary>サンプルフロー：FTP / SFTP クライアント（クリックで展開）</summary>
+            <div class="flow-json">[
+    {
+        "id": "tab_ftp_client",
+        "type": "tab",
+        "label": "FTP / SFTP クライアント",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "conf_ftp",
+        "type": "ftp",
+        "host": "192.168.1.50",
+        "port": "21",
+        "secure": false,
+        "secureOptions": "",
+        "user": "nodered",
+        "connTimeout": "10000",
+        "pasvTimeout": "10000",
+        "keepalive": "10000"
+    },
+    {
+        "id": "conf_sftp",
+        "type": "sftp",
+        "host": "192.168.1.60",
+        "port": "22",
+        "forceIPv4": false,
+        "forceIPv6": false,
+        "username": "nodered",
+        "privateKey": "",
+        "readyTimeout": "20000",
+        "strictVendor": true,
+        "debug": "",
+        "retries": "2",
+        "retry_factor": "2",
+        "retry_minTimeout": "2000"
+    },
+    {
+        "id": "cmt_list",
+        "type": "comment",
+        "z": "tab_ftp_client",
+        "name": "1. FTP でディレクトリの中身を一覧する",
+        "info": "payload に配列が返る",
+        "x": 250,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "inj_list",
+        "type": "inject",
+        "z": "tab_ftp_client",
+        "name": "一覧を要求",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 180,
+        "y": 110,
+        "wires": [
+            [
+                "ftp_list"
+            ]
+        ]
+    },
+    {
+        "id": "ftp_list",
+        "type": "ftp in",
+        "z": "tab_ftp_client",
+        "ftp": "conf_ftp",
+        "operation": "list",
+        "filename": "/",
+        "localFilename": "",
+        "name": "FTP list",
+        "x": 400,
+        "y": 110,
+        "wires": [
+            [
+                "dbg_list"
+            ]
+        ]
+    },
+    {
+        "id": "dbg_list",
+        "type": "debug",
+        "z": "tab_ftp_client",
+        "name": "一覧",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 610,
+        "y": 110,
+        "wires": []
+    },
+    {
+        "id": "cmt_put",
+        "type": "comment",
+        "z": "tab_ftp_client",
+        "name": "2. ローカルのファイルを FTP で送る",
+        "info": "ローカル = Node-RED が動いているマシン",
+        "x": 240,
+        "y": 190,
+        "wires": []
+    },
+    {
+        "id": "inj_put",
+        "type": "inject",
+        "z": "tab_ftp_client",
+        "name": "送信を要求",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 180,
+        "y": 240,
+        "wires": [
+            [
+                "ftp_put"
+            ]
+        ]
+    },
+    {
+        "id": "ftp_put",
+        "type": "ftp in",
+        "z": "tab_ftp_client",
+        "ftp": "conf_ftp",
+        "operation": "put",
+        "filename": "/upload/reading.csv",
+        "localFilename": "/tmp/reading.csv",
+        "name": "FTP put",
+        "x": 400,
+        "y": 240,
+        "wires": [
+            [
+                "dbg_put"
+            ]
+        ]
+    },
+    {
+        "id": "dbg_put",
+        "type": "debug",
+        "z": "tab_ftp_client",
+        "name": "送信の結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 620,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "cmt_get",
+        "type": "comment",
+        "z": "tab_ftp_client",
+        "name": "3. SFTP で取得してから中身を読む",
+        "info": "get は payload に中身を返さないので file in で読み直す",
+        "x": 240,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "inj_get",
+        "type": "inject",
+        "z": "tab_ftp_client",
+        "name": "取得を要求",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 180,
+        "y": 370,
+        "wires": [
+            [
+                "sftp_get"
+            ]
+        ]
+    },
+    {
+        "id": "sftp_get",
+        "type": "sftp in",
+        "z": "tab_ftp_client",
+        "sftp": "conf_sftp",
+        "operation": "get",
+        "path": "",
+        "pattern": "",
+        "filename": "/data/reading.csv",
+        "localFilename": "/tmp/reading_sftp.csv",
+        "name": "SFTP get",
+        "x": 400,
+        "y": 370,
+        "wires": [
+            [
+                "file_after_get"
+            ]
+        ]
+    },
+    {
+        "id": "file_after_get",
+        "type": "file in",
+        "z": "tab_ftp_client",
+        "name": "保存先を読む",
+        "filename": "/tmp/reading_sftp.csv",
+        "filenameType": "str",
+        "format": "utf8",
+        "chunk": false,
+        "sendError": false,
+        "encoding": "utf8",
+        "allProps": false,
+        "x": 620,
+        "y": 370,
+        "wires": [
+            [
+                "dbg_get"
+            ]
+        ]
+    },
+    {
+        "id": "dbg_get",
+        "type": "debug",
+        "z": "tab_ftp_client",
+        "name": "ファイルの中身",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 850,
+        "y": 370,
+        "wires": []
+    },
+    {
+        "id": "cmt_err",
+        "type": "comment",
+        "z": "tab_ftp_client",
+        "name": "4. 転送の失敗を捕まえる",
+        "info": "接続できない、ファイルが無い、権限が無い、など",
+        "x": 210,
+        "y": 450,
+        "wires": []
+    },
+    {
+        "id": "catch_transfer",
+        "type": "catch",
+        "z": "tab_ftp_client",
+        "name": "転送エラー",
+        "scope": [
+            "ftp_list",
+            "ftp_put",
+            "sftp_get"
+        ],
+        "uncaught": false,
+        "x": 190,
+        "y": 500,
+        "wires": [
+            [
+                "dbg_err"
+            ]
+        ]
+    },
+    {
+        "id": "dbg_err",
+        "type": "debug",
+        "z": "tab_ftp_client",
+        "name": "エラー内容",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "error",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 400,
+        "y": 500,
+        "wires": []
+    }
+]</div>
+        </details>
+
+        <h3>サーバーとして受け取る</h3>
+        <p>ポート 7021 で待ち受け、届いたファイルを保存する。動的認証の例も含めている。</p>
+
+        <details>
+            <summary>サンプルフロー：FTP サーバーで受け取る（クリックで展開）</summary>
+            <div class="flow-json">[
+    {
+        "id": "tab_ftp_server",
+        "type": "tab",
+        "label": "FTP サーバーで受け取る",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "cmt_srv",
+        "type": "comment",
+        "z": "tab_ftp_server",
+        "name": "受け取ったファイルはメモリ上にしか無い。file ノードで保存する",
+        "info": "ノードは5秒後に内部の一時ファイルを消す",
+        "x": 350,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "srv_ftp",
+        "type": "ftp-server",
+        "z": "tab_ftp_server",
+        "name": "受信（ポート7021）",
+        "ip": "",
+        "port": 7021,
+        "passiveportrange": "7022-7032",
+        "x": 190,
+        "y": 140,
+        "wires": [
+            [
+                "fn_save"
+            ],
+            [
+                "fn_auth"
+            ]
+        ]
+    },
+    {
+        "id": "fn_save",
+        "type": "function",
+        "z": "tab_ftp_server",
+        "name": "保存先を組み立てる",
+        "func": "// 出力1 は topic にファイル名、payload に中身（Buffer）が入る\n// 送信側がディレクトリ付きで送ってくることがあるので、末尾だけ取り出す\nconst name = (msg.topic || 'upload.bin').split('/').pop();\n\nmsg.filename = '/tmp/ftp-received/' + name;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 440,
+        "y": 120,
+        "wires": [
+            [
+                "file_save"
+            ]
+        ]
+    },
+    {
+        "id": "file_save",
+        "type": "file",
+        "z": "tab_ftp_server",
+        "name": "受信フォルダへ書き出す",
+        "filename": "filename",
+        "filenameType": "msg",
+        "appendNewline": false,
+        "createDir": true,
+        "overwriteFile": "true",
+        "encoding": "none",
+        "x": 700,
+        "y": 120,
+        "wires": [
+            [
+                "dbg_saved"
+            ]
+        ]
+    },
+    {
+        "id": "dbg_saved",
+        "type": "debug",
+        "z": "tab_ftp_server",
+        "name": "保存したパス",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "filename",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 940,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "fn_auth",
+        "type": "function",
+        "z": "tab_ftp_server",
+        "name": "接続を許可するか判定する",
+        "func": "// Username 欄を空にすると、接続のたびにこの出力へ問い合わせが来る\n// 判定を返さないと接続は成立しない\nconst ok = msg.payload.username === 'camera' &amp;&amp;\n           msg.payload.password === 'change-me';\n\nmsg.authenticate(ok);\n\nmsg.payload = {\n    'ユーザー名': msg.payload.username,\n    '判定': ok ? '許可' : '拒否'\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 460,
+        "y": 220,
+        "wires": [
+            [
+                "dbg_auth"
+            ]
+        ]
+    },
+    {
+        "id": "dbg_auth",
+        "type": "debug",
+        "z": "tab_ftp_server",
+        "name": "認証の記録",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 730,
+        "y": 220,
+        "wires": []
+    }
+]</div>
+        </details>
+
+        <div class="tip">
+            <strong>手元で試すには：</strong>
+            <p>相手の機器がなくても、同じマシンから接続すれば動作を確かめられる。上のサーバーフローをデプロイしたあと、別の端末で <code>ftp -p localhost 7021</code> と打ち、ユーザー名 <code>camera</code>、パスワード <code>change-me</code> でログインして <code>put</code> すると、<code>/tmp/ftp-received/</code> にファイルが現れる。</p>
+        </div>
+
+        <h2 id="s11">11. 演習問題</h2>
+
+        <div class="exercise">
+            <h3>演習1：日付のフォルダを作る<span class="difficulty difficulty-easy">初級</span></h3>
+            <p>FTP サーバー側に、今日の日付を名前にしたフォルダ（例：<code>/upload/2026-08-13</code>）を作るフローを組んでほしい。フォルダ名は実行するたびに変わるため、ノードの設定欄には固定の値を書けない。</p>
+            <p><strong>ヒント：</strong> 「ファイル名」の欄を空にしておくと、<code>msg.filename</code> の値が使われる。</p>
+            <details>
+                <summary>解答例（クリックで展開）</summary>
+                <div class="flow-json">[
+    {
+        "id": "tab_ex1",
+        "type": "tab",
+        "label": "演習1：日付のフォルダ",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "ex1_conf",
+        "type": "ftp",
+        "host": "192.168.1.50",
+        "port": "21",
+        "secure": false,
+        "secureOptions": "",
+        "user": "nodered",
+        "connTimeout": "10000",
+        "pasvTimeout": "10000",
+        "keepalive": "10000"
+    },
+    {
+        "id": "ex1_inject",
+        "type": "inject",
+        "z": "tab_ex1",
+        "name": "実行",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 170,
+        "y": 100,
+        "wires": [
+            [
+                "ex1_fn"
+            ]
+        ]
+    },
+    {
+        "id": "ex1_fn",
+        "type": "function",
+        "z": "tab_ex1",
+        "name": "日付のパスを作る",
+        "func": "const d = new Date();\nconst y = d.getFullYear();\nconst m = String(d.getMonth() + 1).padStart(2, '0');\nconst day = String(d.getDate()).padStart(2, '0');\n\n// ノードの「ファイル名」欄を空にしておくと、この値が使われる\nmsg.filename = '/upload/' + y + '-' + m + '-' + day;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 380,
+        "y": 100,
+        "wires": [
+            [
+                "ex1_mkdir"
+            ]
+        ]
+    },
+    {
+        "id": "ex1_mkdir",
+        "type": "ftp in",
+        "z": "tab_ex1",
+        "ftp": "ex1_conf",
+        "operation": "mkdir",
+        "filename": "",
+        "localFilename": "",
+        "name": "フォルダを作る",
+        "x": 620,
+        "y": 100,
+        "wires": [
+            [
+                "ex1_debug"
+            ]
+        ]
+    },
+    {
+        "id": "ex1_debug",
+        "type": "debug",
+        "z": "tab_ex1",
+        "name": "結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 850,
+        "y": 100,
+        "wires": []
+    }
+]</div>
+                <p>debug ノードをメッセージ全体の表示にしてあるのは、<code>msg.filename</code> に実際に使われたパスが書き戻されることを確かめるためである。</p>
+            </details>
+        </div>
+
+        <div class="exercise">
+            <h3>演習2：CSV ファイルだけを一覧する<span class="difficulty difficulty-medium">中級</span></h3>
+            <p>SFTP サーバーの <code>/data</code> にはさまざまなファイルが置かれている。この中から拡張子が <code>.csv</code> のものだけを取り出し、ファイル名の配列にして debug へ流してほしい。</p>
+            <p><strong>ヒント：</strong> 絞り込みは <code>sftp in</code> の設定だけでできる。一覧の各要素は名前のほかにサイズや更新日時も持つオブジェクトである。</p>
+            <details>
+                <summary>解答例（クリックで展開）</summary>
+                <div class="flow-json">[
+    {
+        "id": "tab_ex2",
+        "type": "tab",
+        "label": "演習2：CSVだけ一覧",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "ex2_conf",
+        "type": "sftp",
+        "host": "192.168.1.60",
+        "port": "22",
+        "forceIPv4": false,
+        "forceIPv6": false,
+        "username": "nodered",
+        "privateKey": "",
+        "readyTimeout": "20000",
+        "strictVendor": true,
+        "debug": "",
+        "retries": "2",
+        "retry_factor": "2",
+        "retry_minTimeout": "2000"
+    },
+    {
+        "id": "ex2_inject",
+        "type": "inject",
+        "z": "tab_ex2",
+        "name": "実行",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 170,
+        "y": 100,
+        "wires": [
+            [
+                "ex2_list"
+            ]
+        ]
+    },
+    {
+        "id": "ex2_list",
+        "type": "sftp in",
+        "z": "tab_ex2",
+        "sftp": "ex2_conf",
+        "operation": "list",
+        "path": "/data",
+        "pattern": "*.csv",
+        "filename": "",
+        "localFilename": "",
+        "name": "CSVだけ一覧",
+        "x": 390,
+        "y": 100,
+        "wires": [
+            [
+                "ex2_fn"
+            ]
+        ]
+    },
+    {
+        "id": "ex2_fn",
+        "type": "function",
+        "z": "tab_ex2",
+        "name": "名前だけ取り出す",
+        "func": "// 一覧の各要素は name のほか type や size を持つ\nmsg.payload = msg.payload.map(function (entry) {\n    return entry.name;\n});\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 620,
+        "y": 100,
+        "wires": [
+            [
+                "ex2_debug"
+            ]
+        ]
+    },
+    {
+        "id": "ex2_debug",
+        "type": "debug",
+        "z": "tab_ex2",
+        "name": "CSVの一覧",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 860,
+        "y": 100,
+        "wires": []
+    }
+]</div>
+                <p>絞り込みを function ノード側で行うこともできるが、「パターン」の欄で済ませるとサーバーから返ってくる件数そのものが減る。ファイルが多いディレクトリでは差が出る。</p>
+            </details>
+        </div>
+
+        <div class="exercise">
+            <h3>演習3：受け取ったファイルを種類ごとに振り分ける<span class="difficulty difficulty-hard">上級</span></h3>
+            <p>ネットワークカメラが画像を、計測器が CSV を、同じ FTP サーバーへ送ってくる。届いたファイルを拡張子で見分け、画像は <code>/tmp/inbox/images/</code> へ、それ以外は <code>/tmp/inbox/others/</code> へ保存するフローを組んでほしい。</p>
+            <p><strong>ヒント：</strong> ファイル名は <code>msg.topic</code> に入る。分岐の条件はノードの設定として見えるようにしておくと、あとから読みやすい。</p>
+            <details>
+                <summary>解答例（クリックで展開）</summary>
+                <div class="flow-json">[
+    {
+        "id": "tab_ex3",
+        "type": "tab",
+        "label": "演習3：種類ごとに振り分け",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "ex3_srv",
+        "type": "ftp-server",
+        "z": "tab_ex3",
+        "name": "受信（ポート7021）",
+        "ip": "",
+        "port": 7021,
+        "passiveportrange": "7022-7032",
+        "x": 190,
+        "y": 140,
+        "wires": [
+            [
+                "ex3_switch"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "ex3_switch",
+        "type": "switch",
+        "z": "tab_ex3",
+        "name": "拡張子で振り分け",
+        "property": "topic",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "regex",
+                "v": "\\.(jpe?g|png|gif)$",
+                "vt": "str",
+                "case": false
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "false",
+        "repair": false,
+        "outputs": 2,
+        "x": 440,
+        "y": 140,
+        "wires": [
+            [
+                "ex3_fn_img"
+            ],
+            [
+                "ex3_fn_other"
+            ]
+        ]
+    },
+    {
+        "id": "ex3_fn_img",
+        "type": "function",
+        "z": "tab_ex3",
+        "name": "画像の保存先",
+        "func": "const name = (msg.topic || 'upload.bin').split('/').pop();\nmsg.filename = '/tmp/inbox/images/' + name;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 670,
+        "y": 100,
+        "wires": [
+            [
+                "ex3_file_img"
+            ]
+        ]
+    },
+    {
+        "id": "ex3_fn_other",
+        "type": "function",
+        "z": "tab_ex3",
+        "name": "その他の保存先",
+        "func": "const name = (msg.topic || 'upload.bin').split('/').pop();\nmsg.filename = '/tmp/inbox/others/' + name;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 670,
+        "y": 190,
+        "wires": [
+            [
+                "ex3_file_other"
+            ]
+        ]
+    },
+    {
+        "id": "ex3_file_img",
+        "type": "file",
+        "z": "tab_ex3",
+        "name": "画像を保存",
+        "filename": "filename",
+        "filenameType": "msg",
+        "appendNewline": false,
+        "createDir": true,
+        "overwriteFile": "true",
+        "encoding": "none",
+        "x": 900,
+        "y": 100,
+        "wires": [
+            [
+                "ex3_debug"
+            ]
+        ]
+    },
+    {
+        "id": "ex3_file_other",
+        "type": "file",
+        "z": "tab_ex3",
+        "name": "その他を保存",
+        "filename": "filename",
+        "filenameType": "msg",
+        "appendNewline": false,
+        "createDir": true,
+        "overwriteFile": "true",
+        "encoding": "none",
+        "x": 900,
+        "y": 190,
+        "wires": [
+            [
+                "ex3_debug"
+            ]
+        ]
+    },
+    {
+        "id": "ex3_debug",
+        "type": "debug",
+        "z": "tab_ex3",
+        "name": "保存したパス",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "filename",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1130,
+        "y": 145,
+        "wires": []
+    }
+]</div>
+                <p>分岐を function ノードの複数出力ではなく switch ノードで書いているのは、条件をエディター上で読めるようにするためである。振り分けの規則を後から変える人は、コードを開かずに済む。</p>
+                <p><code>ftp server</code> ノードの出力2（動的認証）は、この例では Username を設定して使わない前提のため、配線を空にしてある。</p>
+            </details>
+        </div>
+
+        <h2 id="s12">12. まとめ</h2>
+
+        <div class="important">
+            <strong>要点：</strong>
+            <ul>
+                <li>立ち位置は4つある。取りに行くなら <code>ftp in</code> か <code>sftp in</code>、受けるなら <code>ftp server</code> か OS の OpenSSH</li>
+                <li>SFTP は FTP の暗号化版ではなく、SSH の機能の一つである。ポートも 22 で別物</li>
+                <li>get は<strong>ファイルの中身を payload に返さない</strong>。ローカルへ保存するだけなので、中身を使うなら file in で読み直す</li>
+                <li><code>ftp server</code> が受け取ったファイルは<strong>ディスクに残らない</strong>。file ノードへ繋いで自分で保存する</li>
+                <li>SFTP のサーバー側は OS の OpenSSH が担う。Node-RED は watch ノードで置かれたファイルを拾う</li>
+                <li>平文 FTP は LAN の中と検証用に限る。外へ出すなら SFTP を選ぶ</li>
+            </ul>
+        </div>
+
+        <h3>次に読むとよいガイド</h3>
+        <ul>
+            <li><a href="nodered-file-node-guide.html">file ノードガイド</a> — 転送したファイルを読み書きする</li>
+            <li><a href="nodered-watch-node-guide.html">watch ノードガイド</a> — フォルダに置かれたファイルを見つける</li>
+            <li><a href="nodered-exec-node-guide.html">exec ノードガイド</a> — FTPS や rsync など、ノードで足りない転送を外部コマンドで行う</li>
+            <li><a href="nodered-production-operation-guide.html">本番運用ガイド</a> — 受信フォルダの肥大化と保持期間の管理</li>
+            <li><a href="nodered-linux-directory-guide.html">Linux ディレクトリガイド</a> — パスと権限の読み方</li>
+        </ul>
+
+        <h2 id="s13">13. トラブルシューティング</h2>
+
+        <table>
+            <tr>
+                <th>症状</th>
+                <th>原因</th>
+                <th>対処</th>
+            </tr>
+            <tr>
+                <td>読み込んだフローが「不明なノード」になる</td>
+                <td>パッケージが入っていない</td>
+                <td>パレットの管理から <code>node-red-contrib-ftp</code> と <code>node-red-contrib-ftp-server</code> を入れる</td>
+            </tr>
+            <tr>
+                <td>get は成功したのに payload が文字列で、ファイルの中身が無い</td>
+                <td>get はローカルへ保存するだけで、中身を payload に入れない</td>
+                <td>後段に file in ノードを繋ぎ、保存先のパスを読ませる</td>
+            </tr>
+            <tr>
+                <td>FTP サーバーで受けたファイルがどこにも見当たらない</td>
+                <td>ノードはメモリ上に書いて5秒後に消す</td>
+                <td>出力1を file ノードへ繋いで保存する</td>
+            </tr>
+            <tr>
+                <td>msg.filename を渡しているのに無視される</td>
+                <td>ノードの設定欄に値が入っており、そちらが優先されている</td>
+                <td>ノードの「ファイル名」欄を空にする</td>
+            </tr>
+            <tr>
+                <td>接続はできるが list で何も返らない</td>
+                <td>SFTP で対象を「ファイル名」欄に書いている</td>
+                <td>SFTP の list は「ディレクトリパス」欄を使う</td>
+            </tr>
+            <tr>
+                <td>ログインは通るのに転送で止まる</td>
+                <td>パッシブモードのデータ用ポートがファイアウォールで塞がれている</td>
+                <td>サーバー側でポート範囲を固定し、その範囲を開ける</td>
+            </tr>
+            <tr>
+                <td>FTP サーバーに接続できない</td>
+                <td>ポート 21 で接続しようとしている</td>
+                <td>ノードの既定ポートは 7021。接続側の設定を合わせる</td>
+            </tr>
+            <tr>
+                <td>Username を空にしたら誰も接続できない</td>
+                <td>動的認証モードになり、出力2の判定待ちで止まっている</td>
+                <td>出力2に function ノードを繋ぎ、<code>msg.authenticate(true)</code> を呼ぶ</td>
+            </tr>
+            <tr>
+                <td>秘密鍵を貼り付けたが認証に失敗する</td>
+                <td>「秘密鍵」欄は鍵の中身ではなくファイルのパスを書く欄である</td>
+                <td><code>/home/pi/.ssh/id_ed25519</code> のようにパスを書く</td>
+            </tr>
+            <tr>
+                <td>データ接続の暗号化にチェックしても平文のまま</td>
+                <td>この欄は入力欄の id が他と揃っておらず、値が保存されない可能性がある</td>
+                <td>SFTP を使うか、exec ノードから <code>curl</code> や <code>lftp</code> を呼ぶ</td>
+            </tr>
+            <tr>
+                <td>別のマシンへ移したらパスワードが消えている</td>
+                <td>資格情報の暗号鍵が移行先と違う</td>
+                <td><code>settings.js</code> の <code>credentialSecret</code> を自分で決めておく</td>
+            </tr>
+            <tr>
+                <td>watch ノードが反応するが中身が途中までしかない</td>
+                <td>転送の途中で読みに行っている</td>
+                <td>送信側で一時的な名前を使い完了後に改名する、または delay ノードで待つ</td>
+            </tr>
+        </table>
+    </div>
+<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.flow-json').forEach(function(block) {
+                var button = document.createElement('button');
+                button.className = 'copy-button';
+                button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                button.addEventListener('click', function() {
+                    // 要素ノード（コピーボタン）を除き、直下のテキストだけを取り出す
+                    var code = Array.prototype.filter.call(block.childNodes, function(n) {
+                        return n.nodeType === Node.TEXT_NODE;
+                    }).map(function(n) { return n.textContent; }).join('').trim();
+                    navigator.clipboard.writeText(code).then(function() {
+                        button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>コピーしました!';
+                        button.classList.add('copied');
+                        setTimeout(function() {
+                            button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                            button.classList.remove('copied');
+                        }, 2000);
+                    });
+                });
+                block.style.position = 'relative';
+                block.appendChild(button);
+            });
+        });
+    </script>
+    <!-- フローティングホームボタン -->
+    <a href="index.html" style="position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px; background: linear-gradient(135deg, #42b883 0%, #35495e 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; transition: transform 0.3s, box-shadow 0.3s;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 6px 16px rgba(0,0,0,0.4)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.3)';" title="トップページへ">🏠</a>
+</body>
+</html>

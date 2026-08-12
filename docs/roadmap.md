@@ -4,8 +4,8 @@
 確定したら本文と「要決定事項」を更新する。確定済みの基準は
 [style-guide.md](style-guide.md) と [CLAUDE.md](../CLAUDE.md) を正とする。
 
-最終更新：2026-08-12（A・B-1・C 完了）
-ステータス：方針確定／A・B-1・C 完了・B-2 未着手
+最終更新：2026-08-13（B-2 完了。第 1 章の 4 テーマがすべて完了）
+ステータス：方針確定／A・B-1・B-2・C すべて完了
 
 ---
 
@@ -143,6 +143,30 @@ npm を網羅調査した結果、1 パッケージで client+server を兼ね�
 **メンテ状況の総括**：FTP 系は 2022、SFTP サーバーも 2019 が最終。近年更新は SFTP
 クライアント `ssh-sftp`（2024）のみ。着手時に各 DL・更新を再確認する。
 
+**着手時の再確認（2026-08-13）— 上表は失効している**
+
+npm を再調査したところ、上表の 5 パッケージのうち 2 つが **npm 上から消滅**していた。
+
+| 上表の記載 | 2026-08-13 の実測 |
+| --- | --- |
+| `node-red-contrib-ftp` DL 6,810 / ノード `ftp`・`ftp-in`・`ftp-out` | 存在。v0.0.8（2022-06-20）、Apache、**DL 12,440**。提供ノードは `ftp`（config）・`ftp in`・**`sftp`（config）・`sftp in`** の 4 種で、上表のノード名は誤り |
+| `node-red-contrib-ftp-server` DL 6,151 | 存在。v1.0.4（2022-03-19）、MIT、**DL 134** へ激減 |
+| `node-red-contrib-ssh-sftp`（SFTP クライアント第一候補） | **404。npm に存在しない** |
+| `node-red-contrib-sftp` DL 339 / 作者 mbrooks | 存在。v0.0.8（2019-01-07）、**DL 126**、作者は jonferreira |
+| `node-red-contrib-sftp-server` | **404。npm に存在しない** |
+
+- **SFTP クライアントの代替**：`node-red-contrib-sftp-ssh2` v0.1.4（2024-07-20、Apache-2.0、
+  DL 217、ssh2-sftp-client ベース、秘密鍵対応）が消えた `ssh-sftp` の実質的な後継位置にある。
+- **FTP サーバーの代替**：`node-red-contrib-jsftpd`（DL 7、2021）は `ftp-server` より弱く代替にならない。
+- **SFTP サーバー**：Node-RED ノードの選択肢が消滅した。上の 140-141 行で補足に留める予定だった
+  「OS の SSH デーモンで提供する」を本体へ格上げする。
+
+**方針の再確定（2026-08-13、利用者の判断）**：A 案（実在パッケージ＋OS 代替）を採用。
+SFTP クライアントは **`node-red-contrib-ftp` 同梱の `sftp in`** に一本化する（FTP と同じ
+パッケージ 1 つで揃い、`privateKey` / `passphrase` / `agent` を持ち鍵認証にも対応する。
+初心者向けサイトとして導入手順が 1 回で済む利点を採った）。`sftp-ssh2` は更新の新しい
+代替として比較の中で触れるに留める。requirements.md 第 3 章・第 6 章を同日に更新済み。
+
 - **種別**：サードパーティガイド（FTP・SFTP を 1 ガイドで併説）
 - **セキュリティ注記（必須）**：平文 FTP は認証情報が平文で流れる。LAN 内・検証用に限定し、
   インターネット越しでは SFTP/FTPS を勧める。パッシブ/アクティブモードとファイアウォールの
@@ -154,6 +178,28 @@ npm を網羅調査した結果、1 パッケージで client+server を兼ね�
   - SFTP クライアント：SSH 鍵/パスワード認証・取得/送信
   - SFTP サーバー：選択肢と OS 側 SSH デーモンでの代替
   - セキュリティと運用注意
+- **着手時の記録（2026-08-13）**：成果物 `nodered-ftp-sftp-node-guide.html`（13 節）。上の
+  カバー内容案はすべて満たしている。構成の軸は「クライアント / サーバー × 平文 / 暗号化」の
+  **4 つの立ち位置**にした。相手の機器がどちらの側になるかで使うノードが決まるため、
+  最初にそこを決めさせる作りにしている。
+  - **ソース実測で判明した、ドキュメントに載っていない挙動**：`get` は取得したファイルを
+    ローカルへ書き出すだけで `msg.payload` に中身を入れない（成功文字列が入る）。
+    `ftp server` は受信ファイルを memfs に書いて **5 秒後に unlink** するためディスクに残らない。
+    どちらも詰まりどころなので `.danger` / `.important` として本文に立てた。
+  - **設定項目**：`node-red-contrib-ftp` は ja locale を持つため日本語ラベルをそのまま使い、
+    未翻訳の `Data connection encryption` / `Secure Options` / `agent` と、テンプレートに
+    ハードコードされた `Add new FTP Server` / `Operation` だけ英語＋日本語訳にした。
+    `node-red-contrib-ftp-server` は locale 無しのため全項目を英語＋訳。
+  - **FTPS を扱わない根拠**：`ftp.html` のチェックボックスの id が `node-input-secure` で、
+    コンフィグノードの規約（`node-config-input-<prop>`）から外れている。値が保存されない
+    可能性があるため、当てにしない旨を注記して SFTP か exec + curl へ誘導した。
+  - **環境バッジは 🖥️🍓**：`ftp server` が 7021 番を待ち受け、SFTP サーバーの節が
+    `useradd` / `systemctl` などの OS 操作を含むため。
+  - **相互リンク**：`file`（まとめ直後の tip）、`watch`（追加リソース）の 2 箇所から参照を張った。
+    本ガイド側からは file / watch / exec / production-operation / linux-directory へ送っている。
+  - **index の配置**：追加ノード（アドオン）の **Storage（ストレージ）サブセクション**（sqlite の隣）。
+    ファイル転送は「データの置き場所」に属するテーマであり、Industrial（産業通信）よりも
+    読者の探し方に合うと判断した。
 
 ### C. PLC のレジスタ（エンディアン・Modbus 注意点）
 
@@ -192,7 +238,7 @@ npm を網羅調査した結果、1 パッケージで client+server を兼ね�
 | --- | --- | --- |
 | 1 | A の扱い | **解決**：データ型ガイド（`variable-types` の Part 1 軸）へ追記。新規ファイルは作らない（2026-08-12 に part2 軸から修正） |
 | 2 | C の扱い | **解決**：新規独立ガイド。`modbus` 等から参照先とする |
-| 3 | FTP/SFTP パッケージ選定 | **解決**：FTP=`ftp`＋`ftp-server`、SFTP=`ssh-sftp`(更新)／`sftp`(実績)＋`sftp-server` |
+| 3 | FTP/SFTP パッケージ選定 | **再解決（2026-08-13）**：FTP クライアントと SFTP クライアントは `node-red-contrib-ftp`（`ftp in` / `sftp in`）に一本化、FTP サーバーは `node-red-contrib-ftp-server`、SFTP サーバーは OS の OpenSSH。当初の結論に含めた `ssh-sftp` と `sftp-server` は npm から消滅していた |
 | 4 | サーバー/クライアントの範囲 | **解決**：FTP・SFTP とも server/client 両方を扱う |
 | 5 | 着手優先順位 | **解決**：A → B-1 → C → B-2（B-2 に SFTP を含む） |
 | 6 | ファイル命名・章への組み込み | **解決（2026-08-12）**：C は `nodered-plc-register-guide.html` を index の「追加ノード（アドオン）」内 **Industrial（産業通信）サブセクション**（modbus の直後）へ置いた。当初案の Network セクションは標準ノードの通信ガイド群で、読者と話題が異なるため採らなかった。ノードガイドではない概念ガイドをサブセクションに含める前例は、Network の「通信の基礎」が既にある |
