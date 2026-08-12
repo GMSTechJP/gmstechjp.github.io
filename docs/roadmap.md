@@ -4,8 +4,8 @@
 確定したら本文と「要決定事項」を更新する。確定済みの基準は
 [style-guide.md](style-guide.md) と [CLAUDE.md](../CLAUDE.md) を正とする。
 
-最終更新：2026-08-12（A の追記先を Part 1 へ修正）
-ステータス：方針確定／A 着手中・B-1・B-2・C 未着手
+最終更新：2026-08-12（A・B-1 完了）
+ステータス：方針確定／A・B-1 完了・C・B-2 未着手
 
 ---
 
@@ -93,6 +93,11 @@ C の実応用を、この 1 ノードが橋渡しする構造になっている
 ### B-1. buffer-parser ノード（サードパーティ）
 
 - **パッケージ**：`node-red-contrib-buffer-parser` v3.2.2（公開 2022-01-30）
+- **着手時の再確認（2026-08-12）**：最新版は v3.2.2 のまま。DL 約 11,243/月、MIT、依存なし。
+  **`buffer-parser` と `buffer-maker` の 2 ノードを同梱**しており、ガイドは両方を扱う。
+  日本語 locale は無いため設定項目は「English Label（日本語訳）」形式。公式サンプル
+  （`examples/`）が同梱されているため、CLAUDE.md の公式サンプル第一の原則に従い 1 タブへ統合した。
+  成果物：`nodered-buffer-parser-node-guide.html`
 - **作者 / 出典**：Steve-Mcl — https://github.com/Steve-Mcl/node-red-contrib-buffer-parser
 - **説明**：値を buffer/array と相互変換。ビッグ/リトルエンディアン対応。
 - **種別**：サードパーティガイド（インストール方法・GitHub リンク・バージョン・免責を明記）

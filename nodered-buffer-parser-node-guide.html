@@ -1,0 +1,2590 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED buffer-parser ノード ガイド</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.8; max-width: 1000px; margin: 0 auto; padding: 20px; background-color: #f5f5f5; color: #333; }
+        h1 { color: #37474f; border-bottom: 3px solid #37474f; padding-bottom: 10px; }
+        h2 { color: #455a64; margin-top: 40px; border-left: 5px solid #455a64; padding-left: 15px; }
+        h3 { color: #555; margin-top: 25px; }
+        h4 { color: #666; margin-top: 20px; }
+        .container { background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .node-example { background-color: #2d3133; padding: 20px; border-radius: 5px; margin: 20px 0; color: white; font-family: 'Courier New', monospace; display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
+        .node { display: inline-block; padding: 8px 15px; border-radius: 4px; margin: 5px; font-weight: bold; font-size: 14px; }
+        .node-inject { background-color: #3fadb5; color: white; }
+        .node-debug { background-color: #87a48d; color: white; }
+        .node-function { background-color: #fdd0a2; color: #333; }
+        .node-buffer { background-color: #0090d4; color: white; }
+        .arrow { color: #999; font-size: 20px; margin: 0 10px; }
+        .important { background-color: #eceff1; border-left: 4px solid #37474f; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .tip { background-color: #e8f5e9; border-left: 4px solid #4caf50; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .warning { background-color: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .thirdparty { background: linear-gradient(135deg, #eceff1 0%, #cfd8dc 100%); border: 2px solid #607d8b; border-radius: 8px; padding: 18px 22px; margin: 20px 0; }
+        .thirdparty h3 { margin-top: 0; color: #37474f; }
+        .code-block { background-color: #2d3133; color: #f8f8f2; padding: 15px; border-radius: 5px; margin: 15px 0; overflow-x: auto; font-family: 'Courier New', Consolas, monospace; font-size: 14px; white-space: pre; }
+        .flow-json { background-color: #1a1a2e; color: #a6e22e; padding: 15px; border-radius: 5px; font-family: 'Courier New', Consolas, monospace; font-size: 12px; overflow-x: auto; white-space: pre; position: relative; max-height: 400px; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; vertical-align: top; }
+        th { background-color: #455a64; color: white; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .exercise { background-color: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0; border: 2px solid #2196f3; }
+        .exercise h3 { color: #1976d2; margin-top: 0; }
+        .difficulty { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; margin-left: 10px; }
+        .difficulty-easy { background-color: #c8e6c9; color: #2e7d32; }
+        .difficulty-medium { background-color: #fff9c4; color: #f57f17; }
+        .difficulty-hard { background-color: #ffcdd2; color: #c62828; }
+        details { background-color: #f5f5f5; padding: 10px 15px; border-radius: 5px; margin: 10px 0; }
+        details summary { cursor: pointer; font-weight: bold; color: #455a64; }
+        details[open] summary { margin-bottom: 10px; }
+        .toc { background-color: #fafafa; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .toc h3 { margin-top: 0; color: #37474f; }
+        .toc ul { list-style: none; padding-left: 0; }
+        .toc li { padding: 5px 0; }
+        .toc a { color: #1976d2; text-decoration: none; }
+        .toc a:hover { text-decoration: underline; }
+        .copy-button { position: absolute; top: 8px; right: 8px; padding: 6px 12px; background-color: #455a64; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-family: 'Segoe UI', sans-serif; transition: background-color 0.2s; z-index: 10; display: flex; align-items: center; gap: 4px; }
+        .copy-button:hover { background-color: #37474f; }
+        .copy-button.copied { background-color: #28a745; }
+        .copy-button svg { width: 14px; height: 14px; fill: currentColor; }
+        .node-compare { display: flex; gap: 20px; flex-wrap: wrap; margin: 20px 0; }
+        .node-card { background: #f9f9f9; border: 1px solid #ddd; border-radius: 8px; padding: 15px; flex: 1; min-width: 200px; }
+        .node-card h4 { margin-top: 0; color: #455a64; }
+        .diagram-box { background: #2d3133; color: white; padding: 20px; border-radius: 8px; font-family: monospace; margin: 15px 0; white-space: pre-wrap; }
+        code { background: #eceff1; padding: 2px 6px; border-radius: 3px; font-family: 'Courier New', monospace; font-size: 0.95em; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Node-RED buffer-parser ノードガイド</h1>
+        <div data-envbadge="1" style="margin:12px 0;"><span style="display:inline-block;padding:3px 12px;border-radius:12px;font-size:0.85em;font-weight:bold;background:#fff3e0;color:#e65100;border:1px solid #ffcc80;">⚠️ クラウド可（パレット追加が必要）</span> <a href="nodered-learning-environment-guide.html" style="font-size:0.82em;">環境とは？</a></div>
+
+        <div class="thirdparty">
+            <h3>このガイドで扱うノードについて</h3>
+            <p>buffer-parser と buffer-maker は Node-RED の標準ノードに含まれていない<strong>追加パッケージ</strong>である。パッケージ名は <code>node-red-contrib-buffer-parser</code>、本ガイド執筆時点の版は <strong>v3.2.2</strong>（2022-01-30 公開）。MIT ライセンスで、依存パッケージを持たない。</p>
+            <p>エディターの表示は英語のみで、日本語の訳語は用意されていない。そのため本ガイドの設定項目は「<strong>English Label</strong>（日本語訳）」の形式で示す。</p>
+            <ul>
+                <li>GitHub: <a href="https://github.com/Steve-Mcl/node-red-contrib-buffer-parser">Steve-Mcl/node-red-contrib-buffer-parser</a></li>
+                <li>作者: Steve-Mcl</li>
+            </ul>
+            <p><strong>免責：</strong> 本ガイドは上記バージョンでの動作を前提に書いている。パッケージの更新は 2022 年で止まっているため、Node-RED 本体の更新によって挙動が変わる可能性がある。導入前に最新の状況を確認してほしい。</p>
+        </div>
+
+        <div class="toc">
+            <h3>目次</h3>
+            <ul>
+                <li><a href="#s1">1. 概要：何を解決するノードか</a></li>
+                <li><a href="#s2">2. インストール方法</a></li>
+                <li><a href="#s3">3. 基礎知識：バイト順とワード</a></li>
+                <li><a href="#s4">4. ノード構成</a></li>
+                <li><a href="#s5">5. 設定項目一覧</a></li>
+                <li><a href="#s6">6. データ型の一覧</a></li>
+                <li><a href="#s7">7. 出力の5モード</a></li>
+                <li><a href="#s8">8. 実用的な使用パターン</a></li>
+                <li><a href="#s9">9. サンプルフロー</a></li>
+                <li><a href="#s10">10. 演習問題</a></li>
+                <li><a href="#s11">11. まとめ</a></li>
+                <li><a href="#s12">12. トラブルシューティング</a></li>
+            </ul>
+        </div>
+
+        <h2 id="s1">1. 概要：何を解決するノードか</h2>
+        <p>PLC やシリアル機器から届くデータは、たいてい数値の並びである。1つの温度を読むだけでも、どの位置から何バイトを取り出し、どの型として解釈し、何倍すれば実際の値になるのかを決めなければならない。バイト列そのものの成り立ちは<a href="nodered-variable-types-guide.html#binary">変数ガイド Part 1 のバイナリデータとBuffer</a>で扱っている。</p>
+
+        <p>この変換は Function ノードでも書ける。ただし取り出す項目が増えるほどコードは長くなり、型やバイト順の取り違えを見つけにくくなる。buffer-parser は、同じ変換を表形式の設定に置き換える。</p>
+
+        <div class="code-block">// Function ノードで書いた場合（3項目を取り出す）
+const buf = Buffer.from(msg.payload);
+msg.payload = {
+    temperature: buf.readInt16BE(0) * 0.1,
+    pressure:    buf.readInt16BE(2) * 0.01,
+    running:     (buf[4] &amp; 0x01) === 1
+};
+return msg;</div>
+
+        <p>buffer-parser では、同じ内容を3行の設定として書く。型はドロップダウンから選ぶため、綴りの誤りが起きない。</p>
+
+        <table>
+            <tr>
+                <th>Type</th>
+                <th>Name</th>
+                <th>Offset</th>
+                <th>Length</th>
+                <th>scale</th>
+            </tr>
+            <tr>
+                <td>int16 (be)</td>
+                <td>temperature</td>
+                <td>0</td>
+                <td>1</td>
+                <td>0.1</td>
+            </tr>
+            <tr>
+                <td>int16 (be)</td>
+                <td>pressure</td>
+                <td>2</td>
+                <td>1</td>
+                <td>0.01</td>
+            </tr>
+            <tr>
+                <td>bool</td>
+                <td>running</td>
+                <td>4</td>
+                <td>1</td>
+                <td>（表示されない）</td>
+            </tr>
+        </table>
+
+        <div class="tip">
+            <strong>どちらを選ぶか：</strong>
+            <p>取り出す項目が1つか2つで、条件分岐も伴うなら Function ノードのほうが素直である。項目が多い、バイト順の入れ替えが要る、設定を後から見直す見込みがある、という場合に buffer-parser が効く。</p>
+        </div>
+
+        <h2 id="s2">2. インストール方法</h2>
+        <p>Node-RED エディターの「パレットの管理」から導入する。</p>
+
+        <ol>
+            <li>エディター右上のメニュー（三本線）から「パレットの管理」を開く</li>
+            <li>「ノードを追加」タブを選ぶ</li>
+            <li>検索欄に <code>node-red-contrib-buffer-parser</code> と入力する</li>
+            <li>該当パッケージの「ノードを追加」ボタンを押す</li>
+            <li>インストール後、パレットの「parser」カテゴリに buffer-parser と buffer-maker が現れる</li>
+        </ol>
+
+        <p>コマンドラインから入れる場合は、Node-RED のユーザーディレクトリ（多くは <code>~/.node-red</code>、Windows では <code>%userprofile%\.node-red</code>）で次を実行する。</p>
+
+        <div class="code-block">npm install node-red-contrib-buffer-parser</div>
+
+        <div class="tip">
+            <strong>導入は軽い：</strong>
+            <p>このパッケージは依存パッケージを持たず、ネイティブビルドも伴わない。Raspberry Pi でも短時間で入り、Node.js の更新時に入れ直す必要もない。</p>
+        </div>
+
+        <h2 id="s3">3. 基礎知識：バイト順とワード</h2>
+        <p>設定項目を読む前に、3つの言葉を押さえておく。ここが分かっていれば、設定の大半は迷わず埋められる。</p>
+
+        <h3>エンディアン（バイトの並び順）</h3>
+        <p>2バイト以上の数値をメモリに置くとき、上位バイトを先に置く方式と、下位バイトを先に置く方式がある。前者を<strong>ビッグエンディアン</strong>（be）、後者を<strong>リトルエンディアン</strong>（le）と呼ぶ。</p>
+
+        <div class="diagram-box">数値 253 を 2 バイトで表すと
+
+  ビッグエンディアン (be) :  00 FD    ← 上位が先
+  リトルエンディアン (le) :  FD 00    ← 下位が先</div>
+
+        <p>同じバイト列でも、どちらとして読むかで結果が変わる。<code>00 FD</code> を be で読めば 253、le で読めば 64768 になる。機器の仕様書に記載があるのが本来だが、記載がない場合は両方試して意味の通る側を採用することになる。</p>
+
+        <h3>ワードとワードスワップ</h3>
+        <p>PLC の世界では、16 ビット（2バイト）を1単位として扱うことが多い。この単位を<strong>ワード</strong>と呼ぶ。データが「16bit の数値の配列」として届くのは、この事情による。</p>
+
+        <p>ややこしいのは、バイト順とワード順が別々に入れ替わることである。32 ビットの値は2つのワードに跨るため、バイト順が合っていてもワードの順番が逆なら、値は意味をなさない。</p>
+
+        <div class="diagram-box">float の 12.5 は 4 バイトで 41 48 00 00
+
+  正しい順で読む             :  41 48 00 00  →  12.5
+  ワードの順が逆の機器なら   :  00 00 41 48  →  2.34e-41（無意味な値）</div>
+
+        <p>buffer-parser の「Byte swap」は、この入れ替えを設定で吸収するためにある。swap16 は2バイトごと、swap32 は4バイトごと、swap64 は8バイトごとに並びを反転する。</p>
+
+        <h3>スワップの効き方を目で見る</h3>
+        <p>16bit の配列 <code>[25185, 25699, 26213, 26727]</code> は、そのままバイト列にすると <code>62 61 64 63 66 65 68 67</code> になる。文字として読むと <code>badcfehg</code> で、2文字ずつ入れ替わっている。</p>
+
+        <div class="diagram-box">swap16 なし :  62 61 64 63 66 65 68 67  →  "badcfehg"
+swap16 あり :  61 62 63 64 65 66 67 68  →  "abcdefgh"</div>
+
+        <p>swap16 を1回かけるだけで、意図した並びに戻る。数値でも同じことが起きているため、値が桁違いにおかしいときはまずスワップを疑う。</p>
+
+        <div class="important">
+            <strong>スワップは変換より先に行われる：</strong>
+            <p>Byte swap はバイト列に対して先に適用され、そのあとで各項目の型変換（le と be の解釈）が走る。この順序のため、be と le の指定だけでは直らないズレを、スワップで整えることになる。スワップは3つまで重ねて指定できる。</p>
+        </div>
+
+        <h2 id="s4">4. ノード構成</h2>
+        <p>パッケージには向きの違う2つのノードが入っている。</p>
+
+        <div class="node-compare">
+            <div class="node-card">
+                <h4>buffer-parser</h4>
+                <p><strong>バイト列 → 値</strong></p>
+                <p>受け取ったバッファや配列を、仕様に従って複数の値へ切り分ける。PLC やシリアル機器から読んだデータを扱うときに使う。</p>
+            </div>
+            <div class="node-card">
+                <h4>buffer-maker</h4>
+                <p><strong>値 → バイト列</strong></p>
+                <p>複数の値を1つのバッファへ組み立てる。機器へ書き込むコマンドを作るときに使う。</p>
+            </div>
+        </div>
+
+        <p>設定の考え方は共通で、どちらも「項目（item）を並べた仕様」を作る点が同じである。違うのは向きだけと考えてよい。</p>
+
+        <h2 id="s5">5. 設定項目一覧</h2>
+        <p>エディターの表示は英語のみのため、英語ラベルに日本語訳を添えて示す。</p>
+
+        <h3>buffer-parser（ノード本体の設定）</h3>
+
+        <table>
+            <tr>
+                <th>設定項目</th>
+                <th>説明</th>
+                <th>既定値</th>
+            </tr>
+            <tr>
+                <td><strong>Name</strong>（名前）</td>
+                <td>エディター上のノード表示名。</td>
+                <td>（空）</td>
+            </tr>
+            <tr>
+                <td><strong>Property</strong>（入力プロパティ）</td>
+                <td>変換元のデータが入っているプロパティ。msg / flow / global から選べる。<code>msg.payload</code> 以外に置いたデータも直接扱える。</td>
+                <td>msg.payload</td>
+            </tr>
+            <tr>
+                <td><strong>Specification</strong>（仕様）</td>
+                <td>項目の定義をどこから得るか。<code>spec</code>（ここで組み立てる）を選ぶと下に項目の表が現れる。msg / flow / global を選ぶと、実行時に渡した仕様で動く。</td>
+                <td>spec（UI で組み立て）</td>
+            </tr>
+            <tr>
+                <td><strong>Byte swap</strong>（バイトの入れ替え）</td>
+                <td>変換前に適用する並び替え。swap16 / swap32 / swap64 から選ぶ。欄は3つあり、順に重ねて適用される。</td>
+                <td>（なし）</td>
+            </tr>
+            <tr>
+                <td><strong>Output property</strong>（出力先プロパティ）</td>
+                <td>結果を入れる msg のプロパティ名。<code>payload</code> 以外にすると、元の payload を残したまま結果を追加できる。</td>
+                <td>payload</td>
+            </tr>
+            <tr>
+                <td><strong>Output options</strong>（出力の動作）</td>
+                <td>3つのチェックボックス。<strong>multiple results</strong>（項目ごとに別のメッセージを送る）、<strong>set topic</strong>（項目名を msg.topic にする）、<strong>fan out</strong>（項目ごとに別の出力端子から送る）。</td>
+                <td>multiple results と fan out はオフ、set topic はオン</td>
+            </tr>
+            <tr>
+                <td><strong>Output</strong>（出力の形）</td>
+                <td>結果をどんな形にまとめるか。5つのモードがある。詳しくは<a href="#s7">7. 出力の5モード</a>を参照。</td>
+                <td>key/value</td>
+            </tr>
+        </table>
+
+        <h3>項目の表（Specification が spec のとき）</h3>
+        <p>取り出す値を1行ずつ定義する。行は追加、並べ替え、削除ができる。</p>
+
+        <table>
+            <tr>
+                <th>列</th>
+                <th>説明</th>
+                <th>既定値</th>
+            </tr>
+            <tr>
+                <td><strong>Type</strong>（型）</td>
+                <td>この位置のデータをどう解釈するか。34 種類から選ぶ。<a href="#s6">6. データ型の一覧</a>を参照。</td>
+                <td>int16 (be)</td>
+            </tr>
+            <tr>
+                <td><strong>Name</strong>（名前）</td>
+                <td>取り出した値に付ける名前。出力のキーや msg.topic に使われる。<code>=&gt;</code> を含めると入れ子になる（<code>motor1=&gt;power</code> は <code>payload.motor1.power</code> になる）。</td>
+                <td>item1、item2 …</td>
+            </tr>
+            <tr>
+                <td><strong>Length</strong>（個数）</td>
+                <td>その型をいくつ続けて読むか。2 以上にすると結果は配列になる。文字列型では文字数を指す。</td>
+                <td>1</td>
+            </tr>
+            <tr>
+                <td><strong>Offset</strong>（位置）</td>
+                <td>読み始める位置。単位は型によって変わる（バイト単位の型ならバイト、16bit 系ならワード）。同じ位置を何度指定してもよい。</td>
+                <td>0</td>
+            </tr>
+            <tr>
+                <td><strong>Mask</strong>（マスク）</td>
+                <td>読み取った値と論理積を取る。<code>0x7FFF</code> で最上位ビットを落とす、といった使い方をする。16進のほか2進（<code>0b1000000000000001</code>）や8進も書ける。型が buffer のときは表示されない。</td>
+                <td>No mask（なし）</td>
+            </tr>
+            <tr>
+                <td><strong>bit offset</strong>（ビット位置）</td>
+                <td>型が bool のときだけ現れる。バイト内の何ビット目を読むかを指す。</td>
+                <td>0</td>
+            </tr>
+            <tr>
+                <td><strong>scale</strong>（倍率）</td>
+                <td>整数と小数の型のときだけ現れる。読み取った値に掛ける倍率、または式。マスクの<strong>後</strong>に適用される。</td>
+                <td>1</td>
+            </tr>
+        </table>
+
+        <div class="tip">
+            <strong>scale には式も書ける：</strong>
+            <p>数値のほか、<code>&gt;&gt;4</code>（右に4ビットずらす）、<code>+42</code>（42 を足す）、<code>/10</code>（10 で割る）、<code>&gt;100</code>（100 より大きければ true）のような式を書ける。生の値をそのまま使える形に直す用途に向く。</p>
+        </div>
+
+        <h3>buffer-maker（値からバイト列を作る）</h3>
+
+        <table>
+            <tr>
+                <th>設定項目</th>
+                <th>説明</th>
+                <th>既定値</th>
+            </tr>
+            <tr>
+                <td><strong>Name</strong>（名前）</td>
+                <td>エディター上のノード表示名。</td>
+                <td>（空）</td>
+            </tr>
+            <tr>
+                <td><strong>Specification</strong>（仕様）</td>
+                <td>項目の定義をどこから得るか。buffer-parser と同じ。</td>
+                <td>spec（UI で組み立て）</td>
+            </tr>
+            <tr>
+                <td><strong>Byte swap</strong>（バイトの入れ替え）</td>
+                <td>組み立てた後のバッファに適用する並び替え。</td>
+                <td>（なし）</td>
+            </tr>
+            <tr>
+                <td><strong>Output property</strong>（出力先プロパティ）</td>
+                <td>できたバッファを入れる msg のプロパティ名。</td>
+                <td>payload</td>
+            </tr>
+        </table>
+
+        <p>項目の表には <strong>Type</strong>（型）、<strong>Name</strong>（名前）、<strong>Length</strong>（個数）に加えて、値の取得元を指す欄がある。定数のほか、msg / flow / global のプロパティを指定できるため、複数の場所から集めた値を1つのバッファにまとめられる。</p>
+
+        <h2 id="s6">6. データ型の一覧</h2>
+        <p>Type のドロップダウンには 34 種類が並ぶ。<code>(le)</code> はリトルエンディアン、<code>(be)</code> はビッグエンディアンを表す。</p>
+
+        <table>
+            <tr>
+                <th>分類</th>
+                <th>選択肢</th>
+                <th>使いどころ</th>
+            </tr>
+            <tr>
+                <td>1バイト整数</td>
+                <td>byte / int8 / uint8</td>
+                <td>状態コード、小さなカウンタ</td>
+            </tr>
+            <tr>
+                <td>2バイト整数</td>
+                <td>int16 (le) / int16 (be) / uint16 (le) / uint16 (be)</td>
+                <td>PLC のレジスタ値。最もよく使う</td>
+            </tr>
+            <tr>
+                <td>4バイト整数</td>
+                <td>int32 (le) / int32 (be) / uint32 (le) / uint32 (be)</td>
+                <td>積算値、大きなカウンタ</td>
+            </tr>
+            <tr>
+                <td>8バイト整数</td>
+                <td>bigint64 (le) / bigint64 (be) / biguint64 (le) / biguint64 (be)</td>
+                <td>桁の大きい積算値</td>
+            </tr>
+            <tr>
+                <td>小数</td>
+                <td>float (le) / float (be) / double (le) / double (be)</td>
+                <td>計測値をそのまま小数で持つ機器</td>
+            </tr>
+            <tr>
+                <td>ビット</td>
+                <td>8bit / 16bit (le) / 16bit (be) / bool</td>
+                <td>接点のオンオフ、警報フラグ</td>
+            </tr>
+            <tr>
+                <td>BCD</td>
+                <td>bcd (le) / bcd (be)</td>
+                <td>表示器や旧型機器の数値</td>
+            </tr>
+            <tr>
+                <td>文字列</td>
+                <td>string / hex / ascii / utf8 / utf16 (le) / ucs2 / latin1 / binary</td>
+                <td>型番、ロット番号などの文字データ</td>
+            </tr>
+            <tr>
+                <td>そのまま</td>
+                <td>buffer</td>
+                <td>切り出しだけ行い、解釈は後段に任せる</td>
+            </tr>
+        </table>
+
+        <div class="important">
+            <strong>BCD は見た目どおりの数値になる型：</strong>
+            <p>BCD（2進化10進数）は、16進で <code>0x1234</code> と書かれた値を <strong>1234</strong> として読む方式である。ふつうの整数として読むと 4660 になり、桁がまるで違う。数値表示器や旧型の PLC でよく使われるため、値が「10進で見たときの見た目」と合わない場合はこの型を疑う。</p>
+        </div>
+
+        <h2 id="s7">7. 出力の5モード</h2>
+        <p>Output の選択によって、結果の形が変わる。項目に <code>temperature</code> と <code>pressure</code> の2つを定義した場合で比べる。</p>
+
+        <table>
+            <tr>
+                <th>選択肢</th>
+                <th>結果の形</th>
+                <th>向いている用途</th>
+            </tr>
+            <tr>
+                <td><strong>key/value</strong></td>
+                <td><code>{ temperature: 25.3, pressure: 1.01 }</code></td>
+                <td>そのままダッシュボードやデータベースへ送る</td>
+            </tr>
+            <tr>
+                <td><strong>key/object</strong></td>
+                <td>名前ごとに <code>value</code> と項目の定義を含むオブジェクト</td>
+                <td>どんな設定で読んだ値かを後段でも参照したい</td>
+            </tr>
+            <tr>
+                <td><strong>values only (array)</strong></td>
+                <td><code>[25.3, 1.01]</code></td>
+                <td>値の並びだけあればよい場合</td>
+            </tr>
+            <tr>
+                <td><strong>array (of objects)</strong></td>
+                <td>各項目をオブジェクトにした配列</td>
+                <td>項目数が可変で、順に処理したい</td>
+            </tr>
+            <tr>
+                <td><strong>buffer</strong></td>
+                <td>項目の切り分けをせず、バッファをそのまま返す</td>
+                <td>スワップだけ適用したい</td>
+            </tr>
+        </table>
+
+        <p>「Output options」の <strong>multiple results</strong> をオンにすると、1つのメッセージにまとめるのではなく、項目ごとに別々のメッセージが流れる。<strong>set topic</strong> をあわせてオンにすると、項目名が msg.topic に入るため、そのまま MQTT へ送るトピック付きのメッセージになる。</p>
+
+        <div class="tip">
+            <strong>fan out は出力端子が増える：</strong>
+            <p><strong>fan out</strong> をオンにすると、項目ごとに別々の出力端子が生えて、それぞれ別の配線へ送れる。項目の数だけ端子が増えるため、項目を足したときは配線の付け直しが要る。</p>
+        </div>
+
+        <h2 id="s8">8. 実用的な使用パターン</h2>
+
+        <h3>パターン1：PLC の 16bit 配列から測定値を取り出す</h3>
+        <p>MODBUS のノードは、読み取った結果を 16bit の数値の配列として渡す。この配列をそのまま buffer-parser の入力にできる。</p>
+
+        <div class="node-example">
+            <span class="node node-inject">MODBUS Read</span>
+            <span class="arrow">→</span>
+            <span class="node node-buffer">buffer-parser</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+
+        <p>温度がレジスタの先頭に 10 倍の整数で入っている場合、次のように設定する。生の値 253 に scale の 0.1 が掛かり、25.3 になる。</p>
+
+        <table>
+            <tr>
+                <th>Type</th>
+                <th>Name</th>
+                <th>Offset</th>
+                <th>Length</th>
+                <th>scale</th>
+            </tr>
+            <tr>
+                <td>int16 (be)</td>
+                <td>temperature</td>
+                <td>0</td>
+                <td>1</td>
+                <td>0.1</td>
+            </tr>
+        </table>
+
+        <p>アドレスの数え方や MODBUS 側の設定は<a href="nodered-modbus-node-guide.html">MODBUS ノードガイド</a>で扱っている。</p>
+
+        <h3>パターン2：値が桁違いのときスワップで直す</h3>
+        <p>読めた値が意味をなさないときは、型の le と be を入れ替える前に Byte swap を試す。前述のとおりスワップは型変換より先に適用されるため、le と be の切り替えだけでは直らないズレがある。</p>
+
+        <p>次の順序で進めると原因にたどり着きやすい。</p>
+
+        <ol>
+            <li>Output を <strong>buffer</strong> にして、生のバイト列を Debug で確認する</li>
+            <li>期待する値の並びと見比べて、2バイト単位で入れ替わっていれば swap16 を入れる</li>
+            <li>32bit の値だけおかしいなら、ワードの順が逆なので swap32 を試す</li>
+            <li>それでも合わなければ、型の le と be を入れ替える</li>
+        </ol>
+
+        <h3>パターン3：ビット単位の状態を取り出す</h3>
+        <p>1つのワードに複数の接点状態が詰まっている場合、bool 型と bit offset を使って1ビットずつ取り出す。同じ Offset を何度指定してもよい。</p>
+
+        <table>
+            <tr>
+                <th>Type</th>
+                <th>Name</th>
+                <th>Offset</th>
+                <th>bit offset</th>
+            </tr>
+            <tr>
+                <td>bool</td>
+                <td>running</td>
+                <td>0</td>
+                <td>0</td>
+            </tr>
+            <tr>
+                <td>bool</td>
+                <td>warning</td>
+                <td>0</td>
+                <td>1</td>
+            </tr>
+            <tr>
+                <td>bool</td>
+                <td>fault</td>
+                <td>0</td>
+                <td>2</td>
+            </tr>
+        </table>
+
+        <h3>パターン4：値をバイト列に組み立てて機器へ送る</h3>
+        <p>buffer-maker は逆向きの変換を担う。複数のプロパティに散らばった値を集めて、1つのバッファにまとめられる。</p>
+
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="arrow">→</span>
+            <span class="node node-buffer">buffer-maker</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">TCP Out</span>
+        </div>
+
+        <p>組み立てた結果が正しいかは、buffer-parser を後ろに繋いで読み直すと確かめられる。公式サンプルもこの構成になっている。</p>
+
+        <h2 id="s9">9. サンプルフロー</h2>
+        <p>下のフローは、パッケージに同梱されている<strong>公式サンプル</strong>である。buffer-parser のサンプル 10 種類と buffer-maker のサンプル 2 種類を、1つのタブにまとめている。ノードの構成とコメントは公式のまま保持している。</p>
+
+        <div class="warning">
+            <strong>読み込む前に：</strong>
+            <p>このフローは buffer-parser と buffer-maker を使う。パッケージを入れる前に読み込むと「不明なノード」として表示される。先に<a href="#s2">2. インストール方法</a>を済ませてほしい。</p>
+        </div>
+
+        <p>収録されているのは次の内容である。上から順に試すと、設定の効き方が掴める。</p>
+
+        <table>
+            <tr>
+                <th>サンプル</th>
+                <th>内容</th>
+            </tr>
+            <tr>
+                <td>ビットと bool</td>
+                <td>1つのワードからビット単位で状態を取り出す</td>
+            </tr>
+            <tr>
+                <td>16bit 配列から複数メッセージ</td>
+                <td>スワップして切り分け、項目ごとに topic 付きで送る（MQTT 向け）</td>
+            </tr>
+            <tr>
+                <td>16bit 配列から名前付きオブジェクト</td>
+                <td>1つのメッセージにまとめて送る</td>
+            </tr>
+            <tr>
+                <td>バッファから配列</td>
+                <td>オブジェクトの配列として受け取る</td>
+            </tr>
+            <tr>
+                <td>仕様を実行時に渡す</td>
+                <td>Specification を msg から与えて動的に切り替える</td>
+            </tr>
+            <tr>
+                <td>各種スワップ</td>
+                <td>swap16 / swap32 / swap64 を重ねて適用する</td>
+            </tr>
+            <tr>
+                <td>BigInt の扱い</td>
+                <td>8バイト整数を読む（Debug ノードの表示に制限がある点も含む）</td>
+            </tr>
+            <tr>
+                <td>BCD の変換</td>
+                <td><code>0x1234</code> を 1234 として読む</td>
+            </tr>
+            <tr>
+                <td>buffer-maker（UI 仕様）</td>
+                <td>値をバッファに組み立て、読み直して確認する</td>
+            </tr>
+            <tr>
+                <td>buffer-maker（msg 仕様）</td>
+                <td>仕様を実行時に渡して組み立てる</td>
+            </tr>
+        </table>
+
+        <details>
+            <summary>📋 公式サンプルフロー（クリックで展開）</summary>
+            <div class="flow-json">[
+    {
+        "id": "tab_bufparser_examples",
+        "type": "tab",
+        "label": "buffer-parser 公式サンプル",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "1a961982.6e0c66",
+        "type": "inject",
+        "z": "tab_bufparser_examples",
+        "name": "Trigger",
+        "topic": "",
+        "payload": "true",
+        "payloadType": "bool",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 220,
+        "y": 280,
+        "wires": [
+            [
+                "429874da.f0bfcc"
+            ]
+        ]
+    },
+    {
+        "id": "a03288ed.d73cf8",
+        "type": "buffer-parser",
+        "z": "tab_bufparser_examples",
+        "name": "",
+        "data": "payload",
+        "dataType": "msg",
+        "specification": "spec",
+        "specificationType": "ui",
+        "items": [
+            {
+                "type": "16bitbe",
+                "name": "3 lots of 16 bits",
+                "offset": "0",
+                "length": "3",
+                "offsetbit": "0",
+                "mask": ""
+            },
+            {
+                "type": "bool",
+                "name": "32 bools offest by 8 bits",
+                "offset": "0",
+                "length": "32",
+                "offsetbit": "8",
+                "mask": ""
+            }
+        ],
+        "swap1": "",
+        "swap2": "",
+        "swap3": "",
+        "swap1Type": "swap",
+        "swap2Type": "swap",
+        "swap3Type": "swap",
+        "msgProperty": "payload",
+        "msgPropertyType": "str",
+        "resultType": "value",
+        "resultTypeType": "return",
+        "multipleResult": true,
+        "setTopic": true,
+        "x": 560,
+        "y": 280,
+        "wires": [
+            [
+                "af863e2a.965e3"
+            ]
+        ]
+    },
+    {
+        "id": "af863e2a.965e3",
+        "type": "debug",
+        "z": "tab_bufparser_examples",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 740,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "709dd163.59831",
+        "type": "comment",
+        "z": "tab_bufparser_examples",
+        "name": "Working with bits and bools",
+        "info": "",
+        "x": 260,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "429874da.f0bfcc",
+        "type": "function",
+        "z": "tab_bufparser_examples",
+        "name": "Array of WORDs",
+        "func": "msg.payload = [\n    0xffff,\n    0x000f,\n    0x00f0,\n    0x0f00,\n    0xf000,\n    0x0000,\n    0x0001,\n    0x1111,\n    ]\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 380,
+        "y": 280,
+        "wires": [
+            [
+                "a03288ed.d73cf8"
+            ]
+        ]
+    },
+    {
+        "id": "51b464c8.11fc6c",
+        "type": "inject",
+        "z": "tab_bufparser_examples",
+        "name": "a buffer",
+        "topic": "",
+        "payload": "[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]",
+        "payloadType": "bin",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 220,
+        "y": 1120,
+        "wires": [
+            [
+                "5ff0a2f.c0b505c",
+                "19d8cbd0.a50204",
+                "768d5cd5.de98e4",
+                "517a8685.5bc3a8",
+                "24e73864.d37938"
+            ]
+        ]
+    },
+    {
+        "id": "517a8685.5bc3a8",
+        "type": "buffer-parser",
+        "z": "tab_bufparser_examples",
+        "name": "swap 16",
+        "data": "payload",
+        "dataType": "msg",
+        "specification": "spec",
+        "specificationType": "ui",
+        "items": [],
+        "swap1": "swap16",
+        "swap2": "",
+        "swap3": "",
+        "swap1Type": "swap",
+        "swap2Type": "swap",
+        "swap3Type": "swap",
+        "msgProperty": "booboo.poopoo",
+        "msgPropertyType": "",
+        "resultType": "buffer",
+        "resultTypeType": "return",
+        "multipleResult": false,
+        "setTopic": true,
+        "x": 490,
+        "y": 1040,
+        "wires": [
+            [
+                "d7ed39ae.6fc9f8"
+            ]
+        ]
+    },
+    {
+        "id": "d7ed39ae.6fc9f8",
+        "type": "debug",
+        "z": "tab_bufparser_examples",
+        "name": "16",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 720,
+        "y": 1040,
+        "wires": []
+    },
+    {
+        "id": "e9648adf.fd8888",
+        "type": "debug",
+        "z": "tab_bufparser_examples",
+        "name": "32",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 720,
+        "y": 1100,
+        "wires": []
+    },
+    {
+        "id": "fbf8d38a.e7063",
+        "type": "debug",
+        "z": "tab_bufparser_examples",
+        "name": "64",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 720,
+        "y": 1160,
+        "wires": []
+    },
+    {
+        "id": "5ff0a2f.c0b505c",
+        "type": "buffer-parser",
+        "z": "tab_bufparser_examples",
+        "name": "swap 32",
+        "data": "payload",
+        "dataType": "msg",
+        "specification": "spec",
+        "specificationType": "ui",
+        "items": [],
+        "swap1": "swap32",
+        "swap2": "",
+        "swap3": "",
+        "swap1Type": "swap",
+        "swap2Type": "swap",
+        "swap3Type": "swap",
+        "msgProperty": "booboo.poopoo",
+        "msgPropertyType": "",
+        "resultType": "buffer",
+        "resultTypeType": "return",
+        "multipleResult": false,
+        "setTopic": true,
+        "x": 490,
+        "y": 1100,
+        "wires": [
+            [
+                "e9648adf.fd8888"
+            ]
+        ]
+    },
+    {
+        "id": "19d8cbd0.a50204",
+        "type": "buffer-parser",
+        "z": "tab_bufparser_examples",
+        "name": "swap 64",
+        "data": "payload",
+        "dataType": "msg",
+        "specification": "spec",
+        "specificationType": "ui",
+        "items": [],
+        "swap1": "swap64",
+        "swap2": "",
+        "swap3": "",
+        "swap1Type": "swap",
+        "swap2Type": "swap",
+        "swap3Type": "swap",
+        "msgProperty": "booboo.poopoo",
+        "msgPropertyType": "",
+        "resultType": "buffer",
+        "resultTypeType": "return",
+        "multipleResult": false,
+        "setTopic": true,
+        "x": 490,
+        "y": 1160,
+        "wires": [
+            [
+                "fbf8d38a.e7063"
+            ]
+        ]
+    },
+    {
+        "id": "768d5cd5.de98e4",
+        "type": "buffer-parser",
+        "z": "tab_bufparser_examples",
+        "name": "swap 64 32 16",
+        "data": "payload",
+        "dataType": "msg",
+        "specification": "spec",
+        "specificationType": "ui",
+        "items": [],
+        "swap1": "swap64",
+        "swap2": "swap32",
+        "swap3": "swap16",
+        "swap1Type": "swap",
+        "swap2Type": "swap",
+        "swap3Type": "swap",
+        "msgProperty": "booboo.poopoo",
+        "msgPropertyType": "",
+        "resultType": "buffer",
+        "resultTypeType": "output",
+        "multipleResult": false,
+        "setTopic": true,
+        "x": 510,
+        "y": 1220,
+        "wires": [
+            [
+                "63965e1a.2467"
+            ]
+        ]
+    },
+    {
+        "id": "63965e1a.2467",
+        "type": "debug",
+        "z": "tab_bufparser_examples",
+        "name": "64 32 16",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 730,
+        "y": 1220,
+        "wires": []
+    },
+    {
+        "id": "24e73864.d37938",
+        "type": "buffer-parser",
+        "z": "tab_bufparser_examples",
+        "name": "none",
+        "data": "payload",
+        "dataType": "msg",
+        "specification": "spec",
+        "specificationType": "ui",
+        "items": [],
+        "swap1": "",
+        "swap2": "",
+        "swap3": "",
+        "swap1Type": "swap",
+        "swap2Type": "swap",
+        "swap3Type": "swap",
+        "msgProperty": "booboo.poopoo",
+        "msgPropertyType": "",
+        "resultType": "buffer",
+        "resultTypeType": "return",
+        "multipleResult": false,
+        "setTopic": true,
+        "x": 480,
+        "y": 980,
+        "wires": [
+            [
+                "1f005eb1.c33691"
+            ]
+        ]
+    },
+    {
+        "id": "1f005eb1.c33691",
+        "type": "debug",
+        "z": "tab_bufparser_examples",
+        "name": "none",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 720,
+        "y": 980,
+        "wires": []
+    },
+    {
+        "id": "f06126a.b3cc7d8",
+        "type": "inject",
+        "z": "tab_bufparser_examples",
+        "name": "an array",
+        "topic": "",
+        "payload": "[258,772,1286,1800,2314,2828,3342,3856]",
+        "payloadType": "json",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 230,
+        "y": 1060,
+        "wires": [
+            [
+                "24e73864.d37938",
+                "517a8685.5bc3a8",
+                "5ff0a2f.c0b505c",
+                "19d8cbd0.a50204",
+                "768d5cd5.de98e4"
+            ]
+        ]
+    },
+    {
+        "id": "78cb82d2.22c08c",
+        "type": "buffer-parser",
+        "z": "tab_bufparser_examples",
+        "name": "",
+        "data": "payload",
+        "dataType": "msg",
+        "specification": "spec",
+        "specificationType": "msg",
+        "items": [],
+        "swap1": "",
+        "swap2": "",
+        "swap3": "",
+        "swap1Type": "swap",
+        "swap2Type": "swap",
+        "swap3Type": "swap",
+        "msgProperty": "",
+        "msgPropertyType": "",
+        "resultType": "value",
+        "resultTypeType": "output",
+        "multipleResult": false,
+        "setTopic": false,
+        "x": 720,
+        "y": 120,
+        "wires": [
+            [
+                "4e362474.a8e83c"
+            ]
+        ]
+    },
+    {
+        "id": "4e362474.a8e83c",
+        "type": "debug",
+        "z": "tab_bufparser_examples",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 740,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "ec2a43b5.c3d2b",
+        "type": "inject",
+        "z": "tab_bufparser_examples",
+        "name": "Pass data in as buffer",
+        "topic": "",
+        "payload": "[97,98,99,100,101,102,103,104,105,106,107,108,109,109,111,112,113,114,115,116,117,118,119,120,121,122]",
+        "payloadType": "bin",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 270,
+        "y": 120,
+        "wires": [
+            [
+                "db40592a.547028"
+            ]
+        ]
+    },
+    {
+        "id": "2d2fb31f.39dc1c",
+        "type": "function",
+        "z": "tab_bufparser_examples",
+        "name": "dynamically set data",
+        "func": "msg.payload = [0x6162, 0x6364, 0x6566, 0x6768, 0x696A, 0x6B6C, 0x6D6D, 0x6F70, 0x7172, 0x7374, 0x7576, 0x7778, 0x797A]\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 430,
+        "y": 180,
+        "wires": [
+            [
+                "db40592a.547028"
+            ]
+        ]
+    },
+    {
+        "id": "63781545.9792ac",
+        "type": "inject",
+        "z": "tab_bufparser_examples",
+        "name": "just a trigger",
+        "topic": "",
+        "payload": "true",
+        "payloadType": "bool",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 240,
+        "y": 180,
+        "wires": [
+            [
+                "2d2fb31f.39dc1c"
+            ]
+        ]
+    },
+    {
+        "id": "db40592a.547028",
+        "type": "function",
+        "z": "tab_bufparser_examples",
+        "name": "dynamically set spec",
+        "func": "msg.spec = {\n    \"options\":\n    {\n        \"byteSwap\":true,\n        \"resultType\":\"object\",\n        \"singleResult\": true\n    },\n    \"items\":[\n        {\"name\":\"myInt\",\"type\":\"int\",\"offset\":4},{\"name\":\"uint32s\",\"type\":\"uint32\",\"offset\":0,\"length\":4},{\"name\":\"floats\",\"type\":\"float\",\"offset\":0,\"length\":4},{\"name\":\"doubles\",\"type\":\"double\",\"offset\":0,\"length\":2},{\"name\":\"myString\",\"type\":\"string\",\"offset\":0,\"length\":5}\n    ]\n}\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 530,
+        "y": 120,
+        "wires": [
+            [
+                "78cb82d2.22c08c"
+            ]
+        ]
+    },
+    {
+        "id": "1b83d748.5c0a29",
+        "type": "buffer-parser",
+        "z": "tab_bufparser_examples",
+        "name": "",
+        "data": "payload",
+        "dataType": "msg",
+        "specification": "spec",
+        "specificationType": "ui",
+        "items": [
+            {
+                "type": "string",
+                "name": "plc1/production/alphabet",
+                "offset": "0",
+                "length": "26",
+                "offsetbit": "0",
+                "mask": ""
+            },
+            {
+                "type": "uint8",
+                "name": "plc1/production/status/count",
+                "offset": "25",
+                "length": "1",
+                "offsetbit": "0",
+                "mask": ""
+            },
+            {
+                "type": "uint8",
+                "name": "plc1/production/status/sequence",
+                "offset": "4",
+                "length": "1",
+                "offsetbit": "0",
+                "mask": ""
+            },
+            {
+                "type": "int16le",
+                "name": "plc1/machine/status/runner/temperature",
+                "offset": "26",
+                "length": "1",
+                "offsetbit": "0",
+                "mask": ""
+            },
+            {
+                "type": "int16be",
+                "name": "plc1/machine/status/runner/speed",
+                "offset": "26",
+                "length": "1",
+                "offsetbit": "0",
+                "mask": ""
+            },
+            {
+                "type": "bool",
+                "name": "plc1/machine/status/running",
+                "offset": "0",
+                "length": "1",
+                "offsetbit": "0",
+                "mask": ""
+            },
+            {
+                "type": "bool",
+                "name": "plc1/machine/status/warning",
+                "offset": "0",
+                "length": "1",
+                "offsetbit": "1",
+                "mask": ""
+            },
+            {
+                "type": "bool",
+                "name": "plc1/machine/status/fault",
+                "offset": "0",
+                "length": "1",
+                "offsetbit": "2",
+                "mask": ""
+            }
+        ],
+        "swap1": "swap16",
+        "swap2": "",
+        "swap3": "",
+        "swap1Type": "swap",
+        "swap2Type": "swap",
+        "swap3Type": "swap",
+        "msgProperty": "payload",
+        "msgPropertyType": "",
+        "resultType": "value",
+        "resultTypeType": "output",
+        "multipleResult": true,
+        "setTopic": true,
+        "x": 500,
+        "y": 380,
+        "wires": [
+            [
+                "58018932.2ccce8"
+            ]
+        ]
+    },
+    {
+        "id": "58018932.2ccce8",
+        "type": "debug",
+        "z": "tab_bufparser_examples",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 740,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "25ba06cd.4b38ca",
+        "type": "buffer-parser",
+        "z": "tab_bufparser_examples",
+        "name": "",
+        "data": "payload",
+        "dataType": "msg",
+        "specification": "spec",
+        "specificationType": "ui",
+        "items": [
+            {
+                "type": "string",
+                "name": "alphabet",
+                "offset": "0",
+                "length": "26",
+                "offsetbit": "0",
+                "mask": ""
+            },
+            {
+                "type": "byte",
+                "name": "single byte pos 4",
+                "offset": "4",
+                "length": "1",
+                "offsetbit": "0",
+                "mask": ""
+            },
+            {
+                "type": "bcdbe",
+                "name": "3bcd",
+                "offset": "4",
+                "length": "5",
+                "offsetbit": "0",
+                "mask": "0x0FFF"
+            },
+            {
+                "type": "int16le",
+                "name": "Array[6] of int16le",
+                "offset": "26",
+                "length": "6",
+                "offsetbit": "0",
+                "mask": ""
+            },
+            {
+                "type": "int16be",
+                "name": "Array[6] of int16be",
+                "offset": "26",
+                "length": "6",
+                "offsetbit": "0",
+                "mask": ""
+            },
+            {
+                "type": "bool",
+                "name": "32 bools",
+                "offset": "0",
+                "length": "32",
+                "offsetbit": "0",
+                "mask": ""
+            },
+            {
+                "type": "16bitbe",
+                "name": "Array[4] of 16bits",
+                "offset": "0",
+                "length": "4",
+                "offsetbit": "0",
+                "mask": ""
+            }
+        ],
+        "swap1": "swap16",
+        "swap2": "",
+        "swap3": "",
+        "swap1Type": "swap",
+        "swap2Type": "swap",
+        "swap3Type": "swap",
+        "msgProperty": "data",
+        "msgPropertyType": "",
+        "resultType": "object",
+        "resultTypeType": "output",
+        "multipleResult": false,
+        "setTopic": true,
+        "x": 500,
+        "y": 460,
+        "wires": [
+            [
+                "86a325f6.aa8688"
+            ]
+        ]
+    },
+    {
+        "id": "86a325f6.aa8688",
+        "type": "debug",
+        "z": "tab_bufparser_examples",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "data",
+        "targetType": "msg",
+        "x": 730,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "84bede4f.ca9ad",
+        "type": "inject",
+        "z": "tab_bufparser_examples",
+        "name": "Fake PLC data 16bit Array",
+        "topic": "",
+        "payload": "[25185,25699,26213,26727,27241,27755,28013,28783,29297,29811,30325,30839,31353,256,512,768,1024,1280,1536,1792,2048,2304,2560,2816,3072,3597]",
+        "payloadType": "json",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 280,
+        "y": 380,
+        "wires": [
+            [
+                "1b83d748.5c0a29"
+            ]
+        ]
+    },
+    {
+        "id": "7b98fcf3.8e73c4",
+        "type": "inject",
+        "z": "tab_bufparser_examples",
+        "name": "Fake PLC data 16bit Array",
+        "topic": "",
+        "payload": "[25185,25699,26213,26727,27241,27755,28013,28783,29297,29811,30325,30839,31353,256,512,768,1024,1280,1536,1792,2048,2304,2560,2816,3072,3597]",
+        "payloadType": "json",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 280,
+        "y": 460,
+        "wires": [
+            [
+                "25ba06cd.4b38ca"
+            ]
+        ]
+    },
+    {
+        "id": "c7b2a471.623fd8",
+        "type": "comment",
+        "z": "tab_bufparser_examples",
+        "name": "take an array of 16bit values, byte reverse, split out several values and transmit individual messages with topic + payload",
+        "info": "",
+        "x": 550,
+        "y": 340,
+        "wires": []
+    },
+    {
+        "id": "e35f44bf.0724e8",
+        "type": "comment",
+        "z": "tab_bufparser_examples",
+        "name": "take an array of 16bit values, byte reverse, split out several values and transmit one message with named objects in msg.data",
+        "info": "",
+        "x": 570,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "be080136.0ddf6",
+        "type": "buffer-parser",
+        "z": "tab_bufparser_examples",
+        "name": "",
+        "data": "payload",
+        "dataType": "msg",
+        "specification": "spec",
+        "specificationType": "ui",
+        "items": [
+            {
+                "type": "string",
+                "name": "alphabet",
+                "offset": "0",
+                "length": "26",
+                "offsetbit": "0",
+                "mask": ""
+            },
+            {
+                "type": "floatbe",
+                "name": "float BE from byte4",
+                "offset": "4",
+                "length": "1",
+                "offsetbit": "0",
+                "mask": ""
+            },
+            {
+                "type": "floatle",
+                "name": "float LE from byte4",
+                "offset": "4",
+                "length": "1",
+                "offsetbit": "0",
+                "mask": ""
+            },
+            {
+                "type": "bool",
+                "name": "32 bools",
+                "offset": "0",
+                "length": "32",
+                "offsetbit": "0",
+                "mask": ""
+            },
+            {
+                "type": "16bitbe",
+                "name": "Array[4] of 16bits",
+                "offset": "0",
+                "length": "4",
+                "offsetbit": "0",
+                "mask": ""
+            }
+        ],
+        "swap1": "swap16",
+        "swap2": "",
+        "swap3": "",
+        "swap1Type": "swap",
+        "swap2Type": "swap",
+        "swap3Type": "swap",
+        "msgProperty": "payload",
+        "msgPropertyType": "",
+        "resultType": "array",
+        "resultTypeType": "output",
+        "multipleResult": false,
+        "setTopic": true,
+        "x": 500,
+        "y": 560,
+        "wires": [
+            [
+                "fd5c5940.190838"
+            ]
+        ]
+    },
+    {
+        "id": "fd5c5940.190838",
+        "type": "debug",
+        "z": "tab_bufparser_examples",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 740,
+        "y": 560,
+        "wires": []
+    },
+    {
+        "id": "cc51cb1e.3f1428",
+        "type": "inject",
+        "z": "tab_bufparser_examples",
+        "name": "Fake PLC data  buffer",
+        "topic": "",
+        "payload": "[98,97,100,99,102,101,104,103,106,105,108,107,110,109,112,111,114,113,116,115,118,117,120,119,122,121]",
+        "payloadType": "bin",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 270,
+        "y": 560,
+        "wires": [
+            [
+                "be080136.0ddf6"
+            ]
+        ]
+    },
+    {
+        "id": "d45509ca.dcb138",
+        "type": "comment",
+        "z": "tab_bufparser_examples",
+        "name": "take a buffer, byte reverse, split out several values and transmit one message as array of objects in msg.payload",
+        "info": "",
+        "x": 530,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "63a1e6f7.e6ae38",
+        "type": "buffer-parser",
+        "z": "tab_bufparser_examples",
+        "name": "",
+        "data": "payload",
+        "dataType": "msg",
+        "specification": "spec",
+        "specificationType": "ui",
+        "items": [
+            {
+                "type": "string",
+                "name": "alphabet",
+                "offset": "0",
+                "length": "26",
+                "offsetbit": "0",
+                "mask": ""
+            },
+            {
+                "type": "floatbe",
+                "name": "float BE from byte4",
+                "offset": "4",
+                "length": "1",
+                "offsetbit": "0",
+                "mask": ""
+            },
+            {
+                "type": "floatle",
+                "name": "float LE from byte4",
+                "offset": "4",
+                "length": "1",
+                "offsetbit": "0",
+                "mask": ""
+            },
+            {
+                "type": "bool",
+                "name": "32 bools",
+                "offset": "0",
+                "length": "32",
+                "offsetbit": "0",
+                "mask": ""
+            },
+            {
+                "type": "16bitbe",
+                "name": "Array[4] of 16bits",
+                "offset": "0",
+                "length": "4",
+                "offsetbit": "0",
+                "mask": ""
+            }
+        ],
+        "swap1": "swap16",
+        "swap2": "",
+        "swap3": "",
+        "swap1Type": "swap",
+        "swap2Type": "swap",
+        "swap3Type": "swap",
+        "msgProperty": "result",
+        "msgPropertyType": "",
+        "resultType": "value",
+        "resultTypeType": "output",
+        "multipleResult": false,
+        "setTopic": true,
+        "x": 500,
+        "y": 660,
+        "wires": [
+            [
+                "c4f314e6.4a4d58"
+            ]
+        ]
+    },
+    {
+        "id": "c4f314e6.4a4d58",
+        "type": "debug",
+        "z": "tab_bufparser_examples",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "result",
+        "targetType": "msg",
+        "x": 740,
+        "y": 660,
+        "wires": []
+    },
+    {
+        "id": "1e66e973.4a2b07",
+        "type": "inject",
+        "z": "tab_bufparser_examples",
+        "name": "Fake PLC data  buffer",
+        "topic": "",
+        "payload": "[98,97,100,99,102,101,104,103,106,105,108,107,110,109,112,111,114,113,116,115,118,117,120,119,122,121]",
+        "payloadType": "bin",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 270,
+        "y": 660,
+        "wires": [
+            [
+                "63a1e6f7.e6ae38"
+            ]
+        ]
+    },
+    {
+        "id": "66eb1379.961c2c",
+        "type": "comment",
+        "z": "tab_bufparser_examples",
+        "name": "take a buffer, split out several values and transmit one message as values in  msg.result",
+        "info": "",
+        "x": 450,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "712e7a13.d64a04",
+        "type": "comment",
+        "z": "tab_bufparser_examples",
+        "name": "Dynamically set data and spec",
+        "info": "",
+        "x": 270,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "a7e43760.9ac7a8",
+        "type": "inject",
+        "z": "tab_bufparser_examples",
+        "name": "an array",
+        "topic": "",
+        "payload": "[258,772,1286,1800,2314,2828,3342,3856]",
+        "payloadType": "json",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 230,
+        "y": 860,
+        "wires": [
+            [
+                "9b05469c.03bbf8"
+            ]
+        ]
+    },
+    {
+        "id": "9b05469c.03bbf8",
+        "type": "buffer-parser",
+        "z": "tab_bufparser_examples",
+        "name": "",
+        "data": "payload",
+        "dataType": "msg",
+        "specification": "spec",
+        "specificationType": "ui",
+        "items": [],
+        "swap1": "",
+        "swap2": "",
+        "swap3": "",
+        "swap1Type": "swap",
+        "swap2Type": "swap",
+        "swap3Type": "swap",
+        "msgProperty": "payload",
+        "msgPropertyType": "",
+        "resultType": "buffer",
+        "resultTypeType": "output",
+        "multipleResult": false,
+        "setTopic": true,
+        "x": 500,
+        "y": 860,
+        "wires": [
+            [
+                "9e69d945.7303f8"
+            ]
+        ]
+    },
+    {
+        "id": "9e69d945.7303f8",
+        "type": "debug",
+        "z": "tab_bufparser_examples",
+        "name": "buffer",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 720,
+        "y": 860,
+        "wires": []
+    },
+    {
+        "id": "fb9ae3fd.f1628",
+        "type": "comment",
+        "z": "tab_bufparser_examples",
+        "name": "Convert [258,772,1286,1800,2314,2828,3342,3856] to a buffer only",
+        "info": "",
+        "x": 390,
+        "y": 820,
+        "wires": []
+    },
+    {
+        "id": "bb0683be.3011",
+        "type": "comment",
+        "z": "tab_bufparser_examples",
+        "name": "Convert an array or buffer to a buffer, do various swaps (sometimes multiple swaps), output only the buffer",
+        "info": "",
+        "x": 510,
+        "y": 940,
+        "wires": []
+    },
+    {
+        "id": "cf9b6d1e.3ebf",
+        "type": "inject",
+        "z": "tab_bufparser_examples",
+        "name": "an array",
+        "topic": "",
+        "payload": "[258,772,1286,1800,2314,2828,3342,3856]",
+        "payloadType": "json",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 250,
+        "y": 1360,
+        "wires": [
+            [
+                "d6bfcb3c.eedd08"
+            ]
+        ]
+    },
+    {
+        "id": "6978e83c.6100d8",
+        "type": "debug",
+        "z": "tab_bufparser_examples",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 740,
+        "y": 1360,
+        "wires": []
+    },
+    {
+        "id": "21a5c90f.6a98b6",
+        "type": "comment",
+        "z": "tab_bufparser_examples",
+        "name": "Dealing with BigInt. NOTE: At the time of writing, node-red debug node cannot handle BigInt.",
+        "info": "",
+        "x": 490,
+        "y": 1320,
+        "wires": []
+    },
+    {
+        "id": "d6bfcb3c.eedd08",
+        "type": "buffer-parser",
+        "z": "tab_bufparser_examples",
+        "name": "",
+        "data": "payload",
+        "dataType": "msg",
+        "specification": "spec",
+        "specificationType": "ui",
+        "items": [
+            {
+                "type": "bigint64le",
+                "name": "bigint64le",
+                "offset": "0",
+                "length": "1",
+                "offsetbit": "0",
+                "mask": ""
+            },
+            {
+                "type": "bigint64be",
+                "name": "bigint64be",
+                "offset": "0",
+                "length": "1",
+                "offsetbit": "0",
+                "mask": ""
+            }
+        ],
+        "swap1": "swap16",
+        "swap2": "",
+        "swap3": "",
+        "swap1Type": "swap",
+        "swap2Type": "swap",
+        "swap3Type": "swap",
+        "msgProperty": "bigValues",
+        "msgPropertyType": "",
+        "resultType": "object",
+        "resultTypeType": "output",
+        "multipleResult": false,
+        "setTopic": true,
+        "x": 400,
+        "y": 1360,
+        "wires": [
+            [
+                "4d237375.24f27c"
+            ]
+        ]
+    },
+    {
+        "id": "4d237375.24f27c",
+        "type": "function",
+        "z": "tab_bufparser_examples",
+        "name": "Parse BigInts",
+        "func": "msg.payload = {\n    bigint64le_string : msg.bigValues.bigint64le.value.toString(),\n    bigint64le_number : Number(msg.bigValues.bigint64le.value),\n    bigint64le_parseInt : parseInt(msg.bigValues.bigint64le.value),\n    bigint64be_string : msg.bigValues.bigint64be.value.toString(),\n    bigint64be_number : Number(msg.bigValues.bigint64be.value),\n    bigint64be_parseInt : parseInt(msg.bigValues.bigint64be.value),\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 560,
+        "y": 1360,
+        "wires": [
+            [
+                "6978e83c.6100d8",
+                "9e4aba0c.0e5478"
+            ]
+        ]
+    },
+    {
+        "id": "9e4aba0c.0e5478",
+        "type": "debug",
+        "z": "tab_bufparser_examples",
+        "name": "full object (this might throw error)",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "x": 670,
+        "y": 1420,
+        "wires": []
+    },
+    {
+        "id": "459c1701.897c58",
+        "type": "inject",
+        "z": "tab_bufparser_examples",
+        "name": "Fake PLC data 16bit Array",
+        "topic": "1234 4321 9999",
+        "payload": "[4660,17185,39321]",
+        "payloadType": "json",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 280,
+        "y": 760,
+        "wires": [
+            [
+                "b9ebe3b6.8486e"
+            ]
+        ]
+    },
+    {
+        "id": "b9ebe3b6.8486e",
+        "type": "buffer-parser",
+        "z": "tab_bufparser_examples",
+        "name": "",
+        "data": "payload",
+        "dataType": "msg",
+        "specification": "spec",
+        "specificationType": "ui",
+        "items": [
+            {
+                "type": "bcdbe",
+                "name": "bcdle",
+                "offset": "0",
+                "length": "3",
+                "offsetbit": "2",
+                "mask": ""
+            },
+            {
+                "type": "bcdle",
+                "name": "bcdbe",
+                "offset": "0",
+                "length": "3",
+                "offsetbit": "0",
+                "mask": ""
+            },
+            {
+                "type": "bcdbe",
+                "name": "3bcd",
+                "offset": "0",
+                "length": "3",
+                "offsetbit": "0",
+                "mask": "0x0FFF"
+            }
+        ],
+        "swap1": "",
+        "swap2": "",
+        "swap3": "",
+        "swap1Type": "swap",
+        "swap2Type": "swap",
+        "swap3Type": "swap",
+        "msgProperty": "payload",
+        "msgPropertyType": "",
+        "resultType": "value",
+        "resultTypeType": "output",
+        "multipleResult": true,
+        "setTopic": true,
+        "x": 500,
+        "y": 760,
+        "wires": [
+            [
+                "511aab5b.892944"
+            ]
+        ]
+    },
+    {
+        "id": "511aab5b.892944",
+        "type": "debug",
+        "z": "tab_bufparser_examples",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 740,
+        "y": 760,
+        "wires": []
+    },
+    {
+        "id": "576ed17f.e86d2",
+        "type": "comment",
+        "z": "tab_bufparser_examples",
+        "name": "BCD values [4660,17185,39321] (0x1234 0x4321 0x9999) to decimal equivelant (1234 4321 9999)",
+        "info": "",
+        "x": 490,
+        "y": 720,
+        "wires": []
+    },
+    {
+        "id": "791a95ae.26555c",
+        "type": "buffer-maker",
+        "z": "tab_bufparser_examples",
+        "name": "",
+        "data": "payload",
+        "dataType": "msg",
+        "specification": "spec",
+        "specificationType": "ui",
+        "items": [
+            {
+                "name": "item1",
+                "type": "ascii",
+                "length": 8,
+                "dataType": "str",
+                "data": "abcdefgh"
+            },
+            {
+                "name": "item2",
+                "type": "uint16le",
+                "length": 1,
+                "dataType": "msg",
+                "data": "payload.anumber"
+            },
+            {
+                "name": "item3",
+                "type": "uint16le",
+                "length": 1,
+                "dataType": "msg",
+                "data": "payload.anarray"
+            },
+            {
+                "name": "item4",
+                "type": "biguint64le",
+                "length": 1,
+                "dataType": "str",
+                "data": "123456"
+            },
+            {
+                "name": "item5",
+                "type": "8bit",
+                "length": 1,
+                "dataType": "msg",
+                "data": "payload.a8bit"
+            },
+            {
+                "name": "item6",
+                "type": "16bitle",
+                "length": 1,
+                "dataType": "msg",
+                "data": "payload.a16bit"
+            },
+            {
+                "name": "item7",
+                "type": "bool",
+                "length": 1,
+                "dataType": "msg",
+                "data": "payload.bools"
+            },
+            {
+                "name": "bcd1",
+                "type": "bcdle",
+                "length": 2,
+                "dataType": "jsonata",
+                "data": "[1234,2345]"
+            },
+            {
+                "name": "bcd2",
+                "type": "bcdbe",
+                "length": 1,
+                "dataType": "num",
+                "data": "5678"
+            },
+            {
+                "name": "item8",
+                "type": "hex",
+                "length": -1,
+                "dataType": "msg",
+                "data": "payload.hexstring"
+            }
+        ],
+        "swap1": "swap16",
+        "swap2": "",
+        "swap3": "",
+        "swap1Type": "swap",
+        "swap2Type": "swap",
+        "swap3Type": "swap",
+        "msgProperty": "payload",
+        "msgPropertyType": "str",
+        "x": 280,
+        "y": 2500,
+        "wires": [
+            [
+                "fe3067d4.300288",
+                "a08cf05c.aea2"
+            ]
+        ]
+    },
+    {
+        "id": "ca252362.2b25d",
+        "type": "inject",
+        "z": "tab_bufparser_examples",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            },
+            {
+                "p": "spec",
+                "v": "{\"options\":{\"byteSwap\":[\"swap16\"],\"msgProperty\":\"payload\"},\"items\":[{\"name\":\"item1\",\"type\":\"ascii\",\"length\":8,\"dataType\":\"str\",\"data\":\"abcdefgh\",\"value\":\"abcdefgh\"},{\"name\":\"item2\",\"type\":\"uint16le\",\"length\":1,\"dataType\":\"msg\",\"data\":\"payload.anumber\",\"value\":123},{\"name\":\"item3\",\"type\":\"uint16le\",\"length\":1,\"dataType\":\"msg\",\"data\":\"payload.anarray\"},{\"name\":\"item4\",\"type\":\"biguint64le\",\"length\":1,\"dataType\":\"str\",\"data\":\"123456\"},{\"name\":\"item5\",\"type\":\"8bit\",\"length\":1,\"dataType\":\"msg\",\"data\":\"payload.a8bit\"},{\"name\":\"item6\",\"type\":\"16bitle\",\"length\":1,\"dataType\":\"msg\",\"data\":\"payload.a16bit\"},{\"name\":\"item7\",\"type\":\"bool\",\"length\":1,\"dataType\":\"msg\",\"data\":\"payload.bools\"},{\"name\":\"item8\",\"type\":\"hex\",\"length\":-1,\"dataType\":\"msg\",\"data\":\"payload.hexstring\"}]}",
+                "vt": "json"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"astring\":\"hello\",\"anumber\":123,\"anarray\":[1,2,3,4,5,6,7,8,9,10],\"a8bit\":[[1,1,1,0,0,0,1,0]],\"a16bit\":[[true,true,true,0,0,0,1,0,0,0,0,1,1,1,0,1]],\"bools\":[1,0,0,1,false,false,true,true],\"hexstring\":\"0102030405060708\"}",
+        "payloadType": "json",
+        "x": 100,
+        "y": 2500,
+        "wires": [
+            [
+                "791a95ae.26555c",
+                "bd497a1e.4aff58"
+            ]
+        ]
+    },
+    {
+        "id": "fe3067d4.300288",
+        "type": "debug",
+        "z": "tab_bufparser_examples",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 380,
+        "y": 2560,
+        "wires": []
+    },
+    {
+        "id": "a08cf05c.aea2",
+        "type": "buffer-parser",
+        "z": "tab_bufparser_examples",
+        "name": "",
+        "data": "payload",
+        "dataType": "msg",
+        "specification": "spec",
+        "specificationType": "ui",
+        "items": [
+            {
+                "type": "string",
+                "name": "item1",
+                "offset": 0,
+                "length": 8,
+                "offsetbit": 0,
+                "scale": 1,
+                "mask": ""
+            },
+            {
+                "type": "int16le",
+                "name": "item2",
+                "offset": 8,
+                "length": 1,
+                "offsetbit": 0,
+                "scale": 1,
+                "mask": ""
+            },
+            {
+                "type": "int16le",
+                "name": "item3",
+                "offset": 10,
+                "length": 1,
+                "offsetbit": 0,
+                "scale": 1,
+                "mask": ""
+            },
+            {
+                "type": "biguint64le",
+                "name": "item4",
+                "offset": 12,
+                "length": 1,
+                "offsetbit": 0,
+                "scale": 1,
+                "mask": ""
+            },
+            {
+                "type": "8bit",
+                "name": "item5",
+                "offset": 20,
+                "length": 1,
+                "offsetbit": 0,
+                "scale": 1,
+                "mask": ""
+            },
+            {
+                "type": "16bitle",
+                "name": "item6",
+                "offset": 21,
+                "length": 1,
+                "offsetbit": 0,
+                "scale": 1,
+                "mask": ""
+            },
+            {
+                "type": "bool",
+                "name": "item7",
+                "offset": 23,
+                "length": 8,
+                "offsetbit": 0,
+                "scale": 1,
+                "mask": ""
+            },
+            {
+                "type": "bcdle",
+                "name": "bcd1",
+                "offset": 24,
+                "length": 2,
+                "offsetbit": 8,
+                "scale": 1,
+                "mask": ""
+            },
+            {
+                "type": "bcdbe",
+                "name": "bcd2",
+                "offset": 28,
+                "length": 1,
+                "offsetbit": 8,
+                "scale": 1,
+                "mask": ""
+            },
+            {
+                "type": "hex",
+                "name": "item8",
+                "offset": 29,
+                "length": -1,
+                "offsetbit": 8,
+                "scale": 1,
+                "mask": ""
+            }
+        ],
+        "swap1": "swap16",
+        "swap2": "",
+        "swap3": "",
+        "swap1Type": "swap",
+        "swap2Type": "swap",
+        "swap3Type": "swap",
+        "msgProperty": "payload",
+        "msgPropertyType": "str",
+        "resultType": "keyvalue",
+        "resultTypeType": "output",
+        "multipleResult": false,
+        "setTopic": true,
+        "x": 520,
+        "y": 2500,
+        "wires": [
+            [
+                "64289929.b60d78"
+            ]
+        ]
+    },
+    {
+        "id": "64289929.b60d78",
+        "type": "debug",
+        "z": "tab_bufparser_examples",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 640,
+        "y": 2560,
+        "wires": []
+    },
+    {
+        "id": "bd497a1e.4aff58",
+        "type": "buffer-maker",
+        "z": "tab_bufparser_examples",
+        "name": "",
+        "data": "payload",
+        "dataType": "msg",
+        "specification": "spec",
+        "specificationType": "msg",
+        "items": [
+            {
+                "name": "item1",
+                "type": "ascii",
+                "length": 8,
+                "dataType": "str",
+                "data": "abcdefgh"
+            },
+            {
+                "name": "item2",
+                "type": "uint16le",
+                "length": 1,
+                "dataType": "msg",
+                "data": "payload.anumber"
+            },
+            {
+                "name": "item3",
+                "type": "uint16le",
+                "length": 1,
+                "dataType": "msg",
+                "data": "payload.anarray"
+            },
+            {
+                "name": "item4",
+                "type": "biguint64le",
+                "length": 1,
+                "dataType": "str",
+                "data": "123456"
+            },
+            {
+                "name": "item5",
+                "type": "8bit",
+                "length": 1,
+                "dataType": "msg",
+                "data": "payload.a8bit"
+            },
+            {
+                "name": "item6",
+                "type": "16bitle",
+                "length": 1,
+                "dataType": "msg",
+                "data": "payload.a16bit"
+            },
+            {
+                "name": "item7",
+                "type": "bool",
+                "length": 1,
+                "dataType": "msg",
+                "data": "payload.bools"
+            }
+        ],
+        "swap1": "swap16",
+        "swap2": "",
+        "swap3": "",
+        "swap1Type": "swap",
+        "swap2Type": "swap",
+        "swap3Type": "swap",
+        "msgProperty": "payload",
+        "msgPropertyType": "str",
+        "x": 280,
+        "y": 2660,
+        "wires": [
+            [
+                "fd9977f7.520068",
+                "f32e8db7.9554a"
+            ]
+        ]
+    },
+    {
+        "id": "fd9977f7.520068",
+        "type": "debug",
+        "z": "tab_bufparser_examples",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 350,
+        "y": 2720,
+        "wires": []
+    },
+    {
+        "id": "f32e8db7.9554a",
+        "type": "buffer-parser",
+        "z": "tab_bufparser_examples",
+        "name": "",
+        "data": "payload",
+        "dataType": "msg",
+        "specification": "spec",
+        "specificationType": "ui",
+        "items": [
+            {
+                "type": "string",
+                "name": "item1",
+                "offset": 0,
+                "length": 8,
+                "offsetbit": 0,
+                "scale": 1,
+                "mask": ""
+            },
+            {
+                "type": "int16le",
+                "name": "item2",
+                "offset": 8,
+                "length": 1,
+                "offsetbit": 0,
+                "scale": 1,
+                "mask": ""
+            },
+            {
+                "type": "int16le",
+                "name": "item3",
+                "offset": 10,
+                "length": 1,
+                "offsetbit": 0,
+                "scale": 1,
+                "mask": ""
+            },
+            {
+                "type": "biguint64le",
+                "name": "item4",
+                "offset": 12,
+                "length": 1,
+                "offsetbit": 0,
+                "scale": 1,
+                "mask": ""
+            },
+            {
+                "type": "8bit",
+                "name": "item5",
+                "offset": 20,
+                "length": 1,
+                "offsetbit": 0,
+                "scale": 1,
+                "mask": ""
+            },
+            {
+                "type": "16bitle",
+                "name": "item6",
+                "offset": 21,
+                "length": 1,
+                "offsetbit": 0,
+                "scale": 1,
+                "mask": ""
+            },
+            {
+                "type": "bool",
+                "name": "item7",
+                "offset": 23,
+                "length": 8,
+                "offsetbit": 0,
+                "scale": 1,
+                "mask": ""
+            },
+            {
+                "type": "hex",
+                "name": "item8",
+                "offset": 24,
+                "length": -1,
+                "offsetbit": 8,
+                "scale": 1,
+                "mask": ""
+            }
+        ],
+        "swap1": "swap16",
+        "swap2": "",
+        "swap3": "",
+        "swap1Type": "swap",
+        "swap2Type": "swap",
+        "swap3Type": "swap",
+        "msgProperty": "payload",
+        "msgPropertyType": "str",
+        "resultType": "keyvalue",
+        "resultTypeType": "output",
+        "multipleResult": false,
+        "setTopic": true,
+        "x": 520,
+        "y": 2660,
+        "wires": [
+            [
+                "d1a9924.18b1e7"
+            ]
+        ]
+    },
+    {
+        "id": "d1a9924.18b1e7",
+        "type": "debug",
+        "z": "tab_bufparser_examples",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 650,
+        "y": 2720,
+        "wires": []
+    },
+    {
+        "id": "89881af3.d907c8",
+        "type": "comment",
+        "z": "tab_bufparser_examples",
+        "name": "Convert values to a buffer then back again (UI Spec)",
+        "info": "",
+        "x": 400,
+        "y": 2460,
+        "wires": []
+    },
+    {
+        "id": "213d42e.e087cbe",
+        "type": "comment",
+        "z": "tab_bufparser_examples",
+        "name": "Convert values to a buffer then back again (msg.spec)",
+        "info": "",
+        "x": 410,
+        "y": 2620,
+        "wires": []
+    }
+]</div>
+        </details>
+
+        <h2 id="s10">10. 演習問題</h2>
+
+        <div class="exercise">
+            <h3>演習1：温度と湿度を取り出す<span class="difficulty difficulty-easy">初級</span></h3>
+            <p>16bit の配列 <code>[253, 604]</code> が届く。先頭が温度（10 倍の整数）、次が湿度（10 倍の整数）である。buffer-parser で <code>{ temperature: 25.3, humidity: 60.4 }</code> の形にせよ。</p>
+            <details>
+                <summary>ヒント</summary>
+                <p>Output は key/value、型は int16 (be)、Offset は 0 と 1、scale は 0.1 を使う。Offset の単位は 16bit 系の型ではワード単位である。</p>
+            </details>
+        </div>
+
+        <div class="exercise">
+            <h3>演習2：警報ビットを取り出す<span class="difficulty difficulty-medium">中級</span></h3>
+            <p>1バイトの値 <code>5</code>（2進で <code>00000101</code>）が届く。ビット0を <code>running</code>、ビット1を <code>warning</code>、ビット2を <code>fault</code> として取り出し、それぞれ true と false で受け取れ。</p>
+            <details>
+                <summary>ヒント</summary>
+                <p>型は bool、Offset はすべて 0 のままで、bit offset を 0・1・2 と変える。結果は running が true、warning が false、fault が true になる。</p>
+            </details>
+        </div>
+
+        <div class="exercise">
+            <h3>演習3：値を組み立てて読み直す<span class="difficulty difficulty-hard">上級</span></h3>
+            <p>buffer-maker で、温度 25.3 を 10 倍した整数（253）と、状態フラグ 1 を含むバッファを作れ。そのうえで buffer-parser を後ろに繋ぎ、元の値に戻ることを確認せよ。</p>
+            <details>
+                <summary>ヒント</summary>
+                <p>buffer-maker 側で int16 (be) を2つ並べる。読み直す側は同じ型と同じ順序で定義し、温度には scale 0.1 を指定する。公式サンプルの buffer-maker の例が、そのままこの構成になっている。</p>
+            </details>
+        </div>
+
+        <h2 id="s11">11. まとめ</h2>
+
+        <div class="important">
+            <strong>要点：</strong>
+            <ul>
+                <li>buffer-parser はバイト列から値を取り出し、buffer-maker は値からバイト列を作る</li>
+                <li>設定は「項目を並べた表」で、1行が1つの取り出しに対応する</li>
+                <li>Byte swap は型変換より<strong>先</strong>に適用される。値が桁違いのときはまずここを疑う</li>
+                <li>scale はマスクの<strong>後</strong>に適用される。倍率のほか式も書ける</li>
+                <li>出力は5つの形から選べる。MQTT へ流すなら multiple results と set topic の組み合わせが使いやすい</li>
+            </ul>
+        </div>
+
+        <h3>次に読むとよいガイド</h3>
+        <ul>
+            <li><a href="nodered-variable-types-guide.html#binary">変数ガイド Part 1：バイナリデータとBuffer</a> — バイトと文字コードの基礎</li>
+            <li><a href="nodered-modbus-node-guide.html">MODBUS ノードガイド</a> — PLC からデータを読む側の設定</li>
+            <li><a href="nodered-function-node-guide.html">Function ノードガイド</a> — 変換を自分で書く場合</li>
+        </ul>
+
+        <h2 id="s12">12. トラブルシューティング</h2>
+
+        <table>
+            <tr>
+                <th>症状</th>
+                <th>原因</th>
+                <th>対処</th>
+            </tr>
+            <tr>
+                <td>読み込んだフローが「不明なノード」になる</td>
+                <td>パッケージが入っていない</td>
+                <td>パレットの管理から <code>node-red-contrib-buffer-parser</code> を入れる</td>
+            </tr>
+            <tr>
+                <td>値が桁違いに大きい、または小さい</td>
+                <td>バイト順かワード順が合っていない</td>
+                <td>Byte swap に swap16 を入れて試す。32bit の値だけおかしいなら swap32</td>
+            </tr>
+            <tr>
+                <td>正の値のはずが負になる</td>
+                <td>符号ありの型で読んでいる</td>
+                <td>int16 ではなく uint16 を選ぶ</td>
+            </tr>
+            <tr>
+                <td>10進で見た表示と値が合わない</td>
+                <td>BCD のデータを整数として読んでいる</td>
+                <td>型を bcd (be) または bcd (le) に変える</td>
+            </tr>
+            <tr>
+                <td>小数点の位置がずれる</td>
+                <td>scale を指定していない</td>
+                <td>機器の仕様で 10 倍や 100 倍になっている値に、0.1 や 0.01 を指定する</td>
+            </tr>
+            <tr>
+                <td>scale の欄が現れない</td>
+                <td>型が整数と小数以外になっている</td>
+                <td>scale は int8 / uint8 / int16 系 / int32 系 / float / double のときだけ表示される</td>
+            </tr>
+            <tr>
+                <td>bit offset の欄が現れない</td>
+                <td>型が bool になっていない</td>
+                <td>型を bool に変えると現れる</td>
+            </tr>
+            <tr>
+                <td>出力端子の数が合わない</td>
+                <td>fan out がオンで、項目数と端子数がずれている</td>
+                <td>項目を増減したあとは配線を付け直す</td>
+            </tr>
+            <tr>
+                <td>元の payload が消える</td>
+                <td>Output property が payload のまま</td>
+                <td>Output property を別の名前にすると、元の payload を残せる</td>
+            </tr>
+        </table>
+    </div>
+<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.flow-json').forEach(function(block) {
+                var button = document.createElement('button');
+                button.className = 'copy-button';
+                button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                button.addEventListener('click', function() {
+                    // 要素ノード（コピーボタン）を除き、直下のテキストだけを取り出す
+                    var code = Array.prototype.filter.call(block.childNodes, function(n) {
+                        return n.nodeType === Node.TEXT_NODE;
+                    }).map(function(n) { return n.textContent; }).join('').trim();
+                    navigator.clipboard.writeText(code).then(function() {
+                        button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>コピーしました!';
+                        button.classList.add('copied');
+                        setTimeout(function() {
+                            button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                            button.classList.remove('copied');
+                        }, 2000);
+                    });
+                });
+                block.style.position = 'relative';
+                block.appendChild(button);
+            });
+        });
+    </script>
+    <!-- フローティングホームボタン -->
+    <a href="index.html" style="position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px; background: linear-gradient(135deg, #42b883 0%, #35495e 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; transition: transform 0.3s, box-shadow 0.3s;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 6px 16px rgba(0,0,0,0.4)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.3)';" title="トップページへ">🏠</a>
+</body>
+</html>
