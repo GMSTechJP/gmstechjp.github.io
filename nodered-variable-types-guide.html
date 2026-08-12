@@ -764,7 +764,8 @@ false（オフ、間違い）</div>
                 <div class="dark-code">&lt;Buffer 48 65 6c 6c 6f&gt;</div>
                 <div class="example-box">
                     <strong>使用例：</strong><br>
-                    画像データ、ファイルの中身など
+                    画像データ、ファイルの中身など<br>
+                    <a href="#binary">中身の読み方はこちら</a>
                 </div>
             </div>
             
@@ -942,7 +943,14 @@ sensor.湿度 → 60</div>
                 <td>現在時刻の送信</td>
                 <td>1696582800000（ミリ秒）</td>
             </tr>
+            <tr>
+                <td>バッファ</td>
+                <td>バイナリデータの送信</td>
+                <td>[72, 101, 108, 108, 111]</td>
+            </tr>
         </table>
+
+        <p>「バッファ」を選んだ欄には、バイト値を並べた配列を書きます。上の例の <code>[72, 101, 108, 108, 111]</code> は、文字列 "Hello" と同じ並びのBufferになります。詳しくは<a href="#binary">バイナリデータとBuffer</a>で扱います。</p>
 
         <div class="tip">
             <strong>Injectの応用：</strong>
@@ -1069,7 +1077,318 @@ msg.topic: 文字列 → "temperature"</div>
             </ul>
         </div>
 
-        <h2>6. データ型チートシート</h2>
+        <h2 id="binary">6. バイナリデータとBuffer</h2>
+        <p>セクション1の型一覧では、Bufferを「バイナリデータ」とだけ説明しました。ここではその中身を扱います。ファイルの読み込みや通信系のノードを使い始めると、Debugサイドバーに文字列とは違う表示が現れます。</p>
+
+        <h3>テキストとバイナリの違い</h3>
+        <p>コンピュータが記憶しているのは、どちらの場合も数字の並びです。違うのは、その数字をどう解釈するかです。</p>
+
+        <ul>
+            <li><strong>文字列</strong>：数字の並びを、文字コードという取り決めで文字に読み替えたもの</li>
+            <li><strong>Buffer</strong>：読み替えをせず、数字の並びのまま保持したもの</li>
+        </ul>
+
+        <p>1つの数字が取る範囲は0から255までで、これを1バイトと呼びます。Bufferは、このバイトが並んだ配列だと考えると分かりやすくなります。画像や音声のように文字として読んでも意味を持たないデータは、読み替えずにBufferのまま扱います。</p>
+
+        <h3>1文字が何バイトになるか</h3>
+        <p>文字コードにはいくつか種類があり、Node-REDが既定で使うのはUTF-8です。UTF-8では、文字によってバイト数が変わります。</p>
+
+        <table>
+            <tr>
+                <th>文字列</th>
+                <th>文字数</th>
+                <th>バイト数</th>
+            </tr>
+            <tr>
+                <td>ABC</td>
+                <td>3</td>
+                <td>3</td>
+            </tr>
+            <tr>
+                <td>こんにちは</td>
+                <td>5</td>
+                <td>15</td>
+            </tr>
+            <tr>
+                <td>Hello 世界</td>
+                <td>8</td>
+                <td>12</td>
+            </tr>
+        </table>
+
+        <p>半角の英数字と記号は1バイト、日本語はおおむね3バイトです。1バイトで表せる範囲は、ASCIIという古くからある文字コードが定めた128文字（英数字と記号、制御文字）と一致します。UTF-8はこのASCIIと互換になるよう設計されているため、英数字だけのデータならバイト数と文字数が同じになります。</p>
+
+        <p>日本語が混じると、この一致は崩れます。文字数とバイト数が違うため、「先頭10バイトだけ取り出す」という処理を日本語混じりのデータに行うと、文字の途中で切れて壊れます。</p>
+
+        <h3>msg.payloadがBufferになる場面</h3>
+        <p>Injectノードの型セレクタで文字列や数値を選んでいる間は、Bufferは出てきません。Bufferが自然に現れるのは、外部からデータを受け取るノードで出力の形式に「バイナリバッファ」を選んだときです。選択肢の名前は、下のいずれのノードでも「バイナリバッファ」で共通です。</p>
+
+        <table>
+            <tr>
+                <th>ノード</th>
+                <th>設定欄</th>
+                <th>既定値</th>
+            </tr>
+            <tr>
+                <td><a href="nodered-file-node-guide.html">File In（読み込み）</a></td>
+                <td>出力形式</td>
+                <td>文字列（選び直すとバイナリバッファ）</td>
+            </tr>
+            <tr>
+                <td><a href="nodered-tcp-node-guide.html">TCP In</a></td>
+                <td>出力（後ろのドロップダウン）</td>
+                <td>バイナリバッファ</td>
+            </tr>
+            <tr>
+                <td><a href="nodered-tcp-node-guide.html">TCP Request</a></td>
+                <td>戻り値</td>
+                <td>バイナリバッファ</td>
+            </tr>
+            <tr>
+                <td><a href="nodered-http-node-guide.html">HTTP Request</a></td>
+                <td>出力形式</td>
+                <td>UTF8文字列（選び直すとバイナリバッファ）</td>
+            </tr>
+            <tr>
+                <td><a href="nodered-mqtt-node-guide.html">MQTT In</a></td>
+                <td>出力</td>
+                <td>自動判定(JSONオブジェクト、文字列もしくはバイナリバッファ)</td>
+            </tr>
+        </table>
+
+        <div class="tip">
+            <strong>見分け方：</strong>
+            <p>Debugサイドバーでは、Bufferはバイト数つきで表示されます。12バイトなら <code>buffer[12]</code> の形です。文字列なら引用符つきで内容がそのまま出るので、表示の形で区別できます。</p>
+        </div>
+
+        <h3>Bufferの中身を確かめる</h3>
+        <p>Bufferは中身が見えないと理解しづらいので、文字列をBufferに変換してバイトの並びを表示するフローを用意しました。Injectノード・Functionノード・Debugノードの3つだけで動きます。</p>
+
+        <div class="node-example">
+            <span class="node node-inject">Inject<br>"Hello 世界"</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">Function<br>Buffer化</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
+        </div>
+
+        <p><strong>Functionノードのコード：</strong></p>
+        <div class="code-block">const text = msg.payload;
+const buf = Buffer.from(text, 'utf8');
+
+msg.payload = {
+    '元の文字列': text,
+    '文字数': text.length,
+    'バイト数': buf.length,
+    '16進ダンプ': buf.toString('hex').toUpperCase().match(/../g).join(' '),
+    '復元した文字列': buf.toString('utf8')
+};
+return msg;</div>
+
+        <details>
+            <summary>📋 サンプルフロー（クリックで展開）</summary>
+            <div class="flow-json">[
+    {
+        "id": "tab_buffer_demo",
+        "type": "tab",
+        "label": "文字列とBufferを見比べる",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "buffer_demo_inject",
+        "type": "inject",
+        "z": "tab_buffer_demo",
+        "name": "文字列を送る",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "Hello 世界",
+        "payloadType": "str",
+        "x": 150,
+        "y": 100,
+        "wires": [
+            [
+                "buffer_demo_func"
+            ]
+        ]
+    },
+    {
+        "id": "buffer_demo_func",
+        "type": "function",
+        "z": "tab_buffer_demo",
+        "name": "Bufferに変換して中身を見る",
+        "func": "const text = msg.payload;\nconst buf = Buffer.from(text, 'utf8');\n\nmsg.payload = {\n    '元の文字列': text,\n    '文字数': text.length,\n    'バイト数': buf.length,\n    '16進ダンプ': buf.toString('hex').toUpperCase().match(/../g).join(' '),\n    '復元した文字列': buf.toString('utf8')\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 390,
+        "y": 100,
+        "wires": [
+            [
+                "buffer_demo_debug"
+            ]
+        ]
+    },
+    {
+        "id": "buffer_demo_debug",
+        "type": "debug",
+        "z": "tab_buffer_demo",
+        "name": "結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 640,
+        "y": 100,
+        "wires": []
+    }
+]</div>
+        </details>
+
+        <p><strong>Debugサイドバーに出る結果：</strong></p>
+        <div class="dark-code">{
+    "元の文字列": "Hello 世界",
+    "文字数": 8,
+    "バイト数": 12,
+    "16進ダンプ": "48 65 6C 6C 6F 20 E4 B8 96 E7 95 8C",
+    "復元した文字列": "Hello 世界"
+}</div>
+
+        <p>16進ダンプの2桁が1バイトです。左から順に対応を追うと、次のようになります。</p>
+
+        <table>
+            <tr>
+                <th>文字</th>
+                <th>16進</th>
+                <th>10進</th>
+                <th>バイト数</th>
+            </tr>
+            <tr>
+                <td>H</td>
+                <td>48</td>
+                <td>72</td>
+                <td>1</td>
+            </tr>
+            <tr>
+                <td>e</td>
+                <td>65</td>
+                <td>101</td>
+                <td>1</td>
+            </tr>
+            <tr>
+                <td>l</td>
+                <td>6C</td>
+                <td>108</td>
+                <td>1</td>
+            </tr>
+            <tr>
+                <td>o</td>
+                <td>6F</td>
+                <td>111</td>
+                <td>1</td>
+            </tr>
+            <tr>
+                <td>（半角スペース）</td>
+                <td>20</td>
+                <td>32</td>
+                <td>1</td>
+            </tr>
+            <tr>
+                <td>世</td>
+                <td>E4 B8 96</td>
+                <td>228 184 150</td>
+                <td>3</td>
+            </tr>
+            <tr>
+                <td>界</td>
+                <td>E7 95 8C</td>
+                <td>231 149 140</td>
+                <td>3</td>
+            </tr>
+        </table>
+
+        <h3>文字列とBufferを相互に変換する</h3>
+        <p>変換はFunctionノードで書きます。使うのは <code>Buffer.from()</code> と <code>.toString()</code> の2つです。</p>
+
+        <div class="code-block">// 文字列 → Buffer
+const buf = Buffer.from(msg.payload, 'utf8');
+
+// Buffer → 文字列
+msg.payload = buf.toString('utf8');
+
+// Buffer → 16進の文字列（"48656c6c6f" の形）
+msg.payload = buf.toString('hex');
+
+// Buffer かどうかを判定する
+if (Buffer.isBuffer(msg.payload)) { }</div>
+
+        <p>InjectノードとChangeノードの型セレクタにも「バッファ」があります。こちらはバイト値の配列を書いて固定のBufferを作る用途で、受け取ったデータを変換する使い方はできません。データの変換はFunctionノードで行います。</p>
+
+        <h3>バイナリで起きやすい事故</h3>
+        <p>Bufferがらみの不具合は、症状が「文字化け」に見えるものが多く、原因の切り分けが難しくなります。よく出会うものを挙げます。</p>
+
+        <table>
+            <tr>
+                <th>症状</th>
+                <th>原因</th>
+                <th>対処</th>
+            </tr>
+            <tr>
+                <td>日本語が <code>ä¸ç</code> のような別の文字になる</td>
+                <td>UTF-8のバイト列を、別の文字コードとして読んでいる</td>
+                <td><code>toString('utf8')</code> のように文字コードを明示する</td>
+            </tr>
+            <tr>
+                <td>文字列の端が <code>�</code> になる</td>
+                <td>日本語の3バイトの途中でデータを切っている</td>
+                <td>バイト数ではなく文字数で切る。分割するなら文字列に戻してから</td>
+            </tr>
+            <tr>
+                <td>比較や検索が一致しない</td>
+                <td>行末の改行コード（<code>0D 0A</code>）が残っている</td>
+                <td>文字列に戻したあと <code>.trim()</code> で落とす</td>
+            </tr>
+            <tr>
+                <td>数値として計算できない</td>
+                <td>Bufferのまま計算しようとしている</td>
+                <td>文字列に戻してから <code>Number()</code> で数値化する</td>
+            </tr>
+            <tr>
+                <td>末尾に見えない文字が付いている</td>
+                <td>文字列の終わりを表すゼロのバイト（<code>00</code>）が含まれている</td>
+                <td><code>.replace(/\0/g, '')</code> で取り除く</td>
+            </tr>
+        </table>
+
+        <p>最後の <code>00</code> は、C言語で書かれた機器やプロトコルが「ここで文字列が終わる」ことを示すために付けるものです。Node-REDの文字列にはこの習慣がないため、そのまま残ると比較や表示で邪魔になります。固定長の領域に短い文字列が入っている場合、余りが <code>00</code> で埋められていることもあります。</p>
+
+        <div class="important">
+            <strong>バイト単位で切ると何が起きるか：</strong>
+            <p>先ほどの <code>Hello 世界</code>（12バイト）を、前から8バイトと残り4バイトに分けると、次のようになります。「世」の3バイトが2つに割れるため、両方が壊れます。</p>
+            <div class="dark-code">前8バイト: 48 65 6C 6C 6F 20 E4 B8  →  "Hello �"
+後4バイト: 96 E7 95 8C              →  "�界"</div>
+        </div>
+
+        <div class="tip">
+            <strong>改行コードの中身：</strong>
+            <p>Windowsの改行はCR（<code>0D</code>）とLF（<code>0A</code>）の2バイト、LinuxやmacOSはLF（<code>0A</code>）の1バイトです。<code>温度=25</code> にWindowsの改行が付いたデータは、16進で <code>E6 B8 A9 E5 BA A6 3D 32 35 0D 0A</code> となります。末尾の <code>0D 0A</code> が目に見えないまま残るため、文字列比較が一致しない原因になります。</p>
+        </div>
+
+        <h2>7. データ型チートシート</h2>
         
         <table>
             <tr>
@@ -1109,6 +1428,12 @@ msg.topic: 文字列 → "temperature"</div>
                 <td>{"temp": 25}</td>
             </tr>
             <tr>
+                <td><span class="type-icon">01</span></td>
+                <td>バッファ</td>
+                <td>画像、ファイル、通信データ</td>
+                <td>&lt;Buffer 48 65 6c 6c 6f&gt;</td>
+            </tr>
+            <tr>
                 <td><span class="type-icon">🕐</span></td>
                 <td>日時</td>
                 <td>現在時刻、タイムスタンプ</td>
@@ -1137,7 +1462,8 @@ msg.topic: 文字列 → "temperature"</div>
                 <li>代表的なプロパティ: <code>msg.payload</code>（主役）、<code>msg.topic</code>（タグ）。独自のプロパティも自由に追加できる</li>
                 <li>msgは1本のフロー限定で、処理後は消える（一時的）</li>
                 <li>Injectノードは <strong>msgを作る</strong>、Changeノードは <strong>msgを加工する</strong></li>
-                <li>型セレクタ（▼）で文字列／数値／JSON／配列／日時／JSONataなどを選ぶ</li>
+                <li>型セレクタ（▼）で文字列／数値／JSON／配列／バッファ／日時／JSONataなどを選ぶ</li>
+                <li><strong>Buffer</strong> は文字に読み替える前のバイトの並び。ファイル読み込みや通信ノードで現れる。文字数とバイト数は一致しない</li>
                 <li>Debugノードで中身を確認しながら開発する</li>
             </ul>
         </div>

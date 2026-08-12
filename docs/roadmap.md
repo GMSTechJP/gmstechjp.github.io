@@ -4,8 +4,8 @@
 確定したら本文と「要決定事項」を更新する。確定済みの基準は
 [style-guide.md](style-guide.md) と [CLAUDE.md](../CLAUDE.md) を正とする。
 
-最終更新：2026-06-29
-ステータス：方針確定・未着手
+最終更新：2026-08-12（A の追記先を Part 1 へ修正）
+ステータス：方針確定／A 着手中・B-1・B-2・C 未着手
 
 ---
 
@@ -50,8 +50,8 @@ C の実応用を、この 1 ノードが橋渡しする構造になっている
 
 | 既存ガイド | バイナリ/Buffer 関連の現状記述 |
 | --- | --- |
-| `nodered-variable-types-guide.html` | データ型の一つとして Buffer に言及 |
-| `nodered-variable-types-part2-guide.html` | Buffer/バイナリに複数言及 |
+| `nodered-variable-types-guide.html`（Part 1：msg オブジェクト） | データ型一覧の 1 行と `msg.payload` の説明で Buffer に言及（計 4 箇所）。掘り下げは無い |
+| `nodered-variable-types-2-guide.html`（Part 2：context 系変数） | 主題は保存スコープ。Buffer・バイナリの言及は無い |
 | `nodered-tcp-node-guide.html` | TCP 受信データが Buffer になる文脈で言及 |
 | `nodered-batch-node-guide.html` | Buffer に言及 |
 | `nodered-modbus-node-guide.html` | 「3. MODBUS の基礎知識」「11. 用語集」。0 始まりアドレス・4xxxx 形式は既出 |
@@ -60,6 +60,7 @@ C の実応用を、この 1 ノードが橋渡しする構造になっている
 
 - A は `variable-types` と切り分けが必要。既存は「型一覧の中の Buffer」という浅い扱いなので、
   A は「Buffer の中身（バイト・エンコーディング・16 進）」を深掘りする独立テーマにできる。
+  掘り下げ先はデータ型の解説がある **Part 1**（`nodered-variable-types-guide.html`）とする。
 - C は `modbus` ガイドと最も重複する。アドレス体系（0 始まり・4xxxx）は既出なので、
   C は「**レジスタ値のバイト解釈**（エンディアン・ワードスワップ・符号・float/32bit）」に
   焦点を絞れば重複を避けられる。
@@ -79,10 +80,15 @@ C の実応用を、この 1 ノードが橋渡しする構造になっている
   - Buffer の見え方（`[0x48, 0x65, ...]` / 16 進ダンプ）
   - 文字列 ⇔ Buffer の相互変換（標準ノード・Function での `Buffer.from` / `.toString`）
   - よくある事故（文字化け、改行コード、null 終端、結合での分割）
-- **方針確定（2026-06-29）**：**新規ファイルは作らず、データ型ガイド
-  （`variable-types`、part2 を軸に）へ節として追記する**。既存が「型一覧の中の Buffer」と
-  浅い扱いのため、そこを上記カバー内容まで掘り下げて拡充する。
+- **方針確定（2026-06-29 / 2026-08-12 修正）**：**新規ファイルは作らず、データ型ガイド
+  （`variable-types` の Part 1 = `nodered-variable-types-guide.html`）へ節として追記する**。
+  既存が「型一覧の中の Buffer」と浅い扱いのため、そこを上記カバー内容まで掘り下げて拡充する。
+  当初は part2 を軸とする方針だったが、Part 2 は context 系変数（保存スコープ）が主題で
+  Buffer の言及が無く、データ型の解説は Part 1 にあるため、2026-08-12 に追記先を Part 1 へ
+  変更した。
 - **連携**：追記した節から B-1（buffer-parser）と C（PLC レジスタ）へ「詳しくはこちら」で送る。
+  ただしリンクは**両ガイドの作成時に張る**。未作成の時点でリンクを置くと、requirements.md
+  第 5 章「橋渡しリンクは実在ファイル名を指す」に反するため。
 
 ### B-1. buffer-parser ノード（サードパーティ）
 
@@ -168,7 +174,7 @@ npm を網羅調査した結果、1 パッケージで client+server を兼ね�
 
 | # | 論点 | 結論 |
 | --- | --- | --- |
-| 1 | A の扱い | **解決**：データ型ガイド（`variable-types` part2 軸）へ追記。新規ファイルは作らない |
+| 1 | A の扱い | **解決**：データ型ガイド（`variable-types` の Part 1 軸）へ追記。新規ファイルは作らない（2026-08-12 に part2 軸から修正） |
 | 2 | C の扱い | **解決**：新規独立ガイド。`modbus` 等から参照先とする |
 | 3 | FTP/SFTP パッケージ選定 | **解決**：FTP=`ftp`＋`ftp-server`、SFTP=`ssh-sftp`(更新)／`sftp`(実績)＋`sftp-server` |
 | 4 | サーバー/クライアントの範囲 | **解決**：FTP・SFTP とも server/client 両方を扱う |
