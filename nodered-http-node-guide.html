@@ -164,6 +164,14 @@
             <tr><td><strong>名前</strong></td><td>ノードの表示名</td><td>GET /api/sensors</td></tr>
         </table>
 
+        <p>メソッドに POST / PUT / PATCH を選ぶと、ボディの扱いを決める次の2項目が追加で現れます。GET のときは表示されません。</p>
+        <table>
+            <tr><th>プロパティ</th><th>説明</th><th>デフォルト</th></tr>
+            <tr><td><strong>ファイルのアップロード</strong></td><td>multipart/form-data で送られたファイルを受け取る。ファイルの内容は <code>msg.req.files</code> に入る</td><td>オフ</td></tr>
+            <tr><td><strong>リクエストボティをパースしない</strong></td><td>ボディを解析せず、受け取ったバイト列のまま <code>msg.payload</code> に入れる。独自形式の受信や、署名の検証で生データが要るときに使う</td><td>オフ</td></tr>
+        </table>
+        <p>「リクエストボティ」は Node-RED 本体の日本語表示をそのまま載せています。エディター上でもこの表記で表示されます。</p>
+
         <div class="tip">
             <p><strong>💡 URLパラメータ（補足）:</strong> 上の表の「URL」に <code>:パラメータ名</code> を含めると、動的なパスを定義できます。</p>
             <div class="code-block">// URL設定: /users/:userId/posts/:postId
@@ -230,12 +238,12 @@
             <tr><th>プロパティ</th><th>説明</th><th>デフォルト</th></tr>
             <tr><td><strong>メソッド</strong></td><td>HTTPメソッド（GET/POST/PUT/DELETE等）</td><td>GET</td></tr>
             <tr><td><strong>URL</strong></td><td>リクエスト先のURL</td><td>（空）</td></tr>
-            <tr><td><strong>ペイロード（送信）</strong></td><td>リクエストボディの扱い</td><td>Ignore</td></tr>
-            <tr><td><strong>出力形式</strong></td><td>レスポンスの形式</td><td>UTF-8文字列</td></tr>
+            <tr><td><strong>ペイロード</strong></td><td><code>msg.payload</code> をリクエストにどう載せるか（無視 / クエリパラメータに追加 / リクエストボディとして送信）</td><td>無視</td></tr>
+            <tr><td><strong>出力形式</strong></td><td>レスポンスをどの型で受け取るか</td><td>UTF8文字列</td></tr>
             <tr><td><strong>ヘッダ</strong></td><td>追加HTTPヘッダー</td><td>（空）</td></tr>
         </table>
 
-        <h3>Method（HTTPメソッド）オプション</h3>
+        <h3>メソッドの選択肢</h3>
         <table>
             <tr><th>オプション</th><th>用途</th><th>ボディ</th></tr>
             <tr><td><strong>GET</strong></td><td>データ取得、検索</td><td>なし</td></tr>
@@ -243,13 +251,13 @@
             <tr><td><strong>PUT</strong></td><td>データ更新（全体置換）</td><td>あり</td></tr>
             <tr><td><strong>DELETE</strong></td><td>データ削除</td><td>任意</td></tr>
             <tr><td><strong>HEAD</strong></td><td>ヘッダー情報のみ取得</td><td>なし</td></tr>
-            <tr><td><strong>- set by msg.method -</strong></td><td>動的に指定</td><td>可変</td></tr>
+            <tr><td><strong>- msg.methodに定義 -</strong></td><td><code>msg.method</code> で動的に指定</td><td>可変</td></tr>
         </table>
 
-        <h3>Return（レスポンス形式）オプション</h3>
+        <h3>出力形式の選択肢</h3>
         <table>
             <tr><th>オプション</th><th>説明</th><th>用途</th></tr>
-            <tr><td><strong>UTF-8文字列</strong></td><td>文字列として受信</td><td>テキスト、HTML、JSON</td></tr>
+            <tr><td><strong>UTF8文字列</strong></td><td>文字列として受信</td><td>テキスト、HTML、JSON</td></tr>
             <tr><td><strong>バイナリバッファ</strong></td><td>Bufferオブジェクト</td><td>画像、ファイル</td></tr>
             <tr><td><strong>JSONオブジェクト</strong></td><td>自動でJSONパース</td><td>REST API</td></tr>
         </table>
@@ -2050,8 +2058,8 @@ return msg;</div>
                 <summary>&#128161; ヒント</summary>
                 <p><strong>HTTP In ノード:</strong></p>
                 <ul>
-                    <li>Method: GET</li>
-                    <li>URL: /api/status</li>
+                    <li>メソッド：GET</li>
+                    <li>URL：/api/status</li>
                 </ul>
                 <p><strong>Change ノード:</strong></p>
                 <ul>
@@ -2096,9 +2104,9 @@ return msg;</div>
                 <p><strong>Inject ノード:</strong> デフォルト設定でOK（タイムスタンプを送信）</p>
                 <p><strong>HTTP Request ノード:</strong></p>
                 <ul>
-                    <li>Method: GET</li>
-                    <li>URL: 上記URLを入力</li>
-                    <li>Return: JSONオブジェクトを解析</li>
+                    <li>メソッド：GET</li>
+                    <li>URL：上記URLを入力</li>
+                    <li>出力形式：JSONオブジェクト</li>
                 </ul>
                 <p><strong>Debug ノード:</strong> msg.payload全体を表示</p>
             </details>
@@ -2268,7 +2276,7 @@ return msg;</div>
             <tr>
                 <td>JSONパースエラー</td>
                 <td>レスポンスがJSONでない</td>
-                <td>Return を「UTF-8文字列」に変更</td>
+                <td>出力形式を「UTF8文字列」に変更</td>
             </tr>
             <tr>
                 <td>文字化け</td>
