@@ -39,6 +39,12 @@
         .difficulty-easy { background-color: #c8e6c9; color: #2e7d32; }
         .difficulty-medium { background-color: #fff9c4; color: #f57f17; }
         .difficulty-hard { background-color: #ffcdd2; color: #c62828; }
+        .ex-flow { background-color: #2d3133; padding: 18px 15px; border-radius: 5px; margin: 12px 0; display: flex; align-items: flex-start; flex-wrap: nowrap; gap: 2px; overflow-x: auto; }
+        .ex-flow-step { display: flex; flex-direction: column; align-items: center; flex: 0 0 auto; max-width: 200px; }
+        .ex-flow-step .node { margin: 0 0 8px 0; text-align: center; }
+        .ex-flow-actor { background-color: #546e7a; color: white; }
+        .ex-flow-data { color: #a6e22e; font-family: 'Courier New', Consolas, monospace; font-size: 11px; line-height: 1.6; text-align: center; }
+        .ex-flow-arrow { color: #999; font-size: 20px; flex: 0 0 auto; padding: 8px 6px; line-height: 25px; }
         details { background-color: #f5f5f5; padding: 10px 15px; border-radius: 5px; margin: 10px 0; }
         details summary { cursor: pointer; font-weight: bold; color: #1976d2; }
         details[open] summary { margin-bottom: 10px; }
@@ -2009,7 +2015,7 @@ return msg;</div>
         </div>
         <p><strong>用途:</strong> 外部APIからのデータ取得、<a href="nodered-network-basics-guide.html#glossary">Webhook</a> 連携</p>
 
-        <h3>パターン4: エラーハンドリング</h3>
+        <h3 id="pattern4">パターン4: エラーハンドリング</h3>
         <div class="node-example">
             <span class="node node-inject">リクエスト</span>
             <span class="arrow">→</span>
@@ -2039,6 +2045,34 @@ return msg;</div>
         <div class="exercise">
             <h3>演習1: シンプルなJSON API <span class="difficulty difficulty-easy">初級</span></h3>
             <p><strong>課題:</strong> <code>GET /api/status</code> でシステムの状態を返すAPIを作成してください。</p>
+
+            <p><strong>データの流れ:</strong></p>
+            <div class="ex-flow">
+                <div class="ex-flow-step">
+                    <span class="node ex-flow-actor">クライアント</span>
+                    <div class="ex-flow-data">GET /api/status</div>
+                </div>
+                <span class="ex-flow-arrow">&rarr;</span>
+                <div class="ex-flow-step">
+                    <span class="node node-http-in">HTTP In</span>
+                    <div class="ex-flow-data">msg.req と msg.res が<br>セットされる</div>
+                </div>
+                <span class="ex-flow-arrow">&rarr;</span>
+                <div class="ex-flow-step">
+                    <span class="node node-change">Change</span>
+                    <div class="ex-flow-data">msg.payload に状態<br>msg.headers に<br>Content-Type</div>
+                </div>
+                <span class="ex-flow-arrow">&rarr;</span>
+                <div class="ex-flow-step">
+                    <span class="node node-http-response">HTTP Response</span>
+                    <div class="ex-flow-data">msg.payload を<br>本文にして返す</div>
+                </div>
+                <span class="ex-flow-arrow">&rarr;</span>
+                <div class="ex-flow-step">
+                    <span class="node ex-flow-actor">クライアント</span>
+                    <div class="ex-flow-data">200<br>{"status":"running",<br>"version":"1.0.0"}</div>
+                </div>
+            </div>
 
             <p><strong>要求仕様:</strong></p>
             <ul>
@@ -2084,6 +2118,24 @@ return msg;</div>
             <h3>演習2: 外部APIからデータ取得 <span class="difficulty difficulty-easy">初級</span></h3>
             <p><strong>課題:</strong> timeapi.io を使って、ニューヨークの現在時刻を取得し、Debugノードに表示してください。</p>
 
+            <p><strong>データの流れ:</strong></p>
+            <div class="ex-flow">
+                <div class="ex-flow-step">
+                    <span class="node node-inject">Inject</span>
+                    <div class="ex-flow-data">msg.payload =<br>タイムスタンプ<br>（内容は使わない）</div>
+                </div>
+                <span class="ex-flow-arrow">&rarr;</span>
+                <div class="ex-flow-step">
+                    <span class="node node-http-request">HTTP Request</span>
+                    <div class="ex-flow-data">timeapi.io へ GET<br>応答JSONで<br>msg.payload が<br>上書きされる</div>
+                </div>
+                <span class="ex-flow-arrow">&rarr;</span>
+                <div class="ex-flow-step">
+                    <span class="node node-debug">Debug</span>
+                    <div class="ex-flow-data">msg.payload を<br>サイドバーに表示</div>
+                </div>
+            </div>
+
             <p><strong>要求仕様:</strong></p>
             <ul>
                 <li>Inject ノードでトリガー</li>
@@ -2123,8 +2175,107 @@ return msg;</div>
         </div>
 
         <div class="exercise">
-            <h3>演習3: URLパラメータを使ったAPI <span class="difficulty difficulty-medium">中級</span></h3>
+            <h3>演習3: POSTで送られたデータを受け取る <span class="difficulty difficulty-easy">初級</span></h3>
+            <p><strong>課題:</strong> <code>POST /api/echo</code> で受け取ったJSONに、受信時刻を添えて返すAPIを作成してください。</p>
+
+            <p><strong>データの流れ:</strong></p>
+            <div class="ex-flow">
+                <div class="ex-flow-step">
+                    <span class="node ex-flow-actor">クライアント</span>
+                    <div class="ex-flow-data">POST /api/echo<br>{"name":"太郎"}</div>
+                </div>
+                <span class="ex-flow-arrow">&rarr;</span>
+                <div class="ex-flow-step">
+                    <span class="node node-http-in">HTTP In (POST)</span>
+                    <div class="ex-flow-data">リクエスト本文が<br>msg.payload に入る</div>
+                </div>
+                <span class="ex-flow-arrow">&rarr;</span>
+                <div class="ex-flow-step">
+                    <span class="node node-function">Function</span>
+                    <div class="ex-flow-data">msg.payload を<br>received と receivedAt の<br>2項目に組み直す</div>
+                </div>
+                <span class="ex-flow-arrow">&rarr;</span>
+                <div class="ex-flow-step">
+                    <span class="node node-http-response">HTTP Response</span>
+                    <div class="ex-flow-data">msg.payload を<br>本文にして返す</div>
+                </div>
+                <span class="ex-flow-arrow">&rarr;</span>
+                <div class="ex-flow-step">
+                    <span class="node ex-flow-actor">クライアント</span>
+                    <div class="ex-flow-data">200<br>received に送った内容<br>receivedAt に受信時刻</div>
+                </div>
+            </div>
+
+            <p><strong>要求仕様:</strong></p>
+            <ul>
+                <li>エンドポイント: <code>/api/echo</code></li>
+                <li>メソッド: POST</li>
+                <li>リクエストボディ: JSON（例 <code>{"name":"太郎"}</code>）</li>
+                <li>レスポンス: <code>received</code> に受け取った内容、<code>receivedAt</code> に受信時刻（ISO 8601形式）を入れたJSON</li>
+                <li>Content-Type: application/json</li>
+            </ul>
+
+            <p><strong>成功の条件:</strong></p>
+            <ul>
+                <li><code>curl -X POST -H "Content-Type: application/json" -d '{"name":"太郎"}' http://localhost:1880/api/echo</code> を実行すると、<code>received</code> に送った内容がそのまま入ったJSONが返ってくる</li>
+                <li><code>receivedAt</code> に実行した時刻が入っている</li>
+                <li><code>-X POST</code> を省いて <code>curl http://localhost:1880/api/echo</code> を実行すると「Cannot GET /api/echo」が返る（URLが同じでもメソッドが違えば別のエンドポイントとして扱われる）</li>
+            </ul>
+
+            <details>
+                <summary>&#128161; ヒント</summary>
+                <p><strong>HTTP In ノード:</strong></p>
+                <ul>
+                    <li>メソッド：POST</li>
+                    <li>URL：/api/echo</li>
+                </ul>
+                <p><strong>リクエストボディの受け取り:</strong> Content-Type が application/json であれば、HTTP In が本文をパースして <code>msg.payload</code> にオブジェクトとして入れます。Functionノードでの追加のパースは不要です。</p>
+                <p><strong>Function ノード:</strong> <code>msg.payload</code> を新しいオブジェクトで上書きすると、元の内容が消えます。先に変数へ退避してから組み立ててください。</p>
+                <p><strong>現在時刻:</strong> <code>new Date().toISOString()</code></p>
+            </details>
+
+            <details>
+                <summary>&#9989; 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex3_tab", "type": "tab", "label": "演習3"},
+    {"id": "ex3_http_in", "type": "http in", "z": "ex3_tab", "name": "POST /api/echo", "url": "/api/echo", "method": "post", "upload": false, "skipBodyParsing": false, "swaggerDoc": "", "x": 170, "y": 100, "wires": [["ex3_func"]]},
+    {"id": "ex3_func", "type": "function", "z": "ex3_tab", "name": "受信内容を組み立て", "func": "var body = msg.payload;\n\nmsg.payload = {\n    received: body,\n    receivedAt: new Date().toISOString()\n};\nmsg.statusCode = 200;\nmsg.headers = {\"Content-Type\": \"application/json\"};\nreturn msg;", "outputs": 1, "timeout": 0, "initialize": "", "finalize": "", "libs": [], "x": 400, "y": 100, "wires": [["ex3_response"]]},
+    {"id": "ex3_response", "type": "http response", "z": "ex3_tab", "name": "Response", "statusCode": "", "headers": {}, "x": 590, "y": 100, "wires": []}
+]</div>
+            </details>
+        </div>
+
+        <div class="exercise">
+            <h3>演習4: URLパラメータを使ったAPI <span class="difficulty difficulty-medium">中級</span></h3>
             <p><strong>課題:</strong> <code>GET /api/items/:id</code> で商品情報を返すAPIを作成してください。</p>
+
+            <p><strong>データの流れ:</strong></p>
+            <div class="ex-flow">
+                <div class="ex-flow-step">
+                    <span class="node ex-flow-actor">クライアント</span>
+                    <div class="ex-flow-data">GET /api/items/1<br>GET /api/items/99</div>
+                </div>
+                <span class="ex-flow-arrow">&rarr;</span>
+                <div class="ex-flow-step">
+                    <span class="node node-http-in">HTTP In</span>
+                    <div class="ex-flow-data">msg.req.params.id に<br>"1" や "99" が入る</div>
+                </div>
+                <span class="ex-flow-arrow">&rarr;</span>
+                <div class="ex-flow-step">
+                    <span class="node node-function">Function</span>
+                    <div class="ex-flow-data">商品表を引く<br>有: msg.statusCode=200<br>無: msg.statusCode=404</div>
+                </div>
+                <span class="ex-flow-arrow">&rarr;</span>
+                <div class="ex-flow-step">
+                    <span class="node node-http-response">HTTP Response</span>
+                    <div class="ex-flow-data">msg.statusCode と<br>msg.payload を返す</div>
+                </div>
+                <span class="ex-flow-arrow">&rarr;</span>
+                <div class="ex-flow-step">
+                    <span class="node ex-flow-actor">クライアント</span>
+                    <div class="ex-flow-data">200 {"success":true,...}<br>404 {"success":false,...}</div>
+                </div>
+            </div>
 
             <p><strong>要求仕様:</strong></p>
             <ul>
@@ -2151,18 +2302,120 @@ return msg;</div>
             <details>
                 <summary>&#9989; 解答例フロー</summary>
                 <div class="flow-json">[
-    {"id": "ex3_tab", "type": "tab", "label": "演習3"},
-    {"id": "ex3_http_in", "type": "http in", "z": "ex3_tab", "name": "GET /api/items/:id", "url": "/api/items/:id", "method": "get", "upload": false, "skipBodyParsing": false, "swaggerDoc": "", "x": 180, "y": 100, "wires": [["ex3_func"]]},
-    {"id": "ex3_func", "type": "function", "z": "ex3_tab", "name": "商品検索", "func": "var itemId = msg.req.params.id;\n\nvar items = {\n    \"1\": {name: \"りんご\", price: 150},\n    \"2\": {name: \"みかん\", price: 100},\n    \"3\": {name: \"バナナ\", price: 120}\n};\n\nif (items[itemId]) {\n    msg.payload = {\n        success: true,\n        item: {id: itemId, name: items[itemId].name, price: items[itemId].price}\n    };\n    msg.statusCode = 200;\n} else {\n    msg.payload = {\n        success: false,\n        error: \"商品が見つかりません\",\n        requestedId: itemId\n    };\n    msg.statusCode = 404;\n}\n\nmsg.headers = {\"Content-Type\": \"application/json\"};\nreturn msg;", "outputs": 1, "timeout": 0, "initialize": "", "finalize": "", "libs": [], "x": 400, "y": 100, "wires": [["ex3_response"]]},
-    {"id": "ex3_response", "type": "http response", "z": "ex3_tab", "name": "Response", "statusCode": "", "headers": {}, "x": 580, "y": 100, "wires": []}
+    {"id": "ex4_tab", "type": "tab", "label": "演習4"},
+    {"id": "ex4_http_in", "type": "http in", "z": "ex4_tab", "name": "GET /api/items/:id", "url": "/api/items/:id", "method": "get", "upload": false, "skipBodyParsing": false, "swaggerDoc": "", "x": 180, "y": 100, "wires": [["ex4_func"]]},
+    {"id": "ex4_func", "type": "function", "z": "ex4_tab", "name": "商品検索", "func": "var itemId = msg.req.params.id;\n\nvar items = {\n    \"1\": {name: \"りんご\", price: 150},\n    \"2\": {name: \"みかん\", price: 100},\n    \"3\": {name: \"バナナ\", price: 120}\n};\n\nif (items[itemId]) {\n    msg.payload = {\n        success: true,\n        item: {id: itemId, name: items[itemId].name, price: items[itemId].price}\n    };\n    msg.statusCode = 200;\n} else {\n    msg.payload = {\n        success: false,\n        error: \"商品が見つかりません\",\n        requestedId: itemId\n    };\n    msg.statusCode = 404;\n}\n\nmsg.headers = {\"Content-Type\": \"application/json\"};\nreturn msg;", "outputs": 1, "timeout": 0, "initialize": "", "finalize": "", "libs": [], "x": 400, "y": 100, "wires": [["ex4_response"]]},
+    {"id": "ex4_response", "type": "http response", "z": "ex4_tab", "name": "Response", "statusCode": "", "headers": {}, "x": 580, "y": 100, "wires": []}
 ]</div>
             </details>
         </div>
 
         <div class="exercise">
-            <h3>演習4: CRUD APIの作成 <span class="difficulty difficulty-hard">上級</span></h3>
+            <h3>演習5: 外部APIを自作APIで包む <span class="difficulty difficulty-medium">中級</span></h3>
+            <p><strong>課題:</strong> <code>GET /api/tokyo-time</code> にアクセスすると、外部API（timeapi.io）から東京の現在時刻を取得し、必要な項目だけに絞って返すAPIを作成してください。1つのフローの中で、サーバー役（HTTP In と HTTP Response）とクライアント役（HTTP Request）を同時に担います。</p>
+
+            <p><strong>データの流れ:</strong></p>
+            <div class="ex-flow">
+                <div class="ex-flow-step">
+                    <span class="node ex-flow-actor">クライアント</span>
+                    <div class="ex-flow-data">GET /api/tokyo-time</div>
+                </div>
+                <span class="ex-flow-arrow">&rarr;</span>
+                <div class="ex-flow-step">
+                    <span class="node node-http-in">HTTP In</span>
+                    <div class="ex-flow-data">msg.req と msg.res が<br>セットされる</div>
+                </div>
+                <span class="ex-flow-arrow">&rarr;</span>
+                <div class="ex-flow-step">
+                    <span class="node node-http-request">HTTP Request</span>
+                    <div class="ex-flow-data">timeapi.io へ GET<br>応答で msg.payload と<br>msg.headers が<br>上書きされる</div>
+                </div>
+                <span class="ex-flow-arrow">&rarr;</span>
+                <div class="ex-flow-step">
+                    <span class="node node-function">Function</span>
+                    <div class="ex-flow-data">13項目から4項目へ絞る<br>msg.headers を<br>自前のものへ置換</div>
+                </div>
+                <span class="ex-flow-arrow">&rarr;</span>
+                <div class="ex-flow-step">
+                    <span class="node node-http-response">HTTP Response</span>
+                    <div class="ex-flow-data">msg.res を通じて<br>クライアントへ返す</div>
+                </div>
+                <span class="ex-flow-arrow">&rarr;</span>
+                <div class="ex-flow-step">
+                    <span class="node ex-flow-actor">クライアント</span>
+                    <div class="ex-flow-data">200<br>4項目だけのJSON<br>(timeZone, date,<br>time, dayOfWeek)</div>
+                </div>
+            </div>
+
+            <p><strong>要求仕様:</strong></p>
+            <ul>
+                <li>エンドポイント: <code>/api/tokyo-time</code>（GET）</li>
+                <li>呼び出す外部API: <code>https://timeapi.io/api/Time/current/zone?timeZone=Asia/Tokyo</code></li>
+                <li>HTTP Request の出力形式: JSONオブジェクト</li>
+                <li>外部APIの応答から <code>timeZone</code>、<code>date</code>、<code>time</code>、<code>dayOfWeek</code> の4項目だけを取り出す</li>
+                <li>Content-Type: application/json</li>
+            </ul>
+
+            <p><strong>成功の条件:</strong></p>
+            <ul>
+                <li><code>curl http://localhost:1880/api/tokyo-time</code> を実行すると <code>{"timeZone":"Asia/Tokyo","date":"08/21/2026","time":"09:58","dayOfWeek":"Friday"}</code> の形式のJSONが返ってくる（日時は実行時のもの）</li>
+                <li>外部APIが返す <code>year</code> や <code>milliSeconds</code> などの項目は含まれない</li>
+                <li>レスポンスヘッダーの Content-Type が <code>application/json</code> である</li>
+            </ul>
+
+            <details>
+                <summary>&#128161; ヒント</summary>
+                <p><strong>フローの並び:</strong> HTTP In と HTTP Response の間に HTTP Request を挟みます。</p>
+                <p><strong>HTTP Request ノード:</strong> メソッドはGET、URLは上記の外部API、出力形式は「JSONオブジェクト」。</p>
+                <p><strong>上書きされる msg:</strong> HTTP Request ノードは <code>msg.payload</code> だけでなく <code>msg.statusCode</code> と <code>msg.headers</code> も外部APIの応答で上書きします。一方 <code>msg.req</code> と <code>msg.res</code> は残るため、後段の HTTP Response ノードは元のリクエストに応答できます。</p>
+                <p><strong>ヘッダーの扱い:</strong> Content-Type を指定するときは、<code>msg.headers = {"Content-Type": "application/json"}</code> のように丸ごと置き換えてください。既存の <code>msg.headers</code> にプロパティを1つ足す書き方をすると、外部APIのヘッダーもまとめてクライアントへ返り、Content-Type が意図しない値になります。</p>
+                <p><strong>外部APIが応答しない場合:</strong> 分岐のさせ方は<a href="#pattern4">パターン4（エラーハンドリング）</a>を参照してください。</p>
+            </details>
+
+            <details>
+                <summary>&#9989; 解答例フロー</summary>
+                <div class="flow-json">[
+    {"id": "ex5_tab", "type": "tab", "label": "演習5"},
+    {"id": "ex5_http_in", "type": "http in", "z": "ex5_tab", "name": "GET /api/tokyo-time", "url": "/api/tokyo-time", "method": "get", "upload": false, "skipBodyParsing": false, "swaggerDoc": "", "x": 180, "y": 100, "wires": [["ex5_request"]]},
+    {"id": "ex5_request", "type": "http request", "z": "ex5_tab", "name": "timeapi.io", "method": "GET", "ret": "obj", "paytoqs": "ignore", "url": "https://timeapi.io/api/Time/current/zone?timeZone=Asia/Tokyo", "tls": "", "persist": false, "proxy": "", "insecureHTTPParser": false, "authType": "", "senderr": false, "headers": [], "x": 410, "y": 100, "wires": [["ex5_func"]]},
+    {"id": "ex5_func", "type": "function", "z": "ex5_tab", "name": "必要な項目だけ残す", "func": "var api = msg.payload;\n\nmsg.payload = {\n    timeZone: api.timeZone,\n    date: api.date,\n    time: api.time,\n    dayOfWeek: api.dayOfWeek\n};\nmsg.statusCode = 200;\nmsg.headers = {\"Content-Type\": \"application/json\"};\nreturn msg;", "outputs": 1, "timeout": 0, "initialize": "", "finalize": "", "libs": [], "x": 630, "y": 100, "wires": [["ex5_response"]]},
+    {"id": "ex5_response", "type": "http response", "z": "ex5_tab", "name": "Response", "statusCode": "", "headers": {}, "x": 820, "y": 100, "wires": []}
+]</div>
+            </details>
+        </div>
+
+        <div class="exercise">
+            <h3>演習6: CRUD APIの作成 <span class="difficulty difficulty-hard">上級</span></h3>
             <p><strong>💡 CRUDとは:</strong> データ操作の基本4種類 <strong>C</strong>reate（作成）・<strong>R</strong>ead（読み取り）・<strong>U</strong>pdate（更新）・<strong>D</strong>elete（削除）の頭文字です。この演習では、それぞれをHTTPメソッドの POST（作成）・GET（読み取り）・DELETE（削除）に対応させます。</p>
             <p><strong>課題:</strong> メモを管理するシンプルなREST API（GET/POST/DELETEなどのHTTPメソッドで操作する、一般的なWeb APIの設計スタイル）を作成してください。</p>
+
+            <p><strong>データの流れ:</strong></p>
+            <div class="ex-flow">
+                <div class="ex-flow-step">
+                    <span class="node ex-flow-actor">クライアント</span>
+                    <div class="ex-flow-data">GET / POST / DELETE<br>/api/notes</div>
+                </div>
+                <span class="ex-flow-arrow">&rarr;</span>
+                <div class="ex-flow-step">
+                    <span class="node node-http-in">HTTP In &times;4</span>
+                    <div class="ex-flow-data">ルートごとに1つ<br>msg.payload に本文<br>msg.req.params.id に ID</div>
+                </div>
+                <span class="ex-flow-arrow">&rarr;</span>
+                <div class="ex-flow-step">
+                    <span class="node node-function">Function &times;4</span>
+                    <div class="ex-flow-data">flow.notes を読み書き<br>（一覧、作成、取得、削除）</div>
+                </div>
+                <span class="ex-flow-arrow">&rarr;</span>
+                <div class="ex-flow-step">
+                    <span class="node node-http-response">HTTP Response</span>
+                    <div class="ex-flow-data">4本を1つに集約<br>msg.statusCode で<br>200 / 201 / 404</div>
+                </div>
+                <span class="ex-flow-arrow">&rarr;</span>
+                <div class="ex-flow-step">
+                    <span class="node ex-flow-actor">クライアント</span>
+                    <div class="ex-flow-data">JSON と<br>ステータスコード</div>
+                </div>
+            </div>
 
             <p><strong>要求仕様:</strong></p>
             <ul>
@@ -2192,16 +2445,16 @@ return msg;</div>
             <details>
                 <summary>&#9989; 解答例フロー</summary>
                 <div class="flow-json">[
-    {"id": "ex4_tab", "type": "tab", "label": "演習4"},
-    {"id": "ex4_get_all", "type": "http in", "z": "ex4_tab", "name": "GET /api/notes", "url": "/api/notes", "method": "get", "upload": false, "skipBodyParsing": false, "swaggerDoc": "", "x": 160, "y": 80, "wires": [["ex4_func_get_all"]]},
-    {"id": "ex4_func_get_all", "type": "function", "z": "ex4_tab", "name": "全件取得", "func": "var notes = flow.get('notes') || [];\nmsg.payload = {notes: notes, count: notes.length};\nmsg.headers = {\"Content-Type\": \"application/json\"};\nreturn msg;", "outputs": 1, "timeout": 0, "initialize": "", "finalize": "", "libs": [], "x": 370, "y": 80, "wires": [["ex4_response"]]},
-    {"id": "ex4_post", "type": "http in", "z": "ex4_tab", "name": "POST /api/notes", "url": "/api/notes", "method": "post", "upload": false, "skipBodyParsing": false, "swaggerDoc": "", "x": 170, "y": 140, "wires": [["ex4_func_post"]]},
-    {"id": "ex4_func_post", "type": "function", "z": "ex4_tab", "name": "新規作成", "func": "var notes = flow.get('notes') || [];\nvar body = msg.payload || {};\nvar newNote = {\n    id: Date.now(),\n    text: body.text || \"(内容なし)\",\n    createdAt: new Date().toISOString()\n};\nnotes.push(newNote);\nflow.set('notes', notes);\nmsg.payload = {success: true, note: newNote};\nmsg.statusCode = 201;\nmsg.headers = {\"Content-Type\": \"application/json\"};\nreturn msg;", "outputs": 1, "timeout": 0, "initialize": "", "finalize": "", "libs": [], "x": 370, "y": 140, "wires": [["ex4_response"]]},
-    {"id": "ex4_get_one", "type": "http in", "z": "ex4_tab", "name": "GET /api/notes/:id", "url": "/api/notes/:id", "method": "get", "upload": false, "skipBodyParsing": false, "swaggerDoc": "", "x": 180, "y": 200, "wires": [["ex4_func_get_one"]]},
-    {"id": "ex4_func_get_one", "type": "function", "z": "ex4_tab", "name": "1件取得", "func": "var notes = flow.get('notes') || [];\nvar noteId = parseInt(msg.req.params.id);\nvar note = notes.find(function(n) { return n.id === noteId; });\nif (note) {\n    msg.payload = {success: true, note: note};\n    msg.statusCode = 200;\n} else {\n    msg.payload = {success: false, error: \"Not found\"};\n    msg.statusCode = 404;\n}\nmsg.headers = {\"Content-Type\": \"application/json\"};\nreturn msg;", "outputs": 1, "timeout": 0, "initialize": "", "finalize": "", "libs": [], "x": 370, "y": 200, "wires": [["ex4_response"]]},
-    {"id": "ex4_delete", "type": "http in", "z": "ex4_tab", "name": "DELETE /api/notes/:id", "url": "/api/notes/:id", "method": "delete", "upload": false, "skipBodyParsing": false, "swaggerDoc": "", "x": 190, "y": 260, "wires": [["ex4_func_delete"]]},
-    {"id": "ex4_func_delete", "type": "function", "z": "ex4_tab", "name": "削除", "func": "var notes = flow.get('notes') || [];\nvar noteId = parseInt(msg.req.params.id);\nvar originalLength = notes.length;\nnotes = notes.filter(function(n) { return n.id !== noteId; });\nflow.set('notes', notes);\nif (notes.length &lt; originalLength) {\n    msg.payload = {success: true, message: \"Deleted\"};\n    msg.statusCode = 200;\n} else {\n    msg.payload = {success: false, error: \"Not found\"};\n    msg.statusCode = 404;\n}\nmsg.headers = {\"Content-Type\": \"application/json\"};\nreturn msg;", "outputs": 1, "timeout": 0, "initialize": "", "finalize": "", "libs": [], "x": 370, "y": 260, "wires": [["ex4_response"]]},
-    {"id": "ex4_response", "type": "http response", "z": "ex4_tab", "name": "Response", "statusCode": "", "headers": {}, "x": 560, "y": 160, "wires": []}
+    {"id": "ex6_tab", "type": "tab", "label": "演習6"},
+    {"id": "ex6_get_all", "type": "http in", "z": "ex6_tab", "name": "GET /api/notes", "url": "/api/notes", "method": "get", "upload": false, "skipBodyParsing": false, "swaggerDoc": "", "x": 160, "y": 80, "wires": [["ex6_func_get_all"]]},
+    {"id": "ex6_func_get_all", "type": "function", "z": "ex6_tab", "name": "全件取得", "func": "var notes = flow.get('notes') || [];\nmsg.payload = {notes: notes, count: notes.length};\nmsg.headers = {\"Content-Type\": \"application/json\"};\nreturn msg;", "outputs": 1, "timeout": 0, "initialize": "", "finalize": "", "libs": [], "x": 370, "y": 80, "wires": [["ex6_response"]]},
+    {"id": "ex6_post", "type": "http in", "z": "ex6_tab", "name": "POST /api/notes", "url": "/api/notes", "method": "post", "upload": false, "skipBodyParsing": false, "swaggerDoc": "", "x": 170, "y": 140, "wires": [["ex6_func_post"]]},
+    {"id": "ex6_func_post", "type": "function", "z": "ex6_tab", "name": "新規作成", "func": "var notes = flow.get('notes') || [];\nvar body = msg.payload || {};\nvar newNote = {\n    id: Date.now(),\n    text: body.text || \"(内容なし)\",\n    createdAt: new Date().toISOString()\n};\nnotes.push(newNote);\nflow.set('notes', notes);\nmsg.payload = {success: true, note: newNote};\nmsg.statusCode = 201;\nmsg.headers = {\"Content-Type\": \"application/json\"};\nreturn msg;", "outputs": 1, "timeout": 0, "initialize": "", "finalize": "", "libs": [], "x": 370, "y": 140, "wires": [["ex6_response"]]},
+    {"id": "ex6_get_one", "type": "http in", "z": "ex6_tab", "name": "GET /api/notes/:id", "url": "/api/notes/:id", "method": "get", "upload": false, "skipBodyParsing": false, "swaggerDoc": "", "x": 180, "y": 200, "wires": [["ex6_func_get_one"]]},
+    {"id": "ex6_func_get_one", "type": "function", "z": "ex6_tab", "name": "1件取得", "func": "var notes = flow.get('notes') || [];\nvar noteId = parseInt(msg.req.params.id);\nvar note = notes.find(function(n) { return n.id === noteId; });\nif (note) {\n    msg.payload = {success: true, note: note};\n    msg.statusCode = 200;\n} else {\n    msg.payload = {success: false, error: \"Not found\"};\n    msg.statusCode = 404;\n}\nmsg.headers = {\"Content-Type\": \"application/json\"};\nreturn msg;", "outputs": 1, "timeout": 0, "initialize": "", "finalize": "", "libs": [], "x": 370, "y": 200, "wires": [["ex6_response"]]},
+    {"id": "ex6_delete", "type": "http in", "z": "ex6_tab", "name": "DELETE /api/notes/:id", "url": "/api/notes/:id", "method": "delete", "upload": false, "skipBodyParsing": false, "swaggerDoc": "", "x": 190, "y": 260, "wires": [["ex6_func_delete"]]},
+    {"id": "ex6_func_delete", "type": "function", "z": "ex6_tab", "name": "削除", "func": "var notes = flow.get('notes') || [];\nvar noteId = parseInt(msg.req.params.id);\nvar originalLength = notes.length;\nnotes = notes.filter(function(n) { return n.id !== noteId; });\nflow.set('notes', notes);\nif (notes.length &lt; originalLength) {\n    msg.payload = {success: true, message: \"Deleted\"};\n    msg.statusCode = 200;\n} else {\n    msg.payload = {success: false, error: \"Not found\"};\n    msg.statusCode = 404;\n}\nmsg.headers = {\"Content-Type\": \"application/json\"};\nreturn msg;", "outputs": 1, "timeout": 0, "initialize": "", "finalize": "", "libs": [], "x": 370, "y": 260, "wires": [["ex6_response"]]},
+    {"id": "ex6_response", "type": "http response", "z": "ex6_tab", "name": "Response", "statusCode": "", "headers": {}, "x": 560, "y": 160, "wires": []}
 ]</div>
             </details>
         </div>
