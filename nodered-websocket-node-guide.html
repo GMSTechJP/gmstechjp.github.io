@@ -38,6 +38,15 @@
         .difficulty-easy { background-color: #c8e6c9; color: #2e7d32; }
         .difficulty-medium { background-color: #fff9c4; color: #f57f17; }
         .difficulty-hard { background-color: #ffcdd2; color: #c62828; }
+        .sys-map { background-color: #2d3133; padding: 20px 15px; border-radius: 5px; margin: 12px 0; display: flex; align-items: center; justify-content: safe center; flex-wrap: nowrap; gap: 6px; overflow-x: auto; }
+        .sys-actor { flex: 0 0 auto; border: 2px solid #78909c; border-radius: 6px; padding: 12px 14px; text-align: center; background-color: #37474f; max-width: 215px; }
+        .sys-name { font-weight: bold; font-size: 14px; color: #eceff1; }
+        .sys-role { font-size: 11px; line-height: 1.7; margin-top: 5px; color: #b0bec5; }
+        .sys-build { border-color: #ffca28; border-width: 3px; background-color: #3f3722; }
+        .sys-badge { display: inline-block; background-color: #ffca28; color: #3e2723; font-size: 11px; font-weight: bold; padding: 2px 10px; border-radius: 10px; margin-bottom: 6px; }
+        .sys-link { flex: 0 0 auto; display: flex; flex-direction: column; gap: 5px; padding: 0 4px; font-family: 'Courier New', Consolas, monospace; font-size: 11px; white-space: nowrap; text-align: center; }
+        .sys-req { color: #4fc3f7; }
+        .sys-res { color: #a6e22e; }
         details { background-color: #f5f5f5; padding: 10px 15px; border-radius: 5px; margin: 10px 0; }
         details summary { cursor: pointer; font-weight: bold; color: #1976d2; }
         details[open] summary { margin-bottom: 10px; }
@@ -867,6 +876,23 @@ ws.onclose = function() {
             <h3>演習1: シンプルなエコーサーバー <span class="difficulty difficulty-easy">初級</span></h3>
             <p><strong>📋 課題:</strong> 受信したメッセージをそのまま送信元に返すエコーサーバーを作成してください。</p>
             
+            <p><strong>作る範囲:</strong></p>
+            <div class="sys-map">
+                <div class="sys-actor">
+                    <div class="sys-name">ブラウザ</div>
+                    <div class="sys-role">WebSocketクライアント<br>（既にあるもの）</div>
+                </div>
+                <div class="sys-link">
+                    <div class="sys-req">送信 "Hello" &rarr;</div>
+                    <div class="sys-res">&larr; そのまま返信</div>
+                </div>
+                <div class="sys-actor sys-build">
+                    <div><span class="sys-badge">これを作る</span></div>
+                    <div class="sys-name">Node-RED</div>
+                    <div class="sys-role">サーバー側<br>/ws/myecho で待ち受け<br>受けた内容を返す</div>
+                </div>
+            </div>
+
             <p><strong>🎯 要求仕様:</strong></p>
             <ul>
                 <li>エンドポイント: <code>/ws/myecho</code></li>
@@ -907,6 +933,23 @@ ws.onclose = function() {
             <h3>演習2: 時刻付きレスポンス <span class="difficulty difficulty-easy">初級</span></h3>
             <p><strong>📋 課題:</strong> 受信したメッセージに現在時刻を追加して返信してください。</p>
             
+            <p><strong>作る範囲:</strong></p>
+            <div class="sys-map">
+                <div class="sys-actor">
+                    <div class="sys-name">ブラウザ</div>
+                    <div class="sys-role">WebSocketクライアント<br>（既にあるもの）</div>
+                </div>
+                <div class="sys-link">
+                    <div class="sys-req">送信 "こんにちは" &rarr;</div>
+                    <div class="sys-res">&larr; {"message":..,"receivedAt":..}</div>
+                </div>
+                <div class="sys-actor sys-build">
+                    <div><span class="sys-badge">これを作る</span></div>
+                    <div class="sys-name">Node-RED</div>
+                    <div class="sys-role">サーバー側<br>/ws/time で待ち受け<br>時刻を足して返す</div>
+                </div>
+            </div>
+
             <p><strong>🎯 要求仕様:</strong></p>
             <ul>
                 <li>受信: <code>"こんにちは"</code></li>
@@ -946,6 +989,22 @@ return msg;</div>
             <h3>演習3: ブロードキャスト配信 <span class="difficulty difficulty-medium">中級</span></h3>
             <p><strong>📋 課題:</strong> Injectノードからメッセージを送信すると、接続中の全クライアントに配信されるフローを作成してください。</p>
             
+            <p><strong>作る範囲:</strong></p>
+            <div class="sys-map">
+                <div class="sys-actor sys-build">
+                    <div><span class="sys-badge">これを作る</span></div>
+                    <div class="sys-name">Node-RED</div>
+                    <div class="sys-role">サーバー側<br>Injectを押すと<br>接続中の全員へ送る</div>
+                </div>
+                <div class="sys-link">
+                    <div class="sys-req">配信 {"type":"broadcast",..} &rarr;</div>
+                </div>
+                <div class="sys-actor">
+                    <div class="sys-name">接続中の全クライアント</div>
+                    <div class="sys-role">複数のブラウザタブ<br>（既にあるもの）</div>
+                </div>
+            </div>
+
             <p><strong>🎯 要求仕様:</strong></p>
             <ul>
                 <li>Injectノードでトリガー（手動）</li>
@@ -988,6 +1047,23 @@ return msg;</div>
             <h3>演習4: 簡易チャットシステム <span class="difficulty difficulty-hard">上級</span></h3>
             <p><strong>📋 課題:</strong> 複数のクライアントが参加できるチャットルームを作成してください。</p>
             
+            <p><strong>作る範囲:</strong></p>
+            <div class="sys-map">
+                <div class="sys-actor">
+                    <div class="sys-name">複数のクライアント</div>
+                    <div class="sys-role">ブラウザタブ<br>（既にあるもの）</div>
+                </div>
+                <div class="sys-link">
+                    <div class="sys-req">発言 {"name":..,"message":..} &rarr;</div>
+                    <div class="sys-res">&larr; 全員へ配信 {"type":"chat",..}</div>
+                </div>
+                <div class="sys-actor sys-build">
+                    <div><span class="sys-badge">これを作る</span></div>
+                    <div class="sys-name">Node-RED</div>
+                    <div class="sys-role">サーバー側<br>/ws/chatroom で待ち受け<br>受けた発言を全員へ中継</div>
+                </div>
+            </div>
+
             <p><strong>🎯 要求仕様:</strong></p>
             <ul>
                 <li>クライアントからのメッセージ形式: <code>{"name": "ユーザー名", "message": "内容"}</code></li>
