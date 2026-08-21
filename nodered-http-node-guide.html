@@ -39,12 +39,15 @@
         .difficulty-easy { background-color: #c8e6c9; color: #2e7d32; }
         .difficulty-medium { background-color: #fff9c4; color: #f57f17; }
         .difficulty-hard { background-color: #ffcdd2; color: #c62828; }
-        .ex-flow { background-color: #2d3133; padding: 18px 15px; border-radius: 5px; margin: 12px 0; display: flex; align-items: flex-start; flex-wrap: nowrap; gap: 2px; overflow-x: auto; }
-        .ex-flow-step { display: flex; flex-direction: column; align-items: center; flex: 0 0 auto; max-width: 200px; }
-        .ex-flow-step .node { margin: 0 0 8px 0; text-align: center; }
-        .ex-flow-actor { background-color: #546e7a; color: white; }
-        .ex-flow-data { color: #a6e22e; font-family: 'Courier New', Consolas, monospace; font-size: 11px; line-height: 1.6; text-align: center; }
-        .ex-flow-arrow { color: #999; font-size: 20px; flex: 0 0 auto; padding: 8px 6px; line-height: 25px; }
+        .sys-map { background-color: #2d3133; padding: 20px 15px; border-radius: 5px; margin: 12px 0; display: flex; align-items: center; justify-content: safe center; flex-wrap: nowrap; gap: 6px; overflow-x: auto; }
+        .sys-actor { flex: 0 0 auto; border: 2px solid #78909c; border-radius: 6px; padding: 12px 14px; text-align: center; background-color: #37474f; max-width: 215px; }
+        .sys-name { font-weight: bold; font-size: 14px; color: #eceff1; }
+        .sys-role { font-size: 11px; line-height: 1.7; margin-top: 5px; color: #b0bec5; }
+        .sys-build { border-color: #ffca28; border-width: 3px; background-color: #3f3722; }
+        .sys-badge { display: inline-block; background-color: #ffca28; color: #3e2723; font-size: 11px; font-weight: bold; padding: 2px 10px; border-radius: 10px; margin-bottom: 6px; }
+        .sys-link { flex: 0 0 auto; display: flex; flex-direction: column; gap: 5px; padding: 0 4px; font-family: 'Courier New', Consolas, monospace; font-size: 11px; white-space: nowrap; text-align: center; }
+        .sys-req { color: #4fc3f7; }
+        .sys-res { color: #a6e22e; }
         details { background-color: #f5f5f5; padding: 10px 15px; border-radius: 5px; margin: 10px 0; }
         details summary { cursor: pointer; font-weight: bold; color: #1976d2; }
         details[open] summary { margin-bottom: 10px; }
@@ -2046,31 +2049,20 @@ return msg;</div>
             <h3>演習1: シンプルなJSON API <span class="difficulty difficulty-easy">初級</span></h3>
             <p><strong>課題:</strong> <code>GET /api/status</code> でシステムの状態を返すAPIを作成してください。</p>
 
-            <p><strong>データの流れ:</strong></p>
-            <div class="ex-flow">
-                <div class="ex-flow-step">
-                    <span class="node ex-flow-actor">クライアント</span>
-                    <div class="ex-flow-data">GET /api/status</div>
+            <p><strong>作る範囲:</strong></p>
+            <div class="sys-map">
+                <div class="sys-actor">
+                    <div class="sys-name">利用者</div>
+                    <div class="sys-role">ブラウザ や curl<br>（既にあるもの）</div>
                 </div>
-                <span class="ex-flow-arrow">&rarr;</span>
-                <div class="ex-flow-step">
-                    <span class="node node-http-in">HTTP In</span>
-                    <div class="ex-flow-data">msg.req と msg.res が<br>セットされる</div>
+                <div class="sys-link">
+                    <div class="sys-req">GET /api/status &rarr;</div>
+                    <div class="sys-res">&larr; 200 JSON</div>
                 </div>
-                <span class="ex-flow-arrow">&rarr;</span>
-                <div class="ex-flow-step">
-                    <span class="node node-change">Change</span>
-                    <div class="ex-flow-data">msg.payload に状態<br>msg.headers に<br>Content-Type</div>
-                </div>
-                <span class="ex-flow-arrow">&rarr;</span>
-                <div class="ex-flow-step">
-                    <span class="node node-http-response">HTTP Response</span>
-                    <div class="ex-flow-data">msg.payload を<br>本文にして返す</div>
-                </div>
-                <span class="ex-flow-arrow">&rarr;</span>
-                <div class="ex-flow-step">
-                    <span class="node ex-flow-actor">クライアント</span>
-                    <div class="ex-flow-data">200<br>{"status":"running",<br>"version":"1.0.0"}</div>
+                <div class="sys-actor sys-build">
+                    <div><span class="sys-badge">これを作る</span></div>
+                    <div class="sys-name">Node-RED</div>
+                    <div class="sys-role">サーバー側<br>リクエストを受けて<br>状態を返す</div>
                 </div>
             </div>
 
@@ -2118,21 +2110,20 @@ return msg;</div>
             <h3>演習2: 外部APIからデータ取得 <span class="difficulty difficulty-easy">初級</span></h3>
             <p><strong>課題:</strong> timeapi.io を使って、ニューヨークの現在時刻を取得し、Debugノードに表示してください。</p>
 
-            <p><strong>データの流れ:</strong></p>
-            <div class="ex-flow">
-                <div class="ex-flow-step">
-                    <span class="node node-inject">Inject</span>
-                    <div class="ex-flow-data">msg.payload =<br>タイムスタンプ<br>（内容は使わない）</div>
+            <p><strong>作る範囲:</strong></p>
+            <div class="sys-map">
+                <div class="sys-actor sys-build">
+                    <div><span class="sys-badge">これを作る</span></div>
+                    <div class="sys-name">Node-RED</div>
+                    <div class="sys-role">クライアント側<br>手動のトリガーで<br>外部APIを呼ぶ</div>
                 </div>
-                <span class="ex-flow-arrow">&rarr;</span>
-                <div class="ex-flow-step">
-                    <span class="node node-http-request">HTTP Request</span>
-                    <div class="ex-flow-data">timeapi.io へ GET<br>応答JSONで<br>msg.payload が<br>上書きされる</div>
+                <div class="sys-link">
+                    <div class="sys-req">GET /api/Time/current/zone &rarr;</div>
+                    <div class="sys-res">&larr; 200 JSON</div>
                 </div>
-                <span class="ex-flow-arrow">&rarr;</span>
-                <div class="ex-flow-step">
-                    <span class="node node-debug">Debug</span>
-                    <div class="ex-flow-data">msg.payload を<br>サイドバーに表示</div>
+                <div class="sys-actor">
+                    <div class="sys-name">timeapi.io</div>
+                    <div class="sys-role">外部サービス<br>（既にあるもの）</div>
                 </div>
             </div>
 
@@ -2178,31 +2169,20 @@ return msg;</div>
             <h3>演習3: POSTで送られたデータを受け取る <span class="difficulty difficulty-easy">初級</span></h3>
             <p><strong>課題:</strong> <code>POST /api/echo</code> で受け取ったJSONに、受信時刻を添えて返すAPIを作成してください。</p>
 
-            <p><strong>データの流れ:</strong></p>
-            <div class="ex-flow">
-                <div class="ex-flow-step">
-                    <span class="node ex-flow-actor">クライアント</span>
-                    <div class="ex-flow-data">POST /api/echo<br>{"name":"太郎"}</div>
+            <p><strong>作る範囲:</strong></p>
+            <div class="sys-map">
+                <div class="sys-actor">
+                    <div class="sys-name">利用者</div>
+                    <div class="sys-role">curl<br>（既にあるもの）</div>
                 </div>
-                <span class="ex-flow-arrow">&rarr;</span>
-                <div class="ex-flow-step">
-                    <span class="node node-http-in">HTTP In (POST)</span>
-                    <div class="ex-flow-data">リクエスト本文が<br>msg.payload に入る</div>
+                <div class="sys-link">
+                    <div class="sys-req">POST /api/echo（JSON本文つき） &rarr;</div>
+                    <div class="sys-res">&larr; 200 JSON</div>
                 </div>
-                <span class="ex-flow-arrow">&rarr;</span>
-                <div class="ex-flow-step">
-                    <span class="node node-function">Function</span>
-                    <div class="ex-flow-data">msg.payload を<br>received と receivedAt の<br>2項目に組み直す</div>
-                </div>
-                <span class="ex-flow-arrow">&rarr;</span>
-                <div class="ex-flow-step">
-                    <span class="node node-http-response">HTTP Response</span>
-                    <div class="ex-flow-data">msg.payload を<br>本文にして返す</div>
-                </div>
-                <span class="ex-flow-arrow">&rarr;</span>
-                <div class="ex-flow-step">
-                    <span class="node ex-flow-actor">クライアント</span>
-                    <div class="ex-flow-data">200<br>received に送った内容<br>receivedAt に受信時刻</div>
+                <div class="sys-actor sys-build">
+                    <div><span class="sys-badge">これを作る</span></div>
+                    <div class="sys-name">Node-RED</div>
+                    <div class="sys-role">サーバー側<br>本文を受け取って<br>応答を組み立てる</div>
                 </div>
             </div>
 
@@ -2249,31 +2229,20 @@ return msg;</div>
             <h3>演習4: URLパラメータを使ったAPI <span class="difficulty difficulty-medium">中級</span></h3>
             <p><strong>課題:</strong> <code>GET /api/items/:id</code> で商品情報を返すAPIを作成してください。</p>
 
-            <p><strong>データの流れ:</strong></p>
-            <div class="ex-flow">
-                <div class="ex-flow-step">
-                    <span class="node ex-flow-actor">クライアント</span>
-                    <div class="ex-flow-data">GET /api/items/1<br>GET /api/items/99</div>
+            <p><strong>作る範囲:</strong></p>
+            <div class="sys-map">
+                <div class="sys-actor">
+                    <div class="sys-name">利用者</div>
+                    <div class="sys-role">ブラウザ や curl<br>（既にあるもの）</div>
                 </div>
-                <span class="ex-flow-arrow">&rarr;</span>
-                <div class="ex-flow-step">
-                    <span class="node node-http-in">HTTP In</span>
-                    <div class="ex-flow-data">msg.req.params.id に<br>"1" や "99" が入る</div>
+                <div class="sys-link">
+                    <div class="sys-req">GET /api/items/1 &rarr;</div>
+                    <div class="sys-res">&larr; 200 または 404</div>
                 </div>
-                <span class="ex-flow-arrow">&rarr;</span>
-                <div class="ex-flow-step">
-                    <span class="node node-function">Function</span>
-                    <div class="ex-flow-data">商品表を引く<br>有: msg.statusCode=200<br>無: msg.statusCode=404</div>
-                </div>
-                <span class="ex-flow-arrow">&rarr;</span>
-                <div class="ex-flow-step">
-                    <span class="node node-http-response">HTTP Response</span>
-                    <div class="ex-flow-data">msg.statusCode と<br>msg.payload を返す</div>
-                </div>
-                <span class="ex-flow-arrow">&rarr;</span>
-                <div class="ex-flow-step">
-                    <span class="node ex-flow-actor">クライアント</span>
-                    <div class="ex-flow-data">200 {"success":true,...}<br>404 {"success":false,...}</div>
+                <div class="sys-actor sys-build">
+                    <div><span class="sys-badge">これを作る</span></div>
+                    <div class="sys-name">Node-RED</div>
+                    <div class="sys-role">サーバー側<br>IDで商品を探して<br>見つからなければ404を返す</div>
                 </div>
             </div>
 
@@ -2312,38 +2281,30 @@ return msg;</div>
 
         <div class="exercise">
             <h3>演習5: 外部APIを自作APIで包む <span class="difficulty difficulty-medium">中級</span></h3>
-            <p><strong>課題:</strong> <code>GET /api/tokyo-time</code> にアクセスすると、外部API（timeapi.io）から東京の現在時刻を取得し、必要な項目だけに絞って返すAPIを作成してください。1つのフローの中で、サーバー役（HTTP In と HTTP Response）とクライアント役（HTTP Request）を同時に担います。</p>
+            <p><strong>課題:</strong> <code>GET /api/tokyo-time</code> にアクセスすると、外部API（timeapi.io）から東京の現在時刻を取得し、必要な項目だけに絞って返すAPIを作成してください。この演習では、Node-RED が利用者に対してはサーバー役、timeapi.io に対してはクライアント役という、2つの役割を同時に担います。</p>
 
-            <p><strong>データの流れ:</strong></p>
-            <div class="ex-flow">
-                <div class="ex-flow-step">
-                    <span class="node ex-flow-actor">クライアント</span>
-                    <div class="ex-flow-data">GET /api/tokyo-time</div>
+            <p><strong>作る範囲:</strong></p>
+            <div class="sys-map">
+                <div class="sys-actor">
+                    <div class="sys-name">利用者</div>
+                    <div class="sys-role">ブラウザ や curl<br>（既にあるもの）</div>
                 </div>
-                <span class="ex-flow-arrow">&rarr;</span>
-                <div class="ex-flow-step">
-                    <span class="node node-http-in">HTTP In</span>
-                    <div class="ex-flow-data">msg.req と msg.res が<br>セットされる</div>
+                <div class="sys-link">
+                    <div class="sys-req">GET /api/tokyo-time &rarr;</div>
+                    <div class="sys-res">&larr; 200 JSON（4項目）</div>
                 </div>
-                <span class="ex-flow-arrow">&rarr;</span>
-                <div class="ex-flow-step">
-                    <span class="node node-http-request">HTTP Request</span>
-                    <div class="ex-flow-data">timeapi.io へ GET<br>応答で msg.payload と<br>msg.headers が<br>上書きされる</div>
+                <div class="sys-actor sys-build">
+                    <div><span class="sys-badge">これを作る</span></div>
+                    <div class="sys-name">Node-RED</div>
+                    <div class="sys-role">サーバー側 と クライアント側<br>受けたリクエストをきっかけに<br>自分が外部APIを呼ぶ</div>
                 </div>
-                <span class="ex-flow-arrow">&rarr;</span>
-                <div class="ex-flow-step">
-                    <span class="node node-function">Function</span>
-                    <div class="ex-flow-data">13項目から4項目へ絞る<br>msg.headers を<br>自前のものへ置換</div>
+                <div class="sys-link">
+                    <div class="sys-req">GET timeapi.io &rarr;</div>
+                    <div class="sys-res">&larr; 200 JSON（13項目）</div>
                 </div>
-                <span class="ex-flow-arrow">&rarr;</span>
-                <div class="ex-flow-step">
-                    <span class="node node-http-response">HTTP Response</span>
-                    <div class="ex-flow-data">msg.res を通じて<br>クライアントへ返す</div>
-                </div>
-                <span class="ex-flow-arrow">&rarr;</span>
-                <div class="ex-flow-step">
-                    <span class="node ex-flow-actor">クライアント</span>
-                    <div class="ex-flow-data">200<br>4項目だけのJSON<br>(timeZone, date,<br>time, dayOfWeek)</div>
+                <div class="sys-actor">
+                    <div class="sys-name">timeapi.io</div>
+                    <div class="sys-role">外部サービス<br>（既にあるもの）</div>
                 </div>
             </div>
 
@@ -2351,7 +2312,6 @@ return msg;</div>
             <ul>
                 <li>エンドポイント: <code>/api/tokyo-time</code>（GET）</li>
                 <li>呼び出す外部API: <code>https://timeapi.io/api/Time/current/zone?timeZone=Asia/Tokyo</code></li>
-                <li>HTTP Request の出力形式: JSONオブジェクト</li>
                 <li>外部APIの応答から <code>timeZone</code>、<code>date</code>、<code>time</code>、<code>dayOfWeek</code> の4項目だけを取り出す</li>
                 <li>Content-Type: application/json</li>
             </ul>
@@ -2389,31 +2349,20 @@ return msg;</div>
             <p><strong>💡 CRUDとは:</strong> データ操作の基本4種類 <strong>C</strong>reate（作成）・<strong>R</strong>ead（読み取り）・<strong>U</strong>pdate（更新）・<strong>D</strong>elete（削除）の頭文字です。この演習では、それぞれをHTTPメソッドの POST（作成）・GET（読み取り）・DELETE（削除）に対応させます。</p>
             <p><strong>課題:</strong> メモを管理するシンプルなREST API（GET/POST/DELETEなどのHTTPメソッドで操作する、一般的なWeb APIの設計スタイル）を作成してください。</p>
 
-            <p><strong>データの流れ:</strong></p>
-            <div class="ex-flow">
-                <div class="ex-flow-step">
-                    <span class="node ex-flow-actor">クライアント</span>
-                    <div class="ex-flow-data">GET / POST / DELETE<br>/api/notes</div>
+            <p><strong>作る範囲:</strong></p>
+            <div class="sys-map">
+                <div class="sys-actor">
+                    <div class="sys-name">利用者</div>
+                    <div class="sys-role">curl<br>（既にあるもの）</div>
                 </div>
-                <span class="ex-flow-arrow">&rarr;</span>
-                <div class="ex-flow-step">
-                    <span class="node node-http-in">HTTP In &times;4</span>
-                    <div class="ex-flow-data">ルートごとに1つ<br>msg.payload に本文<br>msg.req.params.id に ID</div>
+                <div class="sys-link">
+                    <div class="sys-req">GET / POST / DELETE /api/notes &rarr;</div>
+                    <div class="sys-res">&larr; 200 / 201 / 404</div>
                 </div>
-                <span class="ex-flow-arrow">&rarr;</span>
-                <div class="ex-flow-step">
-                    <span class="node node-function">Function &times;4</span>
-                    <div class="ex-flow-data">flow.notes を読み書き<br>（一覧、作成、取得、削除）</div>
-                </div>
-                <span class="ex-flow-arrow">&rarr;</span>
-                <div class="ex-flow-step">
-                    <span class="node node-http-response">HTTP Response</span>
-                    <div class="ex-flow-data">4本を1つに集約<br>msg.statusCode で<br>200 / 201 / 404</div>
-                </div>
-                <span class="ex-flow-arrow">&rarr;</span>
-                <div class="ex-flow-step">
-                    <span class="node ex-flow-actor">クライアント</span>
-                    <div class="ex-flow-data">JSON と<br>ステータスコード</div>
+                <div class="sys-actor sys-build">
+                    <div><span class="sys-badge">これを作る</span></div>
+                    <div class="sys-name">Node-RED</div>
+                    <div class="sys-role">サーバー側<br>メモの保管も<br>Node-REDの中で行う</div>
                 </div>
             </div>
 
