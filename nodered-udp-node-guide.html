@@ -37,6 +37,15 @@
         .difficulty-easy { background-color: #c8e6c9; color: #2e7d32; }
         .difficulty-medium { background-color: #fff9c4; color: #f57f17; }
         .difficulty-hard { background-color: #ffcdd2; color: #c62828; }
+        .sys-map { background-color: #2d3133; padding: 20px 15px; border-radius: 5px; margin: 12px 0; display: flex; align-items: center; justify-content: safe center; flex-wrap: nowrap; gap: 6px; overflow-x: auto; }
+        .sys-actor { flex: 0 0 auto; border: 2px solid #78909c; border-radius: 6px; padding: 12px 14px; text-align: center; background-color: #37474f; max-width: 215px; }
+        .sys-name { font-weight: bold; font-size: 14px; color: #eceff1; }
+        .sys-role { font-size: 11px; line-height: 1.7; margin-top: 5px; color: #b0bec5; }
+        .sys-build { border-color: #ffca28; border-width: 3px; background-color: #3f3722; }
+        .sys-badge { display: inline-block; background-color: #ffca28; color: #3e2723; font-size: 11px; font-weight: bold; padding: 2px 10px; border-radius: 10px; margin-bottom: 6px; }
+        .sys-link { flex: 0 0 auto; display: flex; flex-direction: column; gap: 5px; padding: 0 4px; font-family: 'Courier New', Consolas, monospace; font-size: 11px; white-space: nowrap; text-align: center; }
+        .sys-req { color: #4fc3f7; }
+        .sys-res { color: #a6e22e; }
         details { background-color: #f5f5f5; padding: 10px 15px; border-radius: 5px; margin: 10px 0; }
         details summary { cursor: pointer; font-weight: bold; color: #1976d2; }
         details[open] summary { margin-bottom: 10px; }
@@ -836,6 +845,23 @@ nc -ul 8000</div>
             <h3>演習1: UDPメッセージの送受信 <span class="difficulty difficulty-easy">初級</span></h3>
             <p><strong>📋 課題:</strong> ポート9000でUDPパケットを受信し、デバッグサイドバーに表示してください。同時に、送信ノードでテストメッセージを送れるようにしてください。</p>
             
+            <p><strong>作る範囲:</strong></p>
+            <div class="sys-map">
+                <div class="sys-actor sys-build">
+                    <div><span class="sys-badge">これを作る</span></div>
+                    <div class="sys-name">Node-RED（送信側）</div>
+                    <div class="sys-role">localhost:9000 へ<br>テストメッセージを送る<br>（同じNode-RED内）</div>
+                </div>
+                <div class="sys-link">
+                    <div class="sys-req">ポート9000 へ テストメッセージ &rarr;</div>
+                </div>
+                <div class="sys-actor sys-build">
+                    <div><span class="sys-badge">これを作る</span></div>
+                    <div class="sys-name">Node-RED（受信側）</div>
+                    <div class="sys-role">9000番で待ち受け<br>Debugに表示する<br>（同じNode-RED内）</div>
+                </div>
+            </div>
+
             <p><strong>🎯 要求仕様:</strong></p>
             <ul>
                 <li>UDP In: ポート 9000 で待ち受け</li>
@@ -880,6 +906,23 @@ nc -ul 8000</div>
             <h3>演習2: 送信元への返信 <span class="difficulty difficulty-easy">初級</span></h3>
             <p><strong>📋 課題:</strong> 受信したデータに「[REPLY]」を付けて、送信元に返信してください。</p>
             
+            <p><strong>作る範囲:</strong></p>
+            <div class="sys-map">
+                <div class="sys-actor">
+                    <div class="sys-name">送信元</div>
+                    <div class="sys-role">nc コマンドなど<br>（既にあるもの）</div>
+                </div>
+                <div class="sys-link">
+                    <div class="sys-req">ポート9001 へ "Hello" &rarr;</div>
+                    <div class="sys-res">&larr; [REPLY] Hello</div>
+                </div>
+                <div class="sys-actor sys-build">
+                    <div><span class="sys-badge">これを作る</span></div>
+                    <div class="sys-name">Node-RED</div>
+                    <div class="sys-role">受信側<br>9001番で待ち受け<br>送信元へ返信する</div>
+                </div>
+            </div>
+
             <p><strong>🎯 要求仕様:</strong></p>
             <ul>
                 <li>ポート: 9001</li>
@@ -924,6 +967,23 @@ nc -ul 8000</div>
             <h3>演習3: 複数デバイスからのデータ集約 <span class="difficulty difficulty-medium">中級</span></h3>
             <p><strong>📋 課題:</strong> 複数のデバイス（シミュレート）からJSONデータを受信し、デバイスIDごとに最新値を保持してください。</p>
             
+            <p><strong>作る範囲:</strong></p>
+            <div class="sys-map">
+                <div class="sys-actor sys-build">
+                    <div><span class="sys-badge">これを作る</span></div>
+                    <div class="sys-name">Node-RED（デバイス役）</div>
+                    <div class="sys-role">dev-001 と dev-002 の<br>データを送る<br>（同じNode-RED内）</div>
+                </div>
+                <div class="sys-link">
+                    <div class="sys-req">ポート9002 へ {"deviceId":..,"value":..} &rarr;</div>
+                </div>
+                <div class="sys-actor sys-build">
+                    <div><span class="sys-badge">これを作る</span></div>
+                    <div class="sys-name">Node-RED（集約側）</div>
+                    <div class="sys-role">9002番で待ち受け<br>デバイスIDごとに<br>最新値を保持する</div>
+                </div>
+            </div>
+
             <p><strong>🎯 要求仕様:</strong></p>
             <ul>
                 <li>ポート: 9002</li>
@@ -973,6 +1033,24 @@ return msg;</div>
             <h3>演習4: ブロードキャストによるデバイス発見 <span class="difficulty difficulty-hard">上級</span></h3>
             <p><strong>📋 課題:</strong> 「DISCOVER」ブロードキャストを送信し、応答したデバイスを一覧表示するシステムを作成してください。</p>
             
+            <p><strong>作る範囲:</strong></p>
+            <div class="sys-map">
+                <div class="sys-actor sys-build">
+                    <div><span class="sys-badge">これを作る</span></div>
+                    <div class="sys-name">Node-RED（発見側）</div>
+                    <div class="sys-role">DISCOVER を<br>ブロードキャストし<br>応答を集めて一覧にする</div>
+                </div>
+                <div class="sys-link">
+                    <div class="sys-req">ポート9003 へ DISCOVER をブロードキャスト &rarr;</div>
+                    <div class="sys-res">&larr; 自デバイスの情報</div>
+                </div>
+                <div class="sys-actor sys-build">
+                    <div><span class="sys-badge">これを作る</span></div>
+                    <div class="sys-name">Node-RED（デバイス側）</div>
+                    <div class="sys-role">DISCOVER を受け取り<br>自分の情報を返す<br>（同じNode-RED内）</div>
+                </div>
+            </div>
+
             <p><strong>🎯 要求仕様:</strong></p>
             <ul>
                 <li>発見側: ポート9003にブロードキャスト「DISCOVER」を送信</li>
