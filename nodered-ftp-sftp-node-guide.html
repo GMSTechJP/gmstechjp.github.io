@@ -39,6 +39,15 @@
         .difficulty-easy { background-color: #c8e6c9; color: #2e7d32; }
         .difficulty-medium { background-color: #fff9c4; color: #f57f17; }
         .difficulty-hard { background-color: #ffcdd2; color: #c62828; }
+        .sys-map { background-color: #2d3133; padding: 20px 15px; border-radius: 5px; margin: 12px 0; display: flex; align-items: center; justify-content: safe center; flex-wrap: nowrap; gap: 6px; overflow-x: auto; }
+        .sys-actor { flex: 0 0 auto; border: 2px solid #78909c; border-radius: 6px; padding: 12px 14px; text-align: center; background-color: #37474f; max-width: 215px; }
+        .sys-name { font-weight: bold; font-size: 14px; color: #eceff1; }
+        .sys-role { font-size: 11px; line-height: 1.7; margin-top: 5px; color: #b0bec5; }
+        .sys-build { border-color: #ffca28; border-width: 3px; background-color: #3f3722; }
+        .sys-badge { display: inline-block; background-color: #ffca28; color: #3e2723; font-size: 11px; font-weight: bold; padding: 2px 10px; border-radius: 10px; margin-bottom: 6px; }
+        .sys-link { flex: 0 0 auto; display: flex; flex-direction: column; gap: 5px; padding: 0 4px; font-family: 'Courier New', Consolas, monospace; font-size: 11px; white-space: nowrap; text-align: center; }
+        .sys-req { color: #4fc3f7; }
+        .sys-res { color: #a6e22e; }
         details { background-color: #f5f5f5; padding: 10px 15px; border-radius: 5px; margin: 10px 0; }
         details summary { cursor: pointer; font-weight: bold; color: #455a64; }
         details[open] summary { margin-bottom: 10px; }
@@ -1317,6 +1326,23 @@ sudo ufw allow from 192.168.1.0/24 to any port 7022:7032 proto tcp</div>
         <div class="exercise">
             <h3>演習1：日付のフォルダを作る<span class="difficulty difficulty-easy">初級</span></h3>
             <p>FTP サーバー側に、今日の日付を名前にしたフォルダ（例：<code>/upload/2026-08-13</code>）を作るフローを組んでほしい。フォルダ名は実行するたびに変わるため、ノードの設定欄には固定の値を書けない。</p>
+            <p><strong>作る範囲:</strong></p>
+            <div class="sys-map">
+                <div class="sys-actor sys-build">
+                    <div><span class="sys-badge">これを作る</span></div>
+                    <div class="sys-name">Node-RED</div>
+                    <div class="sys-role">FTP クライアント側<br>日付の名前でフォルダを作る</div>
+                </div>
+                <div class="sys-link">
+                    <div class="sys-req">MKDIR /upload/2026-08-13 &rarr;</div>
+                    <div class="sys-res">&larr; 実行結果</div>
+                </div>
+                <div class="sys-actor">
+                    <div class="sys-name">FTP サーバー</div>
+                    <div class="sys-role">別のホストで動いている<br>（先に用意しておくもの）</div>
+                </div>
+            </div>
+
             <p><strong>ヒント：</strong> 「ファイル名」の欄を空にしておくと、<code>msg.filename</code> の値が使われる。</p>
             <details>
                 <summary>解答例（クリックで展開）</summary>
@@ -1432,6 +1458,23 @@ sudo ufw allow from 192.168.1.0/24 to any port 7022:7032 proto tcp</div>
         <div class="exercise">
             <h3>演習2：CSV ファイルだけを一覧する<span class="difficulty difficulty-medium">中級</span></h3>
             <p>SFTP サーバーの <code>/data</code> にはさまざまなファイルが置かれている。この中から拡張子が <code>.csv</code> のものだけを取り出し、ファイル名の配列にして debug へ流してほしい。</p>
+            <p><strong>作る範囲:</strong></p>
+            <div class="sys-map">
+                <div class="sys-actor sys-build">
+                    <div><span class="sys-badge">これを作る</span></div>
+                    <div class="sys-name">Node-RED</div>
+                    <div class="sys-role">SFTP クライアント側<br>一覧から .csv だけを残す</div>
+                </div>
+                <div class="sys-link">
+                    <div class="sys-req">/data の一覧を要求 &rarr;</div>
+                    <div class="sys-res">&larr; ファイル情報の配列</div>
+                </div>
+                <div class="sys-actor">
+                    <div class="sys-name">SFTP サーバー</div>
+                    <div class="sys-role">OpenSSH の sftp<br>（先に用意しておくもの）</div>
+                </div>
+            </div>
+
             <p><strong>ヒント：</strong> 絞り込みは <code>sftp in</code> の設定だけでできる。一覧の各要素は名前のほかにサイズや更新日時も持つオブジェクトである。</p>
             <details>
                 <summary>解答例（クリックで展開）</summary>
@@ -1553,6 +1596,22 @@ sudo ufw allow from 192.168.1.0/24 to any port 7022:7032 proto tcp</div>
         <div class="exercise">
             <h3>演習3：受け取ったファイルを種類ごとに振り分ける<span class="difficulty difficulty-hard">上級</span></h3>
             <p>ネットワークカメラが画像を、計測器が CSV を、同じ FTP サーバーへ送ってくる。届いたファイルを拡張子で見分け、画像は <code>/tmp/inbox/images/</code> へ、それ以外は <code>/tmp/inbox/others/</code> へ保存するフローを組んでほしい。</p>
+            <p><strong>作る範囲:</strong></p>
+            <div class="sys-map">
+                <div class="sys-actor">
+                    <div class="sys-name">カメラや計測器</div>
+                    <div class="sys-role">画像や CSV を送ってくる<br>（既にある機器）</div>
+                </div>
+                <div class="sys-link">
+                    <div class="sys-req">FTP で送信 &rarr;</div>
+                </div>
+                <div class="sys-actor sys-build">
+                    <div><span class="sys-badge">これを作る</span></div>
+                    <div class="sys-name">Node-RED</div>
+                    <div class="sys-role">FTP サーバー側<br>届いたファイルを<br>拡張子で振り分けて保存する</div>
+                </div>
+            </div>
+
             <p><strong>ヒント：</strong> ファイル名は <code>msg.topic</code> に入る。分岐の条件はノードの設定として見えるようにしておくと、あとから読みやすい。</p>
             <details>
                 <summary>解答例（クリックで展開）</summary>
