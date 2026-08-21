@@ -2408,6 +2408,82 @@ return msg;</div>
             </details>
         </div>
 
+        <div class="exercise">
+            <h3>演習7: 2人でAPIをつなぐ（社内LAN） <span class="difficulty difficulty-hard">上級</span></h3>
+            <p><strong>課題:</strong> 2人1組になり、片方がサーバー側、もう片方がクライアント側を作って、社内LAN越しに通信してください。ここまでの演習は1台のNode-REDの中で完結していましたが、この演習では相手のNode-REDへ実際にネットワークを越えてリクエストを送ります。</p>
+
+            <p><strong>作る範囲:</strong></p>
+            <div class="sys-map">
+                <div class="sys-actor sys-build">
+                    <div><span class="sys-badge">Bさんが作る</span></div>
+                    <div class="sys-name">Bさんの Node-RED</div>
+                    <div class="sys-role">クライアント側<br>相手のIPアドレスを指定して<br>APIを呼ぶ</div>
+                </div>
+                <div class="sys-link">
+                    <div class="sys-req">GET http://(AさんのIP):1880/api/hello &rarr;</div>
+                    <div class="sys-res">&larr; 200 JSON</div>
+                </div>
+                <div class="sys-actor sys-build">
+                    <div><span class="sys-badge">Aさんが作る</span></div>
+                    <div class="sys-name">Aさんの Node-RED</div>
+                    <div class="sys-role">サーバー側<br>/api/hello を公開して<br>自分の名前と時刻を返す</div>
+                </div>
+            </div>
+
+            <p><strong>要求仕様:</strong></p>
+            <ul>
+                <li>サーバー担当（Aさん）: <code>GET /api/hello</code> で <code>{"from":"（自分の名前）","time":"（現在時刻）"}</code> を返す</li>
+                <li>クライアント担当（Bさん）: Injectでトリガーし、<code>http://（AさんのIPアドレス）:1880/api/hello</code> を呼んで結果をDebugに表示する</li>
+                <li>ポート番号は1880。HTTP In で作ったエンドポイントは、エディターと同じWebサーバーの上に置かれる</li>
+                <li>通信できたら役割を入れ替え、両方を体験する</li>
+            </ul>
+
+            <p><strong>成功の条件:</strong></p>
+            <ul>
+                <li>Bさんのデバッグパネルに、Aさんの名前と時刻が表示される</li>
+                <li>役割を入れ替えても同じように通信できる</li>
+                <li>つながらないとき、Aさん自身の <code>curl http://localhost:1880/api/hello</code> が成功するかどうかで、フロー側の問題かネットワーク側の問題かを切り分けられる</li>
+            </ul>
+
+            <div class="warning">
+                <strong>注意:</strong> この演習で作るエンドポイントには認証をかけていません。IPアドレスとURLを知っていれば、同じLANにいる誰でも呼び出せます。社内LANでの学習に限って行い、インターネットへ公開しないでください。
+            </div>
+
+            <details>
+                <summary>&#128161; ヒント</summary>
+                <p><strong>自分のIPアドレスの調べ方:</strong> Windows は <code>ipconfig</code> の「IPv4 アドレス」、ラズパイ・Mac・Linux は <code>hostname -I</code>。詳しくは<a href="nodered-local-pi-exercise-guide.html#common">ローカル/ラズパイ演習ガイドの共通の準備</a>を参照してください。</p>
+                <p><strong>待ち受けの設定は不要:</strong> Node-RED は既定ですべてのIPv4インターフェイスで待ち受けます（<code>uiHost</code> の既定値が <code>0.0.0.0</code>）。そのため設定変更なしで他のPCから接続できます。ただし <code>settings.js</code> で <code>uiHost: "127.0.0.1"</code> を有効にしている場合は、同じPCからしか接続できません。</p>
+                <p><strong>ファイアウォール:</strong> Windows では Defender ファイアウォールが受信をブロックすることがあります。初回接続時の許可ダイアログで許可するか、1880番の受信を許可してください（<a href="nodered-local-pi-exercise-guide.html#win">Windows編</a>）。</p>
+                <p><strong>つながらないときの切り分け順:</strong></p>
+                <ol>
+                    <li>Aさん自身が <code>curl http://localhost:1880/api/hello</code> で応答を得られるか。得られなければフロー側の問題（デプロイ忘れ、URLのつづり、メソッド違い）。</li>
+                    <li>BさんのブラウザでAさんのエディター <code>http://（AさんのIP）:1880/</code> が開けるか。開けなければネットワークかファイアウォールの問題。</li>
+                    <li>エディターは開けるのにAPIだけ失敗するなら、URLのつづりかメソッドの不一致を疑う。</li>
+                </ol>
+            </details>
+
+            <details>
+                <summary>&#9989; 解答例フロー（サーバー担当・Aさん）</summary>
+                <div class="flow-json">[
+    {"id": "ex7s_tab", "type": "tab", "label": "演習7 サーバー側"},
+    {"id": "ex7s_http_in", "type": "http in", "z": "ex7s_tab", "name": "GET /api/hello", "url": "/api/hello", "method": "get", "upload": false, "skipBodyParsing": false, "swaggerDoc": "", "x": 180, "y": 100, "wires": [["ex7s_func"]]},
+    {"id": "ex7s_func", "type": "function", "z": "ex7s_tab", "name": "応答を作る", "func": "// from は自分の名前に書き換える\nmsg.payload = {\n    from: \"Aさん\",\n    time: new Date().toISOString()\n};\nmsg.statusCode = 200;\nmsg.headers = {\"Content-Type\": \"application/json\"};\nreturn msg;", "outputs": 1, "timeout": 0, "initialize": "", "finalize": "", "libs": [], "x": 400, "y": 100, "wires": [["ex7s_response"]]},
+    {"id": "ex7s_response", "type": "http response", "z": "ex7s_tab", "name": "Response", "statusCode": "", "headers": {}, "x": 590, "y": 100, "wires": []}
+]</div>
+            </details>
+
+            <details>
+                <summary>&#9989; 解答例フロー（クライアント担当・Bさん）</summary>
+                <p>HTTP Request ノードのURLは、Aさんから聞いたIPアドレスに書き換えてください（下の例は <code>192.168.1.10</code>）。</p>
+                <div class="flow-json">[
+    {"id": "ex7c_tab", "type": "tab", "label": "演習7 クライアント側"},
+    {"id": "ex7c_inject", "type": "inject", "z": "ex7c_tab", "name": "呼び出す", "props": [], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "x": 160, "y": 100, "wires": [["ex7c_request"]]},
+    {"id": "ex7c_request", "type": "http request", "z": "ex7c_tab", "name": "相手のNode-RED", "method": "GET", "ret": "obj", "paytoqs": "ignore", "url": "http://192.168.1.10:1880/api/hello", "tls": "", "persist": false, "proxy": "", "insecureHTTPParser": false, "authType": "", "senderr": false, "headers": [], "x": 380, "y": 100, "wires": [["ex7c_debug"]]},
+    {"id": "ex7c_debug", "type": "debug", "z": "ex7c_tab", "name": "相手の応答", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "payload.from", "statusType": "msg", "x": 580, "y": 100, "wires": []}
+]</div>
+            </details>
+        </div>
+
         <h2 id="section7">7. まとめ</h2>
 
         <div class="important">
