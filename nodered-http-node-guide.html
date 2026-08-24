@@ -2502,6 +2502,85 @@ return msg;</div>
             </details>
         </div>
 
+        <div class="exercise">
+            <h3>演習8: 全員のAPIを巡回して一覧にする（社内LAN） <span class="difficulty difficulty-hard">上級</span></h3>
+            <p><strong>課題:</strong> 受講者全員が同じ仕様のAPIを公開し、集約役の1人が全員分を順に呼び出して1つの一覧にまとめてください。演習7を人数分に広げたもので、全員が同じ仕様で作ることの意味を体験します。</p>
+
+            <p><strong>作る範囲:</strong></p>
+            <div class="sys-map">
+                <div class="sys-actor sys-build">
+                    <div><span class="sys-badge">集約役が作る</span></div>
+                    <div class="sys-name">集約役の Node-RED</div>
+                    <div class="sys-role">クライアント側<br>全員のIPアドレスを<br>順に呼んで1つにまとめる</div>
+                </div>
+                <div class="sys-link">
+                    <div class="sys-req">GET http://(各自のIP):1880/api/whoami &rarr;</div>
+                    <div class="sys-res">&larr; 200 {"name":..}</div>
+                </div>
+                <div class="sys-actor sys-build">
+                    <div><span class="sys-badge">受講者全員が作る</span></div>
+                    <div class="sys-name">受講者全員の Node-RED</div>
+                    <div class="sys-role">サーバー側<br>全員が同じ仕様で<br>/api/whoami を公開する</div>
+                </div>
+            </div>
+
+            <p><strong>要求仕様:</strong></p>
+            <ul>
+                <li>全員（サーバー側）: <code>GET /api/whoami</code> で <code>{"name":"（自分の名前）"}</code> を返す。<strong>仕様は全員そろえる</strong></li>
+                <li>集約役（クライアント側）: 受講者のIPアドレスの一覧を持ち、順に <code>http://（各IPアドレス）:1880/api/whoami</code> を呼ぶ</li>
+                <li>結果を <code>[{"ip":"...","name":"..."}, ...]</code> の配列にまとめてDebugに表示する</li>
+                <li>応答しなかった相手も <code>{"ip":"...","error":"..."}</code> として一覧に残す。取得できた人だけを並べない</li>
+            </ul>
+
+            <p><strong>成功の条件:</strong></p>
+            <ul>
+                <li>集約役のデバッグパネルに、参加人数と同じ数の要素を持つ配列が表示される</li>
+                <li>各要素に、呼び出し先のIPアドレスと相手の名前が入っている</li>
+                <li>誰か1人がフローを止めても、その人は <code>error</code> つきで一覧に残り、ほかの人の結果は今までどおり表示される</li>
+                <li>IPアドレスの一覧を書き換えるだけで、参加人数が変わっても動く</li>
+            </ul>
+
+            <div class="warning">
+                <strong>注意:</strong> 演習7と同じく、このエンドポイントには認証をかけていません。社内LANでの学習に限って行い、インターネットへ公開しないでください。返す内容にも、名前以外の個人情報を入れないようにします。
+            </div>
+
+            <details>
+                <summary>&#128161; ヒント</summary>
+                <p><strong>IPアドレスの一覧をどこに持つか:</strong> Injectノードの payload に配列として書くのが手軽です。人数が変わったらここだけ直します。</p>
+                <p><strong>1件ずつ呼び出すには:</strong> 配列を split ノードで1件ずつに分けます。HTTP Request ノードはURL欄を空にしておくと <code>msg.url</code> の値を使うので、split の後で <code>msg.url</code> を組み立てます（<a href="#section4">動的なURL設定</a>を参照）。</p>
+                <p><strong>結果をまとめるには:</strong> join ノードを「自動モード」にすると、split が付けた <code>msg.parts</code> を見て自動で配列へ戻します。split と join を対で使うのが定石です。</p>
+                <p><strong>呼び出し先のIPを結果に残すには:</strong> HTTP Request ノードは <code>msg.payload</code> を応答で上書きします。IPアドレスは <code>msg.payload</code> 以外のプロパティ（たとえば <code>msg.targetIp</code>）へ退避してから呼び出してください。</p>
+                <p><strong>応答しない相手の扱い:</strong> HTTP Request ノードは既定で、接続できなかった場合もメッセージを下流へ流します。そのとき <code>msg.payload</code> にはエラー文が、<code>msg.statusCode</code> には <code>ECONNREFUSED</code> のような文字列が入ります。<strong>数値の200かどうか</strong>で成功と失敗を見分けられます。デバッグサイドバーには赤いエラーも出ますが、フローは止まりません。</p>
+                <p><strong>待ち時間:</strong> 応答がない相手は既定で5秒待ってから打ち切られます。人数が多くて待ち時間が気になるときは、呼び出し前に <code>msg.requestTimeout</code>（ミリ秒）を設定すると短くできます。</p>
+            </details>
+
+            <details>
+                <summary>&#9989; 解答例フロー（受講者全員・サーバー側）</summary>
+                <p>全員がこれを読み込み、Functionノードの名前だけ自分のものに書き換えます。</p>
+                <div class="flow-json">[
+    {"id": "ex8s_tab", "type": "tab", "label": "演習8 サーバー側"},
+    {"id": "ex8s_http_in", "type": "http in", "z": "ex8s_tab", "name": "GET /api/whoami", "url": "/api/whoami", "method": "get", "upload": false, "skipBodyParsing": false, "swaggerDoc": "", "x": 180, "y": 100, "wires": [["ex8s_func"]]},
+    {"id": "ex8s_func", "type": "function", "z": "ex8s_tab", "name": "自分の名前を返す", "func": "// name は自分の名前に書き換える\nmsg.payload = { name: \"山田\" };\nmsg.statusCode = 200;\nmsg.headers = {\"Content-Type\": \"application/json\"};\nreturn msg;", "outputs": 1, "timeout": 0, "initialize": "", "finalize": "", "libs": [], "x": 400, "y": 100, "wires": [["ex8s_response"]]},
+    {"id": "ex8s_response", "type": "http response", "z": "ex8s_tab", "name": "Response", "statusCode": "", "headers": {}, "x": 590, "y": 100, "wires": []}
+]</div>
+            </details>
+
+            <details>
+                <summary>&#9989; 解答例フロー（集約役）</summary>
+                <p>Injectノードの中にあるIPアドレスの配列を、実際の受講者のものへ書き換えてください。</p>
+                <div class="flow-json">[
+    {"id": "ex8c_tab", "type": "tab", "label": "演習8 集約役"},
+    {"id": "ex8c_inject", "type": "inject", "z": "ex8c_tab", "name": "全員のIP一覧", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "[\"192.168.1.11\",\"192.168.1.12\",\"192.168.1.13\"]", "payloadType": "json", "x": 160, "y": 100, "wires": [["ex8c_split"]]},
+    {"id": "ex8c_split", "type": "split", "z": "ex8c_tab", "name": "1件ずつに分ける", "splt": "\\n", "spltType": "str", "arraySplt": 1, "arraySpltType": "len", "stream": false, "addname": "", "property": "payload", "x": 350, "y": 100, "wires": [["ex8c_url"]]},
+    {"id": "ex8c_url", "type": "function", "z": "ex8c_tab", "name": "URLを組み立てる", "func": "msg.targetIp = msg.payload;\nmsg.url = \"http://\" + msg.payload + \":1880/api/whoami\";\nmsg.payload = \"\";\nreturn msg;", "outputs": 1, "timeout": 0, "initialize": "", "finalize": "", "libs": [], "x": 560, "y": 100, "wires": [["ex8c_request"]]},
+    {"id": "ex8c_request", "type": "http request", "z": "ex8c_tab", "name": "相手を呼ぶ", "method": "GET", "ret": "obj", "paytoqs": "ignore", "url": "", "tls": "", "persist": false, "proxy": "", "insecureHTTPParser": false, "authType": "", "senderr": false, "headers": [], "x": 760, "y": 100, "wires": [["ex8c_shape"]]},
+    {"id": "ex8c_shape", "type": "function", "z": "ex8c_tab", "name": "結果を整える", "func": "// statusCode が数値の200のときだけ成功とみなす\n// 接続できなかった場合は ECONNREFUSED 等の文字列が入る\nif (msg.statusCode === 200 &amp;&amp; msg.payload &amp;&amp; msg.payload.name) {\n    msg.payload = { ip: msg.targetIp, name: msg.payload.name };\n} else {\n    msg.payload = { ip: msg.targetIp, error: String(msg.payload) };\n}\nreturn msg;", "outputs": 1, "timeout": 0, "initialize": "", "finalize": "", "libs": [], "x": 360, "y": 180, "wires": [["ex8c_join"]]},
+    {"id": "ex8c_join", "type": "join", "z": "ex8c_tab", "name": "配列に戻す", "mode": "auto", "build": "array", "property": "payload", "propertyType": "msg", "key": "topic", "joiner": "\\n", "joinerType": "str", "accumulate": "false", "timeout": "", "count": "", "reduceRight": false, "reduceExp": "", "reduceInit": "", "reduceInitType": "", "reduceFixup": "", "x": 570, "y": 180, "wires": [["ex8c_debug"]]},
+    {"id": "ex8c_debug", "type": "debug", "z": "ex8c_tab", "name": "全員の一覧", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "statusVal": "", "statusType": "auto", "x": 760, "y": 180, "wires": []}
+]</div>
+            </details>
+        </div>
+
         <h2 id="section7">7. まとめ</h2>
 
         <div class="important">
