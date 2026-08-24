@@ -240,6 +240,24 @@
             <tr><td><strong>500</strong></td><td>Internal Server Error</td><td>サーバー内部エラー</td></tr>
         </table>
 
+        <h3>ステータスコード欄の使い分け</h3>
+        <p>欄を空にしておくと <code>msg.statusCode</code> が使われ、それも無ければ <strong>200</strong> が返ります。内容を見て自動で判断されるわけではありません。エラーを表す payload を返しても、設定しなければ 200 のままです。</p>
+
+        <table>
+            <tr><th>やりたいこと</th><th>設定</th></tr>
+            <tr><td>常に200でよい</td><td>欄は空のまま（何もしなくてよい）</td></tr>
+            <tr><td>常に同じ200以外を返す（201など）</td><td>欄に固定値を入れる</td></tr>
+            <tr><td>成功と失敗で返し分ける</td><td>欄は空にして <code>msg.statusCode</code> で決める</td></tr>
+        </table>
+
+        <div class="warning">
+            <strong>注意:</strong> 欄に値を入れると <code>msg.statusCode</code> より優先されます。Functionノードで404を設定しても、欄に200が入っていれば常に200で返ります。返し分けたいときは欄を空にしてください。
+        </div>
+
+        <div class="tip">
+            <strong>どこまで返し分けるか:</strong> ステータスコードは60種類以上ありますが、全部を使う必要はありません。上の表の200・400・404・500があれば社内向けAPIはたいてい足ります。呼び出し側が結果によって動きを変えないなら、200だけを返すフローでも構いません。返し分けが要るのは、ブラウザの <code>fetch</code>、HTTP Requestノードの分岐、監視ツールなど、<strong>受け取る側がコードを見て判断するとき</strong>です。
+        </div>
+
         <h2 id="section4">4. HTTP Request ノード</h2>
 
         <h3>主要プロパティ</h3>
