@@ -566,7 +566,7 @@ home/bedroom/temperature     → 22.0</div>
         "type": "function",
         "z": "mqtt_sample_tab",
         "name": "データ整形",
-        "func": "var parts = msg.topic.split('/');\nvar sensorType = parts[parts.length - 1];\n\nmsg.formatted = {\n    sensor: sensorType,\n    value: msg.payload,\n    topic: msg.topic,\n    timestamp: new Date().toISOString()\n};\n\nreturn msg;",
+        "func": "const parts = msg.topic.split('/');\nconst sensorType = parts[parts.length - 1];\n\nmsg.formatted = {\n    sensor: sensorType,\n    value: msg.payload,\n    topic: msg.topic,\n    timestamp: new Date().toISOString()\n};\n\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -1124,8 +1124,8 @@ home/bedroom/temperature     → 22.0</div>
                 <summary>💡 ヒント</summary>
                 <p><strong>定期発行:</strong> Inject ノードの repeat を 10 秒に設定</p>
                 <p><strong>ランダム値:</strong></p>
-                <div class="code-block">var temp = 20 + Math.random() * 10;
-var humidity = 40 + Math.random() * 40;
+                <div class="code-block">const temp = 20 + Math.random() * 10;
+const humidity = 40 + Math.random() * 40;
 msg.payload = JSON.stringify({temperature: temp.toFixed(1), humidity: Math.floor(humidity)});
 return msg;</div>
             </details>
@@ -1136,7 +1136,7 @@ return msg;</div>
     {"id": "ex4_tab", "type": "tab", "label": "演習4"},
     {"id": "ex4_broker", "type": "mqtt-broker", "name": "Public Broker", "broker": "test.mosquitto.org", "port": "1883", "tls": "", "clientid": "", "autoConnect": true, "usetls": false, "verifyservercert": false, "compatmode": false, "protocolVersion": "4", "keepalive": "60", "cleansession": true, "autoUnsubscribe": true, "birthTopic": "", "birthQos": "0", "birthRetain": "false", "birthPayload": "", "birthMsg": {}, "closeTopic": "", "closeQos": "0", "closeRetain": "false", "closePayload": "", "closeMsg": {}, "willTopic": "", "willQos": "0", "willRetain": "false", "willPayload": "", "willMsg": {}, "userProps": "", "sessionExpiry": 0},
     {"id": "ex4_inject", "type": "inject", "z": "ex4_tab", "name": "10秒ごと", "props": [{"p": "payload"}], "repeat": "10", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "", "payloadType": "date", "x": 160, "y": 100, "wires": [["ex4_func_sensor"]]},
-    {"id": "ex4_func_sensor", "type": "function", "z": "ex4_tab", "name": "センサー値生成", "func": "var temp = 20 + Math.random() * 10;\nvar humidity = 40 + Math.random() * 40;\nmsg.payload = JSON.stringify({deviceId: \"device001\", temperature: parseFloat(temp.toFixed(1)), humidity: Math.floor(humidity), timestamp: new Date().toISOString()});\nmsg.topic = \"yourname/device001/telemetry\";\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 370, "y": 100, "wires": [["ex4_mqtt_out", "ex4_debug_send"]]},
+    {"id": "ex4_func_sensor", "type": "function", "z": "ex4_tab", "name": "センサー値生成", "func": "const temp = 20 + Math.random() * 10;\nconst humidity = 40 + Math.random() * 40;\nmsg.payload = JSON.stringify({deviceId: \"device001\", temperature: parseFloat(temp.toFixed(1)), humidity: Math.floor(humidity), timestamp: new Date().toISOString()});\nmsg.topic = \"yourname/device001/telemetry\";\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 370, "y": 100, "wires": [["ex4_mqtt_out", "ex4_debug_send"]]},
     {"id": "ex4_mqtt_out", "type": "mqtt out", "z": "ex4_tab", "name": "Publish Telemetry", "topic": "", "qos": "1", "retain": "false", "respTopic": "", "contentType": "", "userProps": "", "correl": "", "expiry": "", "broker": "ex4_broker", "x": 590, "y": 100, "wires": []},
     {"id": "ex4_debug_send", "type": "debug", "z": "ex4_tab", "name": "送信データ", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "\"送信\"", "statusType": "str", "x": 570, "y": 140, "wires": []},
     {"id": "ex4_mqtt_in", "type": "mqtt in", "z": "ex4_tab", "name": "Subscribe Command", "topic": "yourname/device001/command", "qos": "1", "datatype": "utf8", "broker": "ex4_broker", "nl": false, "rap": true, "rh": 0, "inputs": 0, "x": 190, "y": 220, "wires": [["ex4_debug_cmd"]]},

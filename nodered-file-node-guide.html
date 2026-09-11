@@ -222,7 +222,7 @@ return msg;</div>
         "type": "function",
         "z": "file_sample_tab",
         "name": "タイムスタンプ追加",
-        "func": "var now = new Date().toISOString();\nmsg.payload = now + \" - \" + msg.payload;\nreturn msg;",
+        "func": "const now = new Date().toISOString();\nmsg.payload = now + \" - \" + msg.payload;\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -426,7 +426,7 @@ return msg;</div>
         "type": "function",
         "z": "file_sample_tab",
         "name": "日付別ファイル名",
-        "func": "var today = new Date().toISOString().slice(0, 10);\nmsg.filename = \"/tmp/events_\" + today + \".log\";\n\nvar timestamp = new Date().toISOString();\nmsg.payload = timestamp + \" | \" + msg.payload;\nreturn msg;",
+        "func": "const today = new Date().toISOString().slice(0, 10);\nmsg.filename = \"/tmp/events_\" + today + \".log\";\n\nconst timestamp = new Date().toISOString();\nmsg.payload = timestamp + \" | \" + msg.payload;\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -715,11 +715,11 @@ return msg;</div>
                 <div class="flow-json">[
     {"id": "ex4_tab", "type": "tab", "label": "演習4"},
     {"id": "ex4_inject", "type": "inject", "z": "ex4_tab", "name": "センサーデータ", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "25.5", "payloadType": "num", "x": 160, "y": 80, "wires": [["ex4_func_write"]]},
-    {"id": "ex4_func_write", "type": "function", "z": "ex4_tab", "name": "日付別ファイル名", "func": "var today = new Date().toISOString().slice(0,10);\nmsg.filename = \"/tmp/sensor_\" + today + \".log\";\nmsg.payload = new Date().toISOString() + \",\" + msg.payload;\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 350, "y": 80, "wires": [["ex4_file_write"]]},
+    {"id": "ex4_func_write", "type": "function", "z": "ex4_tab", "name": "日付別ファイル名", "func": "const today = new Date().toISOString().slice(0,10);\nmsg.filename = \"/tmp/sensor_\" + today + \".log\";\nmsg.payload = new Date().toISOString() + \",\" + msg.payload;\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 350, "y": 80, "wires": [["ex4_file_write"]]},
     {"id": "ex4_file_write", "type": "file", "z": "ex4_tab", "name": "ログ追記", "filename": "", "filenameType": "msg", "appendNewline": true, "createDir": true, "overwriteFile": "false", "encoding": "utf8", "x": 530, "y": 80, "wires": [["ex4_debug1"]]},
     {"id": "ex4_debug1", "type": "debug", "z": "ex4_tab", "name": "保存先", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "filename", "targetType": "msg", "statusVal": "filename", "statusType": "msg", "x": 690, "y": 80, "wires": []},
     {"id": "ex4_inject_del", "type": "inject", "z": "ex4_tab", "name": "古いファイル削除", "props": [], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "x": 170, "y": 160, "wires": [["ex4_func_del"]]},
-    {"id": "ex4_func_del", "type": "function", "z": "ex4_tab", "name": "7日前のファイル名", "func": "var d = new Date();\nd.setDate(d.getDate() - 7);\nvar oldDate = d.toISOString().slice(0,10);\nmsg.filename = \"/tmp/sensor_\" + oldDate + \".log\";\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 370, "y": 160, "wires": [["ex4_file_del"]]},
+    {"id": "ex4_func_del", "type": "function", "z": "ex4_tab", "name": "7日前のファイル名", "func": "const d = new Date();\nd.setDate(d.getDate() - 7);\nconst oldDate = d.toISOString().slice(0,10);\nmsg.filename = \"/tmp/sensor_\" + oldDate + \".log\";\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 370, "y": 160, "wires": [["ex4_file_del"]]},
     {"id": "ex4_file_del", "type": "file", "z": "ex4_tab", "name": "ファイル削除", "filename": "", "filenameType": "msg", "appendNewline": true, "createDir": false, "overwriteFile": "delete", "encoding": "utf8", "x": 550, "y": 160, "wires": [["ex4_debug2"]]},
     {"id": "ex4_debug2", "type": "debug", "z": "ex4_tab", "name": "削除結果", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "filename", "targetType": "msg", "statusVal": "\"削除試行\"", "statusType": "str", "x": 700, "y": 160, "wires": []}
 ]</div>

@@ -303,8 +303,8 @@ return msg;</div>
         </div>
 
         <div class="code-block">// Functionノード: Data URI形式に変換
-var mimeType = "image/png";  // 画像の種類に応じて変更
-var dataUri = "data:" + mimeType + ";base64," + msg.payload;
+const mimeType = "image/png";  // 画像の種類に応じて変更
+const dataUri = "data:" + mimeType + ";base64," + msg.payload;
 
 msg.payload = '&lt;img src="' + dataUri + '" alt="embedded image"&gt;';
 return msg;</div>
@@ -331,7 +331,7 @@ return msg;</div>
         </div>
 
         <div class="code-block">// 送信側Functionノード: センサーデータをバイナリパケットに
-var buf = Buffer.alloc(8);
+const buf = Buffer.alloc(8);
 buf.writeFloatLE(25.5, 0);   // 温度
 buf.writeFloatLE(60.2, 4);   // 湿度
 msg.payload = buf;
@@ -341,9 +341,9 @@ return msg;</div>
 
         <div class="code-block">// 受信側Functionノード: デコード後のバイナリパケットを解析
 // base64ノードでBuffer化済み
-var buf = msg.payload;
-var temp = buf.readFloatLE(0);
-var humidity = buf.readFloatLE(4);
+const buf = msg.payload;
+const temp = buf.readFloatLE(0);
+const humidity = buf.readFloatLE(4);
 
 msg.payload = {
     temperature: Math.round(temp * 10) / 10,
@@ -364,7 +364,7 @@ return msg;</div>
 
         <div class="code-block">// Functionノード: メール添付ファイルの処理
 if (msg.attachments &amp;&amp; msg.attachments.length > 0) {
-    var att = msg.attachments[0];
+    const att = msg.attachments[0];
     msg.payload = att.content;  // Base64文字列
     msg.filename = "/tmp/" + att.fileName;
     return msg;
@@ -613,7 +613,7 @@ return null;</div>
         "type": "function",
         "z": "base64_tab_1",
         "name": "Data URI HTML生成",
-        "func": "var ext = (msg.filename || '').split('.').pop().toLowerCase();\nvar mimeMap = { 'png': 'image/png', 'jpg': 'image/jpeg', 'jpeg': 'image/jpeg', 'gif': 'image/gif' };\nvar mime = mimeMap[ext] || 'image/png';\n\nvar dataUri = 'data:' + mime + ';base64,' + msg.payload;\nmsg.payload = '&lt;html>&lt;body>&lt;h2>Base64埋め込み画像&lt;/h2>&lt;img src=\"' + dataUri + '\" style=\"max-width:400px\">&lt;/body>&lt;/html>';\nreturn msg;",
+        "func": "const ext = (msg.filename || '').split('.').pop().toLowerCase();\nconst mimeMap = { 'png': 'image/png', 'jpg': 'image/jpeg', 'jpeg': 'image/jpeg', 'gif': 'image/gif' };\nconst mime = mimeMap[ext] || 'image/png';\n\nconst dataUri = 'data:' + mime + ';base64,' + msg.payload;\nmsg.payload = '&lt;html>&lt;body>&lt;h2>Base64埋め込み画像&lt;/h2>&lt;img src=\"' + dataUri + '\" style=\"max-width:400px\">&lt;/body>&lt;/html>';\nreturn msg;",
         "wires": [
             [
                 "b64_ex2_debug"
@@ -695,7 +695,7 @@ return null;</div>
         "type": "function",
         "z": "base64_tab_2",
         "name": "バイナリパック",
-        "func": "var buf = Buffer.alloc(12);\nbuf.writeFloatLE(25.5, 0);    // 温度\nbuf.writeFloatLE(60.2, 4);    // 湿度\nbuf.writeFloatLE(1013.25, 8); // 気圧\nmsg.payload = buf;\nreturn msg;",
+        "func": "const buf = Buffer.alloc(12);\nbuf.writeFloatLE(25.5, 0);    // 温度\nbuf.writeFloatLE(60.2, 4);    // 湿度\nbuf.writeFloatLE(1013.25, 8); // 気圧\nmsg.payload = buf;\nreturn msg;",
         "wires": [
             [
                 "b64_ex3_encode"
@@ -743,7 +743,7 @@ return null;</div>
         "type": "function",
         "z": "base64_tab_2",
         "name": "バイナリ解析",
-        "func": "var buf = msg.payload;\nmsg.payload = {\n    temperature: Math.round(buf.readFloatLE(0) * 10) / 10,\n    humidity: Math.round(buf.readFloatLE(4) * 10) / 10,\n    pressure: Math.round(buf.readFloatLE(8) * 100) / 100\n};\nreturn msg;",
+        "func": "const buf = msg.payload;\nmsg.payload = {\n    temperature: Math.round(buf.readFloatLE(0) * 10) / 10,\n    humidity: Math.round(buf.readFloatLE(4) * 10) / 10,\n    pressure: Math.round(buf.readFloatLE(8) * 100) / 100\n};\nreturn msg;",
         "wires": [
             [
                 "b64_ex3_debug_dec"

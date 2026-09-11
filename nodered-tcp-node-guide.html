@@ -274,7 +274,7 @@
         "type": "function",
         "z": "tcp_sample_tab",
         "name": "エコー処理",
-        "func": "// 受信データに情報を追加して返信\nvar received = msg.payload;\nvar clientInfo = msg.ip + \":\" + msg.port;\n\nnode.status({fill: \"green\", shape: \"dot\", text: clientInfo});\n\nmsg.payload = \"[Echo] \" + received + \" (from \" + clientInfo + \")\\n\";\n\nreturn msg;",
+        "func": "// 受信データに情報を追加して返信\nconst received = msg.payload;\nconst clientInfo = msg.ip + \":\" + msg.port;\n\nnode.status({fill: \"green\", shape: \"dot\", text: clientInfo});\n\nmsg.payload = \"[Echo] \" + received + \" (from \" + clientInfo + \")\\n\";\n\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -412,7 +412,7 @@
         "type": "function",
         "z": "tcp_sample_tab",
         "name": "JSON処理",
-        "func": "try {\n    // 受信データをJSONとしてパース\n    var data = JSON.parse(msg.payload);\n    \n    // 処理結果を作成\n    var response = {\n        status: \"success\",\n        received: data,\n        processed: true,\n        timestamp: new Date().toISOString()\n    };\n    \n    msg.payload = JSON.stringify(response) + \"\\n\";\n} catch(e) {\n    msg.payload = JSON.stringify({status: \"error\", message: \"Invalid JSON\"}) + \"\\n\";\n}\n\nreturn msg;",
+        "func": "try {\n    // 受信データをJSONとしてパース\n    const data = JSON.parse(msg.payload);\n    \n    // 処理結果を作成\n    const response = {\n        status: \"success\",\n        received: data,\n        processed: true,\n        timestamp: new Date().toISOString()\n    };\n    \n    msg.payload = JSON.stringify(response) + \"\\n\";\n} catch(e) {\n    msg.payload = JSON.stringify({status: \"error\", message: \"Invalid JSON\"}) + \"\\n\";\n}\n\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -538,7 +538,7 @@
         "type": "function",
         "z": "tcp_sample_tab",
         "name": "接続管理",
-        "func": "// クライアント情報を取得\nvar clientId = msg.ip + \":\" + msg.port;\nvar session = msg._session;\n\n// 接続リストを管理\nvar clients = flow.get('tcpClients') || {};\n\nif (msg.payload === '') {\n    // 空データは切断を意味することがある\n    delete clients[session];\n    node.warn(\"Client disconnected: \" + clientId);\n} else {\n    // 接続中のクライアントを記録\n    clients[session] = {\n        ip: msg.ip,\n        port: msg.port,\n        lastSeen: new Date().toISOString()\n    };\n}\n\nflow.set('tcpClients', clients);\nnode.status({fill: \"blue\", shape: \"dot\", text: Object.keys(clients).length + \" clients\"});\n\nmsg.payload = \"Welcome! You are: \" + clientId + \"\\n\";\nreturn msg;",
+        "func": "// クライアント情報を取得\nconst clientId = msg.ip + \":\" + msg.port;\nconst session = msg._session;\n\n// 接続リストを管理\nconst clients = flow.get('tcpClients') || {};\n\nif (msg.payload === '') {\n    // 空データは切断を意味することがある\n    delete clients[session];\n    node.warn(\"Client disconnected: \" + clientId);\n} else {\n    // 接続中のクライアントを記録\n    clients[session] = {\n        ip: msg.ip,\n        port: msg.port,\n        lastSeen: new Date().toISOString()\n    };\n}\n\nflow.set('tcpClients', clients);\nnode.status({fill: \"blue\", shape: \"dot\", text: Object.keys(clients).length + \" clients\"});\n\nmsg.payload = \"Welcome! You are: \" + clientId + \"\\n\";\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -757,7 +757,7 @@ Hello Server!
             <details>
                 <summary>💡 ヒント</summary>
                 <p><strong>Function ノード:</strong></p>
-                <div class="code-block">var timestamp = new Date().toISOString();
+                <div class="code-block">const timestamp = new Date().toISOString();
 msg.payload = "[" + timestamp + "] " + msg.payload;
 return msg;</div>
             </details>
@@ -767,7 +767,7 @@ return msg;</div>
                 <div class="flow-json">[
     {"id": "ex2_tab", "type": "tab", "label": "演習2"},
     {"id": "ex2_tcp_in", "type": "tcp in", "z": "ex2_tab", "name": "TCP Server :9101", "server": "server", "host": "", "port": "9101", "datamode": "stream", "datatype": "utf8", "newline": "", "topic": "", "trim": false, "base64": false, "tls": "", "x": 180, "y": 100, "wires": [["ex2_func"]]},
-    {"id": "ex2_func", "type": "function", "z": "ex2_tab", "name": "時刻追加", "func": "var timestamp = new Date().toISOString();\nmsg.payload = \"[\" + timestamp + \"] \" + msg.payload + \"\\n\";\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 390, "y": 100, "wires": [["ex2_tcp_out"]]},
+    {"id": "ex2_func", "type": "function", "z": "ex2_tab", "name": "時刻追加", "func": "const timestamp = new Date().toISOString();\nmsg.payload = \"[\" + timestamp + \"] \" + msg.payload + \"\\n\";\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 390, "y": 100, "wires": [["ex2_tcp_out"]]},
     {"id": "ex2_tcp_out", "type": "tcp out", "z": "ex2_tab", "name": "Reply", "host": "", "port": "", "beserver": "reply", "base64": false, "end": false, "tls": "", "x": 570, "y": 100, "wires": []}
 ]</div>
             </details>
@@ -814,15 +814,15 @@ return msg;</div>
             <details>
                 <summary>💡 ヒント</summary>
                 <p><strong>Function ノード:</strong></p>
-                <div class="code-block">var cmd = msg.payload.trim().toUpperCase();
-var parts = msg.payload.trim().split(' ');
+                <div class="code-block">const cmd = msg.payload.trim().toUpperCase();
+const parts = msg.payload.trim().split(' ');
 
 if (cmd === 'TIME') {
     msg.payload = new Date().toISOString();
 } else if (cmd === 'PING') {
     msg.payload = 'PONG';
 } else if (parts[0].toUpperCase() === 'HELLO') {
-    var name = parts[1] || 'Guest';
+    const name = parts[1] || 'Guest';
     msg.payload = 'Hello, ' + name + '!';
 } else {
     msg.payload = 'Unknown command';
@@ -836,7 +836,7 @@ return msg;</div>
                 <div class="flow-json">[
     {"id": "ex3_tab", "type": "tab", "label": "演習3"},
     {"id": "ex3_tcp_in", "type": "tcp in", "z": "ex3_tab", "name": "TCP Server :9102", "server": "server", "host": "", "port": "9102", "datamode": "stream", "datatype": "utf8", "newline": "", "topic": "", "trim": false, "base64": false, "tls": "", "x": 180, "y": 100, "wires": [["ex3_func"]]},
-    {"id": "ex3_func", "type": "function", "z": "ex3_tab", "name": "コマンド処理", "func": "var cmd = msg.payload.trim().toUpperCase();\nvar parts = msg.payload.trim().split(' ');\n\nif (cmd === 'TIME') {\n    msg.payload = new Date().toISOString();\n} else if (cmd === 'PING') {\n    msg.payload = 'PONG';\n} else if (parts[0].toUpperCase() === 'HELLO') {\n    var name = parts[1] || 'Guest';\n    msg.payload = 'Hello, ' + name + '!';\n} else {\n    msg.payload = 'Unknown command';\n}\nmsg.payload += '\\n';\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 400, "y": 100, "wires": [["ex3_tcp_out"]]},
+    {"id": "ex3_func", "type": "function", "z": "ex3_tab", "name": "コマンド処理", "func": "const cmd = msg.payload.trim().toUpperCase();\nconst parts = msg.payload.trim().split(' ');\n\nif (cmd === 'TIME') {\n    msg.payload = new Date().toISOString();\n} else if (cmd === 'PING') {\n    msg.payload = 'PONG';\n} else if (parts[0].toUpperCase() === 'HELLO') {\n    const name = parts[1] || 'Guest';\n    msg.payload = 'Hello, ' + name + '!';\n} else {\n    msg.payload = 'Unknown command';\n}\nmsg.payload += '\\n';\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 400, "y": 100, "wires": [["ex3_tcp_out"]]},
     {"id": "ex3_tcp_out", "type": "tcp out", "z": "ex3_tab", "name": "Reply", "host": "", "port": "", "beserver": "reply", "base64": false, "end": false, "tls": "", "x": 590, "y": 100, "wires": []}
 ]</div>
             </details>
@@ -892,12 +892,12 @@ return msg;</div>
     {"id": "ex4_tab", "type": "tab", "label": "演習4"},
     {"id": "ex4_comment1", "type": "comment", "z": "ex4_tab", "name": "【サーバー】", "info": "", "x": 130, "y": 40, "wires": []},
     {"id": "ex4_tcp_in", "type": "tcp in", "z": "ex4_tab", "name": "TCP Server :9103", "server": "server", "host": "", "port": "9103", "datamode": "stream", "datatype": "utf8", "newline": "\\n", "topic": "", "trim": false, "base64": false, "tls": "", "x": 180, "y": 100, "wires": [["ex4_func_server"]]},
-    {"id": "ex4_func_server", "type": "function", "z": "ex4_tab", "name": "JSONパース", "func": "try {\n    var data = JSON.parse(msg.payload);\n    node.status({fill: \"green\", shape: \"dot\", text: data.sensor + \": \" + data.value});\n    msg.payload = JSON.stringify({status: \"received\", data: data}) + \"\\n\";\n} catch(e) {\n    msg.payload = JSON.stringify({status: \"error\"}) + \"\\n\";\n}\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 400, "y": 100, "wires": [["ex4_tcp_out", "ex4_debug_server"]]},
+    {"id": "ex4_func_server", "type": "function", "z": "ex4_tab", "name": "JSONパース", "func": "try {\n    const data = JSON.parse(msg.payload);\n    node.status({fill: \"green\", shape: \"dot\", text: data.sensor + \": \" + data.value});\n    msg.payload = JSON.stringify({status: \"received\", data: data}) + \"\\n\";\n} catch(e) {\n    msg.payload = JSON.stringify({status: \"error\"}) + \"\\n\";\n}\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 400, "y": 100, "wires": [["ex4_tcp_out", "ex4_debug_server"]]},
     {"id": "ex4_tcp_out", "type": "tcp out", "z": "ex4_tab", "name": "Reply", "host": "", "port": "", "beserver": "reply", "base64": false, "end": false, "tls": "", "x": 590, "y": 100, "wires": []},
     {"id": "ex4_debug_server", "type": "debug", "z": "ex4_tab", "name": "サーバー処理", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "x": 610, "y": 140, "wires": []},
     {"id": "ex4_comment2", "type": "comment", "z": "ex4_tab", "name": "【クライアント】", "info": "", "x": 140, "y": 200, "wires": []},
     {"id": "ex4_inject", "type": "inject", "z": "ex4_tab", "name": "5秒ごと", "props": [{"p": "payload"}], "repeat": "5", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "", "payloadType": "date", "x": 150, "y": 260, "wires": [["ex4_func_client"]]},
-    {"id": "ex4_func_client", "type": "function", "z": "ex4_tab", "name": "センサーデータ生成", "func": "var temp = (20 + Math.random() * 10).toFixed(1);\nmsg.payload = JSON.stringify({\n    sensor: \"temperature\",\n    value: parseFloat(temp),\n    timestamp: new Date().toISOString()\n}) + \"\\n\";\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 380, "y": 260, "wires": [["ex4_tcp_request"]]},
+    {"id": "ex4_func_client", "type": "function", "z": "ex4_tab", "name": "センサーデータ生成", "func": "const temp = (20 + Math.random() * 10).toFixed(1);\nmsg.payload = JSON.stringify({\n    sensor: \"temperature\",\n    value: parseFloat(temp),\n    timestamp: new Date().toISOString()\n}) + \"\\n\";\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 380, "y": 260, "wires": [["ex4_tcp_request"]]},
     {"id": "ex4_tcp_request", "type": "tcp request", "z": "ex4_tab", "name": "TCP Request", "server": "localhost", "port": "9103", "out": "char", "ret": "string", "splitc": "\\n", "newline": "", "trim": false, "tls": "", "x": 590, "y": 260, "wires": [["ex4_debug_client"]]},
     {"id": "ex4_debug_client", "type": "debug", "z": "ex4_tab", "name": "クライアント受信", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "\"送受信完了\"", "statusType": "str", "x": 790, "y": 260, "wires": []}
 ]</div>

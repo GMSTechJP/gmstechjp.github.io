@@ -523,10 +523,10 @@ return msg;</div>
 
         <h4>受信メールの解析</h4>
         <div class="code-block">// Functionノードで受信メールを解析
-var subject = msg.topic;
-var from = msg.from;
-var body = msg.payload;
-var date = msg.date;
+const subject = msg.topic;
+const from = msg.from;
+const body = msg.payload;
+const date = msg.date;
 
 node.warn("件名: " + subject);
 node.warn("送信者: " + from);
@@ -657,16 +657,16 @@ return msg;</div>
         </div>
 
         <div class="code-block">// Functionノード: 日次レポートデータの整形
-var now = new Date();
-var dateStr = now.toLocaleDateString('ja-JP');
+const now = new Date();
+const dateStr = now.toLocaleDateString('ja-JP');
 
 msg.to = "team@example.com";
 msg.topic = "日次レポート - " + dateStr;
 
 // CSV添付ファイルを作成
-var csvData = "時刻,温度,湿度,気圧\n";
+let csvData = "時刻,温度,湿度,気圧\n";
 // flow.get("dailyData") からデータを取得する例
-var data = flow.get("dailyData") || [];
+const data = flow.get("dailyData") || [];
 data.forEach(function(row) {
     csvData += row.time + "," + row.temp + "," + row.humidity + "," + row.pressure + "\n";
 });
@@ -699,7 +699,7 @@ return msg;</div>
 // それ以外 → 出力3
 
 // Functionノード: ステータス確認コマンド
-var status = {
+const status = {
     uptime: process.uptime(),
     memory: process.memoryUsage(),
     timestamp: new Date().toLocaleString('ja-JP')
@@ -725,9 +725,9 @@ return msg;</div>
         </div>
 
         <div class="code-block">// Functionノード: 5分間に1回のみ送信
-var lastSent = context.get("lastSent") || 0;
-var now = Date.now();
-var interval = 5 * 60 * 1000; // 5分
+const lastSent = context.get("lastSent") || 0;
+const now = Date.now();
+const interval = 5 * 60 * 1000; // 5分
 
 if (now - lastSent > interval) {
     context.set("lastSent", now);
@@ -975,7 +975,7 @@ if (now - lastSent > interval) {
         "type": "function",
         "z": "email_node_guide_tab_1",
         "name": "アラートメール作成",
-        "func": "var lastSent = context.get('lastSent') || 0;\nvar now = Date.now();\nvar interval = 5 * 60 * 1000;\n\nif (now - lastSent > interval) {\n    context.set('lastSent', now);\n    var temp = msg.payload;\n    msg.to = 'admin@example.com';\n    msg.topic = '[ALERT] 温度異常: ' + temp + '°C';\n    msg.payload = '&lt;h2 style=\"color:red\">温度アラート&lt;/h2>' +\n        '&lt;p>センサーの温度が閾値を超えました。&lt;/p>' +\n        '&lt;ul>' +\n        '&lt;li>現在温度: &lt;strong>' + temp + '°C&lt;/strong>&lt;/li>' +\n        '&lt;li>閾値: 50°C&lt;/li>' +\n        '&lt;li>検知時刻: ' + new Date().toLocaleString('ja-JP') + '&lt;/li>' +\n        '&lt;/ul>' +\n        '&lt;hr>&lt;p style=\"color:gray\">このメールはNode-REDから自動送信されています。&lt;/p>';\n    return msg;\n}\nreturn null;",
+        "func": "const lastSent = context.get('lastSent') || 0;\nconst now = Date.now();\nconst interval = 5 * 60 * 1000;\n\nif (now - lastSent > interval) {\n    context.set('lastSent', now);\n    const temp = msg.payload;\n    msg.to = 'admin@example.com';\n    msg.topic = '[ALERT] 温度異常: ' + temp + '°C';\n    msg.payload = '&lt;h2 style=\"color:red\">温度アラート&lt;/h2>' +\n        '&lt;p>センサーの温度が閾値を超えました。&lt;/p>' +\n        '&lt;ul>' +\n        '&lt;li>現在温度: &lt;strong>' + temp + '°C&lt;/strong>&lt;/li>' +\n        '&lt;li>閾値: 50°C&lt;/li>' +\n        '&lt;li>検知時刻: ' + new Date().toLocaleString('ja-JP') + '&lt;/li>' +\n        '&lt;/ul>' +\n        '&lt;hr>&lt;p style=\"color:gray\">このメールはNode-REDから自動送信されています。&lt;/p>';\n    return msg;\n}\nreturn null;",
         "outputs": 1,
         "wires": [
             [
@@ -1117,7 +1117,7 @@ if (now - lastSent > interval) {
         "type": "function",
         "z": "email_node_guide_tab_2",
         "name": "ステータス返信",
-        "func": "var uptime = process.uptime();\nvar hours = Math.floor(uptime / 3600);\nvar mins = Math.floor((uptime % 3600) / 60);\nvar mem = process.memoryUsage();\n\nmsg.to = msg.from;\nmsg.topic = 'Re: ' + msg.topic;\nmsg.payload = 'システムステータスレポート\\n' +\n    '========================\\n' +\n    '稼働時間: ' + hours + '時間' + mins + '分\\n' +\n    'メモリ使用量: ' + Math.floor(mem.heapUsed / 1024 / 1024) + 'MB / ' + Math.floor(mem.heapTotal / 1024 / 1024) + 'MB\\n' +\n    '確認時刻: ' + new Date().toLocaleString('ja-JP');\nreturn msg;",
+        "func": "const uptime = process.uptime();\nconst hours = Math.floor(uptime / 3600);\nconst mins = Math.floor((uptime % 3600) / 60);\nconst mem = process.memoryUsage();\n\nmsg.to = msg.from;\nmsg.topic = 'Re: ' + msg.topic;\nmsg.payload = 'システムステータスレポート\\n' +\n    '========================\\n' +\n    '稼働時間: ' + hours + '時間' + mins + '分\\n' +\n    'メモリ使用量: ' + Math.floor(mem.heapUsed / 1024 / 1024) + 'MB / ' + Math.floor(mem.heapTotal / 1024 / 1024) + 'MB\\n' +\n    '確認時刻: ' + new Date().toLocaleString('ja-JP');\nreturn msg;",
         "wires": [
             [
                 "email_ex3_send"
@@ -1129,7 +1129,7 @@ if (now - lastSent > interval) {
         "type": "function",
         "z": "email_node_guide_tab_2",
         "name": "レポート返信",
-        "func": "var data = flow.get('sensorData') || [\n    {time: '10:00', temp: 25.3, humidity: 60},\n    {time: '11:00', temp: 26.1, humidity: 58},\n    {time: '12:00', temp: 27.5, humidity: 55}\n];\n\nvar csv = '時刻,温度,湿度\\n';\ndata.forEach(function(row) {\n    csv += row.time + ',' + row.temp + ',' + row.humidity + '\\n';\n});\n\nmsg.to = msg.from;\nmsg.topic = 'Re: ' + msg.topic;\nmsg.payload = '計測データレポートを添付します。';\nmsg.attachments = [{\n    filename: 'report_' + new Date().toISOString().slice(0,10) + '.csv',\n    content: csv,\n    contentType: 'text/csv'\n}];\nreturn msg;",
+        "func": "const data = flow.get('sensorData') || [\n    {time: '10:00', temp: 25.3, humidity: 60},\n    {time: '11:00', temp: 26.1, humidity: 58},\n    {time: '12:00', temp: 27.5, humidity: 55}\n];\n\nlet csv = '時刻,温度,湿度\\n';\ndata.forEach(function(row) {\n    csv += row.time + ',' + row.temp + ',' + row.humidity + '\\n';\n});\n\nmsg.to = msg.from;\nmsg.topic = 'Re: ' + msg.topic;\nmsg.payload = '計測データレポートを添付します。';\nmsg.attachments = [{\n    filename: 'report_' + new Date().toISOString().slice(0,10) + '.csv',\n    content: csv,\n    contentType: 'text/csv'\n}];\nreturn msg;",
         "wires": [
             [
                 "email_ex3_send"

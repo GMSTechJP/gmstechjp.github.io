@@ -611,7 +611,7 @@
         "type": "function",
         "z": "udp_sample_tab",
         "name": "エコー処理",
-        "func": "// 送信元情報を保持（返信用）\nvar replyTo = {\n    ip: msg.ip,\n    port: msg.port\n};\n\n// エコー応答を作成\nmsg.payload = \"[ECHO] \" + msg.payload;\n\n// 返信先を設定\nmsg.ip = replyTo.ip;\nmsg.port = replyTo.port;\n\nnode.status({fill: \"blue\", shape: \"dot\", text: \"Reply to \" + replyTo.ip});\nreturn msg;",
+        "func": "// 送信元情報を保持（返信用）\nconst replyTo = {\n    ip: msg.ip,\n    port: msg.port\n};\n\n// エコー応答を作成\nmsg.payload = \"[ECHO] \" + msg.payload;\n\n// 返信先を設定\nmsg.ip = replyTo.ip;\nmsg.port = replyTo.port;\n\nnode.status({fill: \"blue\", shape: \"dot\", text: \"Reply to \" + replyTo.ip});\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -687,7 +687,7 @@
         "type": "function",
         "z": "udp_sample_tab",
         "name": "センサーデータ生成",
-        "func": "var temp = (20 + Math.random() * 10).toFixed(1);\nvar humidity = Math.floor(40 + Math.random() * 40);\n\nmsg.payload = JSON.stringify({\n    deviceId: \"sensor-001\",\n    temperature: parseFloat(temp),\n    humidity: humidity,\n    timestamp: new Date().toISOString()\n});\n\nnode.status({fill: \"green\", shape: \"dot\", text: temp + \"°C\"});\nreturn msg;",
+        "func": "const temp = (20 + Math.random() * 10).toFixed(1);\nconst humidity = Math.floor(40 + Math.random() * 40);\n\nmsg.payload = JSON.stringify({\n    deviceId: \"sensor-001\",\n    temperature: parseFloat(temp),\n    humidity: humidity,\n    timestamp: new Date().toISOString()\n});\n\nnode.status({fill: \"green\", shape: \"dot\", text: temp + \"°C\"});\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -1001,8 +1001,8 @@ nc -ul 8000</div>
             <details>
                 <summary>💡 ヒント</summary>
                 <p><strong>Function ノード:</strong></p>
-                <div class="code-block">var data = JSON.parse(msg.payload);
-var devices = flow.get('devices') || {};
+                <div class="code-block">const data = JSON.parse(msg.payload);
+const devices = flow.get('devices') || {};
 
 devices[data.deviceId] = {
     value: data.value,
@@ -1020,7 +1020,7 @@ return msg;</div>
                 <div class="flow-json">[
     {"id": "ex3_tab", "type": "tab", "label": "演習3"},
     {"id": "ex3_udp_in", "type": "udp in", "z": "ex3_tab", "name": "UDP In :9002", "iface": "", "port": "9002", "ipv": "udp4", "multicast": "false", "group": "", "datatype": "utf8", "x": 170, "y": 100, "wires": [["ex3_func"]]},
-    {"id": "ex3_func", "type": "function", "z": "ex3_tab", "name": "データ集約", "func": "try {\n    var data = JSON.parse(msg.payload);\n    var devices = flow.get('devices') || {};\n    \n    devices[data.deviceId] = {\n        value: data.value,\n        lastSeen: new Date().toISOString(),\n        ip: msg.ip\n    };\n    \n    flow.set('devices', devices);\n    msg.devices = devices;\n    \n    node.status({fill: \"green\", shape: \"dot\", text: Object.keys(devices).length + \" devices\"});\n} catch(e) {\n    msg.error = e.message;\n    node.status({fill: \"red\", shape: \"ring\", text: \"Error\"});\n}\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 370, "y": 100, "wires": [["ex3_debug"]]},
+    {"id": "ex3_func", "type": "function", "z": "ex3_tab", "name": "データ集約", "func": "try {\n    const data = JSON.parse(msg.payload);\n    const devices = flow.get('devices') || {};\n    \n    devices[data.deviceId] = {\n        value: data.value,\n        lastSeen: new Date().toISOString(),\n        ip: msg.ip\n    };\n    \n    flow.set('devices', devices);\n    msg.devices = devices;\n    \n    node.status({fill: \"green\", shape: \"dot\", text: Object.keys(devices).length + \" devices\"});\n} catch(e) {\n    msg.error = e.message;\n    node.status({fill: \"red\", shape: \"ring\", text: \"Error\"});\n}\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 370, "y": 100, "wires": [["ex3_debug"]]},
     {"id": "ex3_debug", "type": "debug", "z": "ex3_tab", "name": "デバイス一覧", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "devices", "targetType": "msg", "x": 570, "y": 100, "wires": []},
     {"id": "ex3_inject1", "type": "inject", "z": "ex3_tab", "name": "dev-001", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "{\"deviceId\":\"dev-001\",\"value\":25}", "payloadType": "str", "x": 160, "y": 200, "wires": [["ex3_udp_out"]]},
     {"id": "ex3_inject2", "type": "inject", "z": "ex3_tab", "name": "dev-002", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "{\"deviceId\":\"dev-002\",\"value\":30}", "payloadType": "str", "x": 160, "y": 240, "wires": [["ex3_udp_out"]]},
@@ -1084,9 +1084,9 @@ return msg;</div>
     {"id": "ex4_comment2", "type": "comment", "z": "ex4_tab", "name": "【デバイス側（応答）】", "info": "", "x": 160, "y": 200, "wires": []},
     {"id": "ex4_udp_in", "type": "udp in", "z": "ex4_tab", "name": "UDP In :9003", "iface": "", "port": "9003", "ipv": "udp4", "multicast": "false", "group": "", "datatype": "utf8", "x": 170, "y": 260, "wires": [["ex4_switch"]]},
     {"id": "ex4_switch", "type": "switch", "z": "ex4_tab", "name": "DISCOVER判定", "property": "payload", "propertyType": "msg", "rules": [{"t": "eq", "v": "DISCOVER", "vt": "str"}, {"t": "else"}], "checkall": "false", "repair": false, "outputs": 2, "x": 380, "y": 260, "wires": [["ex4_func_response"], ["ex4_func_collect"]]},
-    {"id": "ex4_func_response", "type": "function", "z": "ex4_tab", "name": "デバイス情報返信", "func": "// デバイス情報を作成\nvar deviceInfo = JSON.stringify({\n    type: \"DEVICE_INFO\",\n    deviceId: \"my-device-\" + Math.floor(Math.random() * 1000),\n    name: \"Node-RED Device\",\n    timestamp: new Date().toISOString()\n});\n\nmsg.payload = deviceInfo;\n// msg.ip と msg.port は保持されている\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 620, "y": 240, "wires": [["ex4_udp_reply"]]},
+    {"id": "ex4_func_response", "type": "function", "z": "ex4_tab", "name": "デバイス情報返信", "func": "// デバイス情報を作成\nconst deviceInfo = JSON.stringify({\n    type: \"DEVICE_INFO\",\n    deviceId: \"my-device-\" + Math.floor(Math.random() * 1000),\n    name: \"Node-RED Device\",\n    timestamp: new Date().toISOString()\n});\n\nmsg.payload = deviceInfo;\n// msg.ip と msg.port は保持されている\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 620, "y": 240, "wires": [["ex4_udp_reply"]]},
     {"id": "ex4_udp_reply", "type": "udp out", "z": "ex4_tab", "name": "Reply", "addr": "", "iface": "", "port": "", "ipv": "udp4", "outport": "", "base64": false, "multicast": "false", "x": 810, "y": 240, "wires": []},
-    {"id": "ex4_func_collect", "type": "function", "z": "ex4_tab", "name": "応答収集", "func": "try {\n    var data = JSON.parse(msg.payload);\n    if (data.type === \"DEVICE_INFO\") {\n        var devices = flow.get('discoveredDevices') || {};\n        devices[data.deviceId] = {\n            name: data.name,\n            ip: msg.ip,\n            timestamp: data.timestamp\n        };\n        flow.set('discoveredDevices', devices);\n        msg.devices = devices;\n        node.status({fill: \"green\", shape: \"dot\", text: Object.keys(devices).length + \" found\"});\n        return msg;\n    }\n} catch(e) {}\nreturn null;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 600, "y": 280, "wires": [["ex4_debug"]]},
+    {"id": "ex4_func_collect", "type": "function", "z": "ex4_tab", "name": "応答収集", "func": "try {\n    const data = JSON.parse(msg.payload);\n    if (data.type === \"DEVICE_INFO\") {\n        const devices = flow.get('discoveredDevices') || {};\n        devices[data.deviceId] = {\n            name: data.name,\n            ip: msg.ip,\n            timestamp: data.timestamp\n        };\n        flow.set('discoveredDevices', devices);\n        msg.devices = devices;\n        node.status({fill: \"green\", shape: \"dot\", text: Object.keys(devices).length + \" found\"});\n        return msg;\n    }\n} catch(e) {}\nreturn null;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 600, "y": 280, "wires": [["ex4_debug"]]},
     {"id": "ex4_debug", "type": "debug", "z": "ex4_tab", "name": "発見デバイス", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "devices", "targetType": "msg", "x": 790, "y": 280, "wires": []}
 ]</div>
             </details>
