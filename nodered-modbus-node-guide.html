@@ -379,6 +379,7 @@ return msg;</div>
             <span class="node node-debug">chart</span>
         </div>
         <p>Modbus-Read で温度センサー（Input Register）を 5 秒ごとに読み、Function で実値にスケーリング（例: 生値 ÷ 10）して、Dashboard のチャートへ。最も典型的な構成です。</p>
+        <p><strong>用途:</strong> 温度センサーなど計測値の定期収集とダッシュボード表示</p>
 
         <h3>パターン2: ボタン操作で機器を起動/停止（書込）</h3>
         <div class="node-example">
@@ -389,9 +390,11 @@ return msg;</div>
             <span class="node node-debug">debug</span>
         </div>
         <p>Dashboard のボタンやスイッチで <code>msg.payload = true</code> を送り、Modbus-Write（FC5）で Coil を ON/OFF。装置の起動・停止やリレー（電気信号でON/OFFを切り替える部品）制御に。</p>
+        <p><strong>用途:</strong> ボタン操作による装置の起動・停止、リレー制御</p>
 
         <h3>パターン3: 状態を要求時に確認（Getter）</h3>
         <p>「画面を開いたときだけ現在値を取りたい」「他の処理の途中で 1 回だけ読みたい」場合は、Modbus-Read（常時ポーリング）ではなく <strong>Modbus-Getter</strong> をトリガ起動で使います。通信量を抑えられます。</p>
+        <p><strong>用途:</strong> 画面表示時や処理の合間に1回だけ状態を確認する要求時読取</p>
 
         <div class="tip">
             <strong>💡 読み取った値はどこに入る？</strong><br>
@@ -440,6 +443,7 @@ diagslave -m tcp -p 10502</div>
             <li><strong>② 要求時読取</strong>: inject で叩いた時だけ Input Register を 2 ワード読む（Modbus-Getter / FC4）</li>
             <li><strong>③ 書込</strong>: <code>[111, 222]</code> を Holding Register に書く（Modbus-Write / FC16）</li>
         </ul>
+        <p><strong>💼 使いどころ:</strong> 定期読取・要求時読取・書込という3つの基本パターンを1つのフローで一通り確認する場面で使います。</p>
 
         <details>
             <summary>📥 サンプルフローJSON（クリックで展開）</summary>
@@ -734,6 +738,7 @@ diagslave -m tcp -p 10502</div>
         <div class="exercise">
             <h3>演習1: ポーリング間隔を変える <span class="difficulty difficulty-easy">初級</span></h3>
             <p>サンプルの Modbus-Read の <strong>Poll Rate</strong> を「5 秒」から「2 秒」に変更し、Debug の出力頻度が上がることを確認してください。</p>
+            <p><strong>💼 使いどころ:</strong> 値の変化を早く捉えたいときや通信負荷を抑えたいときに、読み取り間隔を調整する場面で使います。</p>
             <details>
                 <summary>ヒント</summary>
                 <p>Modbus-Read をダブルクリック → <strong>Poll Rate</strong> の数値を 2、単位を <code>second(s)</code> に。デプロイ後、Debug サイドバーの出力間隔を見ます。</p>
@@ -743,6 +748,7 @@ diagslave -m tcp -p 10502</div>
         <div class="exercise">
             <h3>演習2: 別のアドレスを読む <span class="difficulty difficulty-medium">中級</span></h3>
             <p>Modbus-Getter の <strong>Address</strong> を 0 から 10 に、<strong>Quantity</strong> を 2 から 5 に変更し、Input Register の 10〜14 番地を読み取ってください。シミュレータ側にその範囲の値を用意しておきましょう。</p>
+            <p><strong>💼 使いどころ:</strong> 機器のマニュアルに記載された番地から、目的のレジスタの値を正しく読み取る場面で使います。</p>
             <details>
                 <summary>ヒント</summary>
                 <p>Address は 0 始まりです。マニュアルで「30011」と書かれていれば、Input Register のプロトコルアドレスは 10 になります（<a href="#section3">3-4 参照</a>）。</p>
@@ -752,6 +758,7 @@ diagslave -m tcp -p 10502</div>
         <div class="exercise">
             <h3>演習3: 単一コイルを ON/OFF する <span class="difficulty difficulty-medium">中級</span></h3>
             <p>新しい Modbus-Write を追加し、<strong>FC 5: Force Single Coil</strong> でアドレス 0 のコイルを ON/OFF してください。inject で <code>msg.payload = true</code> と <code>false</code> を送り分けます。</p>
+            <p><strong>💼 使いどころ:</strong> リレーやランプなど、1点の機器の起動・停止をON/OFFで切り替える場面で使います。</p>
             <details>
                 <summary>ヒント</summary>
                 <p>FC を「FC 5」にすると単一コイル書込になります。inject の payload 型を <code>boolean</code> にして <code>true</code> / <code>false</code> を 2 つ用意すると切り替えやすいです。</p>
@@ -761,6 +768,7 @@ diagslave -m tcp -p 10502</div>
         <div class="exercise">
             <h3>演習4: Flex-Getter で動的に読む <span class="difficulty difficulty-hard">上級</span></h3>
             <p>Modbus-Flex-Getter を使い、Function ノードで <code>fc</code>・<code>address</code>・<code>quantity</code> を組み立てて、読み取り対象を実行時に切り替えるフローを作ってください。</p>
+            <p><strong>💼 使いどころ:</strong> 複数の番地やデータ種別を、1つのノードで順に切り替えながら読み取りたい場面で使います。</p>
             <details>
                 <summary>ヒント</summary>
                 <p><a href="#section5">5-5</a> の payload 形式を Function で生成して Flex-Getter に渡します。複数の番地を順番に読みたいときは、Inject や Split と組み合わせます。</p>
