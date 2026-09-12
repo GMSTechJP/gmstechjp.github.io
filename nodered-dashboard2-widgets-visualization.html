@@ -1242,8 +1242,10 @@ msg.topic = "センサーA";</div>
 
         <h3>🔹 既知の不具合・制限事項</h3>
         <div class="warning">
-            <p><strong>⚠️ ui-chart には現時点で以下の既知の不具合・注意点が報告されています</strong>（FlowFuse Dashboard 2.x 系、eCharts ベース）。</p>
+            <p><strong>⚠️ ui-chart には以下の既知の不具合・注意点が報告されています</strong>（Dashboard 2.0、eCharts ベース）。</p>
             <p>長時間稼働や複雑な構成で利用する場合は、特に下表のワークアラウンドを設計に取り入れてください。</p>
+            <p><strong>確認時点:</strong> 2026-09-12、<code>@flowfuse/node-red-dashboard</code> 1.31.0 のソースで確認しました。「Dashboard 2.0」は製品名で、パッケージのバージョンは 1.x です（2.x というバージョンは存在しません）。</p>
+            <p><strong>バージョンによる違い:</strong> ui-chart の描画エンジンは <strong>1.27.0（2025-09-10）で Chart.js から eCharts へ変わりました</strong>。1.26.x 以前を使っている場合、下表のうち eCharts 固有の記述（<code>formatter</code> など）は当てはまりません。</p>
         </div>
 
         <table>
@@ -1261,8 +1263,8 @@ msg.topic = "センサーA";</div>
             </tr>
             <tr>
                 <td>動的オプション</td>
-                <td>毎サンプルごとに <code>msg.ui_update.chartOptions</code> を送ると、内部の <code>dynamicChartOptions</code> 配列が増え続ける。</td>
-                <td>長時間稼働で CPU 使用率増加、画面遅延、UX 悪化。</td>
+                <td>毎サンプルごとに <code>msg.ui_update.chartOptions</code> を送ると、そのたびに全オプションの再マージと <code>setOption()</code> の再適用が走る。</td>
+                <td>送信頻度に比例して CPU 使用率が増え、画面が遅延する。</td>
                 <td><code>chartOptions</code> は毎回送らず、初期化時・変更時のみ送る。必要に応じて throttle / rate limit を入れる。</td>
             </tr>
             <tr>
