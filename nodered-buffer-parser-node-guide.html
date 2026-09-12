@@ -455,6 +455,7 @@ swap16 あり :  61 62 63 64 65 66 67 68  →  "abcdefgh"</div>
         <h2 id="s8">8. 実用的な使用パターン</h2>
 
         <h3>パターン1：PLC の 16bit 配列から測定値を取り出す</h3>
+        <p><strong>用途:</strong> PLC から読んだ 16bit の並びを、温度や電力などの意味のある値に変換する</p>
         <p>MODBUS のノードは、読み取った結果を 16bit の数値の配列として渡す。この配列をそのまま buffer-parser の入力にできる。</p>
 
         <div class="node-example">
@@ -487,6 +488,7 @@ swap16 あり :  61 62 63 64 65 66 67 68  →  "abcdefgh"</div>
         <p>アドレスの数え方や MODBUS 側の設定は<a href="nodered-modbus-node-guide.html">MODBUS ノードガイド</a>で扱っている。</p>
 
         <h3>パターン2：値が桁違いのときスワップで直す</h3>
+        <p><strong>用途:</strong> 読めた値が桁違いになるとき、バイト順を切り替えて原因を切り分ける</p>
         <p>読めた値が意味をなさないときは、型の le と be を入れ替える前に Byte swap を試す。前述のとおりスワップは型変換より先に適用されるため、le と be の切り替えだけでは直らないズレがある。</p>
 
         <p>次の順序で進めると原因にたどり着きやすい。</p>
@@ -499,6 +501,7 @@ swap16 あり :  61 62 63 64 65 66 67 68  →  "abcdefgh"</div>
         </ol>
 
         <h3>パターン3：ビット単位の状態を取り出す</h3>
+        <p><strong>用途:</strong> 1つのワードに詰まった複数の接点状態を、個別の ON/OFF として取り出す</p>
         <p>1つのワードに複数の接点状態が詰まっている場合、bool 型と bit offset を使って1ビットずつ取り出す。同じ Offset を何度指定してもよい。</p>
 
         <table>
@@ -529,6 +532,7 @@ swap16 あり :  61 62 63 64 65 66 67 68  →  "abcdefgh"</div>
         </table>
 
         <h3>パターン4：値をバイト列に組み立てて機器へ送る</h3>
+        <p><strong>用途:</strong> 機器へ書き込む値を、決められたバイト列に組み立てる</p>
         <p>buffer-maker は逆向きの変換を担う。複数のプロパティに散らばった値を集めて、1つのバッファにまとめられる。</p>
 
         <div class="node-example">
@@ -2460,6 +2464,7 @@ swap16 あり :  61 62 63 64 65 66 67 68  →  "abcdefgh"</div>
         <div class="exercise">
             <h3>演習1：温度と湿度を取り出す<span class="difficulty difficulty-easy">初級</span></h3>
             <p>16bit の配列 <code>[253, 604]</code> が届く。先頭が温度（10 倍の整数）、次が湿度（10 倍の整数）である。buffer-parser で <code>{ temperature: 25.3, humidity: 60.4 }</code> の形にせよ。</p>
+            <p><strong>💼 使いどころ:</strong> 機器が 10 倍の整数で返す測定値を、温度と湿度の正しい単位に戻す場面で使います。</p>
             <details>
                 <summary>ヒント</summary>
                 <p>Output は key/value、型は int16 (be)、Offset は 0 と 1、scale は 0.1 を使う。Offset の単位は 16bit 系の型ではワード単位である。</p>
@@ -2469,6 +2474,7 @@ swap16 あり :  61 62 63 64 65 66 67 68  →  "abcdefgh"</div>
         <div class="exercise">
             <h3>演習2：警報ビットを取り出す<span class="difficulty difficulty-medium">中級</span></h3>
             <p>1バイトの値 <code>5</code>（2進で <code>00000101</code>）が届く。ビット0を <code>running</code>、ビット1を <code>warning</code>、ビット2を <code>fault</code> として取り出し、それぞれ true と false で受け取れ。</p>
+            <p><strong>💼 使いどころ:</strong> 1バイトに詰め込まれた稼働・警告・故障の状態を、個別のフラグとして読み取る場面で使います。</p>
             <details>
                 <summary>ヒント</summary>
                 <p>型は bool、Offset はすべて 0 のままで、bit offset を 0・1・2 と変える。結果は running が true、warning が false、fault が true になる。</p>
@@ -2478,6 +2484,7 @@ swap16 あり :  61 62 63 64 65 66 67 68  →  "abcdefgh"</div>
         <div class="exercise">
             <h3>演習3：値を組み立てて読み直す<span class="difficulty difficulty-hard">上級</span></h3>
             <p>buffer-maker で、温度 25.3 を 10 倍した整数（253）と、状態フラグ 1 を含むバッファを作れ。そのうえで buffer-parser を後ろに繋ぎ、元の値に戻ることを確認せよ。</p>
+            <p><strong>💼 使いどころ:</strong> 送る側と読む側の型定義が一致しているかを、往復させて確かめる場面で使います。</p>
             <details>
                 <summary>ヒント</summary>
                 <p>buffer-maker 側で int16 (be) を2つ並べる。読み直す側は同じ型と同じ順序で定義し、温度には scale 0.1 を指定する。公式サンプルの buffer-maker の例が、そのままこの構成になっている。</p>
