@@ -1001,6 +1001,7 @@ buf.writeUInt16BE(w[0], 2);</div>
         <div class="exercise">
             <h3>演習1：電力計の値を直す<span class="difficulty difficulty-easy">初級</span></h3>
             <p>電力計から <code>[1234]</code> が届いた。表示器は 12.34 kW を示している。仕様書には「単位 0.01kW」とある。実際の値を出す Function ノードを書きなさい。</p>
+            <p><strong>💼 使いどころ:</strong> 仕様書の単位に合わせて生のレジスタ値を実際の物理量へ換算する場面で使います。</p>
             <details>
                 <summary>💡 ヒント</summary>
                 <p>配列の1つ目の要素に係数を掛ける。浮動小数の計算では 12.340000000000002 のような値になることがあるため、桁を丸めるとよい。</p>
@@ -1090,6 +1091,7 @@ buf.writeUInt16BE(w[0], 2);</div>
         <div class="exercise">
             <h3>演習2：補正値が負になる<span class="difficulty difficulty-medium">中級</span></h3>
             <p>32bit の補正値カウンタから <code>[65535, 65526]</code> が届いた。上位ワードが先（ABCD）で、値は符号ありと仕様書にある。正しい値を出しなさい。また、上位 × 65536 + 下位 という素朴な計算では何が起きるかも確かめなさい。</p>
+            <p><strong>💼 使いどころ:</strong> 2つのレジスタにまたがる符号つきの値を、負の数も正しく読み取る場面で使います。</p>
             <details>
                 <summary>💡 ヒント</summary>
                 <p>2つのレジスタを Buffer に組み立ててから <code>readInt32BE</code> を使う。素朴な掛け算では符号の扱いが抜け落ちる。</p>
@@ -1179,6 +1181,7 @@ buf.writeUInt16BE(w[0], 2);</div>
         <div class="exercise">
             <h3>演習3：ワード順の分からない機器<span class="difficulty difficulty-hard">上級</span></h3>
             <p>温度センサーから <code>[26214, 16842]</code> が届いた。仕様書には 32bit の小数とだけ書かれ、ワード順の記載がない。現場の温度計は 25℃ 前後を示している。この機器のワード順を突き止めなさい。</p>
+            <p><strong>💼 使いどころ:</strong> 仕様書にワード順の記載がない機器から、実測値を手がかりに正しい解釈を突き止める場面で使います。</p>
             <details>
                 <summary>💡 ヒント</summary>
                 <p>サンプルフローの「4通りで読む」と同じ処理を使い、値が 25 付近になる解釈を探す。</p>
