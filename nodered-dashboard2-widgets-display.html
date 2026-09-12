@@ -2242,6 +2242,12 @@ return msg;</div>
             </ol>
         </div>
         
+        <div class="warning">
+            <p><strong>⚠️ この確認ダイアログは接続中の全員に表示される:</strong></p>
+            <p>通知の宛先は <code>msg._client.socketId</code> があるかどうかだけで決まります。Inject ノードが作るメッセージにはこれが無いため、<strong>ダッシュボードを開いているすべての画面</strong>に同じ確認ダイアログが出ます。各自が「実行」を押せるので、押された回数だけ下流の処理が動きます。</p>
+            <p>取り消せない操作の確認に使うなら、ダイアログを出すきっかけをダッシュボードのボタン（ui-button など）にします。ウィジェットの出力には <code>msg._client</code> が付くため（ui-base の「Include Client Data」が既定で有効）、そのメッセージをそのまま通知へ渡せば、押した本人の画面にだけダイアログが出ます。詳しくは<a href="nodered-dashboard2-widgets-advanced-part2-control-spacer.html">control / spacer ガイド</a>の「特定クライアントへの送信」を参照してください。</p>
+        </div>
+        
         <div class="code-block">// Injectノードの設定
 msg.payload = "この操作を実行しますか？";
 msg.ui_update = {
@@ -2264,8 +2270,13 @@ return msg;</div>
         <p><strong>用途:</strong> 画面を開いている全員への同じ通知の配信</p>
         
         <div class="warning">
-            <p><strong>⚠️ 重要:</strong></p>
-            <p>通知はデフォルトで<strong>単一クライアント</strong>にのみ送信されます（msg._clientによる制約）。全クライアントに送信するには、Changeノードで<code>msg._client</code>を削除します。</p>
+            <p><strong>⚠️ 宛先は msg._client の有無で決まる:</strong></p>
+            <ul>
+                <li><code>msg._client.socketId</code> が<strong>ある</strong>: その1クライアントにだけ表示される</li>
+                <li><strong>ない</strong>: 接続中のすべてのクライアントに表示される</li>
+            </ul>
+            <p>ダッシュボードのウィジェットから流れてきたメッセージには <code>msg._client</code> が付いています（ui-base の「Include Client Data」が既定で有効）。そのまま通知へ渡すと操作した本人にしか出ないため、全員に配るには Change ノードで <code>msg._client</code> を削除します。</p>
+            <p>いっぽう Inject ノードが作るメッセージには最初から <code>msg._client</code> がないので、削除しなくても全員に配信されます。下の構成にある Change ノードは、Inject を起点にしている限り何もしていません。起点をウィジェットの操作に差し替えたときに効きます。</p>
         </div>
         
         <div class="node-example">
@@ -3805,7 +3816,7 @@ graph TD;
             </ul>
             
             <div class="tip">
-                <p><strong>📌 ポイント:</strong> サンプルフローの「パターン3: 確認ダイアログと結果の処理分岐」を参考にしてください。</p>
+                <p><strong>📌 ポイント:</strong> サンプルフローの「パターン3: 確認ダイアログと結果の処理分岐」を参考にしてください。なお Inject を起点にしたこの構成では、接続中の全員にダイアログが出ます。理由と対処はパターン3の注意書きにあります。</p>
             </div>
             
             <details>
