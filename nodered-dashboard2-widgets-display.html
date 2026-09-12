@@ -2244,10 +2244,10 @@ return msg;</div>
         
         <div class="warning">
             <p><strong>⚠️ この確認ダイアログは接続中の全員に表示される:</strong></p>
-            <p>通知の宛先は <code>msg._client.socketId</code> があるかどうかだけで決まります。Inject ノードが作るメッセージにはこれが無いため、<strong>ダッシュボードを開いているすべての画面</strong>に同じ確認ダイアログが出ます。各自が「実行」を押せるので、押された回数だけ下流の処理が動きます。</p>
-            <p>取り消せない操作の確認に使うなら、ダイアログを出すきっかけをダッシュボードのボタン（ui-button など）にします。ウィジェットの出力には <code>msg._client</code> が付くため（ui-base の「Include Client Data」が既定で有効）、そのメッセージをそのまま通知へ渡せば、押した本人の画面にだけダイアログが出ます。詳しくは<a href="nodered-dashboard2-widgets-advanced-part2-control-spacer.html">control / spacer ガイド</a>の「特定クライアントへの送信」を参照してください。</p>
+            <p>既定の構成では、通知の宛先は <code>msg._client.socketId</code> の有無で決まります。Inject ノードが作るメッセージにはこれが無いため、<strong>ダッシュボードを開いているすべての画面</strong>に同じ確認ダイアログが出ます。各自が「実行」を押せるので、押された回数だけ下流の処理が動きます。</p>
+            <p>取り消せない操作の確認に使うなら、ダイアログを出すきっかけをダッシュボードのボタン（ui-button など）にします。ウィジェットの出力には <code>msg._client</code> が付くため（ui-base の「Include Client Data」が既定で有効）、そのメッセージをそのまま通知へ渡せば、押した本人の画面にだけダイアログが出ます。ここでいう「そのまま」は <code>msg._client</code> を保ったまま、という意味です。途中の Function ノードで <code>msg = { payload: ... }</code> のように新しいオブジェクトを作って返すと <code>_client</code> が消え、全員配信に戻ります。詳しくは<a href="nodered-dashboard2-widgets-advanced-part2-control-spacer.html">control / spacer ガイド</a>の「特定クライアントへの送信」を参照してください。</p>
         </div>
-        
+
         <div class="code-block">// Injectノードの設定
 msg.payload = "この操作を実行しますか？";
 msg.ui_update = {
@@ -2270,13 +2270,13 @@ return msg;</div>
         <p><strong>用途:</strong> 画面を開いている全員への同じ通知の配信</p>
         
         <div class="warning">
-            <p><strong>⚠️ 宛先は msg._client の有無で決まる:</strong></p>
+            <p><strong>⚠️ 宛先は msg._client の有無で決まる（既定の構成の場合）:</strong></p>
             <ul>
                 <li><code>msg._client.socketId</code> が<strong>ある</strong>: その1クライアントにだけ表示される</li>
                 <li><strong>ない</strong>: 接続中のすべてのクライアントに表示される</li>
             </ul>
             <p>ダッシュボードのウィジェットから流れてきたメッセージには <code>msg._client</code> が付いています（ui-base の「Include Client Data」が既定で有効）。そのまま通知へ渡すと操作した本人にしか出ないため、全員に配るには Change ノードで <code>msg._client</code> を削除します。</p>
-            <p>いっぽう Inject ノードが作るメッセージには最初から <code>msg._client</code> がないので、削除しなくても全員に配信されます。下の構成にある Change ノードは、Inject を起点にしている限り何もしていません。起点をウィジェットの操作に差し替えたときに効きます。</p>
+            <p>一方、Inject ノードが作るメッセージには最初から <code>msg._client</code> がないので、削除しなくても全員に配信されます。下の構成にある Change ノードは、Inject を起点にしている限り何もしていません。起点をウィジェットの操作に差し替えたときに効きます。</p>
         </div>
         
         <div class="node-example">
@@ -3806,7 +3806,7 @@ graph TD;
             <p><strong>📝 課題:</strong></p>
             <p>確認ダイアログを表示し、ユーザーの選択（OK/NG）に応じて処理を分岐させるフローを作成してください。</p>
             
-            <p><strong>💼 使いどころ:</strong> 取り消せない操作の前に確認を取り、選択に応じて処理を分ける場面で使います。</p>
+            <p><strong>💼 使いどころ:</strong> 操作の前に確認を取り、押されたボタンに応じて処理を分ける場面で使います。</p>
             <p><strong>🎯 要求仕様:</strong></p>
             <ul>
                 <li>Inject、ui-notification、Switch、Change、Debugノードを使用</li>
@@ -3816,7 +3816,7 @@ graph TD;
             </ul>
             
             <div class="tip">
-                <p><strong>📌 ポイント:</strong> サンプルフローの「パターン3: 確認ダイアログと結果の処理分岐」を参考にしてください。なお Inject を起点にしたこの構成では、接続中の全員にダイアログが出ます。理由と対処はパターン3の注意書きにあります。</p>
+                <p><strong>📌 ポイント:</strong> サンプルフローの「パターン3: 確認ダイアログと結果の処理分岐」を参考にしてください。なお Inject を起点にしたこの構成では、接続中の全員にダイアログが出て、各自が応答できます。取り消せない操作の確認に使う場合の対処は、パターン3の注意書きを参照してください。</p>
             </div>
             
             <details>
@@ -4703,7 +4703,7 @@ return [notifyMsg, audioMsg];</div>
             <h3>⚠️ よくある間違い</h3>
             <ul>
                 <li><strong>textのvalueFormat廃止</strong>: Dashboard 1.0のvalueFormatは使えません。Templateノードを使用</li>
-                <li><strong>通知の宛先</strong>: デフォルトは単一クライアント。全員に送るにはmsg._clientを削除</li>
+                <li><strong>通知の宛先</strong>: msg._client.socketIdの有無で決まる。ウィジェット由来は既定で単一クライアント、Inject由来は全員（パターン3・4を参照）</li>
                 <li><strong>TTSのユーザージェスチャー</strong>: 自動再生は不可。ユーザーが最初にクリック操作を行う必要あり</li>
                 <li><strong>Markdownの構文</strong>: mustache構文は<code>{{ }}</code>、Mermaidは<code>```mermaid</code>コードブロック</li>
             </ul>
@@ -4749,8 +4749,8 @@ return [notifyMsg, audioMsg];</div>
             </tr>
             <tr>
                 <td>全クライアントに通知されない</td>
-                <td>msg._clientが残っている</td>
-                <td>Changeノードでmsg._clientを削除</td>
+                <td>ウィジェット由来のメッセージにmsg._clientが残っている</td>
+                <td>Changeノードでmsg._clientを削除（Inject由来では不要）</td>
             </tr>
             <tr>
                 <td>フロー再起動時に音が自動再生される</td>
