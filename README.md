@@ -265,4 +265,5 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 ---
 
 **最終更新**: 2026-02-16
-**メンテナー**: Claude Sonnet 4.5
+**メンテナー**: Go Muto (GMS-Tech)
+claude-codeを使用して、Node-REDノードガイドの品質を維持しています。  
