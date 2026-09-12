@@ -405,10 +405,12 @@ msg.topic = "SELECT * FROM readings WHERE name = '" + msg.payload + "'";</div>
         <h2 id="section7">7. 実用的な使用パターン</h2>
 
         <h3>パターン 1：起動時に一度だけテーブルを作る</h3>
+        <p><strong>用途:</strong> 記録先のテーブルを、起動のたびに安全に用意する</p>
 
         <p>Inject ノードの「Node-RED 起動の◯秒後」を有効にし、<code>CREATE TABLE IF NOT EXISTS</code> を実行する。すでにあれば何も起きないので、毎回の起動で安全に走る。</p>
 
         <h3>パターン 2：一定周期で測定値を記録する</h3>
+        <p><strong>用途:</strong> センサーの測定値を決まった間隔で蓄積していく</p>
 
         <p>Inject の繰り返し設定でセンサー読み取りを起動し、Function で <code>msg.params</code> を組み立て、事前定義文の sqlite ノードで書き込む。</p>
 
@@ -418,6 +420,7 @@ msg.topic = "SELECT * FROM readings WHERE name = '" + msg.payload + "'";</div>
         </div>
 
         <h3>パターン 3：期間を指定して集計する</h3>
+        <p><strong>用途:</strong> 1 時間ごとなど任意の粒度で、平均や件数をまとめて求める</p>
 
         <p>SQLite には日時を扱う関数がある。<code>strftime</code> で時刻を任意の粒度に丸め、<code>GROUP BY</code> でまとめると、1 時間ごとの平均が 1 つの SQL で得られる。</p>
 
@@ -433,6 +436,7 @@ LIMIT 24;</div>
         <p>同じことをファイルで行うと、全行を読み込んで時刻を解釈し、自分でグループ分けして平均を出すことになる。データベースを使う利点がはっきり出る場面である。</p>
 
         <h3>パターン 4：時刻で絞り込むときの落とし穴</h3>
+        <p><strong>用途:</strong> 保存形式と比較値の形式をそろえ、時刻の絞り込みが黙って外れるのを防ぐ</p>
 
         <p>ここが本ガイドで最も間違えやすい箇所である。「30 日より古い行を消す」「直近 1 時間を集計する」のように時刻で絞り込むとき、<strong>比較する 2 つの値の形式をそろえないと、静かに誤った結果が返る</strong>。</p>
 
@@ -461,6 +465,7 @@ WHERE ts &gt;= strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-1 hour');</div>
         </div>
 
         <h3>パターン 5：古いデータを消して容量を保つ</h3>
+        <p><strong>用途:</strong> 保持期間を超えた行を定期的に削除し、ファイルの増加を抑える</p>
 
         <p>放置すればファイルは増え続ける。1 日 1 回、保持期間を超えた行を削除するフローを組んでおく。比較する側の形式は、パターン 4 のとおり保存形式にそろえる。</p>
 
@@ -473,6 +478,7 @@ WHERE ts &lt; strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-30 days');</div>
         </div>
 
         <h3>パターン 6：検索を速くする</h3>
+        <p><strong>用途:</strong> 行数が増えても、時刻での絞り込みが遅くならないようにする</p>
 
         <p>行が数万を超えると、時刻での絞り込みが目に見えて遅くなる。よく条件に使う列には索引（インデックス）を作る。</p>
 
@@ -870,6 +876,7 @@ WHERE ts &lt; strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-30 days');</div>
         <div class="exercise">
             <h3>演習 1：湿度を記録する<span class="difficulty difficulty-easy">初級</span></h3>
             <p>サンプル 1 のフローを改造し、<code>name</code> が <code>humidity</code>、<code>value</code> が 40 から 60 の間の値になる記録用の Inject と Function を追加せよ。事前定義文のノードは既存のものを共有してよい。</p>
+            <p><strong>💼 使いどころ:</strong> 同じテーブルに別の測定項目を追加して記録する場面で使います。</p>
             <p><strong>ヒント</strong>：追加するのは Inject と Function だけである。Function の中で <code>msg.params</code> の <code>$name</code> と <code>$value</code> を変えればよい。</p>
             <details>
                 <summary>解答例（クリックで展開）</summary>
@@ -970,6 +977,7 @@ WHERE ts &lt; strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-30 days');</div>
         <div class="exercise">
             <h3>演習 2：直近 1 時間の最大、最小、平均<span class="difficulty difficulty-medium">中級</span></h3>
             <p><code>temperature</code> について、直近 1 時間の最大値、最小値、平均値、件数を 1 行で返す SQL を書き、実行するフローを作れ。</p>
+            <p><strong>💼 使いどころ:</strong> 直近の測定値の傾向を、1 回の問い合わせでまとめて把握する場面で使います。</p>
             <p><strong>ヒント</strong>：集計関数は <code>MAX()</code>、<code>MIN()</code>、<code>AVG()</code>、<code>COUNT(*)</code>。1 時間前の時刻は、保存形式にそろえて <code>strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-1 hour')</code> で作る。<code>datetime('now', '-1 hour')</code> を使うとパターン 4 の落とし穴を踏む。</p>
             <details>
                 <summary>解答例（クリックで展開）</summary>
@@ -1052,6 +1060,7 @@ WHERE ts &lt; strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-30 days');</div>
         <div class="exercise">
             <h3>演習 3：閾値超過を別テーブルに残す<span class="difficulty difficulty-hard">上級</span></h3>
             <p>測定値が 24.0 を超えたときだけ、<code>alerts</code> テーブルに記録するフローを作れ。<code>alerts</code> は <code>id</code>、<code>ts</code>、<code>name</code>、<code>value</code> を持つものとする。判定には Switch ノードを使うこと。</p>
+            <p><strong>💼 使いどころ:</strong> 異常値だけを別のテーブルに分けて残し、後から異常の履歴だけを追える場面で使います。</p>
             <p><strong>ヒント</strong>：Function で <code>msg.params</code> を組み立てたあと、<a href="nodered-switch-node-guide.html">Switch</a> で <code>msg.params.$value</code> を評価する。SQL 側は事前定義文にする。</p>
             <details>
                 <summary>解答例（クリックで展開）</summary>
