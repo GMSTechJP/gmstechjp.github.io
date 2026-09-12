@@ -561,11 +561,12 @@
                 <li><a href="#section7">Tabs Layout（タブレイアウト）</a></li>
                 <li><a href="#section8">レスポンシブ設定とブレークポイント</a></li>
                 <li><a href="#section9">Theme設定によるスペーシング調整</a></li>
-                <li><a href="#section10">実践演習</a></li>
-                <li><a href="#section11">まとめ</a></li>
-                <li><a href="#section12">トラブルシューティング</a></li>
-                <li><a href="#section13">実務での活用例</a></li>
-                <li><a href="#section14">追加リソース</a></li>
+                <li><a href="#section10">レイアウトの落としどころ</a></li>
+                <li><a href="#section11">実践演習</a></li>
+                <li><a href="#section12">まとめ</a></li>
+                <li><a href="#section13">トラブルシューティング</a></li>
+                <li><a href="#section14">実務での活用例</a></li>
+                <li><a href="#section15">追加リソース</a></li>
             </ol>
         </div>
         
@@ -1236,7 +1237,104 @@ Width: 6 → タブ内は6カラムグリッド</div>
     "widgetGap": "8px"        // ウィジェット間隔を狭く
 }</div>
         
-        <h2 id="section10">10. 実践演習</h2>
+        <h2 id="section10">10. レイアウトの落としどころ</h2>
+
+        <p>ここまでで、レイアウトを決める部品はすべて出てきました。残るのは「どこまで作り込むか」の判断です。この章は、その線引きを示します。</p>
+
+        <h3>先に方針を決める：ピクセル単位の調整は目指さない</h3>
+
+        <p>Dashboard 2.0 のレイアウトは、ページを縦横のマスに区切り、その上に group を置く仕組みです。マスから外れた位置に部品を置くことはできません。標準ウィジェットで表現できない見た目は <code>ui-template</code> に Vue と Vuetify を書いて作る、という構成になっています。</p>
+
+        <p>ただし、そこへ進むと学ぶ対象が Node-RED から Web 開発へ移ります。フローをつないで動かす手軽さが、レイアウトのために失われることになります。</p>
+
+        <div class="tip">
+            <p><strong>本ガイドの方針:</strong> グリッドの範囲で「読みやすい画面」を作ることを目標にし、位置を1ピクセル単位で合わせようとはしません。値が読めて操作に迷わなければ、実務では十分に使えます。見た目の作り込みは、必要になった段階で進めばよいものとして扱います。</p>
+        </div>
+
+        <h3>整って見せる4つの型</h3>
+
+        <p>凝った指定をしなくても、次の4つを守るだけで画面はかなり整います。</p>
+
+        <table>
+            <tr>
+                <th>型</th>
+                <th>やること</th>
+                <th>なぜ効くか</th>
+            </tr>
+            <tr>
+                <td><strong>幅をそろえる</strong></td>
+                <td>同じ行に並べる group は、Width を同じカラム数にする（既定は 6）</td>
+                <td>幅がばらばらだと段差ができ、視線が行ごとに乱れる</td>
+            </tr>
+            <tr>
+                <td><strong>1ページに詰め込まない</strong></td>
+                <td>役割の違うものは ui-page を分ける</td>
+                <td>1画面に収めようとすると group が小さく潰れ、どの値も読みにくくなる</td>
+            </tr>
+            <tr>
+                <td><strong>余白は一括で変える</strong></td>
+                <td>個別に調整せず、ui-theme の Page Padding / Group Gap / Widget Gap / Density をまとめて変える（<a href="#section9">9章</a>）</td>
+                <td>ページをまたいで余白が統一され、作り足しても崩れない</td>
+            </tr>
+            <tr>
+                <td><strong>ずれは spacer で埋める</strong></td>
+                <td>グリッドに空きを作りたいときは spacer ノードを置く（<a href="nodered-dashboard2-widgets-advanced-part2-control-spacer.html">control / spacer ガイド</a>）</td>
+                <td>ウィジェットを引き伸ばして位置を合わせると、画面幅が変わったときに崩れる</td>
+            </tr>
+        </table>
+
+        <h3>用途別の出発点</h3>
+
+        <p>どのレイアウトタイプで始めるか迷ったら、次の組み合わせから試してください。</p>
+
+        <table>
+            <tr>
+                <th>作りたい画面</th>
+                <th>レイアウトタイプ</th>
+                <th>group の Width</th>
+                <th>補足</th>
+            </tr>
+            <tr>
+                <td>監視盤（値とグラフを一覧）</td>
+                <td>Grid</td>
+                <td>6 を基本、グラフだけ 12</td>
+                <td>画面幅が変わっても崩れにくい。数値は上、グラフは下に置く</td>
+            </tr>
+            <tr>
+                <td>操作盤（ボタン・スイッチ）</td>
+                <td>Grid</td>
+                <td>3〜4 でそろえる</td>
+                <td>詰めすぎない。押し間違いは操作ミスに直結する</td>
+            </tr>
+            <tr>
+                <td>レポート（上から読む）</td>
+                <td>Notebook</td>
+                <td>12（1列）</td>
+                <td>文章と表を縦に並べる。グラフは幅いっぱいに取る</td>
+            </tr>
+            <tr>
+                <td>設定画面（項目が多い）</td>
+                <td>Tabs</td>
+                <td>6</td>
+                <td>種類ごとにタブへ分け、1タブあたりの項目を絞る</td>
+            </tr>
+        </table>
+
+        <h3>ここから先は Web 開発の話になる</h3>
+
+        <p>次のような要求は、グリッドでは表現できません。<code>ui-template</code> で Vue と Vuetify を書くか、画面そのものを Node-RED の外に出す判断になります。</p>
+
+        <ul>
+            <li>部品を重ねる、任意の座標に置く</li>
+            <li>独自デザインやアニメーションを作り込む</li>
+            <li>グリッドに乗らない図の上に部品を置く（間取り図に機器を配置するなど）</li>
+        </ul>
+
+        <div class="warning">
+            <p><strong>その前に確認する:</strong> 上の「整って見せる4つの型」を適用しても足りなかったか。Width をそろえてページを分けるだけで解決する場合が多く、そこで足りるなら Vue を学ぶ必要はありません。</p>
+        </div>
+
+        <h2 id="section11">11. 実践演習</h2>
         
         <div class="exercise">
             <h3>演習1: Grid Layoutでセンサーダッシュボード<span class="difficulty difficulty-easy">初級</span></h3>
@@ -2435,7 +2533,7 @@ Width: 6 → タブ内は6カラムグリッド</div>
             </details>
         </div>
         
-        <h2 id="section11">11. まとめ</h2>
+        <h2 id="section12">12. まとめ</h2>
 
         <div class="important">
             <h3>Layout機能の要点</h3>
@@ -2459,7 +2557,7 @@ Width: 6 → タブ内は6カラムグリッド</div>
             </ul>
         </div>
         
-        <h2 id="section12">12. トラブルシューティング</h2>
+        <h2 id="section13">13. トラブルシューティング</h2>
         
         <h3>よくある問題と解決方法</h3>
         
@@ -2501,7 +2599,7 @@ Width: 6 → タブ内は6カラムグリッド</div>
             </tr>
         </table>
         
-        <h2 id="section13">13. 実務での活用例</h2>
+        <h2 id="section14">14. 実務での活用例</h2>
         
         <h3>ケース1: 工場監視ダッシュボード（Grid）</h3>
         <div class="code-block">Grid Layout（12カラム）
@@ -2549,7 +2647,7 @@ Width: 6 → タブ内は6カラムグリッド</div>
     ├── Form: 各種パラメータ
     └── Button: 設定リセット</div>
         
-        <h2 id="section14">14. 追加リソース</h2>
+        <h2 id="section15">15. 追加リソース</h2>
         
         <ul>
             <li><a href="https://dashboard.flowfuse.com/layouts/" target="_blank">Dashboard 2.0 Layouts 公式ドキュメント</a></li>
