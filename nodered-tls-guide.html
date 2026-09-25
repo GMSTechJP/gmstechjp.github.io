@@ -1,0 +1,2015 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED TLSと証明書ガイド（https・wss・mqtts）</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.8; max-width: 1000px; margin: 0 auto; padding: 20px; background-color: #f5f5f5; color: #333; }
+        h1 { color: #1b5e20; border-bottom: 3px solid #1b5e20; padding-bottom: 10px; }
+        h2 { color: #2e7d32; margin-top: 40px; border-left: 5px solid #2e7d32; padding-left: 15px; }
+        h3 { color: #555; margin-top: 25px; }
+        h4 { color: #666; margin-top: 20px; }
+        .container { background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .page-nav { background: #eef5ff; border: 2px solid #4a90e2; border-radius: 8px; padding: 18px 24px; margin-bottom: 25px; }
+        .page-nav p { margin: 6px 0; }
+        .page-nav .label { display: inline-block; min-width: 110px; font-weight: bold; color: #2c5282; }
+        .important { background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .tip { background-color: #e8f5e9; border-left: 4px solid #4caf50; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .warning { background-color: #f8d7da; border-left: 4px solid #dc3545; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .code-block { background-color: #2d3133; color: #f8f8f2; padding: 15px; border-radius: 5px; margin: 15px 0; overflow-x: auto; font-family: 'Courier New', Consolas, monospace; font-size: 14px; white-space: pre; }
+        .flow-json { background-color: #1a1a2e; color: #a6e22e; padding: 15px; border-radius: 5px; font-family: 'Courier New', Consolas, monospace; font-size: 12px; overflow-x: auto; white-space: pre; position: relative; max-height: 400px; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; vertical-align: top; }
+        th { background-color: #2e7d32; color: white; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .exercise { background-color: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0; border: 2px solid #2196f3; }
+        .exercise h3 { color: #1976d2; margin-top: 0; }
+        .difficulty { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; margin-left: 10px; }
+        .difficulty-easy { background-color: #c8e6c9; color: #2e7d32; }
+        .difficulty-medium { background-color: #fff9c4; color: #f57f17; }
+        .difficulty-hard { background-color: #ffcdd2; color: #c62828; }
+        details { background-color: #f5f5f5; padding: 10px 15px; border-radius: 5px; margin: 10px 0; }
+        details summary { cursor: pointer; font-weight: bold; color: #2e7d32; }
+        details[open] summary { margin-bottom: 10px; }
+        .toc { background-color: #fafafa; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .toc h3 { margin-top: 0; color: #1b5e20; }
+        .toc ul { list-style: none; padding-left: 0; }
+        .toc li { padding: 5px 0; }
+        .toc a { color: #1976d2; text-decoration: none; }
+        .toc a:hover { text-decoration: underline; }
+        .copy-button { position: absolute; top: 8px; right: 8px; padding: 6px 12px; background-color: #455a64; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-family: 'Segoe UI', sans-serif; transition: background-color 0.2s; z-index: 10; display: flex; align-items: center; gap: 4px; }
+        .copy-button:hover { background-color: #37474f; }
+        .copy-button.copied { background-color: #28a745; }
+        .copy-button svg { width: 14px; height: 14px; fill: currentColor; }
+        code { background: #eceff1; padding: 2px 6px; border-radius: 3px; font-family: 'Courier New', monospace; font-size: 0.95em; }
+        /* このガイド固有: 脅威と対策の図 */
+        .threat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 15px; margin: 20px 0; }
+        .threat-card { border: 2px solid #ddd; border-radius: 10px; overflow: hidden; background: #fff; }
+        .threat-card h4 { margin: 0; padding: 10px 14px; background: #eceff1; color: #37474f; }
+        .threat-card .scene { padding: 10px 14px; }
+        .threat-card .path { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; margin: 4px 0; }
+        .threat-card .path span { white-space: nowrap; }
+        .threat-card .arr { color: #777; }
+        .threat-card .pkt { background: #fff; border: 1px solid #bbb; border-radius: 4px; padding: 0 6px; font-family: 'Courier New', monospace; font-size: 0.92em; }
+        .threat-card .cap { font-size: 0.9em; color: #444; }
+        .threat-card .bad { background: #fdecea; border-top: 1px dashed #e57373; }
+        .threat-card .good { background: #e8f5e9; border-top: 1px dashed #81c784; }
+        .threat-card .tag { display: inline-block; font-family: 'Segoe UI', sans-serif; font-weight: bold; font-size: 0.8em; padding: 1px 8px; border-radius: 10px; margin-bottom: 4px; }
+        .bad .tag { background: #c62828; color: #fff; }
+        .good .tag { background: #2e7d32; color: #fff; }
+        /* 層の図 */
+        .stack { max-width: 560px; margin: 20px auto; font-weight: bold; text-align: center; }
+        .stack .row { display: flex; gap: 6px; margin: 6px 0; }
+        .stack .cell { flex: 1; padding: 10px 6px; border-radius: 6px; }
+        .stack .app { background: #e3f2fd; color: #0d47a1; }
+        .stack .tls { background: #2e7d32; color: #fff; }
+        .stack .tcp { background: #eceff1; color: #37474f; }
+        .stack .note { font-weight: normal; font-size: 0.85em; }
+        /* 手順の図（ハンドシェイク・チェーン） */
+        .seq { display: grid; grid-template-columns: 1fr 2.2fr 1fr; gap: 6px 10px; align-items: center; margin: 20px 0; font-size: 0.95em; }
+        .seq .who { text-align: center; font-weight: bold; padding: 8px; border-radius: 6px; background: #e3f2fd; color: #0d47a1; }
+        .seq .msg { padding: 6px 10px; border-radius: 6px; background: #fafafa; border: 1px solid #ddd; }
+        .seq .to-right::after { content: " →"; font-weight: bold; color: #1976d2; }
+        .seq .to-left::before { content: "← "; font-weight: bold; color: #1976d2; }
+        .seq .step { text-align: center; color: #888; font-size: 0.85em; }
+        .seq .enc { grid-column: 1 / span 3; text-align: center; padding: 8px; border-radius: 6px; background: #2e7d32; color: #fff; font-weight: bold; }
+        .chain { max-width: 520px; margin: 20px auto; }
+        .chain .cert { border: 2px solid #607d8b; border-radius: 8px; padding: 10px 14px; background: #fff; }
+        .chain .cert.root { border-color: #2e7d32; background: #e8f5e9; }
+        .chain .cert .who { font-weight: bold; }
+        .chain .cert .sub { font-size: 0.88em; color: #555; }
+        .chain .link { text-align: center; color: #607d8b; font-size: 0.9em; padding: 4px 0; }
+        .analogy { color: #6a1b9a; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Node-RED TLSと証明書ガイド（https・wss・mqtts）</h1>
+        <div data-envbadge="1" style="margin:12px 0;"><span style="display:inline-block;padding:3px 12px;border-radius:12px;font-size:0.85em;font-weight:bold;background:#ede7f6;color:#4527a0;border:1px solid #b39ddb;">🖥️ ローカル/ラズパイ</span> <a href="nodered-learning-environment-guide.html" style="font-size:0.82em;">環境とは？</a></div>
+
+        <div class="page-nav">
+            <p><span class="label">📖 このページの前提</span><a href="nodered-network-basics-guide.html">通信の基礎ガイド</a>で、クライアントとサーバー、ポート、プロトコルの考え方を押さえていること。HTTP か MQTT のどちらかのガイドで、実際に通信を試したことがあると読みやすくなります。</p>
+            <p><span class="label">🎯 得られるもの</span>https・wss・mqtts の「s」が何をしているのかを、証明書の仕組みから説明できるようになります。証明書のエラーが出たときに、原因を自分で切り分けられるようになります。</p>
+            <p><span class="label">🖥️ 環境</span>セクション 1〜10 とサンプルフローは、インターネットにつながる Node-RED があれば試せます。演習2と演習3は、ラズパイなどで証明書を作り、MQTT ブローカー（Mosquitto）を動かすため、ローカル環境が前提です。</p>
+        </div>
+
+        <div class="important">
+            <h3 style="margin-top:0;">このガイドが扱う範囲</h3>
+            <p>TLS の役割、証明書の仕組み、証明書ファイルの扱い、Node-RED の共通設定ノード「TLS設定」（<code>tls-config</code>）、エラーの切り分けを扱います。各ノードの TLS 以外の設定は、それぞれのガイドが担当します。</p>
+            <ul>
+                <li><a href="nodered-http-node-guide.html">HTTP ガイド</a>：https の API を呼ぶ http request ノード</li>
+                <li><a href="nodered-mqtt-node-guide.html">MQTT ガイド</a>：ブローカー設定の「TLSを使用」</li>
+                <li><a href="nodered-websocket-node-guide.html">WebSocket ガイド</a>：wss:// への接続</li>
+                <li><a href="nodered-tcp-node-guide.html">TCP ガイド</a>：TLS over TCP</li>
+                <li><a href="nodered-email-node-guide.html">Email ガイド</a>：SMTP の SSL/TLS と STARTTLS</li>
+                <li><a href="nodered-settings-guide.html">settings.js ガイド</a>：Node-RED エディター自体を https にする設定</li>
+            </ul>
+        </div>
+
+        <div class="toc">
+            <h3>目次</h3>
+            <ul>
+                <li><a href="#s1">1. TLS は何のためにあるか</a></li>
+                <li><a href="#s2">2. TLS の位置：通信に被せる「暗号の層」</a></li>
+                <li><a href="#s3">3. 接続のはじめに起きること</a></li>
+                <li><a href="#s4">4. 証明書のしくみ</a></li>
+                <li><a href="#s5">5. 証明書の検証で確かめる3つのこと</a></li>
+                <li><a href="#s6">6. 証明書ファイルの形式</a></li>
+                <li><a href="#s7">7. 証明書の入手方法と自作の手順</a></li>
+                <li><a href="#s8">8. 相互TLS（クライアント証明書）</a></li>
+                <li><a href="#s9">9. TLS設定ノードの設定項目</a></li>
+                <li><a href="#s10">10. 各ノードでの使い方</a></li>
+                <li><a href="#s11">11. サンプルフロー</a></li>
+                <li><a href="#s12">12. 演習用の Mosquitto を TLS で動かす</a></li>
+                <li><a href="#s13">13. 演習問題</a></li>
+                <li><a href="#s14">14. まとめ</a></li>
+                <li><a href="#s15">15. トラブルシューティング</a></li>
+                <li><a href="#glossary">16. 用語集</a></li>
+            </ul>
+        </div>
+
+        <h2 id="s1">1. TLS は何のためにあるか</h2>
+
+        <p><strong>TLS</strong>（Transport Layer Security）は、ネットワーク上のやり取りを第三者から守るための仕組みです。URL の <code>https://</code>、<code>wss://</code>、MQTT の <code>mqtts://</code> に付いている「s」は、どれも「TLS で守られた通信」を表します。</p>
+
+        <p>TLS が何を守るのかは、守られていない通信で何が起きるかを見ると分かります。通信は、送り手と受け手のあいだにある Wi-Fi のアクセスポイント、ルーター、プロバイダの設備などを経由して届きます。そのどこかに悪意のある第三者がいると、次の3つが起こり得ます。</p>
+
+        <div class="threat-grid">
+            <div class="threat-card">
+                <h4>① 盗み見（盗聴）</h4>
+                <div class="scene bad"><span class="tag">TLS なし</span>
+                    <div class="path"><span>Node-RED</span><span class="arr">→</span><span class="pkt">温度 25.3℃</span><span class="arr">→</span><span>サーバー</span></div>
+                    <div class="cap">👀 途中で中身を読まれる</div>
+                </div>
+                <div class="scene good"><span class="tag">TLS あり</span>
+                    <div class="path"><span>Node-RED</span><span class="arr">→</span><span class="pkt">x9#Qk2...</span><span class="arr">→</span><span>サーバー</span></div>
+                    <div class="cap">👀 途中では読めない</div>
+                </div>
+            </div>
+            <div class="threat-card">
+                <h4>② 書き換え（改ざん）</h4>
+                <div class="scene bad"><span class="tag">TLS なし</span>
+                    <div class="path"><span>Node-RED</span><span class="arr">→</span><span class="pkt">停止</span><span class="arr">→</span><span>✂</span><span class="arr">→</span><span class="pkt">運転</span><span class="arr">→</span><span>機器</span></div>
+                    <div class="cap">途中で「運転」に差し替えられ、機器は気づかない</div>
+                </div>
+                <div class="scene good"><span class="tag">TLS あり</span>
+                    <div class="path"><span>Node-RED</span><span class="arr">→</span><span class="pkt">停止</span><span class="arr">→</span><span>✂</span><span class="arr">→</span><span>機器</span></div>
+                    <div class="cap">改ざんを検出して、そのデータを捨てる</div>
+                </div>
+            </div>
+            <div class="threat-card">
+                <h4>③ なりすまし</h4>
+                <div class="scene bad"><span class="tag">TLS なし</span>
+                    <div class="path"><span>Node-RED</span><span class="arr">→</span><span class="pkt">パスワード</span><span class="arr">→</span><span>🎭 偽サーバー</span></div>
+                    <div class="cap">相手が本物か確かめられず、パスワードを渡してしまう</div>
+                </div>
+                <div class="scene good"><span class="tag">TLS あり</span>
+                    <div class="path"><span>Node-RED</span><span class="arr">→</span><span class="pkt">身分証を見せて</span><span class="arr">→</span><span>🎭 偽サーバー</span></div>
+                    <div class="cap">正しい証明書を出せないので、接続しない</div>
+                </div>
+            </div>
+        </div>
+
+        <p>TLS は、この3つをそれぞれ別の道具で防ぎます。郵便にたとえると、TLS なしの通信は<span class="analogy">はがき</span>です。配達の途中で誰でも読めますし、書き足すこともでき、差出人の名前は自由に書けます。TLS は、はがきを次の3つの道具に置き換えます。</p>
+
+        <table>
+            <tr>
+                <th>守るもの</th>
+                <th>郵便のたとえ</th>
+                <th>TLS での仕組み</th>
+            </tr>
+            <tr>
+                <td>盗み見を防ぐ（機密性）</td>
+                <td>中身の見えない封筒に入れる</td>
+                <td>通信内容を暗号化する。鍵を持つ送り手と受け手しか読めない</td>
+            </tr>
+            <tr>
+                <td>書き換えを防ぐ（完全性）</td>
+                <td>開けると跡が残る封印をする</td>
+                <td>データごとに検査用の値を付ける。1 ビットでも変わると受け手が検出する</td>
+            </tr>
+            <tr>
+                <td>なりすましを防ぐ（真正性）</td>
+                <td>窓口で身分証を確認してから渡す</td>
+                <td>サーバーが<strong>証明書</strong>を提示し、クライアントが本物かを確かめる</td>
+            </tr>
+        </table>
+
+        <p>3つのうち、最も誤解されやすいのが3つ目です。暗号化だけなら、偽のサーバーとのあいだでも成立してしまいます。封筒に入れて封印しても、渡した相手が偽物なら中身は読まれます。そのため TLS では、相手が本物かどうかの確認が暗号化と同じくらい大切になります。このガイドの大半が証明書の話なのはそのためです。</p>
+
+        <div class="tip">
+            <strong>SSL と TLS</strong>：SSL は TLS の前身の古い規格で、現在は使われていません。ただし「SSL/TLS」「SSL証明書」のように古い呼び名が残っており、Node-RED のエディターにも「SSL/TLS接続を有効化」という欄があります。いずれも TLS を指すと読んで差し支えありません。
+        </div>
+
+        <h2 id="s2">2. TLS の位置：通信に被せる「暗号の層」</h2>
+
+        <p>TLS は、HTTP や MQTT とは別の独立した層です。TCP でつながった通信路の上に TLS の層を被せ、その中で HTTP や MQTT がふだんどおりに会話します。HTTP や MQTT から見ると、自分の下に暗号の層が1枚挟まっただけで、話す内容は変わりません。</p>
+
+        <div class="stack">
+            <div class="row">
+                <div class="cell app">HTTP</div>
+                <div class="cell app">WebSocket</div>
+                <div class="cell app">MQTT</div>
+                <div class="cell app">SMTP</div>
+            </div>
+            <div class="row"><div class="cell tls">TLS<br><span class="note">暗号化、改ざん検出、相手の確認</span></div></div>
+            <div class="row"><div class="cell tcp">TCP<br><span class="note">データを順番どおり確実に届ける</span></div></div>
+        </div>
+
+        <p>この構造のため、TLS を被せた通信は元のプロトコル名に「s」を付けて呼ばれます。暗号化しない通信と同じポートでは待ち受けず、別のポート番号を使うのが一般的です。</p>
+
+        <table>
+            <tr>
+                <th>暗号化なし</th>
+                <th>TLS あり</th>
+                <th>既定のポート</th>
+                <th>Node-RED での主な場面</th>
+            </tr>
+            <tr>
+                <td><code>http://</code></td>
+                <td><code>https://</code></td>
+                <td>80 → 443</td>
+                <td>http request で Web API を呼ぶ、エディターを https で開く</td>
+            </tr>
+            <tr>
+                <td><code>ws://</code></td>
+                <td><code>wss://</code></td>
+                <td>80 → 443</td>
+                <td>websocket ノードでクラウドのサービスとつなぐ</td>
+            </tr>
+            <tr>
+                <td><code>mqtt://</code></td>
+                <td><code>mqtts://</code></td>
+                <td>1883 → 8883</td>
+                <td>AWS IoT Core などのクラウドブローカーへ送る</td>
+            </tr>
+            <tr>
+                <td>SMTP（25）</td>
+                <td>SMTPS（465）／STARTTLS（587）</td>
+                <td>465 または 587</td>
+                <td>email ノードでメールを送る</td>
+            </tr>
+        </table>
+
+        <p>STARTTLS は、最初は暗号化なしで接続し、会話の途中で TLS に切り替える方式です。メールで使われます。詳しくは <a href="nodered-email-node-guide.html">Email ガイド</a>を参照してください。</p>
+
+        <h2 id="s3">3. 接続のはじめに起きること</h2>
+
+        <p>TLS の通信は、データを送る前に<strong>ハンドシェイク</strong>（握手）と呼ばれる準備の手順を踏みます。細部を省くと、流れは次のとおりです。</p>
+
+        <div class="seq">
+            <div class="who">クライアント<br>（Node-RED）</div><div class="step">ハンドシェイク</div><div class="who">サーバー<br>（ブローカー等）</div>
+            <div class="step">①</div><div class="msg to-right">「TLS で話したい。接続先は broker.example.com」</div><div></div>
+            <div></div><div class="msg to-left">「これが私の証明書です」</div><div class="step">②</div>
+            <div class="step">③</div><div class="msg">証明書を検証する（発行元、名前、有効期間）</div><div></div>
+            <div class="step">④</div><div class="msg">⇄ 検証に通ったら、暗号化の鍵を2者で取り決める</div><div></div>
+            <div class="enc">⑤ 以降の HTTP や MQTT のデータは、すべて暗号化されて流れる</div>
+        </div>
+
+        <p>①で接続先の名前を伝えるのは、1台のサーバーが複数の名前（ドメイン）を受け持つことがあるためです。サーバーは、伝えられた名前に合う証明書を選んで②で返します。この名前を伝える仕組みを <strong>SNI</strong>（Server Name Indication）と呼びます。</p>
+
+        <p>エラーの大半は③で起きます。検証に失敗すると④に進まず、接続そのものが切られます。そのため、証明書に問題があると「データの中身がおかしい」ではなく「つながらない」という症状になります。③で何を確かめているかは、証明書の仕組みを見たあとセクション 5 で扱います。</p>
+
+        <h2 id="s4">4. 証明書のしくみ</h2>
+
+        <h3>公開鍵と秘密鍵</h3>
+
+        <p>証明書の土台には、<strong>公開鍵</strong>と<strong>秘密鍵</strong>という2つで1組の鍵があります。片方で処理したものは、もう片方でしか確かめたり元に戻したりできない関係になっています。</p>
+
+        <ul>
+            <li>公開鍵：誰に渡してもよい鍵。証明書の中に入っていて、接続してきた相手に配られる</li>
+            <li>秘密鍵：持ち主だけが持つ鍵。サーバーの中から外に出さない</li>
+        </ul>
+
+        <p>秘密鍵は<span class="analogy">本人だけが持つ印鑑</span>、公開鍵は<span class="analogy">印鑑証明に載っている印影</span>にたとえられます。秘密鍵で押した印（署名）は、公開鍵と照らし合わせれば本物かどうか分かります。しかし公開鍵から秘密鍵は作れないので、公開鍵を持っていても同じ印は押せません。ハンドシェイクでサーバーは、秘密鍵を持っていることを署名で示します。証明書をコピーしただけの偽サーバーは秘密鍵を持たないため、この段階で失敗します。</p>
+
+        <div class="warning">
+            <strong>秘密鍵は外に出さない</strong>：秘密鍵が漏れると、誰でもそのサーバーになりすませます。<code>.key</code> ファイルをメールやチャットで送ったり、Git リポジトリに入れたりしないでください。フローを共有する場合の扱いはセクション 9 で説明します。
+        </div>
+
+        <h3>証明書の中身</h3>
+
+        <p>公開鍵だけでは、それが誰の鍵なのか分かりません。そこで公開鍵に「これは broker.example.com の鍵です」という情報を添え、信頼できる第三者が署名したものが<strong>証明書</strong>です。たとえると、公開鍵が顔写真、証明書が公的機関の発行した身分証にあたります。</p>
+
+        <table>
+            <tr>
+                <th>項目</th>
+                <th>内容</th>
+                <th>身分証のたとえ</th>
+            </tr>
+            <tr>
+                <td>サブジェクト代替名（SAN）</td>
+                <td>この証明書が有効な名前の一覧。<code>DNS:broker.example.com</code> や <code>IP Address:192.168.1.10</code></td>
+                <td>氏名</td>
+            </tr>
+            <tr>
+                <td>サブジェクト（CN）</td>
+                <td>持ち主の名前。名前の確認には SAN が使われるため、新しく作る証明書では接続に使う名前を必ず SAN にも書く</td>
+                <td>通称</td>
+            </tr>
+            <tr>
+                <td>発行者（Issuer）</td>
+                <td>この証明書に署名した CA の名前</td>
+                <td>発行した役所</td>
+            </tr>
+            <tr>
+                <td>有効期間</td>
+                <td>使い始めの日時（notBefore）と期限（notAfter）</td>
+                <td>有効期限</td>
+            </tr>
+            <tr>
+                <td>公開鍵</td>
+                <td>持ち主の公開鍵</td>
+                <td>顔写真</td>
+            </tr>
+            <tr>
+                <td>署名</td>
+                <td>発行者が秘密鍵で付けた署名。改ざんすると署名が合わなくなる</td>
+                <td>役所の公印</td>
+            </tr>
+        </table>
+
+        <h3>CA と信頼の連鎖</h3>
+
+        <p>証明書に署名する機関を<strong>CA</strong>（Certificate Authority、認証局）と呼びます。身分証が信用されるのは、発行した役所が信用されているからです。証明書も同じで、署名した CA を信頼できるかどうかで決まります。</p>
+
+        <p>実際には、CA は階層になっています。最上位の<strong>ルート証明書</strong>は自分自身で署名しており、その下の<strong>中間証明書</strong>を経由して、サーバーの証明書に署名します。この連なりを<strong>証明書チェーン</strong>と呼びます。</p>
+
+        <div class="chain">
+            <div class="cert root">
+                <div class="who">ルート証明書（ルート CA）</div>
+                <div class="sub">自分で自分に署名。クライアント側にあらかじめ入っている</div>
+            </div>
+            <div class="link">▼ 署名</div>
+            <div class="cert">
+                <div class="who">中間証明書（中間 CA）</div>
+                <div class="sub">サーバーが自分の証明書と一緒に送る</div>
+            </div>
+            <div class="link">▼ 署名</div>
+            <div class="cert">
+                <div class="who">サーバー証明書</div>
+                <div class="sub">SAN に broker.example.com。サーバーが送る</div>
+            </div>
+        </div>
+
+        <p>クライアントは、受け取ったサーバー証明書から署名を1段ずつたどり、手元にあるルート証明書まで行き着ければ「信頼できる」と判断します。手元にあるルート証明書の一覧を<strong>ルート証明書ストア</strong>と呼びます。</p>
+
+        <div class="important">
+            <strong>Node-RED はどのルート証明書を信頼するか</strong>：Node-RED が動く Node.js は、Mozilla が管理するルート証明書の一覧を内蔵しており、既定ではそれを使います。OS やブラウザに追加した証明書は、既定では使われません。このため「ブラウザでは開けるのに Node-RED からはつながらない」ことが起こります。自作の CA や社内の CA を信頼させるには、TLS設定ノードの「CA証明書」で指定します（セクション 9）。
+        </div>
+
+        <h2 id="s5">5. 証明書の検証で確かめる3つのこと</h2>
+
+        <p>ハンドシェイクの③で、クライアントは次の3点を確かめます。1つでも満たさなければ、接続は失敗します。エラーメッセージもこの3種類にほぼ対応するため、原因を切り分けるときの出発点になります。</p>
+
+        <table>
+            <tr>
+                <th>確かめること</th>
+                <th>失敗する例</th>
+                <th>主なエラー</th>
+            </tr>
+            <tr>
+                <td>発行元：署名をたどって、信頼するルート証明書に行き着くか</td>
+                <td>自作の証明書（自己署名、自作 CA）をそのまま使った。サーバーが中間証明書を送っていない</td>
+                <td><code>self-signed certificate</code><br><code>self-signed certificate in certificate chain</code><br><code>unable to verify the first certificate</code><br><code>unable to get local issuer certificate</code></td>
+            </tr>
+            <tr>
+                <td>名前：接続に使った名前が SAN に載っているか</td>
+                <td>証明書は <code>raspberrypi.local</code> 用なのに、IP アドレスで接続した</td>
+                <td><code>Hostname/IP does not match certificate's altnames</code></td>
+            </tr>
+            <tr>
+                <td>有効期間：今の日時が有効期間の中にあるか</td>
+                <td>更新を忘れて期限が切れた。機器の時計がずれている</td>
+                <td><code>certificate has expired</code><br><code>certificate is not yet valid</code></td>
+            </tr>
+        </table>
+
+        <p>名前の確認は、接続先の URL やブローカー設定に書いた名前で行われます。<code>mqtts://192.168.1.10</code> と IP アドレスで指定したなら、SAN に <code>IP Address:192.168.1.10</code> が載っていなければなりません。</p>
+
+        <p>有効期間の確認は、クライアントの時計で行われます。ラズパイには電池で動く時計（RTC）が無いため、ネットワークから時刻を合わせる前は、時計が過去の日時のまま動いていることがあります。その間に接続すると、正しい証明書でも <code>certificate is not yet valid</code>（まだ有効期間に入っていない）になります。</p>
+
+        <h2 id="s6">6. 証明書ファイルの形式</h2>
+
+        <p>証明書や鍵のファイルには、中身の書き方（形式）がいくつかあります。拡張子は慣習にすぎず、同じ <code>.crt</code> でも中身の形式が違うことがあります。形式はファイルをテキストエディターで開くと見分けられます。</p>
+
+        <table>
+            <tr>
+                <th>形式</th>
+                <th>見分け方</th>
+                <th>よくある拡張子</th>
+                <th>TLS設定ノードでの扱い</th>
+            </tr>
+            <tr>
+                <td>PEM</td>
+                <td>テキストで開ける。<code>-----BEGIN CERTIFICATE-----</code> や <code>-----BEGIN PRIVATE KEY-----</code> で始まる</td>
+                <td><code>.pem</code> <code>.crt</code> <code>.cer</code> <code>.key</code></td>
+                <td>「個別ファイル」でそのまま使える</td>
+            </tr>
+            <tr>
+                <td>DER</td>
+                <td>バイナリで、テキストで開くと文字化けする。PEM と同じ内容をバイナリで書いたもの</td>
+                <td><code>.der</code> <code>.cer</code></td>
+                <td>PEM に変換してから使う</td>
+            </tr>
+            <tr>
+                <td>PKCS#12</td>
+                <td>バイナリ。証明書と秘密鍵（と中間証明書）を1つにまとめ、パスワードで保護したもの</td>
+                <td><code>.pfx</code> <code>.p12</code></td>
+                <td>「pfxまたはp12ファイル」で使う</td>
+            </tr>
+        </table>
+
+        <p>PEM のファイルには、証明書を複数つなげて入れられます。サーバー証明書のあとに中間証明書を続けたファイルは <code>fullchain.pem</code> などと呼ばれ、サーバー側でよく使います。</p>
+
+        <p>証明書の中身は <code>openssl</code> コマンドで確かめられます。ラズパイや macOS には最初から入っています。</p>
+
+        <div class="code-block">openssl x509 -in server.crt -noout -subject -issuer -dates -ext subjectAltName</div>
+
+        <p>セクション 7 で作るサーバー証明書なら、次のように表示されます（日時は作った日によって変わります）。</p>
+
+        <div class="code-block">subject=CN=localhost
+issuer=CN=My Local CA
+notBefore=Sep 24 23:53:53 2026 GMT
+notAfter=Dec 27 23:53:53 2028 GMT
+X509v3 Subject Alternative Name:
+    DNS:localhost, DNS:raspberrypi.local, IP Address:127.0.0.1</div>
+
+        <p>発行者（issuer）、有効期間（notBefore と notAfter）、名前（Subject Alternative Name）がセクション 5 の3点に対応します。PEM でないファイルを読ませると、<code>Could not find certificate</code> などのエラーになります。DER は次のコマンドで PEM に変換できます。</p>
+
+        <div class="code-block">openssl x509 -inform der -in cert.der -out cert.pem</div>
+
+        <h2 id="s7">7. 証明書の入手方法と自作の手順</h2>
+
+        <p>サーバー証明書の入手方法は3通りあります。Node-RED から公開サービスへ接続するだけなら、証明書を用意する必要はありません。証明書が要るのは、自分でサーバーやブローカーを立てるときと、次のセクションのクライアント証明書を使うときです。</p>
+
+        <table>
+            <tr>
+                <th>方法</th>
+                <th>信頼のされ方</th>
+                <th>向いている場面</th>
+                <th>注意点</th>
+            </tr>
+            <tr>
+                <td>公的な CA から発行を受ける（Let's Encrypt など）</td>
+                <td>ブラウザや Node.js に最初から信頼されている</td>
+                <td>インターネットに公開するサーバー</td>
+                <td>ドメイン名が必要。有効期間が短く、自動更新が前提になる</td>
+            </tr>
+            <tr>
+                <td>自己署名証明書</td>
+                <td>誰からも信頼されない。使う側で1枚ずつ信頼を登録する</td>
+                <td>一時的な動作確認</td>
+                <td>サーバーごとに登録が要り、台数が増えると管理できない</td>
+            </tr>
+            <tr>
+                <td>プライベート CA（自作の CA）で発行する</td>
+                <td>CA 証明書を配った相手からだけ信頼される</td>
+                <td>工場や社内 LAN の機器、IoT の検証環境</td>
+                <td>CA の秘密鍵を厳重に保管する。漏れると、その CA を信頼する相手に対して何にでもなりすませる</td>
+            </tr>
+        </table>
+
+        <p>LAN の中で使う機器には、プライベート CA が扱いやすい方法です。CA 証明書を1枚配っておけば、あとから増えたサーバーの証明書もすべて信頼されます。以下では、プライベート CA を作り、サーバー証明書とクライアント証明書を発行します。演習2と演習3でもこのファイルを使います。</p>
+
+        <p>コマンドはラズパイ（Raspberry Pi OS）のターミナルで実行する想定です。macOS のターミナルでも同じように動きます。Windows では、ラズパイ上で作ったファイルを使うか、WSL の Ubuntu などで実行してください。</p>
+
+        <h3>手順1：作業フォルダを作る</h3>
+
+        <div class="code-block">mkdir -p ~/certs
+cd ~/certs</div>
+
+        <h3>手順2：CA を作る</h3>
+
+        <div class="code-block">openssl req -x509 -new -newkey rsa:2048 -nodes -keyout ca.key -out ca.crt -days 3650 -subj "/CN=My Local CA"</div>
+
+        <p>CA の秘密鍵 <code>ca.key</code> と、CA 証明書 <code>ca.crt</code> ができます。<code>-days 3650</code> は有効期間（約10年）です。<code>ca.crt</code> は配ってよいファイル、<code>ca.key</code> は証明書を発行するときだけ使う、外に出さないファイルです。</p>
+
+        <h3>手順3：サーバー証明書を発行する</h3>
+
+        <div class="code-block">openssl req -new -newkey rsa:2048 -nodes -keyout server.key -out server.csr -subj "/CN=localhost"
+printf "subjectAltName=DNS:localhost,DNS:raspberrypi.local,IP:127.0.0.1\n" &gt; server.ext
+openssl x509 -req -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out server.crt -days 825 -extfile server.ext</div>
+
+        <p>1行目でサーバーの秘密鍵 <code>server.key</code> と、署名を依頼する申請書 <code>server.csr</code> を作ります。2行目で SAN（このサーバーに接続するときに使う名前）を書いたファイルを作り、3行目で CA が署名して <code>server.crt</code> を作ります。</p>
+
+        <p>SAN には、クライアントが接続に使う名前をすべて並べます。上の例は、同じラズパイの中から <code>localhost</code> で、LAN の別の PC から <code>raspberrypi.local</code> で接続する場合です。ホスト名を変えている場合や、IP アドレスで接続する場合は、<code>DNS:</code> や <code>IP:</code> の値を実際の名前に合わせてください。</p>
+
+        <h3>手順4：クライアント証明書を発行する（演習3で使う）</h3>
+
+        <div class="code-block">openssl req -new -newkey rsa:2048 -nodes -keyout client.key -out client.csr -subj "/CN=device-001"
+printf "extendedKeyUsage=clientAuth\n" &gt; client.ext
+openssl x509 -req -in client.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out client.crt -days 825 -extfile client.ext</div>
+
+        <p>手順は同じで、SAN の代わりに「クライアントの身分証として使う」という用途（<code>clientAuth</code>）を書いています。<code>CN=device-001</code> は機器を見分ける名前です。</p>
+
+        <h3>手順5：確かめる</h3>
+
+        <div class="code-block">openssl verify -CAfile ca.crt server.crt client.crt</div>
+
+        <div class="code-block">server.crt: OK
+client.crt: OK</div>
+
+        <p>両方に <code>OK</code> が出れば成功です。<code>OK</code> 以外（<code>error 20</code> など）が出た場合は、手順3か手順4で指定した CA のファイル名を確かめてください。<code>ls</code> で、<code>ca.crt</code>、<code>ca.key</code>、<code>server.crt</code>、<code>server.key</code>、<code>client.crt</code>、<code>client.key</code> がそろっていることも確認します（<code>.csr</code>、<code>.ext</code>、<code>.srl</code> は作業用で、以後は使いません）。</p>
+
+        <p>最後に、3つの秘密鍵が自分だけ読める権限になっていることを確かめます。すでにそうなっていても、次のコマンドを実行して問題はありません。</p>
+
+        <div class="code-block">chmod 600 ca.key server.key client.key
+ls -l *.key</div>
+
+        <p>3つとも行頭が <code>-rw-------</code> になっていれば完了です。Node-RED は同じユーザーで動いていれば、このままクライアントの秘密鍵を読めます。</p>
+
+        <h2 id="s8">8. 相互TLS（クライアント証明書）</h2>
+
+        <p>ここまでの TLS では、身分証を見せるのはサーバーだけでした。クライアントは、必要ならユーザー名とパスワードなどで別に名乗ります。これに対し、クライアントも証明書を提示する方式を<strong>相互TLS</strong>（mTLS）と呼びます。</p>
+
+        <div class="seq">
+            <div class="who">クライアント<br>（Node-RED）</div><div class="step">相互TLS のハンドシェイク</div><div class="who">サーバー</div>
+            <div></div><div class="msg to-left">サーバー証明書 ＋「そちらの証明書も見せて」</div><div class="step">①</div>
+            <div class="step">②</div><div class="msg to-right">クライアント証明書（秘密鍵を持っている証明つき）</div><div></div>
+            <div class="step">③</div><div class="msg">お互いに、相手の証明書を自分が信頼する CA で検証する</div><div class="step">③</div>
+            <div class="enc">④ 双方の確認が済んでから、暗号化した通信が始まる</div>
+        </div>
+
+        <p>相互TLS では、パスワードの代わりに「秘密鍵を持っていること」で機器を識別します。パスワードのように人が入力したり、使い回されたりすることがありません。機器ごとに証明書を発行しておけば、1台が盗まれたときにその証明書だけを無効にできます。このため、IoT のクラウドサービスでよく採用されています。</p>
+
+        <h3>例：AWS IoT Core</h3>
+
+        <p>AWS IoT Core の MQTT ブローカーには、相互TLS で接続します。機器（モノ）を登録すると、次のファイルを受け取れます。TLS設定ノードの欄との対応は次のとおりです。</p>
+
+        <table>
+            <tr>
+                <th>AWS から受け取るもの</th>
+                <th>TLS設定ノードの欄</th>
+                <th>役割</th>
+            </tr>
+            <tr>
+                <td>デバイス証明書（<code>…-certificate.pem.crt</code>）</td>
+                <td>証明書</td>
+                <td>Node-RED の身分証</td>
+            </tr>
+            <tr>
+                <td>プライベートキー（<code>…-private.pem.key</code>）</td>
+                <td>秘密鍵</td>
+                <td>身分証の持ち主であることを示す鍵。発行時にしかダウンロードできない</td>
+            </tr>
+            <tr>
+                <td>Amazon ルート CA（<code>AmazonRootCA1.pem</code>）</td>
+                <td>CA証明書</td>
+                <td>ブローカーの証明書を検証するためのルート証明書</td>
+            </tr>
+        </table>
+
+        <p>MQTT ブローカー設定では、サーバに AWS が示すエンドポイント（<code>xxxxxxxx-ats.iot.ap-northeast-1.amazonaws.com</code> のような名前）、ポートに 8883 を指定し、「TLSを使用」をオンにして上の TLS設定を選びます。証明書のほかに、AWS 側で接続や送信を許可するポリシーを証明書に付ける必要があります。</p>
+
+        <p>ネットワークの都合で 8883 番ポートが使えない場合、AWS IoT Core は 443 番ポートでも MQTT を受け付けます。このとき、同じ 443 番で https と区別するために、TLS設定ノードの「ALPNプロトコル」に <code>x-amzn-mqtt-ca</code> を指定します。ALPN は、ハンドシェイクの中で「この接続でどのプロトコルを話すか」を伝える仕組みです。</p>
+
+        <h2 id="s9">9. TLS設定ノードの設定項目</h2>
+
+        <p>Node-RED では、証明書の指定をノードごとに書くのではなく、<strong>TLS設定</strong>（<code>tls-config</code>）という設定ノードにまとめます。http request、MQTT ブローカー、WebSocket クライアント、TCP の各ノードは、この TLS設定を選んで共有します。設定を開くには、各ノードの「TLS設定」欄の鉛筆ボタンを押します。</p>
+
+        <p>エディターの欄は、最初の「証明書の種類」で切り替わります。以下はその選択肢ごとに、上から表示順に並べています。</p>
+
+        <h3>証明書の渡し方を選ぶ欄</h3>
+
+        <table>
+            <tr>
+                <th>設定項目</th>
+                <th>説明</th>
+                <th>備考</th>
+            </tr>
+            <tr>
+                <td><strong>証明書の種類</strong></td>
+                <td>証明書をどこから読み込むかを選ぶ。「個別ファイル」は PEM の証明書、秘密鍵、CA証明書を別々に指定する。「pfxまたはp12ファイル」は PKCS#12 のファイル1つで指定する。「環境変数」は PEM の中身を環境変数から読む</td>
+                <td>既定は「個別ファイル」</td>
+            </tr>
+            <tr>
+                <td><strong>ローカルファイルの秘密鍵と証明書を使用</strong></td>
+                <td>オフのときは、ファイルを「ファイル」ボタンでアップロードする。オンにすると、Node-RED が動いているコンピューター上のファイルのパスを書く欄に変わる</td>
+                <td>「個別ファイル」と「pfxまたはp12ファイル」で表示される。settings.js で <code>tlsConfigDisableLocalFiles: true</code> にすると表示されない</td>
+            </tr>
+        </table>
+
+        <h3>「個別ファイル」のとき</h3>
+
+        <table>
+            <tr>
+                <th>設定項目</th>
+                <th>説明</th>
+                <th>備考</th>
+            </tr>
+            <tr>
+                <td><strong>証明書</strong></td>
+                <td>Node-RED 自身の証明書（PEM）。クライアントとして使うときは相互TLS のクライアント証明書、サーバーとして使うとき（tcp in の待ち受け）はサーバー証明書を指定する</td>
+                <td>ふつうの https や mqtts のクライアントでは空欄。指定するときは秘密鍵と対で指定する</td>
+            </tr>
+            <tr>
+                <td><strong>秘密鍵</strong></td>
+                <td>「証明書」と対になる秘密鍵（PEM）</td>
+                <td>証明書と片方だけ指定すると、エラーになって TLS設定が使えない</td>
+            </tr>
+            <tr>
+                <td><strong>パスフレーズ</strong></td>
+                <td>秘密鍵がパスワードで保護されている場合のパスワード</td>
+                <td>保護していない鍵なら空欄</td>
+            </tr>
+            <tr>
+                <td><strong>CA証明書</strong></td>
+                <td>相手の証明書を検証するときに信頼する CA の証明書（PEM）。自作 CA、社内 CA、AWS のルート CA などを指定する</td>
+                <td>空欄なら Node.js 内蔵のルート証明書を使う。指定すると、内蔵の一覧の代わりにその CA だけを信頼する</td>
+            </tr>
+        </table>
+
+        <h3>「pfxまたはp12ファイル」のとき</h3>
+
+        <table>
+            <tr>
+                <th>設定項目</th>
+                <th>説明</th>
+                <th>備考</th>
+            </tr>
+            <tr>
+                <td><strong>pfxまたはp12</strong></td>
+                <td>証明書と秘密鍵をまとめた PKCS#12 ファイル</td>
+                <td>この種類では「CA証明書」欄は表示されない</td>
+            </tr>
+            <tr>
+                <td><strong>パスフレーズ</strong></td>
+                <td>pfx ファイルを保護しているパスワード</td>
+                <td></td>
+            </tr>
+        </table>
+
+        <h3>「環境変数」のとき</h3>
+
+        <table>
+            <tr>
+                <th>設定項目</th>
+                <th>説明</th>
+                <th>備考</th>
+            </tr>
+            <tr>
+                <td><strong>証明書</strong></td>
+                <td>証明書の PEM を中身として持つ環境変数の名前</td>
+                <td>環境変数にはファイルのパスではなく、<code>-----BEGIN CERTIFICATE-----</code> から始まる中身そのものを入れる</td>
+            </tr>
+            <tr>
+                <td><strong>秘密鍵</strong></td>
+                <td>秘密鍵の PEM を中身として持つ環境変数の名前</td>
+                <td>同上</td>
+            </tr>
+            <tr>
+                <td><strong>パスフレーズ</strong></td>
+                <td>秘密鍵のパスワード</td>
+                <td>この欄は環境変数ではなく直接入力する</td>
+            </tr>
+            <tr>
+                <td><strong>CA証明書</strong></td>
+                <td>CA 証明書の PEM を中身として持つ環境変数の名前</td>
+                <td>同上</td>
+            </tr>
+        </table>
+
+        <h3>共通の欄</h3>
+
+        <table>
+            <tr>
+                <th>設定項目</th>
+                <th>説明</th>
+                <th>備考</th>
+            </tr>
+            <tr>
+                <td><strong>サーバ証明書を確認</strong></td>
+                <td>相手の証明書をセクション 5 の3点で検証するかどうか。オフにすると、検証に失敗しても接続を続ける</td>
+                <td>既定はオン。オフにする危険は下の警告を参照</td>
+            </tr>
+            <tr>
+                <td><strong>サーバ名</strong></td>
+                <td>ハンドシェイクで伝える名前（SNI）。接続先に IP アドレスを書いたが、サーバーが名前で証明書を選ぶ場合などに指定する</td>
+                <td>空欄なら接続先のホスト名を使う。この欄を指定すると、証明書の名前の確認もこの名前で行われる</td>
+            </tr>
+            <tr>
+                <td><strong>ALPNプロトコル</strong></td>
+                <td>ハンドシェイクで「この接続で話すプロトコル」を伝える値</td>
+                <td>ふつうは空欄。AWS IoT Core に 443 番ポートで MQTT 接続するときの <code>x-amzn-mqtt-ca</code> など、接続先が指定する場合だけ書く</td>
+            </tr>
+            <tr>
+                <td><strong>名前</strong></td>
+                <td>ノードに表示する名前</td>
+                <td>複数の TLS設定を使い分けるときに、用途の分かる名前を付ける</td>
+            </tr>
+        </table>
+
+        <h3>証明書はどこに保存されるか</h3>
+
+        <p>アップロードとパス指定では、証明書の保存場所が違います。フローを書き出して共有するときに影響します。</p>
+
+        <ul>
+            <li>アップロードした場合：ファイルの中身は、パスワードなどと同じ資格情報（credentials）として、Node-RED の <code>flows_cred.json</code> に保存される。フローを書き出しても証明書と秘密鍵は含まれないため、読み込んだ側でアップロードし直す</li>
+            <li>パスを指定した場合：フローにはパスだけが保存され、Node-RED の起動時とデプロイ時にファイルを読む。フローを別のコンピューターに読み込むと、そのパスにファイルが無ければエラーになる。証明書を更新したら、再デプロイか再起動で読み直させる</li>
+            <li>環境変数の場合：フローには環境変数の名前だけが保存される。コンテナなど、秘密情報を環境変数で渡す運用に向く</li>
+        </ul>
+
+        <p>このガイドのサンプルフローと演習の解答は、証明書を含めずに共有できるよう、パス指定で書いています。</p>
+
+        <div class="warning">
+            <strong>「サーバ証明書を確認」をオフにしてつなぐ前に</strong>：証明書のエラーは、この欄をオフにすると消えます。しかしオフにすると、セクション 1 の3つのうち「なりすまし」を防げなくなります。暗号化はされますが、相手が偽サーバーでも気づかずにデータやパスワードを渡します。環境変数 <code>NODE_TLS_REJECT_UNAUTHORIZED=0</code> で Node.js 全体の検証を止める方法も同じで、影響は Node-RED のすべての通信に及びます。<br>
+            オフにしてよいのは、一時的な切り分けで「証明書以外に問題が無いか」を確かめるときだけです。正しい対処は、自作 CA や社内 CA の証明書を「CA証明書」に指定することです。
+        </div>
+
+        <h2 id="s10">10. 各ノードでの使い方</h2>
+
+        <p>TLS設定を選ぶ欄は、ノードによって置き場所と名前が異なります。</p>
+
+        <table>
+            <tr>
+                <th>ノード</th>
+                <th>TLS を使う設定</th>
+                <th>補足</th>
+            </tr>
+            <tr>
+                <td>http request</td>
+                <td>URL を <code>https://</code> で書く。証明書を指定する場合は「SSL/TLS接続を有効化」をオンにし、「TLS設定」を選ぶ</td>
+                <td>公的な CA の証明書を使うサイトなら、URL を https にするだけでよい。TLS設定を選んでいないときに限り、<code>msg.rejectUnauthorized</code> で検証の有無を指定できる</td>
+            </tr>
+            <tr>
+                <td>mqtt in / mqtt out</td>
+                <td>ブローカー設定（mqtt-broker）の「接続」タブで「TLSを使用」をオンにし、「TLS設定」を選ぶ</td>
+                <td>ポートは多くの場合 8883。公的な CA のブローカーでも「TLSを使用」はオンにする</td>
+            </tr>
+            <tr>
+                <td>websocket in / out（クライアント接続）</td>
+                <td>URL を <code>wss://</code> で書き、必要なら「TLS設定」を選ぶ</td>
+                <td>Node-RED が待ち受ける WebSocket（サーバー側）は、Node-RED 本体の https 設定に従う</td>
+            </tr>
+            <tr>
+                <td>tcp in / tcp out / tcp request</td>
+                <td>「SSL/TLS接続を有効化」をオンにし、「TLS設定」を選ぶ</td>
+                <td>tcp in の待ち受け（サーバー）で使う場合は、TLS設定の「証明書」と「秘密鍵」にサーバー証明書を指定する</td>
+            </tr>
+            <tr>
+                <td>e-mail</td>
+                <td>ノード自身の SSL/TLS と STARTTLS の設定を使う（TLS設定ノードは使わない）</td>
+                <td><a href="nodered-email-node-guide.html">Email ガイド</a>を参照</td>
+            </tr>
+            <tr>
+                <td>Node-RED エディター、http in</td>
+                <td>settings.js の <code>https</code> に証明書と秘密鍵を書く</td>
+                <td><a href="nodered-settings-guide.html">settings.js ガイド</a>を参照</td>
+            </tr>
+        </table>
+
+        <div class="tip">
+            <strong>MQTT は失敗の理由を表示しない</strong>：http request は、証明書のエラーを具体的なメッセージで出力します。一方、MQTT ブローカーへの接続は、ログに <code>Connection failed to broker</code> と出るだけで、TLS のどこで失敗したかは表示されません。この場合の調べ方はセクション 15 にまとめています。
+        </div>
+
+        <h2 id="s11">11. サンプルフロー</h2>
+
+        <p>Node-RED 本体の公式サンプルには TLS の例が含まれていないため、このサンプルはサイト独自のものです。インターネットにつながる Node-RED があれば、追加の準備なしで動きます。</p>
+
+        <p>サンプルは、https のサイトに接続して証明書の検証結果を見るものです。① は公的な CA の証明書を使う example.com で、TLS設定なしで接続できます。② は、証明書の失敗例をわざと公開しているテスト用サイト badssl.com で、セクション 5 のエラーを実際に出します。</p>
+
+        <details>
+            <summary>📋 サンプルフロー（クリックで展開）</summary>
+            <div class="flow-json">[
+    {
+        "id": "tls_sample_tab",
+        "type": "tab",
+        "label": "TLS 証明書の確認",
+        "disabled": false,
+        "info": "https のサイトへ接続し、証明書の検証結果を確かめるサンプル（サイト独自）。",
+        "env": []
+    },
+    {
+        "id": "tls_sample_c1",
+        "type": "comment",
+        "z": "tls_sample_tab",
+        "name": "① 正常：公的な CA が発行した証明書",
+        "info": "example.com は公的な CA の証明書を使うため、TLS 設定なしで接続できる。",
+        "x": 200,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "tls_sample_i1",
+        "type": "inject",
+        "z": "tls_sample_tab",
+        "name": "example.com（正常）",
+        "props": [
+            {
+                "p": "url",
+                "v": "https://example.com/",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 200,
+        "y": 100,
+        "wires": [
+            [
+                "tls_sample_req"
+            ]
+        ]
+    },
+    {
+        "id": "tls_sample_c2",
+        "type": "comment",
+        "z": "tls_sample_tab",
+        "name": "② 失敗：証明書に問題があるテスト用サイト",
+        "info": "badssl.com は、証明書の失敗例をわざと公開しているテスト用サイト。",
+        "x": 220,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "tls_sample_i2",
+        "type": "inject",
+        "z": "tls_sample_tab",
+        "name": "期限切れ",
+        "props": [
+            {
+                "p": "url",
+                "v": "https://expired.badssl.com/",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 170,
+        "y": 200,
+        "wires": [
+            [
+                "tls_sample_req"
+            ]
+        ]
+    },
+    {
+        "id": "tls_sample_i3",
+        "type": "inject",
+        "z": "tls_sample_tab",
+        "name": "名前が不一致",
+        "props": [
+            {
+                "p": "url",
+                "v": "https://wrong.host.badssl.com/",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 180,
+        "y": 240,
+        "wires": [
+            [
+                "tls_sample_req"
+            ]
+        ]
+    },
+    {
+        "id": "tls_sample_i4",
+        "type": "inject",
+        "z": "tls_sample_tab",
+        "name": "自己署名",
+        "props": [
+            {
+                "p": "url",
+                "v": "https://self-signed.badssl.com/",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 170,
+        "y": 280,
+        "wires": [
+            [
+                "tls_sample_req"
+            ]
+        ]
+    },
+    {
+        "id": "tls_sample_i5",
+        "type": "inject",
+        "z": "tls_sample_tab",
+        "name": "信頼されていない CA",
+        "props": [
+            {
+                "p": "url",
+                "v": "https://untrusted-root.badssl.com/",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 190,
+        "y": 320,
+        "wires": [
+            [
+                "tls_sample_req"
+            ]
+        ]
+    },
+    {
+        "id": "tls_sample_req",
+        "type": "http request",
+        "z": "tls_sample_tab",
+        "name": "https に接続",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 450,
+        "y": 200,
+        "wires": [
+            [
+                "tls_sample_d1",
+                "tls_sample_d2"
+            ]
+        ]
+    },
+    {
+        "id": "tls_sample_d1",
+        "type": "debug",
+        "z": "tls_sample_tab",
+        "name": "結果コード",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "statusCode",
+        "targetType": "msg",
+        "statusVal": "statusCode",
+        "statusType": "auto",
+        "x": 660,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "tls_sample_d2",
+        "type": "debug",
+        "z": "tls_sample_tab",
+        "name": "本文またはエラー",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 670,
+        "y": 220,
+        "wires": []
+    }
+]</div>
+        </details>
+
+        <h3>動かして確かめる</h3>
+
+        <ol>
+            <li>フローを読み込んでデプロイし、デバッグタブを開く</li>
+            <li>「example.com（正常）」の inject を押す。「結果コード」に <code>200</code> が出れば、証明書の検証を通って接続できている</li>
+            <li>②の4つの inject を1つずつ押す。http request ノードの下にエラーコードが赤く表示され、「結果コード」と「本文またはエラー」に次の値が出る</li>
+        </ol>
+
+        <table>
+            <tr>
+                <th>inject</th>
+                <th>結果コード（<code>msg.statusCode</code>）</th>
+                <th>エラーメッセージ</th>
+                <th>セクション 5 の分類</th>
+            </tr>
+            <tr>
+                <td>期限切れ</td>
+                <td><code>CERT_HAS_EXPIRED</code></td>
+                <td><code>certificate has expired</code></td>
+                <td>有効期間</td>
+            </tr>
+            <tr>
+                <td>名前が不一致</td>
+                <td><code>ERR_TLS_CERT_ALTNAME_INVALID</code></td>
+                <td><code>Hostname/IP does not match certificate's altnames</code></td>
+                <td>名前</td>
+            </tr>
+            <tr>
+                <td>自己署名</td>
+                <td><code>DEPTH_ZERO_SELF_SIGNED_CERT</code></td>
+                <td><code>self-signed certificate</code></td>
+                <td>発行元</td>
+            </tr>
+            <tr>
+                <td>信頼されていない CA</td>
+                <td><code>SELF_SIGNED_CERT_IN_CHAIN</code></td>
+                <td><code>self-signed certificate in certificate chain</code></td>
+                <td>発行元</td>
+            </tr>
+        </table>
+
+        <p>http request ノードは、接続に失敗すると <code>msg.statusCode</code> に HTTP のステータスコードの代わりにエラーコードを入れ、<code>msg.payload</code> にエラーメッセージを入れて出力します。演習1ではこの性質を使います。badssl.com は第三者が運営するテスト用サイトのため、将来内容が変わったり停止したりする可能性があります。</p>
+
+        <h2 id="s12">12. 演習用の Mosquitto を TLS で動かす</h2>
+
+        <p>演習2と演習3では、ラズパイに MQTT ブローカーの Mosquitto を入れ、セクション 7 で作った証明書で TLS を有効にします。Node-RED と同じラズパイで動かす想定です。ここでは次の2つの窓口を用意します。</p>
+
+        <ul>
+            <li>8883 番：サーバー証明書だけを使う TLS（演習2）</li>
+            <li>8884 番：クライアント証明書も要求する相互TLS（演習3）</li>
+        </ul>
+
+        <h3>手順1：インストールする</h3>
+
+        <div class="code-block">sudo apt update
+sudo apt install -y mosquitto mosquitto-clients</div>
+
+        <h3>手順2：証明書を Mosquitto 用の場所へコピーする</h3>
+
+        <div class="code-block">sudo cp ~/certs/ca.crt ~/certs/server.crt ~/certs/server.key /etc/mosquitto/certs/
+sudo chown mosquitto: /etc/mosquitto/certs/server.key
+sudo chmod 600 /etc/mosquitto/certs/server.key</div>
+
+        <p>Mosquitto はユーザー <code>mosquitto</code> の権限で動くため、サーバーの秘密鍵をそのユーザーだけが読めるようにしています。<code>ca.key</code> はコピーしません。ブローカーに要るのは CA 証明書だけです。</p>
+
+        <h3>手順3：設定ファイルを作る</h3>
+
+        <div class="code-block">sudo nano /etc/mosquitto/conf.d/tls.conf</div>
+
+        <p>次の内容を書いて保存します。</p>
+
+        <div class="code-block">listener 8883
+cafile /etc/mosquitto/certs/ca.crt
+certfile /etc/mosquitto/certs/server.crt
+keyfile /etc/mosquitto/certs/server.key
+
+listener 8884
+cafile /etc/mosquitto/certs/ca.crt
+certfile /etc/mosquitto/certs/server.crt
+keyfile /etc/mosquitto/certs/server.key
+require_certificate true
+
+allow_anonymous true</div>
+
+        <p><code>require_certificate true</code> が、8884 番でクライアント証明書を要求する設定です。<code>cafile</code> の CA が発行したクライアント証明書だけが受け入れられます。<code>allow_anonymous true</code> はユーザー名とパスワードなしでの接続を許す設定で、演習を簡単にするためのものです。</p>
+
+        <div class="important">
+            <strong>1883 番について</strong>：Mosquitto 2 系は、<code>listener</code> を1つでも書くと、それまで既定で開いていた 1883 番（localhost のみ）を開かなくなります。暗号化なしの 1883 番も使い続けたい場合は、設定ファイルに <code>listener 1883 localhost</code> を追記してください。
+        </div>
+
+        <h3>手順4：再起動して確かめる</h3>
+
+        <div class="code-block">sudo systemctl restart mosquitto
+systemctl status mosquitto --no-pager</div>
+
+        <p><code>Active: active (running)</code> と表示されれば起動しています。<code>failed</code> と表示された場合は、<code>sudo journalctl -u mosquitto -n 30 --no-pager</code> で理由を確認します。ファイルのパスの誤りや、秘密鍵を読めない権限の問題が多い原因です。</p>
+
+        <p>続いて、Node-RED を使う前に、コマンドでブローカーの TLS を確かめます。</p>
+
+        <div class="code-block">openssl s_client -connect localhost:8883 -CAfile ~/certs/ca.crt &lt; /dev/null 2&gt;&amp;1 | grep "Verify return code"</div>
+
+        <p><code>Verify return code: 0 (ok)</code> が出れば、ブローカーの証明書は自作 CA で検証できています。<code>0</code> 以外の番号が出た場合は、番号の後ろの説明文がセクション 5 のどれにあたるかを見てください。何も表示されない場合は、ブローカーに接続できていません。手順4の起動状態を確認してください。</p>
+
+        <h2 id="s13">13. 演習問題</h2>
+
+        <div class="exercise">
+            <h3>演習1：証明書のエラーを振り分ける<span class="difficulty difficulty-easy">初級</span></h3>
+            <p>サンプルフローの ② の4つのサイトに接続し、エラーの種類ごとに日本語のメッセージをデバッグタブへ出すフローを作ってください。振り分けは Function ノードではなく、Switch ノードで行ってください。</p>
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>接続に失敗した http request ノードは、<code>msg.statusCode</code> にエラーコードを入れて出力します。Switch ノードのプロパティを <code>msg.statusCode</code> にし、セクション 11 の表のコードを「==」で並べます。最後に「その他」の出力を作っておくと、想定外の結果も見落としません。</p>
+            </details>
+            <details>
+                <summary>✅ 解答例</summary>
+                <div class="flow-json">[
+    {
+        "id": "tls_ex1_tab",
+        "type": "tab",
+        "label": "演習1 証明書エラーの振り分け",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "tls_ex1_i1",
+        "type": "inject",
+        "z": "tls_ex1_tab",
+        "name": "期限切れ",
+        "props": [
+            {
+                "p": "url",
+                "v": "https://expired.badssl.com/",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 150,
+        "y": 80,
+        "wires": [
+            [
+                "tls_ex1_req"
+            ]
+        ]
+    },
+    {
+        "id": "tls_ex1_i2",
+        "type": "inject",
+        "z": "tls_ex1_tab",
+        "name": "名前が不一致",
+        "props": [
+            {
+                "p": "url",
+                "v": "https://wrong.host.badssl.com/",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 160,
+        "y": 120,
+        "wires": [
+            [
+                "tls_ex1_req"
+            ]
+        ]
+    },
+    {
+        "id": "tls_ex1_i3",
+        "type": "inject",
+        "z": "tls_ex1_tab",
+        "name": "自己署名",
+        "props": [
+            {
+                "p": "url",
+                "v": "https://self-signed.badssl.com/",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 150,
+        "y": 160,
+        "wires": [
+            [
+                "tls_ex1_req"
+            ]
+        ]
+    },
+    {
+        "id": "tls_ex1_i4",
+        "type": "inject",
+        "z": "tls_ex1_tab",
+        "name": "信頼されていない CA",
+        "props": [
+            {
+                "p": "url",
+                "v": "https://untrusted-root.badssl.com/",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 170,
+        "y": 200,
+        "wires": [
+            [
+                "tls_ex1_req"
+            ]
+        ]
+    },
+    {
+        "id": "tls_ex1_req",
+        "type": "http request",
+        "z": "tls_ex1_tab",
+        "name": "https に接続",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 390,
+        "y": 140,
+        "wires": [
+            [
+                "tls_ex1_sw"
+            ]
+        ]
+    },
+    {
+        "id": "tls_ex1_sw",
+        "type": "switch",
+        "z": "tls_ex1_tab",
+        "name": "エラーコードで分岐",
+        "property": "statusCode",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "CERT_HAS_EXPIRED",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "ERR_TLS_CERT_ALTNAME_INVALID",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "DEPTH_ZERO_SELF_SIGNED_CERT",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "SELF_SIGNED_CERT_IN_CHAIN",
+                "vt": "str"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "false",
+        "repair": false,
+        "outputs": 5,
+        "x": 590,
+        "y": 140,
+        "wires": [
+            [
+                "tls_ex1_c1"
+            ],
+            [
+                "tls_ex1_c2"
+            ],
+            [
+                "tls_ex1_c3"
+            ],
+            [
+                "tls_ex1_c4"
+            ],
+            [
+                "tls_ex1_c5"
+            ]
+        ]
+    },
+    {
+        "id": "tls_ex1_c1",
+        "type": "change",
+        "z": "tls_ex1_tab",
+        "name": "期限切れ",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "証明書の有効期限が切れています",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 810,
+        "y": 60,
+        "wires": [
+            [
+                "tls_ex1_d"
+            ]
+        ]
+    },
+    {
+        "id": "tls_ex1_c2",
+        "type": "change",
+        "z": "tls_ex1_tab",
+        "name": "名前の不一致",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "接続先の名前が証明書に載っていません",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 810,
+        "y": 100,
+        "wires": [
+            [
+                "tls_ex1_d"
+            ]
+        ]
+    },
+    {
+        "id": "tls_ex1_c3",
+        "type": "change",
+        "z": "tls_ex1_tab",
+        "name": "自己署名",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "自己署名の証明書です。CA証明書に登録が必要です",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 810,
+        "y": 140,
+        "wires": [
+            [
+                "tls_ex1_d"
+            ]
+        ]
+    },
+    {
+        "id": "tls_ex1_c4",
+        "type": "change",
+        "z": "tls_ex1_tab",
+        "name": "未知の CA",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "発行元の CA を信頼していません",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 810,
+        "y": 180,
+        "wires": [
+            [
+                "tls_ex1_d"
+            ]
+        ]
+    },
+    {
+        "id": "tls_ex1_c5",
+        "type": "change",
+        "z": "tls_ex1_tab",
+        "name": "その他",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "上記以外の結果です",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 800,
+        "y": 220,
+        "wires": [
+            [
+                "tls_ex1_d"
+            ]
+        ]
+    },
+    {
+        "id": "tls_ex1_d",
+        "type": "debug",
+        "z": "tls_ex1_tab",
+        "name": "判定",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 1010,
+        "y": 140,
+        "wires": []
+    }
+]</div>
+                <p>Switch ノードの「最初に合致した条件で停止」を選んでいるため、1つのメッセージは1つの出力にだけ送られます。条件をエディターで一覧できるので、どのコードをどう扱うかを、コードを読まずに確かめられます。</p>
+            </details>
+        </div>
+
+        <div class="exercise">
+            <h3>演習2：自作 CA のブローカーに mqtts で接続する<span class="difficulty difficulty-medium">中級</span></h3>
+            <p>セクション 12 で動かした Mosquitto の 8883 番に、TLS で接続してください。inject で <code>tls/test</code> トピックへ送ったメッセージを、同じトピックを購読する mqtt in で受け取り、デバッグタブに表示します。</p>
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>ブローカー設定のサーバは <code>localhost</code>、ポートは 8883 にし、「TLSを使用」をオンにします。自作 CA の証明書は Node.js が信頼していないため、TLS設定の「CA証明書」に <code>ca.crt</code> を指定します。「証明書」と「秘密鍵」は空欄のままです。</p>
+            </details>
+            <details>
+                <summary>✅ 解答例</summary>
+                <div class="flow-json">[
+    {
+        "id": "tls_ex2_tab",
+        "type": "tab",
+        "label": "演習2 mqtts で接続",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "tls_ex2_i",
+        "type": "inject",
+        "z": "tls_ex2_tab",
+        "name": "送信",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "hello over TLS",
+        "payloadType": "str",
+        "x": 150,
+        "y": 80,
+        "wires": [
+            [
+                "tls_ex2_out"
+            ]
+        ]
+    },
+    {
+        "id": "tls_ex2_out",
+        "type": "mqtt out",
+        "z": "tls_ex2_tab",
+        "name": "tls/test へ送信",
+        "topic": "tls/test",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "tls_ex2_broker",
+        "x": 370,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "tls_ex2_in",
+        "type": "mqtt in",
+        "z": "tls_ex2_tab",
+        "name": "tls/test を購読",
+        "topic": "tls/test",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "tls_ex2_broker",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 160,
+        "y": 160,
+        "wires": [
+            [
+                "tls_ex2_d"
+            ]
+        ]
+    },
+    {
+        "id": "tls_ex2_d",
+        "type": "debug",
+        "z": "tls_ex2_tab",
+        "name": "受信",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 370,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "tls_ex2_broker",
+        "type": "mqtt-broker",
+        "name": "ローカル（TLS 8883）",
+        "broker": "localhost",
+        "port": "8883",
+        "tls": "tls_ex2_tls",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": true,
+        "verifyservercert": true,
+        "compatmode": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "tls_ex2_tls",
+        "type": "tls-config",
+        "name": "自作 CA を信頼",
+        "cert": "",
+        "key": "",
+        "ca": "/home/pi/certs/ca.crt",
+        "certname": "",
+        "keyname": "",
+        "caname": "",
+        "servername": "",
+        "verifyservercert": true,
+        "alpnprotocol": "",
+        "certType": "files",
+        "p12": "",
+        "p12name": "",
+        "certEnv": "",
+        "keyEnv": "",
+        "caEnv": ""
+    }
+]</div>
+                <p>TLS設定は「ローカルファイルの秘密鍵と証明書を使用」をオンにした状態で、<code>/home/pi/certs/ca.crt</code> を指定しています。ユーザー名が <code>pi</code> でない場合は、TLS設定を開いてパスを書き換えてからデプロイしてください。mqtt ノードの下に「接続済」と表示され、送ったメッセージがデバッグタブに出れば成功です。</p>
+                <p>試しに TLS設定の「CA証明書」を空にしてデプロイすると、「接続済」にならなくなります。Node.js 内蔵のルート証明書では、自作 CA が発行した証明書を検証できないためです。</p>
+            </details>
+        </div>
+
+        <div class="exercise">
+            <h3>演習3：クライアント証明書で相互TLS 接続する<span class="difficulty difficulty-hard">上級</span></h3>
+            <p>Mosquitto の 8884 番は、クライアント証明書を要求します。演習2のフローを 8884 番につなぎ替え、セクション 7 の手順4で作ったクライアント証明書で接続してください。</p>
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>TLS設定の「証明書」に <code>client.crt</code>、「秘密鍵」に <code>client.key</code>、「CA証明書」に <code>ca.crt</code> を指定します。CA証明書は、Node-RED がブローカーの証明書を検証するために使います。ブローカーがクライアント証明書を検証するのは、ブローカー側の <code>cafile</code> です。</p>
+            </details>
+            <details>
+                <summary>✅ 解答例</summary>
+                <div class="flow-json">[
+    {
+        "id": "tls_ex3_tab",
+        "type": "tab",
+        "label": "演習3 クライアント証明書で接続",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "tls_ex3_i",
+        "type": "inject",
+        "z": "tls_ex3_tab",
+        "name": "送信",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "hello over mutual TLS",
+        "payloadType": "str",
+        "x": 150,
+        "y": 80,
+        "wires": [
+            [
+                "tls_ex3_out"
+            ]
+        ]
+    },
+    {
+        "id": "tls_ex3_out",
+        "type": "mqtt out",
+        "z": "tls_ex3_tab",
+        "name": "tls/test へ送信",
+        "topic": "tls/test",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "tls_ex3_broker",
+        "x": 370,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "tls_ex3_in",
+        "type": "mqtt in",
+        "z": "tls_ex3_tab",
+        "name": "tls/test を購読",
+        "topic": "tls/test",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "tls_ex3_broker",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 160,
+        "y": 160,
+        "wires": [
+            [
+                "tls_ex3_d"
+            ]
+        ]
+    },
+    {
+        "id": "tls_ex3_d",
+        "type": "debug",
+        "z": "tls_ex3_tab",
+        "name": "受信",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 370,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "tls_ex3_broker",
+        "type": "mqtt-broker",
+        "name": "ローカル（相互TLS 8884）",
+        "broker": "localhost",
+        "port": "8884",
+        "tls": "tls_ex3_tls",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": true,
+        "verifyservercert": true,
+        "compatmode": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "tls_ex3_tls",
+        "type": "tls-config",
+        "name": "クライアント証明書つき",
+        "cert": "/home/pi/certs/client.crt",
+        "key": "/home/pi/certs/client.key",
+        "ca": "/home/pi/certs/ca.crt",
+        "certname": "",
+        "keyname": "",
+        "caname": "",
+        "servername": "",
+        "verifyservercert": true,
+        "alpnprotocol": "",
+        "certType": "files",
+        "p12": "",
+        "p12name": "",
+        "certEnv": "",
+        "keyEnv": "",
+        "caEnv": ""
+    }
+]</div>
+                <p>演習2の解答と同時に読み込む場合も、ブローカー設定と TLS設定は別のノードなので衝突しません。ただし両方とも <code>tls/test</code> を購読するため、送ったメッセージは2つのデバッグノードに表示されます。</p>
+                <p>「証明書」と「秘密鍵」を空にしてデプロイすると、接続できなくなります。このとき Node-RED のログには <code>Connection failed to broker</code> としか出ませんが、<code>sudo journalctl -u mosquitto -n 20 --no-pager</code> で Mosquitto 側のログを見ると、<code>peer did not return a certificate</code>（クライアントが証明書を出さなかった）と理由が分かります。AWS IoT Core への接続も、同じ3つの欄を AWS から受け取ったファイルに差し替えれば、同じ形で設定できます。</p>
+            </details>
+        </div>
+
+        <h2 id="s14">14. まとめ</h2>
+
+        <table>
+            <tr>
+                <th>論点</th>
+                <th>要点</th>
+            </tr>
+            <tr>
+                <td>TLS の役割</td>
+                <td>盗み見、書き換え、なりすましの3つを防ぐ。https・wss・mqtts の「s」</td>
+            </tr>
+            <tr>
+                <td>位置</td>
+                <td>TCP と、HTTP や MQTT とのあいだに被せる層。上のプロトコルの中身は変わらない</td>
+            </tr>
+            <tr>
+                <td>証明書</td>
+                <td>公開鍵に持ち主の名前を添えて、CA が署名したもの。秘密鍵とは対で、秘密鍵は外に出さない</td>
+            </tr>
+            <tr>
+                <td>検証</td>
+                <td>発行元（信頼するルートまでたどれるか）、名前（SAN）、有効期間の3点。エラーもこの3種類に分かれる</td>
+            </tr>
+            <tr>
+                <td>Node-RED の信頼</td>
+                <td>Node.js 内蔵のルート証明書を使う。自作 CA や社内 CA は TLS設定の「CA証明書」で指定する</td>
+            </tr>
+            <tr>
+                <td>相互TLS</td>
+                <td>クライアントも証明書と秘密鍵を出す。AWS IoT Core などの IoT クラウドで使う</td>
+            </tr>
+            <tr>
+                <td>検証をオフにする設定</td>
+                <td>なりすましを防げなくなる。切り分けの一時的な確認にとどめる</td>
+            </tr>
+        </table>
+
+        <h3>次に読むとよいガイド</h3>
+
+        <ul>
+            <li><a href="nodered-mqtt-node-guide.html">MQTT ガイド</a>：ブローカー設定の各欄と、QoS などの MQTT の仕組み</li>
+            <li><a href="nodered-http-node-guide.html">HTTP ガイド</a>：https の Web API を呼ぶ</li>
+            <li><a href="nodered-settings-guide.html">settings.js ガイド</a>：Node-RED エディター自体を https にする</li>
+            <li><a href="nodered-network-basics-guide.html">通信の基礎ガイド</a>：ポートやプロトコルの考え方に戻る</li>
+        </ul>
+
+        <h2 id="s15">15. トラブルシューティング</h2>
+
+        <h3>エラーメッセージから原因を引く</h3>
+
+        <table>
+            <tr>
+                <th>エラーメッセージ（エラーコード）</th>
+                <th>原因</th>
+                <th>対処</th>
+            </tr>
+            <tr>
+                <td><code>self-signed certificate</code><br>（<code>DEPTH_ZERO_SELF_SIGNED_CERT</code>）</td>
+                <td>相手が自己署名証明書を1枚だけ送ってきた</td>
+                <td>その証明書自体を TLS設定の「CA証明書」に指定する。長く使うならプライベート CA で発行し直す</td>
+            </tr>
+            <tr>
+                <td><code>self-signed certificate in certificate chain</code><br>（<code>SELF_SIGNED_CERT_IN_CHAIN</code>）</td>
+                <td>相手はルートまで含むチェーンを送ってきたが、そのルートを信頼していない。自作 CA や社内 CA の典型</td>
+                <td>そのルートの CA 証明書を「CA証明書」に指定する</td>
+            </tr>
+            <tr>
+                <td><code>unable to get local issuer certificate</code><br>（<code>UNABLE_TO_GET_ISSUER_CERT_LOCALLY</code>）</td>
+                <td>チェーンの途中までは届いたが、それを発行したルート証明書が手元に無い。社内ネットワークのプロキシが通信を中継している場合にも起きる</td>
+                <td>ルート証明書を入手して「CA証明書」に指定する。社内プロキシが原因なら、情報システム部門に社内 CA の証明書を確認する。Node-RED 全体で信頼させたい場合は、環境変数 <code>NODE_EXTRA_CA_CERTS</code> に CA 証明書のパスを指定して Node-RED を起動する</td>
+            </tr>
+            <tr>
+                <td><code>unable to verify the first certificate</code><br>（<code>UNABLE_TO_VERIFY_LEAF_SIGNATURE</code>）</td>
+                <td>サーバーが自分の証明書だけを送り、中間証明書を送っていない。または発行元の CA を信頼していない</td>
+                <td>自分のサーバーなら、中間証明書をつなげた fullchain を設定する。自作 CA なら「CA証明書」に指定する</td>
+            </tr>
+            <tr>
+                <td><code>Hostname/IP does not match certificate's altnames</code><br>（<code>ERR_TLS_CERT_ALTNAME_INVALID</code>）</td>
+                <td>接続に使った名前（ホスト名や IP アドレス）が、証明書の SAN に無い</td>
+                <td>SAN に載っている名前で接続する。自分で発行した証明書なら、SAN に名前を追加して発行し直す。メッセージの <code>altnames:</code> の後ろに、証明書に載っている名前が表示される</td>
+            </tr>
+            <tr>
+                <td><code>certificate has expired</code><br>（<code>CERT_HAS_EXPIRED</code>）</td>
+                <td>証明書の有効期限が切れている。または機器の時計が未来にずれている</td>
+                <td>証明書を更新する。<code>date</code> コマンドで機器の時刻を確かめる</td>
+            </tr>
+            <tr>
+                <td><code>certificate is not yet valid</code><br>（<code>CERT_NOT_YET_VALID</code>）</td>
+                <td>機器の時計が過去にずれている。RTC の無いラズパイが、起動直後にまだ時刻を合わせていない場合に起きる</td>
+                <td><code>timedatectl</code> で「System clock synchronized: yes」になっているか確かめる。時刻の同期を待ってから接続する</td>
+            </tr>
+        </table>
+
+        <h3>症状から原因を引く</h3>
+
+        <table>
+            <tr>
+                <th>症状</th>
+                <th>原因</th>
+                <th>対処</th>
+            </tr>
+            <tr>
+                <td>MQTT が「接続中」のまま「接続済」にならず、ログは <code>Connection failed to broker</code> だけ</td>
+                <td>MQTT ノードは TLS の失敗理由を表示しない</td>
+                <td>Node-RED が動くコンピューターで <code>openssl s_client -connect ホスト:8883 -CAfile ca.crt</code> を実行し、<code>Verify return code</code> を見る。自分のブローカーなら、ブローカー側のログも確認する</td>
+            </tr>
+            <tr>
+                <td>「TLSを使用」をオンにしたら接続できなくなった</td>
+                <td>ポートが 1883（暗号化なし）のまま</td>
+                <td>ポートを TLS の窓口（多くは 8883）に変える</td>
+            </tr>
+            <tr>
+                <td>ブラウザでは開ける https の URL が、http request ではエラーになる</td>
+                <td>ブラウザは OS の証明書ストアを使い、Node.js は内蔵のルート証明書を使う。社内 CA は OS にだけ登録されていることが多い</td>
+                <td>社内 CA の証明書を TLS設定の「CA証明書」に指定する</td>
+            </tr>
+            <tr>
+                <td>「CA証明書」を指定したら、公開サイトへの接続が失敗するようになった</td>
+                <td>「CA証明書」を指定すると、内蔵のルート証明書の代わりにその CA だけを信頼する</td>
+                <td>公開サイト用と自作 CA 用で TLS設定を分け、ノードごとに使い分ける</td>
+            </tr>
+            <tr>
+                <td>デプロイ時に <code>ENOENT: no such file or directory</code></td>
+                <td>パス指定のファイルが見つからない。フローを別の機器に読み込んだときに多い</td>
+                <td>TLS設定のパスを、その機器上の実際のパスに直す</td>
+            </tr>
+            <tr>
+                <td>デプロイ時に <code>EACCES: permission denied</code></td>
+                <td>Node-RED を動かしているユーザーが、証明書や秘密鍵を読めない</td>
+                <td><code>ls -l</code> で所有者を確かめ、Node-RED のユーザーが読めるようにする</td>
+            </tr>
+            <tr>
+                <td>証明書を更新したのに、古い証明書のまま</td>
+                <td>パス指定のファイルは、起動時とデプロイ時にしか読まれない</td>
+                <td>TLS設定を使うノードを再デプロイするか、Node-RED を再起動する</td>
+            </tr>
+            <tr>
+                <td>フローを読み込んだら、TLS設定の証明書が空になっている</td>
+                <td>アップロードした証明書は資格情報として保存され、書き出したフローに含まれない</td>
+                <td>読み込んだ側でアップロードし直すか、パス指定に切り替える</td>
+            </tr>
+        </table>
+
+        <h2 id="glossary">16. 用語集</h2>
+
+        <p>クライアント、サーバー、ポートなど通信全般の用語は<a href="nodered-network-basics-guide.html#glossary">通信の基礎ガイドの用語集</a>を参照してください。</p>
+
+        <table>
+            <tr>
+                <th>用語</th>
+                <th>意味</th>
+            </tr>
+            <tr>
+                <td>TLS</td>
+                <td>通信の暗号化、改ざんの検出、相手の確認を行う仕組み。SSL は前身の古い呼び名</td>
+            </tr>
+            <tr>
+                <td>ハンドシェイク</td>
+                <td>TLS の通信を始める前に、証明書の確認と暗号の鍵の取り決めを行う手順</td>
+            </tr>
+            <tr>
+                <td>公開鍵、秘密鍵</td>
+                <td>2つで1組の鍵。公開鍵は配ってよく、秘密鍵は持ち主だけが持つ。秘密鍵の署名は公開鍵で確かめられる</td>
+            </tr>
+            <tr>
+                <td>証明書</td>
+                <td>公開鍵に持ち主の名前と有効期間を添え、CA が署名したもの</td>
+            </tr>
+            <tr>
+                <td>CA（認証局）</td>
+                <td>証明書に署名する機関。公的な CA と、自分で作るプライベート CA がある</td>
+            </tr>
+            <tr>
+                <td>ルート証明書、中間証明書</td>
+                <td>CA の階層の最上位と途中の証明書。ルート証明書は自分自身で署名している</td>
+            </tr>
+            <tr>
+                <td>証明書チェーン</td>
+                <td>サーバー証明書からルート証明書までの署名の連なり</td>
+            </tr>
+            <tr>
+                <td>自己署名証明書</td>
+                <td>CA を通さず、自分の秘密鍵で自分に署名した証明書</td>
+            </tr>
+            <tr>
+                <td>SAN（サブジェクト代替名）</td>
+                <td>証明書が有効な名前（ホスト名、IP アドレス）の一覧。名前の確認はここで行う</td>
+            </tr>
+            <tr>
+                <td>SNI</td>
+                <td>ハンドシェイクの最初に、クライアントが接続先の名前をサーバーに伝える仕組み</td>
+            </tr>
+            <tr>
+                <td>ALPN</td>
+                <td>ハンドシェイクの中で、その接続で使うプロトコルを伝える仕組み</td>
+            </tr>
+            <tr>
+                <td>相互TLS（mTLS）</td>
+                <td>サーバーだけでなく、クライアントも証明書を提示して身元を示す TLS</td>
+            </tr>
+            <tr>
+                <td>PEM、DER、PKCS#12</td>
+                <td>証明書や鍵のファイル形式。PEM はテキスト、DER はバイナリ、PKCS#12（.pfx / .p12）は証明書と秘密鍵をまとめたもの</td>
+            </tr>
+            <tr>
+                <td>CSR</td>
+                <td>証明書署名要求。CA に署名を依頼するための申請書で、公開鍵と名前を含む</td>
+            </tr>
+        </table>
+
+        <p style="margin-top:30px;">
+            <a href="index.html">← トップページへ戻る</a> |
+            <a href="nodered-network-basics-guide.html">通信の基礎</a> |
+            <a href="nodered-http-node-guide.html">HTTP</a> |
+            <a href="nodered-websocket-node-guide.html">WebSocket</a> |
+            <a href="nodered-mqtt-node-guide.html">MQTT</a> |
+            <a href="nodered-tcp-node-guide.html">TCP</a>
+        </p>
+    </div>
+<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.flow-json').forEach(function(block) {
+                var button = document.createElement('button');
+                button.className = 'copy-button';
+                button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                button.addEventListener('click', function() {
+                    // 要素ノード（コピーボタン）を除き、直下のテキストだけを取り出す
+                    var code = Array.prototype.filter.call(block.childNodes, function(n) {
+                        return n.nodeType === Node.TEXT_NODE;
+                    }).map(function(n) { return n.textContent; }).join('').trim();
+                    navigator.clipboard.writeText(code).then(function() {
+                        button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>コピーしました!';
+                        button.classList.add('copied');
+                        setTimeout(function() {
+                            button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                            button.classList.remove('copied');
+                        }, 2000);
+                    });
+                });
+                block.style.position = 'relative';
+                block.appendChild(button);
+            });
+        });
+    </script>
+    <!-- フローティングホームボタン -->
+    <a href="index.html" style="position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px; background: linear-gradient(135deg, #42b883 0%, #35495e 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; transition: transform 0.3s, box-shadow 0.3s;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 6px 16px rgba(0,0,0,0.4)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.3)';" title="トップページへ">🏠</a>
+</body>
+</html>
