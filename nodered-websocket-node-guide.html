@@ -229,7 +229,7 @@ ws://localhost:1880/ws/chat</div>
         <p>送信時に使用できる msg プロパティ：</p>
         <table>
             <tr><th>プロパティ</th><th>説明</th></tr>
-            <tr><td><strong>msg.payload</strong></td><td>送信データ</td></tr>
+            <tr><td><strong>msg.payload</strong></td><td>送信データ。「ペイロードを送信」モードでは、オブジェクトはJSON文字列に自動変換して送信される（受信側には文字列で届く）</td></tr>
             <tr><td><strong>msg._session</strong></td><td>特定クライアントに送信（省略時は全員）</td></tr>
         </table>
         
@@ -528,7 +528,7 @@ ws://localhost:1880/ws/chat</div>
         "type": "function",
         "z": "ws_sample_tab",
         "name": "エコー処理",
-        "func": "// 受信データに時刻を追加して返信\nconst received = msg.payload;\n\nmsg.payload = {\n    type: \"echo\",\n    original: received,\n    timestamp: new Date().toISOString(),\n    message: \"あなたは「\" + received + \"」と言いました\"\n};\n\n// JSON文字列に変換\nmsg.payload = JSON.stringify(msg.payload);\n\nreturn msg;",
+        "func": "// 受信データに時刻を追加して返信\nconst received = msg.payload;\n\nmsg.payload = {\n    type: \"echo\",\n    original: received,\n    timestamp: new Date().toISOString(),\n    message: \"あなたは「\" + received + \"」と言いました\"\n};\n\n// オブジェクトのまま渡せば、WebSocket Out がJSON文字列に変換して送信する\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -593,7 +593,7 @@ ws://localhost:1880/ws/chat</div>
         "type": "function",
         "z": "ws_sample_tab",
         "name": "チャット処理",
-        "func": "let data;\ntry {\n    data = JSON.parse(msg.payload);\n} catch (e) {\n    data = {name: \"匿名\", message: msg.payload};\n}\n\n// ブロードキャスト用にメッセージを整形\nmsg.payload = JSON.stringify({\n    type: \"chat\",\n    name: data.name || \"匿名\",\n    message: data.message || data,\n    timestamp: new Date().toISOString()\n});\n\n// _sessionを削除して全員に送信\ndelete msg._session;\n\nreturn msg;",
+        "func": "let data;\ntry {\n    data = JSON.parse(msg.payload);\n} catch (e) {\n    data = {name: \"匿名\", message: msg.payload};\n}\n\n// ブロードキャスト用にメッセージを整形\nmsg.payload = {\n    type: \"chat\",\n    name: data.name || \"匿名\",\n    message: data.message || data,\n    timestamp: new Date().toISOString()\n};\n\n// _sessionを削除して全員に送信\ndelete msg._session;\n\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -657,7 +657,7 @@ ws://localhost:1880/ws/chat</div>
         "payloadType": "json",
         "x": 160,
         "y": 460,
-        "wires": [["ws_func_push"]]
+        "wires": [["ws_out_chat"]]
     },
     {
         "id": "ws_inject_timer",
@@ -677,27 +677,11 @@ ws://localhost:1880/ws/chat</div>
         "wires": [["ws_func_time"]]
     },
     {
-        "id": "ws_func_push",
-        "type": "function",
-        "z": "ws_sample_tab",
-        "name": "プッシュ整形",
-        "func": "msg.payload = JSON.stringify(msg.payload);\n// _sessionがないので全員に送信\nreturn msg;",
-        "outputs": 1,
-        "timeout": 0,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 370,
-        "y": 460,
-        "wires": [["ws_out_chat"]]
-    },
-    {
         "id": "ws_func_time",
         "type": "function",
         "z": "ws_sample_tab",
         "name": "時刻整形",
-        "func": "msg.payload = JSON.stringify({\n    type: \"time\",\n    serverTime: new Date().toISOString()\n});\nreturn msg;",
+        "func": "msg.payload = {\n    type: \"time\",\n    serverTime: new Date().toISOString()\n};\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -999,7 +983,7 @@ ws.onclose = function() {
 
             <p><strong>✅ 成功の条件:</strong></p>
             <ul>
-                <li><code>/ws/time</code> に接続してメッセージを送信すると、JSONオブジェクトが返ってくる</li>
+                <li><code>/ws/time</code> に接続してメッセージを送信すると、JSON形式の文字列が返ってくる</li>
                 <li>返信に <code>message</code>（送信した内容）と <code>receivedAt</code>（ISO 8601形式の日時）が含まれている</li>
                 <li>複数のメッセージを送るたびに <code>receivedAt</code> の値が更新される</li>
             </ul>
@@ -1007,11 +991,12 @@ ws.onclose = function() {
             <details>
                 <summary>💡 ヒント</summary>
                 <p><strong>Function ノード:</strong></p>
-                <div class="code-block">msg.payload = JSON.stringify({
+                <div class="code-block">msg.payload = {
     message: msg.payload,
     receivedAt: new Date().toISOString()
-});
+};
 return msg;</div>
+                <p>オブジェクトのまま WebSocket Out に渡せば、送信時にJSON文字列へ自動で変換されます。<code>JSON.stringify()</code> を自分で書く必要はありません。</p>
             </details>
             
             <details>
@@ -1034,11 +1019,11 @@ return msg;</div>
     {"id": "ex2_tab", "type": "tab", "label": "演習2"},
     {"id": "ex2_ws_listener", "type": "websocket-listener", "path": "/ws/time", "wholemsg": "false"},
     {"id": "ex2_ws_in", "type": "websocket in", "z": "ex2_tab", "name": "WS In", "server": "ex2_ws_listener", "client": "", "x": 150, "y": 100, "wires": [["ex2_func"]]},
-    {"id": "ex2_func", "type": "function", "z": "ex2_tab", "name": "時刻追加", "func": "msg.payload = JSON.stringify({\n    message: msg.payload,\n    receivedAt: new Date().toISOString()\n});\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 320, "y": 100, "wires": [["ex2_ws_out"]]},
+    {"id": "ex2_func", "type": "function", "z": "ex2_tab", "name": "時刻追加", "func": "msg.payload = {\n    message: msg.payload,\n    receivedAt: new Date().toISOString()\n};\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 320, "y": 100, "wires": [["ex2_ws_out"]]},
     {"id": "ex2_ws_out", "type": "websocket out", "z": "ex2_tab", "name": "WS Out", "server": "ex2_ws_listener", "client": "", "x": 490, "y": 100, "wires": []}
 ]</div>
             </details>
-            <p><strong>🔍 動作確認:</strong> 自分で作ったフロー、または解答例フロー（サーバー側）をデプロイしたうえで、動作確認用フローを読み込んでデプロイします。WebSocketノードの下に緑色の丸印が出たことを確認したら、「テスト送信」injectノードのボタンをクリックします。debugサイドバーに <code>message</code> と <code>receivedAt</code> を含むJSON形式のデータが表示されれば成功です。もう一度押すと <code>receivedAt</code> の値が変わります。</p>
+            <p><strong>🔍 動作確認:</strong> 自分で作ったフロー、または解答例フロー（サーバー側）をデプロイしたうえで、動作確認用フローを読み込んでデプロイします。WebSocketノードの下に緑色の丸印が出たことを確認したら、「テスト送信」injectノードのボタンをクリックします。debugサイドバーの「クライアント側: 返信確認」に <code>{"message":"こんにちは","receivedAt":"..."}</code> という<strong>文字列</strong>が表示されれば成功です。WebSocketでテキストとして送られたデータは、受信側では文字列として届きます（オブジェクトには戻りません）。オブジェクトとして項目を取り出したいときは、WebSocket In の直後に json ノードを置いて変換します。もう一度押すと <code>receivedAt</code> の値が変わります。</p>
         </div>
         
         <div class="exercise">
@@ -1182,7 +1167,7 @@ return msg;</div>
     {"id": "ex4_tab", "type": "tab", "label": "演習4"},
     {"id": "ex4_ws_listener", "type": "websocket-listener", "path": "/ws/chatroom", "wholemsg": "false"},
     {"id": "ex4_ws_in", "type": "websocket in", "z": "ex4_tab", "name": "WS Chat In", "server": "ex4_ws_listener", "client": "", "x": 160, "y": 100, "wires": [["ex4_func"]]},
-    {"id": "ex4_func", "type": "function", "z": "ex4_tab", "name": "チャット処理", "func": "let data;\ntry {\n    data = JSON.parse(msg.payload);\n} catch (e) {\n    data = {name: \"匿名\", message: msg.payload};\n}\n\nmsg.payload = JSON.stringify({\n    type: \"chat\",\n    name: data.name || \"匿名\",\n    message: data.message || \"\",\n    timestamp: new Date().toISOString()\n});\n\n// 全員に送信するため _session を削除\ndelete msg._session;\n\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 360, "y": 100, "wires": [["ex4_ws_out", "ex4_debug"]]},
+    {"id": "ex4_func", "type": "function", "z": "ex4_tab", "name": "チャット処理", "func": "let data;\ntry {\n    data = JSON.parse(msg.payload);\n} catch (e) {\n    data = {name: \"匿名\", message: msg.payload};\n}\n\nmsg.payload = {\n    type: \"chat\",\n    name: data.name || \"匿名\",\n    message: data.message || \"\",\n    timestamp: new Date().toISOString()\n};\n\n// 全員に送信するため _session を削除\ndelete msg._session;\n\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 360, "y": 100, "wires": [["ex4_ws_out", "ex4_debug"]]},
     {"id": "ex4_ws_out", "type": "websocket out", "z": "ex4_tab", "name": "WS Chat Out", "server": "ex4_ws_listener", "client": "", "x": 570, "y": 100, "wires": []},
     {"id": "ex4_debug", "type": "debug", "z": "ex4_tab", "name": "サーバー側: チャットログ", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "x": 570, "y": 140, "wires": []}
 ]</div>
