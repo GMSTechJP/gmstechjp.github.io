@@ -38,18 +38,22 @@ VOID = {"area", "base", "br", "col", "embed", "hr", "img", "input",
 # html.unescape の両方が同じように変換するため、不一致検査では原理的に捕まらない。
 AMBIGUOUS_AMP = re.compile(r"&(?!amp;|lt;|gt;)")
 
-# null でも Buffer でもないオブジェクトの msg.payload を、引数なしの JSON.stringify と同じ形に
-# 自動で直列化する出力ノード（Node-RED 本体のソースで確認済み）。
-#   websocket out: RED.util.ensureString()（22-websocket.js、「ペイロードを送信」モード）
+# null でも Buffer でもないオブジェクトの msg.payload を、引数なしの JSON.stringify と同じ
+# 文字列に自動で直列化する出力ノード（Node-RED 本体のソースで確認済み）。
+#   websocket out: RED.util.ensureString()（22-websocket.js）。「ペイロードを送信」モードのみ。
+#                  「メッセージ全体を送信」モードは msg 全体を直列化するため対象外とする
 #   mqtt out:      JSON.stringify()（10-mqtt.js）
-#   http response: res.jsonp()（21-httpin.js）。ヘッダーを明示していなければ Content-Type も
-#                  application/json になり、手で文字列化するとそうならない
+# http response もオブジェクトを JSON で返すが、JSONP の callback や明示したヘッダーで結果が
+# 変わりうるため、誤検知を避けて自動検査の対象には含めない。
 # 教材の function でこれらの直前に JSON.stringify すると、学習者に不要な処理を覚えさせる。
-AUTO_SERIALIZE = {"websocket out", "mqtt out", "http response"}
+AUTO_SERIALIZE = {"websocket out", "mqtt out"}
 # 文字列化が不要な接続先と一緒につながっていても、判定を変えない接続先
 HARMLESS_PEERS = {"debug"}
-STRINGIFY_PAYLOAD = re.compile(r"msg\.payload\s*=\s*JSON\.stringify\(")
-JS_COMMENT = re.compile(r"/\*.*?\*/|//[^\n]*", re.S)
+STRINGIFY_PAYLOAD = re.compile(r"(?<![\w$.])msg\.payload\s*=\s*JSON\.stringify\(")
+# 引数がこれらのリテラルなら、出力は自動変換と一致しない（"a" は "\"a\"" になる）
+PRIMITIVE_ARG = re.compile(r'""|-?\d[\d.eE+-]*|true|false|null|undefined')
+# Buffer は自動変換の対象外（そのまま送られる）ため、手で JSON 化するのには意味がある
+BUFFER_ARG = re.compile(r"(?<![\w$])Buffer(?![\w$])")
 
 
 class FlowJsonExtractor(HTMLParser):
@@ -171,45 +175,113 @@ def walk_strings(value):
             yield from walk_strings(v)
 
 
-def single_argument(code, start):
-    """code[start] の直後から対応する ')' までの引数が1つだけなら True。"""
-    depth = 0
-    quote = None
-    i = start
-    while i < len(code):
+def strip_comments_and_strings(code):
+    """コメントを空白に、文字列リテラルを "" に置き換えたコードを返す。
+
+    文字列やコメントの中に書かれた `msg.payload = JSON.stringify(` を、実際の処理と
+    取り違えないためのもの。テンプレートリテラルの `${...}` は入れ子も含めて文字列の
+    一部として扱う。正規表現リテラルは区別しない。
+    """
+    out = []
+    i, n = 0, len(code)
+    while i < n:
         c = code[i]
-        if quote:
-            if c == "\\":
+        if code.startswith("//", i):
+            j = code.find("\n", i)
+            i = n if j < 0 else j
+            out.append(" ")
+        elif code.startswith("/*", i):
+            j = code.find("*/", i + 2)
+            i = n if j < 0 else j + 2
+            out.append(" ")
+        elif c in "\"'":
+            i += 1
+            while i < n and code[i] != c:
+                i += 2 if code[i] == "\\" else 1
+            i += 1
+            out.append('""')
+        elif c == "`":
+            i = skip_template(code, i)
+            out.append('""')
+        else:
+            out.append(c)
+            i += 1
+    return "".join(out)
+
+
+def skip_template(code, i):
+    """code[i] の ` で始まるテンプレートリテラルの直後の位置を返す（入れ子に対応）。"""
+    n = len(code)
+    i += 1
+    while i < n:
+        c = code[i]
+        if c == "\\":
+            i += 2
+        elif c == "`":
+            return i + 1
+        elif code.startswith("${", i):
+            i += 2
+            depth = 0
+            while i < n:
+                c = code[i]
+                if c == "`":
+                    i = skip_template(code, i)
+                    continue
+                if c in "\"'":
+                    i += 1
+                    while i < n and code[i] != c:
+                        i += 2 if code[i] == "\\" else 1
+                elif c == "{":
+                    depth += 1
+                elif c == "}":
+                    if depth == 0:
+                        break
+                    depth -= 1
                 i += 1
-            elif c == quote:
-                quote = None
-        elif c in "\"'`":
-            quote = c
-        elif c in "([{":
+            i += 1
+        else:
+            i += 1
+    return n
+
+
+def call_argument(code, start):
+    """code[start] から対応する ')' までの引数を返す。引数が1つでなければ None。"""
+    depth = 0
+    for i in range(start, len(code)):
+        c = code[i]
+        if c in "([{":
             depth += 1
         elif c in ")]}":
             if depth == 0:
-                return True
+                return code[start:i].strip() if c == ")" else None
             depth -= 1
         elif c == "," and depth == 0:
-            return False
-        i += 1
+            return None
+    return None
+
+
+def listener_is_wholemsg(node, by_id):
+    """websocket out の設定ノードが「メッセージ全体を送信」モードなら True。"""
+    for key in ("server", "client"):
+        ref = node.get(key)
+        conf = by_id.get(ref) if isinstance(ref, str) else None
+        if isinstance(conf, dict) and str(conf.get("wholemsg")) == "true":
+            return True
     return False
 
 
 def redundant_stringify(path, line, flow):
     """自動で直列化する出力ノードの直前で、引数なしの JSON.stringify をしている function を返す。
 
-    誤検知を避けるため、次をすべて満たすものに限る。
+    CI を落とす検査なので、誤検知を避けて次をすべて満たすものに限る。
     - 出力が1つ（複数出力では、文字列化した msg がどこへ行くかをコードから判断できない）
-    - コメントを除いたコードに `msg.payload = JSON.stringify(x)` があり、引数が1つ
-      （replacer やインデントを渡す場合は、自動変換と出力が変わる）
+    - コメントと文字列を除いたコードに `msg.payload = JSON.stringify(x)` があり、
+      引数が1つで、リテラルでも Buffer でもない（これらは自動変換と出力が変わる）
     - 接続先がすべて AUTO_SERIALIZE か HARMLESS_PEERS で、AUTO_SERIALIZE を1つ以上含む
+    - websocket out が「メッセージ全体を送信」モードではない
     """
-    types = {}
-    for n in flow:
-        if isinstance(n, dict) and isinstance(n.get("id"), str):
-            types[n["id"]] = n.get("type")
+    by_id = {n["id"]: n for n in flow
+             if isinstance(n, dict) and isinstance(n.get("id"), str)}
 
     errors = []
     for node in flow:
@@ -223,19 +295,29 @@ def redundant_stringify(path, line, flow):
         port = wires[0]
         if not isinstance(port, list) or not port:
             continue
-        code = JS_COMMENT.sub("", func)
-        if not any(single_argument(code, m.end())
-                   for m in STRINGIFY_PAYLOAD.finditer(code)):
+        code = strip_comments_and_strings(func)
+        args = [call_argument(code, m.end()) for m in STRINGIFY_PAYLOAD.finditer(code)]
+        if not any(a and not PRIMITIVE_ARG.fullmatch(a) and not BUFFER_ARG.search(a)
+                   for a in args):
             continue
-        targets = {types.get(t) for t in port if isinstance(t, str)}
-        auto = targets & AUTO_SERIALIZE
-        if auto and targets <= AUTO_SERIALIZE | HARMLESS_PEERS:
-            names = " / ".join(sorted(auto))
-            errors.append(
-                f"{path}:{line}: function {node.get('id', '?')} が msg.payload を "
-                f"JSON.stringify して {names} に渡している。{names} はオブジェクトを"
-                f"同じ形のJSON文字列に自動で変換するため、教材では書かない"
-            )
+        targets = [by_id.get(t) if isinstance(t, str) else None for t in port]
+        if not all(isinstance(t, dict) for t in targets):
+            continue
+        types = [t.get("type") for t in targets]
+        if not all(isinstance(t, str) and t in AUTO_SERIALIZE | HARMLESS_PEERS for t in types):
+            continue
+        auto = sorted({t for t in types if t in AUTO_SERIALIZE})
+        if not auto:
+            continue
+        if any(t.get("type") == "websocket out" and listener_is_wholemsg(t, by_id)
+               for t in targets):
+            continue
+        names = " / ".join(auto)
+        errors.append(
+            f"{path}:{line}: function {node.get('id', '?')} が msg.payload を "
+            f"JSON.stringify して {names} に渡している。{names} はオブジェクトを"
+            f"同じJSON文字列に自動で変換するため、教材では書かない"
+        )
     return errors
 
 
@@ -249,14 +331,20 @@ def check_flow(path, line, delivered):
     if not isinstance(flow, list):
         return [f"{path}:{line}: フローは配列でなければならない"]
 
-    ids = {n.get("id") for n in flow if isinstance(n, dict)}
+    ids = {n.get("id") for n in flow
+           if isinstance(n, dict) and isinstance(n.get("id"), str)}
     for node in flow:
-        if not isinstance(node, dict) or "id" not in node or "type" not in node:
-            errors.append(f"{path}:{line}: id / type を持たないノードがある")
+        if (not isinstance(node, dict) or not isinstance(node.get("id"), str)
+                or not isinstance(node.get("type"), str)):
+            errors.append(f"{path}:{line}: id / type を文字列で持たないノードがある")
             break
-        for port in node.get("wires") or []:
+        wires = node.get("wires") or []
+        if not isinstance(wires, list) or not all(isinstance(p, list) for p in wires):
+            errors.append(f"{path}:{line}: ノード {node['id']} の wires が配列の配列でない")
+            continue
+        for port in wires:
             for target in port:
-                if target not in ids:
+                if not isinstance(target, str) or target not in ids:
                     errors.append(
                         f"{path}:{line}: ノード {node['id']} の接続先 {target} が"
                         f"フロー内に存在しない"

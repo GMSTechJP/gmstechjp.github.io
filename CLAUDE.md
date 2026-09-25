@@ -353,7 +353,7 @@ Node-REDへのインポートも通ってしまう。壊れているのは `temp
 | 容器の誤り | `flow-json` が `<div>` 以外（`<textarea>` 等）に置かれている |
 | 二重エスケープ | パース後の値に `&lt;` / `&gt;` が残っている（`&amp;lt;` と書いた場合） |
 | 取りこぼし | `class="flow-json"` の個数と抽出できたブロック数が食い違う |
-| 不要な直列化 | function が `msg.payload = JSON.stringify(...)` して、websocket out / mqtt out / http response に直接渡している |
+| 不要な直列化 | function が `msg.payload = JSON.stringify(x)` して、websocket out（ペイロードを送信モード）/ mqtt out に直接渡している |
 | 閉じ忘れ | ブロックが閉じられていない |
 | 参照切れ | `wires` の接続先IDがフロー内に存在しない |
 
@@ -527,7 +527,8 @@ nodered-<node-name>-node-guide.html
 - **ノードが自動でやる処理を function で書かない**。websocket out / mqtt out /
   http response はオブジェクトの `msg.payload` を自動で直列化するため、直前の function で
   `JSON.stringify` しない（http response では Content-Type も JSON でなくなる）。
-  `python3 scripts/validate-flow-json.py` がこれを検出する。他のノードの挙動を説明・利用する
+  `python3 scripts/validate-flow-json.py` は websocket out / mqtt out の場合を検出する
+  （http response は JSONP やヘッダー指定で結果が変わりうるため、目視で確認する）。他のノードの挙動を説明・利用する
   ときも、ノードのソース（`.js`）で実際の処理を確認してから書く
 
 次の3つは例外として `var` を残す。
