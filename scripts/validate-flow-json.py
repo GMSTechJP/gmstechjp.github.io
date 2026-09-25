@@ -16,6 +16,9 @@
 ブロックの切り出しは正規表現ではなく HTMLParser で行う。JSON 文字列の中に `<div` が現れる
 ケースを正規表現で数えると、閉じタグを取り違えてブロックを1件も返さず、検査ごと素通りする。
 それは検出したい不具合そのものと同じ「静かにすり抜ける」失敗である。
+
+教材としての誤りも1つ検査する。自動で直列化する出力ノード（AUTO_SERIALIZE）の直前の
+function で msg.payload を JSON.stringify しているものである。
 """
 
 import glob
@@ -34,6 +37,19 @@ VOID = {"area", "base", "br", "col", "embed", "hr", "img", "input",
 # 無関係に決まる「曖昧な &」であり、解釈された場合（例: &copy; → ©）はコピー結果と
 # html.unescape の両方が同じように変換するため、不一致検査では原理的に捕まらない。
 AMBIGUOUS_AMP = re.compile(r"&(?!amp;|lt;|gt;)")
+
+# null でも Buffer でもないオブジェクトの msg.payload を、引数なしの JSON.stringify と同じ形に
+# 自動で直列化する出力ノード（Node-RED 本体のソースで確認済み）。
+#   websocket out: RED.util.ensureString()（22-websocket.js、「ペイロードを送信」モード）
+#   mqtt out:      JSON.stringify()（10-mqtt.js）
+#   http response: res.jsonp()（21-httpin.js）。ヘッダーを明示していなければ Content-Type も
+#                  application/json になり、手で文字列化するとそうならない
+# 教材の function でこれらの直前に JSON.stringify すると、学習者に不要な処理を覚えさせる。
+AUTO_SERIALIZE = {"websocket out", "mqtt out", "http response"}
+# 文字列化が不要な接続先と一緒につながっていても、判定を変えない接続先
+HARMLESS_PEERS = {"debug"}
+STRINGIFY_PAYLOAD = re.compile(r"msg\.payload\s*=\s*JSON\.stringify\(")
+JS_COMMENT = re.compile(r"/\*.*?\*/|//[^\n]*", re.S)
 
 
 class FlowJsonExtractor(HTMLParser):
@@ -155,6 +171,74 @@ def walk_strings(value):
             yield from walk_strings(v)
 
 
+def single_argument(code, start):
+    """code[start] の直後から対応する ')' までの引数が1つだけなら True。"""
+    depth = 0
+    quote = None
+    i = start
+    while i < len(code):
+        c = code[i]
+        if quote:
+            if c == "\\":
+                i += 1
+            elif c == quote:
+                quote = None
+        elif c in "\"'`":
+            quote = c
+        elif c in "([{":
+            depth += 1
+        elif c in ")]}":
+            if depth == 0:
+                return True
+            depth -= 1
+        elif c == "," and depth == 0:
+            return False
+        i += 1
+    return False
+
+
+def redundant_stringify(path, line, flow):
+    """自動で直列化する出力ノードの直前で、引数なしの JSON.stringify をしている function を返す。
+
+    誤検知を避けるため、次をすべて満たすものに限る。
+    - 出力が1つ（複数出力では、文字列化した msg がどこへ行くかをコードから判断できない）
+    - コメントを除いたコードに `msg.payload = JSON.stringify(x)` があり、引数が1つ
+      （replacer やインデントを渡す場合は、自動変換と出力が変わる）
+    - 接続先がすべて AUTO_SERIALIZE か HARMLESS_PEERS で、AUTO_SERIALIZE を1つ以上含む
+    """
+    types = {}
+    for n in flow:
+        if isinstance(n, dict) and isinstance(n.get("id"), str):
+            types[n["id"]] = n.get("type")
+
+    errors = []
+    for node in flow:
+        if not isinstance(node, dict) or node.get("type") != "function":
+            continue
+        func, wires = node.get("func"), node.get("wires")
+        if not isinstance(func, str) or not isinstance(wires, list) or len(wires) != 1:
+            continue
+        if node.get("outputs", 1) not in (1, "1"):
+            continue
+        port = wires[0]
+        if not isinstance(port, list) or not port:
+            continue
+        code = JS_COMMENT.sub("", func)
+        if not any(single_argument(code, m.end())
+                   for m in STRINGIFY_PAYLOAD.finditer(code)):
+            continue
+        targets = {types.get(t) for t in port if isinstance(t, str)}
+        auto = targets & AUTO_SERIALIZE
+        if auto and targets <= AUTO_SERIALIZE | HARMLESS_PEERS:
+            names = " / ".join(sorted(auto))
+            errors.append(
+                f"{path}:{line}: function {node.get('id', '?')} が msg.payload を "
+                f"JSON.stringify して {names} に渡している。{names} はオブジェクトを"
+                f"同じ形のJSON文字列に自動で変換するため、教材では書かない"
+            )
+    return errors
+
+
 def check_flow(path, line, delivered):
     errors = []
     try:
@@ -177,6 +261,8 @@ def check_flow(path, line, delivered):
                         f"{path}:{line}: ノード {node['id']} の接続先 {target} が"
                         f"フロー内に存在しない"
                     )
+
+    errors.extend(redundant_stringify(path, line, flow))
 
     for value in walk_strings(flow):
         found = escaped_entities(value)
