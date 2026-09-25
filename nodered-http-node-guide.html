@@ -260,15 +260,25 @@
 
         <h2 id="section4">4. HTTP Request ノード</h2>
 
-        <h3>主要プロパティ</h3>
+        <h3>設定項目</h3>
+        <p>エディターの表示順に並べています。「種別」「ユーザ名」「パスワード」は、「認証を使用」をオンにしたときだけ表示されます。</p>
         <table>
-            <tr><th>プロパティ</th><th>説明</th><th>デフォルト</th></tr>
-            <tr><td><strong>メソッド</strong></td><td>HTTPメソッド（GET/POST/PUT/DELETE等）</td><td>GET</td></tr>
-            <tr><td><strong>URL</strong></td><td>リクエスト先のURL</td><td>（空）</td></tr>
-            <tr><td><strong>ペイロード</strong></td><td><code>msg.payload</code> をリクエストにどう載せるか（無視 / クエリパラメータに追加 / リクエストボディとして送信）</td><td>無視</td></tr>
-            <tr><td><strong>出力形式</strong></td><td>レスポンスをどの型で受け取るか</td><td>UTF8文字列</td></tr>
-            <tr><td><strong>ヘッダ</strong></td><td>追加HTTPヘッダー</td><td>（空）</td></tr>
+            <tr><th>設定項目</th><th>説明</th><th>デフォルト</th></tr>
+            <tr><td><strong>メソッド</strong></td><td>送信するHTTPメソッド。GET / POST / PUT / DELETE / HEAD から選ぶ。「- msg.methodに定義 -」を選ぶと <code>msg.method</code> の値を使う</td><td>GET</td></tr>
+            <tr><td><strong>URL</strong></td><td>リクエスト先のURL。空欄にすると <code>msg.url</code> を使う。<code>https://example.com/{{{topic}}}</code> のように書くと、msg のプロパティ（この例では <code>msg.topic</code>）を埋め込める。二重括弧 <code>{{ }}</code> では <code>/</code> や <code>&amp;</code> がエスケープされるため、三重括弧を使う</td><td>（空）</td></tr>
+            <tr><td><strong>ペイロード</strong></td><td><code>msg.payload</code> をリクエストにどう載せるか（無視 / クエリパラメータに追加 / リクエストボディとして送信）。メソッドが GET のときだけ表示される。GET 以外では <code>msg.payload</code> がボディとして送られる</td><td>無視</td></tr>
             <tr><td><strong>SSL/TLS接続を有効化</strong></td><td>https の接続で使う証明書を「TLS設定」ノードで指定する。公的なCAの証明書を使うサイトなら、URLを https にするだけでよく、オフのままでよい。自作CAや社内CAのサーバーに接続するときにオンにする（<a href="nodered-tls-guide.html">TLSと証明書ガイド</a>）</td><td>オフ</td></tr>
+            <tr><td><strong>認証を使用</strong></td><td>オンにすると、下の「種別」「ユーザ名」「パスワード」が表示される。Web API が認証を求めるときに使う</td><td>オフ</td></tr>
+            <tr><td><strong>種別</strong></td><td>認証の方式。Basic認証 / Digest認証 / Bearer認証。API の説明書に書かれた方式を選ぶ。Bearer認証は、API キーやアクセストークンを <code>Authorization: Bearer …</code> ヘッダで送る方式</td><td>Basic認証</td></tr>
+            <tr><td><strong>ユーザ名</strong></td><td>Basic認証とDigest認証で使うユーザー名。Bearer認証では表示されない</td><td>（空）</td></tr>
+            <tr><td><strong>パスワード</strong></td><td>Basic認証とDigest認証のパスワード。Bearer認証を選ぶと欄の名前が「トークン」に変わり、トークンを入れる。ユーザ名とともに資格情報として保存され、フローを書き出しても含まれない</td><td>（空）</td></tr>
+            <tr><td><strong>コネクションkeep-aliveを有効化</strong></td><td>同じサーバーへの接続を使い回す。短い間隔で何度もリクエストする場合に、接続のたびの準備（https ではTLSのハンドシェイクも）を省ける</td><td>オフ</td></tr>
+            <tr><td><strong>プロキシを使用</strong></td><td>オンにすると「プロキシ設定」ノードを選ぶ欄が表示される。社内ネットワークなど、外部への通信がプロキシサーバーを経由する環境で使う。プロキシ設定ノードには、プロキシのURLと、プロキシを通さないホストの一覧を書く</td><td>オフ</td></tr>
+            <tr><td><strong>2xx以外の応答をcatchノードへ送信</strong></td><td>接続できない、タイムアウト、証明書エラーなど、応答を受け取れなかった失敗の送り先を決める。オンでは catch ノードだけに送り、オフでは catch ノードと出力の両方に送る。名前に反して、404 や 500 などの応答は、この設定に関係なく通常どおり出力される（<code>msg.statusCode</code> で判別する）</td><td>オフ</td></tr>
+            <tr><td><strong>厳密なHTTPパース処理を無効化</strong></td><td>HTTPの規格に厳密に従っていない応答も受け付ける。古い機器や組み込み機器のWebサーバーで、応答の読み取りに失敗するときだけオンにする。不正な応答を受け入れることになるため、ふだんはオフのままにする</td><td>オフ</td></tr>
+            <tr><td><strong>出力形式</strong></td><td>応答の本文をどの型で <code>msg.payload</code> に入れるか。UTF8文字列 / バイナリバッファ / JSONオブジェクト。JSONオブジェクトを選んで解析に失敗した場合は、文字列のまま出力される</td><td>UTF8文字列</td></tr>
+            <tr><td><strong>ヘッダ</strong></td><td>リクエストに付けるHTTPヘッダを、名前と値の組で追加する。<code>msg.headers</code> と同じ名前のヘッダがある場合は、この欄の値が優先される</td><td>（空）</td></tr>
+            <tr><td><strong>名前</strong></td><td>ノードに表示する名前</td><td>（空）</td></tr>
         </table>
 
         <h3>メソッドの選択肢</h3>
