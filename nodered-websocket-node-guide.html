@@ -884,7 +884,13 @@ ws.onclose = function() {
         <div class="important">
             <p><strong>🔍 演習を始める前に: 動作確認のしかた</strong></p>
             <p><code>ws://localhost:1880/ws/...</code> のようなアドレスは、<strong>ブラウザのアドレスバーに入力しても開けません</strong>。ブラウザのアドレスバーはWebページを開くためのもので、<code>ws://</code> で始まるアドレスは扱えません（入力すると、多くのブラウザで「このサイトにアクセスできません」のようなエラーになります）。これはWebページのアドレスではなく、プログラムがWebSocket接続を開くときに指定する文字列です。</p>
-            <p>そのため各演習の解答例フローには、<strong>ブラウザを使わずエディタ内だけで動作を確認できるフロー</strong>を同梱しています。Node-RED自身をクライアントとして接続させる方式で、injectノードのボタンを押すだけで結果がdebugサイドバーに表示されます。これは公式サンプルフロー（<code>/ws1</code>・<code>/ws2</code>）のループバック構成にならった、<strong>本サイト独自の動作確認用フロー</strong>です。</p>
+            <p>そのため各演習には、<strong>ブラウザを使わずエディタ内だけで動作を確認できる「動作確認用フロー」</strong>を、解答例フローとは別に用意しています。Node-RED自身をクライアントとして接続させる方式で、injectノードのボタンを押すだけで結果がdebugサイドバーに表示されます。これは公式サンプルフロー（<code>/ws1</code>・<code>/ws2</code>）のループバック構成にならった、<strong>本サイト独自の動作確認用フロー</strong>です。</p>
+            <p><strong>同じパスの待ち受けは1つだけ:</strong> WebSocketの待ち受け（サーバー側の設定ノード）は、1つのパスに1つしか置けません。自分で作ったフローと解答例フロー（サーバー側）を両方デプロイすると、<code>Cannot have two WebSocket listeners on the same path: /ws/myecho</code> のようなエラーになり、片方の待ち受けが動きません。</p>
+            <ul>
+                <li>自分で作ったフローを確かめるとき：動作確認用フローだけを読み込む</li>
+                <li>解答例フロー（サーバー側）を試すとき：自分で作ったWebSocketノードを削除したうえで、右上のメニュー（≡）の「設定ノード」を開き、同じパスの設定ノードも削除してから読み込む。サイドバー上部の「未使用」を押すと、どのノードからも使われていない設定ノードだけに絞り込める</li>
+            </ul>
+            <p>WebSocketノードを削除しても、パスを持つ設定ノードは「未使用」として残ります。また、設定ノードはタブに属さないため、タブを無効にしても止まりません。設定ノードを削除しないと、エラーは消えません。</p>
             <p><strong>ボタンを押しても何も表示されないときは:</strong> デプロイ直後はWebSocketの接続がまだ確立していないことがあります。フロー上のWebSocketノードの下に緑色の丸印（接続中を示すステータス）が出たことを確認してから、もう一度ボタンを押してください。灰色や赤色の丸印の間は、まだ接続できていません。</p>
             <p>ブラウザから接続して試したい場合は、<a href="#test-methods">動作確認方法</a>の「方法2: 開発者ツールのConsoleで確認する」の手順を使い、コード内の <code>/ws/echo</code> を演習のパス（<code>/ws/myecho</code> など）に置き換えてください。</p>
         </div>
@@ -936,22 +942,30 @@ ws.onclose = function() {
             </details>
             
             <details>
-                <summary>✅ 解答例フロー</summary>
+                <summary>🧪 動作確認用フロー（自分で作ったフローにも使えます）</summary>
+                <p>Node-RED自身をクライアントとして <code>/ws/myecho</code> に接続させるフローです。待ち受け（サーバー側）は含まないため、自分で作ったフローと一緒にデプロイできます。</p>
+                <div class="flow-json">[
+    {"id": "ex1_test_tab", "type": "tab", "label": "演習1 動作確認"},
+    {"id": "ex1_test_comment", "type": "comment", "z": "ex1_test_tab", "name": "━━━ 動作確認用（ブラウザ不要）━━━", "info": "デプロイ後、ノードの下に緑色の丸印が出てから、下の「テスト送信」ボタンを押してください。Node-RED自身がクライアントとして /ws/myecho に接続し、送った内容がそのまま返ってきます。", "x": 230, "y": 60, "wires": []},
+    {"id": "ex1_ws_client", "type": "websocket-client", "path": "ws://localhost:1880/ws/myecho", "tls": "", "wholemsg": "false", "hb": "", "subprotocol": "", "headers": []},
+    {"id": "ex1_test_in", "type": "websocket in", "z": "ex1_test_tab", "name": "clientとして受信", "server": "", "client": "ex1_ws_client", "x": 160, "y": 180, "wires": [["ex1_test_debug"]]},
+    {"id": "ex1_test_debug", "type": "debug", "z": "ex1_test_tab", "name": "エコー確認", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "statusVal": "", "statusType": "auto", "x": 390, "y": 180, "wires": []},
+    {"id": "ex1_test_inject", "type": "inject", "z": "ex1_test_tab", "name": "テスト送信", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "Hello", "payloadType": "str", "x": 150, "y": 120, "wires": [["ex1_test_out"]]},
+    {"id": "ex1_test_out", "type": "websocket out", "z": "ex1_test_tab", "name": "clientとして送信", "server": "", "client": "ex1_ws_client", "x": 380, "y": 120, "wires": []}
+]</div>
+            </details>
+
+            <details>
+                <summary>✅ 解答例フロー（サーバー側）</summary>
                 <div class="flow-json">[
     {"id": "ex1_tab", "type": "tab", "label": "演習1"},
     {"id": "ex1_ws_listener", "type": "websocket-listener", "path": "/ws/myecho", "wholemsg": "false"},
     {"id": "ex1_ws_in", "type": "websocket in", "z": "ex1_tab", "name": "WS In", "server": "ex1_ws_listener", "client": "", "x": 150, "y": 100, "wires": [["ex1_ws_out", "ex1_debug"]]},
     {"id": "ex1_ws_out", "type": "websocket out", "z": "ex1_tab", "name": "WS Out", "server": "ex1_ws_listener", "client": "", "x": 350, "y": 100, "wires": []},
-    {"id": "ex1_debug", "type": "debug", "z": "ex1_tab", "name": "ログ", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "\"受信\"", "statusType": "str", "x": 350, "y": 140, "wires": []},
-    {"id": "ex1_test_comment", "type": "comment", "z": "ex1_tab", "name": "━━━ 動作確認用（ブラウザ不要）━━━", "info": "デプロイ後、ノードの下に緑色の丸印が出てから、下の「テスト送信」ボタンを押してください。Node-RED自身がクライアントとして /ws/myecho に接続し、送った内容がそのまま返ってきます。", "x": 230, "y": 260, "wires": []},
-    {"id": "ex1_ws_client", "type": "websocket-client", "path": "ws://localhost:1880/ws/myecho", "tls": "", "wholemsg": "false", "hb": "", "subprotocol": "", "headers": []},
-    {"id": "ex1_test_in", "type": "websocket in", "z": "ex1_tab", "name": "clientとして受信", "server": "", "client": "ex1_ws_client", "x": 160, "y": 380, "wires": [["ex1_test_debug"]]},
-    {"id": "ex1_test_debug", "type": "debug", "z": "ex1_tab", "name": "エコー確認", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "statusVal": "", "statusType": "auto", "x": 390, "y": 380, "wires": []},
-    {"id": "ex1_test_inject", "type": "inject", "z": "ex1_tab", "name": "テスト送信", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "Hello", "payloadType": "str", "x": 150, "y": 320, "wires": [["ex1_test_out"]]},
-    {"id": "ex1_test_out", "type": "websocket out", "z": "ex1_tab", "name": "clientとして送信", "server": "", "client": "ex1_ws_client", "x": 380, "y": 320, "wires": []}
+    {"id": "ex1_debug", "type": "debug", "z": "ex1_tab", "name": "ログ", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "\"受信\"", "statusType": "str", "x": 350, "y": 140, "wires": []}
 ]</div>
             </details>
-            <p><strong>🔍 動作確認:</strong> 解答例フローをインポートして「デプロイ」します。WebSocketノードの下に緑色の丸印が表示されたら、「テスト送信」injectノードの左端のボタンをクリックします。debugサイドバーに <code>Hello</code> が表示されれば、送った内容がそのまま返っています。</p>
+            <p><strong>🔍 動作確認:</strong> 自分で作ったフロー、または解答例フロー（サーバー側）をデプロイしたうえで、動作確認用フローを読み込んでデプロイします。WebSocketノードの下に緑色の丸印が表示されたら、「テスト送信」injectノードの左端のボタンをクリックします。debugサイドバーに <code>Hello</code> が表示されれば、送った内容がそのまま返っています。</p>
         </div>
         
         <div class="exercise">
@@ -1000,22 +1014,30 @@ return msg;</div>
             </details>
             
             <details>
-                <summary>✅ 解答例フロー</summary>
+                <summary>🧪 動作確認用フロー（自分で作ったフローにも使えます）</summary>
+                <p>Node-RED自身をクライアントとして <code>/ws/time</code> に接続させるフローです。待ち受け（サーバー側）は含まないため、自分で作ったフローと一緒にデプロイできます。</p>
+                <div class="flow-json">[
+    {"id": "ex2_test_tab", "type": "tab", "label": "演習2 動作確認"},
+    {"id": "ex2_test_comment", "type": "comment", "z": "ex2_test_tab", "name": "━━━ 動作確認用（ブラウザ不要）━━━", "info": "デプロイ後、ノードの下に緑色の丸印が出てから、下の「テスト送信」ボタンを押してください。Node-RED自身がクライアントとして /ws/time に接続し、時刻が付いたJSONが返ってきます。", "x": 230, "y": 60, "wires": []},
+    {"id": "ex2_ws_client", "type": "websocket-client", "path": "ws://localhost:1880/ws/time", "tls": "", "wholemsg": "false", "hb": "", "subprotocol": "", "headers": []},
+    {"id": "ex2_test_in", "type": "websocket in", "z": "ex2_test_tab", "name": "clientとして受信", "server": "", "client": "ex2_ws_client", "x": 160, "y": 180, "wires": [["ex2_test_debug"]]},
+    {"id": "ex2_test_debug", "type": "debug", "z": "ex2_test_tab", "name": "返信確認", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "statusVal": "", "statusType": "auto", "x": 390, "y": 180, "wires": []},
+    {"id": "ex2_test_inject", "type": "inject", "z": "ex2_test_tab", "name": "テスト送信", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "こんにちは", "payloadType": "str", "x": 150, "y": 120, "wires": [["ex2_test_out"]]},
+    {"id": "ex2_test_out", "type": "websocket out", "z": "ex2_test_tab", "name": "clientとして送信", "server": "", "client": "ex2_ws_client", "x": 380, "y": 120, "wires": []}
+]</div>
+            </details>
+
+            <details>
+                <summary>✅ 解答例フロー（サーバー側）</summary>
                 <div class="flow-json">[
     {"id": "ex2_tab", "type": "tab", "label": "演習2"},
     {"id": "ex2_ws_listener", "type": "websocket-listener", "path": "/ws/time", "wholemsg": "false"},
     {"id": "ex2_ws_in", "type": "websocket in", "z": "ex2_tab", "name": "WS In", "server": "ex2_ws_listener", "client": "", "x": 150, "y": 100, "wires": [["ex2_func"]]},
     {"id": "ex2_func", "type": "function", "z": "ex2_tab", "name": "時刻追加", "func": "msg.payload = JSON.stringify({\n    message: msg.payload,\n    receivedAt: new Date().toISOString()\n});\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 320, "y": 100, "wires": [["ex2_ws_out"]]},
-    {"id": "ex2_ws_out", "type": "websocket out", "z": "ex2_tab", "name": "WS Out", "server": "ex2_ws_listener", "client": "", "x": 490, "y": 100, "wires": []},
-    {"id": "ex2_test_comment", "type": "comment", "z": "ex2_tab", "name": "━━━ 動作確認用（ブラウザ不要）━━━", "info": "デプロイ後、ノードの下に緑色の丸印が出てから、下の「テスト送信」ボタンを押してください。Node-RED自身がクライアントとして /ws/time に接続し、時刻が付いたJSONが返ってきます。", "x": 230, "y": 260, "wires": []},
-    {"id": "ex2_ws_client", "type": "websocket-client", "path": "ws://localhost:1880/ws/time", "tls": "", "wholemsg": "false", "hb": "", "subprotocol": "", "headers": []},
-    {"id": "ex2_test_in", "type": "websocket in", "z": "ex2_tab", "name": "clientとして受信", "server": "", "client": "ex2_ws_client", "x": 160, "y": 380, "wires": [["ex2_test_debug"]]},
-    {"id": "ex2_test_debug", "type": "debug", "z": "ex2_tab", "name": "返信確認", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "statusVal": "", "statusType": "auto", "x": 390, "y": 380, "wires": []},
-    {"id": "ex2_test_inject", "type": "inject", "z": "ex2_tab", "name": "テスト送信", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "こんにちは", "payloadType": "str", "x": 150, "y": 320, "wires": [["ex2_test_out"]]},
-    {"id": "ex2_test_out", "type": "websocket out", "z": "ex2_tab", "name": "clientとして送信", "server": "", "client": "ex2_ws_client", "x": 380, "y": 320, "wires": []}
+    {"id": "ex2_ws_out", "type": "websocket out", "z": "ex2_tab", "name": "WS Out", "server": "ex2_ws_listener", "client": "", "x": 490, "y": 100, "wires": []}
 ]</div>
             </details>
-            <p><strong>🔍 動作確認:</strong> デプロイして、WebSocketノードの下に緑色の丸印が出たことを確認したら、「テスト送信」injectノードのボタンをクリックします。debugサイドバーに <code>message</code> と <code>receivedAt</code> を含むJSON形式のデータが表示されれば成功です。もう一度押すと <code>receivedAt</code> の値が変わります。</p>
+            <p><strong>🔍 動作確認:</strong> 自分で作ったフロー、または解答例フロー（サーバー側）をデプロイしたうえで、動作確認用フローを読み込んでデプロイします。WebSocketノードの下に緑色の丸印が出たことを確認したら、「テスト送信」injectノードのボタンをクリックします。debugサイドバーに <code>message</code> と <code>receivedAt</code> を含むJSON形式のデータが表示されれば成功です。もう一度押すと <code>receivedAt</code> の値が変わります。</p>
         </div>
         
         <div class="exercise">
@@ -1064,7 +1086,19 @@ return msg;</div>
             </details>
 
             <details>
-                <summary>✅ 解答例フロー</summary>
+                <summary>🧪 動作確認用フロー（自分で作ったフローにも使えます）</summary>
+                <p>Node-RED自身をクライアントとして <code>/ws/broadcast</code> に接続させるフローです。待ち受け（サーバー側）は含まないため、自分で作ったフローと一緒にデプロイできます。</p>
+                <div class="flow-json">[
+    {"id": "ex3_test_tab", "type": "tab", "label": "演習3 動作確認"},
+    {"id": "ex3_test_comment", "type": "comment", "z": "ex3_test_tab", "name": "━━━ 動作確認用（ブラウザ不要）━━━", "info": "デプロイ後、ノードの下に緑色の丸印が出てから、上の「ブロードキャスト」ボタンを押してください。クライアントとして接続しているこのフローが、配信されたメッセージを受信します。", "x": 230, "y": 60, "wires": []},
+    {"id": "ex3_ws_client", "type": "websocket-client", "path": "ws://localhost:1880/ws/broadcast", "tls": "", "wholemsg": "false", "hb": "", "subprotocol": "", "headers": []},
+    {"id": "ex3_test_in", "type": "websocket in", "z": "ex3_test_tab", "name": "clientとして受信", "server": "", "client": "ex3_ws_client", "x": 160, "y": 120, "wires": [["ex3_test_debug"]]},
+    {"id": "ex3_test_debug", "type": "debug", "z": "ex3_test_tab", "name": "配信確認", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "statusVal": "", "statusType": "auto", "x": 390, "y": 120, "wires": []}
+]</div>
+            </details>
+
+            <details>
+                <summary>✅ 解答例フロー（サーバー側）</summary>
                 <div class="flow-json">[
     {"id": "ex3_tab", "type": "tab", "label": "演習3"},
     {"id": "ex3_ws_listener", "type": "websocket-listener", "path": "/ws/broadcast", "wholemsg": "false"},
@@ -1072,14 +1106,10 @@ return msg;</div>
     {"id": "ex3_change", "type": "change", "z": "ex3_tab", "name": "_session削除", "rules": [{"t": "delete", "p": "_session", "pt": "msg"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 370, "y": 100, "wires": [["ex3_ws_out"]]},
     {"id": "ex3_ws_out", "type": "websocket out", "z": "ex3_tab", "name": "WS Out (全員)", "server": "ex3_ws_listener", "client": "", "x": 560, "y": 100, "wires": []},
     {"id": "ex3_ws_in", "type": "websocket in", "z": "ex3_tab", "name": "WS In (接続確認用)", "server": "ex3_ws_listener", "client": "", "x": 190, "y": 180, "wires": [["ex3_debug"]]},
-    {"id": "ex3_debug", "type": "debug", "z": "ex3_tab", "name": "接続ログ", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "\"クライアント接続\"", "statusType": "str", "x": 410, "y": 180, "wires": []},
-    {"id": "ex3_test_comment", "type": "comment", "z": "ex3_tab", "name": "━━━ 動作確認用（ブラウザ不要）━━━", "info": "デプロイ後、ノードの下に緑色の丸印が出てから、上の「ブロードキャスト」ボタンを押してください。クライアントとして接続しているこのフローが、配信されたメッセージを受信します。", "x": 230, "y": 260, "wires": []},
-    {"id": "ex3_ws_client", "type": "websocket-client", "path": "ws://localhost:1880/ws/broadcast", "tls": "", "wholemsg": "false", "hb": "", "subprotocol": "", "headers": []},
-    {"id": "ex3_test_in", "type": "websocket in", "z": "ex3_tab", "name": "clientとして受信", "server": "", "client": "ex3_ws_client", "x": 160, "y": 320, "wires": [["ex3_test_debug"]]},
-    {"id": "ex3_test_debug", "type": "debug", "z": "ex3_tab", "name": "配信確認", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "statusVal": "", "statusType": "auto", "x": 390, "y": 320, "wires": []}
+    {"id": "ex3_debug", "type": "debug", "z": "ex3_tab", "name": "接続ログ", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "\"クライアント接続\"", "statusType": "str", "x": 410, "y": 180, "wires": []}
 ]</div>
             </details>
-            <p><strong>🔍 動作確認:</strong> デプロイして、WebSocketノードの下に緑色の丸印が出たことを確認したら、「ブロードキャスト」injectノードのボタンをクリックします。debugサイドバーの「配信確認」に配信内容が表示されれば、接続中のクライアントに届いています。</p>
+            <p><strong>🔍 動作確認:</strong> 自分で作ったフロー、または解答例フロー（サーバー側）をデプロイしたうえで、動作確認用フローを読み込んでデプロイします。WebSocketノードの下に緑色の丸印が出たことを確認したら、サーバー側で配信するinjectノード（解答例では「ブロードキャスト」）のボタンをクリックします。debugサイドバーの「配信確認」に配信内容が表示されれば、接続中のクライアントに届いています。</p>
         </div>
         
         <div class="exercise">
@@ -1131,24 +1161,32 @@ return msg;</div>
             </details>
             
             <details>
-                <summary>✅ 解答例フロー</summary>
+                <summary>🧪 動作確認用フロー（自分で作ったフローにも使えます）</summary>
+                <p>Node-RED自身をクライアントとして <code>/ws/chatroom</code> に接続させるフローです。待ち受け（サーバー側）は含まないため、自分で作ったフローと一緒にデプロイできます。</p>
+                <div class="flow-json">[
+    {"id": "ex4_test_tab", "type": "tab", "label": "演習4 動作確認"},
+    {"id": "ex4_test_comment", "type": "comment", "z": "ex4_test_tab", "name": "━━━ 動作確認用（ブラウザ不要）━━━", "info": "デプロイ後、ノードの下に緑色の丸印が出てから、下の「テスト送信」ボタンを押してください。Aさん役のクライアントが発言し、それがサーバーで整形されて全員に配信され、別のクライアントであるBさん役に届きます。送信役と受信役を別のクライアントにしているのは、エコーと違って全員に配信されるため、「他の参加者に届く」ことを確かめる必要があるからです。", "x": 230, "y": 60, "wires": []},
+    {"id": "ex4_ws_client_send", "type": "websocket-client", "path": "ws://localhost:1880/ws/chatroom", "tls": "", "wholemsg": "false", "hb": "", "subprotocol": "", "headers": []},
+    {"id": "ex4_ws_client_recv", "type": "websocket-client", "path": "ws://localhost:1880/ws/chatroom", "tls": "", "wholemsg": "false", "hb": "", "subprotocol": "", "headers": []},
+    {"id": "ex4_test_inject", "type": "inject", "z": "ex4_test_tab", "name": "テスト送信", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "{\"name\":\"太郎\",\"message\":\"こんにちは\"}", "payloadType": "json", "x": 150, "y": 120, "wires": [["ex4_test_out"]]},
+    {"id": "ex4_test_out", "type": "websocket out", "z": "ex4_test_tab", "name": "Aさんとして送信", "server": "", "client": "ex4_ws_client_send", "x": 380, "y": 120, "wires": []},
+    {"id": "ex4_test_in", "type": "websocket in", "z": "ex4_test_tab", "name": "Bさんとして受信", "server": "", "client": "ex4_ws_client_recv", "x": 160, "y": 180, "wires": [["ex4_test_debug"]]},
+    {"id": "ex4_test_debug", "type": "debug", "z": "ex4_test_tab", "name": "Bさんに届いた内容", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "statusVal": "", "statusType": "auto", "x": 390, "y": 180, "wires": []}
+]</div>
+            </details>
+
+            <details>
+                <summary>✅ 解答例フロー（サーバー側）</summary>
                 <div class="flow-json">[
     {"id": "ex4_tab", "type": "tab", "label": "演習4"},
     {"id": "ex4_ws_listener", "type": "websocket-listener", "path": "/ws/chatroom", "wholemsg": "false"},
     {"id": "ex4_ws_in", "type": "websocket in", "z": "ex4_tab", "name": "WS Chat In", "server": "ex4_ws_listener", "client": "", "x": 160, "y": 100, "wires": [["ex4_func"]]},
     {"id": "ex4_func", "type": "function", "z": "ex4_tab", "name": "チャット処理", "func": "let data;\ntry {\n    data = JSON.parse(msg.payload);\n} catch (e) {\n    data = {name: \"匿名\", message: msg.payload};\n}\n\nmsg.payload = JSON.stringify({\n    type: \"chat\",\n    name: data.name || \"匿名\",\n    message: data.message || \"\",\n    timestamp: new Date().toISOString()\n});\n\n// 全員に送信するため _session を削除\ndelete msg._session;\n\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 360, "y": 100, "wires": [["ex4_ws_out", "ex4_debug"]]},
     {"id": "ex4_ws_out", "type": "websocket out", "z": "ex4_tab", "name": "WS Chat Out", "server": "ex4_ws_listener", "client": "", "x": 570, "y": 100, "wires": []},
-    {"id": "ex4_debug", "type": "debug", "z": "ex4_tab", "name": "チャットログ", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "x": 570, "y": 140, "wires": []},
-    {"id": "ex4_test_comment", "type": "comment", "z": "ex4_tab", "name": "━━━ 動作確認用（ブラウザ不要）━━━", "info": "デプロイ後、ノードの下に緑色の丸印が出てから、下の「テスト送信」ボタンを押してください。Aさん役のクライアントが発言し、それがサーバーで整形されて全員に配信され、別のクライアントであるBさん役に届きます。送信役と受信役を別のクライアントにしているのは、エコーと違って全員に配信されるため、「他の参加者に届く」ことを確かめる必要があるからです。", "x": 230, "y": 260, "wires": []},
-    {"id": "ex4_ws_client_send", "type": "websocket-client", "path": "ws://localhost:1880/ws/chatroom", "tls": "", "wholemsg": "false", "hb": "", "subprotocol": "", "headers": []},
-    {"id": "ex4_ws_client_recv", "type": "websocket-client", "path": "ws://localhost:1880/ws/chatroom", "tls": "", "wholemsg": "false", "hb": "", "subprotocol": "", "headers": []},
-    {"id": "ex4_test_inject", "type": "inject", "z": "ex4_tab", "name": "テスト送信", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "{\"name\":\"太郎\",\"message\":\"こんにちは\"}", "payloadType": "json", "x": 150, "y": 320, "wires": [["ex4_test_out"]]},
-    {"id": "ex4_test_out", "type": "websocket out", "z": "ex4_tab", "name": "Aさんとして送信", "server": "", "client": "ex4_ws_client_send", "x": 380, "y": 320, "wires": []},
-    {"id": "ex4_test_in", "type": "websocket in", "z": "ex4_tab", "name": "Bさんとして受信", "server": "", "client": "ex4_ws_client_recv", "x": 160, "y": 380, "wires": [["ex4_test_debug"]]},
-    {"id": "ex4_test_debug", "type": "debug", "z": "ex4_tab", "name": "Bさんに届いた内容", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "statusVal": "", "statusType": "auto", "x": 390, "y": 380, "wires": []}
+    {"id": "ex4_debug", "type": "debug", "z": "ex4_tab", "name": "チャットログ", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "x": 570, "y": 140, "wires": []}
 ]</div>
             </details>
-            <p><strong>🔍 動作確認:</strong> デプロイして、WebSocketノードの下に緑色の丸印が出たことを確認したら、「テスト送信」injectノードのボタンをクリックします。debugサイドバーの「Bさんに届いた内容」に <code>type</code>・<code>name</code>・<code>message</code>・<code>timestamp</code> を含むデータが表示されれば、Aさんの発言が別の参加者であるBさんまで届いています。</p>
+            <p><strong>🔍 動作確認:</strong> 自分で作ったフロー、または解答例フロー（サーバー側）をデプロイしたうえで、動作確認用フローを読み込んでデプロイします。WebSocketノードの下に緑色の丸印が出たことを確認したら、「テスト送信」injectノードのボタンをクリックします。debugサイドバーの「Bさんに届いた内容」に <code>type</code>・<code>name</code>・<code>message</code>・<code>timestamp</code> を含むデータが表示されれば、Aさんの発言が別の参加者であるBさんまで届いています。</p>
         </div>
         
         <h2 id="section6">✅ 6. まとめ</h2>
@@ -1187,6 +1225,11 @@ return msg;</div>
                 <td>すぐ切断される</td>
                 <td>サーバー側の問題</td>
                 <td>Node-REDのログを確認</td>
+            </tr>
+            <tr>
+                <td>デプロイすると <code>Cannot have two WebSocket listeners on the same path</code> と出る</td>
+                <td>同じパスの待ち受け設定ノードが2つある。自分で作ったフローと解答例の両方を読み込んだ、同じフローを2回読み込んだ、ノードを削除しても設定ノードが残っている、のいずれかが多い</td>
+                <td>右上のメニュー（≡）の「設定ノード」で同じパスの設定ノードを探し、1つだけ残して削除する。「未使用」で絞り込むと、削除したノードの残りが見つけやすい</td>
             </tr>
             <tr>
                 <td>メッセージが届かない</td>
