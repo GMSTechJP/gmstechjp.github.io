@@ -885,6 +885,7 @@ ws.onclose = function() {
             <p><strong>🔍 演習を始める前に: 動作確認のしかた</strong></p>
             <p><code>ws://localhost:1880/ws/...</code> のようなアドレスは、<strong>ブラウザのアドレスバーに入力しても開けません</strong>。ブラウザのアドレスバーはWebページを開くためのもので、<code>ws://</code> で始まるアドレスは扱えません（入力すると、多くのブラウザで「このサイトにアクセスできません」のようなエラーになります）。これはWebページのアドレスではなく、プログラムがWebSocket接続を開くときに指定する文字列です。</p>
             <p>そのため各演習には、<strong>ブラウザを使わずエディタ内だけで動作を確認できる「動作確認用フロー」</strong>を、解答例フローとは別に用意しています。Node-RED自身をクライアントとして接続させる方式で、injectノードのボタンを押すだけで結果がdebugサイドバーに表示されます。これは公式サンプルフロー（<code>/ws1</code>・<code>/ws2</code>）のループバック構成にならった、<strong>本サイト独自の動作確認用フロー</strong>です。</p>
+            <p><strong>サーバーとクライアントの分担:</strong> 演習で作るのは<strong>サーバー側（待ち受け）</strong>です。<code>/ws/myecho</code> などの接続先は、自分でフローを作ってデプロイするまで存在しません。動作確認用フローは、その接続先へ<strong>接続しに行くクライアント</strong>で、接続先を持っていません。そのため、動作確認用フローだけを読み込んでも接続できません。また、応用フローのテスト用ページ（<code>/ws-test</code>）は <code>/ws/echo</code> と <code>/ws/chat</code> 専用なので、演習の確認には使えません。</p>
             <p><strong>同じパスの待ち受けは1つだけ:</strong> WebSocketの待ち受け（サーバー側の設定ノード）は、1つのパスに1つしか置けません。自分で作ったフローと解答例フロー（サーバー側）を両方デプロイすると、<code>Cannot have two WebSocket listeners on the same path: /ws/myecho</code> のようなエラーになり、片方の待ち受けが動きません。</p>
             <ul>
                 <li>自分で作ったフローを確かめるとき：動作確認用フローだけを読み込む</li>
@@ -903,8 +904,8 @@ ws.onclose = function() {
             <p><strong>作る範囲:</strong></p>
             <div class="sys-map">
                 <div class="sys-actor">
-                    <div class="sys-name">ブラウザ</div>
-                    <div class="sys-role">WebSocketクライアント<br>（既にあるもの）</div>
+                    <div class="sys-name">動作確認用フロー</div>
+                    <div class="sys-role">WebSocketクライアント<br>（本ページで用意）</div>
                 </div>
                 <div class="sys-link">
                     <div class="sys-req">送信 "Hello" &rarr;</div>
@@ -943,7 +944,7 @@ ws.onclose = function() {
             
             <details>
                 <summary>🧪 動作確認用フロー（自分で作ったフローにも使えます）</summary>
-                <p>Node-RED自身をクライアントとして <code>/ws/myecho</code> に接続させるフローです。待ち受け（サーバー側）は含まないため、自分で作ったフローと一緒にデプロイできます。</p>
+                <p>Node-RED自身をクライアントとして <code>ws://localhost:1880/ws/myecho</code> に接続させるフローです。接続先のURLはキャンバス上には表示されず、設定ノードに入っています。「clientとして受信」ノードをダブルクリックし、「接続先」欄の右にある鉛筆アイコンを押すと確認できます。待ち受け（サーバー側）は含まないため、自分で作ったフローと一緒にデプロイできます。</p>
                 <div class="flow-json">[
     {"id": "ex1_test_tab", "type": "tab", "label": "演習1 動作確認"},
     {"id": "ex1_test_comment", "type": "comment", "z": "ex1_test_tab", "name": "━━━ 動作確認用（ブラウザ不要）━━━", "info": "デプロイ後、ノードの下に緑色の丸印が出てから、下の「テスト送信」ボタンを押してください。Node-RED自身がクライアントとして /ws/myecho に接続し、送った内容がそのまま返ってきます。", "x": 230, "y": 60, "wires": []},
@@ -976,8 +977,8 @@ ws.onclose = function() {
             <p><strong>作る範囲:</strong></p>
             <div class="sys-map">
                 <div class="sys-actor">
-                    <div class="sys-name">ブラウザ</div>
-                    <div class="sys-role">WebSocketクライアント<br>（既にあるもの）</div>
+                    <div class="sys-name">動作確認用フロー</div>
+                    <div class="sys-role">WebSocketクライアント<br>（本ページで用意）</div>
                 </div>
                 <div class="sys-link">
                     <div class="sys-req">送信 "こんにちは" &rarr;</div>
@@ -1015,7 +1016,7 @@ return msg;</div>
             
             <details>
                 <summary>🧪 動作確認用フロー（自分で作ったフローにも使えます）</summary>
-                <p>Node-RED自身をクライアントとして <code>/ws/time</code> に接続させるフローです。待ち受け（サーバー側）は含まないため、自分で作ったフローと一緒にデプロイできます。</p>
+                <p>Node-RED自身をクライアントとして <code>ws://localhost:1880/ws/time</code> に接続させるフローです。接続先のURLはキャンバス上には表示されず、設定ノードに入っています。「clientとして受信」ノードをダブルクリックし、「接続先」欄の右にある鉛筆アイコンを押すと確認できます。待ち受け（サーバー側）は含まないため、自分で作ったフローと一緒にデプロイできます。</p>
                 <div class="flow-json">[
     {"id": "ex2_test_tab", "type": "tab", "label": "演習2 動作確認"},
     {"id": "ex2_test_comment", "type": "comment", "z": "ex2_test_tab", "name": "━━━ 動作確認用（ブラウザ不要）━━━", "info": "デプロイ後、ノードの下に緑色の丸印が出てから、下の「テスト送信」ボタンを押してください。Node-RED自身がクライアントとして /ws/time に接続し、時刻が付いたJSONが返ってきます。", "x": 230, "y": 60, "wires": []},
@@ -1057,7 +1058,7 @@ return msg;</div>
                 </div>
                 <div class="sys-actor">
                     <div class="sys-name">接続中の全クライアント</div>
-                    <div class="sys-role">複数のブラウザタブ<br>（既にあるもの）</div>
+                    <div class="sys-role">動作確認用フロー<br>（本ページで用意）</div>
                 </div>
             </div>
 
@@ -1087,7 +1088,7 @@ return msg;</div>
 
             <details>
                 <summary>🧪 動作確認用フロー（自分で作ったフローにも使えます）</summary>
-                <p>Node-RED自身をクライアントとして <code>/ws/broadcast</code> に接続させるフローです。待ち受け（サーバー側）は含まないため、自分で作ったフローと一緒にデプロイできます。</p>
+                <p>Node-RED自身をクライアントとして <code>ws://localhost:1880/ws/broadcast</code> に接続させるフローです。接続先のURLはキャンバス上には表示されず、設定ノードに入っています。「clientとして受信」ノードをダブルクリックし、「接続先」欄の右にある鉛筆アイコンを押すと確認できます。待ち受け（サーバー側）は含まないため、自分で作ったフローと一緒にデプロイできます。</p>
                 <div class="flow-json">[
     {"id": "ex3_test_tab", "type": "tab", "label": "演習3 動作確認"},
     {"id": "ex3_test_comment", "type": "comment", "z": "ex3_test_tab", "name": "━━━ 動作確認用（ブラウザ不要）━━━", "info": "デプロイ後、ノードの下に緑色の丸印が出てから、上の「ブロードキャスト」ボタンを押してください。クライアントとして接続しているこのフローが、配信されたメッセージを受信します。", "x": 230, "y": 60, "wires": []},
@@ -1121,7 +1122,7 @@ return msg;</div>
             <div class="sys-map">
                 <div class="sys-actor">
                     <div class="sys-name">複数のクライアント</div>
-                    <div class="sys-role">ブラウザタブ<br>（既にあるもの）</div>
+                    <div class="sys-role">動作確認用フロー<br>（AさんとBさんの2接続）</div>
                 </div>
                 <div class="sys-link">
                     <div class="sys-req">発言 {"name":..,"message":..} &rarr;</div>
@@ -1162,7 +1163,7 @@ return msg;</div>
             
             <details>
                 <summary>🧪 動作確認用フロー（自分で作ったフローにも使えます）</summary>
-                <p>Node-RED自身をクライアントとして <code>/ws/chatroom</code> に接続させるフローです。待ち受け（サーバー側）は含まないため、自分で作ったフローと一緒にデプロイできます。</p>
+                <p>Node-RED自身をクライアントとして <code>ws://localhost:1880/ws/chatroom</code> に接続させるフローです。接続先のURLはキャンバス上には表示されず、設定ノードに入っています。「Bさんとして受信」ノードをダブルクリックし、「接続先」欄の右にある鉛筆アイコンを押すと確認できます。待ち受け（サーバー側）は含まないため、自分で作ったフローと一緒にデプロイできます。</p>
                 <div class="flow-json">[
     {"id": "ex4_test_tab", "type": "tab", "label": "演習4 動作確認"},
     {"id": "ex4_test_comment", "type": "comment", "z": "ex4_test_tab", "name": "━━━ 動作確認用（ブラウザ不要）━━━", "info": "デプロイ後、ノードの下に緑色の丸印が出てから、下の「テスト送信」ボタンを押してください。Aさん役のクライアントが発言し、それがサーバーで整形されて全員に配信され、別のクライアントであるBさん役に届きます。送信役と受信役を別のクライアントにしているのは、エコーと違って全員に配信されるため、「他の参加者に届く」ことを確かめる必要があるからです。", "x": 230, "y": 60, "wires": []},
