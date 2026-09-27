@@ -189,7 +189,7 @@ NODE_COLORS = {
 }
 
 
-def nrnode(x, y, label, color, w=None, outputs=1, mood='happy', h=None):
+def nrnode(x, y, label, color, w=None, outputs=1, mood='happy', h=None, inputs=1, fs=12):
     """Node-RED のノード（顔つき）。(x, y) は中心。
 
     戻り値は (svg, 入力ポート座標, 出力ポート座標のリスト)。
@@ -204,18 +204,32 @@ def nrnode(x, y, label, color, w=None, outputs=1, mood='happy', h=None):
     if mood == 'happy':
         s.append(f'<path d="M{fx-7} {fy-4} q2.5 -3.5 5 0 M{fx+2} {fy-4} q2.5 -3.5 5 0" fill="none" stroke="{INK}" stroke-width="1.6"/>')
         s.append(f'<path d="M{fx-5} {fy+2} Q{fx} {fy+8} {fx+5} {fy+2}" fill="none" stroke="{INK}" stroke-width="1.8"/>')
-    elif mood == 'think':
+    else:
         s.append(f'<circle cx="{fx-4}" cy="{fy-4}" r="1.8" fill="{INK}"/><circle cx="{fx+4}" cy="{fy-4}" r="1.8" fill="{INK}"/>')
-        s.append(f'<line x1="{fx-4}" y1="{fy+4}" x2="{fx+4}" y2="{fy+4}" stroke="{INK}" stroke-width="1.8"/>')
-    s.append(text(left + 30 + (w - 30) / 2, y + 4, label, 12, INK, weight='bold'))
+        if mood == 'sad':
+            s.append(f'<path d="M{fx-5} {fy+7} Q{fx} {fy+2} {fx+5} {fy+7}" fill="none" stroke="{INK}" stroke-width="1.8"/>')
+            s.append(f'<path d="M{fx+10} {fy-12} q-3 5 0 7 q3 -2 0 -7z" fill="#64b5f6"/>')
+        elif mood == 'surprised':
+            s.append(f'<circle cx="{fx}" cy="{fy+4}" r="2.6" fill="none" stroke="{INK}" stroke-width="1.6"/>')
+        else:
+            s.append(f'<line x1="{fx-4}" y1="{fy+4}" x2="{fx+4}" y2="{fy+4}" stroke="{INK}" stroke-width="1.8"/>')
+    s.append(text(left + 30 + (w - 30) / 2, y + fs * 0.35, label, fs, INK, weight='bold'))
     inp = (left, y)
-    s.append(f'<rect x="{left-5}" y="{y-5}" width="10" height="10" rx="2" fill="#d9d9d9" stroke="#999"/>')
+    if inputs:
+        s.append(f'<rect x="{left-5}" y="{y-5}" width="10" height="10" rx="2" fill="#d9d9d9" stroke="#999"/>')
     outs = []
     for i in range(outputs):
         oy = y if outputs == 1 else top + (h / outputs) * (i + 0.5)
         s.append(f'<rect x="{left+w-5}" y="{oy-5}" width="10" height="10" rx="2" fill="#d9d9d9" stroke="#999"/>')
         outs.append((left + w + 5, oy))
     return ''.join(s), inp, outs
+
+
+def status_dot(x, y, t, fill=GREEN, shape='dot'):
+    """ノードの下に出るステータス表示（色つきの点と文字）"""
+    mark = (f'<circle cx="{x+5}" cy="{y}" r="5" fill="{fill}"/>' if shape == 'dot'
+            else f'<circle cx="{x+5}" cy="{y}" r="4" fill="#fff" stroke="{fill}" stroke-width="2"/>')
+    return mark + text(x + 14, y + 4, t, 11, INK, 'start')
 
 
 def msgcard(x, y, lines, title='msg', w=None, hl=(), strike=(), fill='#fff', stroke='#90a4ae'):
