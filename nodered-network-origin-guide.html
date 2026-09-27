@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED 成り立ちから見る通信の基礎</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.8; max-width: 1000px; margin: 0 auto; padding: 20px; background-color: #f5f5f5; color: #333; }
+        h1 { color: #8f0000; border-bottom: 3px solid #8f0000; padding-bottom: 10px; }
+        h2 { color: #c00000; margin-top: 40px; border-left: 5px solid #c00000; padding-left: 15px; }
+        h3 { color: #555; margin-top: 25px; }
+        h4 { color: #666; margin-top: 20px; }
+        .container { background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .page-nav { background: #eef5ff; border: 2px solid #4a90e2; border-radius: 8px; padding: 18px 24px; margin-bottom: 25px; }
+        .page-nav p { margin: 6px 0; }
+        .page-nav .label { display: block; font-weight: bold; color: #2c5282; }
+        .important { background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .tip { background-color: #d1ecf1; border-left: 4px solid #17a2b8; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        .warning { background-color: #f8d7da; border-left: 4px solid #dc3545; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; vertical-align: top; }
+        th { background-color: #e2d96e; color: #333; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        ul, ol { padding-left: 25px; }
+        li { margin: 8px 0; }
+        code { background: #f0f0f0; padding: 2px 6px; border-radius: 3px; font-family: 'Courier New', monospace; font-size: 0.95em; }
+        .toc { background-color: #fafafa; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .toc h3 { margin-top: 0; color: #8f0000; }
+        .toc ul { list-style: none; padding-left: 0; }
+        .toc li { padding: 3px 0; margin: 0; }
+        .toc a { color: #1976d2; text-decoration: none; }
+        .toc a:hover { text-decoration: underline; }
+        .analogy { color: #6a1b9a; font-weight: bold; }
+        .next-box { background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-left: 5px solid #1976d2; padding: 20px 25px; margin: 30px 0 10px; border-radius: 6px; }
+        .next-box h3 { margin-top: 0; color: #0d47a1; }
+        .next-box a { color: #1565c0; font-weight: bold; text-decoration: none; }
+        .next-box a:hover { text-decoration: underline; }
+
+        /* このガイド固有: 全体の地図 */
+        .story-map { display: flex; flex-wrap: wrap; align-items: stretch; gap: 6px; margin: 20px 0; }
+        .story-map .stop { flex: 1 1 100px; background: #fff; border: 2px solid #ddd; border-radius: 8px; padding: 10px 12px; font-size: 0.9em; }
+        .story-map .stop .no { display: block; font-weight: bold; color: #8f0000; }
+        .story-map .stop .q { display: block; color: #555; }
+        .story-map .stop .a { display: block; margin-top: 4px; font-weight: bold; color: #1b5e20; }
+        .story-map .arrow { align-self: center; color: #999; font-weight: bold; }
+
+        /* 困った → 生まれた のペア */
+        .story { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: stretch; margin: 22px 0; }
+        .story .trouble, .story .born { border-radius: 8px; padding: 14px 16px; }
+        .story .trouble { background: #fdecea; border: 2px solid #e57373; }
+        .story .born { background: #e8f5e9; border: 2px solid #81c784; }
+        .story .label { display: inline-block; font-weight: bold; font-size: 0.8em; padding: 1px 10px; border-radius: 10px; margin-bottom: 6px; color: #fff; }
+        .story .trouble .label { background: #c62828; }
+        .story .born .label { background: #2e7d32; }
+        .story .name { display: block; font-weight: bold; font-size: 1.1em; color: #1b5e20; }
+        .story .to { align-self: center; font-size: 1.4em; color: #999; font-weight: bold; }
+        .story p { margin: 4px 0; }
+        @media (max-width: 640px) {
+            .story { grid-template-columns: 1fr; }
+            .story .to { text-align: center; transform: rotate(90deg); }
+        }
+
+        /* 図の共通枠 */
+        .figure { background: #fafafa; border: 2px solid #ddd; border-radius: 12px; padding: 20px; margin: 22px 0; }
+        .figure .cap { text-align: center; font-size: 0.88em; color: #666; margin-top: 10px; }
+
+        /* フレームやヘッダーの箱 */
+        .frame { display: flex; flex-wrap: wrap; gap: 3px; font-size: 0.9em; margin: 8px 0; }
+        .frame span { padding: 8px 10px; border-radius: 4px; text-align: center; flex: 1 1 auto; }
+        .f-dst { background: #e3f2fd; color: #0d47a1; }
+        .f-src { background: #e8f5e9; color: #1b5e20; }
+        .f-data { background: #fff; border: 1px dashed #999; flex-grow: 4 !important; }
+        .f-chk { background: #fff3e0; color: #e65100; }
+
+        /* 封筒の入れ子（カプセル化） */
+        .nest { border-radius: 8px; padding: 8px 10px; margin: 4px 0; }
+        .nest .tag { font-weight: bold; font-size: 0.85em; }
+        .n-eth  { background: #eceff1; border: 2px solid #607d8b; }
+        .n-ip   { background: #e3f2fd; border: 2px solid #1976d2; }
+        .n-tcp  { background: #fff3e0; border: 2px solid #ef6c00; }
+        .n-tls  { background: #e8f5e9; border: 2px solid #2e7d32; }
+        .n-app  { background: #fff; border: 2px dashed #8e24aa; }
+
+        /* 層の積み上げ */
+        .stack { max-width: 640px; margin: 20px auto; }
+        .stack .layer { display: grid; grid-template-columns: 150px 1fr; gap: 0; margin: 5px 0; border-radius: 6px; overflow: hidden; }
+        .stack .layer .lname { padding: 10px; font-weight: bold; color: #fff; text-align: center; }
+        .stack .layer .ltech { padding: 10px 12px; background: #fff; border: 1px solid #ddd; border-left: none; }
+        .stack .l-app .lname { background: #8e24aa; }
+        .stack .l-tr .lname  { background: #ef6c00; }
+        .stack .l-int .lname { background: #1976d2; }
+        .stack .l-link .lname{ background: #607d8b; }
+
+        /* 手順の列 */
+        .steps { counter-reset: s; list-style: none; padding-left: 0; }
+        .steps li { counter-increment: s; position: relative; padding: 10px 14px 10px 52px; background: #fafafa; border: 1px solid #ddd; border-radius: 8px; margin: 8px 0; }
+        .steps li::before { content: counter(s); position: absolute; left: 12px; top: 10px; width: 28px; height: 28px; border-radius: 50%; background: #8f0000; color: #fff; text-align: center; line-height: 28px; font-weight: bold; }
+        .steps .layer-tag { display: inline-block; font-size: 0.78em; font-weight: bold; padding: 0 8px; border-radius: 10px; margin-right: 6px; color: #fff; }
+        .t-app { background: #8e24aa; } .t-tr { background: #ef6c00; } .t-int { background: #1976d2; } .t-link { background: #607d8b; } .t-tls { background: #2e7d32; }
+
+        /* ハブとスイッチの比較 */
+        .hs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+        .hs { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 12px; text-align: center; }
+        .hs-title { font-weight: bold; color: #37474f; }
+        .hs-msg { font-size: 0.88em; color: #666; margin: 4px 0 8px; }
+        .hs-ports { display: flex; gap: 6px; }
+        .hs-ports span { flex: 1; border-radius: 6px; padding: 6px 2px; font-weight: bold; line-height: 1.3; }
+        .hs-ports small { font-weight: normal; font-size: 0.75em; }
+        .p-src { background: #e3f2fd; color: #0d47a1; }
+        .p-dst { background: #e8f5e9; color: #1b5e20; border: 2px solid #81c784; }
+        .p-waste { background: #fdecea; color: #b71c1c; }
+        .p-none { background: #f5f5f5; color: #9e9e9e; }
+        /* DNS のたどり方 */
+        .dns-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; background: #fff; border: 1px solid #ddd; border-radius: 6px; padding: 8px 12px; margin: 6px 0; }
+        .dns-row.ask, .dns-row.ans { background: #e3f2fd; border-color: #90caf9; }
+        .dns-row .who, .dns-row .who2 { font-weight: bold; }
+        .dns-row .who2 { min-width: 140px; }
+        .dns-row .no { color: #8f0000; font-weight: bold; }
+        .dns-row .say { flex: 1 1 200px; }
+        @media (max-width: 640px) {
+            body { padding: 8px; }
+            .container { padding: 16px; }
+            th, td { padding: 6px; font-size: 0.85em; }
+            td code { word-break: break-all; }
+            .stack .layer { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>成り立ちから見る通信の基礎</h1>
+        <div data-envbadge="1" style="margin:12px 0;"><span style="display:inline-block;padding:3px 12px;border-radius:12px;font-size:0.85em;font-weight:bold;background:#e3f2fd;color:#0d47a1;border:1px solid #90caf9;">☁️ クラウドOK</span> <a href="nodered-learning-environment-guide.html" style="font-size:0.82em;">環境とは？</a></div>
+
+        <div class="page-nav">
+            <p><span class="label">📖 このページの前提</span>特別な前提はありません。<a href="nodered-network-basics-guide.html">通信の基礎（ネットワーク入門）</a>の別バージョンです。あちらは「HTTP や MQTT をどう使い分けるか」を通信の型から整理しています。こちらは、その下で動いている Ethernet、IP、TCP、DNS、TLS がなぜ必要になったのかを、生まれた順にたどります。</p>
+            <p><span class="label">🎯 得られるもの</span>MAC アドレス、IP アドレス、ルーター、ポート番号、DNS、TLS といった用語が、それぞれどんな困りごとを解決するために生まれたのかを説明できるようになります。Node-RED で「つながらない」ときに、どの段階の問題かを見当づけられるようになります。</p>
+            <p><span class="label">📝 このページの形</span>仕組みと用語の解説だけで、サンプルフローや演習はありません。ノードの操作は各プロトコルのガイドで扱います。</p>
+            <p><span class="label">📘 用語を忘れたら</span>このページ末尾の<a href="#glossary">用語集</a>に戻れます。</p>
+        </div>
+
+        <p>ネットワークの技術は、最初から完成された設計図があって作られたわけではありません。「2台をつなぎたい」から始まり、つないだ結果として新しい困りごとが生まれ、それを解決する技術が足されていきました。今のネットワークは、その積み重ねです。</p>
+        <p>そこで、ここでは一つひとつの技術を「困った」と「生まれた」の組で見ていきます。困りごとを先に知っておくと、技術の名前を丸暗記しなくても役割を思い出せます。</p>
+
+        <div class="tip">
+            <strong>参考にした動画</strong>：このページの構成は、YouTube の動画「<a href="https://www.youtube.com/watch?v=t0tVQkIAfos" target="_blank" rel="noopener">【入門】ネットワークの仕組み。Ethernet、TCP/IP、TLS、DNS。</a>」の「困った」から「生まれた」へと進む流れを参考にさせていただきました。ネットワークの全体像がつかめる、とても分かりやすい動画です。このページと合わせてご覧になることをおすすめします。なお、本文の説明と Node-RED との対応づけはこのサイト独自のもので、誤りがあればこのサイトの責任です。
+        </div>
+
+        <div class="toc">
+            <h3>目次</h3>
+            <ul>
+                <li><a href="#map">全体の地図</a></li>
+                <li><a href="#s1">1. 2台のコンピュータをつなぎたい</a></li>
+                <li><a href="#s2">2. たくさんのコンピュータをつなぎたい（Ethernet）</a></li>
+                <li><a href="#s3">3. ネットワーク同士をつなぎたい（IP とルーター）</a></li>
+                <li><a href="#s4">4. 確実に、アプリまで届けたい（TCP、UDP、ポート番号）</a></li>
+                <li><a href="#s5">5. 数字の住所を覚えられない（DNS）</a></li>
+                <li><a href="#s6">6. 途中で覗かれたくない（TLS）</a></li>
+                <li><a href="#s7">7. 積み重なった結果：TCP/IP の階層</a></li>
+                <li><a href="#s8">8. 通しで見る：Node-RED が https の API を呼ぶまで</a></li>
+                <li><a href="#s9">9. 「つながらない」を層で切り分ける</a></li>
+                <li><a href="#glossary">10. 用語集</a></li>
+                <li><a href="#s11">11. まとめ</a></li>
+            </ul>
+        </div>
+
+        <h2 id="map">全体の地図</h2>
+        <p>このページは次の順に進みます。左から右へ、つなぐ範囲が広がり、求めるものが増えていきます。</p>
+
+        <div class="story-map">
+            <div class="stop"><span class="no">1</span><span class="q">2台をつなぎたい</span><span class="a">ケーブルと信号の規格</span></div>
+            <div class="arrow">→</div>
+            <div class="stop"><span class="no">2</span><span class="q">たくさんつなぎたい</span><span class="a">Ethernet（MAC アドレス、スイッチ）</span></div>
+            <div class="arrow">→</div>
+            <div class="stop"><span class="no">3</span><span class="q">ネットワーク同士をつなぎたい</span><span class="a">IP アドレス、ルーター</span></div>
+            <div class="arrow">→</div>
+            <div class="stop"><span class="no">4</span><span class="q">確実にアプリまで届けたい</span><span class="a">TCP、UDP、ポート番号</span></div>
+            <div class="arrow">→</div>
+            <div class="stop"><span class="no">5</span><span class="q">名前で呼びたい</span><span class="a">DNS</span></div>
+            <div class="arrow">→</div>
+            <div class="stop"><span class="no">6</span><span class="q">安全に送りたい</span><span class="a">TLS</span></div>
+        </div>
+
+        <!-- ============================================================ -->
+        <h2 id="s1">1. 2台のコンピュータをつなぎたい</h2>
+
+        <p>コンピュータの中のデータは、すべて 0 と 1 の並びです。文字も数値も画像も、最終的には 0 と 1 の列になっています。2台のあいだでデータを渡すには、この 0 と 1 を相手へ運べばよいことになります。</p>
+
+        <div class="story">
+            <div class="trouble"><span class="label">困った</span>
+                <p>0 と 1 を、線の向こうの相手にどう伝えればよいか分からない。こちらが勝手に決めた伝え方では、相手が読み取れない。</p>
+            </div>
+            <div class="to">→</div>
+            <div class="born"><span class="label">生まれた</span>
+                <span class="name">ケーブルと信号の規格</span>
+                <p>どんな線を使い、電圧や光の変化をどう 0 と 1 に対応させるかを、送る側と受ける側で共通に決めた。</p>
+            </div>
+        </div>
+
+        <p>たとえば電圧が高いときを 1、低いときを 0 と決めておけば、電圧の変化で 0 と 1 を送れます。実際にはもっと工夫された方式を使いますが、考え方は同じです。運び手になるものは用途によって違います。</p>
+
+        <table>
+            <tr><th>運び手</th><th>0 と 1 の表し方</th><th>身近な例</th></tr>
+            <tr><td>銅線（LAN ケーブル）</td><td>電気信号の変化</td><td>パソコンやラズパイの LAN ポートに挿すケーブル</td></tr>
+            <tr><td>光ファイバ</td><td>光の点滅</td><td>建物に引き込む光回線</td></tr>
+            <tr><td>電波</td><td>電波の変化</td><td>Wi-Fi、携帯電話の回線</td></tr>
+        </table>
+
+        <p>コネクタの形、ケーブルの種類、信号の速さまで含めて規格として決めておくことで、別々の会社が作った機器どうしでもつながるようになりました。ここで決めているのは「0 と 1 を運ぶ」ところまでです。運んだ 0 と 1 がどういう意味を持つかは、この後の技術が決めていきます。</p>
+
+        <!-- ============================================================ -->
+        <h2 id="s2">2. たくさんのコンピュータをつなぎたい（Ethernet）</h2>
+
+        <p>2台がつながると、次は3台、10台とつなぎたくなります。ここで最初の問題にぶつかります。</p>
+
+        <div class="story">
+            <div class="trouble"><span class="label">困った</span>
+                <p>全員を 1 対 1 のケーブルで結ぶと、本数が爆発する。10台なら 45 本、100台なら 4950 本になる。</p>
+            </div>
+            <div class="to">→</div>
+            <div class="born"><span class="label">生まれた</span>
+                <span class="name">共有の通り道</span>
+                <p>1本の線（のちに中継機器）に全員をつなぎ、みんなで同じ通り道を使う。</p>
+            </div>
+        </div>
+
+        <p>全員が同じ通り道につながると、誰かが送った信号は全員に届きます。すると、すぐに次の問題が出てきます。</p>
+
+        <h3>誰宛てか分からない</h3>
+
+        <div class="story">
+            <div class="trouble"><span class="label">困った</span>
+                <p>全員に信号が届くので、受け取ったデータが自分宛てなのか、他の誰か宛てなのか区別できない。</p>
+            </div>
+            <div class="to">→</div>
+            <div class="born"><span class="label">生まれた</span>
+                <span class="name">MAC アドレスとフレーム</span>
+                <p>機器ごとに重ならない番号を付け、データの先頭に「宛先」と「送信元」を書いた決まった形で送る。</p>
+            </div>
+        </div>
+
+        <p><strong>MAC アドレス</strong>は、ネットワークにつなぐ部品（LAN ポートや Wi-Fi の部品）に割り当てられた番号です。<code>00:1a:2b:3c:4d:5e</code> のように、16 進数 12 桁（48 ビット）で書きます。前半 6 桁が製造した会社を表し、後半を会社が重ならないように割り当てます。基本的には工場出荷時に決まっている番号です。</p>
+
+        <p>データは、宛先と送信元を書き込んだ決まった形にして送ります。この 1 回分のまとまりを<strong>フレーム</strong>と呼びます。受け取った機器は宛先の MAC アドレスを見て、自分宛てでなければ捨てます。</p>
+
+        <div class="figure">
+            <div class="frame">
+                <span class="f-dst">宛先 MAC</span>
+                <span class="f-src">送信元 MAC</span>
+                <span class="f-data">データ（1 回に最大 1500 バイト程度）</span>
+                <span class="f-chk">誤り検出用の値</span>
+            </div>
+            <div class="cap">フレームのおおまかな形。末尾の値で、途中でデータが壊れていないかを受け手が確かめる</div>
+        </div>
+
+        <p>1 回に送れるデータの量に上限があるのは、1 台が長いデータを流し続けると、そのあいだ他の機器が通り道を使えなくなるためです。大きなデータは小分けにして、複数のフレームで送ります。</p>
+
+        <h3>同時に話すとぶつかる</h3>
+
+        <div class="story">
+            <div class="trouble"><span class="label">困った</span>
+                <p>1本の通り道を共有しているので、2台が同時に送ると信号が混ざって壊れる（衝突）。</p>
+            </div>
+            <div class="to">→</div>
+            <div class="born"><span class="label">生まれた</span>
+                <span class="name">送る前に様子を見る決まり</span>
+                <p>誰も送っていないのを確かめてから送り、衝突したら少し待って送り直す（CSMA/CD）。</p>
+            </div>
+        </div>
+
+        <p>会議で発言するときに、誰も話していないのを確かめてから話し始め、2人が同時に話し始めたら一度やめて譲り合うのと同じです。待つ時間を機器ごとにばらつかせることで、何度も同じ相手とぶつかるのを避けます。</p>
+
+        <h3>全員に届くのは無駄</h3>
+
+        <div class="story">
+            <div class="trouble"><span class="label">困った</span>
+                <p>台数が増えると、自分に関係ないデータまで全員に届き、衝突も増える。通り道が混み合って遅くなる。</p>
+            </div>
+            <div class="to">→</div>
+            <div class="born"><span class="label">生まれた</span>
+                <span class="name">スイッチ</span>
+                <p>どの差し込み口の先に、どの MAC アドレスの機器がいるかを覚え、宛先の機器がいる口にだけフレームを送る中継機器。</p>
+            </div>
+        </div>
+
+        <p>初期の中継機器（<strong>ハブ</strong>）は、受け取った信号をすべての差し込み口へそのまま流していました。<strong>スイッチ</strong>は、流れてきたフレームの送信元 MAC アドレスを見て「3 番の口の先には <code>…:4d:5e</code> がいる」と覚えていきます。この対応表を MAC アドレステーブルと呼びます。以後はその機器宛てのフレームを 3 番の口にだけ送るので、関係ない機器にはデータが届きません。</p>
+
+        <div class="figure">
+            <div class="hs-grid">
+                <div class="hs">
+                    <div class="hs-title">ハブ</div>
+                    <div class="hs-msg">A が C 宛てに送る</div>
+                    <div class="hs-ports"><span class="p-src">A<br><small>送信</small></span><span class="p-waste">B<br><small>届く→捨てる</small></span><span class="p-dst">C<br><small>受け取る</small></span><span class="p-waste">D<br><small>届く→捨てる</small></span></div>
+                </div>
+                <div class="hs">
+                    <div class="hs-title">スイッチ</div>
+                    <div class="hs-msg">A が C 宛てに送る</div>
+                    <div class="hs-ports"><span class="p-src">A<br><small>送信</small></span><span class="p-none">B<br><small>届かない</small></span><span class="p-dst">C<br><small>受け取る</small></span><span class="p-none">D<br><small>届かない</small></span></div>
+                </div>
+            </div>
+            <div class="cap">スイッチは送信元 MAC アドレスから「どの口に誰がいるか」を学んで使う</div>
+        </div>
+
+        <p>現在の有線 LAN では、機器とスイッチを 1 本ずつのケーブルで結び、送信と受信を同時に行えるつなぎ方（全二重）で通信します。このつなぎ方では衝突そのものが起きないため、上の「様子を見てから送る」決まりは実際にはほとんど働いていません。困りごとが別の技術で解決され、古い解決策が出番を失った例です。</p>
+
+        <div class="tip">
+            <strong>ここまでをまとめて Ethernet</strong>：ケーブルと信号の規格、MAC アドレス、フレームの形、スイッチによる中継。これらをまとめた LAN の規格が <strong>Ethernet</strong>（イーサネット）です。Wi-Fi は運び手が電波になりますが、MAC アドレスで相手を区別する考え方は同じです。
+        </div>
+
+        <!-- ============================================================ -->
+        <h2 id="s3">3. ネットワーク同士をつなぎたい（IP とルーター）</h2>
+
+        <p>Ethernet で、1つの建物や1つのフロアの機器はつながりました。次は、工場と事務所、会社と会社、そして世界中のネットワークをつなぎたくなります。</p>
+
+        <div class="story">
+            <div class="trouble"><span class="label">困った</span>
+                <p>世界中を1つの大きな Ethernet にすると破綻する。スイッチは世界中の機器を覚えきれず、全員宛ての連絡が世界中に流れる。しかも MAC アドレスは製造番号なので、番号を見ても相手がどこにいるのか分からない。</p>
+            </div>
+            <div class="to">→</div>
+            <div class="born"><span class="label">生まれた</span>
+                <span class="name">IP アドレスとルーター</span>
+                <p>ネットワークを小さく分け、分けたネットワーク同士を中継機器でつなぐ。相手の「場所」を表す番号を別に用意する。</p>
+            </div>
+        </div>
+
+        <h3>場所を表す番号：IP アドレス</h3>
+
+        <p>MAC アドレスが「生まれたときに付いた名前」だとすると、<strong>IP アドレス</strong>は「今いる場所の住所」です。<code>192.168.1.10</code> のように 4 つの数字（それぞれ 0〜255）で書きます。</p>
+
+        <p>住所に「都道府県、市区町村」と「番地」があるように、IP アドレスも前半がどのネットワークか、後半がそのネットワークの中のどの機器かを表します。どこまでが前半かは、<code>192.168.1.10/24</code> の <code>/24</code>（先頭から 24 ビット、つまり最初の 3 つの数字）や、<code>255.255.255.0</code> という<strong>サブネットマスク</strong>で示します。</p>
+
+        <table>
+            <tr><th>IP アドレス</th><th>ネットワーク部（/24 の場合）</th><th>ホスト部</th><th>住所のたとえ</th></tr>
+            <tr><td><code>192.168.1.10</code></td><td><code>192.168.1</code></td><td><code>10</code></td><td>「〇〇町 1 丁目」の「10 番地」</td></tr>
+            <tr><td><code>192.168.1.25</code></td><td><code>192.168.1</code></td><td><code>25</code></td><td>同じ町内の「25 番地」</td></tr>
+            <tr><td><code>192.168.2.10</code></td><td><code>192.168.2</code></td><td><code>10</code></td><td>隣の町の「10 番地」</td></tr>
+        </table>
+
+        <p>MAC アドレスは機器を持ち運んでも変わりませんが、IP アドレスはつなぐネットワークが変われば変わります。ノートパソコンを会社から自宅へ持ち帰ると、IP アドレスが変わるのはこのためです。</p>
+
+        <h3>ネットワークの境目をつなぐ：ルーター</h3>
+
+        <p><strong>ルーター</strong>は、複数のネットワークの境目に立つ中継機器です。受け取ったデータの宛先 IP アドレスのネットワーク部を見て、「そのネットワークへ行くには、次にどのルーターへ渡せばよいか」を表（ルーティングテーブル）で調べ、次へ渡します。</p>
+
+        <p>郵便にたとえると、ルーターは各地の郵便局です。どの郵便局も世界中の家を知っているわけではありません。「この町宛てなら、あちらの局へ回す」ということだけを知っていて、局から局へ手渡ししていくうちに、最終的に宛先の町の局に届きます。こうしてネットワークからネットワークへ渡していくことを<strong>ルーティング</strong>と呼びます。</p>
+
+        <p>自分のネットワークの外へ出すデータを最初に預ける先を<strong>デフォルトゲートウェイ</strong>と呼びます。家庭や工場の LAN では、ふつうは出入口のルーターがこれにあたります。ラズパイのネットワーク設定に出てくる「ゲートウェイ」の欄はこれです。</p>
+
+        <div class="tip">
+            <strong>迷子のデータを消す仕組み</strong>：ルーターの設定の誤りで、データが同じところを回り続けることがあります。そのため IP のデータには「あと何回中継してよいか」を表す数（TTL）が付いていて、ルーターを通るたびに 1 ずつ減り、0 になったら捨てられます。
+        </div>
+
+        <h3>IP と MAC の役割分担</h3>
+
+        <div class="story">
+            <div class="trouble"><span class="label">困った</span>
+                <p>宛先の IP アドレスは分かった。でも実際に線の上でデータを運ぶのは Ethernet で、Ethernet は MAC アドレスしか分からない。隣の機器の MAC アドレスをどう知るか。</p>
+            </div>
+            <div class="to">→</div>
+            <div class="born"><span class="label">生まれた</span>
+                <span class="name">ARP</span>
+                <p>「IP アドレスが 192.168.1.1 の機器は、MAC アドレスを教えて」と同じネットワークの全員に呼びかけ、本人だけが答える仕組み。</p>
+            </div>
+        </div>
+
+        <p>ここで、IP と Ethernet の役割がはっきり分かれます。<strong>IP アドレスは最終的な宛先</strong>を表し、途中で変わりません。<strong>MAC アドレスは「次の中継先まで」の宛先</strong>を表し、ルーターを通るたびに書き換わります。</p>
+
+        <div class="figure">
+            <table style="margin:0;">
+                <tr><th>区間</th><th>宛先 MAC（次に渡す相手）</th><th>宛先 IP（最終的な相手）</th></tr>
+                <tr><td>ラズパイ → 自宅のルーター</td><td>自宅のルーター</td><td>サーバー</td></tr>
+                <tr><td>自宅のルーター → プロバイダのルーター</td><td>プロバイダのルーター</td><td>サーバー</td></tr>
+                <tr><td>……（いくつものルーター）</td><td>次のルーター</td><td>サーバー</td></tr>
+                <tr><td>最後のルーター → サーバー</td><td>サーバー</td><td>サーバー</td></tr>
+            </table>
+            <div class="cap">宅配便の伝票（IP）はそのままで、区間ごとに運ぶトラック（Ethernet）の行き先だけが変わる</div>
+        </div>
+
+        <h3>住所が足りない</h3>
+
+        <div class="story">
+            <div class="trouble"><span class="label">困った</span>
+                <p>いまの IP アドレス（IPv4）は 32 ビットで、全部で約 43 億個しかない。パソコン、スマートフォン、IoT 機器のすべてに配るには足りない。</p>
+            </div>
+            <div class="to">→</div>
+            <div class="born"><span class="label">生まれた</span>
+                <span class="name">プライベート IP アドレスと NAT、そして IPv6</span>
+                <p>建物の中だけで使う番号を決め、外へ出るときだけ出入口で外向きの番号に付け替える。あわせて、番号の桁数を大きく増やした新しい版も作った。</p>
+            </div>
+        </div>
+
+        <p>次の範囲は<strong>プライベート IP アドレス</strong>と決められていて、どの組織でも自由に使えます。そのかわり、インターネット上では宛先として使えません。家庭や工場でよく見る <code>192.168.x.x</code> はこれです。</p>
+
+        <table>
+            <tr><th>範囲</th><th>よく見る場面</th></tr>
+            <tr><td><code>10.0.0.0</code> 〜 <code>10.255.255.255</code></td><td>大きな組織の LAN、クラウドの仮想ネットワーク</td></tr>
+            <tr><td><code>172.16.0.0</code> 〜 <code>172.31.255.255</code></td><td>組織の LAN、Docker の内部ネットワーク</td></tr>
+            <tr><td><code>192.168.0.0</code> 〜 <code>192.168.255.255</code></td><td>家庭や小規模な事業所の LAN</td></tr>
+        </table>
+
+        <p>LAN の中の機器がインターネットへ出るとき、出入口のルーターが送信元をルーター自身の外向きの IP アドレス（グローバル IP アドレス）に付け替えます。これを <strong>NAT</strong> と呼びます。1 つのグローバル IP アドレスを LAN の中の何台もの機器で共有できるので、アドレスの不足を大きく和らげました。代表電話番号から各部署の内線へつなぐ仕組みに似ています。</p>
+
+        <p>その結果として、インターネット側から LAN の中の機器へ直接つなぎにいくことは、ふつうはできません。ラズパイの Node-RED に外から直接アクセスできないのはこのためです。一方、ラズパイから AWS IoT Core のようなクラウドへ接続しにいくことは問題なくできます。IoT 機器が「外で待ち受ける」のではなく「クラウドへつなぎにいく」形をとることが多いのは、この事情によります。</p>
+
+        <p>根本的な解決策として、アドレスを 128 ビットに増やした <strong>IPv6</strong> も作られ、普及が進んでいます。<code>2001:db8::1</code> のように 16 進数とコロンで書きます。</p>
+
+        <div class="tip">
+            <strong>住所を配る手間も減らした</strong>：機器をつなぐたびに IP アドレス、サブネットマスク、ゲートウェイを手で設定するのは大変で、番号の重複も起きます。そこで、つないだ機器に空いている番号を自動で貸し出す <strong>DHCP</strong> が生まれました。ルーターが担当していることが多く、ラズパイを LAN につなぐだけで IP アドレスが付くのはこのためです。センサーを集める機器のように、番号が変わると困る機器は、固定の番号を設定するか、ルーター側で同じ番号を割り当て続けるように設定します。
+        </div>
+
+        <!-- ============================================================ -->
+        <h2 id="s4">4. 確実に、アプリまで届けたい（TCP、UDP、ポート番号）</h2>
+
+        <p>IP のおかげで、世界中のどの機器にもデータを送れるようになりました。しかし IP は、届けるための努力はするものの、届いたことまでは保証しません。</p>
+
+        <div class="story">
+            <div class="trouble"><span class="label">困った</span>
+                <p>途中のルーターが混み合うと、データは捨てられることがある。経路が変わると、後から送ったデータが先に着くこともある。大きなデータを小分けにして送ると、欠けたり順番が入れ替わったりして、元に戻せない。</p>
+            </div>
+            <div class="to">→</div>
+            <div class="born"><span class="label">生まれた</span>
+                <span class="name">TCP</span>
+                <p>送る前に相手と接続を確立し、データに通し番号を付けて送る。受け手は受け取ったことを知らせ、返事がなければ送り手が送り直す。</p>
+            </div>
+        </div>
+
+        <p><strong>TCP</strong> は、IP の上で次の工夫をして「欠けずに、順番どおりに届く」ことを実現します。</p>
+
+        <table>
+            <tr><th>工夫</th><th>解決する困りごと</th><th>たとえ</th></tr>
+            <tr><td>接続の確立（3 ウェイハンドシェイク）</td><td>相手が受け取れる状態か分からないまま送ってしまう</td><td>「もしもし」「はい、聞こえます」「では話します」</td></tr>
+            <tr><td>通し番号（シーケンス番号）</td><td>順番が入れ替わる、どこが欠けたか分からない</td><td>荷物に「3 箱中の 2 箱目」と書く</td></tr>
+            <tr><td>受け取り確認（ACK）と再送</td><td>途中で消えたことに気づけない</td><td>書留の受領印。届かなければ再発送</td></tr>
+            <tr><td>流量の調整</td><td>受け手や途中の経路の処理が追いつかず、あふれる</td><td>相手が「少し待って」と言えるようにする</td></tr>
+        </table>
+
+        <p>3 ウェイハンドシェイクは、送り手が接続を申し込み（SYN）、受け手が承諾と申し込みを返し（SYN+ACK）、送り手が承諾する（ACK）3 回のやり取りです。この 3 回が終わってから、データを流し始めます。</p>
+
+        <h3>どのアプリ宛てか分からない</h3>
+
+        <div class="story">
+            <div class="trouble"><span class="label">困った</span>
+                <p>1 台のコンピュータの中では、Web サーバー、MQTT ブローカー、Node-RED など、いくつものアプリが同時に通信している。IP アドレスで機器までは届いても、どのアプリに渡せばよいか分からない。</p>
+            </div>
+            <div class="to">→</div>
+            <div class="born"><span class="label">生まれた</span>
+                <span class="name">ポート番号</span>
+                <p>機器の中の窓口に 0〜65535 の番号を付け、アプリはそれぞれ決まった窓口で待ち受ける。</p>
+            </div>
+        </div>
+
+        <p>IP アドレスが建物の住所なら、<strong>ポート番号</strong>は建物の中の部屋番号です。よく使う番号は用途ごとに決まっていて、Web は 80（https なら 443）、MQTT は 1883、Modbus TCP は 502 です。Node-RED のエディターを開く <code>http://localhost:1880</code> の <code>1880</code> もポート番号です。</p>
+
+        <p>送る側も、自分側のポート番号を送信元として書き込みます。こちらは OS が空いている番号を自動で選びます。そのため、同じブラウザで同じサーバーに複数のタブからつないでも、返事がどのタブ宛てかを区別できます。</p>
+
+        <h3>確認を待つ時間がもったいない</h3>
+
+        <div class="story">
+            <div class="trouble"><span class="label">困った</span>
+                <p>TCP は確実だが、接続の確立や受け取り確認に時間がかかる。映像や音声、次々に送られてくるセンサー値のように、少し欠けても最新のデータが早く届く方がよい用途には重すぎる。</p>
+            </div>
+            <div class="to">→</div>
+            <div class="born"><span class="label">生まれた</span>
+                <span class="name">UDP</span>
+                <p>接続の確立も受け取り確認も再送もしない。ポート番号だけを付けて、送りっぱなしにする。</p>
+            </div>
+        </div>
+
+        <p><strong>UDP</strong> は、TCP から「確実に届ける工夫」を取り除いた軽い方式です。欠けても送り直さない代わりに、待ち時間がありません。欠けたときにどうするかは、UDP を使うアプリ側で決めます。</p>
+
+        <table>
+            <tr><th></th><th>TCP</th><th>UDP</th></tr>
+            <tr><td>接続の確立</td><td>する</td><td>しない</td></tr>
+            <tr><td>欠けたときの再送</td><td>する</td><td>しない</td></tr>
+            <tr><td>順番の保証</td><td>する</td><td>しない</td></tr>
+            <tr><td>速さ、軽さ</td><td>やや重い</td><td>軽い</td></tr>
+            <tr><td>上で動く代表例</td><td>HTTP、MQTT、Modbus TCP、SMTP</td><td>DNS の問い合わせ、映像や音声の配信、機器の発見</td></tr>
+            <tr><td>Node-RED のノード</td><td><a href="nodered-tcp-node-guide.html">tcp in / tcp out / tcp request</a></td><td><a href="nodered-udp-node-guide.html">udp in / udp out</a></td></tr>
+        </table>
+
+        <!-- ============================================================ -->
+        <h2 id="s5">5. 数字の住所を覚えられない（DNS）</h2>
+
+        <p>ここまでで、IP アドレスとポート番号さえ分かれば、世界中のアプリと確実に通信できるようになりました。ただし、使う人間にとっては別の問題が残ります。</p>
+
+        <div class="story">
+            <div class="trouble"><span class="label">困った</span>
+                <p><code>203.0.113.5</code> のような数字は覚えられない。サーバーを引っ越して IP アドレスが変わると、使う側が全員、番号を書き換えなければならない。</p>
+            </div>
+            <div class="to">→</div>
+            <div class="born"><span class="label">生まれた</span>
+                <span class="name">名前と番号の対応表（hosts ファイル）</span>
+                <p>「この名前はこの IP アドレス」という対応表を各機器に置き、名前で指定できるようにした。</p>
+            </div>
+        </div>
+
+        <p>初期のインターネットでは、全機器の名前と IP アドレスの対応表を 1 か所で管理し、各機器が定期的にその表を取り寄せていました。この名残が、今も OS の中にある hosts ファイルです。</p>
+
+        <div class="story">
+            <div class="trouble"><span class="label">困った</span>
+                <p>つながる機器が増えると、1 つの表では管理しきれない。追加や変更のたびに全員が表を取り寄せ直すのも追いつかない。</p>
+            </div>
+            <div class="to">→</div>
+            <div class="born"><span class="label">生まれた</span>
+                <span class="name">DNS</span>
+                <p>名前を階層に分け、階層ごとに担当するサーバーを分散させる。問い合わせを受けたサーバーは、上の階層から順にたどって答えを見つける。</p>
+            </div>
+        </div>
+
+        <p><strong>DNS</strong>（Domain Name System）では、<code>api.example.com</code> のような名前（ドメイン名）を、右から左へ大きな区分から小さな区分へと読みます。それぞれの区分に担当のサーバーがいて、自分の担当範囲だけを知っています。</p>
+
+        <div class="figure">
+            <div class="dns">
+                <div class="dns-row ask"><span class="who">ラズパイ</span><span class="say">「api.example.com の IP アドレスは？」</span><span class="who">問い合わせ担当の DNS サーバー</span></div>
+                <div class="dns-row"><span class="no">①</span><span class="who2">ルートサーバー</span><span class="say">「.com なら、あちらのサーバーへ」</span></div>
+                <div class="dns-row"><span class="no">②</span><span class="who2">.com の担当</span><span class="say">「example.com なら、あちらのサーバーへ」</span></div>
+                <div class="dns-row"><span class="no">③</span><span class="who2">example.com の担当</span><span class="say">「api.example.com は 203.0.113.5」</span></div>
+                <div class="dns-row ans"><span class="who">ラズパイ</span><span class="say">「203.0.113.5 です」（答えは一定時間覚えておく）</span><span class="who">問い合わせ担当の DNS サーバー</span></div>
+            </div>
+            <div class="cap">①〜③は問い合わせ担当の DNS サーバーが代わりにたどる。電話帳を 1 冊にせず、地域ごとの電話帳と「どの地域の電話帳を見ればよいか」の案内に分けた形</div>
+        </div>
+
+        <p>機器が最初に問い合わせる先は、DHCP で配られた DNS サーバー（多くは家庭や工場のルーターか、プロバイダのサーバー）です。このサーバーが①〜③を代わりにたどり、答えを返します。一度調べた答えは、決められた時間（TTL）だけ覚えておき、同じ問い合わせにはすぐ答えます。そのため、サーバーの IP アドレスを変えても、古い答えが消えるまで一部の利用者は古い番号へつなぎにいくことがあります。</p>
+
+        <div class="tip">
+            <strong>LAN の中の名前：<code>raspberrypi.local</code></strong>：家庭や工場の LAN には、ふつう自分の機器を登録した DNS サーバーがありません。そこで、「<code>raspberrypi.local</code> の人はいますか」と LAN の全員に呼びかけ、本人が答える仕組み（mDNS）が使われます。パソコンからラズパイへ、IP アドレスを調べなくても <code>raspberrypi.local</code> という名前でつなげるのはこのためです。末尾の <code>.local</code> が、DNS ではなくこの仕組みを使う目印です。
+        </div>
+
+        <!-- ============================================================ -->
+        <h2 id="s6">6. 途中で覗かれたくない（TLS）</h2>
+
+        <p>インターネットは、多くの組織のルーターを経由してデータを運びます。ここまでの技術は、どれも「届けること」を目的にしていて、途中で誰かに見られることは想定していません。</p>
+
+        <div class="story">
+            <div class="trouble"><span class="label">困った</span>
+                <p>途中の機器を通るデータは、そのままでは誰でも読める。書き換えられても気づけない。偽のサーバーに誘導されても、相手が本物か確かめられない。</p>
+            </div>
+            <div class="to">→</div>
+            <div class="born"><span class="label">生まれた</span>
+                <span class="name">TLS</span>
+                <p>TCP の接続の上に暗号の層を被せ、中身を暗号化し、改ざんを検出し、証明書で相手が本物かを確かめる。</p>
+            </div>
+        </div>
+
+        <p><strong>TLS</strong> も、いくつかの困りごとを順に解決して組み上がっています。</p>
+
+        <table>
+            <tr><th>困った</th><th>生まれた</th><th>郵便のたとえ</th></tr>
+            <tr><td>中身を読まれる</td><td>共通の鍵による暗号化。送り手と受け手が同じ鍵を持ち、その鍵がなければ読めない形にする</td><td>中身の見えない封筒</td></tr>
+            <tr><td>その共通の鍵を、盗み見される通り道でどう相手に渡すか</td><td>鍵交換。互いに見られてもよい値だけをやり取りし、両者の手元で同じ鍵を作り出す</td><td>鍵そのものは運ばず、両者が同じ鍵を組み立てられる材料だけを送る</td></tr>
+            <tr><td>途中で書き換えられる</td><td>データごとに検査用の値を付け、1 ビットでも変わると受け手が検出する</td><td>開けると跡が残る封印</td></tr>
+            <tr><td>相手が偽物かもしれない</td><td>証明書と認証局。信頼できる第三者が「このサーバーは本物」と署名した証明書を、サーバーが提示する</td><td>公的機関が発行した身分証</td></tr>
+        </table>
+
+        <p>暗号化と相手の確認は、両方がそろって意味を持ちます。暗号化だけなら偽のサーバーとのあいだでも成立してしまい、封筒に入れて渡した相手が偽物なら中身は読まれるからです。</p>
+
+        <p>URL の <code>https://</code>、<code>wss://</code>、MQTT の <code>mqtts://</code> の「s」は、TLS で守られた通信であることを表します。TLS は HTTP や MQTT の中身を変えず、その下に 1 枚挟まる層として働きます。証明書の検証の仕組み、ファイル形式、Node-RED での設定は <a href="nodered-tls-guide.html">TLSと証明書ガイド</a>で詳しく扱います。</p>
+
+        <!-- ============================================================ -->
+        <h2 id="s7">7. 積み重なった結果：TCP/IP の階層</h2>
+
+        <p>ここまでの技術を、生まれた順に下から積み上げると、次の形になります。下の層は上の層の中身を気にせずに運び、上の層は下の層がどう運んでいるかを気にせずに使えます。この分担を、使われている代表的な 2 つのプロトコルの名前をとって <strong>TCP/IP</strong> の階層（4 階層モデル）と呼びます。</p>
+
+        <div class="stack">
+            <div class="layer l-app"><div class="lname">アプリケーション層</div><div class="ltech">HTTP、MQTT、Modbus TCP、SMTP、DNS など。アプリ同士が何を話すか（<a href="nodered-network-basics-guide.html">通信の型</a>）。TLS はこの層と下の層のあいだに挟まる</div></div>
+            <div class="layer l-tr"><div class="lname">トランスポート層</div><div class="ltech">TCP、UDP。どのアプリ宛てか（ポート番号）、確実に届けるか</div></div>
+            <div class="layer l-int"><div class="lname">インターネット層</div><div class="ltech">IP、ルーター。どのネットワークのどの機器か（IP アドレス）</div></div>
+            <div class="layer l-link"><div class="lname">リンク層</div><div class="ltech">Ethernet、Wi-Fi。隣の機器まで運ぶ（MAC アドレス、ケーブルと信号）</div></div>
+        </div>
+
+        <table>
+            <tr><th>層</th><th>解決した困りごと</th><th>宛先を表すもの</th><th>中継する機器</th></tr>
+            <tr><td>アプリケーション層</td><td>アプリ同士の話し方をそろえたい</td><td>URL のパス、MQTT のトピックなど</td><td>（アプリ自身）</td></tr>
+            <tr><td>トランスポート層</td><td>確実に、アプリまで届けたい</td><td>ポート番号</td><td>（両端の機器だけが扱う）</td></tr>
+            <tr><td>インターネット層</td><td>ネットワーク同士をつなぎたい</td><td>IP アドレス</td><td>ルーター</td></tr>
+            <tr><td>リンク層</td><td>たくさんの機器をつなぎたい</td><td>MAC アドレス</td><td>スイッチ</td></tr>
+        </table>
+
+        <h3>封筒の入れ子（カプセル化）</h3>
+
+        <p>送るときは、上の層から順に、自分の層に必要な宛先情報（ヘッダー）を付けて下の層へ渡します。封筒を封筒で包んでいくのと同じです。受け取った側は外側から順に開け、それぞれの層が自分宛ての情報だけを読んで、中身を上の層へ渡します。この包み方を<strong>カプセル化</strong>と呼びます。</p>
+
+        <div class="figure">
+            <div class="nest n-eth"><span class="tag">Ethernet ヘッダー</span>（宛先 MAC、送信元 MAC）
+                <div class="nest n-ip"><span class="tag">IP ヘッダー</span>（宛先 IP、送信元 IP、TTL）
+                    <div class="nest n-tcp"><span class="tag">TCP ヘッダー</span>（宛先ポート 443、送信元ポート、通し番号）
+                        <div class="nest n-tls"><span class="tag">TLS</span>（ここから内側は暗号化されている）
+                            <div class="nest n-app"><span class="tag">HTTP</span>：GET /weather/tokyo ……（アプリのデータ）</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="cap">https で送るデータの包まれ方。スイッチは一番外側、ルーターは IP ヘッダーまでを見て運ぶ</div>
+        </div>
+
+        <p>この形になっているおかげで、途中の機器は必要なところだけを見れば済みます。スイッチは外側の MAC アドレスだけを、ルーターは IP アドレスまでを見て運びます。TLS で暗号化された内側は、途中の機器からは読めません。それでも宛先の IP アドレスとポート番号は外側に書かれているので、データは問題なく運ばれます。</p>
+
+        <div class="tip">
+            <strong>OSI 参照モデルとの関係</strong>：ネットワークの教科書では、層を 7 つに分けた <strong>OSI 参照モデル</strong>もよく登場します。こちらは通信を説明するための整理の枠組みで、実際のインターネットは 4 階層の TCP/IP で動いています。対応はおおむね、OSI の 1〜2 層（物理層、データリンク層）がリンク層、3 層（ネットワーク層）がインターネット層、4 層（トランスポート層）がトランスポート層、5〜7 層がアプリケーション層です。「L2 スイッチ」「L3 スイッチ」のように製品名に出てくる番号は、この OSI の層の番号です。
+        </div>
+
+        <!-- ============================================================ -->
+        <h2 id="s8">8. 通しで見る：Node-RED が https の API を呼ぶまで</h2>
+
+        <p>ラズパイの Node-RED で、http request ノードが <code>https://api.example.com/weather/tokyo</code> を呼ぶ場面を例に、これまでの技術がどの順で働くかを並べます。</p>
+
+        <ol class="steps">
+            <li><span class="layer-tag t-app">DNS</span>URL から名前 <code>api.example.com</code> を取り出し、DNS サーバーに問い合わせて IP アドレス（例：<code>203.0.113.5</code>）を得る。</li>
+            <li><span class="layer-tag t-int">IP</span>宛先 <code>203.0.113.5</code> のネットワーク部を自分のものと比べ、LAN の外だと判断する。データはデフォルトゲートウェイ（ルーター）へ預けることにする。</li>
+            <li><span class="layer-tag t-link">ARP</span>ルーターの MAC アドレスをまだ知らなければ、ARP で問い合わせる。</li>
+            <li><span class="layer-tag t-tr">TCP</span>スキームが <code>https</code> なので宛先ポートは 443。サーバーと 3 ウェイハンドシェイクを行い、接続を確立する。</li>
+            <li><span class="layer-tag t-tls">TLS</span>TLS のハンドシェイクを行う。サーバーの証明書を検証し、鍵交換で暗号化の鍵を取り決める。</li>
+            <li><span class="layer-tag t-app">HTTP</span>暗号化された通り道の中で、HTTP のリクエスト <code>GET /weather/tokyo</code> を送る。</li>
+            <li><span class="layer-tag t-int">ルーター</span>データは、いくつものルーターに手渡しされながらサーバーへ届く。途中で MAC アドレスは区間ごとに書き換わり、IP アドレスは変わらない。</li>
+            <li><span class="layer-tag t-app">HTTP</span>サーバーがレスポンスを同じ経路の逆向きで返し、http request ノードが <code>msg.payload</code> として次のノードへ渡す。</li>
+        </ol>
+
+        <p>Node-RED のフロー上では、1 つのノードを通過しただけに見えます。その裏では、ここまでに見てきた技術がすべて順に働いています。MQTT の場合も、手順 6 が MQTT の接続とメッセージの送信に変わるだけで、手順 1〜5 は同じです。</p>
+
+        <!-- ============================================================ -->
+        <h2 id="s9">9. 「つながらない」を層で切り分ける</h2>
+
+        <p>通信がうまくいかないとき、どの層で止まっているかが分かれば、確認する場所を絞れます。Node-RED のデバッグサイドバーやノードの状態表示に出るエラーの多くは、Node.js が報告するエラーコードです。代表的なものを、このページのどの段階の失敗かで分けると次のようになります。</p>
+
+        <table>
+            <tr><th>よく見る表示</th><th>止まっている段階</th><th>意味</th><th>まず確かめること</th></tr>
+            <tr><td><code>ENOTFOUND</code><br><code>EAI_AGAIN</code></td><td>5. DNS</td><td>名前から IP アドレスを引けなかった</td><td>名前のつづり、DNS サーバーの設定、インターネットへの接続</td></tr>
+            <tr><td><code>EHOSTUNREACH</code><br><code>ENETUNREACH</code></td><td>3. IP とルーター</td><td>宛先の機器やネットワークへの経路がない</td><td>IP アドレスの誤り、ゲートウェイの設定、ケーブルや Wi-Fi の接続</td></tr>
+            <tr><td><code>ETIMEDOUT</code></td><td>3〜4. IP または TCP</td><td>送ったが返事が来ないまま時間切れになった</td><td>相手の電源、途中のファイアウォールによる遮断</td></tr>
+            <tr><td><code>ECONNREFUSED</code></td><td>4. TCP とポート番号</td><td>機器までは届いたが、そのポート番号で待ち受けているアプリがいない</td><td>ポート番号の誤り、相手のアプリ（ブローカー等）が起動しているか</td></tr>
+            <tr><td><code>ECONNRESET</code></td><td>4. TCP</td><td>確立した接続を相手側に切られた</td><td>相手のアプリのログ、TLS の有無の設定がそろっているか</td></tr>
+            <tr><td>証明書に関するエラー<br>（<code>CERT_</code> や <code>certificate</code> を含むもの）</td><td>6. TLS</td><td>証明書の検証に失敗した</td><td><a href="nodered-tls-guide.html">TLSと証明書ガイド</a>のトラブルシューティング</td></tr>
+            <tr><td><code>404</code>、<code>401</code>、<code>500</code> などの数値</td><td>アプリケーション層</td><td>通信自体は成功し、HTTP のサーバーが結果として返した</td><td>URL のパス、認証情報、サーバー側の状態（<a href="nodered-http-node-guide.html">HTTP ガイド</a>）</td></tr>
+        </table>
+
+        <p>下の層ほど先に働くので、切り分けも下から順に見ていくと迷いません。たとえば <code>ECONNREFUSED</code> が出ているなら、DNS と IP の段階は通過して相手の機器には届いています。疑う範囲は「相手の機器の中で、そのポートのアプリが動いているか」まで絞れます。エラーの読み方全般は<a href="nodered-chapter0-debugging.html">第0章のデバッグのガイド</a>も参照してください。</p>
+
+        <div class="important">
+            <strong>「数値のステータスコードが返ってきた」は、通信の成功</strong>：<code>404</code> や <code>500</code> が返ってきたなら、DNS、IP、TCP、TLS はすべて成功しています。サーバーまでたどり着き、サーバーが「そのページはない」「中で失敗した」と答えた状態です。ネットワークの設定を疑う前に、URL や送っている中身を確認します。
+        </div>
+
+        <!-- ============================================================ -->
+        <h2 id="glossary">10. 用語集</h2>
+        <p>このページに出てきた言葉を、登場した順に並べました。<a href="nodered-network-basics-guide.html#glossary">通信の基礎（ネットワーク入門）の用語集</a>もあわせて参照してください。</p>
+
+        <table>
+            <tr><th>用語</th><th>ひとことで言うと</th><th>生まれた理由</th></tr>
+            <tr><td><strong>Ethernet</strong></td><td>有線 LAN の規格。ケーブルと信号、MAC アドレス、フレームの形などを決めている</td><td>たくさんの機器を 1 つのネットワークにつなぐため</td></tr>
+            <tr><td><strong>MAC アドレス</strong></td><td>ネットワークの部品ごとに割り当てられた 48 ビットの番号（例：<code>00:1a:2b:3c:4d:5e</code>）</td><td>共有の通り道で、誰宛てかを区別するため</td></tr>
+            <tr><td><strong>フレーム</strong></td><td>Ethernet で送るデータ 1 回分のまとまり。宛先と送信元の MAC アドレスが付く</td><td>宛先付きの決まった形で送るため</td></tr>
+            <tr><td><strong>ハブ</strong></td><td>受け取った信号をすべての差し込み口へ流す、初期の中継機器</td><td>複数の機器を 1 つの通り道につなぐため</td></tr>
+            <tr><td><strong>スイッチ</strong></td><td>MAC アドレスを学習し、宛先がいる差し込み口にだけ送る中継機器</td><td>関係ない機器にまでデータが届く無駄をなくすため</td></tr>
+            <tr><td><strong>IP アドレス</strong></td><td>ネットワーク上の場所を表す番号（例：<code>192.168.1.10</code>）。前半がネットワーク、後半が機器を表す</td><td>ネットワーク同士をつないだとき、相手の場所を示すため</td></tr>
+            <tr><td><strong>サブネットマスク</strong></td><td>IP アドレスのどこまでがネットワーク部かを示す値（例：<code>255.255.255.0</code>、<code>/24</code>）</td><td>同じネットワークの相手かどうかを判断するため</td></tr>
+            <tr><td><strong>ルーター</strong></td><td>ネットワークの境目に立ち、宛先 IP アドレスを見て次の中継先へ渡す機器</td><td>分けたネットワーク同士をつなぐため</td></tr>
+            <tr><td><strong>ルーティング</strong></td><td>ルーターからルーターへ手渡しして、宛先のネットワークまで運ぶこと</td><td>世界中の経路を 1 台で知らなくても届けるため</td></tr>
+            <tr><td><strong>デフォルトゲートウェイ</strong></td><td>自分のネットワークの外へ出すデータを最初に預けるルーター</td><td>外への出口を 1 か所に決めるため</td></tr>
+            <tr><td><strong>TTL</strong></td><td>IP では「あと何回中継してよいか」、DNS では「答えを覚えておいてよい時間」を表す値</td><td>迷子のデータや古い答えが残り続けないようにするため</td></tr>
+            <tr><td><strong>ARP</strong></td><td>IP アドレスから、同じネットワーク内の相手の MAC アドレスを調べる仕組み</td><td>IP で決めた宛先へ、Ethernet で実際に運ぶため</td></tr>
+            <tr><td><strong>プライベート IP アドレス</strong></td><td>組織の中だけで自由に使える IP アドレスの範囲（例：<code>192.168.x.x</code>）</td><td>IPv4 アドレスの不足を補うため</td></tr>
+            <tr><td><strong>グローバル IP アドレス</strong></td><td>インターネット上で重複しない IP アドレス</td><td>インターネットで宛先として使うため</td></tr>
+            <tr><td><strong>NAT</strong></td><td>LAN から外へ出るとき、送信元のアドレスを出入口のルーターの外向きの番号に付け替える仕組み</td><td>1 つのグローバル IP アドレスを複数台で共有するため</td></tr>
+            <tr><td><strong>IPv4 / IPv6</strong></td><td>IP の版。IPv4 は 32 ビット（約 43 億個）、IPv6 は 128 ビット</td><td>IPv6 は IPv4 のアドレス不足を根本から解決するため</td></tr>
+            <tr><td><strong>DHCP</strong></td><td>つないだ機器に IP アドレスや DNS サーバーの情報を自動で貸し出す仕組み</td><td>手作業の設定と番号の重複をなくすため</td></tr>
+            <tr><td><strong>TCP</strong></td><td>接続を確立し、欠けずに順番どおりに届けるトランスポート層のプロトコル</td><td>IP だけでは届いたことを保証できないため</td></tr>
+            <tr><td><strong>3 ウェイハンドシェイク</strong></td><td>TCP が接続を始めるときの 3 回のやり取り（SYN、SYN+ACK、ACK）</td><td>相手が受け取れる状態かを確かめてから送るため</td></tr>
+            <tr><td><strong>シーケンス番号 / ACK</strong></td><td>データに付ける通し番号と、受け取ったことを知らせる返事</td><td>欠けや順番の入れ替わりに気づき、送り直すため</td></tr>
+            <tr><td><strong>UDP</strong></td><td>接続も確認も再送もしない、軽いトランスポート層のプロトコル</td><td>確実さより速さが大事な用途のため</td></tr>
+            <tr><td><strong>ポート番号</strong></td><td>1 台の中の窓口番号（0〜65535）。アプリごとに待ち受ける番号を持つ</td><td>機器の中のどのアプリ宛てかを区別するため</td></tr>
+            <tr><td><strong>hosts ファイル</strong></td><td>名前と IP アドレスの対応を書いた、各機器の中のファイル</td><td>数字ではなく名前で相手を指定するため</td></tr>
+            <tr><td><strong>DNS</strong></td><td>名前から IP アドレスを調べる、階層に分かれて分散した仕組み</td><td>1 つの対応表では管理しきれなくなったため</td></tr>
+            <tr><td><strong>mDNS</strong></td><td>LAN の全員に呼びかけて名前を解決する仕組み。<code>.local</code> で終わる名前で使う</td><td>DNS サーバーのない LAN でも名前でつなぐため</td></tr>
+            <tr><td><strong>TLS</strong></td><td>TCP の上に被せて、暗号化、改ざん検出、相手の確認を行う層</td><td>途中で覗かれたり、偽物につながされたりするのを防ぐため</td></tr>
+            <tr><td><strong>証明書 / 認証局</strong></td><td>サーバーが本物であることを、信頼できる第三者（認証局）が署名で保証したもの</td><td>暗号化の相手が本物かを確かめるため</td></tr>
+            <tr><td><strong>TCP/IP（4 階層モデル）</strong></td><td>リンク層、インターネット層、トランスポート層、アプリケーション層に分けた、インターネットの層の分担</td><td>各層が他の層の事情を気にせず役割を果たせるようにするため</td></tr>
+            <tr><td><strong>OSI 参照モデル</strong></td><td>通信を 7 つの層に分けて説明する枠組み。「L2」「L3」の番号はここから来ている</td><td>通信の機能を整理して説明するため</td></tr>
+            <tr><td><strong>カプセル化</strong></td><td>上の層のデータを、下の層がヘッダーを付けて包んでいくこと</td><td>途中の機器が、自分の層の情報だけを見て運べるようにするため</td></tr>
+        </table>
+
+        <!-- ============================================================ -->
+        <h2 id="s11">11. まとめ</h2>
+        <ul>
+            <li>2 台をつなぐために、0 と 1 を運ぶ<strong>ケーブルと信号の規格</strong>が生まれた。</li>
+            <li>たくさんつなぐために、<strong>MAC アドレス</strong>、フレーム、スイッチが生まれ、まとめて Ethernet になった。</li>
+            <li>ネットワーク同士をつなぐために、場所を表す <strong>IP アドレス</strong>とルーターが生まれた。IP は最終的な宛先、MAC は次の中継先を表す。</li>
+            <li>確実に届けるために <strong>TCP</strong>、アプリを区別するために<strong>ポート番号</strong>、速さを優先するために UDP が生まれた。</li>
+            <li>名前で呼ぶために、対応表を階層に分けて分散させた <strong>DNS</strong> が生まれた。</li>
+            <li>安全に送るために、暗号化と相手の確認を行う <strong>TLS</strong> が生まれた。</li>
+            <li>これらは下から順に積み重なった層になっていて、「つながらない」ときは下の層から順に切り分けられる。</li>
+        </ul>
+
+        <p>HTTP や MQTT の各ガイドに出てくる「ポート」「ブローカーのアドレス」「TLS」といった設定欄は、どれもこのページのどこかの段階に対応しています。設定の意味に迷ったら、その欄がどの困りごとを解決するためのものかを思い出してください。</p>
+
+        <div class="next-box">
+            <h3>➡️ 次のページへ</h3>
+            <p>層の下側が分かったら、次は一番上のアプリケーション層で「どの話し方を選ぶか」です。HTTP、WebSocket、MQTT などを身近なたとえで比べた早見表を用意しています。</p>
+            <p style="text-align:center;font-size:1.1em;margin-top:15px;">
+                ▶ <a href="nodered-network-basics-guide.html">通信の基礎（ネットワーク入門）</a>
+            </p>
+        </div>
+
+        <p style="margin-top:30px;">
+            <a href="index.html">← トップページへ戻る</a> |
+            <a href="nodered-network-basics-guide.html">通信の基礎（ネットワーク入門）</a> |
+            <a href="nodered-http-node-guide.html">HTTP</a> |
+            <a href="nodered-mqtt-node-guide.html">MQTT</a> |
+            <a href="nodered-tcp-node-guide.html">TCP</a> |
+            <a href="nodered-udp-node-guide.html">UDP</a> |
+            <a href="nodered-tls-guide.html">TLSと証明書</a>
+        </p>
+    </div>
+
+    <a href="index.html" style="position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px; background: linear-gradient(135deg, #42b883 0%, #35495e 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; transition: transform 0.3s, box-shadow 0.3s;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 6px 16px rgba(0,0,0,0.4)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.3)';" title="トップページへ">🏠</a>
+</body>
+</html>
