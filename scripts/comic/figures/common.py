@@ -115,5 +115,17 @@ def catch():
     return p
 
 
-FIGURES = {'inject-basic': inject, 'debug-basic': debug, 'complete-basic': complete, 'status-basic': status,
+def comment():
+    p = Panel('comment ノードには入力と出力の端子がない。フローの横に説明を書いておくためのノードで、msg は comment ノードを通らずにそのまま流れる', 560, 160, 'cmt')
+    n1, _, o1 = nrnode(90, 110, 'inject', C, w=90, inputs=0)
+    n2, i2, o2 = nrnode(260, 110, 'change', NODE_COLORS['function'], w=90)
+    n3, i3, _ = nrnode(430, 110, 'debug', '#87a980', w=90, outputs=0)
+    p.add(n1, n2, n3, wire(o1[0][0], o1[0][1], i2[0] - 5, i2[1]), wire(o2[0][0], o2[0][1], i3[0] - 5, i3[1]),
+          packet(172, 138, 'msg', '#fff8e1', ORANGE, 10), packet(345, 138, 'msg', '#fff8e1', ORANGE, 10))
+    node, _, _ = nrnode(260, 40, '温度を ℃ に直す', '#ffffff', w=170, outputs=0, inputs=0, mood='happy', fs=11)
+    p.add(node, line(260, 60, 260, 88, '#bbb', 1.5, '3 3'), text(360, 44, '← comment（説明のメモ）', 10, '#666', 'start'))
+    return p
+
+
+FIGURES = {'comment-basic': comment, 'inject-basic': inject, 'debug-basic': debug, 'complete-basic': complete, 'status-basic': status,
            'link-basic': link, 'link-call': link_call, 'catch-basic': catch}
