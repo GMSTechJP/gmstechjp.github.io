@@ -248,7 +248,7 @@ def msgcard(x, y, lines, title='msg', w=None, hl=(), strike=(), fill='#fff', str
         if i in hl:
             s.append(f'<rect x="{x+4}" y="{ly-12}" width="{w-8}" height="16" rx="3" fill="#fff59d"/>')
         color = '#999' if i in strike else INK
-        s.append(f'<text x="{x+8}" y="{ly}" font-size="11" fill="{color}" font-family="\'Courier New\', monospace">{esc(l)}</text>')
+        s.append(f'<text x="{x+8}" y="{ly}" font-size="11" fill="{color}" font-family="\'Courier New\', monospace" style="white-space:pre">{esc(l)}</text>')
         if i in strike:
             s.append(line(x + 8, ly - 4, x + 8 + tw(l, 11), ly - 4, RED, 1.5))
     return ''.join(s), w, h
