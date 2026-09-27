@@ -53,6 +53,15 @@
         .node-card h4 { margin-top: 0; color: #455a64; }
         .diagram-box { background: #2d3133; color: white; padding: 20px; border-radius: 8px; font-family: monospace; margin: 15px 0; white-space: pre-wrap; }
         code { background: #eceff1; padding: 2px 6px; border-radius: 3px; font-family: 'Courier New', monospace; font-size: 0.95em; }
+        /* 漫画風の図（scripts/comic/build.py で生成） */
+        .comic-fig { margin: 20px auto; max-width: 620px; }
+        .comic-fig .comic { display: block; width: 100%; height: auto; background: #fff; border: 1px solid rgba(0,0,0,0.12); border-radius: 6px; }
+        .comic-fig figcaption { font-size: 0.9em; color: #666; text-align: center; margin-top: 6px; }
+        @media (max-width: 640px) {
+            /* 狭い画面では図を縮めすぎず、図の枠内だけ横にスクロールさせる */
+            .comic-fig { overflow-x: auto; }
+            .comic-fig .comic { min-width: 520px; }
+        }
     </style>
 </head>
 <body>
@@ -127,6 +136,15 @@
             <strong>使い分けの目安</strong><br>
             1 台の機器で数十万件までを扱い、そこで集計まで済ませるなら SQLite で足りる。複数拠点のデータを 1 か所に集め、長期のトレンドを何年も保持するなら、時系列データベース（InfluxDB など）やサーバー型のデータベース（PostgreSQL など）が向く。SQLite はその手前の、最初の一歩を踏み出すための選択肢である。
         </div>
+
+        <h3>動作を図で見る</h3>
+        <p>sqlite ノードは、受け取った SQL 文をデータベースで実行し、結果を msg.payload に入れて送り出します。既定では SQL 文を msg.topic で渡します。</p>
+        <figure class="comic-fig">
+            <!-- comic:begin sqlite-basic -->
+            <svg class="comic" viewBox="0 0 560 200" role="img" aria-label="sqlite ノードは、既定では msg.topic に入った SQL 文をデータベースで実行し、結果の行を配列にして msg.payload で送り出す" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', 'Hiragino Sans', 'Meiryo', sans-serif"><defs><marker id="msqlk" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#37474f"/></marker><marker id="msqlr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#c62828"/></marker><marker id="msqlg" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#2e7d32"/></marker><marker id="msqlb" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#1976d2"/></marker><marker id="msqlo" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#ef6c00"/></marker></defs><rect x="8" y="40" width="204.7999999999999" height="39" rx="5" fill="#fff" stroke="#90a4ae" stroke-width="1.5"/><rect x="8" y="40" width="204.7999999999999" height="18" rx="5" fill="#90a4ae"/><rect x="8" y="52" width="204.7999999999999" height="6" fill="#90a4ae"/><text x="16" y="53" font-size="11" fill="#fff" text-anchor="start" font-weight="bold">入ってくる msg</text><text x="16" y="73" font-size="11" fill="#37474f" font-family="'Courier New', monospace" style="white-space:pre">topic: "SELECT * FROM temps"</text><path d="M212.7999999999999 59.5 C229.89999999999995 59.5 229.89999999999995 62 247.0 62" fill="none" stroke="#999" stroke-width="2"/><rect x="252.0" y="42.0" width="96" height="40" rx="6" fill="#E6E0F8" stroke="#999" stroke-width="1.5"/><rect x="252.0" y="42.0" width="30" height="40" rx="6" fill="rgba(0,0,0,0.08)"/><path d="M260.0 58 q2.5 -3.5 5 0 M269.0 58 q2.5 -3.5 5 0" fill="none" stroke="#37474f" stroke-width="1.6"/><path d="M262.0 64 Q267.0 70 272.0 64" fill="none" stroke="#37474f" stroke-width="1.8"/><text x="315.0" y="66.2" font-size="12" fill="#37474f" text-anchor="middle" font-weight="bold">sqlite</text><rect x="247.0" y="57" width="10" height="10" rx="2" fill="#d9d9d9" stroke="#999"/><rect x="343.0" y="57" width="10" height="10" rx="2" fill="#d9d9d9" stroke="#999"/><path d="M255 130 v40 a45 10 0 0 0 90 0 v-40" fill="#e3f2fd" stroke="#37474f" stroke-width="1.8"/><ellipse cx="300" cy="130" rx="45" ry="10" fill="#bbdefb" stroke="#37474f" stroke-width="1.8"/><text x="300" y="160" font-size="11" fill="#37474f" text-anchor="middle" font-weight="bold">temps 表</text><path d="M290 84 v32" stroke="#1976d2" stroke-width="2" marker-end="url(#msqlb)"/><path d="M312 116 v-30" stroke="#2e7d32" stroke-width="2" marker-end="url(#msqlg)"/><text x="284" y="104" font-size="9" fill="#1976d2" text-anchor="end" font-weight="normal">SQL</text><text x="318" y="104" font-size="9" fill="#2e7d32" text-anchor="start" font-weight="normal">行</text><path d="M353.0 62 C369.0 62 369.0 85.0 385 85.0" fill="none" stroke="#999" stroke-width="2"/><rect x="385" y="40" width="165.19999999999993" height="90" rx="5" fill="#fff" stroke="#7cb342" stroke-width="1.5"/><rect x="385" y="40" width="165.19999999999993" height="18" rx="5" fill="#7cb342"/><rect x="385" y="52" width="165.19999999999993" height="6" fill="#7cb342"/><text x="393" y="53" font-size="11" fill="#fff" text-anchor="start" font-weight="bold">出ていく msg</text><text x="393" y="73" font-size="11" fill="#37474f" font-family="'Courier New', monospace" style="white-space:pre">payload: [</text><rect x="389" y="78" width="157.19999999999993" height="16" rx="3" fill="#fff59d"/><text x="393" y="90" font-size="11" fill="#37474f" font-family="'Courier New', monospace" style="white-space:pre">  {id: 1, temp: 24.8},</text><rect x="389" y="95" width="157.19999999999993" height="16" rx="3" fill="#fff59d"/><text x="393" y="107" font-size="11" fill="#37474f" font-family="'Courier New', monospace" style="white-space:pre">  {id: 2, temp: 25.3}</text><text x="393" y="124" font-size="11" fill="#37474f" font-family="'Courier New', monospace" style="white-space:pre">]</text></svg>
+            <!-- comic:end -->
+            <figcaption>SELECT の結果は、行ごとのオブジェクトの配列になって出てくる</figcaption>
+        </figure>
 
         <h2 id="section2">2. インストール方法</h2>
 
