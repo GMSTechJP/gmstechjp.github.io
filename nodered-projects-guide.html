@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED プロジェクト機能の使い方ガイド</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.8; max-width: 1000px; margin: 0 auto; padding: 20px; background-color: #f5f5f5; color: #333; }
+        h1 { color: #8f0000; border-bottom: 3px solid #8f0000; padding-bottom: 10px; }
+        h2 { color: #c00000; margin-top: 40px; border-left: 5px solid #c00000; padding-left: 15px; }
+        h3 { color: #555; margin-top: 25px; }
+        h4 { color: #666; margin-top: 20px; }
+        .container { background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .page-nav { background: #eef5ff; border: 2px solid #4a90e2; border-radius: 8px; padding: 18px 24px; margin-bottom: 25px; }
+        .page-nav p { margin: 6px 0; }
+        .page-nav .label { display: block; font-weight: bold; color: #2c5282; }
+        .toc { background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 8px; padding: 20px 30px; margin: 20px 0; }
+        .toc h3 { margin-top: 0; color: #8f0000; }
+        .toc ul { list-style: none; padding-left: 0; }
+        .toc li { padding: 3px 0; }
+        .toc a { color: #1976d2; text-decoration: none; }
+        .toc a:hover { text-decoration: underline; }
+        .important { background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 15px 0; border-radius: 0 4px 4px 0; }
+        .tip { background-color: #d1ecf1; border-left: 4px solid #17a2b8; padding: 15px; margin: 15px 0; border-radius: 0 4px 4px 0; }
+        .warning { background-color: #f8d7da; border-left: 4px solid #dc3545; padding: 15px; margin: 15px 0; border-radius: 0 4px 4px 0; }
+        .success { background-color: #d4edda; border-left: 4px solid #28a745; padding: 15px; margin: 15px 0; border-radius: 0 4px 4px 0; }
+        .code-block { background-color: #012456; color: #fff; padding: 15px; border-radius: 5px; margin: 15px 0; overflow-x: auto; font-family: 'Consolas', 'Courier New', monospace; font-size: 14px; white-space: pre; }
+        code { background: #f0f0f0; padding: 2px 6px; border-radius: 3px; font-family: 'Courier New', monospace; font-size: 0.95em; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 10px 12px; text-align: left; vertical-align: top; }
+        th { background-color: #8f0000; color: white; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .ui { display: inline-block; background: #eceff1; border: 1px solid #cfd8dc; border-radius: 4px; padding: 0 6px; font-size: 0.95em; white-space: nowrap; }
+        ol.steps li { margin: 8px 0; }
+        .exercise { background-color: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0; border: 2px solid #2196f3; }
+        .exercise h3 { color: #1976d2; margin-top: 0; }
+        /* 漫画風の図（scripts/comic/build.py で生成） */
+        .comic-fig { margin: 20px auto; max-width: 620px; }
+        .comic-fig .comic { display: block; width: 100%; height: auto; background: #fff; border: 1px solid rgba(0,0,0,0.12); border-radius: 6px; }
+        .comic-fig figcaption { font-size: 0.9em; color: #666; text-align: center; margin-top: 6px; }
+        @media (max-width: 640px) {
+            /* 狭い画面では図を縮めすぎず、図の枠内だけ横にスクロールさせる */
+            .comic-fig { overflow-x: auto; }
+            .comic-fig .comic { min-width: 520px; }
+            body { padding: 8px; }
+            .container { padding: 16px; }
+            th, td { padding: 6px; font-size: 0.9em; }
+            .ui { white-space: normal; }
+            td code { word-break: break-all; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Node-RED プロジェクト機能の使い方ガイド</h1>
+        <div data-envbadge="1" style="margin:12px 0;"><span style="display:inline-block;padding:3px 12px;border-radius:12px;font-size:0.85em;font-weight:bold;background:#ede7f6;color:#4527a0;border:1px solid #b39ddb;">🖥️ ローカル/ラズパイ</span> <a href="nodered-learning-environment-guide.html" style="font-size:0.82em;">環境とは？</a></div>
+
+        <div class="page-nav">
+            <p><span class="label">📖 このページの前提</span>プロジェクト機能が有効になっていること。有効にする手順は <a href="nodered-settings-guide.html#section2">settings.js 設定ガイド「2. プロジェクト機能の有効化」</a>にあります。コミットやブランチという言葉に不安があれば、先に <a href="nodered-git-basics-guide.html">Git バージョン管理 超入門</a>を読んでおくと迷いません。</p>
+            <p><span class="label">🎯 得られるもの</span>エディターの画面だけで、フローの変更を記録し、履歴を見比べ、GitHub などへ保存し、別の Node-RED（ラズパイなど）へ同じフローを持っていけるようになります。</p>
+            <p><span class="label">🖥️ 環境</span>Git が入った自分のパソコンかラズパイの Node-RED が必要です。settings.js を書き換えられない共有環境では使えません。</p>
+        </div>
+
+        <div class="toc">
+            <h3>目次</h3>
+            <ul>
+                <li><a href="#s1">1. プロジェクト機能でできること</a></li>
+                <li><a href="#s2">2. 最初のプロジェクトを作る</a></li>
+                <li><a href="#s3">3. プロジェクトの中身</a></li>
+                <li><a href="#s4">4. 操作する場所</a></li>
+                <li><a href="#s5">5. 変更を記録する（コミット）</a></li>
+                <li><a href="#s6">6. 履歴を見る、元に戻す</a></li>
+                <li><a href="#s7">7. ブランチを使う</a></li>
+                <li><a href="#s8">8. GitHub などのリモートと同期する</a></li>
+                <li><a href="#s9">9. 別の Node-RED でクローンして使う</a></li>
+                <li><a href="#s10">10. プロジェクトの切り替えと削除</a></li>
+                <li><a href="#s11">11. 画面ではできないこと</a></li>
+                <li><a href="#s12">12. 演習</a></li>
+                <li><a href="#s13">13. トラブルシューティング</a></li>
+                <li><a href="#s14">14. まとめと関連ガイド</a></li>
+            </ul>
+        </div>
+
+        <!-- ===== 1 ===== -->
+        <h2 id="s1">1. プロジェクト機能でできること</h2>
+
+        <p>プロジェクト機能を使うと、フローを Git で管理できます。1 つのプロジェクトは 1 つの Git リポジトリで、フローのファイルと、使っているノードの一覧などをまとめて持ちます。</p>
+
+        <figure class="comic-fig">
+            <!-- comic:begin projects-overview -->
+            <svg class="comic" viewBox="0 0 560 210" role="img" aria-label="Node-RED のエディターでデプロイすると、フローはプロジェクトのフォルダ（Git リポジトリ）に書き込まれる。コミットで履歴に記録し、必要ならリモート（GitHub など）とプッシュ、プルでやり取りする" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', 'Hiragino Sans', 'Meiryo', sans-serif"><defs><marker id="mpjok" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#37474f"/></marker><marker id="mpjor" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#c62828"/></marker><marker id="mpjog" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#2e7d32"/></marker><marker id="mpjob" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#1976d2"/></marker><marker id="mpjoo" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#ef6c00"/></marker></defs><rect x="48" y="78" width="44" height="32" rx="4" fill="#fff" stroke="#37474f" stroke-width="2"/><rect x="52" y="82" width="36" height="24" rx="2" fill="#e3f2fd"/><rect x="66" y="110" width="8" height="5" fill="#37474f"/><rect x="58" y="115" width="24" height="3" rx="1" fill="#37474f"/><path d="M62 90 q3 -4 6 0 M72 90 q3 -4 6 0" fill="none" stroke="#37474f" stroke-width="1.8"/><path d="M63 96 Q70 104 77 96" fill="none" stroke="#37474f" stroke-width="2"/><text x="70" y="132" font-size="12" fill="#37474f" text-anchor="middle" font-weight="normal">エディター</text><path d="M185 45 h59.49999999999999 l8 10 h102.5 v110 h-170 z" fill="#fff8e1" stroke="#37474f" stroke-width="1.8"/><text x="270.0" y="75" font-size="11" fill="#37474f" text-anchor="middle" font-weight="bold">プロジェクト（リポジトリ）</text><path d="M200 90 h74 l16 16 v10 h-90 z" fill="#fff" stroke="#37474f" stroke-width="1.8"/><path d="M274 90 v16 h16" fill="none" stroke="#37474f" stroke-width="1.5"/><text x="208" y="106" font-size="11" fill="#37474f" text-anchor="start" font-weight="bold">flows.json</text><path d="M245 118 h84 l16 16 v10 h-100 z" fill="#fff" stroke="#37474f" stroke-width="1.8"/><path d="M329 118 v16 h16" fill="none" stroke="#37474f" stroke-width="1.5"/><text x="253" y="134" font-size="11" fill="#37474f" text-anchor="start" font-weight="bold">package.json</text><rect x="462" y="71" width="36" height="48" rx="4" fill="#fff" stroke="#37474f" stroke-width="2"/><line x1="468" y1="107" x2="492" y2="107" stroke="#37474f" stroke-width="1.5"/><line x1="468" y1="113" x2="492" y2="113" stroke="#37474f" stroke-width="1.5"/><path d="M472 84 q3 -4 6 0 M482 84 q3 -4 6 0" fill="none" stroke="#37474f" stroke-width="1.8"/><path d="M474 90 Q480 97 486 90" fill="none" stroke="#37474f" stroke-width="2"/><text x="480" y="135" font-size="12" fill="#37474f" text-anchor="middle" font-weight="normal">GitHub など</text><line x1="92" y1="88" x2="180" y2="88" stroke="#1976d2" stroke-width="2" marker-end="url(#mpjob)"/><line x1="360" y1="80" x2="452" y2="80" stroke="#ef6c00" stroke-width="2" marker-end="url(#mpjoo)"/><line x1="452" y1="112" x2="360" y2="112" stroke="#2e7d32" stroke-width="2" marker-end="url(#mpjog)"/><text x="135" y="76" font-size="10" fill="#1976d2" text-anchor="middle" font-weight="bold">デプロイ</text><text x="406" y="68" font-size="10" fill="#ef6c00" text-anchor="middle" font-weight="bold">プッシュ</text><text x="406" y="130" font-size="10" fill="#2e7d32" text-anchor="middle" font-weight="bold">プル</text><circle cx="215" cy="188" r="8" fill="#c00000"/><circle cx="251" cy="188" r="8" fill="#c00000"/><line x1="223" y1="188" x2="243" y2="188" stroke="#c00000" stroke-width="2" stroke-linecap="round"/><circle cx="287" cy="188" r="8" fill="#c00000"/><line x1="259" y1="188" x2="279" y2="188" stroke="#c00000" stroke-width="2" stroke-linecap="round"/><circle cx="323" cy="188" r="8" fill="#c00000"/><line x1="295" y1="188" x2="315" y2="188" stroke="#c00000" stroke-width="2" stroke-linecap="round"/><text x="270" y="207" font-size="10" fill="#c00000" text-anchor="middle" font-weight="bold">コミット（記録）が積み重なる</text></svg>
+            <!-- comic:end -->
+            <figcaption>デプロイでファイルに書き込み、コミットで記録し、プッシュとプルでリモートとやり取りする</figcaption>
+        </figure>
+
+        <p>プロジェクト機能を使わない場合との違いは次のとおりです。</p>
+
+        <table>
+            <tr><th style="width:28%">やりたいこと</th><th>プロジェクト機能なし</th><th>プロジェクト機能あり</th></tr>
+            <tr><td>昨日の状態に戻したい</td><td>フローを書き出したファイルを自分で取っておく</td><td>コミットの履歴から、いつ何を変えたかを見比べられる</td></tr>
+            <tr><td>別の案を試したい</td><td>タブを複製するか、別の Node-RED を用意する</td><td>ブランチを作って切り替える</td></tr>
+            <tr><td>ラズパイに同じフローを入れたい</td><td>フローを書き出して読み込み、足りないノードを手で入れる</td><td>リモートからクローンし、足りないノードは一覧からインストールする</td></tr>
+            <tr><td>複数の用途のフローを使い分けたい</td><td>1 つの Node-RED には 1 組のフローだけ</td><td>プロジェクトを作り分けて切り替える（同時に動くのは 1 つ）</td></tr>
+        </table>
+
+        <!-- ===== 2 ===== -->
+        <h2 id="s2">2. 最初のプロジェクトを作る</h2>
+
+        <p>プロジェクト機能を有効にして初めてエディターを開くと、プロジェクトを作るための案内が自動で表示されます。画面は次の順に進みます。</p>
+
+        <ol class="steps">
+            <li><strong>ようこそ画面</strong>：<span class="ui">プロジェクトの作成</span>、<span class="ui">プロジェクトのクローン</span>、<span class="ui">既存のプロジェクトを開く</span>、<span class="ui">後にする</span> から選びます。新しく始めるときは <span class="ui">プロジェクトの作成</span> を選びます。<span class="ui">後にする</span> を選んでも、あとでメニューの <span class="ui">プロジェクト</span> → <span class="ui">新規</span> から作れます。</li>
+            <li><strong>バージョン管理クライアントの設定</strong>：コミットに記録する <span class="ui">ユーザ名</span> と <span class="ui">Email</span> を入れます。本名でなくても構いません。</li>
+            <li><strong>プロジェクトの作成</strong>：<span class="ui">プロジェクト名</span>（英数字と <code>_</code> <code>-</code> だけ）と <span class="ui">説明</span>（任意）を入れます。</li>
+            <li><strong>プロジェクト関連ファイルの作成</strong>：<span class="ui">フローファイル</span> の名前を決めます（既定は <code>flows.json</code>）。認証情報ファイルの名前は自動で決まります（<code>flows_cred.json</code>）。それまで使っていたフローと認証情報は、ここでプロジェクトにコピーされます。</li>
+            <li><strong>認証情報ファイルの暗号化設定</strong>：パスワードやトークンを保存する認証情報ファイルを暗号化するかどうかと、その<strong>暗号化キー</strong>を決めます。</li>
+            <li><strong>完了</strong>：<span class="ui">プロジェクト作成</span> を押すと、プロジェクトができます。以降はこれまでどおりフローを編集できます。</li>
+        </ol>
+
+        <div class="warning">
+            <p><strong>暗号化キーは必ず控えておく</strong></p>
+            <p>暗号化キーはプロジェクトのファイルとは別に保存され、Git の履歴にもリモートにも入りません。別の Node-RED でこのプロジェクトを使うときや、Node-RED を入れ直したときに同じキーが必要になります。キーが分からなくなると、保存してあるパスワードなどの認証情報は読み出せず、設定し直すことになります。公開するリポジトリに置くなら、暗号化は有効にしてください。</p>
+        </div>
+
+        <!-- ===== 3 ===== -->
+        <h2 id="s3">3. プロジェクトの中身</h2>
+
+        <p>プロジェクトは、Node-RED のユーザーディレクトリの下の <code>projects/プロジェクト名/</code> に作られます。ラズパイの標準的な導入なら <code>/home/ユーザー名/.node-red/projects/プロジェクト名/</code> です。作成直後のファイルは次のとおりです。</p>
+
+        <table>
+            <tr><th style="width:26%">ファイル</th><th>中身</th></tr>
+            <tr><td><code>flows.json</code></td><td>フローそのもの。デプロイするたびに書き換わる</td></tr>
+            <tr><td><code>flows_cred.json</code></td><td>パスワードなどの認証情報。暗号化を有効にしていれば中身は読めない</td></tr>
+            <tr><td><code>package.json</code></td><td>プロジェクトの名前と説明、使っている追加ノードの一覧（依存関係）、フローファイルの名前</td></tr>
+            <tr><td><code>README.md</code></td><td>プロジェクトの説明文。エディターから編集できる</td></tr>
+            <tr><td><code>.gitignore</code></td><td>Git で管理しないファイルの指定。作成時は <code>*.backup</code>（Node-RED が作るバックアップ）だけが入っている</td></tr>
+        </table>
+
+        <p>このフォルダはふつうの Git リポジトリなので、中にほかのファイル（設計メモや画像など）を置いて一緒に管理することもできます。</p>
+
+        <!-- ===== 4 ===== -->
+        <h2 id="s4">4. 操作する場所</h2>
+
+        <p>プロジェクト機能の操作は、エディターの次の 4 か所に分かれています。</p>
+
+        <table>
+            <tr><th style="width:30%">場所</th><th>できること</th></tr>
+            <tr><td>メニュー → <span class="ui">プロジェクト</span></td><td><span class="ui">新規</span>（作成またはクローン）、<span class="ui">開く</span>（切り替えと削除）、<span class="ui">設定</span>（プロジェクト設定を開く）</td></tr>
+            <tr><td>サイドバーの <span class="ui">情報</span> タブ</td><td>いま有効なプロジェクトの名前が出る。横のボタンで <span class="ui">プロジェクト設定を表示</span></td></tr>
+            <tr><td>サイドバーの <span class="ui">履歴</span> タブ</td><td>変更の確認、ステージング、コミット、コミット履歴、ブランチの切り替え、プッシュとプル</td></tr>
+            <tr><td>メニュー → <span class="ui">設定</span> → <span class="ui">Git設定</span> タブ</td><td>コミッター（ユーザ名とメールアドレス）、ワークフロー（手動か自動か）、SSH キー</td></tr>
+        </table>
+
+        <p><span class="ui">プロジェクト設定</span> の画面には 3 つのタブがあります。</p>
+
+        <table>
+            <tr><th style="width:22%">タブ</th><th>内容</th></tr>
+            <tr><td><span class="ui">プロジェクト</span></td><td>説明（<code>README.md</code>）の表示と編集</td></tr>
+            <tr><td><span class="ui">依存関係</span></td><td>フローで使っている追加ノードの一覧。<code>package.json</code> に載っていないノードは <span class="ui">プロジェクトへ追加</span>、使っていないノードは <span class="ui">プロジェクトから削除</span>、入っていないノードは <span class="ui">インストール</span> で揃える</td></tr>
+            <tr><td><span class="ui">設定</span></td><td>ファイル（フローファイル、認証情報の暗号化キー）、<span class="ui">ブランチ</span> の一覧と削除、<span class="ui">Gitリモート</span> の追加と削除</td></tr>
+        </table>
+
+        <!-- ===== 5 ===== -->
+        <h2 id="s5">5. 変更を記録する（コミット）</h2>
+
+        <p>ふだんの流れは、「フローを直す、デプロイする、コミットする」の繰り返しです。デプロイするまでファイルは書き換わらないので、デプロイ前の変更は履歴タブに出てきません。</p>
+
+        <figure class="comic-fig">
+            <!-- comic:begin projects-commit -->
+            <svg class="comic" viewBox="0 0 560 200" role="img" aria-label="フローを直してデプロイすると、履歴タブの「ローカルの変更」に flows.json が出る。「変更をステージング」でコミット対象に移し、メッセージを入れてコミットすると「コミット履歴」に 1 件増える" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', 'Hiragino Sans', 'Meiryo', sans-serif"><defs><marker id="mpjck" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#37474f"/></marker><marker id="mpjcr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#c62828"/></marker><marker id="mpjcg" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#2e7d32"/></marker><marker id="mpjcb" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#1976d2"/></marker><marker id="mpjco" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#ef6c00"/></marker></defs><rect x="12" y="30" width="125" height="150" rx="8" fill="#fafafa" stroke="#8f0000" stroke-width="2"/><text x="74" y="50" font-size="11" fill="#8f0000" text-anchor="middle" font-weight="bold">① 編集してデプロイ</text><line x1="139" y1="105" x2="147" y2="105" stroke="#999" stroke-width="2" marker-end="url(#mpjck)"/><rect x="149" y="30" width="125" height="150" rx="8" fill="#fafafa" stroke="#ef6c00" stroke-width="2"/><text x="211" y="50" font-size="11" fill="#ef6c00" text-anchor="middle" font-weight="bold">② ローカルの変更</text><line x1="276" y1="105" x2="284" y2="105" stroke="#999" stroke-width="2" marker-end="url(#mpjck)"/><rect x="286" y="30" width="125" height="150" rx="8" fill="#fafafa" stroke="#1976d2" stroke-width="2"/><text x="348" y="50" font-size="11" fill="#1976d2" text-anchor="middle" font-weight="bold">③ ステージング</text><line x1="413" y1="105" x2="421" y2="105" stroke="#999" stroke-width="2" marker-end="url(#mpjck)"/><rect x="423" y="30" width="125" height="150" rx="8" fill="#fafafa" stroke="#2e7d32" stroke-width="2"/><text x="485" y="50" font-size="11" fill="#2e7d32" text-anchor="middle" font-weight="bold">④ コミット</text><rect x="52" y="88" width="44" height="32" rx="4" fill="#fff" stroke="#37474f" stroke-width="2"/><rect x="56" y="92" width="36" height="24" rx="2" fill="#e3f2fd"/><rect x="70" y="120" width="8" height="5" fill="#37474f"/><rect x="62" y="125" width="24" height="3" rx="1" fill="#37474f"/><path d="M66 100 q3 -4 6 0 M76 100 q3 -4 6 0" fill="none" stroke="#37474f" stroke-width="1.8"/><path d="M67 106 Q74 114 81 106" fill="none" stroke="#37474f" stroke-width="2"/><rect x="40" y="140" width="68" height="22" rx="4" fill="#8f0000"/><text x="74" y="155" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">デプロイ</text><path d="M160 70 h84 l16 16 v10 h-100 z" fill="#fff" stroke="#37474f" stroke-width="1.8"/><path d="M244 70 v16 h16" fill="none" stroke="#37474f" stroke-width="1.5"/><text x="168" y="86" font-size="11" fill="#37474f" text-anchor="start" font-weight="bold">flows.json</text><text x="211" y="118" font-size="10" fill="#ef6c00" text-anchor="middle" font-weight="bold">変更あり</text><text x="211" y="150" font-size="10" fill="#666" text-anchor="middle" font-weight="normal">クリックで差分</text><circle cx="348" cy="100" r="16" fill="#1976d2"/><text x="348" y="106" font-size="16" fill="#fff" text-anchor="middle" font-weight="bold">＋</text><text x="348" y="140" font-size="10" fill="#1976d2" text-anchor="middle" font-weight="bold">変更をステージング</text><rect x="436" y="72" width="100" height="40" rx="4" fill="#fff" stroke="#bbb"/><text x="486" y="90" font-size="10" fill="#37474f" text-anchor="middle" font-weight="normal">温度の閾値を</text><text x="486" y="104" font-size="10" fill="#37474f" text-anchor="middle" font-weight="normal">30℃に変更</text><rect x="452" y="122" width="68" height="22" rx="4" fill="#2e7d32"/><text x="486" y="137" font-size="11" fill="#fff" text-anchor="middle" font-weight="bold">コミット</text><text x="486" y="166" font-size="10" fill="#2e7d32" text-anchor="middle" font-weight="bold">履歴に 1 件増える</text></svg>
+            <!-- comic:end -->
+            <figcaption>デプロイした変更を、ステージングしてからコミットする</figcaption>
+        </figure>
+
+        <ol class="steps">
+            <li>フローを編集して <span class="ui">デプロイ</span> します。</li>
+            <li>サイドバーの <span class="ui">履歴</span> タブを開きます。<span class="ui">ローカルの変更</span> の <span class="ui">ステージングされていない変更</span> に <code>flows.json</code> が出ています。ファイル名をクリックすると、何が変わったかの差分が表示されます。</li>
+            <li>ファイルの <span class="ui">＋</span>（<span class="ui">変更をステージング</span>）を押して、<span class="ui">ステージングされた変更</span> に移します。全部まとめて移すときは見出しの横の <span class="ui">全ての変更をステージング</span> を使います。</li>
+            <li><span class="ui">コミット</span> を押し、何を変えたかが分かるメッセージ（例：「温度の閾値を 30℃ に変更」）を入れて、もう一度 <span class="ui">コミット</span> を押します。</li>
+            <li>下の <span class="ui">コミット履歴</span> に 1 件増えていれば記録できています。</li>
+        </ol>
+
+        <div class="tip">
+            <p><strong>デプロイのたびに自動でコミットする</strong></p>
+            <p>メニュー → <span class="ui">設定</span> → <span class="ui">Git設定</span> の <span class="ui">ワークフロー</span> を <span class="ui">自動</span> にすると、デプロイするたびに自動でコミットされます。既定は <span class="ui">手動</span> です。自動にすると記録し忘れはなくなりますが、試しにデプロイした途中の状態もすべて履歴に残り、メッセージも自分では付けられません。まとまった単位で記録したい場合は手動のままにします。</p>
+        </div>
+
+        <div class="important">
+            <p><strong>デプロイした変更を取り消す（変更を戻す）</strong></p>
+            <p>まだコミットしていない変更を捨てたいときは、<span class="ui">ステージングされていない変更</span> のファイルの <span class="ui">変更を戻す</span> ボタンを押します。ファイルは最後にコミットした状態に戻ります。この操作は元に戻せません。</p>
+        </div>
+
+        <!-- ===== 6 ===== -->
+        <h2 id="s6">6. 履歴を見る、元に戻す</h2>
+
+        <p><span class="ui">履歴</span> タブの <span class="ui">コミット履歴</span> には、これまでのコミットが新しい順に並びます。コミットをクリックすると、そのコミットで変わったファイルと差分が表示されます。いつ、何を変えたかを探すときに使います。</p>
+
+        <div class="important">
+            <p><strong>過去のコミットの状態に戻すボタンはない</strong></p>
+            <p>エディターの画面でできるのは、履歴を見ることと、まだコミットしていない変更を捨てることまでです。コミット済みの過去の状態にフローを戻す操作は、画面には用意されていません。戻したいときは、プロジェクトのフォルダでコマンドの Git を使うか、差分を見ながらフローを直してデプロイし、新しいコミットとして記録します。コマンドで戻す考え方は <a href="nodered-git-basics-guide.html#section3">Git 超入門「3. 基本機能は5つ」</a>を参照してください。</p>
+        </div>
+
+        <!-- ===== 7 ===== -->
+        <h2 id="s7">7. ブランチを使う</h2>
+
+        <p>ブランチを使うと、いまの本流（通常は <code>main</code> や <code>master</code>）を残したまま、別の案を試せます。</p>
+
+        <ol class="steps">
+            <li><span class="ui">履歴</span> タブの <span class="ui">コミット履歴</span> の上にある、ブランチ名のボタン（<span class="ui">ブランチ:</span>）を押します。</li>
+            <li><span class="ui">ブランチの検索または作成</span> の欄に新しい名前を入れると、そのブランチを作って切り替えられます。既存の名前を選べば、そのブランチに切り替わります。</li>
+            <li>切り替えると、フローはそのブランチの内容に入れ替わります。</li>
+        </ol>
+
+        <div class="warning">
+            <p><strong>切り替える前にコミットしておく</strong></p>
+            <p>デプロイしていない変更は切り替えで失われます。コミットしていない変更がブランチの内容とぶつかる場合は、切り替えが止まり、先にコミットするか元に戻すよう求められます。</p>
+        </div>
+
+        <p>作ったブランチの一覧と削除は、<span class="ui">プロジェクト設定</span> の <span class="ui">設定</span> タブの <span class="ui">ブランチ</span> にあります。試した案を本流に取り込む操作（ローカルのブランチ同士のマージ）は画面にはありません。取り込むときは、リモートに両方のブランチをプッシュして GitHub のプルリクエストでマージし、本流をプルするか、コマンドの Git で <code>git merge</code> します。</p>
+
+        <!-- ===== 8 ===== -->
+        <h2 id="s8">8. GitHub などのリモートと同期する</h2>
+
+        <p>リモートを使うと、プロジェクトをサーバーにも保存でき、別の機械と同じフローを共有できます。リモートの利用は任意で、ローカルだけでもコミットと履歴は使えます。</p>
+
+        <h3>リモートを登録する</h3>
+        <ol class="steps">
+            <li>GitHub などで空のリポジトリを作っておきます（README なども付けない、中身が空のもの）。</li>
+            <li>メニュー → <span class="ui">プロジェクト</span> → <span class="ui">設定</span> → <span class="ui">設定</span> タブの <span class="ui">Gitリモート</span> で <span class="ui">リモートを追加</span> を押します。</li>
+            <li><span class="ui">リモート名</span>（ふつうは <code>origin</code>）と、リポジトリの <span class="ui">URL</span> を入れます。URL は <code>https://</code> か <code>ssh://</code>（GitHub の <code>git@github.com:…</code> 形式も可）です。URL にユーザー名やパスワードを含めてはいけません。</li>
+        </ol>
+
+        <h3>認証の方法</h3>
+        <table>
+            <tr><th style="width:18%">方式</th><th>準備</th><th>注意</th></tr>
+            <tr><td>HTTPS</td><td>プッシュやプルのときに聞かれるユーザー名とパスワードを入れる</td><td>GitHub はアカウントのパスワードでは受け付けない。パスワード欄には個人アクセストークンを入れる</td></tr>
+            <tr><td>SSH</td><td>メニュー → <span class="ui">設定</span> → <span class="ui">Git設定</span> の <span class="ui">SSH キー</span> で <span class="ui">キーを追加</span> し、名前を付けて <span class="ui">キーを生成</span>。<span class="ui">公開鍵をクリップボードにコピー</span> して GitHub のアカウント設定に登録する</td><td>生成したキーは <code>~/.node-red/projects/.sshkeys/</code> に置かれる。初めて接続するサーバーで「ホストキーの検証に失敗」と出たら、セクション 13 を参照</td></tr>
+        </table>
+
+        <h3>プッシュとプル</h3>
+        <ol class="steps">
+            <li><span class="ui">コミット履歴</span> の上にある、リモートの状態を表すボタン（<span class="ui">リモートブランチの管理</span>）を押します。</li>
+            <li>初回は、送り先のリモートブランチ（例：<code>origin/main</code>）を選ぶか新しく作り、<span class="ui">アップストリームとして設定する</span> にチェックを入れます。以後はこのブランチと同期します。</li>
+            <li><span class="ui">プッシュ</span> でローカルのコミットをリモートへ送り、<span class="ui">プル</span> でリモートのコミットを取り込みます。</li>
+        </ol>
+
+        <p>リモートとの差は、「リモートより 2 コミット進んでいます」（プッシュできる）や「遅れています」（プルできる）のように表示されます。</p>
+
+        <div class="important">
+            <p><strong>プッシュが断られたら、先にプル</strong></p>
+            <p>別の機械からリモートに新しいコミットが入っていると、プッシュは失敗します。先に <span class="ui">プル</span> して取り込み、それからプッシュします。プルで同じ部分がぶつかった（コンフリクト）場合は、<span class="ui">マージされていない変更</span> にファイルが出るので、<span class="ui">コンフリクトの解決</span> の画面で、ぶつかった箇所ごとにローカルとリモートのどちらを採るかを選び、コミットして完了させます。やめるときは <span class="ui">マージ中止</span> を押します。</p>
+        </div>
+
+        <!-- ===== 9 ===== -->
+        <h2 id="s9">9. 別の Node-RED でクローンして使う</h2>
+
+        <p>パソコンで作ったフローをラズパイで動かす、という使い方がプロジェクト機能のいちばんの利点です。</p>
+
+        <figure class="comic-fig">
+            <!-- comic:begin projects-clone -->
+            <svg class="comic" viewBox="0 0 560 200" role="img" aria-label="パソコンで作ったプロジェクトを GitHub にプッシュし、ラズパイの Node-RED で「プロジェクトをクローン」すると同じフローが動く。暗号化キーは元と同じものを入力し、足りないノードは依存関係からインストールする" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', 'Hiragino Sans', 'Meiryo', sans-serif"><defs><marker id="mpjkk" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#37474f"/></marker><marker id="mpjkr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#c62828"/></marker><marker id="mpjkg" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#2e7d32"/></marker><marker id="mpjkb" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#1976d2"/></marker><marker id="mpjko" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#ef6c00"/></marker></defs><rect x="48" y="73" width="44" height="32" rx="4" fill="#fff" stroke="#37474f" stroke-width="2"/><rect x="52" y="77" width="36" height="24" rx="2" fill="#e3f2fd"/><rect x="66" y="105" width="8" height="5" fill="#37474f"/><rect x="58" y="110" width="24" height="3" rx="1" fill="#37474f"/><path d="M62 85 q3 -4 6 0 M72 85 q3 -4 6 0" fill="none" stroke="#37474f" stroke-width="1.8"/><path d="M63 91 Q70 99 77 91" fill="none" stroke="#37474f" stroke-width="2"/><text x="70" y="127" font-size="12" fill="#37474f" text-anchor="middle" font-weight="normal">パソコン</text><rect x="262" y="61" width="36" height="48" rx="4" fill="#fff" stroke="#37474f" stroke-width="2"/><line x1="268" y1="97" x2="292" y2="97" stroke="#37474f" stroke-width="1.5"/><line x1="268" y1="103" x2="292" y2="103" stroke="#37474f" stroke-width="1.5"/><path d="M272 74 q3 -4 6 0 M282 74 q3 -4 6 0" fill="none" stroke="#37474f" stroke-width="1.8"/><path d="M274 80 Q280 87 286 80" fill="none" stroke="#37474f" stroke-width="2"/><text x="280" y="125" font-size="12" fill="#37474f" text-anchor="middle" font-weight="normal">GitHub</text><rect x="468" y="73" width="44" height="32" rx="4" fill="#fff" stroke="#37474f" stroke-width="2"/><rect x="472" y="77" width="36" height="24" rx="2" fill="#e3f2fd"/><rect x="486" y="105" width="8" height="5" fill="#37474f"/><rect x="478" y="110" width="24" height="3" rx="1" fill="#37474f"/><path d="M482 85 q3 -4 6 0 M492 85 q3 -4 6 0" fill="none" stroke="#37474f" stroke-width="1.8"/><path d="M483 91 Q490 99 497 91" fill="none" stroke="#37474f" stroke-width="2"/><text x="490" y="127" font-size="12" fill="#37474f" text-anchor="middle" font-weight="normal">ラズパイ</text><line x1="92" y1="80" x2="252" y2="80" stroke="#ef6c00" stroke-width="2" marker-end="url(#mpjko)"/><line x1="308" y1="80" x2="458" y2="80" stroke="#2e7d32" stroke-width="2" marker-end="url(#mpjkg)"/><text x="170" y="68" font-size="10" fill="#ef6c00" text-anchor="middle" font-weight="bold">プッシュ</text><text x="385" y="68" font-size="10" fill="#2e7d32" text-anchor="middle" font-weight="bold">クローン</text><path d="M374 148 v-6 a6 6 0 0 1 12 0 v6" fill="none" stroke="#2e7d32" stroke-width="2.5"/><rect x="371" y="148" width="18" height="14" rx="2" fill="#2e7d32"/><circle cx="380" cy="155" r="2" fill="#fff"/><text x="398" y="148" font-size="10" fill="#37474f" text-anchor="start" font-weight="normal">暗号化キー（元と同じ）</text><text x="398" y="166" font-size="10" fill="#37474f" text-anchor="start" font-weight="normal">＋ 依存関係のインストール</text><text x="170" y="150" font-size="10" fill="#c62828" text-anchor="middle" font-weight="bold">キーは GitHub に送られない</text></svg>
+            <!-- comic:end -->
+            <figcaption>リモートを経由して、同じプロジェクトを別の Node-RED に持っていく</figcaption>
+        </figure>
+
+        <ol class="steps">
+            <li>元の Node-RED でコミットしてプッシュしておきます。</li>
+            <li>ラズパイの Node-RED でもプロジェクト機能を有効にし、メニュー → <span class="ui">プロジェクト</span> → <span class="ui">新規</span> → <span class="ui">プロジェクトをクローン</span> を選びます（初回の案内画面なら <span class="ui">プロジェクトのクローン</span>）。</li>
+            <li><span class="ui">プロジェクト名</span>、<span class="ui">GitリポジトリのURL</span>、認証（HTTPS のユーザー名とトークン、または SSH キー）を入れます。</li>
+            <li><span class="ui">認証情報の暗号化キー</span> に、元のプロジェクトと同じキーを入れます。</li>
+            <li>クローンできたら、<span class="ui">プロジェクト設定</span> の <span class="ui">依存関係</span> タブを開き、入っていないノードを <span class="ui">インストール</span> します。</li>
+            <li>フローの内容を確認して <span class="ui">デプロイ</span> します。</li>
+        </ol>
+
+        <div class="tip">
+            <p><strong>機械ごとに違う値は、フローに直接書かない</strong></p>
+            <p>ブローカーのアドレスやシリアルポート名など、機械によって変わる値をフローに書き込むと、クローン先で書き換えることになり、その変更がまた履歴に載ります。こうした値は環境変数にしておくと、同じフローのまま機械ごとに値を変えられます。ラズパイで環境変数を設定する方法は <a href="nodered-production-operation-guide.html#section5">本番運用ガイド「5. 別の機械への引っ越し」</a>を参照してください。</p>
+        </div>
+
+        <!-- ===== 10 ===== -->
+        <h2 id="s10">10. プロジェクトの切り替えと削除</h2>
+
+        <p>メニュー → <span class="ui">プロジェクト</span> → <span class="ui">開く</span> で、プロジェクトの一覧が出ます。選んで開くと、動いているフローがそのプロジェクトのものに入れ替わります。同時に動かせるプロジェクトは 1 つだけです。</p>
+
+        <ul>
+            <li>切り替えの画面の <span class="ui">プロジェクトを切り替る際にコンテキストを初期化</span> は、既定でチェックが入っています。前のプロジェクトのコンテキスト変数を引き継ぎたくないときはそのままにします。</li>
+            <li>デプロイしていない変更は、切り替えると失われます。</li>
+            <li>削除は、一覧でプロジェクトにマウスを載せると出るごみ箱のボタンで行います。いま有効なプロジェクトは削除できません。削除するとローカルのフォルダごと消えます（リモートには残ります）。</li>
+        </ul>
+
+        <!-- ===== 11 ===== -->
+        <h2 id="s11">11. 画面ではできないこと</h2>
+
+        <p>エディターの画面は、よく使う Git の操作だけに絞ってあります。次の操作は、プロジェクトのフォルダでコマンドの Git を使います。</p>
+
+        <table>
+            <tr><th style="width:36%">操作</th><th>画面での扱い</th></tr>
+            <tr><td>過去のコミットの状態に戻す</td><td>なし（履歴と差分の表示まで）</td></tr>
+            <tr><td>ローカルのブランチ同士のマージ</td><td>なし（プルに伴うマージとコンフリクトの解決はできる）</td></tr>
+            <tr><td>リベース、強制プッシュ</td><td>なし</td></tr>
+            <tr><td>Git の認証情報ヘルパーの利用</td><td>非対応（HTTPS は画面で入力するか SSH キーを使う）</td></tr>
+        </table>
+
+        <p>コマンドで操作したあとは、エディターの <span class="ui">履歴</span> タブで <span class="ui">変更を更新</span> または <span class="ui">コミット履歴を更新</span> を押して表示を最新にします。フローのファイルを書き換えた場合は、Node-RED を再起動するか、プロジェクトを開き直して読み込ませます。</p>
+
+        <!-- ===== 12 ===== -->
+        <h2 id="s12">12. 演習</h2>
+
+        <div class="exercise">
+            <h3>演習1：変更を記録して見比べる（初級）</h3>
+            <ol>
+                <li>プロジェクト <code>practice</code> を作ります。</li>
+                <li>inject ノードと debug ノードをつないでデプロイし、「最初のフロー」というメッセージでコミットします。</li>
+                <li>inject ノードの payload を文字列 <code>hello</code> に変えてデプロイし、コミットします。</li>
+                <li><span class="ui">コミット履歴</span> で 2 つ目のコミットをクリックし、差分に payload の変更が出ていることを確かめます。</li>
+            </ol>
+            <p><strong>成功の条件</strong>：コミット履歴に 2 件が並び、2 件目の差分に <code>hello</code> が見えること。</p>
+        </div>
+
+        <div class="exercise">
+            <h3>演習2：ブランチで別の案を試す（中級）</h3>
+            <ol>
+                <li>演習1の続きで、ブランチ <code>try-delay</code> を作って切り替えます。</li>
+                <li>inject と debug のあいだに delay ノードを入れてデプロイし、コミットします。</li>
+                <li>ブランチを元のブランチ（<code>main</code> など）に戻し、delay ノードが消えることを確かめます。</li>
+            </ol>
+            <p><strong>成功の条件</strong>：ブランチを切り替えるたびに、ワークスペースのフローが入れ替わること。</p>
+        </div>
+
+        <div class="exercise">
+            <h3>演習3：GitHub を通して別の Node-RED へ持っていく（上級）</h3>
+            <ol>
+                <li>GitHub に空のリポジトリを作り、演習1のプロジェクトにリモートとして登録してプッシュします。</li>
+                <li>別の Node-RED（ラズパイ、または同じパソコンの別のユーザーディレクトリで起動した Node-RED）でプロジェクト機能を有効にし、そのリポジトリをクローンします。</li>
+                <li>クローン先で inject ノードを押し、debug サイドバーに <code>hello</code> が出ることを確かめます。</li>
+            </ol>
+            <p><strong>成功の条件</strong>：クローン先のエディターに同じフローが表示され、デプロイ後に同じ結果が出ること。</p>
+        </div>
+
+        <!-- ===== 13 ===== -->
+        <h2 id="s13">13. トラブルシューティング</h2>
+
+        <table>
+            <tr><th style="width:34%">症状</th><th>原因と対処</th></tr>
+            <tr><td>メニューに <span class="ui">プロジェクト</span> が出ない。起動ログに <code>Projects disabled</code></td><td>プロジェクト機能が無効か、Git が見つからない。<a href="nodered-settings-guide.html#section2">settings.js 設定ガイド</a>の有効化手順と、Windows なら <a href="nodered-git-install-windows-guide.html">Git for Windows インストールガイド</a>のパスの設定を確認する</td></tr>
+            <tr><td>「Gitクライアントのユーザ名/emailが設定されていません。」</td><td>コミッターが未設定。メニュー → <span class="ui">設定</span> → <span class="ui">Git設定</span> で <span class="ui">ユーザ名</span> と <span class="ui">メールアドレス</span> を入れる</td></tr>
+            <tr><td>デプロイしたのに <span class="ui">ローカルの変更</span> に何も出ない</td><td>ワークフローが <span class="ui">自動</span> で、すでにコミットされている。<span class="ui">コミット履歴</span> を確認する。表示が古いだけのときは <span class="ui">変更を更新</span> を押す</td></tr>
+            <tr><td>プッシュが失敗する（リモートに新しいコミットがある）</td><td>先に <span class="ui">プル</span> してからプッシュする（セクション 8）</td></tr>
+            <tr><td>プルが失敗する（ステージングされていないローカルの変更が上書きされる）</td><td>ローカルの変更を先にコミットするか、<span class="ui">変更を戻す</span> で捨ててからプルする</td></tr>
+            <tr><td>「リポジトリに対する認証が必要です」が繰り返し出る</td><td>HTTPS で GitHub のパスワードを入れている。個人アクセストークンを入れるか、SSH キーに切り替える</td></tr>
+            <tr><td>「ホストキーの検証に失敗」</td><td>接続先のサーバーが <code>known_hosts</code> に登録されていない。Node-RED を動かしているユーザーで一度コマンドから <code>ssh -T git@github.com</code> のように接続し、サーバーを登録してから再試行する</td></tr>
+            <tr><td>クローンしたら、ノードの設定にパスワードなどが入っていない</td><td>暗号化キーが元と違う。<span class="ui">プロジェクト設定</span> の <span class="ui">設定</span> タブで正しいキーを設定する。キーが分からない場合は、認証情報を入れ直す</td></tr>
+            <tr><td>クローンしたフローに「不明なノード」が出る</td><td>追加ノードが入っていない。<span class="ui">依存関係</span> タブで <span class="ui">インストール</span> する</td></tr>
+        </table>
+
+        <!-- ===== 14 ===== -->
+        <h2 id="s14">14. まとめと関連ガイド</h2>
+
+        <ul>
+            <li>1 つのプロジェクトは 1 つの Git リポジトリ。フロー、認証情報、依存関係を一緒に持つ。</li>
+            <li>ふだんは「編集、デプロイ、ステージング、コミット」を <span class="ui">履歴</span> タブで繰り返す。</li>
+            <li>別の案はブランチで試し、共有と持ち運びはリモートへのプッシュとクローンで行う。</li>
+            <li>暗号化キーはリポジトリに入らない。控えておき、クローン先で同じものを入れる。</li>
+            <li>過去の状態に戻す操作やローカルのマージは、コマンドの Git で行う。</li>
+        </ul>
+
+        <h3>関連ガイド</h3>
+        <ul>
+            <li><a href="nodered-settings-guide.html#section2">settings.js 設定ガイド「2. プロジェクト機能の有効化」</a>：有効にする手順</li>
+            <li><a href="nodered-git-basics-guide.html">Git バージョン管理 超入門</a>：コミット、ブランチ、リモートの意味</li>
+            <li><a href="nodered-git-install-windows-guide.html">Git for Windows インストールガイド</a>：Windows で Git を用意する</li>
+            <li><a href="nodered-production-operation-guide.html">本番運用ガイド</a>：ラズパイに置いたフローを動かし続ける</li>
+        </ul>
+
+        <h3>参考資料</h3>
+        <ul>
+            <li><a href="https://nodered.org/docs/user-guide/projects/" target="_blank" rel="noopener">Node-RED 公式ドキュメント：Projects（英語）</a></li>
+        </ul>
+
+        <p style="text-align: center; color: #999; margin-top: 40px;">
+            <small>このガイドは2026年9月時点の Node-RED（エディターの日本語表示）に基づいています。</small>
+        </p>
+
+        <p style="margin-top:30px;">
+            <a href="index.html">← トップページへ戻る</a> |
+            <a href="nodered-settings-guide.html">settings.js</a> |
+            <a href="nodered-git-basics-guide.html">Git 超入門</a>
+        </p>
+    </div>
+
+    <a href="index.html" style="position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px; background: linear-gradient(135deg, #42b883 0%, #35495e 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; transition: transform 0.3s, box-shadow 0.3s;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 6px 16px rgba(0,0,0,0.4)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.3)';" title="トップページへ">🏠</a>
+</body>
+</html>
