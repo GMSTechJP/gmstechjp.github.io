@@ -12,7 +12,13 @@ BLUE = '#1976d2'
 ORANGE = '#ef6c00'
 
 def tw(t, fs=12):
-    return sum(fs if ord(c) > 255 else fs * 0.6 for c in t)
+    """文字列のおおよその描画幅。
+
+    Python 3.12 から sum() が浮動小数の誤差を補正して足すようになり、3.11 以前と
+    末尾の桁が変わる（191.5999999999999 と 191.6）。生成結果を Python の版に
+    よらず同じにするため、小数第 2 位で丸める。
+    """
+    return round(sum(fs if ord(c) > 255 else fs * 0.6 for c in t), 2)
 
 def esc(t):
     return t.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
