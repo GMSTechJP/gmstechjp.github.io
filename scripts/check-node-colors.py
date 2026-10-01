@@ -202,6 +202,7 @@ def check(path):
                 )
         if not inline:
             continue
+        inline = mask_css(inline)  # コメントや文字列の中の opacity・色を数えない
         op = opacity_value(inline)
         if op is not None and op < 1:
             errors.append(
