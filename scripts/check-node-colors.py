@@ -24,20 +24,29 @@
 import glob
 import re
 import sys
+from html.parser import HTMLParser
 
 MIN_RATIO = 4.5
 NAMED = {"white": "#ffffff", "black": "#000000"}
 
 STYLE = re.compile(r"<style[^>]*>(.*?)</style>", re.S | re.I)
-CSS_COMMENT = re.compile(r"/\*.*?\*/", re.S)
 NODE_CLASS = re.compile(r"\.(node-[A-Za-z0-9_-]+)")
-TAG = re.compile(r"<[A-Za-z][^>]*>")
-CLASS_ATTR = re.compile(r"""\bclass\s*=\s*(?:"([^"]*)"|'([^']*)')""", re.I)
-STYLE_ATTR = re.compile(r"""\bstyle\s*=\s*(?:"([^"]*)"|'([^']*)')""", re.I)
 COLOR = r"(#[0-9a-fA-F]{6}\b|#[0-9a-fA-F]{3}\b|\bwhite\b|\bblack\b)"
 BG_DECL = re.compile(r"(?<![\w-])background(?:-color)?\s*:([^;]*)", re.I)
 FG_DECL = re.compile(r"(?<![\w-])color\s*:([^;]*)", re.I)
-OPACITY = re.compile(r"(?<![\w-])opacity\s*:\s*([0-9.]+)", re.I)
+OPACITY = re.compile(r"(?<![\w-])opacity\s*:\s*([^;!]*)", re.I)
+
+
+def opacity_value(text):
+    """宣言中の opacity を 0〜1 の数で返す。無い・解釈できないときは None。"""
+    found = None
+    for m in OPACITY.finditer(text):
+        raw = m.group(1).strip()
+        try:
+            found = float(raw[:-1]) / 100 if raw.endswith("%") else float(raw)
+        except ValueError:
+            continue
+    return found
 
 
 def to_hex(value):
@@ -68,14 +77,61 @@ def contrast(a, b):
     return (hi + 0.05) / (lo + 0.05)
 
 
+def mask_css(css):
+    """コメントと文字列の中身を空白に置き換える（位置は保つ）。
+
+    content: "}" のように文字列やコメントに括弧があると、括弧の対応がずれて
+    以降の規則を読み違えるため、構文として数えないようにする。
+    """
+    out = list(css)
+    i, n = 0, len(css)
+    while i < n:
+        if css.startswith("/*", i):
+            j = css.find("*/", i + 2)
+            j = n if j < 0 else j + 2
+            for k in range(i, j):
+                if out[k] != "\n":
+                    out[k] = " "
+            i = j
+        elif css[i] in "\"'":
+            quote, i = css[i], i + 1
+            while i < n and css[i] != quote and css[i] != "\n":
+                if css[i] == "\\":
+                    out[i] = " "
+                    i += 1
+                    if i >= n:
+                        break
+                out[i] = " "
+                i += 1
+            i += 1
+        else:
+            i += 1
+    return "".join(out)
+
+
+class NodeTags(HTMLParser):
+    """class に "node" を含む要素の (行, class の語, style) を集める。"""
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.found = []
+
+    def handle_starttag(self, tag, attrs):
+        attrs = dict(attrs)
+        tokens = (attrs.get("class") or "").split()
+        if "node" in tokens:
+            self.found.append((self.getpos()[0], tokens, attrs.get("style") or ""))
+
+    handle_startendtag = handle_starttag
+
+
 def css_rules(css):
     """(セレクタ, 直下の宣言, 有効か) を返す。
 
     有効とは、祖先がすべて @media などのアットルールであること。通常の規則の中に
     入れ子で書いた規則は、その規則の子孫にしか効かないため有効としない。
-    コメントは位置を保つため同じ長さの空白に置き換える。
     """
-    css = CSS_COMMENT.sub(lambda m: " " * len(m.group(0)), css)
+    css = mask_css(css)
     rules = []
     stack = []  # [セレクタ, 直下の宣言のかけら, 開始位置]
     start = 0
@@ -132,14 +188,10 @@ def check(path):
                         f"背景色 {bg} のコントラスト比が {ratio:.2f}（{MIN_RATIO} 以上が必要）"
                     )
 
-    for tag in TAG.finditer(src):
-        cm = CLASS_ATTR.search(tag.group(0))
-        if not cm:
-            continue
-        tokens = (cm.group(1) or cm.group(2) or "").split()
-        if "node" not in tokens:
-            continue
-        line = line_of(src, tag.start())
+    parser = NodeTags()
+    parser.feed(src)
+    parser.close()
+    for line, tokens, inline in parser.found:
         node_classes = [t for t in tokens if t.startswith("node-")]
         for token in node_classes:
             if token not in defined:
@@ -147,14 +199,12 @@ def check(path):
                     f"{path}:{line}: クラス {token} がこのページの CSS に定義されていない"
                     f"（箱に色が付かない）"
                 )
-        sm = STYLE_ATTR.search(tag.group(0))
-        if not sm:
+        if not inline:
             continue
-        inline = sm.group(1) or sm.group(2) or ""
-        op = OPACITY.search(inline)
-        if op and float(op.group(1)) < 1:
+        op = opacity_value(inline)
+        if op is not None and op < 1:
             errors.append(
-                f"{path}:{line}: ノードの箱を opacity: {op.group(1)} で薄くしている"
+                f"{path}:{line}: ノードの箱を opacity: {op:g} で薄くしている"
                 f"（背景と混ざって読みにくくなる。色で表現する）"
             )
         ibg, ifg = first_color(BG_DECL, inline), first_color(FG_DECL, inline)
