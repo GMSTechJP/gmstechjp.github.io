@@ -237,15 +237,16 @@
         <h3>公開MQTTブローカー（学習・テスト用）</h3>
         
         <div class="broker-box">
-            <h4>🦟 test.mosquitto.org</h4>
-            <p>Eclipse Mosquitto プロジェクト提供の公開ブローカー</p>
-            <p><code>Server: test.mosquitto.org</code> / <code>Port: 1883</code>（非暗号化）</p>
+            <h4>🐝 broker.hivemq.com（本ガイドで使用）</h4>
+            <p>HiveMQ提供の公開ブローカー。本ガイドのサンプルフローと演習はこのブローカーを使う</p>
+            <p><code>Server: broker.hivemq.com</code> / <code>Port: 1883</code></p>
         </div>
         
         <div class="broker-box">
-            <h4>🐝 broker.hivemq.com</h4>
-            <p>HiveMQ提供の公開ブローカー</p>
-            <p><code>Server: broker.hivemq.com</code> / <code>Port: 1883</code></p>
+            <h4>🦟 test.mosquitto.org</h4>
+            <p>Eclipse Mosquitto プロジェクト提供の公開ブローカー</p>
+            <p><code>Server: test.mosquitto.org</code> / <code>Port: 1883</code>（非暗号化）</p>
+            <p>利用者が多く、接続した直後に切断されることがよくある。接続が安定しないときは、ほかのブローカーを使う</p>
         </div>
         
         <div class="broker-box">
@@ -270,7 +271,7 @@
         <table>
             <tr><th>設定項目</th><th>説明</th><th>例・既定</th></tr>
             <tr><td><strong>名前</strong></td><td>このブローカー設定ノードの表示名。空欄ならサーバ名が表示される</td><td>（任意）</td></tr>
-            <tr><td><strong>サーバ</strong></td><td>ブローカーのホスト名または IP アドレス</td><td>test.mosquitto.org</td></tr>
+            <tr><td><strong>サーバ</strong></td><td>ブローカーのホスト名または IP アドレス</td><td>broker.hivemq.com</td></tr>
             <tr><td><strong>ポート</strong></td><td>接続ポート番号</td><td>1883（非暗号化）, 8883（TLS）</td></tr>
             <tr><td><strong>自動接続</strong></td><td>デプロイ時に自動でブローカーへ接続するか。オフにすると接続/切断は MQTT 制御ノードなどで明示的に行う</td><td>オン</td></tr>
             <tr><td><strong>TLSを使用</strong></td><td>暗号化接続（MQTTS）を使う。オンにすると TLS設定ノードを選ぶ欄が現れる。証明書の指定方法は<a href="nodered-tls-guide.html">TLSと証明書ガイド</a>を参照</td><td>オフ</td></tr>
@@ -423,7 +424,7 @@ home/bedroom/temperature     → 22.0</div>
                 <li>サンプルフローをインポート</li>
                 <li>MQTT In/Out ノードをダブルクリック</li>
                 <li>Server の鉛筆アイコンをクリックして<strong>ブローカー設定を確認</strong></li>
-                <li>必要に応じて Server を <code>test.mosquitto.org</code> に変更</li>
+                <li>必要に応じて Server を <code>broker.hivemq.com</code> に変更</li>
                 <li>デプロイ</li>
             </ol>
             <p>※ トピック名の <code>nodered-guide</code> 部分を自分専用の名前に変更することを推奨します</p>
@@ -443,7 +444,7 @@ home/bedroom/temperature     → 22.0</div>
         "id": "mqtt_broker_public",
         "type": "mqtt-broker",
         "name": "Public Broker",
-        "broker": "test.mosquitto.org",
+        "broker": "broker.hivemq.com",
         "port": "1883",
         "tls": "",
         "clientid": "",
@@ -913,7 +914,7 @@ home/bedroom/temperature     → 22.0</div>
                     <div class="sys-req">PUBLISH &rarr;</div>
                 </div>
                 <div class="sys-actor">
-                    <div class="sys-name">test.mosquitto.org</div>
+                    <div class="sys-name">broker.hivemq.com</div>
                     <div class="sys-role">公開ブローカー<br>（既にあるもの）</div>
                 </div>
                 <div class="sys-link">
@@ -921,7 +922,7 @@ home/bedroom/temperature     → 22.0</div>
                 </div>
                 <div class="sys-actor">
                     <div class="sys-name">購読している人</div>
-                    <div class="sys-role">mosquitto_sub など<br>（自分では作らない）</div>
+                    <div class="sys-role">演習2で作る購読フロー<br>（確認に使う）</div>
                 </div>
             </div>
 
@@ -929,13 +930,13 @@ home/bedroom/temperature     → 22.0</div>
             <ul>
                 <li>トピック: <code>あなたの名前/test/hello</code></li>
                 <li>メッセージ: <code>Hello MQTT!</code></li>
-                <li>ブローカー: test.mosquitto.org</li>
+                <li>ブローカー: broker.hivemq.com</li>
             </ul>
 
             <p><strong>✅ 成功の条件:</strong></p>
             <ul>
                 <li>MQTT Out ノードのステータスが「接続済み」になる</li>
-                <li>Inject ボタンを押した後、MQTTクライアント（mosquitto_subコマンド等）で該当トピックにメッセージが届くことを確認できる</li>
+                <li>演習2で作る購読フロー（または演習2の解答例フロー）を一緒にデプロイしておくと、Inject ボタンを押したときにそのデバッグパネルへ「Hello MQTT!」が表示される。演習1のフローだけでは、届いたことは目に見えない</li>
                 <li>Node-RED のデバッグパネルにエラーが表示されない</li>
             </ul>
 
@@ -944,7 +945,7 @@ home/bedroom/temperature     → 22.0</div>
                 <p><strong>Inject ノード:</strong> msg.payload に「Hello MQTT!」を設定</p>
                 <p><strong>MQTT Out ノード:</strong></p>
                 <ul>
-                    <li>Server: test.mosquitto.org（新規作成）</li>
+                    <li>Server: broker.hivemq.com（新規作成）</li>
                     <li>Topic: あなたの名前/test/hello</li>
                     <li>QoS: 1</li>
                 </ul>
@@ -954,7 +955,7 @@ home/bedroom/temperature     → 22.0</div>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
     {"id": "ex1_tab", "type": "tab", "label": "演習1"},
-    {"id": "ex1_broker", "type": "mqtt-broker", "name": "Public Broker", "broker": "test.mosquitto.org", "port": "1883", "tls": "", "clientid": "", "autoConnect": true, "usetls": false, "verifyservercert": false, "compatmode": false, "protocolVersion": "4", "keepalive": "60", "cleansession": true, "autoUnsubscribe": true, "birthTopic": "", "birthQos": "0", "birthRetain": "false", "birthPayload": "", "birthMsg": {}, "closeTopic": "", "closeQos": "0", "closeRetain": "false", "closePayload": "", "closeMsg": {}, "willTopic": "", "willQos": "0", "willRetain": "false", "willPayload": "", "willMsg": {}, "userProps": "", "sessionExpiry": 0},
+    {"id": "ex1_broker", "type": "mqtt-broker", "name": "Public Broker", "broker": "broker.hivemq.com", "port": "1883", "tls": "", "clientid": "", "autoConnect": true, "usetls": false, "verifyservercert": false, "compatmode": false, "protocolVersion": "4", "keepalive": "60", "cleansession": true, "autoUnsubscribe": true, "birthTopic": "", "birthQos": "0", "birthRetain": "false", "birthPayload": "", "birthMsg": {}, "closeTopic": "", "closeQos": "0", "closeRetain": "false", "closePayload": "", "closeMsg": {}, "willTopic": "", "willQos": "0", "willRetain": "false", "willPayload": "", "willMsg": {}, "userProps": "", "sessionExpiry": 0},
     {"id": "ex1_inject", "type": "inject", "z": "ex1_tab", "name": "Hello送信", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "Hello MQTT!", "payloadType": "str", "x": 160, "y": 100, "wires": [["ex1_mqtt_out"]]},
     {"id": "ex1_mqtt_out", "type": "mqtt out", "z": "ex1_tab", "name": "Publish", "topic": "yourname/test/hello", "qos": "1", "retain": "false", "respTopic": "", "contentType": "", "userProps": "", "correl": "", "expiry": "", "broker": "ex1_broker", "x": 350, "y": 100, "wires": []}
 ]</div>
@@ -970,13 +971,13 @@ home/bedroom/temperature     → 22.0</div>
             <div class="sys-map">
                 <div class="sys-actor">
                     <div class="sys-name">発行している人</div>
-                    <div class="sys-role">演習1のフロー や<br>mosquitto_pub<br>（相手側）</div>
+                    <div class="sys-role">演習1のフロー<br>（相手側）</div>
                 </div>
                 <div class="sys-link">
                     <div class="sys-req">PUBLISH &rarr;</div>
                 </div>
                 <div class="sys-actor">
-                    <div class="sys-name">test.mosquitto.org</div>
+                    <div class="sys-name">broker.hivemq.com</div>
                     <div class="sys-role">公開ブローカー<br>（既にあるもの）</div>
                 </div>
                 <div class="sys-link">
@@ -1017,7 +1018,7 @@ home/bedroom/temperature     → 22.0</div>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
     {"id": "ex2_tab", "type": "tab", "label": "演習2"},
-    {"id": "ex2_broker", "type": "mqtt-broker", "name": "Public Broker", "broker": "test.mosquitto.org", "port": "1883", "tls": "", "clientid": "", "autoConnect": true, "usetls": false, "verifyservercert": false, "compatmode": false, "protocolVersion": "4", "keepalive": "60", "cleansession": true, "autoUnsubscribe": true, "birthTopic": "", "birthQos": "0", "birthRetain": "false", "birthPayload": "", "birthMsg": {}, "closeTopic": "", "closeQos": "0", "closeRetain": "false", "closePayload": "", "closeMsg": {}, "willTopic": "", "willQos": "0", "willRetain": "false", "willPayload": "", "willMsg": {}, "userProps": "", "sessionExpiry": 0},
+    {"id": "ex2_broker", "type": "mqtt-broker", "name": "Public Broker", "broker": "broker.hivemq.com", "port": "1883", "tls": "", "clientid": "", "autoConnect": true, "usetls": false, "verifyservercert": false, "compatmode": false, "protocolVersion": "4", "keepalive": "60", "cleansession": true, "autoUnsubscribe": true, "birthTopic": "", "birthQos": "0", "birthRetain": "false", "birthPayload": "", "birthMsg": {}, "closeTopic": "", "closeQos": "0", "closeRetain": "false", "closePayload": "", "closeMsg": {}, "willTopic": "", "willQos": "0", "willRetain": "false", "willPayload": "", "willMsg": {}, "userProps": "", "sessionExpiry": 0},
     {"id": "ex2_mqtt_in", "type": "mqtt in", "z": "ex2_tab", "name": "Subscribe", "topic": "yourname/test/hello", "qos": "1", "datatype": "auto", "broker": "ex2_broker", "nl": false, "rap": true, "rh": 0, "inputs": 0, "x": 160, "y": 100, "wires": [["ex2_debug"]]},
     {"id": "ex2_debug", "type": "debug", "z": "ex2_tab", "name": "受信メッセージ", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "payload", "statusType": "msg", "x": 380, "y": 100, "wires": []}
 ]</div>
@@ -1041,7 +1042,7 @@ home/bedroom/temperature     → 22.0</div>
                     <div class="sys-res">&larr; 配信 yourname/sensors/+</div>
                 </div>
                 <div class="sys-actor">
-                    <div class="sys-name">test.mosquitto.org</div>
+                    <div class="sys-name">broker.hivemq.com</div>
                     <div class="sys-role">公開ブローカー<br>（既にあるもの）</div>
                 </div>
             </div>
@@ -1074,7 +1075,7 @@ home/bedroom/temperature     → 22.0</div>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
     {"id": "ex3_tab", "type": "tab", "label": "演習3"},
-    {"id": "ex3_broker", "type": "mqtt-broker", "name": "Public Broker", "broker": "test.mosquitto.org", "port": "1883", "tls": "", "clientid": "", "autoConnect": true, "usetls": false, "verifyservercert": false, "compatmode": false, "protocolVersion": "4", "keepalive": "60", "cleansession": true, "autoUnsubscribe": true, "birthTopic": "", "birthQos": "0", "birthRetain": "false", "birthPayload": "", "birthMsg": {}, "closeTopic": "", "closeQos": "0", "closeRetain": "false", "closePayload": "", "closeMsg": {}, "willTopic": "", "willQos": "0", "willRetain": "false", "willPayload": "", "willMsg": {}, "userProps": "", "sessionExpiry": 0},
+    {"id": "ex3_broker", "type": "mqtt-broker", "name": "Public Broker", "broker": "broker.hivemq.com", "port": "1883", "tls": "", "clientid": "", "autoConnect": true, "usetls": false, "verifyservercert": false, "compatmode": false, "protocolVersion": "4", "keepalive": "60", "cleansession": true, "autoUnsubscribe": true, "birthTopic": "", "birthQos": "0", "birthRetain": "false", "birthPayload": "", "birthMsg": {}, "closeTopic": "", "closeQos": "0", "closeRetain": "false", "closePayload": "", "closeMsg": {}, "willTopic": "", "willQos": "0", "willRetain": "false", "willPayload": "", "willMsg": {}, "userProps": "", "sessionExpiry": 0},
     {"id": "ex3_inject_temp", "type": "inject", "z": "ex3_tab", "name": "温度送信", "props": [{"p": "payload"}, {"p": "topic", "vt": "str"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "yourname/sensors/temperature", "payload": "25.5", "payloadType": "num", "x": 160, "y": 80, "wires": [["ex3_mqtt_out"]]},
     {"id": "ex3_inject_humidity", "type": "inject", "z": "ex3_tab", "name": "湿度送信", "props": [{"p": "payload"}, {"p": "topic", "vt": "str"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "yourname/sensors/humidity", "payload": "60", "payloadType": "num", "x": 160, "y": 120, "wires": [["ex3_mqtt_out"]]},
     {"id": "ex3_mqtt_out", "type": "mqtt out", "z": "ex3_tab", "name": "Publish", "topic": "", "qos": "1", "retain": "false", "respTopic": "", "contentType": "", "userProps": "", "correl": "", "expiry": "", "broker": "ex3_broker", "x": 350, "y": 100, "wires": []},
@@ -1103,7 +1104,7 @@ home/bedroom/temperature     → 22.0</div>
                     <div class="sys-res">&larr; 配信 .../command</div>
                 </div>
                 <div class="sys-actor">
-                    <div class="sys-name">test.mosquitto.org</div>
+                    <div class="sys-name">broker.hivemq.com</div>
                     <div class="sys-role">公開ブローカー<br>（既にあるもの）</div>
                 </div>
                 <div class="sys-link">
@@ -1111,7 +1112,7 @@ home/bedroom/temperature     → 22.0</div>
                 </div>
                 <div class="sys-actor">
                     <div class="sys-name">操作する人</div>
-                    <div class="sys-role">mosquitto_pub など<br>（自分では作らない）</div>
+                    <div class="sys-role">Inject + MQTT Out<br>（確認用に自分で足す）</div>
                 </div>
             </div>
 
@@ -1127,7 +1128,7 @@ home/bedroom/temperature     → 22.0</div>
             <ul>
                 <li>デプロイ後、10秒ごとにデバッグパネルに温度・湿度データが自動表示される</li>
                 <li>送信データに <code>deviceId</code>, <code>temperature</code>, <code>humidity</code>, <code>timestamp</code> が含まれている</li>
-                <li>MQTTクライアントから <code>yourname/device001/command</code> に「ON」や「OFF」を発行するとデバッグパネルに受信内容が表示される</li>
+                <li><code>yourname/device001/command</code> に「ON」や「OFF」を発行するとデバッグパネルに受信内容が表示される。発行には、同じタブに Inject ノード（payload に ON または OFF）と MQTT Out ノード（同じブローカー、トピック <code>yourname/device001/command</code>）を足して使う</li>
             </ul>
 
             <details>
@@ -1145,7 +1146,7 @@ return msg;</div>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
     {"id": "ex4_tab", "type": "tab", "label": "演習4"},
-    {"id": "ex4_broker", "type": "mqtt-broker", "name": "Public Broker", "broker": "test.mosquitto.org", "port": "1883", "tls": "", "clientid": "", "autoConnect": true, "usetls": false, "verifyservercert": false, "compatmode": false, "protocolVersion": "4", "keepalive": "60", "cleansession": true, "autoUnsubscribe": true, "birthTopic": "", "birthQos": "0", "birthRetain": "false", "birthPayload": "", "birthMsg": {}, "closeTopic": "", "closeQos": "0", "closeRetain": "false", "closePayload": "", "closeMsg": {}, "willTopic": "", "willQos": "0", "willRetain": "false", "willPayload": "", "willMsg": {}, "userProps": "", "sessionExpiry": 0},
+    {"id": "ex4_broker", "type": "mqtt-broker", "name": "Public Broker", "broker": "broker.hivemq.com", "port": "1883", "tls": "", "clientid": "", "autoConnect": true, "usetls": false, "verifyservercert": false, "compatmode": false, "protocolVersion": "4", "keepalive": "60", "cleansession": true, "autoUnsubscribe": true, "birthTopic": "", "birthQos": "0", "birthRetain": "false", "birthPayload": "", "birthMsg": {}, "closeTopic": "", "closeQos": "0", "closeRetain": "false", "closePayload": "", "closeMsg": {}, "willTopic": "", "willQos": "0", "willRetain": "false", "willPayload": "", "willMsg": {}, "userProps": "", "sessionExpiry": 0},
     {"id": "ex4_inject", "type": "inject", "z": "ex4_tab", "name": "10秒ごと", "props": [{"p": "payload"}], "repeat": "10", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "", "payloadType": "date", "x": 160, "y": 100, "wires": [["ex4_func_sensor"]]},
     {"id": "ex4_func_sensor", "type": "function", "z": "ex4_tab", "name": "センサー値生成", "func": "const temp = 20 + Math.random() * 10;\nconst humidity = 40 + Math.random() * 40;\nmsg.payload = {deviceId: \"device001\", temperature: parseFloat(temp.toFixed(1)), humidity: Math.floor(humidity), timestamp: new Date().toISOString()};\nmsg.topic = \"yourname/device001/telemetry\";\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 370, "y": 100, "wires": [["ex4_mqtt_out", "ex4_debug_send"]]},
     {"id": "ex4_mqtt_out", "type": "mqtt out", "z": "ex4_tab", "name": "Publish Telemetry", "topic": "", "qos": "1", "retain": "false", "respTopic": "", "contentType": "", "userProps": "", "correl": "", "expiry": "", "broker": "ex4_broker", "x": 590, "y": 100, "wires": []},
