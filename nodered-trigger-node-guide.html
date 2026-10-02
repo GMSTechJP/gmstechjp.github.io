@@ -685,7 +685,7 @@
         "op2type": "str",
         "duration": "2",
         "extend": "false",
-        "overrideDelay": "false",
+        "overrideDelay": false,
         "units": "s",
         "reset": "",
         "bytopic": "all",
@@ -766,7 +766,7 @@
         "op2type": "str",
         "duration": "5",
         "extend": "true",
-        "overrideDelay": "false",
+        "overrideDelay": false,
         "units": "s",
         "reset": "",
         "bytopic": "all",
@@ -840,7 +840,7 @@
         "op2type": "bool",
         "duration": "2",
         "extend": "true",
-        "overrideDelay": "false",
+        "overrideDelay": false,
         "units": "s",
         "reset": "",
         "bytopic": "all",
@@ -865,7 +865,7 @@
         "op2type": "str",
         "duration": "-2",
         "extend": "false",
-        "overrideDelay": "false",
+        "overrideDelay": false,
         "units": "s",
         "reset": "reset",
         "bytopic": "all",
@@ -956,7 +956,7 @@
         "op2type": "str",
         "duration": "3",
         "extend": "false",
-        "overrideDelay": "false",
+        "overrideDelay": false,
         "units": "s",
         "reset": "",
         "bytopic": "all",
@@ -984,7 +984,7 @@
         "op2type": "nul",
         "duration": "10",
         "extend": "false",
-        "overrideDelay": "false",
+        "overrideDelay": false,
         "units": "s",
         "reset": "",
         "bytopic": "topic",
@@ -1387,7 +1387,7 @@
         "op2type": "str",
         "duration": "3",
         "extend": "false",
-        "overrideDelay": "false",
+        "overrideDelay": false,
         "units": "s",
         "reset": "",
         "bytopic": "all",
@@ -1508,7 +1508,7 @@
         "op2type": "str",
         "duration": "10",
         "extend": "true",
-        "overrideDelay": "false",
+        "overrideDelay": false,
         "units": "s",
         "reset": "",
         "bytopic": "all",
@@ -1697,7 +1697,7 @@
         "op2type": "str",
         "duration": "5",
         "extend": "true",
-        "overrideDelay": "false",
+        "overrideDelay": false,
         "units": "s",
         "reset": "logout",
         "bytopic": "all",
@@ -1741,7 +1741,7 @@
             <p><strong>🎯 要求仕様:</strong></p>
             <ul>
                 <li>Triggerノードの2出力モードを使用</li>
-                <li>出力1 → 処理を実行（Functionノードで1秒/5秒の遅延処理）</li>
+                <li>出力1 → 処理を実行（ChangeノードとDelayノードで、1秒/5秒かかる処理を再現する）</li>
                 <li>出力2 → 3秒後にタイムアウト</li>
                 <li>処理完了またはタイムアウトの早い方を結果として出力</li>
             </ul>
@@ -1765,7 +1765,7 @@
                 <p><strong>フローの構成:</strong></p>
                 <ol>
                     <li>Triggerノード: 2出力モード、3秒タイムアウト</li>
-                    <li>出力1 → Functionノード（遅延処理）→ 結果へ</li>
+                    <li>出力1 → Changeノード → Delayノード（遅延処理）→ 結果へ。Changeノードで <code>msg.delay</code> に「JSONata式」型の <code>payload * 1000</code>（秒をミリ秒に換算）、<code>msg.payload</code> に <code>"done: " &amp; payload &amp; "s"</code> を設定し、Delayノードの「動作」を「msg.delay に遅延を設定」にする。Delayノードは <code>msg.delay</code> のミリ秒だけ待ってからメッセージを送る</li>
                     <li>出力2 → Changeノード（"timeout"設定）→ 結果へ</li>
                     <li>結果用Triggerノード: msg._msgidで重複排除</li>
                 </ol>
@@ -1775,6 +1775,7 @@
                     <li>再送信データ: 何も送らない</li>
                     <li>トピック別: msg._msgid</li>
                     <li>待機時間: 10秒（処理時間より長く）</li>
+                    <li>「msg.delayを用いて遅延時間を上書き」はオフのままにする。Delayノードを通ったメッセージには <code>msg.delay</code> が残るため、オンにすると待機時間がその値（1秒処理なら1000ミリ秒）に置き換わり、後から届くタイムアウトを止められない</li>
                 </ul>
             </details>
             
@@ -1851,7 +1852,7 @@
         "op2type": "str",
         "duration": "3",
         "extend": "false",
-        "overrideDelay": "false",
+        "overrideDelay": false,
         "units": "s",
         "reset": "",
         "bytopic": "all",
@@ -1861,7 +1862,7 @@
         "y": 100,
         "wires": [
             [
-                "ex4_function"
+                "ex4_change_work"
             ],
             [
                 "ex4_change"
@@ -1869,17 +1870,57 @@
         ]
     },
     {
-        "id": "ex4_function",
-        "type": "function",
+        "id": "ex4_change_work",
+        "type": "change",
         "z": "trigger_node_guide_tab_4",
-        "name": "処理実行",
-        "func": "const wait = msg.payload;\nsetTimeout(function() {\n    msg.payload = \"done: \" + wait + \"s\";\n    node.send(msg);\n}, wait * 1000);",
+        "name": "処理時間と結果を設定",
+        "rules": [
+            {
+                "t": "set",
+                "p": "delay",
+                "pt": "msg",
+                "to": "payload * 1000",
+                "tot": "jsonata"
+            },
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "\"done: \" &amp; payload &amp; \"s\"",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 540,
+        "y": 60,
+        "wires": [
+            [
+                "ex4_delay_work"
+            ]
+        ]
+    },
+    {
+        "id": "ex4_delay_work",
+        "type": "delay",
+        "z": "trigger_node_guide_tab_4",
+        "name": "処理にかかる時間",
+        "pauseType": "delayv",
+        "timeout": "5",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
         "outputs": 1,
-        "timeout": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 580,
+        "x": 740,
         "y": 60,
         "wires": [
             [
@@ -1920,7 +1961,7 @@
         "op2type": "nul",
         "duration": "10",
         "extend": "false",
-        "overrideDelay": "false",
+        "overrideDelay": false,
         "units": "s",
         "reset": "",
         "bytopic": "topic",
