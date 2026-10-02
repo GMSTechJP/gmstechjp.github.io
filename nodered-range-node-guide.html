@@ -504,20 +504,20 @@
             <ul>
                 <li>2048を入力したとき、デバッグパネルに <code>50</code> または <code>50.0</code> が表示される（4095の半分で50%）</li>
                 <li>0を入力すると <code>0</code>、4095を入力すると <code>100</code> が表示される</li>
-                <li>出力が小数点以下1桁で表示されている（例: <code>50.0</code>、<code>25.0</code>）</li>
+                <li>出力が小数点以下1桁までに丸められている（例: 1000 を入力すると <code>24.4</code>。2048 の結果 50.0 は、数値なので Debug には <code>50</code> と表示される）</li>
             </ul>
 
             <details>
                 <summary>💡 ヒント</summary>
-                <p>「小数値を四捨五入し整数値へ変換」をオフにすると小数点以下も保持されます。表示形式の調整には Function ノードを追加できます。</p>
+                <p>「小数値を四捨五入し整数値へ変換」をオフにすると小数点以下も保持されます（2048 は 50.01221… になります）。小数点以下1桁にそろえるには、後ろに Change ノードを置き、「値の代入」で <code>msg.payload</code> に「JSONata式」型の <code>$round(payload, 1)</code> を設定します。<code>$round()</code> の2つ目の引数が、残す小数点以下の桁数です。</p>
             </details>
             <details>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
     {"id": "ex2_tab", "type": "tab", "label": "演習2"},
     {"id": "ex2_inject", "type": "inject", "z": "ex2_tab", "name": "2048 (50%)", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "2048", "payloadType": "num", "x": 150, "y": 100, "wires": [["ex2_range"]]},
-    {"id": "ex2_range", "type": "range", "z": "ex2_tab", "minin": "0", "maxin": "4095", "minout": "0", "maxout": "100", "action": "clamp", "round": false, "property": "payload", "name": "ADC→%", "x": 330, "y": 100, "wires": [["ex2_func"]]},
-    {"id": "ex2_func", "type": "function", "z": "ex2_tab", "name": "小数点1桁", "func": "msg.payload = Math.round(msg.payload * 10) / 10;\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 500, "y": 100, "wires": [["ex2_debug"]]},
+    {"id": "ex2_range", "type": "range", "z": "ex2_tab", "minin": "0", "maxin": "4095", "minout": "0", "maxout": "100", "action": "clamp", "round": false, "property": "payload", "name": "ADC→%", "x": 330, "y": 100, "wires": [["ex2_change"]]},
+    {"id": "ex2_change", "type": "change", "z": "ex2_tab", "name": "小数点1桁", "rules": [{"t": "set", "p": "payload", "pt": "msg", "to": "$round(payload, 1)", "tot": "jsonata"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 500, "y": 100, "wires": [["ex2_debug"]]},
     {"id": "ex2_debug", "type": "debug", "z": "ex2_tab", "name": "%表示", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "payload", "statusType": "auto", "x": 670, "y": 100, "wires": []}
 ]</div>
             </details>
