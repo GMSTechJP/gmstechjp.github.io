@@ -720,9 +720,10 @@ return msg;</div>
 // それ以外 → 出力3
 
 // Functionノード: ステータス確認コマンド
+// 「設定」タブの「モジュール」に os を追加しておく（Function の中では process は使えない）
 const status = {
-    uptime: process.uptime(),
-    memory: process.memoryUsage(),
+    uptime: os.uptime(),
+    usedMemory: os.totalmem() - os.freemem(),
     timestamp: new Date().toLocaleString('ja-JP')
 };
 
@@ -730,7 +731,7 @@ msg.to = msg.from;  // 送信者に返信
 msg.topic = "Re: " + msg.topic;
 msg.payload = "システムステータス:\n" +
     "稼働時間: " + Math.floor(status.uptime / 3600) + "時間\n" +
-    "メモリ使用量: " + Math.floor(status.memory.heapUsed / 1024 / 1024) + "MB\n" +
+    "メモリ使用量: " + Math.floor(status.usedMemory / 1024 / 1024) + "MB\n" +
     "確認時刻: " + status.timestamp;
 return msg;</div>
 
@@ -842,7 +843,9 @@ if (now - lastSent > interval) {
             [
                 "email_ex1_change"
             ]
-        ]
+        ],
+        "x": 150,
+        "y": 100
     },
     {
         "id": "email_ex1_change",
@@ -869,7 +872,9 @@ if (now - lastSent > interval) {
             [
                 "email_ex1_send"
             ]
-        ]
+        ],
+        "x": 350,
+        "y": 100
     },
     {
         "id": "email_ex1_send",
@@ -882,7 +887,9 @@ if (now - lastSent > interval) {
         "tls": true,
         "dname": "",
         "to": "your-email@example.com",
-        "wires": []
+        "wires": [],
+        "x": 550,
+        "y": 100
     }
 ]</div>
             </details>
@@ -922,9 +929,9 @@ if (now - lastSent > interval) {
             <ul>
                 <li>Injectノードでランダムな温度値（20〜60）を生成</li>
                 <li>Switchノードで50°C以上を検知</li>
-                <li>FunctionノードでHTMLメール本文を生成</li>
+                <li>TemplateノードでHTMLメール本文を生成</li>
                 <li>メール本文に温度値と検知時刻を含める</li>
-                <li>5分間に1回のみ送信するレートリミットを実装</li>
+                <li>5分間に1回のみ送信するレートリミットを実装（Delayノードの流量制限を使う）</li>
             </ul>
 
             <p><strong>✅ 成功の条件:</strong></p>
@@ -932,7 +939,7 @@ if (now - lastSent > interval) {
                 <li>温度値が50以上の場合のみe-mailノードが実行され、50未満の場合はフローが止まる</li>
                 <li>「[ALERT] 温度異常: XX°C」という件名のアラートメールが指定アドレスに届く（実際の送信テストはSMTPサーバー設定が必要なため省略可）</li>
                 <li>5分以内に複数回50°C以上を検知しても、2回目以降のメール送信はスキップされる（レートリミットが機能している）</li>
-                <li>Functionノードにデバッグノードを接続した場合、<code>msg.payload</code>にHTMLタグを含む本文文字列が出力される</li>
+                <li>Templateノードにデバッグノードを接続した場合、<code>msg.payload</code>にHTMLタグを含む本文文字列が出力される</li>
             </ul>
 
             <details>
@@ -940,7 +947,9 @@ if (now - lastSent > interval) {
                 <ul>
                     <li>Injectノードの<code>msg.payload</code>をJSONata式で<code>$floor($random() * 40 + 20)</code>に設定</li>
                     <li>Switchノードで<code>msg.payload >= 50</code>を条件にする</li>
-                    <li>Functionノードで<code>context.get("lastSent")</code>でレートリミット制御</li>
+                    <li>Delayノードの「動作」を「メッセージの流量制限」にし、「全てのメッセージ - 等間隔」、流量「1 メッセージ／5 分」、「中間メッセージを削除」を選ぶ。最初のメッセージはすぐに通り、その後5分間に届いたメッセージは捨てられる</li>
+                    <li>Changeノードで <code>msg.topic</code>（件名）に「JSONata式」型の <code>"[ALERT] 温度異常: " &amp; payload &amp; "°C"</code>、<code>msg.temp</code> に <code>msg.payload</code>、<code>msg.time</code> に <code>$now("[Y0001]/[M1]/[D1] [H1]:[m01]:[s01]", "+0900")</code>（日本時間の検知時刻）を設定する</li>
+                    <li>Templateノードの本文で <code>{{{temp}}}</code> と <code>{{{time}}}</code> を埋め込む。波かっこ2つの <code>{{ }}</code> だと、日時の <code>/</code> などが HTML 用に書き換えられる（<code>&amp;#x2F;</code> になる）ため、3つにして値をそのまま入れる</li>
                     <li>HTML本文では<code>&lt;h2&gt;</code>や<code>&lt;strong&gt;</code>タグで視認性を高める</li>
                 </ul>
             </details>
@@ -973,7 +982,9 @@ if (now - lastSent > interval) {
             [
                 "email_ex2_switch"
             ]
-        ]
+        ],
+        "x": 150,
+        "y": 100
     },
     {
         "id": "email_ex2_switch",
@@ -990,17 +1001,98 @@ if (now - lastSent > interval) {
         ],
         "wires": [
             [
-                "email_ex2_func"
+                "email_ex2_rate"
+            ]
+        ],
+        "x": 340,
+        "y": 100
+    },
+    {
+        "id": "email_ex2_rate",
+        "type": "delay",
+        "z": "email_node_guide_tab_1",
+        "name": "5分に1回",
+        "pauseType": "rate",
+        "timeout": "5",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "5",
+        "rateUnits": "minute",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": true,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 530,
+        "y": 100,
+        "wires": [
+            [
+                "email_ex2_change"
             ]
         ]
     },
     {
-        "id": "email_ex2_func",
-        "type": "function",
+        "id": "email_ex2_change",
+        "type": "change",
         "z": "email_node_guide_tab_1",
-        "name": "アラートメール作成",
-        "func": "const lastSent = context.get('lastSent') || 0;\nconst now = Date.now();\nconst interval = 5 * 60 * 1000;\n\nif (now - lastSent > interval) {\n    context.set('lastSent', now);\n    const temp = msg.payload;\n    msg.to = 'admin@example.com';\n    msg.topic = '[ALERT] 温度異常: ' + temp + '°C';\n    msg.payload = '&lt;h2 style=\"color:red\">温度アラート&lt;/h2>' +\n        '&lt;p>センサーの温度が閾値を超えました。&lt;/p>' +\n        '&lt;ul>' +\n        '&lt;li>現在温度: &lt;strong>' + temp + '°C&lt;/strong>&lt;/li>' +\n        '&lt;li>閾値: 50°C&lt;/li>' +\n        '&lt;li>検知時刻: ' + new Date().toLocaleString('ja-JP') + '&lt;/li>' +\n        '&lt;/ul>' +\n        '&lt;hr>&lt;p style=\"color:gray\">このメールはNode-REDから自動送信されています。&lt;/p>';\n    return msg;\n}\nreturn null;",
-        "outputs": 1,
+        "name": "件名と時刻",
+        "rules": [
+            {
+                "t": "set",
+                "p": "to",
+                "pt": "msg",
+                "to": "admin@example.com",
+                "tot": "str"
+            },
+            {
+                "t": "set",
+                "p": "topic",
+                "pt": "msg",
+                "to": "\"[ALERT] 温度異常: \" &amp; payload &amp; \"°C\"",
+                "tot": "jsonata"
+            },
+            {
+                "t": "set",
+                "p": "temp",
+                "pt": "msg",
+                "to": "payload",
+                "tot": "msg"
+            },
+            {
+                "t": "set",
+                "p": "time",
+                "pt": "msg",
+                "to": "$now(\"[Y0001]/[M1]/[D1] [H1]:[m01]:[s01]\", \"+0900\")",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 720,
+        "y": 100,
+        "wires": [
+            [
+                "email_ex2_template"
+            ]
+        ]
+    },
+    {
+        "id": "email_ex2_template",
+        "type": "template",
+        "z": "email_node_guide_tab_1",
+        "name": "HTML本文",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "html",
+        "syntax": "mustache",
+        "template": "&lt;h2 style=\"color:red\">温度アラート&lt;/h2>\n&lt;p>センサーの温度が閾値を超えました。&lt;/p>\n&lt;ul>\n&lt;li>現在温度: &lt;strong>{{{temp}}}°C&lt;/strong>&lt;/li>\n&lt;li>閾値: 50°C&lt;/li>\n&lt;li>検知時刻: {{{time}}}&lt;/li>\n&lt;/ul>\n&lt;hr>&lt;p style=\"color:gray\">このメールはNode-REDから自動送信されています。&lt;/p>",
+        "output": "str",
+        "x": 900,
+        "y": 100,
         "wires": [
             [
                 "email_ex2_send"
@@ -1017,7 +1109,9 @@ if (now - lastSent > interval) {
         "secure": true,
         "tls": true,
         "to": "admin@example.com",
-        "wires": []
+        "wires": [],
+        "x": 1080,
+        "y": 100
     }
 ]</div>
             </details>
@@ -1077,7 +1171,7 @@ if (now - lastSent > interval) {
                     <li>Switchノードで<code>msg.topic</code>に対して「contains」条件を使用</li>
                     <li><code>msg.from</code>を<code>msg.to</code>にコピーして返信先を設定</li>
                     <li>CSVデータは<code>msg.attachments</code>に設定する</li>
-                    <li><code>process.uptime()</code>や<code>process.memoryUsage()</code>でシステム情報を取得</li>
+                    <li>Functionノードの「設定」タブの「モジュール」に <code>os</code> を追加すると、<code>os.uptime()</code>（稼働時間・秒）や <code>os.totalmem()</code>・<code>os.freemem()</code>（メモリの総量・空き・バイト）でシステム情報を取得</li>
                 </ul>
             </details>
 
@@ -1107,7 +1201,9 @@ if (now - lastSent > interval) {
             [
                 "email_ex3_switch"
             ]
-        ]
+        ],
+        "x": 160,
+        "y": 140
     },
     {
         "id": "email_ex3_switch",
@@ -1135,18 +1231,28 @@ if (now - lastSent > interval) {
             [
                 "email_ex3_report"
             ]
-        ]
+        ],
+        "x": 350,
+        "y": 140
     },
     {
         "id": "email_ex3_status",
         "type": "function",
         "z": "email_node_guide_tab_2",
         "name": "ステータス返信",
-        "func": "const uptime = process.uptime();\nconst hours = Math.floor(uptime / 3600);\nconst mins = Math.floor((uptime % 3600) / 60);\nconst mem = process.memoryUsage();\n\nmsg.to = msg.from;\nmsg.topic = 'Re: ' + msg.topic;\nmsg.payload = 'システムステータスレポート\\n' +\n    '========================\\n' +\n    '稼働時間: ' + hours + '時間' + mins + '分\\n' +\n    'メモリ使用量: ' + Math.floor(mem.heapUsed / 1024 / 1024) + 'MB / ' + Math.floor(mem.heapTotal / 1024 / 1024) + 'MB\\n' +\n    '確認時刻: ' + new Date().toLocaleString('ja-JP');\nreturn msg;",
+        "func": "// 機器の情報は、「設定」タブの「モジュール」で読み込んだ os（Node.js 標準のモジュール）から取る\n// Function ノードの中では process は使えない（ReferenceError になる）\n// 機器の稼働時間（秒）を、時間と分に分ける\nconst uptime = os.uptime();\nconst hours = Math.floor(uptime / 3600);\nconst mins = Math.floor((uptime % 3600) / 60);\n// メモリの総量と使用量（バイト）。表示のときに MB に換算する\nconst total = os.totalmem();\nconst used = total - os.freemem();\n\n// 受信したメールの差出人に返信する。件名には Re: を付ける\nmsg.to = msg.from;\nmsg.topic = 'Re: ' + msg.topic;\nmsg.payload = 'システムステータスレポート\\n' +\n    '========================\\n' +\n    '稼働時間: ' + hours + '時間' + mins + '分\\n' +\n    'メモリ使用量: ' + Math.floor(used / 1024 / 1024) + 'MB / ' + Math.floor(total / 1024 / 1024) + 'MB\\n' +\n    '確認時刻: ' + new Date().toLocaleString('ja-JP');\nreturn msg;",
         "wires": [
             [
                 "email_ex3_send"
             ]
+        ],
+        "x": 560,
+        "y": 100,
+        "libs": [
+            {
+                "var": "os",
+                "module": "os"
+            }
         ]
     },
     {
@@ -1154,12 +1260,14 @@ if (now - lastSent > interval) {
         "type": "function",
         "z": "email_node_guide_tab_2",
         "name": "レポート返信",
-        "func": "const data = flow.get('sensorData') || [\n    {time: '10:00', temp: 25.3, humidity: 60},\n    {time: '11:00', temp: 26.1, humidity: 58},\n    {time: '12:00', temp: 27.5, humidity: 55}\n];\n\nlet csv = '時刻,温度,湿度\\n';\ndata.forEach(function(row) {\n    csv += row.time + ',' + row.temp + ',' + row.humidity + '\\n';\n});\n\nmsg.to = msg.from;\nmsg.topic = 'Re: ' + msg.topic;\nmsg.payload = '計測データレポートを添付します。';\nmsg.attachments = [{\n    filename: 'report_' + new Date().toISOString().slice(0,10) + '.csv',\n    content: csv,\n    contentType: 'text/csv'\n}];\nreturn msg;",
+        "func": "// 保存済みの計測データを読み出す。まだ無いときは例のデータを使う\nconst data = flow.get('sensorData') || [\n    {time: '10:00', temp: 25.3, humidity: 60},\n    {time: '11:00', temp: 26.1, humidity: 58},\n    {time: '12:00', temp: 27.5, humidity: 55}\n];\n\n// 見出し行のあとに、1件ずつ「時刻,温度,湿度」の行を足して CSV の文字列を作る\nlet csv = '時刻,温度,湿度\\n';\ndata.forEach(function(row) {\n    csv += row.time + ',' + row.temp + ',' + row.humidity + '\\n';\n});\n\n// 差出人に返信し、CSV を添付ファイルとして付ける（msg.attachments は e-mail ノードが読む）\nmsg.to = msg.from;\nmsg.topic = 'Re: ' + msg.topic;\nmsg.payload = '計測データレポートを添付します。';\nmsg.attachments = [{\n    filename: 'report_' + new Date().toISOString().slice(0,10) + '.csv',\n    content: csv,\n    contentType: 'text/csv'\n}];\nreturn msg;",
         "wires": [
             [
                 "email_ex3_send"
             ]
-        ]
+        ],
+        "x": 560,
+        "y": 180
     },
     {
         "id": "email_ex3_send",
@@ -1170,7 +1278,9 @@ if (now - lastSent > interval) {
         "port": "465",
         "secure": true,
         "tls": true,
-        "wires": []
+        "wires": [],
+        "x": 760,
+        "y": 140
     }
 ]</div>
             </details>
