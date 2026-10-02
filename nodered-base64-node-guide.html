@@ -666,17 +666,17 @@ return null;</div>
         </div>
 
         <div class="exercise">
-            <h3>演習3: MQTTによるバイナリデータ送受信<span class="difficulty difficulty-hard">上級</span></h3>
+            <h3>演習3: バイナリデータのBase64往復と解析<span class="difficulty difficulty-hard">上級</span></h3>
 
             <p><strong>課題:</strong></p>
-            <p>バイナリ構造体データをBase64エンコードしてMQTTで送信し、受信側でデコードして解析するフローを作成してください。</p>
+            <p>バイナリ構造体データをBase64エンコードし、それをデコードして元のバイナリに戻し、値を解析するフローを作成してください。実際のシステムでは、エンコードとデコードの間にMQTTなどの通信が入ります（パターン3）。この演習では通信を省き、エンコードしたものをそのままデコードに渡して、往復で値が元に戻ることを確かめます。</p>
             <p><strong>💼 使いどころ:</strong> センサーの数値データをバイナリからBase64に変換し、デコードで元の値に戻せるかを確認する場面で使います。</p>
 
             <p><strong>要件:</strong></p>
             <ul>
                 <li>送信側: Functionノードでセンサーデータ（温度、湿度、気圧）をバイナリパケットに変換</li>
-                <li>送信側: base64ノードでエンコード後にMQTT outで送信</li>
-                <li>受信側: MQTT inで受信後にbase64ノードでデコード</li>
+                <li>送信側: base64ノードでBase64文字列にエンコード</li>
+                <li>受信側: エンコード結果をそのまま2つ目のbase64ノードに渡してデコード（実際の通信ではここにMQTT outとMQTT inが入る）</li>
                 <li>受信側: Functionノードでバイナリパケットを解析してJSON形式に変換</li>
                 <li>Debugノードで解析結果を確認</li>
             </ul>
