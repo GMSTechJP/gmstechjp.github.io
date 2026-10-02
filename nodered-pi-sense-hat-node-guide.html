@@ -1248,8 +1248,10 @@
             </div>
             <p><strong>ヒント:</strong></p>
             <ul>
-                <li>Functionノードで <code>msg.topic === 'motion'</code> のときのみ処理し、<code>msg.payload.orientation.roll</code> と <code>msg.payload.orientation.pitch</code> を確認します</li>
-                <li>Triggerノードの「延長」を有効にすると、傾けている間は消灯タイマーがリセットされ続け、戻したときだけカウントが始まります</li>
+                <li>1つ目の Switchノードで <code>msg.topic</code> が <code>motion</code> のメッセージだけを通します（環境センサーやジョイスティックのメッセージを除くため）</li>
+                <li>2つ目の Switchノードでは、プロパティの種類を「JSONata式」にして <code>$abs(payload.orientation.roll) &gt; 30 or $abs(payload.orientation.pitch) &gt; 30</code> と書き、ルールを「trueである」にします。<code>$abs()</code> は絶対値で、左右・前後のどちら向きに傾けても判定できます</li>
+                <li>通ったメッセージは、Changeノードで <code>msg.payload</code> に文字列 <code>*,*,orange</code>（全面をオレンジ）を設定します</li>
+                <li>Triggerノードの「新たなメッセージを受け取った時に遅延を延長」を有効にすると（「指定した時間待機」を選んだときに表示される欄）、傾けている間は消灯タイマーがリセットされ続け、戻したときだけカウントが始まります</li>
             </ul>
             <details>
                 <summary>📋 解答フロー（クリックで展開）</summary>
@@ -1273,21 +1275,68 @@
         "stick": false,
         "x": 160,
         "y": 200,
-        "wires": [["func_tilt_ex3"]]
+        "wires": [["switch_motion_ex3"]]
     },
     {
-        "id": "func_tilt_ex3",
-        "type": "function",
+        "id": "switch_motion_ex3",
+        "type": "switch",
         "z": "tab_ex3",
-        "name": "傾き検知",
-        "func": "if (msg.topic !== 'motion') return null;\nconst roll = Math.abs(msg.payload.orientation.roll);\nconst pitch = Math.abs(msg.payload.orientation.pitch);\nif (roll > 30 || pitch > 30) {\n    msg.payload = '*,*,orange';\n    return msg;\n}\nreturn null;",
+        "name": "モーションのみ",
+        "property": "topic",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "motion",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
         "outputs": 1,
-        "timeout": 0,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 370,
+        "x": 350,
+        "y": 200,
+        "wires": [["switch_tilt_ex3"]]
+    },
+    {
+        "id": "switch_tilt_ex3",
+        "type": "switch",
+        "z": "tab_ex3",
+        "name": "30度を超えた？",
+        "property": "$abs(payload.orientation.roll) > 30 or $abs(payload.orientation.pitch) > 30",
+        "propertyType": "jsonata",
+        "rules": [
+            {
+                "t": "true"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 540,
+        "y": 200,
+        "wires": [["change_color_ex3"]]
+    },
+    {
+        "id": "change_color_ex3",
+        "type": "change",
+        "z": "tab_ex3",
+        "name": "オレンジで点灯",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "*,*,orange",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 730,
         "y": 200,
         "wires": [["trigger_ex3"]]
     },
@@ -1308,7 +1357,7 @@
         "bytopic": "all",
         "topic": "topic",
         "outputs": 1,
-        "x": 590,
+        "x": 940,
         "y": 200,
         "wires": [["sensehat_out_ex3"]]
     },
@@ -1317,7 +1366,7 @@
         "type": "rpi-sensehat out",
         "z": "tab_ex3",
         "name": "LEDアラート",
-        "x": 800,
+        "x": 1130,
         "y": 200,
         "wires": []
     }
