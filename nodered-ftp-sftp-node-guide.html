@@ -1364,7 +1364,7 @@ sudo ufw allow from 192.168.1.0/24 to any port 7022:7032 proto tcp</div>
                 </div>
             </div>
 
-            <p><strong>ヒント：</strong> 「ファイル名」の欄を空にしておくと、<code>msg.filename</code> の値が使われる。</p>
+            <p><strong>ヒント：</strong> 「ファイル名」の欄を空にしておくと、<code>msg.filename</code> の値が使われる。日付入りのパスは、Change ノードの「値の代入」で <code>msg.filename</code> に「JSONata式」型の <code>"/upload/" &amp; $now("[Y0001]-[M01]-[D01]", "+0900")</code> を設定して作れる（<code>$now()</code> の2つ目の引数 <code>"+0900"</code> は日本時間の指定）。</p>
             <details>
                 <summary>解答例（クリックで展開）</summary>
                 <div class="flow-json">[
@@ -1413,22 +1413,29 @@ sudo ufw allow from 192.168.1.0/24 to any port 7022:7032 proto tcp</div>
         "y": 100,
         "wires": [
             [
-                "ex1_fn"
+                "ex1_change"
             ]
         ]
     },
     {
-        "id": "ex1_fn",
-        "type": "function",
+        "id": "ex1_change",
+        "type": "change",
         "z": "tab_ex1",
         "name": "日付のパスを作る",
-        "func": "const d = new Date();\nconst y = d.getFullYear();\nconst m = String(d.getMonth() + 1).padStart(2, '0');\nconst day = String(d.getDate()).padStart(2, '0');\n\n// ノードの「ファイル名」欄を空にしておくと、この値が使われる\nmsg.filename = '/upload/' + y + '-' + m + '-' + day;\nreturn msg;",
-        "outputs": 1,
-        "timeout": 0,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
+        "rules": [
+            {
+                "t": "set",
+                "p": "filename",
+                "pt": "msg",
+                "to": "\"/upload/\" &amp; $now(\"[Y0001]-[M01]-[D01]\", \"+0900\")",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
         "x": 380,
         "y": 100,
         "wires": [
@@ -1497,7 +1504,7 @@ sudo ufw allow from 192.168.1.0/24 to any port 7022:7032 proto tcp</div>
                 </div>
             </div>
 
-            <p><strong>ヒント：</strong> 絞り込みは <code>sftp in</code> の設定だけでできる。一覧の各要素は名前のほかにサイズや更新日時も持つオブジェクトである。</p>
+            <p><strong>ヒント：</strong> 絞り込みは <code>sftp in</code> の設定だけでできる。一覧の各要素は名前のほかにサイズや更新日時も持つオブジェクトである。名前だけの配列にするには、Change ノードで <code>msg.payload</code> に「JSONata式」型の <code>[payload.name]</code> を設定する（外側の <code>[ ]</code> は、1件だけのときも配列にするため）。</p>
             <details>
                 <summary>解答例（クリックで展開）</summary>
                 <div class="flow-json">[
@@ -1569,22 +1576,29 @@ sudo ufw allow from 192.168.1.0/24 to any port 7022:7032 proto tcp</div>
         "y": 100,
         "wires": [
             [
-                "ex2_fn"
+                "ex2_change"
             ]
         ]
     },
     {
-        "id": "ex2_fn",
-        "type": "function",
+        "id": "ex2_change",
+        "type": "change",
         "z": "tab_ex2",
         "name": "名前だけ取り出す",
-        "func": "// 一覧の各要素は name のほか type や size を持つ\nmsg.payload = msg.payload.map(function (entry) {\n    return entry.name;\n});\nreturn msg;",
-        "outputs": 1,
-        "timeout": 0,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "[payload.name]",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
         "x": 620,
         "y": 100,
         "wires": [
@@ -1611,7 +1625,7 @@ sudo ufw allow from 192.168.1.0/24 to any port 7022:7032 proto tcp</div>
         "wires": []
     }
 ]</div>
-                <p>絞り込みを function ノード側で行うこともできるが、「パターン」の欄で済ませるとサーバーから返ってくる件数そのものが減る。ファイルが多いディレクトリでは差が出る。</p>
+                <p>絞り込みを Change や function ノード側で行うこともできるが、「パターン」の欄で済ませるとサーバーから返ってくる件数そのものが減る。ファイルが多いディレクトリでは差が出る。</p>
             </details>
         </div>
 
@@ -1635,7 +1649,7 @@ sudo ufw allow from 192.168.1.0/24 to any port 7022:7032 proto tcp</div>
                 </div>
             </div>
 
-            <p><strong>ヒント：</strong> ファイル名は <code>msg.topic</code> に入る。分岐の条件はノードの設定として見えるようにしておくと、あとから読みやすい。</p>
+            <p><strong>ヒント：</strong> ファイル名は <code>msg.topic</code> に入る。分岐の条件はノードの設定として見えるようにしておくと、あとから読みやすい。保存先のパスは、Change ノードで <code>msg.filename</code> に「JSONata式」型の <code>"/tmp/inbox/images/" &amp; $split(topic, "/")[-1]</code> のように作れる。<code>$split(topic, "/")[-1]</code> は、<code>/</code> で区切った最後の部分（ファイル名）を取り出す。</p>
             <details>
                 <summary>解答例（クリックで展開）</summary>
                 <div class="flow-json">[
@@ -1676,7 +1690,7 @@ sudo ufw allow from 192.168.1.0/24 to any port 7022:7032 proto tcp</div>
                 "t": "regex",
                 "v": "\\.(jpe?g|png|gif)$",
                 "vt": "str",
-                "case": false
+                "case": true
             },
             {
                 "t": "else"
@@ -1689,25 +1703,32 @@ sudo ufw allow from 192.168.1.0/24 to any port 7022:7032 proto tcp</div>
         "y": 140,
         "wires": [
             [
-                "ex3_fn_img"
+                "ex3_change_img"
             ],
             [
-                "ex3_fn_other"
+                "ex3_change_other"
             ]
         ]
     },
     {
-        "id": "ex3_fn_img",
-        "type": "function",
+        "id": "ex3_change_img",
+        "type": "change",
         "z": "tab_ex3",
         "name": "画像の保存先",
-        "func": "const name = (msg.topic || 'upload.bin').split('/').pop();\nmsg.filename = '/tmp/inbox/images/' + name;\nreturn msg;",
-        "outputs": 1,
-        "timeout": 0,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
+        "rules": [
+            {
+                "t": "set",
+                "p": "filename",
+                "pt": "msg",
+                "to": "\"/tmp/inbox/images/\" &amp; $split(topic, \"/\")[-1]",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
         "x": 670,
         "y": 100,
         "wires": [
@@ -1717,17 +1738,24 @@ sudo ufw allow from 192.168.1.0/24 to any port 7022:7032 proto tcp</div>
         ]
     },
     {
-        "id": "ex3_fn_other",
-        "type": "function",
+        "id": "ex3_change_other",
+        "type": "change",
         "z": "tab_ex3",
         "name": "その他の保存先",
-        "func": "const name = (msg.topic || 'upload.bin').split('/').pop();\nmsg.filename = '/tmp/inbox/others/' + name;\nreturn msg;",
-        "outputs": 1,
-        "timeout": 0,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
+        "rules": [
+            {
+                "t": "set",
+                "p": "filename",
+                "pt": "msg",
+                "to": "\"/tmp/inbox/others/\" &amp; $split(topic, \"/\")[-1]",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
         "x": 670,
         "y": 190,
         "wires": [
@@ -1792,6 +1820,7 @@ sudo ufw allow from 192.168.1.0/24 to any port 7022:7032 proto tcp</div>
         "wires": []
     }
 ]</div>
+                <p>switch ノードの正規表現のルールでは「大文字、小文字を区別しない」をオンにしてある。カメラは <code>photo.JPG</code> のように拡張子を大文字で付けることが多く、区別すると画像が「その他」へ振り分けられてしまう。</p>
                 <p>分岐を function ノードの複数出力ではなく switch ノードで書いているのは、条件をエディター上で読めるようにするためである。振り分けの規則を後から変える人は、コードを開かずに済む。</p>
                 <p><code>ftp server</code> ノードの出力2（動的認証）は、この例では Username を設定して使わない前提のため、配線を空にしてある。</p>
             </details>
