@@ -1204,7 +1204,7 @@ Buffer(4) → Buffer(4) → Buffer(4)</div>
 
             <p><strong>要求仕様:</strong></p>
             <ul>
-                <li>Inject、Split、Function、Debugノードを使用</li>
+                <li>Inject、Split、Change、Debugノードを使用</li>
                 <li>入力: [10, 20, 30, 40, 50]</li>
                 <li>各値を2倍にして出力</li>
             </ul>
@@ -1232,9 +1232,10 @@ Buffer(4) → Buffer(4) → Buffer(4)</div>
                 <ul>
                     <li>配列は自動認識されるため、デフォルト設定のままで動作する</li>
                 </ul>
-                <p><strong>Functionノード:</strong></p>
+                <p><strong>Changeノード:</strong></p>
                 <ul>
-                    <li><code>msg.payload = msg.payload * 2;</code></li>
+                    <li>「値の代入」で <code>msg.payload</code> に「JSONata式」型の <code>payload * 2</code> を設定する</li>
+                    <li>JSONata式の中では、<code>msg.</code> を付けずに <code>payload</code> と書く</li>
                 </ul>
             </details>
             
@@ -1291,21 +1292,29 @@ Buffer(4) → Buffer(4) → Buffer(4)</div>
         "y": 100,
         "wires": [
             [
-                "ex2_function"
+                "ex2_change"
             ]
         ]
     },
     {
-        "id": "ex2_function",
-        "type": "function",
+        "id": "ex2_change",
+        "type": "change",
         "z": "split_node_guide_tab_2",
         "name": "2倍にする",
-        "func": "// 値を2倍にする\n\nmsg.payload = msg.payload * 2;\n\nreturn msg;",
-        "outputs": 1,
-        "timeout": "",
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "payload * 2",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
         "x": 420,
         "y": 100,
         "wires": [
@@ -1344,7 +1353,7 @@ Buffer(4) → Buffer(4) → Buffer(4)</div>
 
             <p><strong>要求仕様:</strong></p>
             <ul>
-                <li>Inject、Split、Function、Debugノードを使用</li>
+                <li>Inject、Split、Change、Debugノードを使用</li>
                 <li>入力: {"りんご": 150, "みかん": 80, "バナナ": 120}</li>
                 <li>出力: "[商品名]: [価格]円" の形式</li>
             </ul>
@@ -1490,7 +1499,7 @@ Buffer(4) → Buffer(4) → Buffer(4)</div>
 
             <p><strong>要求仕様:</strong></p>
             <ul>
-                <li>Inject、Split、Function、Join、Debugノードを使用</li>
+                <li>Inject、Split、Change、Join、Debugノードを使用</li>
                 <li>入力: ["apple", "orange", "banana"]</li>
                 <li>各要素を大文字に変換する</li>
                 <li>Joinノードで再結合して配列に戻す</li>
