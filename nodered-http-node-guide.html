@@ -2279,16 +2279,20 @@ return msg;</div>
                     <li>URL：/api/echo</li>
                 </ul>
                 <p><strong>リクエストボディの受け取り:</strong> Content-Type が application/json であれば、HTTP In が本文をパースして <code>msg.payload</code> にオブジェクトとして入れます。Functionノードでの追加のパースは不要です。</p>
-                <p><strong>Function ノード:</strong> <code>msg.payload</code> を新しいオブジェクトで上書きすると、元の内容が消えます。先に変数へ退避してから組み立ててください。</p>
-                <p><strong>現在時刻:</strong> <code>new Date().toISOString()</code></p>
+                <p><strong>Change ノード:</strong> 次の2つのルールを上から順に並べます。</p>
+                <ol>
+                    <li>「値の移動」: <code>msg.payload</code> → <code>msg.payload.received</code>（受け取った内容を <code>received</code> の中へ移す）</li>
+                    <li>「値の代入」: <code>msg.payload.receivedAt</code> に「日時」型の <code>YYYY-MM-DDTHH:mm:ss.sssZ</code>（ISO 8601形式）を設定する</li>
+                </ol>
+                <p><strong>Content-Type:</strong> <code>msg.payload</code> がオブジェクトのまま HTTP Response に届くと、HTTP Response が JSON に変換し、Content-Type も <code>application/json</code> にします。自分で設定する必要はありません。</p>
             </details>
 
             <details>
                 <summary>&#9989; 解答例フロー</summary>
                 <div class="flow-json">[
     {"id": "ex3_tab", "type": "tab", "label": "演習3"},
-    {"id": "ex3_http_in", "type": "http in", "z": "ex3_tab", "name": "POST /api/echo", "url": "/api/echo", "method": "post", "upload": false, "skipBodyParsing": false, "swaggerDoc": "", "x": 170, "y": 100, "wires": [["ex3_func"]]},
-    {"id": "ex3_func", "type": "function", "z": "ex3_tab", "name": "受信内容を組み立て", "func": "const body = msg.payload;\n\nmsg.payload = {\n    received: body,\n    receivedAt: new Date().toISOString()\n};\nmsg.statusCode = 200;\nmsg.headers = {\"Content-Type\": \"application/json\"};\nreturn msg;", "outputs": 1, "timeout": 0, "initialize": "", "finalize": "", "libs": [], "x": 400, "y": 100, "wires": [["ex3_response"]]},
+    {"id": "ex3_http_in", "type": "http in", "z": "ex3_tab", "name": "POST /api/echo", "url": "/api/echo", "method": "post", "upload": false, "skipBodyParsing": false, "swaggerDoc": "", "x": 170, "y": 100, "wires": [["ex3_change"]]},
+    {"id": "ex3_change", "type": "change", "z": "ex3_tab", "name": "受信内容を組み立て", "rules": [{"t": "move", "p": "payload", "pt": "msg", "to": "payload.received", "tot": "msg"}, {"t": "set", "p": "payload.receivedAt", "pt": "msg", "to": "iso", "tot": "date"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 400, "y": 100, "wires": [["ex3_response"]]},
     {"id": "ex3_response", "type": "http response", "z": "ex3_tab", "name": "Response", "statusCode": "", "headers": {}, "x": 590, "y": 100, "wires": []}
 ]</div>
             </details>
@@ -2334,17 +2338,25 @@ return msg;</div>
             <details>
                 <summary>&#128161; ヒント</summary>
                 <p><strong>URLパラメータの取得:</strong> <code>msg.req.params.id</code></p>
-                <p><strong>商品データの定義:</strong> Functionノード内でオブジェクトとして定義</p>
-                <p><strong>存在チェック:</strong> if文で商品の存在を確認し、msg.statusCodeを分岐</p>
+                <p><strong>商品を探す（Change ノード）:</strong></p>
+                <ol>
+                    <li>「値の代入」で <code>msg.items</code> に「JSON」型の商品表を入れる。キーを商品ID（<code>"1"</code> など）にしておく</li>
+                    <li>「値の代入」で <code>msg.item</code> に「JSONata式」型の <code>$lookup(items, req.params.id)</code> を入れる。商品表から、URLのIDをキーにして1件を取り出す式で、見つからなければ何も入らない</li>
+                </ol>
+                <p><strong>見つかったかで分ける（Switch ノード）:</strong> プロパティを <code>msg.item</code> にし、「nullでない」と「その他」の2つのルールで出力を分ける。</p>
+                <p><strong>応答を作る（Change ノードを2つ）:</strong> 見つかった側は <code>msg.payload</code> を組み立てる。見つからなかった側は、加えて <code>msg.statusCode</code> に「数値」の <code>404</code> を入れる。<code>msg.statusCode</code> を入れなければ 200 で返る。2つの出力は、同じ HTTP Response ノードにつなげてよい。</p>
             </details>
 
             <details>
                 <summary>&#9989; 解答例フロー</summary>
                 <div class="flow-json">[
     {"id": "ex4_tab", "type": "tab", "label": "演習4"},
-    {"id": "ex4_http_in", "type": "http in", "z": "ex4_tab", "name": "GET /api/items/:id", "url": "/api/items/:id", "method": "get", "upload": false, "skipBodyParsing": false, "swaggerDoc": "", "x": 180, "y": 100, "wires": [["ex4_func"]]},
-    {"id": "ex4_func", "type": "function", "z": "ex4_tab", "name": "商品検索", "func": "const itemId = msg.req.params.id;\n\nconst items = {\n    \"1\": {name: \"りんご\", price: 150},\n    \"2\": {name: \"みかん\", price: 100},\n    \"3\": {name: \"バナナ\", price: 120}\n};\n\nif (items[itemId]) {\n    msg.payload = {\n        success: true,\n        item: {id: itemId, name: items[itemId].name, price: items[itemId].price}\n    };\n    msg.statusCode = 200;\n} else {\n    msg.payload = {\n        success: false,\n        error: \"商品が見つかりません\",\n        requestedId: itemId\n    };\n    msg.statusCode = 404;\n}\n\nmsg.headers = {\"Content-Type\": \"application/json\"};\nreturn msg;", "outputs": 1, "timeout": 0, "initialize": "", "finalize": "", "libs": [], "x": 400, "y": 100, "wires": [["ex4_response"]]},
-    {"id": "ex4_response", "type": "http response", "z": "ex4_tab", "name": "Response", "statusCode": "", "headers": {}, "x": 580, "y": 100, "wires": []}
+    {"id": "ex4_http_in", "type": "http in", "z": "ex4_tab", "name": "GET /api/items/:id", "url": "/api/items/:id", "method": "get", "upload": false, "skipBodyParsing": false, "swaggerDoc": "", "x": 180, "y": 100, "wires": [["ex4_change_find"]]},
+    {"id": "ex4_change_find", "type": "change", "z": "ex4_tab", "name": "IDで商品を探す", "rules": [{"t": "set", "p": "items", "pt": "msg", "to": "{\"1\": {\"id\": \"1\", \"name\": \"りんご\", \"price\": 150}, \"2\": {\"id\": \"2\", \"name\": \"みかん\", \"price\": 100}, \"3\": {\"id\": \"3\", \"name\": \"バナナ\", \"price\": 120}}", "tot": "json"}, {"t": "set", "p": "item", "pt": "msg", "to": "$lookup(items, req.params.id)", "tot": "jsonata"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 400, "y": 100, "wires": [["ex4_switch"]]},
+    {"id": "ex4_switch", "type": "switch", "z": "ex4_tab", "name": "見つかった？", "property": "item", "propertyType": "msg", "rules": [{"t": "nnull"}, {"t": "else"}], "checkall": "true", "repair": false, "outputs": 2, "x": 570, "y": 100, "wires": [["ex4_change_found"], ["ex4_change_notfound"]]},
+    {"id": "ex4_change_found", "type": "change", "z": "ex4_tab", "name": "200: 商品情報", "rules": [{"t": "set", "p": "payload", "pt": "msg", "to": "{\"success\":true}", "tot": "json"}, {"t": "move", "p": "item", "pt": "msg", "to": "payload.item", "tot": "msg"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 760, "y": 60, "wires": [["ex4_response"]]},
+    {"id": "ex4_change_notfound", "type": "change", "z": "ex4_tab", "name": "404: 見つからない", "rules": [{"t": "set", "p": "payload", "pt": "msg", "to": "{\"success\":false,\"error\":\"商品が見つかりません\"}", "tot": "json"}, {"t": "set", "p": "payload.requestedId", "pt": "msg", "to": "req.params.id", "tot": "msg"}, {"t": "set", "p": "statusCode", "pt": "msg", "to": "404", "tot": "num"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 760, "y": 140, "wires": [["ex4_response"]]},
+    {"id": "ex4_response", "type": "http response", "z": "ex4_tab", "name": "Response", "statusCode": "", "headers": {}, "x": 980, "y": 100, "wires": []}
 ]</div>
             </details>
         </div>
@@ -2399,7 +2411,8 @@ return msg;</div>
                 <p><strong>フローの並び:</strong> HTTP In と HTTP Response の間に HTTP Request を挟みます。</p>
                 <p><strong>HTTP Request ノード:</strong> メソッドはGET、URLは上記の外部API、出力形式は「JSONオブジェクト」。</p>
                 <p><strong>上書きされる msg:</strong> HTTP Request ノードは <code>msg.payload</code> だけでなく <code>msg.statusCode</code> と <code>msg.headers</code> も外部APIの応答で上書きします。一方 <code>msg.req</code> と <code>msg.res</code> は残るため、後段の HTTP Response ノードは元のリクエストに応答できます。</p>
-                <p><strong>ヘッダーの扱い:</strong> Content-Type を指定するときは、<code>msg.headers = {"Content-Type": "application/json"}</code> のように丸ごと置き換えてください。既存の <code>msg.headers</code> にプロパティを1つ足す書き方をすると、外部APIのヘッダーもまとめてクライアントへ返り、Content-Type が意図しない値になります。</p>
+                <p><strong>4項目だけ残す（Change ノード）:</strong> 外部APIの応答を一度 <code>msg.api</code> へ「値の移動」で退避し、<code>msg.payload.timeZone</code> などに <code>msg.api.timeZone</code> などを「値の代入」で1つずつ入れます。最後に「値の削除」で <code>msg.api</code> を消します。</p>
+                <p><strong>ヘッダーの扱い:</strong> <code>msg.headers</code> には外部APIの応答ヘッダーが入っていますが、変更せずに HTTP Response へ渡せば、HTTP Response はそれをクライアントへ返しません（HTTP Request が付けた目印で、変更されていないことを判定します）。<code>msg.payload</code> がオブジェクトなら、Content-Type は <code>application/json</code> になります。反対に、<code>msg.headers</code> にプロパティを1つ足すなど一部だけ変更すると、外部APIのヘッダーもまとめて返り、Content-Type が意図しない値になります。Content-Type を自分で指定したいときは、<code>msg.headers</code> を丸ごと置き換えてください。</p>
                 <p><strong>外部APIが応答しない場合:</strong> 分岐のさせ方は<a href="#pattern4">パターン4（エラーハンドリング）</a>を参照してください。</p>
             </details>
 
@@ -2408,8 +2421,8 @@ return msg;</div>
                 <div class="flow-json">[
     {"id": "ex5_tab", "type": "tab", "label": "演習5"},
     {"id": "ex5_http_in", "type": "http in", "z": "ex5_tab", "name": "GET /api/tokyo-time", "url": "/api/tokyo-time", "method": "get", "upload": false, "skipBodyParsing": false, "swaggerDoc": "", "x": 180, "y": 100, "wires": [["ex5_request"]]},
-    {"id": "ex5_request", "type": "http request", "z": "ex5_tab", "name": "timeapi.io", "method": "GET", "ret": "obj", "paytoqs": "ignore", "url": "https://timeapi.io/api/Time/current/zone?timeZone=Asia/Tokyo", "tls": "", "persist": false, "proxy": "", "insecureHTTPParser": false, "authType": "", "senderr": false, "headers": [], "x": 410, "y": 100, "wires": [["ex5_func"]]},
-    {"id": "ex5_func", "type": "function", "z": "ex5_tab", "name": "必要な項目だけ残す", "func": "const api = msg.payload;\n\nmsg.payload = {\n    timeZone: api.timeZone,\n    date: api.date,\n    time: api.time,\n    dayOfWeek: api.dayOfWeek\n};\nmsg.statusCode = 200;\nmsg.headers = {\"Content-Type\": \"application/json\"};\nreturn msg;", "outputs": 1, "timeout": 0, "initialize": "", "finalize": "", "libs": [], "x": 630, "y": 100, "wires": [["ex5_response"]]},
+    {"id": "ex5_request", "type": "http request", "z": "ex5_tab", "name": "timeapi.io", "method": "GET", "ret": "obj", "paytoqs": "ignore", "url": "https://timeapi.io/api/Time/current/zone?timeZone=Asia/Tokyo", "tls": "", "persist": false, "proxy": "", "insecureHTTPParser": false, "authType": "", "senderr": false, "headers": [], "x": 410, "y": 100, "wires": [["ex5_change"]]},
+    {"id": "ex5_change", "type": "change", "z": "ex5_tab", "name": "必要な項目だけ残す", "rules": [{"t": "move", "p": "payload", "pt": "msg", "to": "api", "tot": "msg"}, {"t": "set", "p": "payload.timeZone", "pt": "msg", "to": "api.timeZone", "tot": "msg"}, {"t": "set", "p": "payload.date", "pt": "msg", "to": "api.date", "tot": "msg"}, {"t": "set", "p": "payload.time", "pt": "msg", "to": "api.time", "tot": "msg"}, {"t": "set", "p": "payload.dayOfWeek", "pt": "msg", "to": "api.dayOfWeek", "tot": "msg"}, {"t": "delete", "p": "api", "pt": "msg"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 630, "y": 100, "wires": [["ex5_response"]]},
     {"id": "ex5_response", "type": "http response", "z": "ex5_tab", "name": "Response", "statusCode": "", "headers": {}, "x": 820, "y": 100, "wires": []}
 ]</div>
             </details>
@@ -2461,6 +2474,7 @@ return msg;</div>
                 <p><strong>データ取得:</strong> <code>flow.get('notes') || []</code></p>
                 <p><strong>新規ID生成:</strong> <code>Date.now()</code></p>
                 <p><strong>削除:</strong> <code>array.filter()</code> で該当IDを除外</p>
+                <p>この演習は、配列の検索・追加・削除を4つのエンドポイントで行うため、解答例は Function ノードで書いています。処理の意味はコード内のコメントで説明しています。</p>
             </details>
 
             <details>
@@ -2468,13 +2482,13 @@ return msg;</div>
                 <div class="flow-json">[
     {"id": "ex6_tab", "type": "tab", "label": "演習6"},
     {"id": "ex6_get_all", "type": "http in", "z": "ex6_tab", "name": "GET /api/notes", "url": "/api/notes", "method": "get", "upload": false, "skipBodyParsing": false, "swaggerDoc": "", "x": 160, "y": 80, "wires": [["ex6_func_get_all"]]},
-    {"id": "ex6_func_get_all", "type": "function", "z": "ex6_tab", "name": "全件取得", "func": "const notes = flow.get('notes') || [];\nmsg.payload = {notes: notes, count: notes.length};\nmsg.headers = {\"Content-Type\": \"application/json\"};\nreturn msg;", "outputs": 1, "timeout": 0, "initialize": "", "finalize": "", "libs": [], "x": 370, "y": 80, "wires": [["ex6_response"]]},
+    {"id": "ex6_func_get_all", "type": "function", "z": "ex6_tab", "name": "全件取得", "func": "// flow変数からメモ一覧を読み出す（まだ1件も無ければ空の配列）\nconst notes = flow.get('notes') || [];\n// 一覧と件数を返す\nmsg.payload = {notes: notes, count: notes.length};\nreturn msg;", "outputs": 1, "timeout": 0, "initialize": "", "finalize": "", "libs": [], "x": 370, "y": 80, "wires": [["ex6_response"]]},
     {"id": "ex6_post", "type": "http in", "z": "ex6_tab", "name": "POST /api/notes", "url": "/api/notes", "method": "post", "upload": false, "skipBodyParsing": false, "swaggerDoc": "", "x": 170, "y": 140, "wires": [["ex6_func_post"]]},
-    {"id": "ex6_func_post", "type": "function", "z": "ex6_tab", "name": "新規作成", "func": "const notes = flow.get('notes') || [];\nconst body = msg.payload || {};\nconst newNote = {\n    id: Date.now(),\n    text: body.text || \"(内容なし)\",\n    createdAt: new Date().toISOString()\n};\nnotes.push(newNote);\nflow.set('notes', notes);\nmsg.payload = {success: true, note: newNote};\nmsg.statusCode = 201;\nmsg.headers = {\"Content-Type\": \"application/json\"};\nreturn msg;", "outputs": 1, "timeout": 0, "initialize": "", "finalize": "", "libs": [], "x": 370, "y": 140, "wires": [["ex6_response"]]},
+    {"id": "ex6_func_post", "type": "function", "z": "ex6_tab", "name": "新規作成", "func": "// 保存済みのメモ一覧を読み出す（まだ無ければ空の配列）\nconst notes = flow.get('notes') || [];\n// リクエスト本文（JSON）。本文が無いときは空のオブジェクトとして扱う\nconst body = msg.payload || {};\n// 新しいメモを作る。IDには現在時刻のミリ秒を使う（学習用の簡易的な採番）\nconst newNote = {\n    id: Date.now(),\n    text: body.text || \"(内容なし)\",\n    createdAt: new Date().toISOString()\n};\n// 一覧に追加して、flow変数へ書き戻す\nnotes.push(newNote);\nflow.set('notes', notes);\n// 作成したメモを返す。201 は「作成した」を表すステータスコード\nmsg.payload = {success: true, note: newNote};\nmsg.statusCode = 201;\nreturn msg;", "outputs": 1, "timeout": 0, "initialize": "", "finalize": "", "libs": [], "x": 370, "y": 140, "wires": [["ex6_response"]]},
     {"id": "ex6_get_one", "type": "http in", "z": "ex6_tab", "name": "GET /api/notes/:id", "url": "/api/notes/:id", "method": "get", "upload": false, "skipBodyParsing": false, "swaggerDoc": "", "x": 180, "y": 200, "wires": [["ex6_func_get_one"]]},
-    {"id": "ex6_func_get_one", "type": "function", "z": "ex6_tab", "name": "1件取得", "func": "const notes = flow.get('notes') || [];\nconst noteId = parseInt(msg.req.params.id);\nconst note = notes.find(function(n) { return n.id === noteId; });\nif (note) {\n    msg.payload = {success: true, note: note};\n    msg.statusCode = 200;\n} else {\n    msg.payload = {success: false, error: \"Not found\"};\n    msg.statusCode = 404;\n}\nmsg.headers = {\"Content-Type\": \"application/json\"};\nreturn msg;", "outputs": 1, "timeout": 0, "initialize": "", "finalize": "", "libs": [], "x": 370, "y": 200, "wires": [["ex6_response"]]},
+    {"id": "ex6_func_get_one", "type": "function", "z": "ex6_tab", "name": "1件取得", "func": "const notes = flow.get('notes') || [];\n// URLの :id は文字列で届くので、数値に変換してから比べる\nconst noteId = parseInt(msg.req.params.id);\n// IDが一致するメモを探す（見つからなければ undefined）\nconst note = notes.find(function(n) { return n.id === noteId; });\nif (note) {\n    // 見つかった: 200 で返す\n    msg.payload = {success: true, note: note};\n    msg.statusCode = 200;\n} else {\n    // 見つからない: 404 で返す\n    msg.payload = {success: false, error: \"Not found\"};\n    msg.statusCode = 404;\n}\nreturn msg;", "outputs": 1, "timeout": 0, "initialize": "", "finalize": "", "libs": [], "x": 370, "y": 200, "wires": [["ex6_response"]]},
     {"id": "ex6_delete", "type": "http in", "z": "ex6_tab", "name": "DELETE /api/notes/:id", "url": "/api/notes/:id", "method": "delete", "upload": false, "skipBodyParsing": false, "swaggerDoc": "", "x": 190, "y": 260, "wires": [["ex6_func_delete"]]},
-    {"id": "ex6_func_delete", "type": "function", "z": "ex6_tab", "name": "削除", "func": "let notes = flow.get('notes') || [];\nconst noteId = parseInt(msg.req.params.id);\nconst originalLength = notes.length;\nnotes = notes.filter(function(n) { return n.id !== noteId; });\nflow.set('notes', notes);\nif (notes.length &lt; originalLength) {\n    msg.payload = {success: true, message: \"Deleted\"};\n    msg.statusCode = 200;\n} else {\n    msg.payload = {success: false, error: \"Not found\"};\n    msg.statusCode = 404;\n}\nmsg.headers = {\"Content-Type\": \"application/json\"};\nreturn msg;", "outputs": 1, "timeout": 0, "initialize": "", "finalize": "", "libs": [], "x": 370, "y": 260, "wires": [["ex6_response"]]},
+    {"id": "ex6_func_delete", "type": "function", "z": "ex6_tab", "name": "削除", "func": "// filter で作り直した配列を代入し直すため、const ではなく let\nlet notes = flow.get('notes') || [];\n// URLの :id は文字列で届くので、数値に変換してから比べる\nconst noteId = parseInt(msg.req.params.id);\n// 削除前の件数を覚えておき、減ったかどうかで削除できたかを判定する\nconst originalLength = notes.length;\n// 指定IDのメモを除いた配列を作り、flow変数へ書き戻す\nnotes = notes.filter(function(n) { return n.id !== noteId; });\nflow.set('notes', notes);\nif (notes.length &lt; originalLength) {\n    // 1件減った: 削除できた\n    msg.payload = {success: true, message: \"Deleted\"};\n    msg.statusCode = 200;\n} else {\n    // 減っていない: そのIDのメモは無かった\n    msg.payload = {success: false, error: \"Not found\"};\n    msg.statusCode = 404;\n}\nreturn msg;", "outputs": 1, "timeout": 0, "initialize": "", "finalize": "", "libs": [], "x": 370, "y": 260, "wires": [["ex6_response"]]},
     {"id": "ex6_response", "type": "http response", "z": "ex6_tab", "name": "Response", "statusCode": "", "headers": {}, "x": 560, "y": 160, "wires": []}
 ]</div>
             </details>
@@ -2537,10 +2551,11 @@ return msg;</div>
 
             <details>
                 <summary>&#9989; 解答例フロー（サーバー担当・Aさん）</summary>
+                <p>「応答を作る」Change ノードの1つ目のルールにある <code>"Aさん"</code> を、自分の名前に書き換えてください。</p>
                 <div class="flow-json">[
     {"id": "ex7s_tab", "type": "tab", "label": "演習7 サーバー側"},
-    {"id": "ex7s_http_in", "type": "http in", "z": "ex7s_tab", "name": "GET /api/hello", "url": "/api/hello", "method": "get", "upload": false, "skipBodyParsing": false, "swaggerDoc": "", "x": 180, "y": 100, "wires": [["ex7s_func"]]},
-    {"id": "ex7s_func", "type": "function", "z": "ex7s_tab", "name": "応答を作る", "func": "// from は自分の名前に書き換える\nmsg.payload = {\n    from: \"Aさん\",\n    time: new Date().toISOString()\n};\nmsg.statusCode = 200;\nmsg.headers = {\"Content-Type\": \"application/json\"};\nreturn msg;", "outputs": 1, "timeout": 0, "initialize": "", "finalize": "", "libs": [], "x": 400, "y": 100, "wires": [["ex7s_response"]]},
+    {"id": "ex7s_http_in", "type": "http in", "z": "ex7s_tab", "name": "GET /api/hello", "url": "/api/hello", "method": "get", "upload": false, "skipBodyParsing": false, "swaggerDoc": "", "x": 180, "y": 100, "wires": [["ex7s_change"]]},
+    {"id": "ex7s_change", "type": "change", "z": "ex7s_tab", "name": "応答を作る", "rules": [{"t": "set", "p": "payload", "pt": "msg", "to": "{\"from\":\"Aさん\"}", "tot": "json"}, {"t": "set", "p": "payload.time", "pt": "msg", "to": "iso", "tot": "date"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 400, "y": 100, "wires": [["ex7s_response"]]},
     {"id": "ex7s_response", "type": "http response", "z": "ex7s_tab", "name": "Response", "statusCode": "", "headers": {}, "x": 590, "y": 100, "wires": []}
 ]</div>
             </details>
@@ -2603,20 +2618,21 @@ return msg;</div>
             <details>
                 <summary>&#128161; ヒント</summary>
                 <p><strong>IPアドレスの一覧をどこに持つか:</strong> Injectノードの payload に配列として書くのが手軽です。人数が変わったらここだけ直します。</p>
-                <p><strong>1件ずつ呼び出すには:</strong> 配列を split ノードで1件ずつに分けます。HTTP Request ノードはURL欄を空にしておくと <code>msg.url</code> の値を使うので、split の後で <code>msg.url</code> を組み立てます（<a href="#section4">動的なURL設定</a>を参照）。</p>
+                <p><strong>1件ずつ呼び出すには:</strong> 配列を split ノードで1件ずつに分けます。HTTP Request ノードはURL欄を空にしておくと <code>msg.url</code> の値を使うので、split の後で <code>msg.url</code> を組み立てます（<a href="#section4">動的なURL設定</a>を参照）。解答例では template ノードの出力先を <code>msg.url</code> にし、<code>http://{{targetIp}}:1880/api/whoami</code> のように組み立てています。</p>
                 <p><strong>結果をまとめるには:</strong> join ノードを「自動モード」にすると、split が付けた <code>msg.parts</code> を見て自動で配列へ戻します。split と join を対で使うのが定石です。</p>
                 <p><strong>呼び出し先のIPを結果に残すには:</strong> HTTP Request ノードは <code>msg.payload</code> を応答で上書きします。IPアドレスは <code>msg.payload</code> 以外のプロパティ（たとえば <code>msg.targetIp</code>）へ退避してから呼び出してください。</p>
-                <p><strong>応答しない相手の扱い:</strong> HTTP Request ノードは既定で、接続できなかった場合もメッセージを下流へ流します。そのとき <code>msg.payload</code> にはエラー文が、<code>msg.statusCode</code> には <code>ECONNREFUSED</code> のような文字列が入ります。<strong>数値の200かどうか</strong>で成功と失敗を見分けられます。デバッグサイドバーには赤いエラーも出ますが、フローは止まりません。</p>
-                <p><strong>待ち時間:</strong> 応答がない相手は既定で5秒待ってから打ち切られます。人数が多くて待ち時間が気になるときは、呼び出し前に <code>msg.requestTimeout</code>（ミリ秒）を設定すると短くできます。</p>
+                <p><strong>応答しない相手の扱い:</strong> HTTP Request ノードは既定で、接続できなかった場合もメッセージを下流へ流します。そのとき <code>msg.payload</code> にはエラー文が、<code>msg.statusCode</code> には <code>ECONNREFUSED</code> のような文字列が入ります。デバッグサイドバーには赤いエラーも出ますが、フローは止まりません。</p>
+                <p><strong>成功と失敗の分け方:</strong> 解答例では switch ノードを2つ続けています。1つ目で <code>msg.statusCode</code> が数値の200かどうかを見ます（接続できなかったときは <code>ECONNREFUSED</code> のような文字列なので、「その他」へ流れます）。2つ目で、成功した応答にだけ含まれる <code>msg.payload.name</code> が「nullでない」かを見ます。相手が想定と違う内容を返したときに、成功として扱わないためです。どちらかの「その他」に流れたものは、失敗として扱います。失敗の側も必ず join ノードへつないでください。1件でも途中で止まると、join は人数分そろうのを待ち続け、一覧が表示されません。</p>
+                <p><strong>待ち時間:</strong> 応答がない相手は、既定で120秒待ってから打ち切られます（settings.js の <code>httpRequestTimeout</code> で変更できます）。人数が多くて待ち時間が気になるときは、呼び出し前に <code>msg.requestTimeout</code>（ミリ秒）を設定すると短くできます。</p>
             </details>
 
             <details>
                 <summary>&#9989; 解答例フロー（受講者全員・サーバー側）</summary>
-                <p>全員がこれを読み込み、Functionノードの名前だけ自分のものに書き換えます。</p>
+                <p>全員がこれを読み込み、「自分の名前を返す」Change ノードにある <code>"山田"</code> だけを自分の名前に書き換えます。</p>
                 <div class="flow-json">[
     {"id": "ex8s_tab", "type": "tab", "label": "演習8 サーバー側"},
-    {"id": "ex8s_http_in", "type": "http in", "z": "ex8s_tab", "name": "GET /api/whoami", "url": "/api/whoami", "method": "get", "upload": false, "skipBodyParsing": false, "swaggerDoc": "", "x": 180, "y": 100, "wires": [["ex8s_func"]]},
-    {"id": "ex8s_func", "type": "function", "z": "ex8s_tab", "name": "自分の名前を返す", "func": "// name は自分の名前に書き換える\nmsg.payload = { name: \"山田\" };\nmsg.statusCode = 200;\nmsg.headers = {\"Content-Type\": \"application/json\"};\nreturn msg;", "outputs": 1, "timeout": 0, "initialize": "", "finalize": "", "libs": [], "x": 400, "y": 100, "wires": [["ex8s_response"]]},
+    {"id": "ex8s_http_in", "type": "http in", "z": "ex8s_tab", "name": "GET /api/whoami", "url": "/api/whoami", "method": "get", "upload": false, "skipBodyParsing": false, "swaggerDoc": "", "x": 180, "y": 100, "wires": [["ex8s_change"]]},
+    {"id": "ex8s_change", "type": "change", "z": "ex8s_tab", "name": "自分の名前を返す", "rules": [{"t": "set", "p": "payload", "pt": "msg", "to": "{\"name\":\"山田\"}", "tot": "json"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 400, "y": 100, "wires": [["ex8s_response"]]},
     {"id": "ex8s_response", "type": "http response", "z": "ex8s_tab", "name": "Response", "statusCode": "", "headers": {}, "x": 590, "y": 100, "wires": []}
 ]</div>
             </details>
@@ -2627,12 +2643,16 @@ return msg;</div>
                 <div class="flow-json">[
     {"id": "ex8c_tab", "type": "tab", "label": "演習8 集約役"},
     {"id": "ex8c_inject", "type": "inject", "z": "ex8c_tab", "name": "全員のIP一覧", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "[\"192.168.1.11\",\"192.168.1.12\",\"192.168.1.13\"]", "payloadType": "json", "x": 160, "y": 100, "wires": [["ex8c_split"]]},
-    {"id": "ex8c_split", "type": "split", "z": "ex8c_tab", "name": "1件ずつに分ける", "splt": "\\n", "spltType": "str", "arraySplt": 1, "arraySpltType": "len", "stream": false, "addname": "", "property": "payload", "x": 350, "y": 100, "wires": [["ex8c_url"]]},
-    {"id": "ex8c_url", "type": "function", "z": "ex8c_tab", "name": "URLを組み立てる", "func": "msg.targetIp = msg.payload;\nmsg.url = \"http://\" + msg.payload + \":1880/api/whoami\";\nmsg.payload = \"\";\nreturn msg;", "outputs": 1, "timeout": 0, "initialize": "", "finalize": "", "libs": [], "x": 560, "y": 100, "wires": [["ex8c_request"]]},
-    {"id": "ex8c_request", "type": "http request", "z": "ex8c_tab", "name": "相手を呼ぶ", "method": "GET", "ret": "obj", "paytoqs": "ignore", "url": "", "tls": "", "persist": false, "proxy": "", "insecureHTTPParser": false, "authType": "", "senderr": false, "headers": [], "x": 760, "y": 100, "wires": [["ex8c_shape"]]},
-    {"id": "ex8c_shape", "type": "function", "z": "ex8c_tab", "name": "結果を整える", "func": "// statusCode が数値の200のときだけ成功とみなす\n// 接続できなかった場合は ECONNREFUSED 等の文字列が入る\nif (msg.statusCode === 200 &amp;&amp; msg.payload &amp;&amp; msg.payload.name) {\n    msg.payload = { ip: msg.targetIp, name: msg.payload.name };\n} else {\n    msg.payload = { ip: msg.targetIp, error: String(msg.payload) };\n}\nreturn msg;", "outputs": 1, "timeout": 0, "initialize": "", "finalize": "", "libs": [], "x": 360, "y": 180, "wires": [["ex8c_join"]]},
-    {"id": "ex8c_join", "type": "join", "z": "ex8c_tab", "name": "配列に戻す", "mode": "auto", "build": "array", "property": "payload", "propertyType": "msg", "key": "topic", "joiner": "\\n", "joinerType": "str", "accumulate": "false", "timeout": "", "count": "", "reduceRight": false, "reduceExp": "", "reduceInit": "", "reduceInitType": "", "reduceFixup": "", "x": 570, "y": 180, "wires": [["ex8c_debug"]]},
-    {"id": "ex8c_debug", "type": "debug", "z": "ex8c_tab", "name": "全員の一覧", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "statusVal": "", "statusType": "auto", "x": 760, "y": 180, "wires": []}
+    {"id": "ex8c_split", "type": "split", "z": "ex8c_tab", "name": "1件ずつに分ける", "splt": "\\n", "spltType": "str", "arraySplt": 1, "arraySpltType": "len", "stream": false, "addname": "", "property": "payload", "x": 350, "y": 100, "wires": [["ex8c_save"]]},
+    {"id": "ex8c_save", "type": "change", "z": "ex8c_tab", "name": "IPを退避", "rules": [{"t": "move", "p": "payload", "pt": "msg", "to": "targetIp", "tot": "msg"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 530, "y": 100, "wires": [["ex8c_url"]]},
+    {"id": "ex8c_url", "type": "template", "z": "ex8c_tab", "name": "URLを組み立てる", "field": "url", "fieldType": "msg", "format": "handlebars", "syntax": "mustache", "template": "http://{{targetIp}}:1880/api/whoami", "output": "str", "x": 710, "y": 100, "wires": [["ex8c_request"]]},
+    {"id": "ex8c_request", "type": "http request", "z": "ex8c_tab", "name": "相手を呼ぶ", "method": "GET", "ret": "obj", "paytoqs": "ignore", "url": "", "tls": "", "persist": false, "proxy": "", "insecureHTTPParser": false, "authType": "", "senderr": false, "headers": [], "x": 900, "y": 100, "wires": [["ex8c_switch_status"]]},
+    {"id": "ex8c_switch_status", "type": "switch", "z": "ex8c_tab", "name": "200が返ってきた？", "property": "statusCode", "propertyType": "msg", "rules": [{"t": "eq", "v": "200", "vt": "num"}, {"t": "else"}], "checkall": "true", "repair": false, "outputs": 2, "x": 180, "y": 200, "wires": [["ex8c_switch"], ["ex8c_ng"]]},
+    {"id": "ex8c_switch", "type": "switch", "z": "ex8c_tab", "name": "名前が返ってきた？", "property": "payload.name", "propertyType": "msg", "rules": [{"t": "nnull"}, {"t": "else"}], "checkall": "true", "repair": false, "outputs": 2, "x": 370, "y": 200, "wires": [["ex8c_ok"], ["ex8c_ng"]]},
+    {"id": "ex8c_ok", "type": "change", "z": "ex8c_tab", "name": "成功: ipとnameにする", "rules": [{"t": "move", "p": "payload", "pt": "msg", "to": "reply", "tot": "msg"}, {"t": "set", "p": "payload.ip", "pt": "msg", "to": "targetIp", "tot": "msg"}, {"t": "set", "p": "payload.name", "pt": "msg", "to": "reply.name", "tot": "msg"}, {"t": "delete", "p": "reply", "pt": "msg"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 580, "y": 170, "wires": [["ex8c_join"]]},
+    {"id": "ex8c_ng", "type": "change", "z": "ex8c_tab", "name": "失敗: errorにする", "rules": [{"t": "move", "p": "payload", "pt": "msg", "to": "errorText", "tot": "msg"}, {"t": "set", "p": "payload.ip", "pt": "msg", "to": "targetIp", "tot": "msg"}, {"t": "move", "p": "errorText", "pt": "msg", "to": "payload.error", "tot": "msg"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 580, "y": 230, "wires": [["ex8c_join"]]},
+    {"id": "ex8c_join", "type": "join", "z": "ex8c_tab", "name": "配列に戻す", "mode": "auto", "build": "array", "property": "payload", "propertyType": "msg", "key": "topic", "joiner": "\\n", "joinerType": "str", "accumulate": "false", "timeout": "", "count": "", "reduceRight": false, "reduceExp": "", "reduceInit": "", "reduceInitType": "", "reduceFixup": "", "x": 780, "y": 200, "wires": [["ex8c_debug"]]},
+    {"id": "ex8c_debug", "type": "debug", "z": "ex8c_tab", "name": "全員の一覧", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "statusVal": "", "statusType": "auto", "x": 950, "y": 200, "wires": []}
 ]</div>
             </details>
         </div>
