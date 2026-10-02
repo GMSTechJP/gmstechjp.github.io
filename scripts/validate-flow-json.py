@@ -28,7 +28,6 @@ import re
 import sys
 from html.parser import HTMLParser
 
-CLASS_ATTR = re.compile(r'class="[^"]*\bflow-json\b[^"]*"')
 VOID = {"area", "base", "br", "col", "embed", "hr", "img", "input",
         "link", "meta", "param", "source", "track", "wbr"}
 
@@ -54,6 +53,34 @@ STRINGIFY_PAYLOAD = re.compile(r"(?<![\w$.])msg\.payload\s*=\s*JSON\.stringify\(
 PRIMITIVE_ARG = re.compile(r'""|-?\d[\d.eE+-]*|true|false|null|undefined')
 # Buffer は自動変換の対象外（そのまま送られる）ため、手で JSON 化するのには意味がある
 BUFFER_ARG = re.compile(r"(?<![\w$])Buffer(?![\w$])")
+
+
+class FlowJsonCounter(HTMLParser):
+    """class に flow-json を持つ開始タグを数えるだけの数え方。
+
+    FlowJsonExtractor（入れ子の深さを追ってブロックを切り出す）とは別の単純な方法で数え、
+    件数を突き合わせて抽出の取りこぼしを見つける。以前は正規表現で数えていたが、
+    class 属性の書き方（二重引用符・単一引用符・引用符なし・文字参照・大文字の属性名）を
+    正規表現で再現しきれず、ブラウザがブロックとして扱う書き方のファイルを、検査対象から
+    丸ごと外していた。属性の解釈はブラウザと同じく HTMLParser に任せる。
+    """
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.count = 0
+
+    def handle_starttag(self, tag, attrs):
+        if "flow-json" in (dict(attrs).get("class") or "").split():
+            self.count += 1
+
+    handle_startendtag = handle_starttag
+
+
+def count_flow_json(src):
+    counter = FlowJsonCounter()
+    counter.feed(src)
+    counter.close()
+    return counter.count
 
 
 class FlowJsonExtractor(HTMLParser):
@@ -82,7 +109,7 @@ class FlowJsonExtractor(HTMLParser):
         return self.line_starts[lineno - 1] + col
 
     def handle_starttag(self, tag, attrs):
-        classes = dict(attrs).get("class", "").split()
+        classes = (dict(attrs).get("class") or "").split()
         if self.open_tag is None:
             if "flow-json" in classes:
                 self.open_tag = tag
@@ -370,7 +397,7 @@ def check(path):
     parser.close()
 
     errors = []
-    expected = len(CLASS_ATTR.findall(src))
+    expected = count_flow_json(src)
 
     if parser.unclosed is not None:
         errors.append(f"{path}:{parser.unclosed}: flow-json ブロックが閉じられていない")
@@ -410,7 +437,7 @@ def main():
     checked = 0
 
     for path in targets:
-        if not CLASS_ATTR.search(open(path, encoding="utf-8").read()):
+        if not count_flow_json(open(path, encoding="utf-8").read()):
             continue
         checked += 1
         errors.extend(check(path))
