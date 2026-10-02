@@ -578,16 +578,15 @@
             </ul>
             <details>
                 <summary>💡 ヒント</summary>
-                <p>属性を設定するには <code>"$": { "attrName": "value" }</code> 形式でオブジェクトを作成します。</p>
+                <p>属性を設定するには <code>"$": { "attrName": "value" }</code> 形式でオブジェクトを作成します。オブジェクトは、Inject ノードの <code>msg.payload</code> に「JSON」型で直接書けます。</p>
             </details>
             <details>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
     {"id": "ex4_tab", "type": "tab", "label": "演習4"},
-    {"id": "ex4_inject", "type": "inject", "z": "ex4_tab", "name": "実行", "props": [], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "x": 130, "y": 100, "wires": [["ex4_func"]]},
-    {"id": "ex4_func", "type": "function", "z": "ex4_tab", "name": "属性付きObj", "func": "msg.payload = {\n    \"response\": {\n        \"$\": { \"status\": \"success\", \"code\": \"200\" },\n        \"data\": {\n            \"user\": {\n                \"$\": { \"id\": \"U001\" },\n                \"name\": \"テストユーザー\"\n            }\n        }\n    }\n};\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 290, "y": 100, "wires": [["ex4_xml"]]},
-    {"id": "ex4_xml", "type": "xml", "z": "ex4_tab", "name": "Obj→XML", "property": "payload", "attr": "", "chr": "", "x": 450, "y": 100, "wires": [["ex4_debug"]]},
-    {"id": "ex4_debug", "type": "debug", "z": "ex4_tab", "name": "XML出力", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "x": 600, "y": 100, "wires": []}
+    {"id": "ex4_inject", "type": "inject", "z": "ex4_tab", "name": "実行（属性付きObj）", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "x": 130, "y": 100, "wires": [["ex4_xml"]], "payload": "{\"response\":{\"$\":{\"status\":\"success\",\"code\":\"200\"},\"data\":{\"user\":{\"$\":{\"id\":\"U001\"},\"name\":\"テストユーザー\"}}}}", "payloadType": "json"},
+    {"id": "ex4_xml", "type": "xml", "z": "ex4_tab", "name": "Obj→XML", "property": "payload", "attr": "", "chr": "", "x": 330, "y": 100, "wires": [["ex4_debug"]]},
+    {"id": "ex4_debug", "type": "debug", "z": "ex4_tab", "name": "XML出力", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "x": 490, "y": 100, "wires": []}
 ]</div>
             </details>
         </div>
