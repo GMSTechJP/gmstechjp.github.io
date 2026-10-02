@@ -512,20 +512,547 @@
         </div>
         
         <div class="important">
-            <p><strong>📥 まずサンプルフローをインポートしましょう！</strong></p>
-            <p>以下のサンプルフローには、このガイドで説明する<strong>全パターンの実例</strong>が含まれています。<br>
-            先にインポートして、実際に動作を確認しながら読み進めると理解が深まります。</p>
+            <p><strong>📥 サンプルフローを試す手順:</strong></p>
             <ol>
-                <li>下のサンプルフローJSONをコピー</li>
+                <li>下のフローJSONを「コピー」ボタンでコピー</li>
                 <li>Node-REDエディタで <strong>メニュー → 読み込み</strong> を選択</li>
                 <li>JSONをペーストして「読み込み」をクリック</li>
-                <li>デプロイしてダッシュボードで動作確認</li>
+                <li>エディタ右上の<strong>「デプロイ」ボタンをクリック</strong>（クリックするまでフローは動きません）</li>
+                <li>ブラウザでダッシュボード（<code>http://localhost:1880/dashboard</code>）を開き、左のメニューからページを選んで動作を確認</li>
             </ol>
         </div>
-        
+
+        <h3>公式サンプルフロー</h3>
+        <p>最初のサンプルフローは、Dashboard 2.0 の開発元である FlowFuse が公開している公式サンプルを、1つのタブにまとめたものです。出典は次の2か所です。</p>
+        <ul>
+            <li><strong>公式ドキュメント</strong>: 各ウィジェットの解説ページ（<a href="https://dashboard.flowfuse.com/" target="_blank">dashboard.flowfuse.com</a>）に載っているサンプル。表の1列目に、載っているページを書いています</li>
+            <li><strong>GitHub examples</strong>: <a href="https://github.com/FlowFuse/node-red-dashboard/tree/main/examples" target="_blank">GitHub リポジトリの examples フォルダ</a>にあるサンプル。npm パッケージには含まれないため、Node-RED エディタの <strong>メニュー → 読み込み → サンプル</strong> には出てきません</li>
+        </ul>
+        <p>ノードの設定値とノードIDは公式のままです。このサイトで手を加えたのは次の点だけです。</p>
+        <ul>
+            <li>1つのタブにまとめ、例が重ならないよう位置をずらし、例の名前を書いたコメントノードを置いた</li>
+            <li>file-upload は独自のダッシュボード設定ノード（ui-base）を持っていたため、このサイトの全フローが共有する ui-base に付け替えた</li>
+            <li>同じ設定ノード（ui-base など）が例ごとに少しずつ違う値で入っていたため、1つにそろえた</li>
+        </ul>
+        <div style="overflow-x: auto;">
+            <table>
+                <tr>
+                    <th>例（出典・表示されるページ）</th>
+                    <th>内容</th>
+                </tr>
+                <tr>
+                    <td><strong>design-patterns</strong><br>GitHub examples・公式ドキュメント（Getting Started）<br><code>/dashboard/<wbr>design-patterns</code></td>
+                    <td>データの見せ方の2つの型を、2つのグループで比べます。<br>「Single Source of Truth」のグループは、スライダーの値をグラフと ui-template（Show to All）に送り、ダッシュボードを開いている<strong>全員に同じ値</strong>を表示します。ui-template へ送る前に、change ノードで <code>msg._client</code>（どの閲覧者からの操作かを表す情報）を消しています。<br>「Client-Driven」のグループは、ボタンやスライダーを<strong>操作した人の画面だけ</strong>に値を表示します。ui-event はページを開いた閲覧者の情報を送り、ui-template がそれ（<code>msg._client</code>）を表示します。<br>閲覧者ごとに分かれるのは、ui-base の設定で ui-text と ui-template が「閲覧者ごとに送る」対象になっているときです。このフローの ui-base はそうなっていますが、先に別のフローを読み込んでいた場合は、その ui-base の設定が使われます。分かれないときは、エディタの Dashboard 2.0 サイドバーの「Client Data」タブにある「Accept Client Data」で、ui-text と ui-template にチェックを入れてデプロイしてください。違いは、ダッシュボードを2つのブラウザのタブで開くと確かめられます。</td>
+                </tr>
+                <tr>
+                    <td><strong>file-upload</strong><br>公式ドキュメント（Template Examples）<br><code>/dashboard/<wbr>entry</code></td>
+                    <td>ui-template に、ファイルを選ぶ欄（Vuetify の <code>v-file-input</code>）と「Upload File」ボタンを置きます。ボタンを押すと、選んだファイルの中身を、名前・サイズ・種類（<code>msg.file</code>）とともに Node-RED へ送ります。function ノードで中身を文字列に変えて debug に出すので、テキストファイルで試すと中身が読めます。function ノードは公式のサンプルのままです。</td>
+                </tr>
+            </table>
+        </div>
+        <p>ui-template の公式ドキュメントには、ほかにも表やグラフ、地図の例があります。このサイトでは、ほかのガイドの公式サンプルとページが重なるもの（ほかのガイドと同じページを使う例）や、別のノードの追加が必要なもの（地図）は収録していません。</p>
         <details>
-            <summary>📋 template サンプルフロー（クリックで展開）</summary>
-            <p style="margin: 10px 0; color: #666;"><small>参照元：FlowFuse Dashboard 2.0 公式ドキュメント</small></p>
+            <summary>📥 template 公式サンプルフローJSON（クリックで展開）</summary>
+            <div class="flow-json">[
+    {
+        "id": "dash2_template_official_tab",
+        "type": "tab",
+        "label": "template 公式サンプル",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "cmt_dash2_template_official_design_patterns",
+        "type": "comment",
+        "z": "dash2_template_official_tab",
+        "name": "design-patterns（GitHub examples・公式ドキュメント Getting Started）",
+        "info": "",
+        "x": 320,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "f385539f963b56ce",
+        "type": "ui-text",
+        "z": "dash2_template_official_tab",
+        "group": "2b287eac8c5a64cd",
+        "order": 2,
+        "width": "3",
+        "height": "1",
+        "name": "",
+        "label": "Your Latest Button Click:",
+        "format": "{{msg.payload}}",
+        "layout": "row-left",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#717171",
+        "className": "",
+        "x": 390,
+        "y": 190,
+        "wires": []
+    },
+    {
+        "id": "ae23d23cc164d27a",
+        "type": "ui-button",
+        "z": "dash2_template_official_tab",
+        "group": "2b287eac8c5a64cd",
+        "name": "",
+        "label": "Click Me!",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "emulateClick": false,
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "iconPosition": "left",
+        "payload": "",
+        "payloadType": "date",
+        "topic": "topic",
+        "topicType": "msg",
+        "x": 200,
+        "y": 190,
+        "wires": [
+            [
+                "f385539f963b56ce"
+            ]
+        ]
+    },
+    {
+        "id": "a7d3cb9fc537d9bb",
+        "type": "ui-slider",
+        "z": "dash2_template_official_tab",
+        "group": "8bee8ca608b26b77",
+        "name": "",
+        "label": "slider",
+        "tooltip": "",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "outs": "all",
+        "topic": "topic",
+        "topicType": "msg",
+        "thumbLabel": true,
+        "min": 0,
+        "max": 10,
+        "step": 1,
+        "className": "",
+        "x": 250,
+        "y": 330,
+        "wires": [
+            [
+                "257625ee5df3a84e",
+                "ea03c8bc066ebdf2",
+                "5ef058757d792100"
+            ]
+        ]
+    },
+    {
+        "id": "257625ee5df3a84e",
+        "type": "ui-chart",
+        "z": "dash2_template_official_tab",
+        "group": "8bee8ca608b26b77",
+        "name": "",
+        "label": "chart",
+        "order": 3,
+        "chartType": "line",
+        "category": "topic",
+        "categoryType": "msg",
+        "xAxisProperty": "",
+        "xAxisPropertyType": "msg",
+        "xAxisType": "time",
+        "yAxisProperty": "",
+        "ymin": "",
+        "ymax": "",
+        "action": "append",
+        "pointShape": "circle",
+        "pointRadius": 4,
+        "showLegend": true,
+        "removeOlder": 1,
+        "removeOlderUnit": "3600",
+        "removeOlderPoints": "",
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "width": "9",
+        "height": 8,
+        "className": "",
+        "x": 430,
+        "y": 390,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "ce9b4c9ec9c4ed93",
+        "type": "inject",
+        "z": "dash2_template_official_tab",
+        "name": "Clear Chart",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[]",
+        "payloadType": "json",
+        "x": 230,
+        "y": 390,
+        "wires": [
+            [
+                "257625ee5df3a84e"
+            ]
+        ]
+    },
+    {
+        "id": "8aefa358fdb6e177",
+        "type": "ui-event",
+        "z": "dash2_template_official_tab",
+        "ui": "c2e1aa56f50f03bd",
+        "name": "",
+        "x": 200,
+        "y": 150,
+        "wires": [
+            [
+                "0b8294025998e4be"
+            ]
+        ]
+    },
+    {
+        "id": "0b8294025998e4be",
+        "type": "ui-template",
+        "z": "dash2_template_official_tab",
+        "group": "2b287eac8c5a64cd",
+        "page": "",
+        "ui": "",
+        "name": "",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "head": "",
+        "format": "&lt;template>\n    &lt;strong>msg._client:&lt;/strong>\n    &lt;pre>{{ msg._client }}&lt;/pre>\n&lt;/template>",
+        "storeOutMessages": true,
+        "passthru": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 340,
+        "y": 150,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c0a2283e528e663e",
+        "type": "comment",
+        "z": "dash2_template_official_tab",
+        "name": "Client-Defined Data",
+        "info": "",
+        "x": 230,
+        "y": 110,
+        "wires": []
+    },
+    {
+        "id": "c999e4c44afd670c",
+        "type": "comment",
+        "z": "dash2_template_official_tab",
+        "name": "Shared Data (All Clients)",
+        "info": "",
+        "x": 250,
+        "y": 270,
+        "wires": []
+    },
+    {
+        "id": "6de64b0ab3a086ed",
+        "type": "ui-template",
+        "z": "dash2_template_official_tab",
+        "group": "8bee8ca608b26b77",
+        "page": "",
+        "ui": "",
+        "name": "Show to All",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "head": "",
+        "format": "&lt;template>\n    &lt;strong>Shared Slider Value:&lt;/strong>\n    &lt;pre>{{ msg.payload }}&lt;/pre>\n&lt;/template>",
+        "storeOutMessages": true,
+        "passthru": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 630,
+        "y": 330,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "ea03c8bc066ebdf2",
+        "type": "change",
+        "z": "dash2_template_official_tab",
+        "name": "",
+        "rules": [
+            {
+                "t": "delete",
+                "p": "_client",
+                "pt": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 450,
+        "y": 330,
+        "wires": [
+            [
+                "6de64b0ab3a086ed"
+            ]
+        ]
+    },
+    {
+        "id": "5ef058757d792100",
+        "type": "ui-template",
+        "z": "dash2_template_official_tab",
+        "group": "2b287eac8c5a64cd",
+        "page": "",
+        "ui": "",
+        "name": "Client-Driven",
+        "order": 2,
+        "width": "3",
+        "height": "1",
+        "head": "",
+        "format": "&lt;template>\n    Client Specific Slider: {{ msg.payload }}\n&lt;/template>",
+        "storeOutMessages": true,
+        "passthru": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 630,
+        "y": 190,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "cmt_dash2_template_official_file_upload",
+        "type": "comment",
+        "z": "dash2_template_official_tab",
+        "name": "file-upload（公式ドキュメント Template Examples）",
+        "info": "",
+        "x": 320,
+        "y": 470,
+        "wires": []
+    },
+    {
+        "id": "ac0d56d388a4daa4",
+        "type": "ui-template",
+        "z": "dash2_template_official_tab",
+        "group": "44010f4b04014d29",
+        "page": "",
+        "ui": "",
+        "name": "Binary File Upload",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "head": "",
+        "format": "&lt;template>\n    &lt;!-- Card for uploading binary file -->\n    &lt;v-card raised color=\"white\">\n        &lt;!-- Card Title -->\n        &lt;v-card-title>Upload binary file to Node-Red&lt;/v-card-title>\n        &lt;br>\n        &lt;v-card-text>\n            &lt;!-- File Input -->\n            &lt;v-file-input label=\"Click here to select a file\" show-size v-model=\"uploadFile\">\n            &lt;/v-file-input>\n            &lt;!-- Progress Indicator -->\n            &lt;div>Progress: {{ progress }} bytes loaded&lt;/div>\n        &lt;/v-card-text>\n        &lt;v-card-actions>\n            &lt;v-spacer>&lt;/v-spacer>\n            &lt;!-- Upload Button -->\n            &lt;v-btn right @click=\"startUpload\">Upload File&lt;/v-btn>\n        &lt;/v-card-actions>\n    &lt;/v-card>\n&lt;/template>\n\n&lt;script>\n    export default {\n        data() {\n            return {\n                uploadFile: null, // Holds the selected file\n                progress: 0 // Progress indicator for file upload\n            }\n        },\n        methods: {\n            // Method triggered when Upload File button is clicked\n            startUpload() {\n                // Check if a file is selected\n                if (!this.uploadFile) {\n                    console.warn('No file selected');\n                    return;\n                }\n\n                // Log the selected file information to console\n                console.log('File selected:');\n                console.log(this.uploadFile);\n\n                // Create a FileReader instance to read the file\n                const reader = new FileReader();\n\n                // When the file is read, send it to Node-RED\n                reader.onload = () => {\n                    // Prepare the payload to send\n                    const payload = {\n                        topic: 'upload', // Topic for Node-RED\n                        payload: this.uploadFile, // File content\n                        file: {\n                            name: this.uploadFile.name, // File name\n                            size: this.uploadFile.size, // File size\n                            type: this.uploadFile.type // File type\n                        }\n                    };\n                    \n                    // Send the payload to Node-RED (assuming 'send' method is defined)\n                    this.send(payload);\n                };\n\n                // Track progress of file reading\n                reader.onprogress = (event) => {\n                    this.progress = event.loaded; // Update progress\n                };\n\n                // Read the file as an ArrayBuffer\n                reader.readAsArrayBuffer(this.uploadFile);\n            }\n        },\n    }\n&lt;/script>",
+        "storeOutMessages": true,
+        "passthru": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 200,
+        "y": 520,
+        "wires": [
+            [
+                "7c2cc0e98edc2535"
+            ]
+        ]
+    },
+    {
+        "id": "df9661cfece5ac80",
+        "type": "debug",
+        "z": "dash2_template_official_tab",
+        "name": "debug 365",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 680,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "7c2cc0e98edc2535",
+        "type": "function",
+        "z": "dash2_template_official_tab",
+        "name": "buffer2string",
+        "func": "msg.payload = msg.payload.toString()\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 440,
+        "y": 520,
+        "wires": [
+            [
+                "df9661cfece5ac80"
+            ]
+        ]
+    },
+    {
+        "id": "c2e1aa56f50f03bd",
+        "type": "ui-base",
+        "name": "Dashboard",
+        "path": "/dashboard",
+        "includeClientData": true,
+        "acceptsClientConfig": [
+            "ui-control",
+            "ui-notification",
+            "ui-text",
+            "ui-template"
+        ],
+        "showPathInSidebar": false,
+        "headerContent": "none",
+        "navigationStyle": "default",
+        "titleBarStyle": "default"
+    },
+    {
+        "id": "c2ff5ba1f92a0f0e",
+        "type": "ui-theme",
+        "name": "Default",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#0094ce",
+            "bgPage": "#eeeeee",
+            "groupBg": "#ffffff",
+            "groupOutline": "#cccccc"
+        },
+        "sizes": {
+            "pagePadding": "12px",
+            "groupGap": "12px",
+            "groupBorderRadius": "4px",
+            "widgetGap": "12px"
+        }
+    },
+    {
+        "id": "0d92c765bfad87e6",
+        "type": "ui-theme",
+        "name": "Basic Blue Theme",
+        "colors": {
+            "surface": "#4d58ff",
+            "primary": "#0094ce",
+            "bgPage": "#eeeeee",
+            "groupBg": "#ffffff",
+            "groupOutline": "#cccccc"
+        },
+        "sizes": {
+            "pagePadding": "12px",
+            "groupGap": "12px",
+            "groupBorderRadius": "4px",
+            "widgetGap": "12px"
+        }
+    },
+    {
+        "id": "1a43c75e8780fe2b",
+        "type": "ui-page",
+        "name": "Design Pattern Examples",
+        "ui": "c2e1aa56f50f03bd",
+        "path": "/design-patterns",
+        "icon": "home",
+        "layout": "grid",
+        "theme": "c2ff5ba1f92a0f0e",
+        "order": 1,
+        "className": "",
+        "visible": "true",
+        "disabled": "false"
+    },
+    {
+        "id": "dd8d2662278f4f72",
+        "type": "ui-page",
+        "name": "Data Entry New",
+        "ui": "c2e1aa56f50f03bd",
+        "path": "/entry",
+        "icon": "note-multiple",
+        "layout": "grid",
+        "theme": "0d92c765bfad87e6",
+        "order": 1,
+        "className": "",
+        "visible": "true",
+        "disabled": "false"
+    },
+    {
+        "id": "2b287eac8c5a64cd",
+        "type": "ui-group",
+        "name": "Design Pattern - Client Driven",
+        "page": "1a43c75e8780fe2b",
+        "width": "9",
+        "height": "1",
+        "order": -1,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false"
+    },
+    {
+        "id": "8bee8ca608b26b77",
+        "type": "ui-group",
+        "name": "Design Pattern - Single Source of Truth",
+        "page": "1a43c75e8780fe2b",
+        "width": "9",
+        "height": "1",
+        "order": -1,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false"
+    },
+    {
+        "id": "44010f4b04014d29",
+        "type": "ui-group",
+        "name": "Binary Upload",
+        "page": "dd8d2662278f4f72",
+        "width": "6",
+        "height": "1",
+        "order": -1,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false"
+    }
+]</div>
+        </details>
+
+        <h3>応用（サイト独自）: 全パターンのサンプル</h3>
+        <p>ここから先は公式サンプルではなく、<strong>本サイトが用意した応用教材</strong>です。このガイドで説明する ui-template の使い方を、1つのタブにまとめています。ダッシュボードでは <code>/dashboard/template-samples</code> に表示されます。1章以降の説明は、このフローを例に進めます。</p>
+
+        <details>
+            <summary>📋 応用フローJSON（クリックで展開）</summary>
             <div class="flow-json">[
   {
     "id": "template_sample_tab",
@@ -1544,8 +2071,6 @@ export default {
         <div class="node-example">
             <span class="node node-ui-template">template<br><small>入力フォーム</small></span>
             <span class="arrow">→</span>
-            <span class="node node-function">Function</span>
-            <span class="arrow">→</span>
             <span class="node node-debug">Debug</span>
         </div>
         
@@ -1875,7 +2400,7 @@ export default {
             <p><strong>💼 使いどころ:</strong> 届いた測定値を、複数の項目をまとめたカードとして即座に画面へ反映する場面で使います。</p>
             <p><strong>🎯 要求仕様:</strong></p>
             <ul>
-                <li>Inject、ui-template、Debugノードを使用</li>
+                <li>Inject、Change、ui-templateノードを使用</li>
                 <li>温度と湿度を別々のカードで表示</li>
                 <li>値に応じてアイコンの色を変更（温度: 高温=赤、低温=青）</li>
                 <li>最終更新時刻を表示</li>
@@ -1894,6 +2419,8 @@ export default {
                     <li>msg.payload: JSON形式で温度・湿度を設定</li>
                     <li>繰り返し: 5秒ごとに自動送信（テスト用）</li>
                 </ul>
+                <p><strong>Changeノードの設定:</strong> 送るたびに値を変えて試すため、Injectとui-templateの間に置きます。「値の代入」で <code>msg.payload</code> に「JSONata式」型の次の式を設定すると、温度（15〜35、小数1桁）と湿度（40〜80）が毎回変わります。</p>
+                <div class="code-block">{"temperature": $round(15 + $random() * 20, 1), "humidity": $round(40 + $random() * 40)}</div>
                 <p><strong>Vue.jsのポイント:</strong></p>
                 <ul>
                     <li><code>computed</code>で温度に応じた色を計算</li>
@@ -1936,30 +2463,32 @@ export default {
         "y": 100,
         "wires": [
             [
-                "ex2_random",
-                "d2tpl_ex2_template"
+                "ex2_change_random"
             ]
         ]
     },
     {
-        "id": "ex2_random",
-        "type": "function",
+        "id": "ex2_change_random",
+        "type": "change",
         "z": "d2tpl_ex2_tab",
         "name": "ランダム値生成",
-        "func": "msg.payload = {\n    temperature: Math.round((15 + Math.random() * 20) * 10) / 10,\n    humidity: Math.round(40 + Math.random() * 40)\n};\nreturn msg;",
-        "outputs": 1,
-        "timeout": 0,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "{\"temperature\": $round(15 + $random() * 20, 1), \"humidity\": $round(40 + $random() * 40)}",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
         "x": 360,
         "y": 100,
-        "wires": [
-            [
-                "d2tpl_ex2_template"
-            ]
-        ]
+        "wires": [["d2tpl_ex2_template"]]
     },
     {
         "id": "d2tpl_ex2_template",
@@ -2216,7 +2745,7 @@ export default {
             <p><strong>💼 使いどころ:</strong> 複数台の機器の状態表示と操作を1つの画面にまとめる場面で使います。</p>
             <p><strong>🎯 要求仕様:</strong></p>
             <ul>
-                <li>ui-template、Function、Debugノードを使用</li>
+                <li>ui-template、Debugノードを使用</li>
                 <li>3つのデバイス（照明、エアコン、換気扇）を表示</li>
                 <li>各デバイスのON/OFF切り替えボタン</li>
                 <li>デバイス状態に応じたアイコン・色の変化</li>
@@ -2460,9 +2989,9 @@ MQTT送信 → PLC/デバイス制御</div>
   - プログレスバーで進捗表示
   - ファイル情報のプレビュー
     ↓
-Function（バッファ変換）
+Change（保存先のファイル名を msg.filename に設定）
     ↓
-Write File → ストレージ保存</div>
+Write File → ストレージ保存（Buffer のまま書き込める）</div>
         
         <h3>ケース4: カスタムレポート画面</h3>
         <div class="code-block">データベースクエリ
