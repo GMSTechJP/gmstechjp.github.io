@@ -447,9 +447,8 @@ return null;</div>
                 <summary>💡 ヒント</summary>
                 <ul>
                     <li>Injectノードの<code>msg.payload</code>を文字列型で設定</li>
-                    <li>base64ノードはデフォルト（自動判定）モードで動作する</li>
-                    <li>1つ目のDebugではBase64文字列が表示される</li>
-                    <li>2つ目のDebugではBufferが表示される（<code>.toString()</code>で文字列に戻る）</li>
+                    <li>1つ目のbase64ノードは、既定の「バッファ &lt;-&gt; Base64の変換」のままでよい（文字列を受け取るとBase64へエンコードする）。1つ目のDebugではBase64文字列が表示される</li>
+                    <li>2つ目のbase64ノードは「動作」を「Base64から文字列へ変換」にする。既定のままだとデコード結果がBuffer（バイト列）になり、Debugに文字列として表示されない</li>
                 </ul>
             </details>
 
@@ -480,7 +479,9 @@ return null;</div>
             [
                 "b64_ex1_encode"
             ]
-        ]
+        ],
+        "x": 150,
+        "y": 100
     },
     {
         "id": "b64_ex1_encode",
@@ -494,7 +495,9 @@ return null;</div>
                 "b64_ex1_debug1",
                 "b64_ex1_decode"
             ]
-        ]
+        ],
+        "x": 330,
+        "y": 100
     },
     {
         "id": "b64_ex1_debug1",
@@ -503,32 +506,24 @@ return null;</div>
         "name": "Base64文字列",
         "active": true,
         "complete": "payload",
-        "wires": []
+        "wires": [],
+        "x": 540,
+        "y": 60
     },
     {
         "id": "b64_ex1_decode",
         "type": "base64",
         "z": "base64_tab_0",
-        "name": "デコード",
-        "action": "",
+        "name": "デコード（文字列へ）",
+        "action": "b64",
         "property": "payload",
-        "wires": [
-            [
-                "b64_ex1_func"
-            ]
-        ]
-    },
-    {
-        "id": "b64_ex1_func",
-        "type": "function",
-        "z": "base64_tab_0",
-        "name": "Buffer→文字列",
-        "func": "msg.payload = msg.payload.toString();\nreturn msg;",
         "wires": [
             [
                 "b64_ex1_debug2"
             ]
-        ]
+        ],
+        "x": 550,
+        "y": 140
     },
     {
         "id": "b64_ex1_debug2",
@@ -537,7 +532,9 @@ return null;</div>
         "name": "復元結果",
         "active": true,
         "complete": "payload",
-        "wires": []
+        "wires": [],
+        "x": 760,
+        "y": 140
     }
 ]</div>
             </details>
@@ -603,14 +600,16 @@ return null;</div>
             [
                 "b64_ex2_file"
             ]
-        ]
+        ],
+        "x": 150,
+        "y": 100
     },
     {
         "id": "b64_ex2_file",
         "type": "file in",
         "z": "base64_tab_1",
         "name": "画像読み込み",
-        "filename": "",
+        "filename": "filename",
         "filenameType": "msg",
         "format": "",
         "allProps": true,
@@ -618,7 +617,9 @@ return null;</div>
             [
                 "b64_ex2_base64"
             ]
-        ]
+        ],
+        "x": 330,
+        "y": 100
     },
     {
         "id": "b64_ex2_base64",
@@ -631,19 +632,23 @@ return null;</div>
             [
                 "b64_ex2_func"
             ]
-        ]
+        ],
+        "x": 510,
+        "y": 100
     },
     {
         "id": "b64_ex2_func",
         "type": "function",
         "z": "base64_tab_1",
         "name": "Data URI HTML生成",
-        "func": "const ext = (msg.filename || '').split('.').pop().toLowerCase();\nconst mimeMap = { 'png': 'image/png', 'jpg': 'image/jpeg', 'jpeg': 'image/jpeg', 'gif': 'image/gif' };\nconst mime = mimeMap[ext] || 'image/png';\n\nconst dataUri = 'data:' + mime + ';base64,' + msg.payload;\nmsg.payload = '&lt;html>&lt;body>&lt;h2>Base64埋め込み画像&lt;/h2>&lt;img src=\"' + dataUri + '\" style=\"max-width:400px\">&lt;/body>&lt;/html>';\nreturn msg;",
+        "func": "// ファイル名の拡張子（png / jpg など）を小文字で取り出す\nconst ext = (msg.filename || '').split('.').pop().toLowerCase();\n// 拡張子から MIME 型を決める。表に無い拡張子は image/png とみなす\nconst mimeMap = { 'png': 'image/png', 'jpg': 'image/jpeg', 'jpeg': 'image/jpeg', 'gif': 'image/gif' };\nconst mime = mimeMap[ext] || 'image/png';\n\n// Data URI（data:[MIME型];base64,[Base64文字列]）を作り、img タグに埋め込んだ HTML にする\nconst dataUri = 'data:' + mime + ';base64,' + msg.payload;\nmsg.payload = '&lt;html>&lt;body>&lt;h2>Base64埋め込み画像&lt;/h2>&lt;img src=\"' + dataUri + '\" style=\"max-width:400px\">&lt;/body>&lt;/html>';\nreturn msg;",
         "wires": [
             [
                 "b64_ex2_debug"
             ]
-        ]
+        ],
+        "x": 700,
+        "y": 100
     },
     {
         "id": "b64_ex2_debug",
@@ -652,7 +657,9 @@ return null;</div>
         "name": "HTML出力",
         "active": true,
         "complete": "payload",
-        "wires": []
+        "wires": [],
+        "x": 890,
+        "y": 100
     }
 ]</div>
             </details>
@@ -714,19 +721,23 @@ return null;</div>
             [
                 "b64_ex3_pack"
             ]
-        ]
+        ],
+        "x": 150,
+        "y": 100
     },
     {
         "id": "b64_ex3_pack",
         "type": "function",
         "z": "base64_tab_2",
         "name": "バイナリパック",
-        "func": "const buf = Buffer.alloc(12);\nbuf.writeFloatLE(25.5, 0);    // 温度\nbuf.writeFloatLE(60.2, 4);    // 湿度\nbuf.writeFloatLE(1013.25, 8); // 気圧\nmsg.payload = buf;\nreturn msg;",
+        "func": "// 12バイトのバッファを用意する（4バイトの浮動小数点数 × 3つ）\nconst buf = Buffer.alloc(12);\n// 先頭から4バイトずつ、リトルエンディアン（LE）で書き込む\nbuf.writeFloatLE(25.5, 0);    // 温度（0〜3バイト目）\nbuf.writeFloatLE(60.2, 4);    // 湿度（4〜7バイト目）\nbuf.writeFloatLE(1013.25, 8); // 気圧（8〜11バイト目）\nmsg.payload = buf;\nreturn msg;",
         "wires": [
             [
                 "b64_ex3_encode"
             ]
-        ]
+        ],
+        "x": 330,
+        "y": 100
     },
     {
         "id": "b64_ex3_encode",
@@ -740,7 +751,9 @@ return null;</div>
                 "b64_ex3_debug_enc",
                 "b64_ex3_decode"
             ]
-        ]
+        ],
+        "x": 510,
+        "y": 100
     },
     {
         "id": "b64_ex3_debug_enc",
@@ -749,7 +762,9 @@ return null;</div>
         "name": "Base64パケット",
         "active": true,
         "complete": "payload",
-        "wires": []
+        "wires": [],
+        "x": 720,
+        "y": 60
     },
     {
         "id": "b64_ex3_decode",
@@ -762,19 +777,23 @@ return null;</div>
             [
                 "b64_ex3_unpack"
             ]
-        ]
+        ],
+        "x": 720,
+        "y": 140
     },
     {
         "id": "b64_ex3_unpack",
         "type": "function",
         "z": "base64_tab_2",
         "name": "バイナリ解析",
-        "func": "const buf = msg.payload;\nmsg.payload = {\n    temperature: Math.round(buf.readFloatLE(0) * 10) / 10,\n    humidity: Math.round(buf.readFloatLE(4) * 10) / 10,\n    pressure: Math.round(buf.readFloatLE(8) * 100) / 100\n};\nreturn msg;",
+        "func": "// デコード後の msg.payload は Buffer（12バイト）\nconst buf = msg.payload;\n// 書き込んだときと同じ位置・同じ形式（Float32 LE）で読み出す\n// 4バイトの浮動小数点数は誤差が出る（25.5 は正確だが 60.2 は 60.200000762… になる）ので、桁をそろえて丸める\nmsg.payload = {\n    temperature: Math.round(buf.readFloatLE(0) * 10) / 10,\n    humidity: Math.round(buf.readFloatLE(4) * 10) / 10,\n    pressure: Math.round(buf.readFloatLE(8) * 100) / 100\n};\nreturn msg;",
         "wires": [
             [
                 "b64_ex3_debug_dec"
             ]
-        ]
+        ],
+        "x": 910,
+        "y": 140
     },
     {
         "id": "b64_ex3_debug_dec",
@@ -783,7 +802,9 @@ return null;</div>
         "name": "解析結果",
         "active": true,
         "complete": "payload",
-        "wires": []
+        "wires": [],
+        "x": 1090,
+        "y": 140
     }
 ]</div>
             </details>
@@ -815,7 +836,7 @@ return null;</div>
             <tr>
                 <td>出力がBufferになってしまう</td>
                 <td>Base64文字列がデコードされてBufferになった</td>
-                <td>文字列が必要な場合は後段のFunctionノードで<code>.toString()</code>を実行する</td>
+                <td>文字列が必要な場合は、デコードする base64 ノードの「動作」を「Base64から文字列へ変換」にする（後段の Function ノードで <code>.toString()</code> を実行してもよい）</td>
             </tr>
             <tr>
                 <td>ノードがパレットに表示されない</td>

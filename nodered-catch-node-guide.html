@@ -472,7 +472,7 @@
             <span class="arrow-down">↓ Catch ↓</span>
             <div class="after">
                 <strong>エラー情報を取得</strong><br>
-                msg.error.message = "処理失敗!"
+                msg.error.message = "Error: 処理失敗!"
             </div>
         </div>
         
@@ -541,7 +541,7 @@
         
         <div class="error-obj">
 <span class="key">msg.error</span> = {
-    <span class="key">message</span>: <span class="string">"Error Occurred!"</span>,     <span class="comment">// エラーメッセージ</span>
+    <span class="key">message</span>: <span class="string">"Error: Error Occured!"</span>, <span class="comment">// エラーメッセージ（throw した Error は先頭に "Error: " が付く）</span>
     <span class="key">source</span>: {
         <span class="key">id</span>: <span class="string">"7bab9134.35ad"</span>,        <span class="comment">// エラー発生ノードのID</span>
         <span class="key">type</span>: <span class="string">"function"</span>,           <span class="comment">// ノードの種類</span>
@@ -736,13 +736,13 @@ Functionノードのコード:
             
             <p><strong>期待される動作:</strong></p>
             <ul>
-                <li>Injectボタンをクリック → Debugに "テストエラー" が表示</li>
+                <li>Injectボタンをクリック → Debugに "Error: テストエラー" が表示</li>
             </ul>
 
             <p><strong>成功の条件:</strong></p>
             <ul>
                 <li>Injectボタンをクリックしたとき、Functionノードの通常出力（Debug）には何も表示されない</li>
-                <li>代わりにCatchノードの出力であるDebugに <code>msg.error.message</code> が <code>"テストエラー"</code> として表示される</li>
+                <li>代わりにCatchノードの出力であるDebugに <code>msg.error.message</code> が <code>"Error: テストエラー"</code> として表示される。Function ノードで <code>throw</code> したエラーは、文字列にしたときの形（先頭に <code>Error: </code> が付く）で <code>msg.error.message</code> に入る</li>
                 <li><code>msg.error.source.name</code> が <code>"エラー発生"</code>（Functionノードの名前）になっている</li>
                 <li>Debugノードをmsgオブジェクト全体に設定して確認すると、<code>error</code> プロパティが存在する</li>
             </ul>
@@ -810,7 +810,7 @@ Functionノードのコード:
         "id": "ex1_function",
         "type": "function",
         "name": "エラー発生",
-        "func": "throw new Error(\"テストエラー\");",
+        "func": "// わざとエラーを発生させる（Catchノードで捕まえる練習のため）\nthrow new Error(\"テストエラー\");",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -878,12 +878,12 @@ Functionノードのコード:
             
             <p><strong>期待される動作:</strong></p>
             <ul>
-                <li>Debugに "[計算処理] エラー: ゼロ除算エラー" のような整形されたメッセージが表示</li>
+                <li>Debugに "[計算処理] エラー: Error: ゼロ除算エラー" のような整形されたメッセージが表示</li>
             </ul>
 
             <p><strong>成功の条件:</strong></p>
             <ul>
-                <li>デバッグサイドバーに <code>"[計算処理] エラー: ゼロ除算エラー"</code> という文字列が表示される</li>
+                <li>デバッグサイドバーに <code>"[計算処理] エラー: Error: ゼロ除算エラー"</code> という文字列が表示される</li>
                 <li>出力はJSONオブジェクトではなく、テンプレートで整形された1行の文字列になっている</li>
                 <li>ノード名（「計算処理」）がメッセージに含まれており、どのノードで発生したかがわかる</li>
                 <li>エラーメッセージの内容（「ゼロ除算エラー」）も含まれている</li>
@@ -953,7 +953,7 @@ Functionノードのコード:
         "id": "ex2_function",
         "type": "function",
         "name": "計算処理",
-        "func": "throw new Error(\"ゼロ除算エラー\");",
+        "func": "// わざとエラーを発生させる（Catchノードで捕まえる練習のため）\nthrow new Error(\"ゼロ除算エラー\");",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -1047,7 +1047,7 @@ Functionノードのコード:
             <ul>
                 <li>「処理A実行」ボタンをクリックすると「処理A専用」Debugにのみエラー情報が出力され、「その他エラー」Debugには出力されない</li>
                 <li>「処理B実行」ボタンをクリックすると「その他エラー」Debugにのみエラー情報が出力され、「処理A専用」Debugには出力されない</li>
-                <li>各Debugの <code>msg.error.message</code> に、それぞれ「処理Aでエラー」「処理Bでエラー」が表示される</li>
+                <li>各Debugの <code>msg.error.message</code> に、それぞれ「Error: 処理Aでエラー」「Error: 処理Bでエラー」が表示される</li>
                 <li>未捕捉Catchノードの設定で「Catchノードで処理済みのエラーを無視」がオンになっている</li>
             </ul>
 
@@ -1128,7 +1128,7 @@ Functionノードのコード:
         "id": "ex3_func_a",
         "type": "function",
         "name": "処理A",
-        "func": "throw new Error(\"処理Aでエラー\");",
+        "func": "// わざとエラーを発生させる（Catchノードで捕まえる練習のため）\nthrow new Error(\"処理Aでエラー\");",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -1171,7 +1171,7 @@ Functionノードのコード:
         "id": "ex3_func_b",
         "type": "function",
         "name": "処理B",
-        "func": "throw new Error(\"処理Bでエラー\");",
+        "func": "// わざとエラーを発生させる（Catchノードで捕まえる練習のため）\nthrow new Error(\"処理Bでエラー\");",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -1257,7 +1257,7 @@ Functionノードのコード:
             <h3>演習4: エラーログ記録システム<span class="difficulty difficulty-hard">上級</span></h3>
             
             <p><strong>課題:</strong></p>
-            <p>エラー発生時にログをファイルに記録し、一定回数以上のエラーで警告を出すシステムを作成してください。</p>
+            <p>エラー発生時にログを整形してDebugに出力し、一定回数以上のエラーで警告を出すシステムを作成してください。</p>
             <p><strong>💼 使いどころ:</strong> 同じ種類のエラーが繰り返し発生した回数を数えて、頻発時に警告文を付け加えて出力する場面で使います。</p>
             
             <p><strong>要求仕様:</strong></p>
@@ -1270,7 +1270,7 @@ Functionノードのコード:
             
             <p><strong>期待される動作:</strong></p>
             <ul>
-                <li>1〜2回目: "2024-01-01 12:00:00 [処理] エラー: メッセージ (発生回数: 2)"</li>
+                <li>1〜2回目: "2024/1/1 12:00:00 [データ処理] エラー: Error: データ形式エラー (発生回数: 1)"（2回目は発生回数: 2）</li>
                 <li>3回目以降: "⚠️ 警告: エラーが頻発しています! ..." のメッセージ追加</li>
             </ul>
 
@@ -1297,19 +1297,19 @@ Functionノードのコード:
                 <ul>
                     <li>名前: 「ログ整形」</li>
                     <li>flow変数でエラーカウントを管理</li>
-                    <li>日時の整形には <code>new Date().toISOString()</code> を使用</li>
+                    <li>日時の整形には <code>new Date().toLocaleString('ja-JP')</code> を使用（例: <code>2024/1/15 9:30:00</code>）</li>
                     <li>カウントが3以上で警告メッセージを追加</li>
                 </ul>
                 <p><strong>Functionノードのコード例:</strong></p>
-                <div class="code-block">// エラーカウントを取得・更新
+                <div class="code-block">// エラーカウントを取得・更新（count++ で値を書き換えるため let）
 let count = flow.get("errorCount") || 0;
 count++;
 flow.set("errorCount", count);
 
-// タイムスタンプ作成
-let timestamp = new Date().toLocaleString('ja-JP');
+// タイムスタンプ作成（例: 2024/1/15 9:30:00。日本の表記で日時を文字列にする）
+const timestamp = new Date().toLocaleString('ja-JP');
 
-// ログメッセージ作成
+// ログメッセージ作成（あとで文字を足していくため let）
 let log = timestamp + " [" + msg.error.source.name + "] ";
 log += "エラー: " + msg.error.message;
 log += " (発生回数: " + count + ")";
@@ -1321,6 +1321,7 @@ if (count >= 3) {
 
 msg.payload = log;
 return msg;</div>
+                <p><strong>カウントのリセット:</strong> 「カウントリセット」の Inject の先には Change ノードを置き、「値の代入」で <code>flow.errorCount</code> に「数値」の <code>0</code> を、<code>msg.payload</code> に確認用の文字列を設定します。</p>
             </details>
             
             <details>
@@ -1364,7 +1365,7 @@ return msg;</div>
         "id": "ex4_error_func",
         "type": "function",
         "name": "データ処理",
-        "func": "throw new Error(\"データ形式エラー\");",
+        "func": "// わざとエラーを発生させる（Catchノードで捕まえる練習のため）\nthrow new Error(\"データ形式エラー\");",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -1397,7 +1398,7 @@ return msg;</div>
         "id": "ex4_log_func",
         "type": "function",
         "name": "ログ整形",
-        "func": "// エラーカウントを取得・更新\nlet count = flow.get(\"errorCount\") || 0;\ncount++;\nflow.set(\"errorCount\", count);\n\n// タイムスタンプ作成\nlet timestamp = new Date().toLocaleString('ja-JP');\n\n// ログメッセージ作成\nlet log = timestamp + \" [\" + msg.error.source.name + \"] \";\nlog += \"エラー: \" + msg.error.message;\nlog += \" (発生回数: \" + count + \")\";\n\n// 3回以上で警告追加\nif (count >= 3) {\n    log = \"⚠️ 警告: エラーが頻発しています!\\n\" + log;\n}\n\nmsg.payload = log;\nreturn msg;",
+        "func": "// エラーカウントを取得・更新（count++ で値を書き換えるため let）\nlet count = flow.get(\"errorCount\") || 0;\ncount++;\nflow.set(\"errorCount\", count);\n\n// タイムスタンプ作成（例: 2024/1/15 9:30:00。日本の表記で日時を文字列にする）\nconst timestamp = new Date().toLocaleString('ja-JP');\n\n// ログメッセージ作成（あとで文字を足していくため let）\nlet log = timestamp + \" [\" + msg.error.source.name + \"] \";\nlog += \"エラー: \" + msg.error.message;\nlog += \" (発生回数: \" + count + \")\";\n\n// 3回以上で警告追加\nif (count >= 3) {\n    log = \"⚠️ 警告: エラーが頻発しています!\\n\" + log;\n}\n\nmsg.payload = log;\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -1448,30 +1449,44 @@ return msg;</div>
         "y": 220,
         "wires": [
             [
-                "ex4_reset_func"
+                "ex4_reset_change"
             ]
         ],
         "z": "ex4_tab"
     },
     {
-        "id": "ex4_reset_func",
-        "type": "function",
+        "id": "ex4_reset_change",
+        "type": "change",
+        "z": "ex4_tab",
         "name": "リセット",
-        "func": "flow.set(\"errorCount\", 0);\nmsg.payload = \"エラーカウントをリセットしました\";\nreturn msg;",
-        "outputs": 1,
-        "timeout": 0,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
+        "rules": [
+            {
+                "t": "set",
+                "p": "errorCount",
+                "pt": "flow",
+                "to": "0",
+                "tot": "num"
+            },
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "エラーカウントをリセットしました",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
         "x": 300,
         "y": 220,
         "wires": [
             [
                 "ex4_debug"
             ]
-        ],
-        "z": "ex4_tab"
+        ]
     }
 ]
 
