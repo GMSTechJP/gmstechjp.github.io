@@ -781,19 +781,20 @@ Hello Server!
 
             <details>
                 <summary>💡 ヒント</summary>
-                <p><strong>Function ノード:</strong></p>
-                <div class="code-block">const timestamp = new Date().toISOString();
-msg.payload = "[" + timestamp + "] " + msg.payload;
-return msg;</div>
+                <p><strong>Change ノード:</strong> 「値の代入」で <code>msg.timestamp</code> に「日時」型の <code>YYYY-MM-DDTHH:mm:ss.sssZ</code>（ISO 8601形式）を設定します。</p>
+                <p><strong>Template ノード:</strong> 「プロパティ」を <code>msg.payload</code> にし、テンプレートに次のように書きます。<code>echo</code> で送った文字列は末尾に改行が付いたまま届くので、返信も改行で終わり、nc の画面で1行ずつ区切られます。</p>
+                <div class="code-block">[{{{timestamp}}}] {{{payload}}}</div>
+                <p><code>{{ }}</code> ではなく <code>{{{ }}}</code>（波かっこ3つ）を使うのは、受信した文字に <code>&amp;</code> や <code>&lt;</code> が含まれていても、HTML用の書き換え（<code>&amp;amp;</code> など）をさせずにそのまま入れるためです。</p>
             </details>
             
             <details>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
     {"id": "ex2_tab", "type": "tab", "label": "演習2"},
-    {"id": "ex2_tcp_in", "type": "tcp in", "z": "ex2_tab", "name": "TCP Server :9101", "server": "server", "host": "", "port": "9101", "datamode": "stream", "datatype": "utf8", "newline": "", "topic": "", "trim": false, "base64": false, "tls": "", "x": 180, "y": 100, "wires": [["ex2_func"]]},
-    {"id": "ex2_func", "type": "function", "z": "ex2_tab", "name": "時刻追加", "func": "const timestamp = new Date().toISOString();\nmsg.payload = \"[\" + timestamp + \"] \" + msg.payload + \"\\n\";\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 390, "y": 100, "wires": [["ex2_tcp_out"]]},
-    {"id": "ex2_tcp_out", "type": "tcp out", "z": "ex2_tab", "name": "Reply", "host": "", "port": "", "beserver": "reply", "base64": false, "end": false, "tls": "", "x": 570, "y": 100, "wires": []}
+    {"id": "ex2_tcp_in", "type": "tcp in", "z": "ex2_tab", "name": "TCP Server :9101", "server": "server", "host": "", "port": "9101", "datamode": "stream", "datatype": "utf8", "newline": "", "topic": "", "trim": false, "base64": false, "tls": "", "x": 180, "y": 100, "wires": [["ex2_change"]]},
+    {"id": "ex2_change", "type": "change", "z": "ex2_tab", "name": "時刻を用意", "rules": [{"t": "set", "p": "timestamp", "pt": "msg", "to": "iso", "tot": "date"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 370, "y": 100, "wires": [["ex2_template"]]},
+    {"id": "ex2_template", "type": "template", "z": "ex2_tab", "name": "返信文を組み立て", "field": "payload", "fieldType": "msg", "format": "text", "syntax": "mustache", "template": "[{{{timestamp}}}] {{{payload}}}", "output": "str", "x": 560, "y": 100, "wires": [["ex2_tcp_out"]]},
+    {"id": "ex2_tcp_out", "type": "tcp out", "z": "ex2_tab", "name": "Reply", "host": "", "port": "", "beserver": "reply", "base64": false, "end": false, "tls": "", "x": 760, "y": 100, "wires": []}
 ]</div>
             </details>
         </div>
@@ -839,20 +840,29 @@ return msg;</div>
 
             <details>
                 <summary>💡 ヒント</summary>
+                <p>コマンドの判定と返信文の組み立てを、Function ノード1つで行います。Switch ノードと Change ノードに分けることもできますが、大文字小文字の区別をなくす処理や、名前が無いときの既定値まで含めるとノードが多くなるため、ここでは Function ノードで書き、処理の意味をコメントで説明しています。</p>
                 <p><strong>Function ノード:</strong></p>
-                <div class="code-block">const cmd = msg.payload.trim().toUpperCase();
+                <div class="code-block">// 前後の空白と改行を取り除いて、大文字にそろえる
+// （echo は末尾に改行を付けて送ってくる。小文字の "ping" も受け付けるため）
+const cmd = msg.payload.trim().toUpperCase();
+// 空白で単語に分ける（例: "HELLO Alice" → ["HELLO", "Alice"]）
 const parts = msg.payload.trim().split(' ');
 
+// コマンドごとに返信内容を決める
 if (cmd === 'TIME') {
+    // 現在時刻（ISO 8601形式）
     msg.payload = new Date().toISOString();
 } else if (cmd === 'PING') {
     msg.payload = 'PONG';
 } else if (parts[0].toUpperCase() === 'HELLO') {
+    // 2つ目の単語を名前として使う。名前が無ければ Guest
     const name = parts[1] || 'Guest';
     msg.payload = 'Hello, ' + name + '!';
 } else {
+    // どれにも当てはまらないコマンド
     msg.payload = 'Unknown command';
 }
+// nc の画面で行が区切られるよう、末尾に改行を付ける
 msg.payload += '\n';
 return msg;</div>
             </details>
@@ -862,7 +872,7 @@ return msg;</div>
                 <div class="flow-json">[
     {"id": "ex3_tab", "type": "tab", "label": "演習3"},
     {"id": "ex3_tcp_in", "type": "tcp in", "z": "ex3_tab", "name": "TCP Server :9102", "server": "server", "host": "", "port": "9102", "datamode": "stream", "datatype": "utf8", "newline": "", "topic": "", "trim": false, "base64": false, "tls": "", "x": 180, "y": 100, "wires": [["ex3_func"]]},
-    {"id": "ex3_func", "type": "function", "z": "ex3_tab", "name": "コマンド処理", "func": "const cmd = msg.payload.trim().toUpperCase();\nconst parts = msg.payload.trim().split(' ');\n\nif (cmd === 'TIME') {\n    msg.payload = new Date().toISOString();\n} else if (cmd === 'PING') {\n    msg.payload = 'PONG';\n} else if (parts[0].toUpperCase() === 'HELLO') {\n    const name = parts[1] || 'Guest';\n    msg.payload = 'Hello, ' + name + '!';\n} else {\n    msg.payload = 'Unknown command';\n}\nmsg.payload += '\\n';\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 400, "y": 100, "wires": [["ex3_tcp_out"]]},
+    {"id": "ex3_func", "type": "function", "z": "ex3_tab", "name": "コマンド処理", "func": "// 前後の空白と改行を取り除いて、大文字にそろえる\n// （echo は末尾に改行を付けて送ってくる。小文字の \"ping\" も受け付けるため）\nconst cmd = msg.payload.trim().toUpperCase();\n// 空白で単語に分ける（例: \"HELLO Alice\" → [\"HELLO\", \"Alice\"]）\nconst parts = msg.payload.trim().split(' ');\n\n// コマンドごとに返信内容を決める\nif (cmd === 'TIME') {\n    // 現在時刻（ISO 8601形式）\n    msg.payload = new Date().toISOString();\n} else if (cmd === 'PING') {\n    msg.payload = 'PONG';\n} else if (parts[0].toUpperCase() === 'HELLO') {\n    // 2つ目の単語を名前として使う。名前が無ければ Guest\n    const name = parts[1] || 'Guest';\n    msg.payload = 'Hello, ' + name + '!';\n} else {\n    // どれにも当てはまらないコマンド\n    msg.payload = 'Unknown command';\n}\n// nc の画面で行が区切られるよう、末尾に改行を付ける\nmsg.payload += '\\n';\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 400, "y": 100, "wires": [["ex3_tcp_out"]]},
     {"id": "ex3_tcp_out", "type": "tcp out", "z": "ex3_tab", "name": "Reply", "host": "", "port": "", "beserver": "reply", "base64": false, "end": false, "tls": "", "x": 590, "y": 100, "wires": []}
 ]</div>
             </details>
@@ -919,12 +929,12 @@ return msg;</div>
     {"id": "ex4_tab", "type": "tab", "label": "演習4"},
     {"id": "ex4_comment1", "type": "comment", "z": "ex4_tab", "name": "【サーバー】", "info": "", "x": 130, "y": 40, "wires": []},
     {"id": "ex4_tcp_in", "type": "tcp in", "z": "ex4_tab", "name": "TCP Server :9103", "server": "server", "host": "", "port": "9103", "datamode": "stream", "datatype": "utf8", "newline": "\\n", "topic": "", "trim": false, "base64": false, "tls": "", "x": 180, "y": 100, "wires": [["ex4_func_server"]]},
-    {"id": "ex4_func_server", "type": "function", "z": "ex4_tab", "name": "JSONパース", "func": "try {\n    const data = JSON.parse(msg.payload);\n    node.status({fill: \"green\", shape: \"dot\", text: data.sensor + \": \" + data.value});\n    msg.payload = JSON.stringify({status: \"received\", data: data}) + \"\\n\";\n} catch(e) {\n    msg.payload = JSON.stringify({status: \"error\"}) + \"\\n\";\n}\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 400, "y": 100, "wires": [["ex4_tcp_out", "ex4_debug_server"]]},
+    {"id": "ex4_func_server", "type": "function", "z": "ex4_tab", "name": "JSONパース", "func": "try {\n    // 受信した文字列（JSON形式）をオブジェクトに変換する\n    const data = JSON.parse(msg.payload);\n    // ノードの下のステータスに最新の値を表示する（例: temperature: 25.3）\n    node.status({fill: \"green\", shape: \"dot\", text: data.sensor + \": \" + data.value});\n    // 応答を JSON 文字列にする。TCP Out はオブジェクトをそのままでは送れない\n    // （\"[object Object]\" という文字列になる）ため、JSON.stringify が必要\n    // 末尾の改行は、クライアント側がメッセージの区切りとして使う\n    msg.payload = JSON.stringify({status: \"received\", data: data}) + \"\\n\";\n} catch(e) {\n    // JSON として読めなかったときは error を返す\n    msg.payload = JSON.stringify({status: \"error\"}) + \"\\n\";\n}\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 400, "y": 100, "wires": [["ex4_tcp_out", "ex4_debug_server"]]},
     {"id": "ex4_tcp_out", "type": "tcp out", "z": "ex4_tab", "name": "Reply", "host": "", "port": "", "beserver": "reply", "base64": false, "end": false, "tls": "", "x": 590, "y": 100, "wires": []},
     {"id": "ex4_debug_server", "type": "debug", "z": "ex4_tab", "name": "サーバー処理", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "x": 610, "y": 140, "wires": []},
     {"id": "ex4_comment2", "type": "comment", "z": "ex4_tab", "name": "【クライアント】", "info": "", "x": 140, "y": 200, "wires": []},
     {"id": "ex4_inject", "type": "inject", "z": "ex4_tab", "name": "5秒ごと", "props": [{"p": "payload"}], "repeat": "5", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "", "payloadType": "date", "x": 150, "y": 260, "wires": [["ex4_func_client"]]},
-    {"id": "ex4_func_client", "type": "function", "z": "ex4_tab", "name": "センサーデータ生成", "func": "const temp = (20 + Math.random() * 10).toFixed(1);\nmsg.payload = JSON.stringify({\n    sensor: \"temperature\",\n    value: parseFloat(temp),\n    timestamp: new Date().toISOString()\n}) + \"\\n\";\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 380, "y": 260, "wires": [["ex4_tcp_request"]]},
+    {"id": "ex4_func_client", "type": "function", "z": "ex4_tab", "name": "センサーデータ生成", "func": "// 20.0〜30.0 の範囲で、小数1桁のランダムな温度を作る\n// （toFixed は文字列を返すので、送るときに parseFloat で数値に戻す）\nconst temp = (20 + Math.random() * 10).toFixed(1);\n// 送信データを JSON 文字列にする。TCP Request もオブジェクトをそのままでは送れない\n// 末尾の改行が、サーバー側（TCP In の区切り文字 \\n）でのメッセージの区切りになる\nmsg.payload = JSON.stringify({\n    sensor: \"temperature\",\n    value: parseFloat(temp),\n    timestamp: new Date().toISOString()\n}) + \"\\n\";\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 380, "y": 260, "wires": [["ex4_tcp_request"]]},
     {"id": "ex4_tcp_request", "type": "tcp request", "z": "ex4_tab", "name": "TCP Request", "server": "localhost", "port": "9103", "out": "char", "ret": "string", "splitc": "\\n", "newline": "", "trim": false, "tls": "", "x": 590, "y": 260, "wires": [["ex4_debug_client"]]},
     {"id": "ex4_debug_client", "type": "debug", "z": "ex4_tab", "name": "クライアント受信", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "\"送受信完了\"", "statusType": "str", "x": 790, "y": 260, "wires": []}
 ]</div>
