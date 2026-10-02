@@ -540,7 +540,7 @@
                 <summary>💡 ヒント</summary>
                 <p>1. Inject ノードで msg.startTime に現在時刻を設定</p>
                 <p>2. Complete ノードで Delay の完了を検知</p>
-                <p>3. Function ノードで経過時間を計算</p>
+                <p>3. Change ノードの「値の代入」で、<code>msg.payload</code> に「JSONata式」型の <code>"経過時間: " &amp; ($millis() - startTime) &amp; "ms"</code> を設定する。<code>$millis()</code> は現在時刻のミリ秒で、そこから開始時刻を引くと経過時間になる。<code>&amp;</code> は文字列をつなぐ演算子</p>
             </details>
             <details>
                 <summary>✅ 解答例フロー</summary>
@@ -548,8 +548,8 @@
     {"id": "ex1_tab", "type": "tab", "label": "演習1"},
     {"id": "ex1_inject", "type": "inject", "z": "ex1_tab", "name": "開始", "props": [{"p": "payload"}, {"p": "startTime", "v": "", "vt": "date"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "開始", "payloadType": "str", "x": 130, "y": 100, "wires": [["ex1_delay"]]},
     {"id": "ex1_delay", "type": "delay", "z": "ex1_tab", "name": "3秒待機", "pauseType": "delay", "timeout": "3", "timeoutUnits": "seconds", "rate": "1", "nbRateUnits": "1", "rateUnits": "second", "randomFirst": "1", "randomLast": "5", "randomUnits": "seconds", "drop": false, "allowrate": false, "outputs": 1, "x": 280, "y": 100, "wires": [[]]},
-    {"id": "ex1_complete", "type": "complete", "z": "ex1_tab", "name": "完了検知", "scope": ["ex1_delay"], "x": 290, "y": 160, "wires": [["ex1_func"]]},
-    {"id": "ex1_func", "type": "function", "z": "ex1_tab", "name": "経過時間", "func": "const ms = Date.now() - msg.startTime;\nmsg.payload = \"経過時間: \" + ms + \"ms\";\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 460, "y": 160, "wires": [["ex1_debug"]]},
+    {"id": "ex1_complete", "type": "complete", "z": "ex1_tab", "name": "完了検知", "scope": ["ex1_delay"], "x": 290, "y": 160, "wires": [["ex1_change"]]},
+    {"id": "ex1_change", "type": "change", "z": "ex1_tab", "name": "経過時間", "rules": [{"t": "set", "p": "payload", "pt": "msg", "to": "\"経過時間: \" &amp; ($millis() - startTime) &amp; \"ms\"", "tot": "jsonata"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 460, "y": 160, "wires": [["ex1_debug"]]},
     {"id": "ex1_debug", "type": "debug", "z": "ex1_tab", "name": "結果", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "payload", "statusType": "auto", "x": 610, "y": 160, "wires": []}
 ]</div>
             </details>
@@ -575,7 +575,7 @@
                 <div class="flow-json">[
     {"id": "ex2_tab", "type": "tab", "label": "演習2"},
     {"id": "ex2_inject", "type": "inject", "z": "ex2_tab", "name": "実行", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "test", "payloadType": "str", "x": 130, "y": 100, "wires": [["ex2_func"]]},
-    {"id": "ex2_func", "type": "function", "z": "ex2_tab", "name": "状態変化", "func": "node.status({fill:\"yellow\", shape:\"ring\", text:\"処理中\"});\nsetTimeout(function(){\n    node.status({fill:\"green\", shape:\"dot\", text:\"完了\"});\n}, 1500);\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 300, "y": 100, "wires": [[]]},
+    {"id": "ex2_func", "type": "function", "z": "ex2_tab", "name": "状態変化", "func": "// 処理を始めたことを、ノードの下に黄色のステータスで表示する\nnode.status({fill:\"yellow\", shape:\"ring\", text:\"処理中\"});\n// 1.5秒後に、緑の「完了」へ切り替える（時間のかかる処理の代わり）\nsetTimeout(function(){\n    node.status({fill:\"green\", shape:\"dot\", text:\"完了\"});\n}, 1500);\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 300, "y": 100, "wires": [[]]},
     {"id": "ex2_status", "type": "status", "z": "ex2_tab", "name": "監視", "scope": ["ex2_func"], "x": 270, "y": 160, "wires": [["ex2_debug"]]},
     {"id": "ex2_debug", "type": "debug", "z": "ex2_tab", "name": "状態", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "status", "targetType": "msg", "statusVal": "status.text", "statusType": "msg", "x": 430, "y": 160, "wires": []}
 ]</div>
@@ -602,7 +602,7 @@
                 <div class="flow-json">[
     {"id": "ex3_tab", "type": "tab", "label": "演習3"},
     {"id": "ex3_inject", "type": "inject", "z": "ex3_tab", "name": "実行", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "test", "payloadType": "str", "x": 130, "y": 120, "wires": [["ex3_func"]]},
-    {"id": "ex3_func", "type": "function", "z": "ex3_tab", "name": "ランダム処理", "func": "node.status({fill:\"blue\", shape:\"dot\", text:\"実行中\"});\nif (Math.random() &lt; 0.3) {\n    node.status({fill:\"red\", shape:\"dot\", text:\"エラー\"});\n    node.error(\"失敗\", msg);\n    return null;\n}\nnode.status({fill:\"green\", shape:\"dot\", text:\"成功\"});\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 310, "y": 120, "wires": [["ex3_debug1"]]},
+    {"id": "ex3_func", "type": "function", "z": "ex3_tab", "name": "ランダム処理", "func": "// 実行を始めたことをステータスで表示する\nnode.status({fill:\"blue\", shape:\"dot\", text:\"実行中\"});\n// 約30%の確率で失敗させる（失敗する処理の代わり）\nif (Math.random() &lt; 0.3) {\n    node.status({fill:\"red\", shape:\"dot\", text:\"エラー\"});\n    // msg を付けて node.error を呼ぶと、Catch ノードで捕まえられる\n    node.error(\"失敗\", msg);\n    // 失敗したときは、通常の出力には何も送らない\n    return null;\n}\nnode.status({fill:\"green\", shape:\"dot\", text:\"成功\"});\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 310, "y": 120, "wires": [["ex3_debug1"]]},
     {"id": "ex3_debug1", "type": "debug", "z": "ex3_tab", "name": "成功", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "x": 490, "y": 120, "wires": []},
     {"id": "ex3_catch", "type": "catch", "z": "ex3_tab", "name": "エラー捕捉", "scope": ["ex3_func"], "uncaught": false, "x": 290, "y": 180, "wires": [["ex3_debug2"]]},
     {"id": "ex3_debug2", "type": "debug", "z": "ex3_tab", "name": "エラー", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "error", "targetType": "msg", "x": 490, "y": 180, "wires": []},

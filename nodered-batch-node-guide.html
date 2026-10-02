@@ -1012,7 +1012,7 @@
             
             <p><strong>要求仕様:</strong></p>
             <ul>
-                <li>Inject、Function、Batch、Join、Debugノードを使用</li>
+                <li>Inject、Split、Batch、Join、Debugノードを使用</li>
                 <li>入力: 1, 2, 3, ..., 12（12メッセージ）</li>
                 <li>出力: [1,2,3], [4,5,6], [7,8,9], [10,11,12]（4グループ）</li>
             </ul>
@@ -1031,12 +1031,14 @@
 
             <details>
                 <summary>💡 ヒント</summary>
-                <p><strong>Functionノードの設定:</strong></p>
+                <p><strong>Injectノードの設定:</strong></p>
                 <ul>
-                    <li>コード例:<br>
-                    <code>for(let i = 1; i <= 12; i++) {</code><br>
-                    <code>    node.send({payload: i});</code><br>
-                    <code>}</code></li>
+                    <li>msg.payload: JSON型で <code>[1,2,3,4,5,6,7,8,9,10,11,12]</code></li>
+                </ul>
+                <p><strong>Splitノードの設定:</strong></p>
+                <ul>
+                    <li>既定のまま（配列は「固定長」1 で、要素を1つずつのメッセージに分割する）</li>
+                    <li>12個の配列が、1〜12の12メッセージになる</li>
                 </ul>
                 <p><strong>Batchノードの設定:</strong></p>
                 <ul>
@@ -1065,7 +1067,7 @@
         "id": "ex1_inject",
         "type": "inject",
         "z": "batch_node_guide_tab_1",
-        "name": "実行",
+        "name": "1〜12を送る",
         "props": [
             {
                 "p": "payload"
@@ -1076,23 +1078,28 @@
         "once": false,
         "onceDelay": 0.1,
         "topic": "",
-        "payload": "",
-        "payloadType": "date",
+        "payload": "[1,2,3,4,5,6,7,8,9,10,11,12]",
+        "payloadType": "json",
         "x": 110,
         "y": 100,
         "wires": [
             [
-                "ex1_function"
+                "ex1_split"
             ]
         ]
     },
     {
-        "id": "ex1_function",
-        "type": "function",
+        "id": "ex1_split",
+        "type": "split",
         "z": "batch_node_guide_tab_1",
-        "name": "1-12送信",
-        "func": "for(let i = 1; i &lt;= 12; i++) {\n    node.send({payload: i});\n}",
-        "outputs": 1,
+        "name": "1件ずつに分割",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "property": "payload",
         "x": 260,
         "y": 100,
         "wires": [
@@ -1172,7 +1179,7 @@
             
             <p><strong>要求仕様:</strong></p>
             <ul>
-                <li>Inject、Function、Batch、Join、Debugノードを使用</li>
+                <li>Inject、Split、Batch、Join、Debugノードを使用</li>
                 <li>入力: 1, 2, 3, 4, 5, 6（6メッセージ）</li>
                 <li>出力: [1,2,3], [2,3,4], [3,4,5], [4,5,6]（4グループ）</li>
             </ul>
@@ -1191,9 +1198,9 @@
 
             <details>
                 <summary>💡 ヒント</summary>
-                <p><strong>Functionノードの設定:</strong></p>
+                <p><strong>Inject・Splitノードの設定:</strong></p>
                 <ul>
-                    <li>1〜6の6メッセージを送信</li>
+                    <li>演習1と同じく、Injectで配列 <code>[1,2,3,4,5,6]</code> を送り、Splitで6メッセージに分割する</li>
                 </ul>
                 <p><strong>Batchノードの設定:</strong></p>
                 <ul>
@@ -1218,7 +1225,7 @@
         "id": "ex2_inject",
         "type": "inject",
         "z": "batch_node_guide_tab_2",
-        "name": "実行",
+        "name": "1〜6を送る",
         "props": [
             {
                 "p": "payload"
@@ -1229,23 +1236,28 @@
         "once": false,
         "onceDelay": 0.1,
         "topic": "",
-        "payload": "",
-        "payloadType": "date",
+        "payload": "[1,2,3,4,5,6]",
+        "payloadType": "json",
         "x": 110,
         "y": 100,
         "wires": [
             [
-                "ex2_function"
+                "ex2_split"
             ]
         ]
     },
     {
-        "id": "ex2_function",
-        "type": "function",
+        "id": "ex2_split",
+        "type": "split",
         "z": "batch_node_guide_tab_2",
-        "name": "1-6送信",
-        "func": "for(let i = 1; i &lt;= 6; i++) {\n    node.send({payload: i});\n}",
-        "outputs": 1,
+        "name": "1件ずつに分割",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "property": "payload",
         "x": 260,
         "y": 100,
         "wires": [
@@ -1325,7 +1337,7 @@
             
             <p><strong>要求仕様:</strong></p>
             <ul>
-                <li>Inject、Function、Delay、Batch、Join、Debugノードを使用</li>
+                <li>Inject、Split、Delay、Batch、Join、Debugノードを使用</li>
                 <li>入力: 0.5秒間隔で10メッセージ</li>
                 <li>出力: 2秒間に届いたメッセージを配列化</li>
             </ul>
@@ -1344,9 +1356,9 @@
 
             <details>
                 <summary>💡 ヒント</summary>
-                <p><strong>Functionノードの設定:</strong></p>
+                <p><strong>Inject・Splitノードの設定:</strong></p>
                 <ul>
-                    <li>0〜9の10メッセージを送信</li>
+                    <li>Injectで配列 <code>[0,1,2,3,4,5,6,7,8,9]</code> を送り、Splitで10メッセージに分割する。分割したメッセージは一度に流れるので、次のDelayで間隔をあける</li>
                 </ul>
                 <p><strong>Delayノードの設定:</strong></p>
                 <ul>
@@ -1375,7 +1387,7 @@
         "id": "ex3_inject",
         "type": "inject",
         "z": "batch_node_guide_tab_3",
-        "name": "実行",
+        "name": "0〜9を送る",
         "props": [
             {
                 "p": "payload"
@@ -1386,23 +1398,28 @@
         "once": false,
         "onceDelay": 0.1,
         "topic": "",
-        "payload": "",
-        "payloadType": "date",
+        "payload": "[0,1,2,3,4,5,6,7,8,9]",
+        "payloadType": "json",
         "x": 90,
         "y": 100,
         "wires": [
             [
-                "ex3_function"
+                "ex3_split"
             ]
         ]
     },
     {
-        "id": "ex3_function",
-        "type": "function",
+        "id": "ex3_split",
+        "type": "split",
         "z": "batch_node_guide_tab_3",
-        "name": "0-9送信",
-        "func": "for(let i = 0; i &lt; 10; i++) {\n    node.send({payload: i});\n}",
-        "outputs": 1,
+        "name": "1件ずつに分割",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "property": "payload",
         "x": 220,
         "y": 100,
         "wires": [
@@ -1505,7 +1522,7 @@
             
             <p><strong>要求仕様:</strong></p>
             <ul>
-                <li>Inject、Template、Split、Batch、Join、Function、Debugノードを使用</li>
+                <li>Inject、Template、Split、Batch、Join、Change、Debugノードを使用</li>
                 <li>入力: [10, 20, 30, 40, 50]</li>
                 <li>出力: 各3点の平均値（20, 30, 40）</li>
             </ul>
@@ -1544,10 +1561,10 @@
                 <ul>
                     <li>動作: 自動（配列に結合）</li>
                 </ul>
-                <p><strong>Functionノード（平均計算）の設定:</strong></p>
+                <p><strong>Changeノード（平均計算）の設定:</strong></p>
                 <ul>
-                    <li>配列の平均を計算してmsg.payloadに設定</li>
-                    <li>コード例: <code>msg.payload = msg.payload.reduce((a,b)=>a+b) / msg.payload.length;</code></li>
+                    <li>「値の代入」で <code>msg.payload</code> に「JSONata式」型の <code>$average(payload)</code> を設定する</li>
+                    <li><code>$average()</code> は配列の平均値を返す JSONata の関数</li>
                 </ul>
             </details>
             
@@ -1671,11 +1688,23 @@
     },
     {
         "id": "ex4_avg",
-        "type": "function",
+        "type": "change",
         "z": "batch_node_guide_tab_4",
         "name": "平均計算",
-        "func": "msg.payload = msg.payload.reduce((a,b) => a+b) / msg.payload.length;\nreturn msg;",
-        "outputs": 1,
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "$average(payload)",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
         "x": 740,
         "y": 100,
         "wires": [
@@ -1788,7 +1817,7 @@ Batch（count=5, overlap=4）
 ↓
 5点移動平均ウィンドウ
 ↓
-Join → Function（平均計算）
+Join → Change（平均計算: JSONata の $average）
 ↓
 ノイズを除去した温度値</div>
         
