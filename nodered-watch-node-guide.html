@@ -235,7 +235,7 @@
         "type": "file in",
         "z": "watch_sample_tab",
         "name": "設定読み込み",
-        "filename": "",
+        "filename": "filename",
         "filenameType": "msg",
         "format": "utf8",
         "chunk": false,
@@ -503,7 +503,7 @@
         "type": "file",
         "z": "watch_sample_tab",
         "name": "ファイル書き込み",
-        "filename": "",
+        "filename": "filename",
         "filenameType": "msg",
         "appendNewline": true,
         "createDir": true,
@@ -690,14 +690,14 @@ msg.size = 1024</div>
                 <li>Watch ノードで設定ファイルを監視</li>
                 <li>Read File ノードで内容を読み込み</li>
                 <li>JSON ノードで解析</li>
-                <li>Function ノードでグローバル変数に保存</li>
+                <li>Change ノードでグローバル変数に保存</li>
             </ul>
 
             <p><strong>✅ 成功の条件:</strong></p>
             <ul>
                 <li><code>/tmp/app_config.json</code> を編集・保存した直後にフローが自動的に起動する</li>
                 <li>デバッグパネルに読み込んだ設定がJavaScriptオブジェクト形式で表示される</li>
-                <li>Function ノードのステータスに「設定更新: HH:MM:SS」と表示される</li>
+                <li>Debug ノード（新設定）のステータスに「設定更新: HH:MM:SS」と表示される</li>
                 <li>別のフローから <code>global.get("config")</code> で最新の設定値を取得できる</li>
             </ul>
 
@@ -707,9 +707,13 @@ msg.size = 1024</div>
                 <ul>
                     <li>ファイル名: msg.filename を使用（Watch が出力するパス）</li>
                 </ul>
-                <p><strong>Functionノード:</strong></p>
+                <p><strong>Changeノード:</strong></p>
                 <ul>
-                    <li><code>global.set("config", msg.payload);</code></li>
+                    <li>「値の代入」で <code>global.config</code>（左の種類を <code>global.</code> にする）に <code>msg.payload</code> を設定する</li>
+                </ul>
+                <p><strong>Debugノード:</strong></p>
+                <ul>
+                    <li>「ノードステータス(32 文字)」をオンにし、種類を「JSONata式」にして <code>"設定更新: " &amp; $now("[H01]:[m01]:[s01]", "+0900")</code> を設定する（日本時間の時:分:秒）</li>
                 </ul>
             </details>
             
@@ -719,10 +723,10 @@ msg.size = 1024</div>
 [
     {"id": "ex2_tab", "type": "tab", "label": "演習2", "disabled": false, "info": ""},
     {"id": "ex2_watch", "type": "watch", "name": "設定監視", "files": "/tmp/app_config.json", "recursive": false, "x": 140, "y": 100, "wires": [["ex2_read"]], "z": "ex2_tab"},
-    {"id": "ex2_read", "type": "file in", "name": "読み込み", "filename": "", "filenameType": "msg", "format": "utf8", "chunk": false, "sendError": false, "encoding": "utf8", "allProps": false, "x": 290, "y": 100, "wires": [["ex2_json"]], "z": "ex2_tab"},
-    {"id": "ex2_json", "type": "json", "name": "JSON解析", "property": "payload", "action": "", "pretty": false, "x": 430, "y": 100, "wires": [["ex2_func"]], "z": "ex2_tab"},
-    {"id": "ex2_func", "type": "function", "name": "グローバル保存", "func": "global.set(\"config\", msg.payload);\nnode.status({fill:\"green\", shape:\"dot\", text:\"設定更新: \" + new Date().toLocaleTimeString()});\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 590, "y": 100, "wires": [["ex2_debug"]], "z": "ex2_tab"},
-    {"id": "ex2_debug", "type": "debug", "name": "新設定", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "x": 750, "y": 100, "wires": [], "z": "ex2_tab"}
+    {"id": "ex2_read", "type": "file in", "name": "読み込み", "filename": "filename", "filenameType": "msg", "format": "utf8", "chunk": false, "sendError": false, "encoding": "utf8", "allProps": false, "x": 290, "y": 100, "wires": [["ex2_json"]], "z": "ex2_tab"},
+    {"id": "ex2_json", "type": "json", "name": "JSON解析", "property": "payload", "action": "", "pretty": false, "x": 430, "y": 100, "wires": [["ex2_change"]], "z": "ex2_tab"},
+    {"id": "ex2_change", "type": "change", "name": "グローバル保存", "rules": [{"t": "set", "p": "config", "pt": "global", "to": "payload", "tot": "msg"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 590, "y": 100, "wires": [["ex2_debug"]], "z": "ex2_tab"},
+    {"id": "ex2_debug", "type": "debug", "name": "新設定", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "x": 750, "y": 100, "wires": [], "z": "ex2_tab", "statusVal": "\"設定更新: \" &amp; $now(\"[H01]:[m01]:[s01]\", \"+0900\")", "statusType": "jsonata"}
 ]
 </div>
             </details>
@@ -792,7 +796,7 @@ msg.size = 1024</div>
                 <li>Watch ノードでFTPフォルダを監視</li>
                 <li>Delay ノードで書き込み完了を待機（2秒）</li>
                 <li>Read File + CSV ノードでデータ読み込み・解析</li>
-                <li>Function ノードでJSON変換</li>
+                <li>Change ノードと JSON ノードでJSON変換</li>
                 <li>処理結果をJSONファイルとして保存</li>
             </ul>
 
@@ -815,6 +819,13 @@ msg.size = 1024</div>
                 <ul>
                     <li>1行目をヘッダーとして使用: ON</li>
                 </ul>
+                <p><strong>JSONへの変換（Change ノード＋JSON ノード）:</strong></p>
+                <ul>
+                    <li>Change の「値の代入」で、<code>msg.outputFile</code> に「JSONata式」型の <code>"/tmp/ftp_processed/" &amp; $replace(file, /\.csv$/, "") &amp; ".json"</code> を設定する。<code>$replace()</code> の2つ目の引数 <code>/\.csv$/</code> は「末尾の .csv」を表す正規表現で、これを空文字に置き換えて拡張子を除く</li>
+                    <li>同じ Change で、<code>msg.payload</code> に「JSONata式」型の <code>{"originalFile": filename, "processedAt": $now(), "recordCount": $count(payload), "data": payload}</code> を設定する。<code>$count()</code> は配列の要素数を返す</li>
+                    <li>JSON ノードの「動作」を「常にJSON文字列に変換」、「JSON文字列フォーマット」をオンにして、読みやすい形の文字列にする</li>
+                    <li>Write File ノードの「ファイル名」は <code>msg.outputFile</code> にする</li>
+                </ul>
             </details>
             
             <details>
@@ -825,11 +836,12 @@ msg.size = 1024</div>
     {"id": "ex4_watch", "type": "watch", "name": "FTPフォルダ", "files": "/tmp/ftp_incoming", "recursive": false, "x": 140, "y": 100, "wires": [["ex4_filter"]], "z": "ex4_tab"},
     {"id": "ex4_filter", "type": "switch", "name": "CSVのみ", "property": "file", "propertyType": "msg", "rules": [{"t": "regex", "v": "\\.csv$", "vt": "str", "case": true}], "checkall": "true", "repair": false, "outputs": 1, "x": 290, "y": 100, "wires": [["ex4_delay"]], "z": "ex4_tab"},
     {"id": "ex4_delay", "type": "delay", "name": "2秒待機", "pauseType": "delay", "timeout": "2", "timeoutUnits": "seconds", "rate": "1", "nbRateUnits": "1", "rateUnits": "second", "randomFirst": "1", "randomLast": "5", "randomUnits": "seconds", "drop": false, "allowrate": false, "outputs": 1, "x": 420, "y": 100, "wires": [["ex4_read"]], "z": "ex4_tab"},
-    {"id": "ex4_read", "type": "file in", "name": "CSV読み込み", "filename": "", "filenameType": "msg", "format": "utf8", "chunk": false, "sendError": false, "encoding": "utf8", "allProps": false, "x": 560, "y": 100, "wires": [["ex4_csv"]], "z": "ex4_tab"},
-    {"id": "ex4_csv", "type": "csv", "name": "CSV解析", "sep": ",", "hdrin": true, "hdrout": "none", "multi": "mult", "ret": "\\n", "temp": "", "skip": "0", "strings": true, "include_empty_strings": false, "include_null_values": false, "x": 700, "y": 100, "wires": [["ex4_func"]], "z": "ex4_tab"},
-    {"id": "ex4_func", "type": "function", "name": "JSON変換", "func": "const baseName = msg.file.replace('.csv', '');\nconst result = {\n    originalFile: msg.filename,\n    processedAt: new Date().toISOString(),\n    recordCount: msg.payload.length,\n    data: msg.payload\n};\nmsg.payload = JSON.stringify(result, null, 2);\nmsg.outputFile = \"/tmp/ftp_processed/\" + baseName + \".json\";\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 150, "y": 180, "wires": [["ex4_write_json"]], "z": "ex4_tab"},
-    {"id": "ex4_write_json", "type": "file", "name": "JSON保存", "filename": "outputFile", "filenameType": "msg", "appendNewline": false, "createDir": true, "overwriteFile": "true", "encoding": "utf8", "x": 310, "y": 180, "wires": [["ex4_debug"]], "z": "ex4_tab"},
-    {"id": "ex4_debug", "type": "debug", "name": "処理完了", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "outputFile", "targetType": "msg", "statusVal": "\"処理完了: \" &amp; file", "statusType": "jsonata", "x": 470, "y": 180, "wires": [], "z": "ex4_tab"}
+    {"id": "ex4_read", "type": "file in", "name": "CSV読み込み", "filename": "filename", "filenameType": "msg", "format": "utf8", "chunk": false, "sendError": false, "encoding": "utf8", "allProps": false, "x": 560, "y": 100, "wires": [["ex4_csv"]], "z": "ex4_tab"},
+    {"id": "ex4_csv", "type": "csv", "name": "CSV解析", "sep": ",", "hdrin": true, "hdrout": "none", "multi": "mult", "ret": "\\n", "temp": "", "skip": "0", "strings": true, "include_empty_strings": false, "include_null_values": false, "x": 700, "y": 100, "wires": [["ex4_change"]], "z": "ex4_tab"},
+    {"id": "ex4_change", "type": "change", "name": "JSON変換", "rules": [{"t": "set", "p": "outputFile", "pt": "msg", "to": "\"/tmp/ftp_processed/\" &amp; $replace(file, /\\.csv$/, \"\") &amp; \".json\"", "tot": "jsonata"}, {"t": "set", "p": "payload", "pt": "msg", "to": "{\n    \"originalFile\": filename,\n    \"processedAt\": $now(),\n    \"recordCount\": $count(payload),\n    \"data\": payload\n}", "tot": "jsonata"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 150, "y": 180, "wires": [["ex4_json_str"]], "z": "ex4_tab"},
+    {"id": "ex4_json_str", "type": "json", "name": "JSON文字列に変換", "property": "payload", "action": "str", "pretty": true, "x": 320, "y": 180, "wires": [["ex4_write_json"]], "z": "ex4_tab"},
+    {"id": "ex4_write_json", "type": "file", "name": "JSON保存", "filename": "outputFile", "filenameType": "msg", "appendNewline": false, "createDir": true, "overwriteFile": "true", "encoding": "utf8", "x": 480, "y": 180, "wires": [["ex4_debug"]], "z": "ex4_tab"},
+    {"id": "ex4_debug", "type": "debug", "name": "処理完了", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "outputFile", "targetType": "msg", "statusVal": "\"処理完了: \" &amp; file", "statusType": "jsonata", "x": 640, "y": 180, "wires": [], "z": "ex4_tab"}
 ]
 </div>
             </details>

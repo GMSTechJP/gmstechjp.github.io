@@ -893,9 +893,15 @@ WHERE ts &lt; strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-30 days');</div>
 
         <div class="exercise">
             <h3>演習 1：湿度を記録する<span class="difficulty difficulty-easy">初級</span></h3>
-            <p>サンプル 1 のフローを改造し、<code>name</code> が <code>humidity</code>、<code>value</code> が 40 から 60 の間の値になる記録用の Inject と Function を追加せよ。事前定義文のノードは既存のものを共有してよい。</p>
+            <p>サンプル 1 のフローを改造し、<code>name</code> が <code>humidity</code>、<code>value</code> が 40 から 60 の間の値になる記録用の Inject と Change を追加せよ。事前定義文のノードは既存のものを共有してよい。</p>
             <p><strong>💼 使いどころ:</strong> 同じテーブルに別の測定項目を追加して記録する場面で使います。</p>
-            <p><strong>ヒント</strong>：追加するのは Inject と Function だけである。Function の中で <code>msg.params</code> の <code>$name</code> と <code>$value</code> を変えればよい。</p>
+            <p><strong>ヒント</strong>：追加するのは Inject と Change だけである。Change の「値の代入」で、<code>msg.params</code> に「JSONata式」型の次の式を設定する。</p>
+            <div class="code-block">{
+    "$ts": $now(),
+    "$name": "humidity",
+    "$value": $round(40 + $random() * 20, 1)
+}</div>
+            <p><code>$now()</code> は現在時刻を UTC の ISO 8601 形式（<code>toISOString()</code> と同じ形）で返す。<code>$random()</code> は0以上1未満の乱数、<code>$round(…, 1)</code> は小数点以下1桁に丸める関数である。キーの <code>"$ts"</code> などは、事前定義文の <code>$ts</code> などに対応する名前で、JSONata の関数ではない。</p>
             <details>
                 <summary>解答例（クリックで展開）</summary>
                 <div class="flow-json">[
@@ -934,21 +940,29 @@ WHERE ts &lt; strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-30 days');</div>
         "y": 100,
         "wires": [
             [
-                "ex1_fn"
+                "ex1_change"
             ]
         ]
     },
     {
-        "id": "ex1_fn",
-        "type": "function",
+        "id": "ex1_change",
+        "type": "change",
         "z": "tab_sqlite_ex1",
         "name": "湿度パラメータ",
-        "func": "const value = Math.round((40 + Math.random() * 20) * 10) / 10;\n\nmsg.params = {\n    $ts: new Date().toISOString(),\n    $name: \"humidity\",\n    $value: value\n};\nreturn msg;",
-        "outputs": 1,
-        "timeout": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
+        "rules": [
+            {
+                "t": "set",
+                "p": "params",
+                "pt": "msg",
+                "to": "{\n    \"$ts\": $now(),\n    \"$name\": \"humidity\",\n    \"$value\": $round(40 + $random() * 20, 1)\n}",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
         "x": 380,
         "y": 100,
         "wires": [
@@ -1079,7 +1093,7 @@ WHERE ts &lt; strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-30 days');</div>
             <h3>演習 3：閾値超過を別テーブルに残す<span class="difficulty difficulty-hard">上級</span></h3>
             <p>測定値が 24.0 を超えたときだけ、<code>alerts</code> テーブルに記録するフローを作れ。<code>alerts</code> は <code>id</code>、<code>ts</code>、<code>name</code>、<code>value</code> を持つものとする。判定には Switch ノードを使うこと。</p>
             <p><strong>💼 使いどころ:</strong> 異常値だけを別のテーブルに分けて残し、後から異常の履歴だけを追える場面で使います。</p>
-            <p><strong>ヒント</strong>：Function で <code>msg.params</code> を組み立てたあと、<a href="nodered-switch-node-guide.html">Switch</a> で <code>msg.params.$value</code> を評価する。SQL 側は事前定義文にする。</p>
+            <p><strong>ヒント</strong>：Change で <code>msg.params</code> を組み立てたあと（組み立て方は演習 1 と同じ）、<a href="nodered-switch-node-guide.html">Switch</a> で <code>msg.params.$value</code> を評価する。SQL 側は事前定義文にする。</p>
             <details>
                 <summary>解答例（クリックで展開）</summary>
                 <div class="flow-json">[
@@ -1163,21 +1177,29 @@ WHERE ts &lt; strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-30 days');</div>
         "y": 200,
         "wires": [
             [
-                "ex3_fn"
+                "ex3_change"
             ]
         ]
     },
     {
-        "id": "ex3_fn",
-        "type": "function",
+        "id": "ex3_change",
+        "type": "change",
         "z": "tab_sqlite_ex3",
         "name": "パラメータを組み立てる",
-        "func": "const value = Math.round((20 + Math.random() * 8) * 10) / 10;\n\nmsg.params = {\n    $ts: new Date().toISOString(),\n    $name: \"temperature\",\n    $value: value\n};\nreturn msg;",
-        "outputs": 1,
-        "timeout": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
+        "rules": [
+            {
+                "t": "set",
+                "p": "params",
+                "pt": "msg",
+                "to": "{\n    \"$ts\": $now(),\n    \"$name\": \"temperature\",\n    \"$value\": $round(20 + $random() * 8, 1)\n}",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
         "x": 420,
         "y": 200,
         "wires": [
