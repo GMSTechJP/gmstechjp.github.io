@@ -629,7 +629,7 @@
             </ul>
             <details>
                 <summary>💡 ヒント</summary>
-                <p>1. 共通処理: Link In → Function（×3） → Link Out（返却モード）</p>
+                <p>1. 共通処理: Link In → Change（×3。「値の代入」で <code>msg.payload</code> に「JSONata式」型の <code>payload * 3</code>） → Link Out（返却モード）</p>
                 <p>2. 呼び出し側: Inject → Link Call → Debug</p>
                 <p>3. Link Out のモードを「link callノードへ返却」に設定することが重要です</p>
             </details>
@@ -642,8 +642,8 @@
     {"id": "ex3_call", "type": "link call", "z": "ex3_tab", "name": "3倍処理呼び出し", "links": ["ex3_link_in"], "linkType": "static", "timeout": "30", "x": 340, "y": 100, "wires": [["ex3_debug"]]},
     {"id": "ex3_debug", "type": "debug", "z": "ex3_tab", "name": "結果: 21", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "payload", "statusType": "auto", "x": 530, "y": 100, "wires": []},
     {"id": "ex3_comment2", "type": "comment", "z": "ex3_tab", "name": "━━━ 共通処理（3倍） ━━━", "info": "", "x": 160, "y": 180, "wires": []},
-    {"id": "ex3_link_in", "type": "link in", "z": "ex3_tab", "name": "3倍処理", "links": [], "x": 135, "y": 240, "wires": [["ex3_func"]]},
-    {"id": "ex3_func", "type": "function", "z": "ex3_tab", "name": "×3", "func": "msg.payload = msg.payload * 3;\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 290, "y": 240, "wires": [["ex3_return"]]},
+    {"id": "ex3_link_in", "type": "link in", "z": "ex3_tab", "name": "3倍処理", "links": [], "x": 135, "y": 240, "wires": [["ex3_change"]]},
+    {"id": "ex3_change", "type": "change", "z": "ex3_tab", "name": "×3", "rules": [{"t": "set", "p": "payload", "pt": "msg", "to": "payload * 3", "tot": "jsonata"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 290, "y": 240, "wires": [["ex3_return"]]},
     {"id": "ex3_return", "type": "link out", "z": "ex3_tab", "name": "結果を返す", "mode": "return", "links": [], "x": 435, "y": 240, "wires": []}
 ]</div>
             </details>
@@ -667,7 +667,13 @@
             </ul>
             <details>
                 <summary>💡 ヒント</summary>
-                <p>Function ノードで条件分岐を行い、結果を msg に設定して返します。</p>
+                <p>Switch ノードで条件分岐を行い、出力ごとに Change ノードで結果を msg に設定して返します。</p>
+                <ul>
+                    <li>Switch: プロパティ <code>msg.payload</code>、ルール1「&gt;」（数値 <code>0</code>）、ルール2「その他」</li>
+                    <li>1つ目の出力の Change: 「値の代入」で <code>msg.valid</code> に「真偽」の <code>true</code></li>
+                    <li>2つ目の出力の Change: 「値の代入」で <code>msg.valid</code> に「真偽」の <code>false</code>、<code>msg.error</code> に文字列「正の数を入力してください」</li>
+                    <li>2つの Change は、どちらも同じ Link Out（「link callノードへ返却」）につなぐ</li>
+                </ul>
             </details>
             <details>
                 <summary>✅ 解答例フロー</summary>
@@ -679,9 +685,11 @@
     {"id": "ex4_call", "type": "link call", "z": "ex4_tab", "name": "正の数チェック", "links": ["ex4_validate_in"], "linkType": "static", "timeout": "30", "x": 360, "y": 120, "wires": [["ex4_debug"]]},
     {"id": "ex4_debug", "type": "debug", "z": "ex4_tab", "name": "検証結果", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "true", "targetType": "full", "statusVal": "valid", "statusType": "msg", "x": 550, "y": 120, "wires": []},
     {"id": "ex4_comment2", "type": "comment", "z": "ex4_tab", "name": "━━━ 検証処理（共通） ━━━", "info": "", "x": 160, "y": 220, "wires": []},
-    {"id": "ex4_validate_in", "type": "link in", "z": "ex4_tab", "name": "正の数検証", "links": [], "x": 145, "y": 280, "wires": [["ex4_validate_func"]]},
-    {"id": "ex4_validate_func", "type": "function", "z": "ex4_tab", "name": "検証", "func": "if (msg.payload > 0) {\n    msg.valid = true;\n} else {\n    msg.valid = false;\n    msg.error = \"正の数を入力してください\";\n}\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 310, "y": 280, "wires": [["ex4_return"]]},
-    {"id": "ex4_return", "type": "link out", "z": "ex4_tab", "name": "結果を返す", "mode": "return", "links": [], "x": 455, "y": 280, "wires": []}
+    {"id": "ex4_validate_in", "type": "link in", "z": "ex4_tab", "name": "正の数検証", "links": [], "x": 145, "y": 280, "wires": [["ex4_switch"]]},
+    {"id": "ex4_switch", "type": "switch", "z": "ex4_tab", "name": "正の数？", "property": "payload", "propertyType": "msg", "rules": [{"t": "gt", "v": "0", "vt": "num"}, {"t": "else"}], "checkall": "true", "repair": false, "outputs": 2, "x": 310, "y": 280, "wires": [["ex4_valid"], ["ex4_invalid"]]},
+    {"id": "ex4_valid", "type": "change", "z": "ex4_tab", "name": "valid = true", "rules": [{"t": "set", "p": "valid", "pt": "msg", "to": "true", "tot": "bool"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 490, "y": 250, "wires": [["ex4_return"]]},
+    {"id": "ex4_invalid", "type": "change", "z": "ex4_tab", "name": "valid = false＋エラー", "rules": [{"t": "set", "p": "valid", "pt": "msg", "to": "false", "tot": "bool"}, {"t": "set", "p": "error", "pt": "msg", "to": "正の数を入力してください", "tot": "str"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 510, "y": 310, "wires": [["ex4_return"]]},
+    {"id": "ex4_return", "type": "link out", "z": "ex4_tab", "name": "結果を返す", "mode": "return", "links": [], "x": 730, "y": 280, "wires": []}
 ]</div>
             </details>
         </div>
