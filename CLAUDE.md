@@ -443,7 +443,7 @@ Dashboard 2.0 では、`/dashboard` にダッシュボード設定ノード（ui
   `docs/examples`）と同じ ID で、サイトの全フローがこれを使う。新しい ID の ui-base を作らない
 - **ui-base 以外の ID は、サイト内の他のどのフローとも重ねない**。タブ・通常ノード・ui-page・
   ui-group・ui-theme が対象で、ガイドごとの接頭辞（例: `d2viz_`）を付ける。
-  例外は、中身が同一の公式テーマ（`129e99574def90a3`、`afa24cae12543ca5`）だけ
+  例外は、中身が同一の公式テーマ（`129e99574def90a3`、`afa24cae12543ca5`、`c2ff5ba1f92a0f0e`）だけ
 - **ページのパスはサイト全体で一意にする**。ui-page・ui-group を複数のガイドで共有しない
 - **設定ノードは ui-base → ui-theme → ui-page → ui-group の順に並べる**
 - 各ガイドの「📌 複数のフローを読み込むとき」の案内（`<div class="tip">`）を残す。
