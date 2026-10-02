@@ -614,19 +614,958 @@
         <h2 id="section2">🔥 2. サンプルフロー</h2>
         
         <div class="important">
-            <p><strong>📥 まずサンプルフローをインポートしましょう！</strong></p>
-            <p>以下のサンプルフローには、このガイドで説明する<strong>全パターンの実例</strong>が含まれています。<br>
-            先にインポートして、実際に動作を確認しながら読み進めると理解が深まります。</p>
+            <p><strong>📥 サンプルフローを試す手順:</strong></p>
             <ol>
-                <li>下のサンプルフローJSONをコピー</li>
+                <li>下のフローJSONを「コピー」ボタンでコピー</li>
                 <li>Node-REDエディタで <strong>メニュー → 読み込み</strong> を選択</li>
                 <li>JSONをペーストして「読み込み」をクリック</li>
-                <li>デプロイしてダッシュボードで動作確認</li>
+                <li>エディタ右上の<strong>「デプロイ」ボタンをクリック</strong>（クリックするまでフローは動きません）</li>
+                <li>ブラウザでダッシュボード（<code>http://localhost:1880/dashboard</code>）を開き、左のメニューからページを選んで動作を確認</li>
             </ol>
+            <p>このあとの「公式サンプルフロー」と「応用フロー」は、ダッシュボードの設定ノード（ui-base）を共有しています。両方を読み込むと、2つ目のときに「読み込もうとしているノードのいくつかは、既にワークスペース内に存在しています。」という通知が出ます。<strong>「コピーを読み込み」</strong>を選んでください。共有している設定ノードは既にあるものが使われ、ページは1つのダッシュボードにまとまります。</p>
+            <p><strong>ページが表示されないとき:</strong> ダッシュボードの設定ノード（ui-base）が2つ以上あると、そのうち1つのページしか表示されません。以前の版の応用フローや、11章の演習の解答例フローを読み込んでいると、この状態になります。エディタの <strong>メニュー → 設定ノード</strong> を開いて ui-base が2つ以上あれば、各ページ（ui-page）の「UI」欄を1つの ui-base にそろえ、使われなくなった ui-base を削除してからデプロイしてください。</p>
         </div>
-        
+
+        <h3>公式サンプルフロー</h3>
+        <p>最初のサンプルフローは、Dashboard 2.0 の開発元である FlowFuse が公開している公式サンプルを、1つのタブにまとめたものです。出典は次の2か所です。</p>
+        <ul>
+            <li><strong>公式ドキュメント</strong>: 各ウィジェットの解説ページ（<a href="https://dashboard.flowfuse.com/" target="_blank">dashboard.flowfuse.com</a>）に載っているサンプル。表の「出典」に、載っているページを書いています</li>
+            <li><strong>GitHub examples</strong>: <a href="https://github.com/FlowFuse/node-red-dashboard/tree/main/examples" target="_blank">GitHub リポジトリの examples フォルダ</a>にあるサンプル。npm パッケージには含まれないため、Node-RED エディタの <strong>メニュー → 読み込み → サンプル</strong> には出てきません</li>
+        </ul>
+        <p>ノードの設定値とノードIDは公式のままです。このサイトで手を加えたのは次の点だけです。</p>
+        <ul>
+            <li>1つのタブにまとめ、例が重ならないよう位置をずらし、例の名前を書いたコメントノードを置いた</li>
+            <li>GitHub examples はグループ（ui-group）が空のままで、読み込んでもダッシュボードに表示されない。そこで「GitHub Examples」ページ（<code>/flowfuse-examples</code>）と例ごとのグループを用意し、各ウィジェットに割り当てた</li>
+            <li>同じ設定ノード（ui-base など）が例ごとに少しずつ違う値で入っていたため、1つにそろえた</li>
+        </ul>
+        <div style="overflow-x: auto;">
+            <table>
+                <tr>
+                    <th>例（出典・表示されるページ）</th>
+                    <th>内容</th>
+                </tr>
+                <tr>
+                    <td><strong>ui-button-hold</strong><br>公式ドキュメント（ui-button）<br><code>/dashboard/<wbr>page2</code></td>
+                    <td>ボタンを押し始めた時刻（pointerdown）と離した時刻（pointerup）を受け取り、押していた時間を「Held For:」に表示します。押した時間で操作を区別する場面で使います。</td>
+                </tr>
+                <tr>
+                    <td><strong>group-dialog-type</strong><br>公式ドキュメント（ui-group）<br><code>/dashboard/<wbr>active-development</code></td>
+                    <td>ボタンでダイアログ型のグループを開き、中のフォームを送信すると ui-control で閉じます。入力欄を必要なときだけ表示する場面で使います。</td>
+                </tr>
+                <tr>
+                    <td><strong>text-input-w-button</strong><br>GitHub examples<br><code>/dashboard/<wbr>flowfuse-examples</code></td>
+                    <td>数値の入力欄に入れた値を、Enterキーを押すか入力欄から離れたときに debug へ出します。「Enter」ボタンは値を送るボタンではなく、入力欄へ空の文字列を送って<strong>入力欄を空にします</strong>。</td>
+                </tr>
+                <tr>
+                    <td><strong>dropdown-w-dynamic-options</strong><br>GitHub examples<br><code>/dashboard/<wbr>flowfuse-examples</code></td>
+                    <td>Injectノードで <code>msg.options</code> を送り、ドロップダウンの選択肢を4種類のチーズに入れ替えます。選ぶと、その値が debug に出ます。読み込んだ直後は選択肢が空なので、先に Inject のボタンを押してください。</td>
+                </tr>
+                <tr>
+                    <td><strong>radio-example</strong><br>GitHub examples<br><code>/dashboard/<wbr>flowfuse-examples</code></td>
+                    <td>ラジオボタンで選んだ値を、ui-text に「Emotion: Happy」のように表示します。</td>
+                </tr>
+                <tr>
+                    <td><strong>swith-w-notification</strong><br>GitHub examples<br><code>/dashboard/<wbr>flowfuse-examples</code></td>
+                    <td>スイッチを切り替えると、「Machine Started」または「Machine Stopped」が通知で表示されます。例の名前の綴り（swith）は公式のファイル名のままです。表示系ガイドの公式サンプルフローにも同じ例が入っています。両方を読み込んで「コピーを読み込み」を選ぶと、同じグループにスイッチが2つ並びます。</td>
+                </tr>
+            </table>
+        </div>
+        <p>この公式サンプルフローには、slider と button-group の例を収録していません（slider は、表示系ガイドの公式サンプルフローにある ui-text-suffix でも使われています）。この2つは、次の応用フローで扱います。</p>
         <details>
-            <summary>📋 入力系ウィジェット サンプルフロー（クリックで展開）</summary>
+            <summary>📥 入力系 公式サンプルフローJSON（クリックで展開）</summary>
+            <div class="flow-json">[
+    {
+        "id": "dash2_input_official_tab",
+        "type": "tab",
+        "label": "入力系 公式サンプル",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "cmt_dash2_input_official_ui_button_hold",
+        "type": "comment",
+        "z": "dash2_input_official_tab",
+        "name": "ui-button-hold（公式ドキュメント ui-button）",
+        "info": "",
+        "x": 320,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "41af91ca7e2d0577",
+        "type": "ui-button",
+        "z": "dash2_input_official_tab",
+        "group": "4400cdcbaa768e57",
+        "name": "",
+        "label": "Hold Duration Test",
+        "order": 1,
+        "width": "3",
+        "height": "1",
+        "emulateClick": false,
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "iconPosition": "left",
+        "payload": "Click",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "buttonColor": "",
+        "textColor": "",
+        "iconColor": "",
+        "enableClick": false,
+        "enablePointerdown": true,
+        "pointerdownPayload": "",
+        "pointerdownPayloadType": "date",
+        "enablePointerup": true,
+        "pointerupPayload": "",
+        "pointerupPayloadType": "date",
+        "x": 200,
+        "y": 150,
+        "wires": [
+            [
+                "57e8b3025bda5b1b",
+                "c09876e76c45d7fb"
+            ]
+        ]
+    },
+    {
+        "id": "57e8b3025bda5b1b",
+        "type": "debug",
+        "z": "dash2_input_official_tab",
+        "name": "debug 2569",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 380,
+        "y": 110,
+        "wires": []
+    },
+    {
+        "id": "c09876e76c45d7fb",
+        "type": "join",
+        "z": "dash2_input_official_tab",
+        "name": "",
+        "mode": "custom",
+        "build": "object",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "_event.type",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "accumulate": false,
+        "timeout": "",
+        "count": "2",
+        "reduceRight": false,
+        "reduceExp": "",
+        "reduceInit": "",
+        "reduceInitType": "",
+        "reduceFixup": "",
+        "x": 360,
+        "y": 150,
+        "wires": [
+            [
+                "9503bfb0e2713b08"
+            ]
+        ]
+    },
+    {
+        "id": "9503bfb0e2713b08",
+        "type": "change",
+        "z": "dash2_input_official_tab",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload.held",
+                "pt": "msg",
+                "to": "$number(msg.payload.pointerup) - $number(msg.payload.pointerdown)",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 530,
+        "y": 150,
+        "wires": [
+            [
+                "d289e0f09ddd90f9",
+                "6314f8f6c76cc4e5"
+            ]
+        ]
+    },
+    {
+        "id": "d289e0f09ddd90f9",
+        "type": "debug",
+        "z": "dash2_input_official_tab",
+        "name": "debug 2571",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 720,
+        "y": 150,
+        "wires": []
+    },
+    {
+        "id": "ac3f3589547ed27b",
+        "type": "ui-text",
+        "z": "dash2_input_official_tab",
+        "group": "4400cdcbaa768e57",
+        "order": 2,
+        "width": "3",
+        "height": "1",
+        "name": "",
+        "label": "Held For:",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#717171",
+        "className": "",
+        "x": 930,
+        "y": 110,
+        "wires": []
+    },
+    {
+        "id": "6314f8f6c76cc4e5",
+        "type": "change",
+        "z": "dash2_input_official_tab",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "msg.payload.held &amp; \"ms\"",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 750,
+        "y": 110,
+        "wires": [
+            [
+                "ac3f3589547ed27b"
+            ]
+        ]
+    },
+    {
+        "id": "cmt_dash2_input_official_group_dialog_type",
+        "type": "comment",
+        "z": "dash2_input_official_tab",
+        "name": "group-dialog-type（公式ドキュメント ui-group）",
+        "info": "",
+        "x": 320,
+        "y": 230,
+        "wires": []
+    },
+    {
+        "id": "0aa38a714b8a3d67",
+        "type": "ui-form",
+        "z": "dash2_input_official_tab",
+        "name": "",
+        "group": "c7871ac53089d535",
+        "label": "New User",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "options": [
+            {
+                "label": "Name",
+                "key": "name",
+                "type": "text",
+                "required": true,
+                "rows": null
+            },
+            {
+                "label": "Admin",
+                "key": "isAdmin",
+                "type": "switch",
+                "required": false,
+                "rows": null
+            }
+        ],
+        "formValue": {
+            "name": "",
+            "isAdmin": false
+        },
+        "payload": "",
+        "submit": "Add",
+        "cancel": "clear",
+        "resetOnSubmit": true,
+        "topic": "topic",
+        "topicType": "msg",
+        "splitLayout": "",
+        "className": "",
+        "passthru": false,
+        "dropdownOptions": [],
+        "x": 200,
+        "y": 280,
+        "wires": [
+            [
+                "adbd76ecf97076a1"
+            ]
+        ]
+    },
+    {
+        "id": "fa4925a5253341ce",
+        "type": "ui-control",
+        "z": "dash2_input_official_tab",
+        "name": "",
+        "ui": "c2e1aa56f50f03bd",
+        "events": "all",
+        "x": 560,
+        "y": 280,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "adbd76ecf97076a1",
+        "type": "change",
+        "z": "dash2_input_official_tab",
+        "name": "Hide Dialog",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "{\"groups\":{\"hide\":[\"Active Development:Dialog Group\"]}}",
+                "tot": "json"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 370,
+        "y": 280,
+        "wires": [
+            [
+                "fa4925a5253341ce",
+                "b9d77a856b1be020"
+            ]
+        ]
+    },
+    {
+        "id": "294ac777d99f5789",
+        "type": "ui-button",
+        "z": "dash2_input_official_tab",
+        "group": "497106faf38a5190",
+        "name": "",
+        "label": "Add User (Dialog)",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "emulateClick": false,
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "iconPosition": "left",
+        "payload": "{\"groups\":{\"show\":[\"Active Development:Dialog Group\"]}}",
+        "payloadType": "json",
+        "topic": "topic",
+        "topicType": "msg",
+        "buttonColor": "",
+        "textColor": "",
+        "iconColor": "",
+        "x": 350,
+        "y": 320,
+        "wires": [
+            [
+                "fa4925a5253341ce",
+                "b9d77a856b1be020"
+            ]
+        ]
+    },
+    {
+        "id": "b9d77a856b1be020",
+        "type": "debug",
+        "z": "dash2_input_official_tab",
+        "name": "debug 2572",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 570,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "cmt_dash2_input_official_text_input_w_button",
+        "type": "comment",
+        "z": "dash2_input_official_tab",
+        "name": "text-input-w-button（GitHub examples）",
+        "info": "",
+        "x": 320,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "f64abb39012dfbf7",
+        "type": "ui-text-input",
+        "z": "dash2_input_official_tab",
+        "group": "flowfuse_ex_grp_text_input_w_button",
+        "name": "Temp Setpoint",
+        "label": "Number",
+        "order": 4,
+        "width": 0,
+        "height": 0,
+        "topic": "topic",
+        "topicType": "msg",
+        "mode": "number",
+        "delay": 300,
+        "passthru": false,
+        "sendOnDelay": false,
+        "sendOnBlur": true,
+        "sendOnEnter": true,
+        "className": "",
+        "x": 370,
+        "y": 450,
+        "wires": [
+            [
+                "07cccb1132285b1d"
+            ]
+        ]
+    },
+    {
+        "id": "07cccb1132285b1d",
+        "type": "debug",
+        "z": "dash2_input_official_tab",
+        "name": "debug 19",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 550,
+        "y": 450,
+        "wires": []
+    },
+    {
+        "id": "d3da83fae5463c26",
+        "type": "ui-button",
+        "z": "dash2_input_official_tab",
+        "group": "flowfuse_ex_grp_text_input_w_button",
+        "name": "",
+        "label": "Enter",
+        "order": 5,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "x": 200,
+        "y": 450,
+        "wires": [
+            [
+                "f64abb39012dfbf7"
+            ]
+        ]
+    },
+    {
+        "id": "cmt_dash2_input_official_dropdown_w_dynamic_options",
+        "type": "comment",
+        "z": "dash2_input_official_tab",
+        "name": "dropdown-w-dynamic-options（GitHub examples）",
+        "info": "",
+        "x": 320,
+        "y": 530,
+        "wires": []
+    },
+    {
+        "id": "c68b5b27e2406dac",
+        "type": "inject",
+        "z": "dash2_input_official_tab",
+        "name": "",
+        "props": [
+            {
+                "p": "options",
+                "v": "[{\"value\":\"cheddar\",\"label\":\"Cheddar\"},{\"value\":\"brie\",\"label\":\"Brie\"},{\"value\":\"parmesan\",\"label\":\"Parmesan\"},{\"value\":\"gruyere\",\"label\":\"Gruyere\"}]",
+                "vt": "json"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 200,
+        "y": 580,
+        "wires": [
+            [
+                "511030e7cf60fd3d"
+            ]
+        ]
+    },
+    {
+        "id": "511030e7cf60fd3d",
+        "type": "ui-dropdown",
+        "z": "dash2_input_official_tab",
+        "group": "flowfuse_ex_grp_dropdown_w_dynamic_options",
+        "name": "",
+        "label": "Select Option:",
+        "tooltip": "",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "multiple": false,
+        "options": [
+            {
+                "label": "",
+                "value": "",
+                "type": "str"
+            }
+        ],
+        "payload": "",
+        "topic": "topic",
+        "topicType": "msg",
+        "className": "",
+        "x": 390,
+        "y": 580,
+        "wires": [
+            [
+                "605f48154038b399"
+            ]
+        ]
+    },
+    {
+        "id": "605f48154038b399",
+        "type": "debug",
+        "z": "dash2_input_official_tab",
+        "name": "debug 21",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 580,
+        "y": 580,
+        "wires": []
+    },
+    {
+        "id": "cmt_dash2_input_official_radio_example",
+        "type": "comment",
+        "z": "dash2_input_official_tab",
+        "name": "radio-example（GitHub examples）",
+        "info": "",
+        "x": 320,
+        "y": 660,
+        "wires": []
+    },
+    {
+        "id": "972184369b9c2039",
+        "type": "ui-radio-group",
+        "z": "dash2_input_official_tab",
+        "group": "flowfuse_ex_grp_radio_example",
+        "name": "Emotion Meter",
+        "label": "Select Option:",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "columns": 1,
+        "passthru": false,
+        "options": [
+            {
+                "label": "Happy",
+                "value": "Happy",
+                "type": "str"
+            },
+            {
+                "label": "Sad",
+                "value": "Sad",
+                "type": "str"
+            },
+            {
+                "label": "Scared",
+                "value": "Scared",
+                "type": "str"
+            },
+            {
+                "label": "Indifferent",
+                "value": "Indifferent",
+                "type": "str"
+            }
+        ],
+        "payload": "",
+        "topic": "topic",
+        "topicType": "msg",
+        "className": "",
+        "x": 200,
+        "y": 710,
+        "wires": [
+            [
+                "c1bacd6c8805dae3"
+            ]
+        ]
+    },
+    {
+        "id": "c1bacd6c8805dae3",
+        "type": "ui-text",
+        "z": "dash2_input_official_tab",
+        "group": "flowfuse_ex_grp_radio_example",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Emotion:",
+        "format": "{{msg.payload}}",
+        "layout": "row-center",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#717171",
+        "className": "",
+        "x": 380,
+        "y": 710,
+        "wires": []
+    },
+    {
+        "id": "cmt_dash2_input_official_swith_w_notification",
+        "type": "comment",
+        "z": "dash2_input_official_tab",
+        "name": "swith-w-notification（GitHub examples）",
+        "info": "",
+        "x": 320,
+        "y": 790,
+        "wires": []
+    },
+    {
+        "id": "beaecd4993da0288",
+        "type": "ui-switch",
+        "z": "dash2_input_official_tab",
+        "name": "",
+        "label": "switch",
+        "group": "flowfuse_ex_grp_swith_w_notification",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "topic": "topic",
+        "topicType": "msg",
+        "style": "",
+        "className": "",
+        "onvalue": "Machine Started",
+        "onvalueType": "str",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "Machine Stopped",
+        "offvalueType": "str",
+        "officon": "",
+        "offcolor": "",
+        "x": 200,
+        "y": 840,
+        "wires": [
+            [
+                "e1f9ad3e5063e8ae"
+            ]
+        ]
+    },
+    {
+        "id": "e1f9ad3e5063e8ae",
+        "type": "ui-notification",
+        "z": "dash2_input_official_tab",
+        "ui": "c2e1aa56f50f03bd",
+        "position": "top right",
+        "colorDefault": true,
+        "color": "#000000",
+        "displayTime": "3",
+        "showCountdown": true,
+        "outputs": 0,
+        "allowDismiss": true,
+        "dismissText": "Close",
+        "raw": false,
+        "className": "",
+        "name": "",
+        "x": 380,
+        "y": 840,
+        "wires": []
+    },
+    {
+        "id": "c2e1aa56f50f03bd",
+        "type": "ui-base",
+        "name": "Dashboard",
+        "path": "/dashboard",
+        "includeClientData": true,
+        "acceptsClientConfig": [
+            "ui-control",
+            "ui-notification"
+        ],
+        "showPathInSidebar": false,
+        "headerContent": "none",
+        "navigationStyle": "icon",
+        "titleBarStyle": "default"
+    },
+    {
+        "id": "afa24cae12543ca5",
+        "type": "ui-theme",
+        "name": "Example Theme",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#0094ce",
+            "bgPage": "#eeeeee",
+            "groupBg": "#fafdff",
+            "groupOutline": "#000000"
+        },
+        "sizes": {
+            "groupGap": "12px",
+            "widgetGap": "12px",
+            "pagePadding": "12px",
+            "groupBorderRadius": "0px",
+            "density": "default"
+        }
+    },
+    {
+        "id": "129e99574def90a3",
+        "type": "ui-theme",
+        "name": "Custom Theme",
+        "colors": {
+            "surface": "#000000",
+            "primary": "#ff4000",
+            "bgPage": "#f0f0f0",
+            "groupBg": "#ffffff",
+            "groupOutline": "#d9d9d9"
+        },
+        "sizes": {
+            "pagePadding": "24px",
+            "groupGap": "12px",
+            "groupBorderRadius": "9px",
+            "widgetGap": "6px",
+            "density": "default"
+        }
+    },
+    {
+        "id": "ea42e606327de0a5",
+        "type": "ui-page",
+        "name": "Demo Page",
+        "ui": "c2e1aa56f50f03bd",
+        "path": "/page2",
+        "icon": "",
+        "layout": "grid",
+        "theme": "afa24cae12543ca5",
+        "breakpoints": [
+            {
+                "name": "Default",
+                "px": "0",
+                "cols": "3"
+            },
+            {
+                "name": "Tablet",
+                "px": "576",
+                "cols": "6"
+            },
+            {
+                "name": "Small Desktop",
+                "px": "768",
+                "cols": "9"
+            },
+            {
+                "name": "Desktop",
+                "px": "1024",
+                "cols": "12"
+            }
+        ],
+        "order": 23,
+        "className": "",
+        "visible": "true",
+        "disabled": "false"
+    },
+    {
+        "id": "22b5519aa675ad88",
+        "type": "ui-page",
+        "name": "Active Development",
+        "ui": "c2e1aa56f50f03bd",
+        "path": "/active-development",
+        "icon": "forum",
+        "layout": "grid",
+        "theme": "129e99574def90a3",
+        "order": 1,
+        "className": "",
+        "visible": "true",
+        "disabled": "false"
+    },
+    {
+        "id": "flowfuse_examples_page",
+        "type": "ui-page",
+        "name": "GitHub Examples",
+        "ui": "c2e1aa56f50f03bd",
+        "path": "/flowfuse-examples",
+        "icon": "github",
+        "layout": "grid",
+        "theme": "afa24cae12543ca5",
+        "breakpoints": [
+            {
+                "name": "Default",
+                "px": "0",
+                "cols": "3"
+            },
+            {
+                "name": "Tablet",
+                "px": "576",
+                "cols": "6"
+            },
+            {
+                "name": "Small Desktop",
+                "px": "768",
+                "cols": "9"
+            },
+            {
+                "name": "Desktop",
+                "px": "1024",
+                "cols": "12"
+            }
+        ],
+        "order": 30,
+        "className": "",
+        "visible": "true",
+        "disabled": "false"
+    },
+    {
+        "id": "4400cdcbaa768e57",
+        "type": "ui-group",
+        "name": "Hold Duration Test",
+        "page": "ea42e606327de0a5",
+        "width": "6",
+        "height": "1",
+        "order": 1,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false"
+    },
+    {
+        "id": "c7871ac53089d535",
+        "type": "ui-group",
+        "name": "Dialog Group",
+        "page": "22b5519aa675ad88",
+        "width": "6",
+        "height": "1",
+        "order": 1,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "dialog"
+    },
+    {
+        "id": "497106faf38a5190",
+        "type": "ui-group",
+        "name": "Button Groups",
+        "page": "22b5519aa675ad88",
+        "width": "6",
+        "height": "1",
+        "order": 10,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false"
+    },
+    {
+        "id": "flowfuse_ex_grp_text_input_w_button",
+        "type": "ui-group",
+        "name": "text-input-w-button",
+        "page": "flowfuse_examples_page",
+        "width": "6",
+        "height": "1",
+        "order": 1,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "flowfuse_ex_grp_dropdown_w_dynamic_options",
+        "type": "ui-group",
+        "name": "dropdown-w-dynamic-options",
+        "page": "flowfuse_examples_page",
+        "width": "6",
+        "height": "1",
+        "order": 2,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "flowfuse_ex_grp_radio_example",
+        "type": "ui-group",
+        "name": "radio-example",
+        "page": "flowfuse_examples_page",
+        "width": "6",
+        "height": "1",
+        "order": 3,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "flowfuse_ex_grp_swith_w_notification",
+        "type": "ui-group",
+        "name": "swith-w-notification",
+        "page": "flowfuse_examples_page",
+        "width": "6",
+        "height": "1",
+        "order": 4,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    }
+]</div>
+        </details>
+
+        <h3>応用（サイト独自）: 全パターンのサンプル</h3>
+        <p>ここから先は公式サンプルではなく、<strong>本サイトが用意した応用教材</strong>です。このガイドで説明する8種類のウィジェットの使い方を、1つのタブにまとめています。ダッシュボードでは <code>/dashboard/input-widgets</code> に表示されます。3章以降の説明は、このフローを例に進めます。</p>
+        <details>
+            <summary>📋 応用フローJSON（クリックで展開）</summary>
             <p style="margin: 10px 0; color: #666;"><small>このサンプルには ui-button, ui-switch, ui-slider, ui-dropdown, ui-text-input, ui-form, ui-radio-group, ui-button-group の全パターンが含まれています</small></p>
             <div class="flow-json">[
     {
@@ -1648,7 +2587,7 @@
         "id": "input_ui_page",
         "type": "ui-page",
         "name": "入力系サンプル",
-        "ui": "6692685697ac2af1",
+        "ui": "c2e1aa56f50f03bd",
         "path": "/input-widgets",
         "icon": "mdi-gamepad-variant",
         "layout": "grid",
@@ -1681,7 +2620,7 @@
         "disabled": "false"
     },
     {
-        "id": "6692685697ac2af1",
+        "id": "c2e1aa56f50f03bd",
         "type": "ui-base",
         "name": "My Dashboard",
         "path": "/dashboard",
@@ -3309,30 +4248,30 @@ msg.topic = "power"</div>
             <h3>演習 D-3: 動的オプション変更<span class="difficulty difficulty-hard">上級</span></h3>
             
             <p><strong>📝 課題:</strong></p>
-            <p>Functionノードで<code>msg.options</code>を送信して、ドロップダウンの選択肢を動的に変更してください。</p>
+            <p><code>msg.options</code>を送信して、ドロップダウンの選択肢を動的に変更してください。</p>
             
             <p><strong>💼 使いどころ:</strong> 接続中の機器一覧のように、選択肢が実行時に決まる場面で使います。</p>
             <p><strong>🎯 要求仕様:</strong></p>
             <ul>
                 <li>ui-dropdown: ラベル「地域選択」</li>
-                <li>Inject → Functionノードでmsg.optionsを生成</li>
+                <li>Inject → Changeノードでmsg.optionsを設定</li>
                 <li>選択肢: 東京(tokyo)、大阪(osaka)、福岡(fukuoka)</li>
             </ul>
             
             <details>
                 <summary>💡 ヒント</summary>
-                <p><strong>Functionノードのコード:</strong></p>
-                <div class="code-block">msg.options = [
+                <p><strong>Changeノードの設定:</strong> 「値の代入」で <code>msg.options</code> に「JSON」型の次の値を設定します。</p>
+                <div class="code-block">[
     {"label": "東京", "value": "tokyo"},
     {"label": "大阪", "value": "osaka"},
     {"label": "福岡", "value": "fukuoka"}
-];
-return msg;</div>
+]</div>
+                <p>ドロップダウンは <code>msg.options</code> を受け取ると、選択肢をその内容に置き換えます。</p>
             </details>
             
             <details>
                 <summary>✅ 解答例フロー</summary>
-                <div class="flow-json">[{"id":"d3_tab","type":"tab","label":"D-3: 動的オプション変更"},{"id":"d3_base","type":"ui-base","name":"Dashboard","path":"/dashboard","appIcon":"","includeClientData":true,"acceptsClientConfig":["ui-notification","ui-control"],"showPathInSidebar":false,"headerContent":"page","navigationStyle":"default","titleBarStyle":"default","showPageTitle":true,"showReconnectNotification":true,"notificationDisplayTime":1,"showDisconnectNotification":true,"allowInstall":false},{"id":"d3_page","type":"ui-page","name":"ドロップダウン演習","ui":"d3_base","path":"/d3","layout":"grid","theme":"d3_theme","breakpoints":[{"name":"Default","px":0,"cols":3},{"name":"Tablet","px":576,"cols":6},{"name":"Small Desktop","px":768,"cols":9},{"name":"Desktop","px":1024,"cols":12}],"order":1,"className":"","visible":true,"disabled":false},{"id":"d3_theme","type":"ui-theme","name":"Theme","colors":{"surface":"#ffffff","primary":"#b92d5d","bgPage":"#eeeeee","groupBg":"#ffffff","groupOutline":"#cccccc"},"sizes":{"pagePadding":"12px","groupGap":"12px","groupBorderRadius":"4px","widgetGap":"12px","density":"default"}},{"id":"d3_group","type":"ui-group","name":"🗺️ 地域選択","page":"d3_page","width":"6","height":"4","order":1,"showTitle":true,"className":"","visible":true,"disabled":false,"groupType":"default"},{"id":"d3_inject","type":"inject","z":"d3_tab","name":"地域オプション","props":[{"p":"payload"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","payload":"","payloadType":"date","x":130,"y":100,"wires":[["d3_func"]]},{"id":"d3_func","type":"function","z":"d3_tab","name":"options生成","func":"msg.options = [\n    {\"label\": \"東京\", \"value\": \"tokyo\"},\n    {\"label\": \"大阪\", \"value\": \"osaka\"},\n    {\"label\": \"福岡\", \"value\": \"fukuoka\"}\n];\nreturn msg;","outputs":1,"timeout":0,"noerr":0,"initialize":"","finalize":"","libs":[],"x":310,"y":100,"wires":[["d3_dropdown"]]},{"id":"d3_dropdown","type":"ui-dropdown","z":"d3_tab","group":"d3_group","name":"地域選択","label":"地域","order":1,"width":0,"height":0,"passthru":false,"multiple":false,"chips":false,"clearable":false,"options":[],"topic":"region","topicType":"str","className":"","x":480,"y":100,"wires":[["d3_debug"]]},{"id":"d3_debug","type":"debug","z":"d3_tab","name":"出力確認","active":true,"tosidebar":true,"console":false,"tostatus":true,"complete":"payload","targetType":"msg","statusVal":"payload","statusType":"auto","x":650,"y":100,"wires":[]}]</div>
+                <div class="flow-json">[{"id":"d3_tab","type":"tab","label":"D-3: 動的オプション変更"},{"id":"d3_base","type":"ui-base","name":"Dashboard","path":"/dashboard","appIcon":"","includeClientData":true,"acceptsClientConfig":["ui-notification","ui-control"],"showPathInSidebar":false,"headerContent":"page","navigationStyle":"default","titleBarStyle":"default","showPageTitle":true,"showReconnectNotification":true,"notificationDisplayTime":1,"showDisconnectNotification":true,"allowInstall":false},{"id":"d3_page","type":"ui-page","name":"ドロップダウン演習","ui":"d3_base","path":"/d3","layout":"grid","theme":"d3_theme","breakpoints":[{"name":"Default","px":0,"cols":3},{"name":"Tablet","px":576,"cols":6},{"name":"Small Desktop","px":768,"cols":9},{"name":"Desktop","px":1024,"cols":12}],"order":1,"className":"","visible":true,"disabled":false},{"id":"d3_theme","type":"ui-theme","name":"Theme","colors":{"surface":"#ffffff","primary":"#b92d5d","bgPage":"#eeeeee","groupBg":"#ffffff","groupOutline":"#cccccc"},"sizes":{"pagePadding":"12px","groupGap":"12px","groupBorderRadius":"4px","widgetGap":"12px","density":"default"}},{"id":"d3_group","type":"ui-group","name":"🗺️ 地域選択","page":"d3_page","width":"6","height":"4","order":1,"showTitle":true,"className":"","visible":true,"disabled":false,"groupType":"default"},{"id":"d3_inject","type":"inject","z":"d3_tab","name":"地域オプション","props":[{"p":"payload"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","payload":"","payloadType":"date","x":130,"y":100,"wires":[["d3_change"]]},{"id":"d3_change","type":"change","z":"d3_tab","name":"options設定","rules":[{"t":"set","p":"options","pt":"msg","to":"[{\"label\": \"東京\", \"value\": \"tokyo\"}, {\"label\": \"大阪\", \"value\": \"osaka\"}, {\"label\": \"福岡\", \"value\": \"fukuoka\"}]","tot":"json"}],"action":"","property":"","from":"","to":"","reg":false,"x":310,"y":100,"wires":[["d3_dropdown"]]},{"id":"d3_dropdown","type":"ui-dropdown","z":"d3_tab","group":"d3_group","name":"地域選択","label":"地域","order":1,"width":0,"height":0,"passthru":false,"multiple":false,"chips":false,"clearable":false,"options":[],"topic":"region","topicType":"str","className":"","x":480,"y":100,"wires":[["d3_debug"]]},{"id":"d3_debug","type":"debug","z":"d3_tab","name":"出力確認","active":true,"tosidebar":true,"console":false,"tostatus":true,"complete":"payload","targetType":"msg","statusVal":"payload","statusType":"auto","x":650,"y":100,"wires":[]}]</div>
             </details>
         </div>
         

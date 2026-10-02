@@ -565,19 +565,461 @@
         <h2 id="section2">🔥 2. サンプルフロー</h2>
         
         <div class="important">
-            <p><strong>📥 まずサンプルフローをインポートしましょう！</strong></p>
-            <p>以下のサンプルフローには、このガイドで説明する<strong>全パターンの実例</strong>が含まれています。<br>
-            先にインポートして、実際に動作を確認しながら読み進めると理解が深まります。</p>
+            <p><strong>📥 サンプルフローを試す手順:</strong></p>
             <ol>
-                <li>下のサンプルフローJSONをコピー</li>
+                <li>下のフローJSONを「コピー」ボタンでコピー</li>
                 <li>Node-REDエディタで <strong>メニュー → 読み込み</strong> を選択</li>
                 <li>JSONをペーストして「読み込み」をクリック</li>
-                <li>各ui-*ノードで<strong>Group</strong>を選択してデプロイ</li>
+                <li>エディタ右上の<strong>「デプロイ」ボタンをクリック</strong>（クリックするまでフローは動きません）</li>
+                <li>ブラウザでダッシュボード（<code>http://localhost:1880/dashboard</code>）を開き、左のメニューからページを選んで動作を確認</li>
             </ol>
+            <p>このあとの「公式サンプルフロー」と「応用フロー」は、ダッシュボードの設定ノード（ui-base）を共有しています。両方を読み込むと、2つ目のときに「読み込もうとしているノードのいくつかは、既にワークスペース内に存在しています。」という通知が出ます。<strong>「コピーを読み込み」</strong>を選んでください。共有している設定ノードは既にあるものが使われ、ページは1つのダッシュボードにまとまります。</p>
+            <p><strong>ページが表示されないとき:</strong> ダッシュボードの設定ノード（ui-base）が2つ以上あると、そのうち1つのページしか表示されません。以前の版の応用フローや、7章の演習の解答例フローを読み込んでいると、この状態になります。エディタの <strong>メニュー → 設定ノード</strong> を開いて ui-base が2つ以上あれば、各ページ（ui-page）の「UI」欄を1つの ui-base にそろえ、使われなくなった ui-base を削除してからデプロイしてください。</p>
         </div>
-        
+
+        <h3>公式サンプルフロー</h3>
+        <p>最初のサンプルフローは、Dashboard 2.0 の開発元である FlowFuse が公開している公式サンプルを、1つのタブにまとめたものです。出典は次の2か所です。</p>
+        <ul>
+            <li><strong>公式ドキュメント</strong>: 各ウィジェットの解説ページ（<a href="https://dashboard.flowfuse.com/" target="_blank">dashboard.flowfuse.com</a>）に載っているサンプル。表の「出典」に、載っているページを書いています</li>
+            <li><strong>GitHub examples</strong>: <a href="https://github.com/FlowFuse/node-red-dashboard/tree/main/examples" target="_blank">GitHub リポジトリの examples フォルダ</a>にあるサンプル。npm パッケージには含まれないため、Node-RED エディタの <strong>メニュー → 読み込み → サンプル</strong> には出てきません</li>
+        </ul>
+        <p>ノードの設定値とノードIDは公式のままです。このサイトで手を加えたのは次の点だけです。</p>
+        <ul>
+            <li>1つのタブにまとめ、例が重ならないよう位置をずらし、例の名前を書いたコメントノードを置いた</li>
+            <li>GitHub examples はグループ（ui-group）が空のままで、読み込んでもダッシュボードに表示されない。そこで「GitHub Examples」ページ（<code>/flowfuse-examples</code>）と例ごとのグループを用意し、各ウィジェットに割り当てた</li>
+            <li>同じ設定ノード（ui-base など）が例ごとに少しずつ違う値で入っていたため、1つにそろえた</li>
+        </ul>
+        <div style="overflow-x: auto;">
+            <table>
+                <tr>
+                    <th>例（出典・表示されるページ）</th>
+                    <th>内容</th>
+                </tr>
+                <tr>
+                    <td><strong>ui-text-suffix</strong><br>公式ドキュメント（ui-text）<br><code>/dashboard/<wbr>templates</code></td>
+                    <td>スライダーの値に template ノードで「°C」を付け、ui-text に「5°C」のように表示します。値に単位を付けて見せる場面で使います。</td>
+                </tr>
+                <tr>
+                    <td><strong>ui-text-html-injection</strong><br>公式ドキュメント（ui-text）<br><code>/dashboard/<wbr>templates</code></td>
+                    <td>template ノードで作った HTML のリンクを ui-text に送り、リンクとして表示します。Inject のボタンを押すと表示されます。</td>
+                </tr>
+                <tr>
+                    <td><strong>help-markdown</strong><br>GitHub examples<br><code>/dashboard/<wbr>flowfuse-examples</code></td>
+                    <td>Markdown で書いたリンク集（公式ドキュメントへの案内）を表示します。入力は不要で、デプロイすると表示されます。</td>
+                </tr>
+                <tr>
+                    <td><strong>swith-w-notification</strong><br>GitHub examples<br><code>/dashboard/<wbr>flowfuse-examples</code></td>
+                    <td>スイッチを切り替えると、「Machine Started」または「Machine Stopped」が通知で表示されます。例の名前の綴り（swith）は公式のファイル名のままです。入力系ガイドの公式サンプルフローにも同じ例が入っています。両方を読み込んで「コピーを読み込み」を選ぶと、同じグループにスイッチが2つ並びます。</td>
+                </tr>
+            </table>
+        </div>
+        <p>audio の公式サンプルはありません。audio は、次の応用フローで扱います。</p>
         <details>
-            <summary>📋 表示系ウィジェット サンプルフロー（クリックで展開）</summary>
+            <summary>📥 表示系 公式サンプルフローJSON（クリックで展開）</summary>
+            <div class="flow-json">[
+    {
+        "id": "dash2_display_official_tab",
+        "type": "tab",
+        "label": "表示系 公式サンプル",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "cmt_dash2_display_official_ui_text_suffix",
+        "type": "comment",
+        "z": "dash2_display_official_tab",
+        "name": "ui-text-suffix（公式ドキュメント ui-text）",
+        "info": "",
+        "x": 320,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "03a4fb2ae4f1a0d6",
+        "type": "template",
+        "z": "dash2_display_official_tab",
+        "name": "Add Suffix",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "html",
+        "syntax": "mustache",
+        "template": "{{ payload }}°C",
+        "output": "str",
+        "x": 340,
+        "y": 110,
+        "wires": [
+            [
+                "96b97d1a5c6db5ba"
+            ]
+        ]
+    },
+    {
+        "id": "96b97d1a5c6db5ba",
+        "type": "ui-text",
+        "z": "dash2_display_official_tab",
+        "group": "ecd8ebed2d3bfedb",
+        "order": 1,
+        "width": "6",
+        "height": "1",
+        "name": "",
+        "label": "Render Text",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "style": true,
+        "font": "Helvetica, sans-serif",
+        "fontSize": "16",
+        "color": "#616161",
+        "className": "",
+        "x": 540,
+        "y": 110,
+        "wires": []
+    },
+    {
+        "id": "48bf87d13b3e1c07",
+        "type": "ui-slider",
+        "z": "dash2_display_official_tab",
+        "group": "ecd8ebed2d3bfedb",
+        "name": "",
+        "label": "slider",
+        "tooltip": "",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "outs": "all",
+        "topic": "topic",
+        "topicType": "msg",
+        "thumbLabel": "true",
+        "showTicks": "always",
+        "min": 0,
+        "max": 10,
+        "step": 1,
+        "className": "",
+        "iconPrepend": "",
+        "iconAppend": "",
+        "color": "",
+        "colorTrack": "",
+        "colorThumb": "",
+        "x": 200,
+        "y": 110,
+        "wires": [
+            [
+                "03a4fb2ae4f1a0d6"
+            ]
+        ]
+    },
+    {
+        "id": "cmt_dash2_display_official_ui_text_html_injection",
+        "type": "comment",
+        "z": "dash2_display_official_tab",
+        "name": "ui-text-html-injection（公式ドキュメント ui-text）",
+        "info": "",
+        "x": 320,
+        "y": 190,
+        "wires": []
+    },
+    {
+        "id": "ae7bd2bf8272885a",
+        "type": "inject",
+        "z": "dash2_display_official_tab",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "My Payload",
+        "payloadType": "str",
+        "x": 200,
+        "y": 240,
+        "wires": [
+            [
+                "829b6eb5f65d8740"
+            ]
+        ]
+    },
+    {
+        "id": "829b6eb5f65d8740",
+        "type": "template",
+        "z": "dash2_display_official_tab",
+        "name": "",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "html",
+        "syntax": "mustache",
+        "template": "&lt;a href=\"https://flowfuse.com\">{{ payload }}&lt;/a>",
+        "output": "str",
+        "x": 370,
+        "y": 240,
+        "wires": [
+            [
+                "c868e2e2087184be"
+            ]
+        ]
+    },
+    {
+        "id": "c868e2e2087184be",
+        "type": "ui-text",
+        "z": "dash2_display_official_tab",
+        "group": "ecd8ebed2d3bfedb",
+        "order": 3,
+        "width": "6",
+        "height": "1",
+        "name": "",
+        "label": "HTML Injection Example:",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "style": true,
+        "font": "Helvetica, sans-serif",
+        "fontSize": "16",
+        "color": "#616161",
+        "className": "",
+        "x": 540,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "cmt_dash2_display_official_help_markdown",
+        "type": "comment",
+        "z": "dash2_display_official_tab",
+        "name": "help-markdown（GitHub examples）",
+        "info": "",
+        "x": 320,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "45fc71e9f522a663",
+        "type": "ui-markdown",
+        "z": "dash2_display_official_tab",
+        "group": "flowfuse_ex_grp_help_markdown",
+        "name": "",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "content": "# Dashboard 2.0 Documentation\n\n## Quick start Guides Below:\n\n[Getting Started](https://dashboard.flowfuse.com/getting-started.html)\n\n[Migration Guide](https://dashboard.flowfuse.com/user/migration.html)\n\n[UI Template Examples](https://dashboard.flowfuse.com/user/template-examples.html)\n\n[Charts](https://dashboard.flowfuse.com/nodes/widgets/ui-chart.html)\n\n## [Issues](https://github.com/FlowFuse/node-red-dashboard/issues)\n\n## [Contributions](https://dashboard.flowfuse.com/contributing/)\n\n## [FlowFuse](https://flowfuse.com/)\n",
+        "className": "",
+        "x": 200,
+        "y": 370,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "cmt_dash2_display_official_swith_w_notification",
+        "type": "comment",
+        "z": "dash2_display_official_tab",
+        "name": "swith-w-notification（GitHub examples）",
+        "info": "",
+        "x": 320,
+        "y": 450,
+        "wires": []
+    },
+    {
+        "id": "beaecd4993da0288",
+        "type": "ui-switch",
+        "z": "dash2_display_official_tab",
+        "name": "",
+        "label": "switch",
+        "group": "flowfuse_ex_grp_swith_w_notification",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "topic": "topic",
+        "topicType": "msg",
+        "style": "",
+        "className": "",
+        "onvalue": "Machine Started",
+        "onvalueType": "str",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "Machine Stopped",
+        "offvalueType": "str",
+        "officon": "",
+        "offcolor": "",
+        "x": 200,
+        "y": 500,
+        "wires": [
+            [
+                "e1f9ad3e5063e8ae"
+            ]
+        ]
+    },
+    {
+        "id": "e1f9ad3e5063e8ae",
+        "type": "ui-notification",
+        "z": "dash2_display_official_tab",
+        "ui": "c2e1aa56f50f03bd",
+        "position": "top right",
+        "colorDefault": true,
+        "color": "#000000",
+        "displayTime": "3",
+        "showCountdown": true,
+        "outputs": 0,
+        "allowDismiss": true,
+        "dismissText": "Close",
+        "raw": false,
+        "className": "",
+        "name": "",
+        "x": 380,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "c2e1aa56f50f03bd",
+        "type": "ui-base",
+        "name": "Dashboard",
+        "path": "/dashboard",
+        "includeClientData": true,
+        "acceptsClientConfig": [
+            "ui-control",
+            "ui-notification"
+        ],
+        "showPathInSidebar": false,
+        "headerContent": "none",
+        "navigationStyle": "default",
+        "titleBarStyle": "default"
+    },
+    {
+        "id": "129e99574def90a3",
+        "type": "ui-theme",
+        "name": "Custom Theme",
+        "colors": {
+            "surface": "#000000",
+            "primary": "#ff4000",
+            "bgPage": "#f0f0f0",
+            "groupBg": "#ffffff",
+            "groupOutline": "#d9d9d9"
+        },
+        "sizes": {
+            "pagePadding": "24px",
+            "groupGap": "12px",
+            "groupBorderRadius": "9px",
+            "widgetGap": "6px"
+        }
+    },
+    {
+        "id": "afa24cae12543ca5",
+        "type": "ui-theme",
+        "name": "Example Theme",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#0094ce",
+            "bgPage": "#eeeeee",
+            "groupBg": "#fafdff",
+            "groupOutline": "#000000"
+        },
+        "sizes": {
+            "groupGap": "12px",
+            "widgetGap": "12px",
+            "pagePadding": "12px",
+            "groupBorderRadius": "0px",
+            "density": "default"
+        }
+    },
+    {
+        "id": "a9b32250ebfa989b",
+        "type": "ui-page",
+        "name": "Template Examples",
+        "ui": "c2e1aa56f50f03bd",
+        "path": "/templates",
+        "icon": "view-dashboard",
+        "layout": "flex",
+        "theme": "129e99574def90a3",
+        "order": 19,
+        "className": ""
+    },
+    {
+        "id": "flowfuse_examples_page",
+        "type": "ui-page",
+        "name": "GitHub Examples",
+        "ui": "c2e1aa56f50f03bd",
+        "path": "/flowfuse-examples",
+        "icon": "github",
+        "layout": "grid",
+        "theme": "afa24cae12543ca5",
+        "breakpoints": [
+            {
+                "name": "Default",
+                "px": "0",
+                "cols": "3"
+            },
+            {
+                "name": "Tablet",
+                "px": "576",
+                "cols": "6"
+            },
+            {
+                "name": "Small Desktop",
+                "px": "768",
+                "cols": "9"
+            },
+            {
+                "name": "Desktop",
+                "px": "1024",
+                "cols": "12"
+            }
+        ],
+        "order": 30,
+        "className": "",
+        "visible": "true",
+        "disabled": "false"
+    },
+    {
+        "id": "ecd8ebed2d3bfedb",
+        "type": "ui-group",
+        "name": "Text Input",
+        "page": "a9b32250ebfa989b",
+        "width": "6",
+        "height": "",
+        "order": 1,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false"
+    },
+    {
+        "id": "flowfuse_ex_grp_help_markdown",
+        "type": "ui-group",
+        "name": "help-markdown",
+        "page": "flowfuse_examples_page",
+        "width": "6",
+        "height": "1",
+        "order": 5,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "flowfuse_ex_grp_swith_w_notification",
+        "type": "ui-group",
+        "name": "swith-w-notification",
+        "page": "flowfuse_examples_page",
+        "width": "6",
+        "height": "1",
+        "order": 4,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    }
+]</div>
+        </details>
+
+        <h3>応用（サイト独自）: 全パターンのサンプル</h3>
+        <p>ここから先は公式サンプルではなく、<strong>本サイトが用意した応用教材</strong>です。このガイドで説明する4種類のウィジェットの使い方を、1つのタブにまとめています。ダッシュボードでは <code>/dashboard/display-widgets</code> に表示されます。3章以降の説明は、このフローを例に進めます。</p>
+        <details>
+            <summary>📋 応用フローJSON（クリックで展開）</summary>
             <p style="margin: 10px 0; color: #666;"><small>このサンプルには text, markdown, notification, audio の全パターンが含まれています</small></p>
             <div class="flow-json">[
     {
@@ -1046,7 +1488,7 @@
         "id": "e36825aeb356a81a",
         "type": "ui-notification",
         "z": "289c4fb42bfdacf9",
-        "ui": "6692685697ac2af1",
+        "ui": "c2e1aa56f50f03bd",
         "position": "top right",
         "colorDefault": true,
         "color": "#000000",
@@ -1125,7 +1567,7 @@
         "id": "313db1b819a9b152",
         "type": "ui-notification",
         "z": "289c4fb42bfdacf9",
-        "ui": "6692685697ac2af1",
+        "ui": "c2e1aa56f50f03bd",
         "position": "top center",
         "colorDefault": false,
         "color": "#ff9800",
@@ -1189,7 +1631,7 @@
         "id": "4441429339a04176",
         "type": "ui-notification",
         "z": "289c4fb42bfdacf9",
-        "ui": "6692685697ac2af1",
+        "ui": "c2e1aa56f50f03bd",
         "position": "center center",
         "colorDefault": false,
         "color": "#2196f3",
@@ -1342,7 +1784,7 @@
         "id": "2929a71cada84ecd",
         "type": "ui-notification",
         "z": "289c4fb42bfdacf9",
-        "ui": "6692685697ac2af1",
+        "ui": "c2e1aa56f50f03bd",
         "position": "top center",
         "colorDefault": false,
         "color": "#f44336",
@@ -1514,7 +1956,7 @@
         "type": "ui-audio",
         "z": "289c4fb42bfdacf9",
         "group": "",
-        "ui": "6692685697ac2af1",
+        "ui": "c2e1aa56f50f03bd",
         "name": "TTS",
         "order": "",
         "width": "",
@@ -1597,7 +2039,7 @@
         "type": "ui-audio",
         "z": "289c4fb42bfdacf9",
         "group": "",
-        "ui": "6692685697ac2af1",
+        "ui": "c2e1aa56f50f03bd",
         "name": "多言語TTS",
         "order": "",
         "width": "",
@@ -1644,7 +2086,7 @@
         "groupType": "default"
     },
     {
-        "id": "6692685697ac2af1",
+        "id": "c2e1aa56f50f03bd",
         "type": "ui-base",
         "name": "My Dashboard",
         "path": "/dashboard",
@@ -1682,7 +2124,7 @@
         "id": "sample_ui_page",
         "type": "ui-page",
         "name": "表示系サンプル",
-        "ui": "6692685697ac2af1",
+        "ui": "c2e1aa56f50f03bd",
         "path": "/display-widgets",
         "icon": "mdi-monitor",
         "layout": "grid",
@@ -1755,7 +2197,7 @@
         </div>
         
         <div class="tip">
-            <p><strong>📌 サンプルフロー参照:</strong> 上記サンプルフローの「📝 ui-text サンプル」セクションに、以下のパターン1〜4の実例が含まれています。</p>
+            <p><strong>📌 サンプルフロー参照:</strong> 2章の応用フローの「📝 ui-text サンプル」セクションに、以下のパターン1〜4の実例が含まれています。</p>
         </div>
         
         <h3>⚙️ 基本設定</h3>
@@ -1956,7 +2398,7 @@ msg.class = "my-custom-class";
         </div>
         
         <div class="tip">
-            <p><strong>📌 サンプルフロー参照:</strong> 上記サンプルフローの「📰 ui-markdown サンプル」セクションに、以下のパターン1〜3の実例が含まれています。</p>
+            <p><strong>📌 サンプルフロー参照:</strong> 2章の応用フローの「📰 ui-markdown サンプル」セクションに、以下のパターン1〜3の実例が含まれています。</p>
         </div>
         
         <h3>⚙️ 基本設定</h3>
@@ -2104,7 +2546,7 @@ pie title 売上構成
         </div>
         
         <div class="tip">
-            <p><strong>📌 サンプルフロー参照:</strong> 上記サンプルフローの「🔔 ui-notification サンプル」セクションに、以下のパターン1〜4の実例が含まれています。</p>
+            <p><strong>📌 サンプルフロー参照:</strong> 2章の応用フローの「🔔 ui-notification サンプル」セクションに、以下のパターン1〜4の実例が含まれています。</p>
         </div>
         
         <h3>⚙️ 基本設定</h3>
@@ -2333,7 +2775,7 @@ msg.show = true;  // 表示/非表示の制御
         </div>
         
         <div class="tip">
-            <p><strong>📌 サンプルフロー参照:</strong> 上記サンプルフローの「🔊 ui-audio サンプル」セクションに、以下のパターン1〜3の実例が含まれています。</p>
+            <p><strong>📌 サンプルフロー参照:</strong> 2章の応用フローの「🔊 ui-audio サンプル」セクションに、以下のパターン1〜3の実例が含まれています。</p>
         </div>
         
         <h3>🎚️ モード選択</h3>
@@ -2707,7 +3149,7 @@ msg.payload = {
             <p><strong>💼 使いどころ:</strong> 更新され続ける値を、決めた書式に整えて画面に出す場面で使います。</p>
             <p><strong>🎯 要求仕様:</strong></p>
             <ul>
-                <li>Inject（1秒間隔で自動送信）、Function、ui-textノードを使用</li>
+                <li>Inject（1秒間隔で自動送信）、Change、ui-textノードを使用</li>
                 <li>「現在時刻:」というラベル付き</li>
                 <li>Layout: row-spread</li>
             </ul>
@@ -2719,13 +3161,9 @@ msg.payload = {
                     <li>繰り返し: 指定した時間間隔 → 1秒</li>
                     <li>msg.payload: タイムスタンプ（timestamp）</li>
                 </ul>
-                <p><strong>Functionノード:</strong></p>
-                <div class="code-block">const now = new Date(msg.payload);
-const h = String(now.getHours()).padStart(2, '0');
-const m = String(now.getMinutes()).padStart(2, '0');
-const s = String(now.getSeconds()).padStart(2, '0');
-msg.payload = `${h}:${m}:${s}`;
-return msg;</div>
+                <p><strong>Changeノードの設定:</strong> 「値の代入」で <code>msg.payload</code> に「JSONata式」型の次の式を設定します。</p>
+                <div class="code-block">$moment(payload).format("HH:mm:ss")</div>
+                <p><code>$moment</code> は Node-RED が JSONata に追加している日時の関数です。タイムスタンプを受け取り、<code>format</code> の書式で文字列にします。<code>HH</code> は24時間表記の時、<code>mm</code> は分、<code>ss</code> は秒で、時刻は Node-RED を動かしているコンピューターのタイムゾーンで表されます。</p>
                 <p><strong>ui-textノード:</strong> Label「現在時刻:」、Layout「row-spread」を設定</p>
             </details>
             
@@ -2808,17 +3246,29 @@ return msg;</div>
         "y": 100,
         "wires": [
             [
-                "t2_function"
+                "t2_change"
             ]
         ]
     },
     {
-        "id": "t2_function",
-        "type": "function",
+        "id": "t2_change",
+        "type": "change",
         "z": "dashboard2_widgets_display_tab_2",
         "name": "時刻フォーマット",
-        "func": "const now = new Date(msg.payload);\nconst h = String(now.getHours()).padStart(2, '0');\nconst m = String(now.getMinutes()).padStart(2, '0');\nconst s = String(now.getSeconds()).padStart(2, '0');\nmsg.payload = `${h}:${m}:${s}`;\nreturn msg;",
-        "outputs": 1,
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "$moment(payload).format(\"HH:mm:ss\")",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
         "x": 320,
         "y": 100,
         "wires": [
@@ -2864,7 +3314,7 @@ return msg;</div>
             <p><strong>💼 使いどころ:</strong> 値の水準に応じて文字色を変え、注意すべき状態を目立たせる場面で使います。</p>
             <p><strong>🎯 要求仕様:</strong></p>
             <ul>
-                <li>Inject、Function、ui-textノードを使用</li>
+                <li>Inject、Change、ui-textノードを使用</li>
                 <li>温度30℃以上: 赤色（#ff0000）</li>
                 <li>温度30℃未満: 緑色（#4caf50）</li>
                 <li>文字サイズは20pxに設定</li>
@@ -2877,13 +3327,12 @@ return msg;</div>
                     <li>高温テスト用: msg.payload に数値 32 を設定</li>
                     <li>通常テスト用: msg.payload に数値 25 を設定</li>
                 </ul>
-                <p><strong>Functionノード:</strong></p>
-                <div class="code-block">msg.ui_update = {
-    color: msg.payload >= 30 ? "#ff0000" : "#4caf50",
-    fontSize: "20px"
-};
-msg.payload = msg.payload + " ℃";
-return msg;</div>
+                <p><strong>Changeノードの設定:</strong> 「値の代入」のルールを2つ、次の順に並べます。</p>
+                <ol>
+                    <li><code>msg.ui_update</code> に「JSONata式」型の <code>{"color": payload &gt;= 30 ? "#ff0000" : "#4caf50", "fontSize": "20px"}</code></li>
+                    <li><code>msg.payload</code> に「JSONata式」型の <code>payload &amp; " ℃"</code></li>
+                </ol>
+                <p>ルールは上から順に実行されます。1つ目で数値の <code>payload</code> を使って色を決め、2つ目で <code>payload</code> を「32 ℃」のような文字列に変えます。順序を逆にすると、色を決める時点で <code>payload</code> が文字列になっていて、比較が正しく働きません。</p>
                 <p><strong>ui-textノード:</strong> Styleチェックボックスを有効化（動的スタイル変更に必須）</p>
             </details>
             
@@ -2966,7 +3415,7 @@ return msg;</div>
         "y": 100,
         "wires": [
             [
-                "t3_function"
+                "t3_change"
             ]
         ]
     },
@@ -2991,17 +3440,36 @@ return msg;</div>
         "y": 160,
         "wires": [
             [
-                "t3_function"
+                "t3_change"
             ]
         ]
     },
     {
-        "id": "t3_function",
-        "type": "function",
+        "id": "t3_change",
+        "type": "change",
         "z": "dashboard2_widgets_display_tab_3",
         "name": "色設定",
-        "func": "msg.ui_update = {\n    color: msg.payload >= 30 ? \"#ff0000\" : \"#4caf50\",\n    fontSize: \"20px\"\n};\nmsg.payload = msg.payload + \" ℃\";\nreturn msg;",
-        "outputs": 1,
+        "rules": [
+            {
+                "t": "set",
+                "p": "ui_update",
+                "pt": "msg",
+                "to": "{\"color\": payload >= 30 ? \"#ff0000\" : \"#4caf50\", \"fontSize\": \"20px\"}",
+                "tot": "jsonata"
+            },
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "payload &amp; \" ℃\"",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
         "x": 320,
         "y": 130,
         "wires": [
@@ -3520,7 +3988,7 @@ return msg;</div>
             <p><strong>💼 使いどころ:</strong> 構成図を文章から描かせ、内容の変化に合わせて図を差し替える場面で使います。</p>
             <p><strong>🎯 要求仕様:</strong></p>
             <ul>
-                <li>Inject、Function、ui-markdownノードを使用</li>
+                <li>Inject、Change、ui-markdownノードを使用</li>
                 <li>Mermaidのgraph TD形式でフローチャートを描画</li>
                 <li>ノードの状態（正常/異常）に応じて色を変更</li>
             </ul>
@@ -3532,21 +4000,14 @@ return msg;</div>
                     <li>msg.payload.serverStatus: "正常"または"異常"</li>
                     <li>msg.payload.dbStatus: "正常"または"異常"</li>
                 </ul>
-                <p><strong>Functionノード:</strong></p>
-                <div class="code-block">const serverStyle = msg.payload.serverStatus === "正常" 
-    ? "fill:#4caf50,color:#fff" 
-    : "fill:#f44336,color:#fff";
-const dbStyle = msg.payload.dbStatus === "正常" 
-    ? "fill:#4caf50,color:#fff" 
-    : "fill:#f44336,color:#fff";
-
-msg.payload = {
-    serverStyle: serverStyle,
-    dbStyle: dbStyle,
-    serverStatus: msg.payload.serverStatus,
-    dbStatus: msg.payload.dbStatus
-};
-return msg;</div>
+                <p><strong>Changeノードの設定:</strong> 「値の代入」で <code>msg.payload</code> に「JSONata式」型の次の式を設定します。</p>
+                <div class="code-block">{
+    "serverStyle": payload.serverStatus = "正常" ? "fill:#4caf50,color:#fff" : "fill:#f44336,color:#fff",
+    "dbStyle": payload.dbStatus = "正常" ? "fill:#4caf50,color:#fff" : "fill:#f44336,color:#fff",
+    "serverStatus": payload.serverStatus,
+    "dbStatus": payload.dbStatus
+}</div>
+                <p>JSONata では等しいかどうかを <code>=</code> 1つで比べます。<code>条件 ? 値1 : 値2</code> は、条件が成り立てば値1、成り立たなければ値2になります。</p>
                 <p><strong>ui-markdownのContent:</strong></p>
                 <div class="code-block">## システム状態
 
@@ -3643,7 +4104,7 @@ graph TD;
         "y": 100,
         "wires": [
             [
-                "m3_function"
+                "m3_change"
             ]
         ]
     },
@@ -3673,17 +4134,29 @@ graph TD;
         "y": 160,
         "wires": [
             [
-                "m3_function"
+                "m3_change"
             ]
         ]
     },
     {
-        "id": "m3_function",
-        "type": "function",
+        "id": "m3_change",
+        "type": "change",
         "z": "dashboard2_widgets_display_tab_7",
         "name": "スタイル生成",
-        "func": "const serverStyle = msg.payload.serverStatus === '正常' ? 'fill:#4caf50,color:#fff' : 'fill:#f44336,color:#fff';\nconst dbStyle = msg.payload.dbStatus === '正常' ? 'fill:#4caf50,color:#fff' : 'fill:#f44336,color:#fff';\nmsg.payload = { serverStyle, dbStyle, serverStatus: msg.payload.serverStatus, dbStatus: msg.payload.dbStatus };\nreturn msg;",
-        "outputs": 1,
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "{\n    \"serverStyle\": payload.serverStatus = \"正常\" ? \"fill:#4caf50,color:#fff\" : \"fill:#f44336,color:#fff\",\n    \"dbStyle\": payload.dbStatus = \"正常\" ? \"fill:#4caf50,color:#fff\" : \"fill:#f44336,color:#fff\",\n    \"serverStatus\": payload.serverStatus,\n    \"dbStatus\": payload.dbStatus\n}",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
         "x": 300,
         "y": 130,
         "wires": [
@@ -3835,7 +4308,7 @@ graph TD;
             </ul>
             
             <div class="tip">
-                <p><strong>📌 ポイント:</strong> サンプルフローの「パターン3: 確認ダイアログと結果の処理分岐」を参考にしてください。なお Inject を起点にしたこの構成では、接続中の全員にダイアログが出て、各自が応答できます。取り消せない操作の確認に使う場合の対処は、パターン3の注意書きを参照してください。</p>
+                <p><strong>📌 ポイント:</strong> 2章の応用フローの「パターン3: 確認ダイアログと結果の処理分岐」を参考にしてください。なお Inject を起点にしたこの構成では、接続中の全員にダイアログが出て、各自が応答できます。取り消せない操作の確認に使う場合の対処は、パターン3の注意書きを参照してください。</p>
             </div>
             
             <details>
@@ -4026,10 +4499,13 @@ graph TD;
                     <li>条件2: >= 20 → 出力2</li>
                     <li>条件3: その他 → 出力3</li>
                 </ul>
-                <p><strong>各ui-notificationの設定を変える:</strong></p>
+                <p><strong>出力ごとにChangeノードを置く:</strong></p>
+                <p>3つの出力それぞれにChangeノードをつなぎ、どれも同じ1つのui-notificationへ送ります。各Changeノードには「値の代入」のルールを2つ設定します。</p>
                 <ul>
-                    <li>Position、Color、表示メッセージを条件ごとに設定</li>
+                    <li><code>msg.ui_update</code> に「JSON」型で色と表示位置を設定する（例: <code>{"color": "#f44336", "position": "top center"}</code>）</li>
+                    <li><code>msg.payload</code> に「JSONata式」型で表示する文を設定する（例: <code>"⚠️ 高温警告: " &amp; payload &amp; "℃"</code>）</li>
                 </ul>
+                <p>ui-notificationは <code>msg.ui_update</code> の <code>color</code> と <code>position</code> を受け取ると、ノードに設定した色と位置の代わりにその値を使います。</p>
             </details>
             
             <details>
@@ -4168,23 +4644,42 @@ graph TD;
         "y": 160,
         "wires": [
             [
-                "ex3_func_high"
+                "ex3_change_high"
             ],
             [
-                "ex3_func_normal"
+                "ex3_change_normal"
             ],
             [
-                "ex3_func_low"
+                "ex3_change_low"
             ]
         ]
     },
     {
-        "id": "ex3_func_high",
-        "type": "function",
+        "id": "ex3_change_high",
+        "type": "change",
         "z": "dashboard2_widgets_display_tab_10",
         "name": "高温警告",
-        "func": "msg.ui_update = {\n    color: \"#f44336\",\n    position: \"top center\"\n};\nmsg.payload = `⚠️ 高温警告: ${msg.payload}℃`;\nreturn msg;",
-        "outputs": 1,
+        "rules": [
+            {
+                "t": "set",
+                "p": "ui_update",
+                "pt": "msg",
+                "to": "{\"color\": \"#f44336\", \"position\": \"top center\"}",
+                "tot": "json"
+            },
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "\"⚠️ 高温警告: \" &amp; payload &amp; \"℃\"",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
         "x": 490,
         "y": 100,
         "wires": [
@@ -4194,12 +4689,31 @@ graph TD;
         ]
     },
     {
-        "id": "ex3_func_normal",
-        "type": "function",
+        "id": "ex3_change_normal",
+        "type": "change",
         "z": "dashboard2_widgets_display_tab_10",
         "name": "通常通知",
-        "func": "msg.ui_update = {\n    color: \"#4caf50\",\n    position: \"top right\"\n};\nmsg.payload = `✓ 正常: ${msg.payload}℃`;\nreturn msg;",
-        "outputs": 1,
+        "rules": [
+            {
+                "t": "set",
+                "p": "ui_update",
+                "pt": "msg",
+                "to": "{\"color\": \"#4caf50\", \"position\": \"top right\"}",
+                "tot": "json"
+            },
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "\"✓ 正常: \" &amp; payload &amp; \"℃\"",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
         "x": 490,
         "y": 160,
         "wires": [
@@ -4209,12 +4723,31 @@ graph TD;
         ]
     },
     {
-        "id": "ex3_func_low",
-        "type": "function",
+        "id": "ex3_change_low",
+        "type": "change",
         "z": "dashboard2_widgets_display_tab_10",
         "name": "低温注意",
-        "func": "msg.ui_update = {\n    color: \"#2196f3\",\n    position: \"bottom right\"\n};\nmsg.payload = `❄️ 低温注意: ${msg.payload}℃`;\nreturn msg;",
-        "outputs": 1,
+        "rules": [
+            {
+                "t": "set",
+                "p": "ui_update",
+                "pt": "msg",
+                "to": "{\"color\": \"#2196f3\", \"position\": \"bottom right\"}",
+                "tot": "json"
+            },
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "\"❄️ 低温注意: \" &amp; payload &amp; \"℃\"",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
         "x": 490,
         "y": 220,
         "wires": [
@@ -4550,7 +5083,7 @@ graph TD;
             <p><strong>💼 使いどころ:</strong> 異常を音と表示の両方で知らせ、気づき漏れを減らす場面で使います。</p>
             <p><strong>🎯 要求仕様:</strong></p>
             <ul>
-                <li>Inject、Function、ui-notification、ui-audio（TTS）を使用</li>
+                <li>Inject、Change、ui-notification、ui-audio（TTS）を使用</li>
                 <li>異常検知時: 通知表示 + 音声読み上げを同時実行</li>
                 <li>音声は日本語で「警告、異常を検知しました」と読み上げ</li>
             </ul>
@@ -4558,28 +5091,20 @@ graph TD;
             <details>
                 <summary>💡 ヒント</summary>
                 <p><strong>並列処理の実現:</strong></p>
-                <p>Functionノードから複数の出力を使用するか、同じメッセージを両方のノードに接続します。</p>
+                <p>Injectノードの出力を2つのChangeノードへつなぎます。1つの出力から複数のノードへ配線すると、同じメッセージが両方へ届きます。一方で通知用、もう一方で音声用の <code>msg.payload</code> を作ります。</p>
                 <p><strong>ui-audio（TTS）の設定:</strong></p>
                 <ul>
                     <li>Mode: Text-to-Speech</li>
                     <li>UI: 適切なui-baseを選択</li>
                 </ul>
-                <p><strong>Functionノードの出力:</strong></p>
-                <div class="code-block">// 通知用と音声用の両方を出力
-const notifyMsg = {
-    payload: "&lt;h3&gt;⚠️ 異常検知&lt;/h3&gt;&lt;p&gt;システムに異常が発生しました&lt;/p&gt;",
-    ui_update: { color: "#f44336", position: "center center" }
-};
-
-const audioMsg = {
-    payload: {
-        text: "警告、異常を検知しました",
-        rate: 1.0,
-        volume: 100
-    }
-};
-
-return [notifyMsg, audioMsg];</div>
+                <p><strong>通知用のChangeノード:</strong> 「値の代入」で <code>msg.payload</code> に「文字列」型の <code>&lt;h3&gt;⚠️ 異常検知&lt;/h3&gt;&lt;p&gt;システムに異常が発生しました&lt;/p&gt;</code> を設定します。HTMLとして表示するため、ui-notificationの「Accept raw HTML/JavaScript input in msg.payload to format popup.」をオンにし、色（#f44336）と表示位置（center center）もノード側で設定します。</p>
+                <p><strong>音声用のChangeノード:</strong> 「値の代入」で <code>msg.payload</code> に「JSON」型の次の値を設定します。</p>
+                <div class="code-block">{
+    "text": "警告、異常を検知しました",
+    "rate": 1.0,
+    "volume": 100
+}</div>
+                <p>ui-audio（TTS）は、<code>text</code> を読み上げ、<code>rate</code> を話す速さ、<code>volume</code> を 0〜100 の音量として使います。</p>
             </details>
             
             <details>
@@ -4635,28 +5160,60 @@ return [notifyMsg, audioMsg];</div>
         "y": 100,
         "wires": [
             [
-                "ex4_function"
+                "ex4_change_notify",
+                "ex4_change_audio"
             ]
         ]
     },
     {
-        "id": "ex4_function",
-        "type": "function",
+        "id": "ex4_change_notify",
+        "type": "change",
         "z": "dashboard2_widgets_display_tab_13",
-        "name": "アラート生成",
-        "func": "const notifyMsg = {\n    payload: \"&lt;h3>⚠️ 異常検知&lt;/h3>&lt;p>システムに異常が発生しました&lt;/p>\",\n    ui_update: {\n        color: \"#f44336\",\n        position: \"center center\",\n        displayTime: 0,\n        allowDismiss: true,\n        dismissText: \"確認\",\n        raw: true\n    }\n};\n\nconst audioMsg = {\n    payload: {\n        text: \"警告、異常を検知しました\",\n        rate: 1.0,\n        volume: 100\n    }\n};\n\nreturn [notifyMsg, audioMsg];",
-        "outputs": 2,
-        "timeout": 0,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
+        "name": "通知内容",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "&lt;h3>⚠️ 異常検知&lt;/h3>&lt;p>システムに異常が発生しました&lt;/p>",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
         "x": 310,
-        "y": 100,
+        "y": 80,
         "wires": [
             [
                 "ex4_notify"
-            ],
+            ]
+        ]
+    },
+    {
+        "id": "ex4_change_audio",
+        "type": "change",
+        "z": "dashboard2_widgets_display_tab_13",
+        "name": "音声内容",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "{\"text\": \"警告、異常を検知しました\", \"rate\": 1.0, \"volume\": 100}",
+                "tot": "json"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 310,
+        "y": 120,
+        "wires": [
             [
                 "ex4_audio"
             ]
