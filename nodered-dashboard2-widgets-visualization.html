@@ -560,12 +560,1083 @@
             <p><strong>ページが表示されないとき:</strong> ダッシュボードの設定ノード（ui-base）が2つ以上あると、そのうち1つのページしか表示されません。このサイトの以前の版のフローを読み込んでいると、この状態になります。以前の版のフローのタブを削除してから、エディタの <strong>メニュー → 設定ノード</strong> を開き、画面上部の「未使用」を選んで、どのノードからも使われていない ui-group・ui-page・ui-base・ui-theme を削除します。ui-group を消すとそれを使っていた ui-page が、ui-page を消すと ui-base が未使用になるので、未使用のものが無くなるまで繰り返してください。そのあとで、フローを読み込み直します。</p>
         </div>
         
-        <p>以下のサンプルフローをインポートして、各ウィジェットの動作を確認できます。</p>
+        <div class="important">
+            <p><strong>📥 サンプルフローを試す手順:</strong></p>
+            <ol>
+                <li>下のフローJSONを「コピー」ボタンでコピー</li>
+                <li>Node-REDエディタで <strong>メニュー → 読み込み</strong> を選択</li>
+                <li>JSONをペーストして「読み込み」をクリック</li>
+                <li>エディタ右上の<strong>「デプロイ」ボタンをクリック</strong>（クリックするまでフローは動きません）</li>
+                <li>ブラウザでダッシュボード（<code>http://localhost:1880/dashboard</code>）を開き、左のメニューからページを選んで動作を確認</li>
+            </ol>
+        </div>
+
+        <h3>公式サンプルフロー</h3>
+        <p>最初のサンプルフローは、Dashboard 2.0 の開発元である FlowFuse が公開している公式サンプルを、1つのタブにまとめたものです。出典は次の2か所です。</p>
+        <ul>
+            <li><strong>公式ドキュメント</strong>: 各ウィジェットの解説ページ（<a href="https://dashboard.flowfuse.com/" target="_blank">dashboard.flowfuse.com</a>）に載っているサンプル。表の1列目に、載っているページを書いています</li>
+            <li><strong>GitHub examples</strong>: <a href="https://github.com/FlowFuse/node-red-dashboard/tree/main/examples" target="_blank">GitHub リポジトリの examples フォルダ</a>にあるサンプル。npm パッケージには含まれないため、Node-RED エディタの <strong>メニュー → 読み込み → サンプル</strong> には出てきません</li>
+        </ul>
+        <p>ノードの設定値とノードIDは公式のままです。このサイトで手を加えたのは次の点だけです。</p>
+        <ul>
+            <li>1つのタブにまとめ、例が重ならないよう位置をずらし、例の名前を書いたコメントノードを置いた</li>
+            <li>GitHub examples はグループ（ui-group）が空のままで、読み込んでもダッシュボードに表示されない。そこで「GitHub Examples（可視化系）」ページ（<code>/flowfuse-examples-visualization</code>）と例ごとのグループを用意し、各ウィジェットに割り当てた</li>
+            <li>同じ設定ノード（ui-base など）が例ごとに少しずつ違う値で入っていたため、1つにそろえた</li>
+        </ul>
+        <div style="overflow-x: auto;">
+            <table>
+                <tr>
+                    <th>例（出典・表示されるページ）</th>
+                    <th>内容</th>
+                </tr>
+                <tr>
+                    <td><strong>chart-line-multiple</strong><br>公式ドキュメント（ui-chart）<br><code>/dashboard/<wbr>charts</code></td>
+                    <td>「Sample Data A」「Sample Data B」の Inject が、<code>propertyA</code> と <code>propertyB</code> を持つオブジェクトの配列を送ります。chart は <code>propertyA</code> を x 軸、<code>propertyB</code> を y 軸にとり、<code>msg.topic</code> ごとに別の線で描きます。「Clear Chart」は空の配列を送って、グラフを消します。</td>
+                </tr>
+                <tr>
+                    <td><strong>chart-bar-finance-grouped</strong><br>公式ドキュメント（ui-chart）<br><code>/dashboard/<wbr>charts</code></td>
+                    <td>年ごとの四半期の値（<code>{"year":2021,"Q1":115,...}</code>）を送り、年を x 軸にして、Q1〜Q4 の棒を並べます。系列（Q1〜Q4）は chart の設定に JSON で書いてあり、1つのオブジェクトの複数のキーを、それぞれ別の棒にする例です。</td>
+                </tr>
+                <tr>
+                    <td><strong>chart-pie-doughnut</strong><br>公式ドキュメント（ui-chart）<br><code>/dashboard/<wbr>charts</code></td>
+                    <td>年・四半期・収益のデータを、ドーナツグラフと円グラフで表示します。どちらも年ごとに輪を分け、四半期を区分、収益を大きさにしています。ドーナツ側の「Finance Data」は2021年と2022年の8件を送るので輪が2つ、円グラフ側は2021年の4件だけなので輪が1つになります。名前の無い Inject は空の配列を送って、グラフを消します。</td>
+                </tr>
+                <tr>
+                    <td><strong>chart-scatter-grouped</strong><br>公式ドキュメント（ui-chart）<br><code>/dashboard/<wbr>charts</code></td>
+                    <td><code>series</code>・<code>x</code>・<code>y</code> を持つ点の配列を送り、<code>series</code>（A・B・C）ごとに色を分けた散布図を描きます。</td>
+                </tr>
+                <tr>
+                    <td><strong>ui-table-cell-types</strong><br>公式ドキュメント（ui-table）<br><code>/dashboard/<wbr>table</code></td>
+                    <td>デプロイすると Inject が自動で1回動き、表に2行のデータを送ります（Inject のボタンで送り直せます）。列ごとに表示形式（リンク、プログレスバー、折れ線・棒の小さなグラフ、チェック／バツ、色の点、日時など）を変えた例です。</td>
+                </tr>
+                <tr>
+                    <td><strong>guage</strong><br>GitHub examples<br><code>/dashboard/<wbr>flowfuse-examples-visualization</code></td>
+                    <td>Inject のボタンを押すと、数値 72 をゲージに送ります。ゲージは 0〜100（単位 °F）の針の形で、値の範囲ごとに色を変えています。例の名前の綴り（guage）は公式のファイル名のままです。</td>
+                </tr>
+            </table>
+        </div>
+        <p>progress の公式サンプルはありません。progress は、次の応用フローで扱います。</p>
+        <details>
+            <summary>📥 可視化系 公式サンプルフローJSON（クリックで展開）</summary>
+            <div class="flow-json">[
+    {
+        "id": "dash2_visualization_official_tab",
+        "type": "tab",
+        "label": "可視化系 公式サンプル",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "cmt_dash2_visualization_official_chart_line_multiple",
+        "type": "comment",
+        "z": "dash2_visualization_official_tab",
+        "name": "chart-line-multiple（公式ドキュメント ui-chart）",
+        "info": "",
+        "x": 320,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "eed78059233cb876",
+        "type": "ui-chart",
+        "z": "dash2_visualization_official_tab",
+        "group": "b429518aee48a6fb",
+        "name": "Array Line Chart",
+        "label": "chart",
+        "order": 1,
+        "chartType": "line",
+        "category": "topic",
+        "categoryType": "msg",
+        "xAxisLabel": "Property A",
+        "xAxisProperty": "propertyA",
+        "xAxisPropertyType": "property",
+        "xAxisType": "linear",
+        "xAxisFormat": "",
+        "xAxisFormatType": "auto",
+        "yAxisLabel": "Property B",
+        "yAxisProperty": "propertyB",
+        "ymin": "0",
+        "ymax": "10",
+        "action": "append",
+        "stackSeries": false,
+        "pointShape": "circle",
+        "pointRadius": 4,
+        "showLegend": true,
+        "removeOlder": 1,
+        "removeOlderUnit": "3600",
+        "removeOlderPoints": "",
+        "colors": [
+            "#1f77b4",
+            "#ff0000",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "textColor": [
+            "#666666"
+        ],
+        "textColorDefault": true,
+        "gridColor": [
+            "#e5e5e5"
+        ],
+        "gridColorDefault": true,
+        "width": 6,
+        "height": 8,
+        "className": "",
+        "x": 400,
+        "y": 150,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "b21df8b397cb3233",
+        "type": "inject",
+        "z": "dash2_visualization_official_tab",
+        "name": "Clear Chart",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[]",
+        "payloadType": "json",
+        "x": 210,
+        "y": 110,
+        "wires": [
+            [
+                "eed78059233cb876"
+            ]
+        ]
+    },
+    {
+        "id": "3493e8d72fbfa5a9",
+        "type": "inject",
+        "z": "dash2_visualization_official_tab",
+        "name": "Sample Data A",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "Sample Data A",
+        "payload": "[{\"propertyA\":10,\"propertyB\":2},{\"propertyA\":15,\"propertyB\":3},{\"propertyA\":25,\"propertyB\":5},{\"propertyA\":30,\"propertyB\":6},{\"propertyA\":40,\"propertyB\":8}]",
+        "payloadType": "json",
+        "x": 200,
+        "y": 150,
+        "wires": [
+            [
+                "eed78059233cb876"
+            ]
+        ]
+    },
+    {
+        "id": "3d24d72914056683",
+        "type": "inject",
+        "z": "dash2_visualization_official_tab",
+        "name": "Sample Data B",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "Sample Data B",
+        "payload": "[{\"propertyA\":7,\"propertyB\":6},{\"propertyA\":15,\"propertyB\":2},{\"propertyA\":24,\"propertyB\":9},{\"propertyA\":32,\"propertyB\":4},{\"propertyA\":47,\"propertyB\":9}]",
+        "payloadType": "json",
+        "x": 200,
+        "y": 190,
+        "wires": [
+            [
+                "eed78059233cb876"
+            ]
+        ]
+    },
+    {
+        "id": "cmt_dash2_visualization_official_chart_bar_finance_grouped",
+        "type": "comment",
+        "z": "dash2_visualization_official_tab",
+        "name": "chart-bar-finance-grouped（公式ドキュメント ui-chart）",
+        "info": "",
+        "x": 320,
+        "y": 270,
+        "wires": []
+    },
+    {
+        "id": "48f2d5b3e40cb944",
+        "type": "ui-chart",
+        "z": "dash2_visualization_official_tab",
+        "group": "b429518aee48a6fb",
+        "name": "Chart: Finance",
+        "label": "Finance Data",
+        "order": 1,
+        "chartType": "bar",
+        "category": "[\"Q1\", \"Q2\", \"Q3\", \"Q4\"]",
+        "categoryType": "json",
+        "xAxisLabel": "Year",
+        "xAxisProperty": "year",
+        "xAxisPropertyType": "property",
+        "xAxisType": "category",
+        "xAxisFormat": "",
+        "xAxisFormatType": "auto",
+        "yAxisLabel": "Profit",
+        "yAxisProperty": "radius",
+        "ymin": "",
+        "ymax": "",
+        "action": "append",
+        "stackSeries": false,
+        "pointShape": "circle",
+        "pointRadius": 4,
+        "showLegend": true,
+        "removeOlder": 1,
+        "removeOlderUnit": "3600",
+        "removeOlderPoints": "",
+        "colors": [
+            "#0095ff",
+            "#ff0000",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "textColor": [
+            "#666666"
+        ],
+        "textColorDefault": true,
+        "gridColor": [
+            "#e5e5e5"
+        ],
+        "gridColorDefault": true,
+        "width": 6,
+        "height": 8,
+        "className": "",
+        "x": 390,
+        "y": 320,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "3ccddcc77ed44e81",
+        "type": "inject",
+        "z": "dash2_visualization_official_tab",
+        "name": "Finance Data",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[{\"year\":2021,\"Q1\":115,\"Q2\":207,\"Q3\":198,\"Q4\":163},{\"year\":2022,\"Q1\":170,\"Q2\":200,\"Q3\":230,\"Q4\":210},{\"year\":2023,\"Q1\":86,\"Q2\":140,\"Q3\":180,\"Q4\":138}]",
+        "payloadType": "json",
+        "x": 200,
+        "y": 320,
+        "wires": [
+            [
+                "48f2d5b3e40cb944"
+            ]
+        ]
+    },
+    {
+        "id": "8df4587f825276eb",
+        "type": "inject",
+        "z": "dash2_visualization_official_tab",
+        "name": "Clear Data",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[]",
+        "payloadType": "json",
+        "x": 210,
+        "y": 360,
+        "wires": [
+            [
+                "48f2d5b3e40cb944"
+            ]
+        ]
+    },
+    {
+        "id": "cmt_dash2_visualization_official_chart_pie_doughnut",
+        "type": "comment",
+        "z": "dash2_visualization_official_tab",
+        "name": "chart-pie-doughnut（公式ドキュメント ui-chart）",
+        "info": "",
+        "x": 320,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "bc346c7d325fe6b5",
+        "type": "ui-chart",
+        "z": "dash2_visualization_official_tab",
+        "group": "e0d7a0182b3c8eb7",
+        "name": "Doughnut Chart",
+        "label": "Doughnut Chart",
+        "order": 5,
+        "chartType": "doughnut",
+        "category": "year",
+        "categoryType": "property",
+        "xAxisLabel": "",
+        "xAxisProperty": "quarter",
+        "xAxisPropertyType": "property",
+        "xAxisType": "radial",
+        "xAxisFormat": "",
+        "xAxisFormatType": "auto",
+        "yAxisLabel": "",
+        "yAxisProperty": "earnings",
+        "ymin": "",
+        "ymax": "",
+        "action": "append",
+        "stackSeries": false,
+        "pointShape": "circle",
+        "pointRadius": 4,
+        "showLegend": true,
+        "removeOlder": 1,
+        "removeOlderUnit": "3600",
+        "removeOlderPoints": "",
+        "colors": [
+            "#0095ff",
+            "#ff0000",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "textColor": [
+            "#666666"
+        ],
+        "textColorDefault": true,
+        "gridColor": [
+            "#e5e5e5"
+        ],
+        "gridColorDefault": true,
+        "width": "3",
+        "height": "6",
+        "className": "",
+        "x": 410,
+        "y": 490,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c8e227dc6c78b5f2",
+        "type": "inject",
+        "z": "dash2_visualization_official_tab",
+        "name": "Finance Data",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[{\"year\":2021,\"quarter\":\"Q1\",\"earnings\":115},{\"year\":2021,\"quarter\":\"Q2\",\"earnings\":120},{\"year\":2021,\"quarter\":\"Q3\",\"earnings\":100},{\"year\":2021,\"quarter\":\"Q4\",\"earnings\":180},{\"year\":2022,\"quarter\":\"Q1\",\"earnings\":142},{\"year\":2022,\"quarter\":\"Q2\",\"earnings\":106},{\"year\":2022,\"quarter\":\"Q3\",\"earnings\":164},{\"year\":2022,\"quarter\":\"Q4\",\"earnings\":172}]",
+        "payloadType": "json",
+        "x": 200,
+        "y": 490,
+        "wires": [
+            [
+                "bc346c7d325fe6b5"
+            ]
+        ]
+    },
+    {
+        "id": "2413205ce1f39442",
+        "type": "inject",
+        "z": "dash2_visualization_official_tab",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[]",
+        "payloadType": "json",
+        "x": 220,
+        "y": 530,
+        "wires": [
+            [
+                "bc346c7d325fe6b5"
+            ]
+        ]
+    },
+    {
+        "id": "b87fe3201b219a05",
+        "type": "ui-chart",
+        "z": "dash2_visualization_official_tab",
+        "group": "e0d7a0182b3c8eb7",
+        "name": "Pie Chart",
+        "label": "Pie Chart",
+        "order": 4,
+        "chartType": "pie",
+        "category": "year",
+        "categoryType": "property",
+        "xAxisLabel": "",
+        "xAxisProperty": "quarter",
+        "xAxisPropertyType": "property",
+        "xAxisType": "radial",
+        "xAxisFormat": "",
+        "xAxisFormatType": "auto",
+        "yAxisLabel": "",
+        "yAxisProperty": "earnings",
+        "ymin": "",
+        "ymax": "",
+        "action": "append",
+        "stackSeries": false,
+        "pointShape": "circle",
+        "pointRadius": 4,
+        "showLegend": true,
+        "removeOlder": 1,
+        "removeOlderUnit": "3600",
+        "removeOlderPoints": "",
+        "colors": [
+            "#0095ff",
+            "#ff0000",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "textColor": [
+            "#666666"
+        ],
+        "textColorDefault": true,
+        "gridColor": [
+            "#e5e5e5"
+        ],
+        "gridColorDefault": true,
+        "width": "3",
+        "height": "6",
+        "className": "",
+        "x": 390,
+        "y": 590,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d10804e8db462840",
+        "type": "inject",
+        "z": "dash2_visualization_official_tab",
+        "name": "Finance Data",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[{\"year\":2021,\"quarter\":\"Q1\",\"earnings\":115},{\"year\":2021,\"quarter\":\"Q2\",\"earnings\":120},{\"year\":2021,\"quarter\":\"Q3\",\"earnings\":100},{\"year\":2021,\"quarter\":\"Q4\",\"earnings\":180}]",
+        "payloadType": "json",
+        "x": 200,
+        "y": 590,
+        "wires": [
+            [
+                "b87fe3201b219a05"
+            ]
+        ]
+    },
+    {
+        "id": "49dbac215fa8b40f",
+        "type": "inject",
+        "z": "dash2_visualization_official_tab",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[]",
+        "payloadType": "json",
+        "x": 220,
+        "y": 630,
+        "wires": [
+            [
+                "b87fe3201b219a05"
+            ]
+        ]
+    },
+    {
+        "id": "cmt_dash2_visualization_official_chart_scatter_grouped",
+        "type": "comment",
+        "z": "dash2_visualization_official_tab",
+        "name": "chart-scatter-grouped（公式ドキュメント ui-chart）",
+        "info": "",
+        "x": 320,
+        "y": 710,
+        "wires": []
+    },
+    {
+        "id": "16c2839487757a01",
+        "type": "inject",
+        "z": "dash2_visualization_official_tab",
+        "name": "Scatter Data",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[{\"series\":\"A\",\"x\":5,\"y\":84},{\"series\":\"A\",\"x\":9,\"y\":10},{\"series\":\"A\",\"x\":11,\"y\":70},{\"series\":\"B\",\"x\":12,\"y\":28},{\"series\":\"B\",\"x\":15,\"y\":35},{\"series\":\"B\",\"x\":26,\"y\":42},{\"series\":\"C\",\"x\":20,\"y\":12},{\"series\":\"C\",\"x\":24,\"y\":54},{\"series\":\"C\",\"x\":27,\"y\":60},{\"series\":\"C\",\"x\":30,\"y\":66}]",
+        "payloadType": "json",
+        "x": 200,
+        "y": 760,
+        "wires": [
+            [
+                "d6ddc83bcd4de04a"
+            ]
+        ]
+    },
+    {
+        "id": "d6ddc83bcd4de04a",
+        "type": "ui-chart",
+        "z": "dash2_visualization_official_tab",
+        "group": "b429518aee48a6fb",
+        "name": "Chart: Scatter",
+        "label": "Scatter Plot Example",
+        "order": 1,
+        "chartType": "scatter",
+        "category": "series",
+        "categoryType": "property",
+        "xAxisLabel": "x",
+        "xAxisProperty": "x",
+        "xAxisPropertyType": "property",
+        "xAxisType": "linear",
+        "xAxisFormat": "",
+        "xAxisFormatType": "auto",
+        "yAxisLabel": "y",
+        "yAxisProperty": "y",
+        "ymin": "0",
+        "ymax": "100",
+        "action": "append",
+        "stackSeries": false,
+        "pointShape": "circle",
+        "pointRadius": 4,
+        "showLegend": true,
+        "removeOlder": 1,
+        "removeOlderUnit": "3600",
+        "removeOlderPoints": "",
+        "colors": [
+            "#0095ff",
+            "#ff0000",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "textColor": [
+            "#666666"
+        ],
+        "textColorDefault": true,
+        "gridColor": [
+            "#e5e5e5"
+        ],
+        "gridColorDefault": true,
+        "width": 6,
+        "height": 8,
+        "className": "",
+        "x": 410,
+        "y": 760,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "aa0ac5025fc32d7f",
+        "type": "inject",
+        "z": "dash2_visualization_official_tab",
+        "name": "Clear Data",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[]",
+        "payloadType": "json",
+        "x": 210,
+        "y": 800,
+        "wires": [
+            [
+                "d6ddc83bcd4de04a"
+            ]
+        ]
+    },
+    {
+        "id": "cmt_dash2_visualization_official_ui_table_cell_types",
+        "type": "comment",
+        "z": "dash2_visualization_official_tab",
+        "name": "ui-table-cell-types（公式ドキュメント ui-table）",
+        "info": "",
+        "x": 320,
+        "y": 880,
+        "wires": []
+    },
+    {
+        "id": "78b43be39f6db8e1",
+        "type": "ui-table",
+        "z": "dash2_visualization_official_tab",
+        "group": "5c66023267e5559e",
+        "name": "",
+        "label": "text",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "maxrows": "0",
+        "autocols": false,
+        "showSearch": false,
+        "selectionType": "none",
+        "columns": [
+            {
+                "title": "My Column",
+                "key": "columnA",
+                "type": "text",
+                "width": "",
+                "align": "start"
+            },
+            {
+                "title": "My Other Column",
+                "key": "columnB",
+                "type": "text",
+                "width": "",
+                "align": "start"
+            },
+            {
+                "title": "URL",
+                "key": "link",
+                "type": "link",
+                "width": "300px",
+                "align": "start"
+            },
+            {
+                "title": "Progress",
+                "key": "progress",
+                "type": "progress",
+                "width": "",
+                "align": "start"
+            },
+            {
+                "title": "Row",
+                "key": "",
+                "type": "row",
+                "width": "",
+                "align": "start"
+            },
+            {
+                "title": "Trend",
+                "key": "array",
+                "type": "sparkline-trend",
+                "width": "",
+                "align": "start"
+            },
+            {
+                "title": "Bar",
+                "key": "array",
+                "type": "sparkline-bar",
+                "width": "",
+                "align": "start"
+            },
+            {
+                "title": "Tick/Cross",
+                "key": "boolean",
+                "type": "tickcross",
+                "width": "",
+                "align": "start"
+            },
+            {
+                "title": "Spot",
+                "key": "color",
+                "type": "color",
+                "width": "",
+                "align": "center"
+            },
+            {
+                "title": "Date &amp; Time",
+                "key": "timestamp",
+                "type": "datetime",
+                "width": "",
+                "align": "start"
+            }
+        ],
+        "x": 340,
+        "y": 930,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "6cdf36ffe9daf59c",
+        "type": "inject",
+        "z": "dash2_visualization_official_tab",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "[{\"columnA\":\"Hello\",\"columnB\":\"World\",\"link\":\"https://news.bbc.co.uk\",\"progress\":76,\"color\":\"#FF0000\",\"array\":[6,7,9,2,4],\"boolean\":true,\"timestamp\":1710484200000},{\"columnA\":\"Hey\",\"columnB\":\"Globe\",\"link\":\"https://flowfuse.com\",\"progress\":56,\"color\":\"#24aa69\",\"array\":[1,3,6,3,5],\"boolean\":false,\"timestamp\":1735689540000}]",
+        "payloadType": "json",
+        "x": 200,
+        "y": 930,
+        "wires": [
+            [
+                "78b43be39f6db8e1"
+            ]
+        ]
+    },
+    {
+        "id": "cmt_dash2_visualization_official_guage",
+        "type": "comment",
+        "z": "dash2_visualization_official_tab",
+        "name": "guage（GitHub examples）",
+        "info": "",
+        "x": 320,
+        "y": 1010,
+        "wires": []
+    },
+    {
+        "id": "d0c36237eeebb6d5",
+        "type": "inject",
+        "z": "dash2_visualization_official_tab",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "72",
+        "payloadType": "num",
+        "x": 200,
+        "y": 1060,
+        "wires": [
+            [
+                "130fa4d5c69fd905"
+            ]
+        ]
+    },
+    {
+        "id": "130fa4d5c69fd905",
+        "type": "ui-gauge",
+        "z": "dash2_visualization_official_tab",
+        "name": "Temperature",
+        "group": "dash2_visualization_gh_grp_guage",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "gtype": "gauge-34",
+        "gstyle": "needle",
+        "title": "gauge",
+        "units": "°F",
+        "prefix": "",
+        "suffix": "",
+        "segments": [
+            {
+                "from": "0",
+                "color": "#3d10e0"
+            },
+            {
+                "from": "65",
+                "color": "#00ff4c"
+            },
+            {
+                "from": "73",
+                "color": "#ea5353"
+            }
+        ],
+        "min": "0",
+        "max": "100",
+        "sizeThickness": 16,
+        "sizeGap": 4,
+        "sizeKeyThickness": 8,
+        "styleRounded": true,
+        "styleGlow": false,
+        "className": "",
+        "x": 360,
+        "y": 1060,
+        "wires": []
+    },
+    {
+        "id": "c2e1aa56f50f03bd",
+        "type": "ui-base",
+        "name": "Dashboard",
+        "path": "/dashboard",
+        "includeClientData": true,
+        "acceptsClientConfig": [
+            "ui-control",
+            "ui-notification",
+            "ui-text",
+            "ui-template"
+        ],
+        "showPathInSidebar": false,
+        "headerContent": "none",
+        "navigationStyle": "default",
+        "titleBarStyle": "default"
+    },
+    {
+        "id": "5075a7d8e4947586",
+        "type": "ui-theme",
+        "name": "Default Theme",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#0094CE",
+            "bgPage": "#eeeeee",
+            "groupBg": "#ffffff",
+            "groupOutline": "#cccccc"
+        },
+        "sizes": {
+            "pagePadding": "12px",
+            "groupGap": "12px",
+            "groupBorderRadius": "4px",
+            "widgetGap": "12px"
+        }
+    },
+    {
+        "id": "c2ff5ba1f92a0f0e",
+        "type": "ui-theme",
+        "name": "Default",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#0094ce",
+            "bgPage": "#eeeeee",
+            "groupBg": "#ffffff",
+            "groupOutline": "#cccccc"
+        },
+        "sizes": {
+            "pagePadding": "12px",
+            "groupGap": "12px",
+            "groupBorderRadius": "4px",
+            "widgetGap": "12px"
+        }
+    },
+    {
+        "id": "afa24cae12543ca5",
+        "type": "ui-theme",
+        "name": "Example Theme",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#0094ce",
+            "bgPage": "#eeeeee",
+            "groupBg": "#fafdff",
+            "groupOutline": "#000000"
+        },
+        "sizes": {
+            "groupGap": "12px",
+            "widgetGap": "12px",
+            "pagePadding": "12px",
+            "groupBorderRadius": "0px",
+            "density": "default"
+        }
+    },
+    {
+        "id": "d0621b8f20aee671",
+        "type": "ui-page",
+        "name": "Charts",
+        "ui": "c2e1aa56f50f03bd",
+        "path": "/charts",
+        "icon": "home",
+        "layout": "notebook",
+        "theme": "5075a7d8e4947586",
+        "order": 27,
+        "className": "",
+        "visible": "true",
+        "disabled": "false"
+    },
+    {
+        "id": "bbc7b44a426b2b01",
+        "type": "ui-page",
+        "name": "UI Table Example",
+        "ui": "c2e1aa56f50f03bd",
+        "path": "/table",
+        "icon": "table",
+        "layout": "grid",
+        "theme": "c2ff5ba1f92a0f0e",
+        "order": 11,
+        "className": "",
+        "visible": "true",
+        "disabled": "false"
+    },
+    {
+        "id": "dash2_visualization_gh_page",
+        "type": "ui-page",
+        "name": "GitHub Examples（可視化系）",
+        "ui": "c2e1aa56f50f03bd",
+        "path": "/flowfuse-examples-visualization",
+        "icon": "github",
+        "layout": "grid",
+        "theme": "afa24cae12543ca5",
+        "breakpoints": [
+            {
+                "name": "Default",
+                "px": "0",
+                "cols": "3"
+            },
+            {
+                "name": "Tablet",
+                "px": "576",
+                "cols": "6"
+            },
+            {
+                "name": "Small Desktop",
+                "px": "768",
+                "cols": "9"
+            },
+            {
+                "name": "Desktop",
+                "px": "1024",
+                "cols": "12"
+            }
+        ],
+        "order": 30,
+        "className": "",
+        "visible": "true",
+        "disabled": "false"
+    },
+    {
+        "id": "b429518aee48a6fb",
+        "type": "ui-group",
+        "name": "Chart Examples",
+        "page": "d0621b8f20aee671",
+        "width": "6",
+        "height": "1",
+        "order": 4,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false"
+    },
+    {
+        "id": "e0d7a0182b3c8eb7",
+        "type": "ui-group",
+        "name": "PIe Charts",
+        "page": "d0621b8f20aee671",
+        "width": "6",
+        "height": "1",
+        "order": 1,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false"
+    },
+    {
+        "id": "5c66023267e5559e",
+        "type": "ui-group",
+        "name": "Table Cell Types",
+        "page": "bbc7b44a426b2b01",
+        "width": "12",
+        "height": "1",
+        "order": 3,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false"
+    },
+    {
+        "id": "dash2_visualization_gh_grp_guage",
+        "type": "ui-group",
+        "name": "guage",
+        "page": "dash2_visualization_gh_page",
+        "width": "6",
+        "height": "1",
+        "order": 6,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    }
+]</div>
+        </details>
+
+        <h3>応用（サイト独自）: 全パターンのサンプル</h3>
+        <p>ここから先は公式サンプルではなく、<strong>本サイトが用意した応用教材</strong>です。このガイドで説明する chart・gauge・table・progress の使い方を、1つのタブにまとめています。ダッシュボードでは <code>/dashboard/visualization</code> に表示されます。3章以降の説明は、このフローを例に進めます。</p>
         
         <div class="node-example">
             <span class="node node-inject">Inject</span>
             <span class="arrow">→</span>
-            <span class="node node-function">データ生成</span>
+            <span class="node node-change">データ生成</span>
             <span class="arrow">→</span>
             <span class="node node-ui-chart">chart</span>
         </div>
@@ -577,7 +1648,7 @@
         </div>
         
         <details>
-            <summary>📥 サンプルフローJSON（クリックで展開）</summary>
+            <summary>📋 応用フローJSON（クリックで展開）</summary>
             <div class="flow-json">[
     {
         "id": "viz_tab",
@@ -717,20 +1788,27 @@
         "payloadType": "date",
         "x": 140,
         "y": 60,
-        "wires": [["viz_func_chart"]]
+        "wires": [["viz_change_chart"]]
     },
     {
-        "id": "viz_func_chart",
-        "type": "function",
+        "id": "viz_change_chart",
+        "type": "change",
         "z": "viz_tab",
         "name": "パターン1: シンプル数値",
-        "func": "// パターン1: シンプルな数値（時系列自動）\nmsg.payload = Math.floor(Math.random() * 100);\nreturn msg;",
-        "outputs": 1,
-        "timeout": "",
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "$floor($random() * 100)",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
         "x": 380,
         "y": 60,
         "wires": [["viz_chart_line"]]
@@ -753,20 +1831,27 @@
         "payloadType": "date",
         "x": 170,
         "y": 120,
-        "wires": [["viz_func_chart_obj"]]
+        "wires": [["viz_change_chart_obj"]]
     },
     {
-        "id": "viz_func_chart_obj",
-        "type": "function",
+        "id": "viz_change_chart_obj",
+        "type": "change",
         "z": "viz_tab",
         "name": "パターン2: オブジェクト形式",
-        "func": "// パターン2: オブジェクト形式\n// X軸の値を明示的に指定する場合\nmsg.payload = {\n    time: Date.now(),\n    value: Math.floor(Math.random() * 100)\n};\nreturn msg;",
-        "outputs": 1,
-        "timeout": "",
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "{\"time\": $millis(), \"value\": $floor($random() * 100)}",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
         "x": 420,
         "y": 120,
         "wires": [["viz_chart_obj"]]
@@ -834,20 +1919,27 @@
         "payloadType": "date",
         "x": 150,
         "y": 180,
-        "wires": [["viz_func_chart_arr"]]
+        "wires": [["viz_change_chart_arr"]]
     },
     {
-        "id": "viz_func_chart_arr",
-        "type": "function",
+        "id": "viz_change_chart_arr",
+        "type": "change",
         "z": "viz_tab",
         "name": "パターン3: 配列形式",
-        "func": "// パターン3: 配列形式（一括データ）\n// カテゴリ別データを配列で送信\nmsg.payload = [\n    { category: '1月', sales: Math.floor(Math.random() * 100 + 50) },\n    { category: '2月', sales: Math.floor(Math.random() * 100 + 50) },\n    { category: '3月', sales: Math.floor(Math.random() * 100 + 50) },\n    { category: '4月', sales: Math.floor(Math.random() * 100 + 50) }\n];\nreturn msg;",
-        "outputs": 1,
-        "timeout": "",
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "[\"1月\", \"2月\", \"3月\", \"4月\"].{\"category\": $, \"sales\": $floor($random() * 100 + 50)}",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
         "x": 390,
         "y": 180,
         "wires": [["viz_chart_bar"]]
@@ -962,20 +2054,27 @@
         "payloadType": "date",
         "x": 140,
         "y": 280,
-        "wires": [["viz_func_gauge"]]
+        "wires": [["viz_change_gauge"]]
     },
     {
-        "id": "viz_func_gauge",
-        "type": "function",
+        "id": "viz_change_gauge",
+        "type": "change",
         "z": "viz_tab",
         "name": "ランダム温度生成",
-        "func": "// Gauge用: ランダムな温度値を生成\nmsg.payload = Math.floor(Math.random() * 100);\nreturn msg;",
-        "outputs": 1,
-        "timeout": "",
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "$floor($random() * 100)",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
         "x": 370,
         "y": 280,
         "wires": [["viz_gauge_34"]]
@@ -1300,7 +2399,7 @@ msg.topic = "センサーA";</div>
                 <td>legend</td>
                 <td>必要な series / value キーを持たないデータが混じると、凡例に <code>undefined</code> が表示される。</td>
                 <td>凡例が汚れる。不要データが内部で保持・再送される可能性。</td>
-                <td>chart ノードへ送る前に function ノードで series / value が欠けたデータを除外する。</td>
+                <td>chart ノードへ送る前に switch ノードで、必要なキーを持つデータだけを通す（条件「キーを含む」で series や value を指定）。</td>
             </tr>
             <tr>
                 <td>X 軸</td>
@@ -1637,17 +2736,18 @@ payload * 100         // パーセント変換</div>
             <p><strong>🎯 要求仕様:</strong></p>
             <ul>
                 <li>Injectノード: 2秒ごとにトリガー</li>
-                <li>Functionノード: 20〜40の範囲でランダムな温度値を生成</li>
+                <li>Changeノード: 20〜40の範囲でランダムな温度値を生成</li>
                 <li>ui-chart: 折れ線グラフで温度推移を表示（過去60秒分）</li>
             </ul>
             
             <details>
                 <summary>💡 ヒント</summary>
-                <p><strong>Functionノードの設定:</strong></p>
-                <div class="code-block">// ランダム温度生成（20〜40度）
-msg.payload = Math.floor(Math.random() * 21) + 20;
-msg.topic = "室温";
-return msg;</div>
+                <p><strong>Changeノードの設定:</strong> 「値の代入」のルールを2つ設定します。</p>
+                <ul>
+                    <li><code>msg.payload</code> に「JSONata式」型の <code>$floor($random() * 21) + 20</code></li>
+                    <li><code>msg.topic</code> に「文字列」型の <code>室温</code></li>
+                </ul>
+                <p><code>$random()</code> は 0 以上 1 未満の数を返します。21 を掛けて <code>$floor</code> で小数を切り捨てると 0〜20 の整数になり、20 を足すと 20〜40 になります。</p>
                 <p><strong>ui-chartの設定:</strong></p>
                 <ul>
                     <li>種類: 折れ線グラフ（line）</li>
@@ -1753,20 +2853,34 @@ return msg;</div>
         "payloadType": "date",
         "x": 130,
         "y": 100,
-        "wires": [["d2viz_ex1_function"]]
+        "wires": [["d2viz_ex1_change"]]
     },
     {
-        "id": "d2viz_ex1_function",
-        "type": "function",
+        "id": "d2viz_ex1_change",
+        "type": "change",
         "z": "d2viz_ex1_tab",
         "name": "温度生成",
-        "func": "msg.payload = Math.floor(Math.random() * 21) + 20;\nmsg.topic = \"室温\";\nreturn msg;",
-        "outputs": 1,
-        "timeout": "",
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "$floor($random() * 21) + 20",
+                "tot": "jsonata"
+            },
+            {
+                "t": "set",
+                "p": "topic",
+                "pt": "msg",
+                "to": "室温",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
         "x": 280,
         "y": 100,
         "wires": [["ex1_chart"]]
@@ -1822,7 +2936,7 @@ return msg;</div>
             <p><strong>🎯 要求仕様:</strong></p>
             <ul>
                 <li>3つのInjectノード: それぞれ異なるtopic（センサーA/B/C）を持つ</li>
-                <li>各センサーで異なる範囲のランダム値を生成</li>
+                <li>各センサーで異なる範囲のランダム値を生成（Changeノード）</li>
                 <li>ui-chart: 3つの折れ線を凡例付きで表示</li>
                 <li>クリアボタン: チャートをリセット</li>
             </ul>
@@ -1834,6 +2948,12 @@ return msg;</div>
                     <li>センサーA: topic = "センサーA", 10-30の値</li>
                     <li>センサーB: topic = "センサーB", 20-40の値</li>
                     <li>センサーC: topic = "センサーC", 15-35の値</li>
+                </ul>
+                <p><strong>各Changeノードの設定:</strong> 「値の代入」で <code>msg.payload</code> に「JSONata式」型の式を設定します。</p>
+                <ul>
+                    <li>センサーA（10〜30）: <code>$floor($random() * 21) + 10</code></li>
+                    <li>センサーB（20〜40）: <code>$floor($random() * 21) + 20</code></li>
+                    <li>センサーC（15〜35）: <code>$floor($random() * 21) + 15</code></li>
                 </ul>
                 <p><strong>クリアボタン（ui-buttonまたはInject）:</strong></p>
                 <ul>
@@ -1938,7 +3058,7 @@ return msg;</div>
         "payloadType": "date",
         "x": 130,
         "y": 80,
-        "wires": [["ex2_func_a"]]
+        "wires": [["ex2_change_a"]]
     },
     {
         "id": "ex2_inject_b",
@@ -1955,7 +3075,7 @@ return msg;</div>
         "payloadType": "date",
         "x": 130,
         "y": 140,
-        "wires": [["ex2_func_b"]]
+        "wires": [["ex2_change_b"]]
     },
     {
         "id": "ex2_inject_c",
@@ -1972,37 +3092,73 @@ return msg;</div>
         "payloadType": "date",
         "x": 130,
         "y": 200,
-        "wires": [["ex2_func_c"]]
+        "wires": [["ex2_change_c"]]
     },
     {
-        "id": "ex2_func_a",
-        "type": "function",
+        "id": "ex2_change_a",
+        "type": "change",
         "z": "d2viz_ex2_tab",
         "name": "10-30",
-        "func": "msg.payload = Math.floor(Math.random() * 21) + 10;\nreturn msg;",
-        "outputs": 1,
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "$floor($random() * 21) + 10",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
         "x": 290,
         "y": 80,
         "wires": [["ex2_chart"]]
     },
     {
-        "id": "ex2_func_b",
-        "type": "function",
+        "id": "ex2_change_b",
+        "type": "change",
         "z": "d2viz_ex2_tab",
         "name": "20-40",
-        "func": "msg.payload = Math.floor(Math.random() * 21) + 20;\nreturn msg;",
-        "outputs": 1,
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "$floor($random() * 21) + 20",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
         "x": 290,
         "y": 140,
         "wires": [["ex2_chart"]]
     },
     {
-        "id": "ex2_func_c",
-        "type": "function",
+        "id": "ex2_change_c",
+        "type": "change",
         "z": "d2viz_ex2_tab",
         "name": "15-35",
-        "func": "msg.payload = Math.floor(Math.random() * 21) + 15;\nreturn msg;",
-        "outputs": 1,
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "$floor($random() * 21) + 15",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
         "x": 290,
         "y": 200,
         "wires": [["ex2_chart"]]
@@ -2073,7 +3229,7 @@ return msg;</div>
             <p><strong>💼 使いどころ:</strong> 月別などの区分ごとの数量を比較し、表示内容を入れ替える場面で使います。</p>
             <p><strong>🎯 要求仕様:</strong></p>
             <ul>
-                <li>使用ノード: Inject, Function, ui-button, ui-chart</li>
+                <li>使用ノード: Inject, Change, ui-button, ui-chart</li>
                 <li>ui-chart: カテゴリ別（Categorical）の棒グラフで月別売上を表示</li>
                 <li>ui-button「データ更新」: クリックで新しいランダムデータを生成（replaceで置換）</li>
                 <li>ui-button「クリア」: 空配列を送信してチャートをリセット</li>
@@ -2084,19 +3240,11 @@ return msg;</div>
                 <p><strong>Injectノードの設定:</strong></p>
                 <ul>
                     <li>起動時に1回だけ実行（once: true）</li>
-                    <li>PayloadはFunctionで生成するため空でOK</li>
+                    <li>PayloadはChangeノードで作るため空でOK</li>
                 </ul>
-                <p><strong>Functionノード（データ生成）:</strong></p>
-                <div class="code-block">// 月別売上データを配列で生成
-msg.payload = [
-    { "x": "1月", "y": Math.floor(Math.random() * 50 + 50) },
-    { "x": "2月", "y": Math.floor(Math.random() * 50 + 50) },
-    { "x": "3月", "y": Math.floor(Math.random() * 50 + 50) },
-    { "x": "4月", "y": Math.floor(Math.random() * 50 + 50) },
-    { "x": "5月", "y": Math.floor(Math.random() * 50 + 50) },
-    { "x": "6月", "y": Math.floor(Math.random() * 50 + 50) }
-];
-return msg;</div>
+                <p><strong>Changeノード（データ生成）:</strong> 「値の代入」で <code>msg.payload</code> に「JSONata式」型の次の式を設定します。</p>
+                <div class="code-block">["1月", "2月", "3月", "4月", "5月", "6月"].{"x": $, "y": $floor($random() * 50 + 50)}</div>
+                <p>配列の後ろに <code>.{ … }</code> を書くと、配列の要素ごとに <code>{ … }</code> のオブジェクトを作ります。<code>$</code> はその要素（<code>"1月"</code> など）を表すので、<code>{"x": "1月", "y": 73}</code> のようなオブジェクトが6個並んだ配列になります。</p>
                 <p><strong>ui-button（クリア）:</strong></p>
                 <ul>
                     <li>Payload: []（空配列）</li>
@@ -2207,15 +3355,27 @@ return msg;</div>
         "payloadType": "date",
         "x": 130,
         "y": 80,
-        "wires": [["c3_func_data"]]
+        "wires": [["c3_change_data"]]
     },
     {
-        "id": "c3_func_data",
-        "type": "function",
+        "id": "c3_change_data",
+        "type": "change",
         "z": "c3_tab",
         "name": "売上データ生成",
-        "func": "msg.payload = [\n    { \"x\": \"1月\", \"y\": Math.floor(Math.random() * 50 + 50) },\n    { \"x\": \"2月\", \"y\": Math.floor(Math.random() * 50 + 50) },\n    { \"x\": \"3月\", \"y\": Math.floor(Math.random() * 50 + 50) },\n    { \"x\": \"4月\", \"y\": Math.floor(Math.random() * 50 + 50) },\n    { \"x\": \"5月\", \"y\": Math.floor(Math.random() * 50 + 50) },\n    { \"x\": \"6月\", \"y\": Math.floor(Math.random() * 50 + 50) }\n];\nreturn msg;",
-        "outputs": 1,
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "[\"1月\", \"2月\", \"3月\", \"4月\", \"5月\", \"6月\"].{\"x\": $, \"y\": $floor($random() * 50 + 50)}",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
         "x": 320,
         "y": 80,
         "wires": [["c3_chart"]]
@@ -2243,7 +3403,7 @@ return msg;</div>
         "buttonColor": "",
         "x": 130,
         "y": 140,
-        "wires": [["c3_func_data"]]
+        "wires": [["c3_change_data"]]
     },
     {
         "id": "c3_btn_clear",
@@ -2318,9 +3478,9 @@ return msg;</div>
             <p><strong>💼 使いどころ:</strong> 現在値が許容範囲のどこにあるかを、1つの計器で示す場面で使います。</p>
             <p><strong>🎯 要求仕様:</strong></p>
             <ul>
-                <li>使用ノード: Inject, Function, ui-gauge</li>
+                <li>使用ノード: Inject, Change, ui-gauge</li>
                 <li>Inject: 2秒間隔で繰り返し実行</li>
-                <li>Function: 15～35のランダム値を生成</li>
+                <li>Change: 15～35のランダム値を生成</li>
                 <li>ui-gauge: 3/4ゲージ、4段階のセグメント色分け</li>
             </ul>
             
@@ -2331,9 +3491,8 @@ return msg;</div>
                     <li>繰り返し: 2秒</li>
                     <li>起動時に1回実行: 有効</li>
                 </ul>
-                <p><strong>Functionノード:</strong></p>
-                <div class="code-block">msg.payload = Math.floor(Math.random() * 21) + 15;
-return msg;</div>
+                <p><strong>Changeノード:</strong> 「値の代入」で <code>msg.payload</code> に「JSONata式」型の <code>$floor($random() * 21) + 15</code> を設定します。</p>
+                <p><code>$random()</code> は 0 以上 1 未満の数を返します。21 を掛けて <code>$floor</code> で小数を切り捨てると 0〜20 の整数になり、15 を足すと 15〜35 になります。</p>
                 <p><strong>ui-gaugeの設定:</strong></p>
                 <ul>
                     <li>Type: 3/4 Gauge</li>
@@ -2412,15 +3571,27 @@ return msg;</div>
         "payloadType": "date",
         "x": 130,
         "y": 100,
-        "wires": [["g1_function"]]
+        "wires": [["g1_change"]]
     },
     {
-        "id": "g1_function",
-        "type": "function",
+        "id": "g1_change",
+        "type": "change",
         "z": "g1_tab",
         "name": "温度生成(15-35)",
-        "func": "msg.payload = Math.floor(Math.random() * 21) + 15;\nreturn msg;",
-        "outputs": 1,
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "$floor($random() * 21) + 15",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
         "x": 330,
         "y": 100,
         "wires": [["g1_gauge"]]
@@ -2470,7 +3641,7 @@ return msg;</div>
             <p><strong>💼 使いどころ:</strong> 同じ値でも見せ方で伝わり方が変わることを確かめ、画面に合う表示形式を選ぶ場面で使います。</p>
             <p><strong>🎯 要求仕様:</strong></p>
             <ul>
-                <li>使用ノード: Inject, Function, ui-gauge × 3</li>
+                <li>使用ノード: Inject, Change, ui-gauge × 3</li>
                 <li>ui-gauge 1: Half Gauge（半円）</li>
                 <li>ui-gauge 2: Tile（タイル）</li>
                 <li>ui-gauge 3: Battery（バッテリー）</li>
@@ -2479,10 +3650,10 @@ return msg;</div>
             
             <details>
                 <summary>💡 ヒント</summary>
-                <p><strong>Inject/Functionノード:</strong></p>
+                <p><strong>Inject/Changeノード:</strong></p>
                 <ul>
-                    <li>C-1と同様の設定でOK</li>
-                    <li>Functionの出力を3つのゲージに接続</li>
+                    <li>G-1と同様。Changeノードの式は、0〜100 にするなら <code>$floor($random() * 101)</code></li>
+                    <li>Changeの出力を3つのゲージに接続（1つの出力から複数のノードへ配線すると、同じ値が3つに届く）</li>
                 </ul>
                 <p><strong>ui-gaugeの設定:</strong></p>
                 <ul>
@@ -2561,15 +3732,27 @@ return msg;</div>
         "payloadType": "date",
         "x": 130,
         "y": 140,
-        "wires": [["g2_function"]]
+        "wires": [["g2_change"]]
     },
     {
-        "id": "g2_function",
-        "type": "function",
+        "id": "g2_change",
+        "type": "change",
         "z": "g2_tab",
         "name": "値生成(0-100)",
-        "func": "msg.payload = Math.floor(Math.random() * 101);\nreturn msg;",
-        "outputs": 1,
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "$floor($random() * 101)",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
         "x": 330,
         "y": 140,
         "wires": [["g2_half", "g2_tile", "g2_battery"]]
@@ -2665,7 +3848,7 @@ return msg;</div>
             <p><strong>💼 使いどころ:</strong> 値に応じて目盛りや色をフロー側から変え、状態に合わせた見た目にする場面で使います。</p>
             <p><strong>🎯 要求仕様:</strong></p>
             <ul>
-                <li>使用ノード: Inject, Function, ui-gauge</li>
+                <li>使用ノード: Inject, Change, Switch, ui-gauge</li>
                 <li>値が30未満: ラベル「低温」、青系のセグメント</li>
                 <li>値が30～60: ラベル「正常」、緑系のセグメント</li>
                 <li>値が60以上: ラベル「高温警告」、赤系のセグメント</li>
@@ -2673,40 +3856,21 @@ return msg;</div>
             
             <details>
                 <summary>💡 ヒント</summary>
-                <p><strong>Inject/Functionノード:</strong></p>
+                <p><strong>ノードの構成:</strong> Inject → Change（値を作る）→ Switch（範囲で3つに分ける）→ Change × 3（<code>msg.ui_update</code> を設定）→ ui-gauge</p>
                 <ul>
-                    <li>前の演習と同様</li>
+                    <li>値を作るChange: 「値の代入」で <code>msg.payload</code> に「JSONata式」型の <code>$floor($random() * 81) + 10</code>（10〜90）</li>
+                    <li>Switch: プロパティは <code>msg.payload</code>。条件は「&lt; 30」「&lt; 60」「その他」の3つで、「最初に合致した条件で終了」を選ぶ。30 未満は出力1、30〜59 は出力2、60 以上は出力3 に出る</li>
+                    <li>3つのChange: それぞれ「値の代入」で <code>msg.ui_update</code> に「JSON」型の値を設定し、3つとも同じ ui-gauge へつなぐ</li>
                 </ul>
-                <p><strong>Functionノード（動的更新）:</strong></p>
-                <div class="code-block">let value = Math.floor(Math.random() * 81) + 10;  // 10-90
-msg.payload = value;
-
-if (value < 30) {
-    msg.ui_update = {
-        "label": "低温",
-        "segments": [
-            { "from": 0, "color": "#90caf9" },
-            { "from": 20, "color": "#2196f3" }
-        ]
-    };
-} else if (value < 60) {
-    msg.ui_update = {
-        "label": "正常",
-        "segments": [
-            { "from": 0, "color": "#a5d6a7" },
-            { "from": 40, "color": "#4caf50" }
-        ]
-    };
-} else {
-    msg.ui_update = {
-        "label": "高温警告",
-        "segments": [
-            { "from": 0, "color": "#ffcc80" },
-            { "from": 60, "color": "#f44336" }
-        ]
-    };
-}
-return msg;</div>
+                <p><strong>出力1（低温）のChangeに設定する値:</strong></p>
+                <div class="code-block">{
+    "label": "低温",
+    "segments": [
+        { "from": 0, "color": "#90caf9" },
+        { "from": 20, "color": "#2196f3" }
+    ]
+}</div>
+                <p>出力2（正常）は <code>"label": "正常"</code>、色 <code>#a5d6a7</code>（0〜）と <code>#4caf50</code>（40〜）。出力3（高温警告）は <code>"label": "高温警告"</code>、色 <code>#ffcc80</code>（0〜）と <code>#f44336</code>（60〜）です。</p>
             </details>
             
             <details>
@@ -2778,17 +3942,127 @@ return msg;</div>
         "payloadType": "date",
         "x": 130,
         "y": 100,
-        "wires": [["g3_function"]]
+        "wires": [["g3_change_value"]]
     },
     {
-        "id": "g3_function",
-        "type": "function",
+        "id": "g3_change_value",
+        "type": "change",
         "z": "g3_tab",
-        "name": "動的プロパティ設定",
-        "func": "let value = Math.floor(Math.random() * 81) + 10;\nmsg.payload = value;\n\nif (value &lt; 30) {\n    msg.ui_update = {\n        \"label\": \"低温\",\n        \"segments\": [\n            { \"from\": 0, \"color\": \"#90caf9\" },\n            { \"from\": 20, \"color\": \"#2196f3\" }\n        ]\n    };\n} else if (value &lt; 60) {\n    msg.ui_update = {\n        \"label\": \"正常\",\n        \"segments\": [\n            { \"from\": 0, \"color\": \"#a5d6a7\" },\n            { \"from\": 40, \"color\": \"#4caf50\" }\n        ]\n    };\n} else {\n    msg.ui_update = {\n        \"label\": \"高温警告\",\n        \"segments\": [\n            { \"from\": 0, \"color\": \"#ffcc80\" },\n            { \"from\": 60, \"color\": \"#f44336\" }\n        ]\n    };\n}\nreturn msg;",
-        "outputs": 1,
+        "name": "値生成(10-90)",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "$floor($random() * 81) + 10",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
         "x": 350,
         "y": 100,
+        "wires": [["g3_switch"]]
+    },
+    {
+        "id": "g3_switch",
+        "type": "switch",
+        "z": "g3_tab",
+        "name": "温度判定",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "lt",
+                "v": "30",
+                "vt": "num"
+            },
+            {
+                "t": "lt",
+                "v": "60",
+                "vt": "num"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "false",
+        "repair": false,
+        "outputs": 3,
+        "x": 530,
+        "y": 100,
+        "wires": [["g3_change_low"], ["g3_change_normal"], ["g3_change_high"]]
+    },
+    {
+        "id": "g3_change_low",
+        "type": "change",
+        "z": "g3_tab",
+        "name": "低温",
+        "rules": [
+            {
+                "t": "set",
+                "p": "ui_update",
+                "pt": "msg",
+                "to": "{\"label\": \"低温\", \"segments\": [{\"from\": 0, \"color\": \"#90caf9\"}, {\"from\": 20, \"color\": \"#2196f3\"}]}",
+                "tot": "json"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 710,
+        "y": 60,
+        "wires": [["g3_gauge"]]
+    },
+    {
+        "id": "g3_change_normal",
+        "type": "change",
+        "z": "g3_tab",
+        "name": "正常",
+        "rules": [
+            {
+                "t": "set",
+                "p": "ui_update",
+                "pt": "msg",
+                "to": "{\"label\": \"正常\", \"segments\": [{\"from\": 0, \"color\": \"#a5d6a7\"}, {\"from\": 40, \"color\": \"#4caf50\"}]}",
+                "tot": "json"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 710,
+        "y": 100,
+        "wires": [["g3_gauge"]]
+    },
+    {
+        "id": "g3_change_high",
+        "type": "change",
+        "z": "g3_tab",
+        "name": "高温警告",
+        "rules": [
+            {
+                "t": "set",
+                "p": "ui_update",
+                "pt": "msg",
+                "to": "{\"label\": \"高温警告\", \"segments\": [{\"from\": 0, \"color\": \"#ffcc80\"}, {\"from\": 60, \"color\": \"#f44336\"}]}",
+                "tot": "json"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 710,
+        "y": 140,
         "wires": [["g3_gauge"]]
     },
     {
@@ -2977,6 +4251,7 @@ return msg;</div>
     { "id": 2, "name": "湿度センサー", "value": 65, "status": "正常" },
     { "id": 3, "name": "圧力センサー", "value": 1013, "status": "警告" }
 ];</div>
+                <p>この配列は、Changeノードの「値の代入」で <code>msg.payload</code> に「JSON」型で設定できます。解答例では「JSONata式」型にして、値を <code>$random()</code> で毎回変えています。</p>
                 <p><strong>ui-tableの出力:</strong></p>
                 <p>行を選択すると、その行のオブジェクトがmsg.payloadとして出力されます。</p>
             </details>
@@ -3091,15 +4366,27 @@ return msg;</div>
         "payloadType": "date",
         "x": 130,
         "y": 100,
-        "wires": [["d2viz_ex3_function"]]
+        "wires": [["d2viz_ex3_change"]]
     },
     {
-        "id": "d2viz_ex3_function",
-        "type": "function",
+        "id": "d2viz_ex3_change",
+        "type": "change",
         "z": "d2viz_ex3_tab",
         "name": "テーブルデータ生成",
-        "func": "msg.payload = [\n    { \"id\": 1, \"name\": \"温度センサー\", \"value\": (Math.random() * 10 + 20).toFixed(1), \"status\": \"正常\" },\n    { \"id\": 2, \"name\": \"湿度センサー\", \"value\": Math.floor(Math.random() * 30 + 50), \"status\": \"正常\" },\n    { \"id\": 3, \"name\": \"圧力センサー\", \"value\": Math.floor(Math.random() * 50 + 990), \"status\": Math.random() > 0.7 ? \"警告\" : \"正常\" },\n    { \"id\": 4, \"name\": \"照度センサー\", \"value\": Math.floor(Math.random() * 500 + 100), \"status\": \"正常\" }\n];\nreturn msg;",
-        "outputs": 1,
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "[\n    {\"id\": 1, \"name\": \"温度センサー\", \"value\": $formatNumber($random() * 10 + 20, \"0.0\"), \"status\": \"正常\"},\n    {\"id\": 2, \"name\": \"湿度センサー\", \"value\": $floor($random() * 30 + 50), \"status\": \"正常\"},\n    {\"id\": 3, \"name\": \"圧力センサー\", \"value\": $floor($random() * 50 + 990), \"status\": $random() > 0.7 ? \"警告\" : \"正常\"},\n    {\"id\": 4, \"name\": \"照度センサー\", \"value\": $floor($random() * 500 + 100), \"status\": \"正常\"}\n]",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
         "x": 330,
         "y": 100,
         "wires": [["ex3_table"]]
@@ -3175,7 +4462,7 @@ return msg;</div>
             <p><strong>💼 使いどころ:</strong> 表示する列と順序を決め、並べ替えのできる一覧にする場面で使います。</p>
             <p><strong>🎯 要求仕様:</strong></p>
             <ul>
-                <li>使用ノード: Inject, Function, ui-table, ui-button</li>
+                <li>使用ノード: Inject, Change, Function, ui-table, ui-button</li>
                 <li>ui-table: カスタム列定義（ID、名前、値、状態の順）</li>
                 <li>列幅をそれぞれ指定（ID: 60px、名前: 150px、値: 100px、状態: 80px）</li>
                 <li>ui-button「値でソート」: 値の昇順/降順を切替え</li>
@@ -3191,6 +4478,12 @@ return msg;</div>
     { "key": "value", "label": "現在値", "width": "100px", "align": "right" },
     { "key": "status", "label": "状態", "width": "80px" }
 ]</div>
+                <p><strong>初期データを設定するChangeノード:</strong> 「値の代入」のルールを3つ、次の順に並べます。ソートと追加の処理は、このフロー変数を読み書きします。</p>
+                <ol>
+                    <li><code>flow.tableData</code> に「JSON」型で、4件のセンサーデータの配列</li>
+                    <li><code>flow.sortAsc</code> に「真偽」型の <code>true</code>（最初は昇順）</li>
+                    <li><code>msg.payload</code> に <code>flow.tableData</code>（種類は「flow.」）</li>
+                </ol>
                 <p><strong>ソート用Functionノード:</strong></p>
                 <div class="code-block">// フロー変数でソート順を管理
 let sortAsc = flow.get("sortAsc");
@@ -3319,15 +4612,41 @@ return msg;</div>
         "payloadType": "date",
         "x": 130,
         "y": 80,
-        "wires": [["tb3_func_init"]]
+        "wires": [["d2viz_tb3_change_init"]]
     },
     {
-        "id": "tb3_func_init",
-        "type": "function",
+        "id": "d2viz_tb3_change_init",
+        "type": "change",
         "z": "tb3_tab",
-        "name": "初期データ生成",
-        "func": "let data = [\n    { \"id\": 1, \"name\": \"温度センサー\", \"value\": 25.5, \"status\": \"正常\" },\n    { \"id\": 2, \"name\": \"湿度センサー\", \"value\": 60, \"status\": \"正常\" },\n    { \"id\": 3, \"name\": \"圧力センサー\", \"value\": 45, \"status\": \"警告\" },\n    { \"id\": 4, \"name\": \"照度センサー\", \"value\": 30, \"status\": \"正常\" }\n];\nflow.set(\"tableData\", data);\nflow.set(\"sortAsc\", true);\nmsg.payload = data;\nreturn msg;",
-        "outputs": 1,
+        "name": "初期データ設定",
+        "rules": [
+            {
+                "t": "set",
+                "p": "tableData",
+                "pt": "flow",
+                "to": "[{\"id\": 1, \"name\": \"温度センサー\", \"value\": 25.5, \"status\": \"正常\"}, {\"id\": 2, \"name\": \"湿度センサー\", \"value\": 60, \"status\": \"正常\"}, {\"id\": 3, \"name\": \"圧力センサー\", \"value\": 45, \"status\": \"警告\"}, {\"id\": 4, \"name\": \"照度センサー\", \"value\": 30, \"status\": \"正常\"}]",
+                "tot": "json"
+            },
+            {
+                "t": "set",
+                "p": "sortAsc",
+                "pt": "flow",
+                "to": "true",
+                "tot": "bool"
+            },
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "tableData",
+                "tot": "flow"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
         "x": 330,
         "y": 80,
         "wires": [["tb3_table"]]
@@ -3359,7 +4678,7 @@ return msg;</div>
         "type": "function",
         "z": "tb3_tab",
         "name": "ソート処理",
-        "func": "let sortAsc = flow.get(\"sortAsc\");\nif (sortAsc === undefined) sortAsc = true;\nlet data = flow.get(\"tableData\") || [];\n\ndata.sort((a, b) => sortAsc ? a.value - b.value : b.value - a.value);\nflow.set(\"sortAsc\", !sortAsc);\nflow.set(\"tableData\", data);\n\nmsg.payload = data;\nreturn msg;",
+        "func": "// 現在の並び順を読み出す（未設定なら昇順）\nlet sortAsc = flow.get(\"sortAsc\");\nif (sortAsc === undefined) sortAsc = true;\n// 保存しておいたデータを読み出す\nconst data = flow.get(\"tableData\") || [];\n\n// 値（value）で並べ替える。昇順なら小さい順、降順なら大きい順\ndata.sort((a, b) => sortAsc ? a.value - b.value : b.value - a.value);\n// 次に押したときは逆の順にする\nflow.set(\"sortAsc\", !sortAsc);\nflow.set(\"tableData\", data);\n\n// 並べ替えた全件をテーブルへ送る\nmsg.payload = data;\nreturn msg;",
         "outputs": 1,
         "x": 330,
         "y": 140,
@@ -3392,7 +4711,7 @@ return msg;</div>
         "type": "function",
         "z": "tb3_tab",
         "name": "データ追加処理",
-        "func": "let data = flow.get(\"tableData\") || [];\nlet newId = data.length > 0 ? Math.max(...data.map(d => d.id)) + 1 : 1;\n\nlet newItem = {\n    \"id\": newId,\n    \"name\": \"センサー\" + newId,\n    \"value\": Math.floor(Math.random() * 50 + 10),\n    \"status\": Math.random() > 0.3 ? \"正常\" : \"警告\"\n};\n\ndata.push(newItem);\nflow.set(\"tableData\", data);\n\nmsg.payload = [newItem];\nmsg.action = \"append\";\nreturn msg;",
+        "func": "// 保存しておいたデータを読み出す\nconst data = flow.get(\"tableData\") || [];\n// 新しい行の ID は、今ある ID の最大値 + 1（データが無ければ 1）\nconst newId = data.length > 0 ? Math.max(...data.map(d => d.id)) + 1 : 1;\n\n// 追加する行（値と状態は乱数で決める）\nconst newItem = {\n    \"id\": newId,\n    \"name\": \"センサー\" + newId,\n    \"value\": Math.floor(Math.random() * 50 + 10),\n    \"status\": Math.random() > 0.3 ? \"正常\" : \"警告\"\n};\n\n// フロー変数のデータにも追加しておく（ソートの対象に含めるため）\ndata.push(newItem);\nflow.set(\"tableData\", data);\n\n// テーブルには追加する1行だけを送り、msg.action を \"append\" にして末尾に足す\nmsg.payload = [newItem];\nmsg.action = \"append\";\nreturn msg;",
         "outputs": 1,
         "x": 330,
         "y": 200,
@@ -3564,10 +4883,10 @@ return msg;</div>
             <p><strong>💼 使いどころ:</strong> 処理の進み具合を円形の表示で伝え、完了までの残りを見せる場面で使います。</p>
             <p><strong>🎯 要求仕様:</strong></p>
             <ul>
-                <li>使用ノード: Inject, Function, ui-progress, ui-button</li>
+                <li>使用ノード: ui-button, Change, Switch, Trigger, ui-progress</li>
                 <li>ui-button「開始」: クリックで進捗開始</li>
                 <li>ui-progress: 円形スタイル、値表示あり</li>
-                <li>Function: 0.5秒ごとに10%ずつ増加、100%で停止</li>
+                <li>0.5秒ごとに10%ずつ増加し、100%で停止</li>
             </ul>
             
             <details>
@@ -3578,33 +4897,20 @@ return msg;</div>
                     <li>Payload: 0（初期値）</li>
                     <li>Payload Type: num</li>
                 </ul>
-                <p><strong>Functionノード（進捗制御）:</strong></p>
-                <div class="code-block">// 現在の進捗を取得
-let progress = flow.get("progress") || 0;
-
-// 初期化（ボタンから0が来た場合）
-if (msg.payload === 0) {
-    progress = 0;
-}
-
-// 10%増加
-progress += 10;
-if (progress > 100) progress = 100;
-
-flow.set("progress", progress);
-msg.payload = progress;
-
-// 100%未満なら次のトリガーを送信
-if (progress < 100) {
-    node.send([msg, { payload: true }]);
-} else {
-    node.send([msg, null]);
-}
-return null;</div>
+                <p><strong>ノードの構成:</strong> ui-button → Change（進捗計算）→ ui-progress と Switch（100%未満か）→ Trigger（0.5秒待つ）→ 進捗計算のChangeへ戻す（ループ）</p>
+                <p><strong>Changeノード（進捗計算）:</strong> 「値の代入」のルールを2つ、次の順に並べます。</p>
+                <ol>
+                    <li><code>flow.progress</code> に「JSONata式」型の <code>payload = 0 ? 10 : $min([$flowContext("progress") + 10, 100])</code></li>
+                    <li><code>msg.payload</code> に <code>flow.progress</code>（種類は「flow.」）</li>
+                </ol>
+                <p>1つ目の式は、ボタンから 0 が届いたら 10 から始め、それ以外（ループで戻ってきたとき）はフロー変数の値に 10 を足します。<code>$min</code> で 100 を超えないようにしています。<code>$flowContext("progress")</code> は、フロー変数 <code>progress</code> を読み出す JSONata の関数です。</p>
+                <p><strong>Switchノード:</strong> プロパティは <code>msg.payload</code>、条件は「&lt; 100」の1つ。100 になると条件に合わず、ループが止まります。</p>
                 <p><strong>Triggerノード（遅延）:</strong></p>
                 <ul>
-                    <li>Action: 0.5秒後にメッセージを送信</li>
-                    <li>出力をFunctionノードに接続（ループ）</li>
+                    <li>送信データ: 何も送らない</li>
+                    <li>送信後の処理: 指定した時間待機（500 ミリ秒）</li>
+                    <li>再送信データ: 真偽 <code>true</code></li>
+                    <li>出力を進捗計算のChangeノードに接続（ループ）</li>
                 </ul>
                 <p><strong>ui-progressの設定:</strong></p>
                 <ul>
@@ -3686,18 +4992,58 @@ return null;</div>
         "topic": "start",
         "x": 130,
         "y": 100,
-        "wires": [["p2_func"]]
+        "wires": [["d2viz_p2_change"]]
     },
     {
-        "id": "p2_func",
-        "type": "function",
+        "id": "d2viz_p2_change",
+        "type": "change",
         "z": "p2_tab",
-        "name": "進捗制御",
-        "func": "let progress = flow.get(\"progress\") || 0;\n\nif (msg.payload === 0) {\n    progress = 0;\n}\n\nprogress += 10;\nif (progress > 100) progress = 100;\n\nflow.set(\"progress\", progress);\nmsg.payload = progress;\n\nif (progress &lt; 100) {\n    return [msg, { payload: true }];\n} else {\n    return [msg, null];\n}",
-        "outputs": 2,
+        "name": "進捗計算",
+        "rules": [
+            {
+                "t": "set",
+                "p": "progress",
+                "pt": "flow",
+                "to": "payload = 0 ? 10 : $min([$flowContext(\"progress\") + 10, 100])",
+                "tot": "jsonata"
+            },
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "progress",
+                "tot": "flow"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
         "x": 310,
         "y": 100,
-        "wires": [["p2_progress"], ["p2_trigger"]]
+        "wires": [["p2_progress", "p2_switch"]]
+    },
+    {
+        "id": "p2_switch",
+        "type": "switch",
+        "z": "p2_tab",
+        "name": "100%未満か",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "lt",
+                "v": "100",
+                "vt": "num"
+            }
+        ],
+        "checkall": "false",
+        "repair": false,
+        "outputs": 1,
+        "x": 350,
+        "y": 160,
+        "wires": [["p2_trigger"]]
     },
     {
         "id": "p2_trigger",
@@ -3718,7 +5064,7 @@ return null;</div>
         "outputs": 1,
         "x": 320,
         "y": 160,
-        "wires": [["p2_func"]]
+        "wires": [["d2viz_p2_change"]]
     },
     {
         "id": "p2_progress",
@@ -3748,7 +5094,7 @@ return null;</div>
             <p><strong>💼 使いどころ:</strong> 残量や負荷の水準に応じて色を変え、注意が必要な状態を目立たせる場面で使います。</p>
             <p><strong>🎯 要求仕様:</strong></p>
             <ul>
-                <li>使用ノード: Inject, Function, ui-progress</li>
+                <li>使用ノード: Inject, Change, Switch, ui-progress</li>
                 <li>0〜30%: 赤色（危険）</li>
                 <li>31〜70%: オレンジ色（注意）</li>
                 <li>71〜100%: 緑色（正常）</li>
@@ -3762,30 +5108,15 @@ return null;</div>
                     <li>繰り返し: 2秒</li>
                     <li>起動時に1回実行</li>
                 </ul>
-                <p><strong>Functionノード（色制御）:</strong></p>
-                <div class="code-block">let value = Math.floor(Math.random() * 101);
-msg.payload = value;
-
-let color;
-let label;
-
-if (value <= 30) {
-    color = "#f44336";  // 赤
-    label = "危険";
-} else if (value <= 70) {
-    color = "#ff9800";  // オレンジ
-    label = "注意";
-} else {
-    color = "#4caf50";  // 緑
-    label = "正常";
-}
-
-msg.ui_update = {
-    "color": color,
-    "label": label + " (" + value + "%)"
-};
-
-return msg;</div>
+                <p><strong>ノードの構成:</strong> Inject → Change（値を作る）→ Switch（範囲で3つに分ける）→ Change × 3（<code>msg.ui_update</code> を設定）→ ui-progress</p>
+                <ul>
+                    <li>値を作るChange: 「値の代入」で <code>msg.payload</code> に「JSONata式」型の <code>$floor($random() * 101)</code>（0〜100）</li>
+                    <li>Switch: プロパティは <code>msg.payload</code>。条件は「&lt;= 30」「&lt;= 70」「その他」の3つで、「最初に合致した条件で終了」を選ぶ</li>
+                    <li>3つのChange: それぞれ「値の代入」で <code>msg.ui_update</code> に「JSONata式」型の式を設定し、3つとも同じ ui-progress へつなぐ</li>
+                </ul>
+                <p><strong>出力1（危険）のChangeに設定する式:</strong></p>
+                <div class="code-block">{"color": "#f44336", "label": "危険 (" &amp; payload &amp; "%)"}</div>
+                <p><code>&amp;</code> は文字列をつなぐ JSONata の演算子で、ラベルは「危険 (25%)」のようになります。出力2（注意）は色 <code>#ff9800</code>、出力3（正常）は色 <code>#4caf50</code> で、ラベルの言葉だけを変えます。</p>
                 <p><strong>ui-progressの設定:</strong></p>
                 <ul>
                     <li>Color: 任意（動的に変更される）</li>
@@ -3888,17 +5219,127 @@ return msg;</div>
         "payloadType": "date",
         "x": 130,
         "y": 100,
-        "wires": [["p3_func"]]
+        "wires": [["p3_change_value"]]
     },
     {
-        "id": "p3_func",
-        "type": "function",
+        "id": "p3_change_value",
+        "type": "change",
         "z": "p3_tab",
-        "name": "色動的変更",
-        "func": "let value = Math.floor(Math.random() * 101);\nmsg.payload = value;\n\nlet color;\nlet label;\n\nif (value &lt;= 30) {\n    color = \"#f44336\";\n    label = \"危険\";\n} else if (value &lt;= 70) {\n    color = \"#ff9800\";\n    label = \"注意\";\n} else {\n    color = \"#4caf50\";\n    label = \"正常\";\n}\n\nmsg.ui_update = {\n    \"color\": color,\n    \"label\": label + \" (\" + value + \"%)\"\n};\n\nreturn msg;",
-        "outputs": 1,
+        "name": "値生成(0-100)",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "$floor($random() * 101)",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
         "x": 310,
         "y": 100,
+        "wires": [["p3_switch"]]
+    },
+    {
+        "id": "p3_switch",
+        "type": "switch",
+        "z": "p3_tab",
+        "name": "色判定",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "lte",
+                "v": "30",
+                "vt": "num"
+            },
+            {
+                "t": "lte",
+                "v": "70",
+                "vt": "num"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "false",
+        "repair": false,
+        "outputs": 3,
+        "x": 490,
+        "y": 100,
+        "wires": [["p3_change_danger"], ["p3_change_warn"], ["p3_change_ok"]]
+    },
+    {
+        "id": "p3_change_danger",
+        "type": "change",
+        "z": "p3_tab",
+        "name": "危険",
+        "rules": [
+            {
+                "t": "set",
+                "p": "ui_update",
+                "pt": "msg",
+                "to": "{\"color\": \"#f44336\", \"label\": \"危険 (\" &amp; payload &amp; \"%)\"}",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 670,
+        "y": 60,
+        "wires": [["p3_progress"]]
+    },
+    {
+        "id": "p3_change_warn",
+        "type": "change",
+        "z": "p3_tab",
+        "name": "注意",
+        "rules": [
+            {
+                "t": "set",
+                "p": "ui_update",
+                "pt": "msg",
+                "to": "{\"color\": \"#ff9800\", \"label\": \"注意 (\" &amp; payload &amp; \"%)\"}",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 670,
+        "y": 100,
+        "wires": [["p3_progress"]]
+    },
+    {
+        "id": "p3_change_ok",
+        "type": "change",
+        "z": "p3_tab",
+        "name": "正常",
+        "rules": [
+            {
+                "t": "set",
+                "p": "ui_update",
+                "pt": "msg",
+                "to": "{\"color\": \"#4caf50\", \"label\": \"正常 (\" &amp; payload &amp; \"%)\"}",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 670,
+        "y": 140,
         "wires": [["p3_progress"]]
     },
     {
@@ -3940,24 +5381,20 @@ return msg;</div>
             
             <details>
                 <summary>💡 ヒント</summary>
-                <p><strong>アラート判定のFunctionノード:</strong></p>
-                <div class="code-block">// 温度が35度を超えた場合
-if (msg.payload > 35) {
-    let alert = {
-        "time": new Date().toLocaleTimeString(),
-        "type": "温度異常",
-        "value": msg.payload + "°C"
-    };
-    
-    // グローバル変数でアラート履歴を管理
-    let history = global.get("alertHistory") || [];
-    history.unshift(alert);
-    if (history.length > 10) history.pop();
-    global.set("alertHistory", history);
-    
-    return [msg, { payload: history }, { payload: "温度警告: " + msg.payload + "°C", topic: "alert" }];
-}
-return [msg, null, null];</div>
+                <p><strong>温度・湿度・電力・稼働率の値:</strong> それぞれChangeノードの「値の代入」で、<code>msg.payload</code> に「JSONata式」型の乱数の式を設定します（例: 温度 20〜40 は <code>$floor($random() * 21) + 20</code>）。</p>
+                <p><strong>アラート判定:</strong> 温度のChangeの出力を、温度ゲージと Switch の両方につなぎます。</p>
+                <ul>
+                    <li>Switch: プロパティは <code>msg.payload</code>、条件は「&gt; 35」の1つ。出力を次の2つのChangeにつなぐ</li>
+                    <li>アラート履歴に追加するChange: 「値の代入」のルールを2つ、次の順に並べ、出力を ui-table へつなぐ
+                        <ol>
+                            <li><code>global.alertHistory</code> に「JSONata式」型で、下の式</li>
+                            <li><code>msg.payload</code> に <code>global.alertHistory</code>（種類は「global.」）</li>
+                        </ol>
+                    </li>
+                    <li>通知文を作るChange: <code>msg.payload</code> に「JSONata式」型の <code>"⚠️ 温度警告: " &amp; payload &amp; "°C"</code>。出力を ui-notification へつなぐ</li>
+                </ul>
+                <div class="code-block">[$append([{"time": $moment().format("HH:mm:ss"), "type": "温度異常", "value": payload &amp; "°C"}], $globalContext("alertHistory"))[[0..9]]]</div>
+                <p>新しいアラートを1件の配列にして、<code>$append</code> で今までの履歴（グローバル変数 <code>alertHistory</code>）の前につなぎ、<code>[[0..9]]</code> で先頭から10件だけを残します。全体を <code>[ ]</code> で囲んでいるのは、履歴が1件のときも配列のまま保つためです。JSONata は、要素が1つの配列を、その要素だけの値に変えてしまいます（ui-table は配列を受け取る必要があります）。</p>
                 <p><strong>各ウィジェットの配置:</strong></p>
                 <ul>
                     <li>左上: 温度ゲージ（Tile）</li>
@@ -4119,18 +5556,30 @@ return [msg, null, null];</div>
         "payloadType": "date",
         "x": 130,
         "y": 80,
-        "wires": [["ex4_func_temp"]]
+        "wires": [["ex4_change_temp"]]
     },
     {
-        "id": "ex4_func_temp",
-        "type": "function",
+        "id": "ex4_change_temp",
+        "type": "change",
         "z": "d2viz_ex4_tab",
         "name": "温度生成(20-40)",
-        "func": "msg.payload = Math.floor(Math.random() * 21) + 20;\nreturn msg;",
-        "outputs": 1,
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "$floor($random() * 21) + 20",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
         "x": 330,
         "y": 80,
-        "wires": [["d2viz_ex4_gauge_temp", "ex4_func_alert"]]
+        "wires": [["d2viz_ex4_gauge_temp", "ex4_switch_alert"]]
     },
     {
         "id": "d2viz_ex4_gauge_temp",
@@ -4162,15 +5611,78 @@ return [msg, null, null];</div>
         "wires": []
     },
     {
-        "id": "ex4_func_alert",
-        "type": "function",
+        "id": "ex4_switch_alert",
+        "type": "switch",
         "z": "d2viz_ex4_tab",
-        "name": "アラート判定",
-        "func": "if (msg.payload > 35) {\n    let alert = {\n        \"time\": new Date().toLocaleTimeString(),\n        \"type\": \"温度異常\",\n        \"value\": msg.payload + \"°C\"\n    };\n    let history = global.get(\"alertHistory\") || [];\n    history.unshift(alert);\n    if (history.length > 10) history.pop();\n    global.set(\"alertHistory\", history);\n    return [{ payload: history }, { payload: \"⚠️ 温度警告: \" + msg.payload + \"°C\" }];\n}\nreturn [null, null];",
-        "outputs": 2,
+        "name": "35℃を超えたか",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "gt",
+                "v": "35",
+                "vt": "num"
+            }
+        ],
+        "checkall": "false",
+        "repair": false,
+        "outputs": 1,
         "x": 550,
         "y": 100,
-        "wires": [["ex4_table"], ["ex4_notification"]]
+        "wires": [["ex4_change_history", "d2viz_ex4_change_notify"]]
+    },
+    {
+        "id": "ex4_change_history",
+        "type": "change",
+        "z": "d2viz_ex4_tab",
+        "name": "アラート履歴に追加",
+        "rules": [
+            {
+                "t": "set",
+                "p": "alertHistory",
+                "pt": "global",
+                "to": "[$append([{\"time\": $moment().format(\"HH:mm:ss\"), \"type\": \"温度異常\", \"value\": payload &amp; \"°C\"}], $globalContext(\"alertHistory\"))[[0..9]]]",
+                "tot": "jsonata"
+            },
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "alertHistory",
+                "tot": "global"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 750,
+        "y": 80,
+        "wires": [["ex4_table"]]
+    },
+    {
+        "id": "d2viz_ex4_change_notify",
+        "type": "change",
+        "z": "d2viz_ex4_tab",
+        "name": "アラート通知文",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "\"⚠️ 温度警告: \" &amp; payload &amp; \"°C\"",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 750,
+        "y": 120,
+        "wires": [["ex4_notification"]]
     },
     {
         "id": "d2viz_ex4_inject_humid",
@@ -4187,15 +5699,27 @@ return [msg, null, null];</div>
         "payloadType": "date",
         "x": 130,
         "y": 160,
-        "wires": [["ex4_func_humid"]]
+        "wires": [["ex4_change_humid"]]
     },
     {
-        "id": "ex4_func_humid",
-        "type": "function",
+        "id": "ex4_change_humid",
+        "type": "change",
         "z": "d2viz_ex4_tab",
         "name": "湿度生成(40-80)",
-        "func": "msg.payload = Math.floor(Math.random() * 41) + 40;\nreturn msg;",
-        "outputs": 1,
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "$floor($random() * 41) + 40",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
         "x": 330,
         "y": 160,
         "wires": [["d2viz_ex4_gauge_humid"]]
@@ -4243,15 +5767,27 @@ return [msg, null, null];</div>
         "payloadType": "date",
         "x": 130,
         "y": 240,
-        "wires": [["ex4_func_power"]]
+        "wires": [["ex4_change_power"]]
     },
     {
-        "id": "ex4_func_power",
-        "type": "function",
+        "id": "ex4_change_power",
+        "type": "change",
         "z": "d2viz_ex4_tab",
         "name": "電力生成(100-200kW)",
-        "func": "msg.payload = Math.floor(Math.random() * 101) + 100;\nreturn msg;",
-        "outputs": 1,
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "$floor($random() * 101) + 100",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
         "x": 350,
         "y": 240,
         "wires": [["ex4_chart_power"]]
@@ -4347,15 +5883,27 @@ return [msg, null, null];</div>
         "payloadType": "date",
         "x": 130,
         "y": 320,
-        "wires": [["ex4_func_status"]]
+        "wires": [["ex4_change_status"]]
     },
     {
-        "id": "ex4_func_status",
-        "type": "function",
+        "id": "ex4_change_status",
+        "type": "change",
         "z": "d2viz_ex4_tab",
         "name": "稼働率(85-100)",
-        "func": "msg.payload = Math.floor(Math.random() * 16) + 85;\nreturn msg;",
-        "outputs": 1,
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "$floor($random() * 16) + 85",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
         "x": 330,
         "y": 320,
         "wires": [["ex4_progress"]]
@@ -4545,7 +6093,7 @@ return [msg, null, null];</div>
         <p style="text-align: center; color: #999; margin-top: 40px;">
             <small>このガイドが役に立ちましたら、実際のプロジェクトで練習してみてください！<br>
             データ可視化はIoTダッシュボードの核心機能です。<br>
-            サンプルフローの提供元: <a href="https://dashboard.flowfuse.com/" target="_blank">FlowFuse Dashboard 2.0</a></small>
+            公式サンプルフローの出典: <a href="https://dashboard.flowfuse.com/" target="_blank">FlowFuse Dashboard 2.0</a></small>
         </p>
     </div>
     
