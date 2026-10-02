@@ -60,9 +60,7 @@ def load_blocks(paths):
     for full in paths:
         src = open(full, encoding="utf-8").read()
         path = os.path.relpath(full, root)  # 表示はリポジトリからの相対パス
-        # validate-flow-json.py の CLASS_ATTR による事前の絞り込みは使わない。
-        # 二重引用符の class 属性にしか合わず、class='flow-json' のブロックを静かに取りこぼすため。
-        # ブロックの判定は HTMLParser（属性の引用符の種類に依存しない）だけに任せる
+        # ブロックの判定は HTMLParser（属性の引用符の種類や文字参照に依存しない）だけに任せる
         parser = _vfj.FlowJsonExtractor(src)
         parser.feed(src)
         parser.close()
