@@ -1795,7 +1795,7 @@ return msg;</div>
         "type": "function",
         "z": "tab_q4",
         "name": "移動平均(直近3件)",
-        "func": "let history = context.get('history') || [];\nhistory.push(msg.payload);\nif (history.length > 3) history.shift();\nlet average = history.reduce((a, b) => a + b, 0) / history.length;\ncontext.set('history', history);\nmsg.payload = {\n    current: msg.payload,\n    history: history,\n    average: average\n};\nreturn msg;",
+        "func": "// このノード専用の context から、これまでの履歴を読み出す（初回は空の配列）\nlet history = context.get('history') || [];\n// 今回の値を末尾に足し、3件を超えたら一番古い値（先頭）を捨てる\nhistory.push(msg.payload);\nif (history.length > 3) history.shift();\n// 履歴の合計を件数で割って平均を出す\nlet average = history.reduce((a, b) => a + b, 0) / history.length;\n// 次回のために履歴を保存し直す\ncontext.set('history', history);\nmsg.payload = {\n    current: msg.payload,\n    history: history,\n    average: average\n};\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
