@@ -1013,13 +1013,12 @@ ws.onclose = function() {
 
             <details>
                 <summary>💡 ヒント</summary>
-                <p><strong>Function ノード:</strong></p>
-                <div class="code-block">msg.payload = {
-    message: msg.payload,
-    receivedAt: new Date().toISOString()
-};
-return msg;</div>
-                <p>オブジェクトのまま WebSocket Out に渡せば、送信時にJSON文字列へ自動で変換されます。<code>JSON.stringify()</code> を自分で書く必要はありません。</p>
+                <p><strong>Change ノード</strong>に、次の2つのルールを上から順に並べます。</p>
+                <ol>
+                    <li>「値の移動」: <code>msg.payload</code> → <code>msg.payload.message</code>（受信した文字列を <code>message</code> の中へ移す）</li>
+                    <li>「値の代入」: <code>msg.payload.receivedAt</code> に「日時」型の <code>YYYY-MM-DDTHH:mm:ss.sssZ</code>（ISO 8601形式）を設定する</li>
+                </ol>
+                <p>1つ目のルールで <code>msg.payload</code> は <code>{"message": "こんにちは"}</code> というオブジェクトになり、2つ目のルールで <code>receivedAt</code> が加わります。オブジェクトのまま WebSocket Out に渡せば、送信時にJSON文字列へ自動で変換されます。<code>JSON.stringify()</code> を自分で書く必要はありません。</p>
             </details>
             
             <details>
@@ -1041,8 +1040,8 @@ return msg;</div>
                 <div class="flow-json">[
     {"id": "ex2_tab", "type": "tab", "label": "演習2"},
     {"id": "ex2_ws_listener", "type": "websocket-listener", "path": "/ws/time", "wholemsg": "false"},
-    {"id": "ex2_ws_in", "type": "websocket in", "z": "ex2_tab", "name": "WS In", "server": "ex2_ws_listener", "client": "", "x": 150, "y": 100, "wires": [["ex2_func"]]},
-    {"id": "ex2_func", "type": "function", "z": "ex2_tab", "name": "時刻追加", "func": "msg.payload = {\n    message: msg.payload,\n    receivedAt: new Date().toISOString()\n};\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 320, "y": 100, "wires": [["ex2_ws_out"]]},
+    {"id": "ex2_ws_in", "type": "websocket in", "z": "ex2_tab", "name": "WS In", "server": "ex2_ws_listener", "client": "", "x": 150, "y": 100, "wires": [["ex2_change"]]},
+    {"id": "ex2_change", "type": "change", "z": "ex2_tab", "name": "時刻追加", "rules": [{"t": "move", "p": "payload", "pt": "msg", "to": "payload.message", "tot": "msg"}, {"t": "set", "p": "payload.receivedAt", "pt": "msg", "to": "iso", "tot": "date"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 320, "y": 100, "wires": [["ex2_ws_out"]]},
     {"id": "ex2_ws_out", "type": "websocket out", "z": "ex2_tab", "name": "WS Out", "server": "ex2_ws_listener", "client": "", "x": 490, "y": 100, "wires": []}
 ]</div>
             </details>
@@ -1155,17 +1154,17 @@ return msg;</div>
                 <li>複数のクライアントが <code>/ws/chatroom</code> に同時接続できる</li>
                 <li>あるクライアントが送信したメッセージが全ての接続中クライアントに届く</li>
                 <li>デバッグパネルに <code>type</code>, <code>name</code>, <code>message</code>, <code>timestamp</code> を含むJSONが表示される</li>
-                <li>JSON 以外の文字列を送信しても「匿名」として正常に処理される</li>
             </ul>
-            <p>動作確認用フローが送るのは JSON だけです。JSON 以外の文字列の扱いを確かめるときは、<a href="#test-methods">動作確認方法</a>の「方法2」のコードを、<code>/ws/echo</code> を <code>/ws/chatroom</code> に書き換えて Console で実行します。このコードは JSON ではない「Hello WebSocket!」を送るので、解答例の「サーバー側: チャットログ」に <code>name: "匿名"</code> のデータが表示されれば成功です。動作確認用フローもデプロイしていれば、同じ発言が「クライアント側: Bさんに届いた内容」にも表示されます。</p>
+            <p>クライアントから届く発言は JSON 形式の文字列です。JSON 以外の文字列が届いたときは、json ノードが変換に失敗してエラーを出し、その発言は配信されません（debug サイドバーにエラーが表示されます）。</p>
 
             <details>
                 <summary>💡 ヒント</summary>
                 <p><strong>処理の流れ:</strong></p>
                 <ol>
-                    <li>WebSocket In で受信</li>
-                    <li>Function で JSON パース＆整形</li>
-                    <li><code>delete msg._session</code> でブロードキャスト準備</li>
+                    <li>WebSocket In で受信（<code>msg.payload</code> は JSON 形式の<strong>文字列</strong>）</li>
+                    <li>json ノードで文字列をオブジェクトに変換</li>
+                    <li>Change ノードの「値の代入」で <code>msg.payload.type</code> に文字列 <code>chat</code>、<code>msg.payload.timestamp</code> に「日時」型の <code>YYYY-MM-DDTHH:mm:ss.sssZ</code>（ISO 8601形式）を設定</li>
+                    <li>Change ノードの「値の削除」で <code>msg._session</code> を削除（受信した msg には送信元の <code>_session</code> が付いているため。<a href="#pattern-broadcast">パターン2</a>）</li>
                     <li>WebSocket Out で全員に送信</li>
                 </ol>
             </details>
@@ -1190,10 +1189,12 @@ return msg;</div>
                 <div class="flow-json">[
     {"id": "ex4_tab", "type": "tab", "label": "演習4"},
     {"id": "ex4_ws_listener", "type": "websocket-listener", "path": "/ws/chatroom", "wholemsg": "false"},
-    {"id": "ex4_ws_in", "type": "websocket in", "z": "ex4_tab", "name": "WS Chat In", "server": "ex4_ws_listener", "client": "", "x": 160, "y": 100, "wires": [["ex4_func"]]},
-    {"id": "ex4_func", "type": "function", "z": "ex4_tab", "name": "チャット処理", "func": "let data;\ntry {\n    data = JSON.parse(msg.payload);\n} catch (e) {\n    data = {name: \"匿名\", message: msg.payload};\n}\n\nmsg.payload = {\n    type: \"chat\",\n    name: data.name || \"匿名\",\n    message: data.message || \"\",\n    timestamp: new Date().toISOString()\n};\n\n// 全員に送信するため _session を削除\ndelete msg._session;\n\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 360, "y": 100, "wires": [["ex4_ws_out", "ex4_debug"]]},
-    {"id": "ex4_ws_out", "type": "websocket out", "z": "ex4_tab", "name": "WS Chat Out", "server": "ex4_ws_listener", "client": "", "x": 570, "y": 100, "wires": []},
-    {"id": "ex4_debug", "type": "debug", "z": "ex4_tab", "name": "サーバー側: チャットログ", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "x": 570, "y": 140, "wires": []}
+    {"id": "ex4_ws_in", "type": "websocket in", "z": "ex4_tab", "name": "WS Chat In", "server": "ex4_ws_listener", "client": "", "x": 130, "y": 100, "wires": [["ex4_json"]]},
+    {"id": "ex4_json", "type": "json", "z": "ex4_tab", "name": "JSON→オブジェクト", "property": "payload", "action": "", "pretty": false, "x": 320, "y": 100, "wires": [["ex4_change_set"]]},
+    {"id": "ex4_change_set", "type": "change", "z": "ex4_tab", "name": "type・時刻を追加", "rules": [{"t": "set", "p": "payload.type", "pt": "msg", "to": "chat", "tot": "str"}, {"t": "set", "p": "payload.timestamp", "pt": "msg", "to": "iso", "tot": "date"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 520, "y": 100, "wires": [["ex4_change_session"]]},
+    {"id": "ex4_change_session", "type": "change", "z": "ex4_tab", "name": "_session削除（全員へ）", "rules": [{"t": "delete", "p": "_session", "pt": "msg"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 730, "y": 100, "wires": [["ex4_ws_out", "ex4_debug"]]},
+    {"id": "ex4_ws_out", "type": "websocket out", "z": "ex4_tab", "name": "WS Chat Out", "server": "ex4_ws_listener", "client": "", "x": 950, "y": 100, "wires": []},
+    {"id": "ex4_debug", "type": "debug", "z": "ex4_tab", "name": "サーバー側: チャットログ", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "x": 980, "y": 160, "wires": []}
 ]</div>
             </details>
             <p><strong>🔍 動作確認:</strong> 自分で作ったフロー、または解答例フロー（サーバー側）をデプロイしたうえで、動作確認用フローを読み込んでデプロイします。WebSocketノードの下に緑色の丸印が出たことを確認したら、「テスト送信」injectノードのボタンをクリックします。debugサイドバーの「クライアント側: Bさんに届いた内容」に <code>type</code>・<code>name</code>・<code>message</code>・<code>timestamp</code> を含むデータが表示されれば、Aさんの発言が別の参加者であるBさんまで届いています。</p>
@@ -1249,12 +1250,12 @@ return msg;</div>
             <tr>
                 <td>全員に送信されない</td>
                 <td>_sessionが残っている</td>
-                <td><code>delete msg._session</code></td>
+                <td>Change ノードの「値の削除」で <code>msg._session</code> を削除する（Function ノードなら <code>delete msg._session</code>）</td>
             </tr>
             <tr>
-                <td>JSONパースエラー</td>
-                <td>データ形式の問題</td>
-                <td>try-catchでエラーハンドリング</td>
+                <td>json ノードで <code>Unexpected token</code> などのエラーが出る</td>
+                <td>届いた文字列が JSON 形式ではない</td>
+                <td>送信側のデータ形式を確認する。JSON 以外も届く可能性があるときは、catch ノードでエラーを受けて別に処理する</td>
             </tr>
         </table>
         
