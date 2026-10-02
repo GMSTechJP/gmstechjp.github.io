@@ -518,7 +518,7 @@
                 <p><strong>有効期限：</strong>Node-REDを再起動するまで</p>
                 <p><strong>宣言方法：</strong>context.set() / context.get()</p>
                 <div class="dark-code">context.set('lastValue', 25);
-let val = context.get('lastValue');</div>
+const val = context.get('lastValue');</div>
                 <div class="example-box">
                     <strong>例：</strong><br>
                     特定のFunctionノード内でのみ使用する前回値や状態を保存
@@ -531,7 +531,7 @@ let val = context.get('lastValue');</div>
                 <p><strong>有効期限：</strong>Node-REDを再起動するまで</p>
                 <p><strong>宣言方法：</strong>flow.set() / flow.get()</p>
                 <div class="dark-code">flow.set('counter', 0);
-let count = flow.get('counter');</div>
+const count = flow.get('counter');</div>
                 <div class="example-box">
                     <strong>例：</strong><br>
                     同じフロー内の複数ノードで共有するカウンター値や設定値
@@ -544,7 +544,7 @@ let count = flow.get('counter');</div>
                 <p><strong>有効期限：</strong>Node-REDを再起動するまで</p>
                 <p><strong>宣言方法：</strong>global.set() / global.get()</p>
                 <div class="dark-code">global.set('apiKey', 'xxx');
-let key = global.get('apiKey');</div>
+const key = global.get('apiKey');</div>
                 <div class="example-box">
                     <strong>例：</strong><br>
                     全フローで共有するAPIキーやユーザー設定
@@ -624,12 +624,12 @@ let key = global.get('apiKey');</div>
             <tr>
                 <td>値を取得</td>
                 <td><code>xxx.get(キー)</code></td>
-                <td><code>let n = flow.get('counter')</code></td>
+                <td><code>const n = flow.get('counter')</code></td>
             </tr>
             <tr>
                 <td>未設定時のデフォルト</td>
                 <td><code>xxx.get(キー) || 既定値</code></td>
-                <td><code>let n = flow.get('counter') || 0</code></td>
+                <td><code>const n = flow.get('counter') || 0</code></td>
             </tr>
             <tr>
                 <td>値を削除</td>
@@ -1077,13 +1077,13 @@ return msg;</div>
             </ul>
 
             <p><strong>Functionノードのコード：</strong></p>
-            <div class="code-block">let previous = context.get('lastValue');
-let current = msg.payload;
+            <div class="code-block">const previous = context.get('lastValue');
+const current = msg.payload;
 
 if (previous === undefined) {
     msg.payload = { current: current, message: "初回測定です" };
 } else {
-    let diff = current - previous;
+    const diff = current - previous;
     msg.payload = {
         current: current,
         previous: previous,
@@ -1162,7 +1162,7 @@ return msg;</div>
         "type": "function",
         "z": "tab_ctx_ex3",
         "name": "差分計算",
-        "func": "let previous = context.get('lastValue');\nlet current = msg.payload;\n\nif (previous === undefined) {\n    msg.payload = { current: current, message: \"初回測定です\" };\n} else {\n    let diff = current - previous;\n    msg.payload = {\n        current: current,\n        previous: previous,\n        difference: diff,\n        trend: diff > 0 ? \"上昇\" : diff &lt; 0 ? \"下降\" : \"変化なし\"\n    };\n}\n\ncontext.set('lastValue', current);\nreturn msg;",
+        "func": "const previous = context.get('lastValue');\nconst current = msg.payload;\n\nif (previous === undefined) {\n    msg.payload = { current: current, message: \"初回測定です\" };\n} else {\n    const diff = current - previous;\n    msg.payload = {\n        current: current,\n        previous: previous,\n        difference: diff,\n        trend: diff > 0 ? \"上昇\" : diff &lt; 0 ? \"下降\" : \"変化なし\"\n    };\n}\n\ncontext.set('lastValue', current);\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -1795,7 +1795,7 @@ return msg;</div>
         "type": "function",
         "z": "tab_q4",
         "name": "移動平均(直近3件)",
-        "func": "// このノード専用の context から、これまでの履歴を読み出す（初回は空の配列）\nlet history = context.get('history') || [];\n// 今回の値を末尾に足し、3件を超えたら一番古い値（先頭）を捨てる\nhistory.push(msg.payload);\nif (history.length > 3) history.shift();\n// 履歴の合計を件数で割って平均を出す\nlet average = history.reduce((a, b) => a + b, 0) / history.length;\n// 次回のために履歴を保存し直す\ncontext.set('history', history);\nmsg.payload = {\n    current: msg.payload,\n    history: history,\n    average: average\n};\nreturn msg;",
+        "func": "// このノード専用の context から、これまでの履歴を読み出す（初回は空の配列）\nconst history = context.get('history') || [];\n// 今回の値を末尾に足し、3件を超えたら一番古い値（先頭）を捨てる\nhistory.push(msg.payload);\nif (history.length > 3) history.shift();\n// 履歴の合計を件数で割って平均を出す\nconst average = history.reduce((a, b) => a + b, 0) / history.length;\n// 次回のために履歴を保存し直す\ncontext.set('history', history);\nmsg.payload = {\n    current: msg.payload,\n    history: history,\n    average: average\n};\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
