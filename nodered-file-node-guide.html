@@ -156,7 +156,7 @@
         </table>
         
         <h3>動的なファイル名</h3>
-        <p>「ファイル名」を空にして、<code>msg.filename</code> でファイルパスを指定できます。</p>
+        <p>「ファイル名」の左側の種類を <code>msg.</code> にし、右側に <code>filename</code> と入力すると（<code>msg.filename</code> と表示されます）、メッセージごとに <code>msg.filename</code> でファイルパスを指定できます。ファイル名を空欄のままにすると、エラー（<code>Invalid property expression: zero-length</code>）になって書き込めません。</p>
         <div class="code-block">// Function ノードで動的にファイル名を設定
 msg.filename = "/home/pi/logs/sensor_" + new Date().toISOString().slice(0,10) + ".log";
 msg.payload = "センサーデータ: " + msg.payload;
@@ -466,7 +466,7 @@ return msg;</div>
         "type": "file",
         "z": "file_sample_tab",
         "name": "動的ファイル",
-        "filename": "",
+        "filename": "filename",
         "filenameType": "msg",
         "appendNewline": true,
         "createDir": true,
@@ -629,7 +629,7 @@ return msg;</div>
             <span class="node node-file">動的ファイル</span>
         </div>
         <p><strong>用途:</strong> 日付ごとに切り替わるファイルへのイベント記録</p>
-        <p><strong>設定:</strong> ファイル名: 空（msg.filename で指定）</p>
+        <p><strong>設定:</strong> ファイル名: <code>msg.filename</code></p>
         
         <h3>パターン5: エラーハンドリング</h3>
         <p>サンプルフローの「エラーハンドリング」を参照してください。</p>
@@ -659,16 +659,18 @@ return msg;</div>
             </ul>
             <details>
                 <summary>💡 ヒント</summary>
-                <p>file ノードの「動作」を「ファイルへ追記」に設定し、「メッセージの入力のたびに改行を追加」をオンにします。</p>
+                <p><strong>タイムスタンプを付ける:</strong> Change ノードの「値の代入」で <code>msg.timestamp</code> に「日時」型の <code>YYYY-MM-DDTHH:mm:ss.sssZ</code>（ISO 8601形式）を設定し、Template ノードで <code>{{{timestamp}}} - {{{payload}}}</code> のように1行の文字列を組み立てます。<code>{{{ }}}</code>（波かっこ3つ）は、値を HTML 用に書き換えずにそのまま入れる書き方です。</p>
+                <p><strong>ファイルへの書き込み:</strong> file ノードの「動作」を「ファイルへ追記」に設定し、「メッセージの入力のたびに改行を追加」をオンにします。</p>
             </details>
             <details>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
     {"id": "ex1_tab", "type": "tab", "label": "演習1"},
-    {"id": "ex1_inject", "type": "inject", "z": "ex1_tab", "name": "ログ追加", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "イベント発生", "payloadType": "str", "x": 140, "y": 100, "wires": [["ex1_func"]]},
-    {"id": "ex1_func", "type": "function", "z": "ex1_tab", "name": "タイムスタンプ", "func": "msg.payload = new Date().toISOString() + \" - \" + msg.payload;\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 300, "y": 100, "wires": [["ex1_file"]]},
-    {"id": "ex1_file", "type": "file", "z": "ex1_tab", "name": "ログ追記", "filename": "/tmp/exercise1.log", "filenameType": "str", "appendNewline": true, "createDir": true, "overwriteFile": "false", "encoding": "utf8", "x": 460, "y": 100, "wires": [["ex1_debug"]]},
-    {"id": "ex1_debug", "type": "debug", "z": "ex1_tab", "name": "完了", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "\"追記完了\"", "statusType": "str", "x": 610, "y": 100, "wires": []}
+    {"id": "ex1_inject", "type": "inject", "z": "ex1_tab", "name": "ログ追加", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "イベント発生", "payloadType": "str", "x": 140, "y": 100, "wires": [["ex1_change"]]},
+    {"id": "ex1_change", "type": "change", "z": "ex1_tab", "name": "時刻を用意", "rules": [{"t": "set", "p": "timestamp", "pt": "msg", "to": "iso", "tot": "date"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 300, "y": 100, "wires": [["ex1_template"]]},
+    {"id": "ex1_template", "type": "template", "z": "ex1_tab", "name": "ログの行を作る", "field": "payload", "fieldType": "msg", "format": "text", "syntax": "mustache", "template": "{{{timestamp}}} - {{{payload}}}", "output": "str", "x": 470, "y": 100, "wires": [["ex1_file"]]},
+    {"id": "ex1_file", "type": "file", "z": "ex1_tab", "name": "ログ追記", "filename": "/tmp/exercise1.log", "filenameType": "str", "appendNewline": true, "createDir": true, "overwriteFile": "false", "encoding": "utf8", "x": 640, "y": 100, "wires": [["ex1_debug"]]},
+    {"id": "ex1_debug", "type": "debug", "z": "ex1_tab", "name": "完了", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "\"追記完了\"", "statusType": "str", "x": 790, "y": 100, "wires": []}
 ]</div>
             </details>
         </div>
@@ -710,14 +712,15 @@ return msg;</div>
             </ul>
             <details>
                 <summary>💡 ヒント</summary>
-                <p>保存時: JSON.stringify() で文字列化、読み込み時: JSON ノードで解析</p>
+                <p><strong>保存時:</strong> 設定オブジェクトは Inject ノードの <code>msg.payload</code> に「JSON」型で書きます。JSON ノードの「動作」を「常にJSON文字列に変換」にして文字列にし、file ノードで書き込みます。「JSON文字列フォーマット」をオンにすると、改行と字下げの入った読みやすい形で保存されます。file ノードはオブジェクトを受け取ると自動で JSON 文字列にしますが、その場合は1行に詰めて書かれます。</p>
+                <p><strong>読み込み時:</strong> file in ノードで文字列として読み込み、JSON ノードでオブジェクトに戻します。</p>
             </details>
             <details>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
     {"id": "ex3_tab", "type": "tab", "label": "演習3"},
-    {"id": "ex3_inject1", "type": "inject", "z": "ex3_tab", "name": "設定保存", "props": [], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "x": 140, "y": 80, "wires": [["ex3_func1"]]},
-    {"id": "ex3_func1", "type": "function", "z": "ex3_tab", "name": "設定作成", "func": "msg.payload = JSON.stringify({\n    server: \"localhost\",\n    port: 8080,\n    debug: true\n}, null, 2);\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 290, "y": 80, "wires": [["ex3_file_write"]]},
+    {"id": "ex3_inject1", "type": "inject", "z": "ex3_tab", "name": "設定保存", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "x": 140, "y": 80, "wires": [["ex3_json_str"]], "payload": "{\"server\":\"localhost\",\"port\":8080,\"debug\":true}", "payloadType": "json"},
+    {"id": "ex3_json_str", "type": "json", "z": "ex3_tab", "name": "JSON文字列に変換", "property": "payload", "action": "str", "pretty": true, "x": 290, "y": 80, "wires": [["ex3_file_write"]]},
     {"id": "ex3_file_write", "type": "file", "z": "ex3_tab", "name": "JSON保存", "filename": "/tmp/config.json", "filenameType": "str", "appendNewline": false, "createDir": true, "overwriteFile": "true", "encoding": "utf8", "x": 450, "y": 80, "wires": [["ex3_debug1"]]},
     {"id": "ex3_debug1", "type": "debug", "z": "ex3_tab", "name": "保存完了", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "\"保存完了\"", "statusType": "str", "x": 620, "y": 80, "wires": []},
     {"id": "ex3_inject2", "type": "inject", "z": "ex3_tab", "name": "設定読込", "props": [], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "x": 140, "y": 160, "wires": [["ex3_file_read"]]},
@@ -741,19 +744,26 @@ return msg;</div>
             </ul>
             <details>
                 <summary>💡 ヒント</summary>
-                <p>msg.filename で動的にファイル名を指定。削除は「動作」で「ファイルを削除」を使用。</p>
+                <p><strong>ファイル名の指定:</strong> file ノードの「ファイル名」を <code>msg.filename</code> にすると、メッセージごとにファイル名を変えられます。削除は「動作」で「ファイルを削除」を使用します。</p>
+                <p><strong>日付入りのファイル名を作る:</strong> Change ノードの「値の代入」で、<code>msg.filename</code> に「JSONata式」型の式を設定します。</p>
+                <ul>
+                    <li>今日: <code>"/tmp/sensor_" &amp; $substring($now(), 0, 10) &amp; ".log"</code>。<code>$now()</code> は現在時刻を <code>2026-10-02T03:04:05.678Z</code> の形で返し、<code>$substring(…, 0, 10)</code> で先頭10文字（日付の部分）を取り出します。<code>&amp;</code> は文字列をつなぐ演算子です</li>
+                    <li>7日前: <code>$now()</code> の代わりに <code>$fromMillis($millis() - 7 * 24 * 60 * 60 * 1000)</code> を使います。<code>$millis()</code> は現在時刻のミリ秒で、そこから7日分のミリ秒を引いて日時に戻しています</li>
+                </ul>
+                <p>書き込む行は、同じ Change ノードの2つ目のルールで <code>msg.payload</code> に「JSONata式」型の <code>$now() &amp; "," &amp; payload</code> を設定して作ります（例: <code>2026-10-02T03:04:05.678Z,25.5</code>）。</p>
+                <p>日付は UTC（協定世界時）で決まります。日本時間の午前0時〜9時の間は、前日の日付のファイルになります。</p>
             </details>
             <details>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
     {"id": "ex4_tab", "type": "tab", "label": "演習4"},
-    {"id": "ex4_inject", "type": "inject", "z": "ex4_tab", "name": "センサーデータ", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "25.5", "payloadType": "num", "x": 160, "y": 80, "wires": [["ex4_func_write"]]},
-    {"id": "ex4_func_write", "type": "function", "z": "ex4_tab", "name": "日付別ファイル名", "func": "const today = new Date().toISOString().slice(0,10);\nmsg.filename = \"/tmp/sensor_\" + today + \".log\";\nmsg.payload = new Date().toISOString() + \",\" + msg.payload;\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 350, "y": 80, "wires": [["ex4_file_write"]]},
-    {"id": "ex4_file_write", "type": "file", "z": "ex4_tab", "name": "ログ追記", "filename": "", "filenameType": "msg", "appendNewline": true, "createDir": true, "overwriteFile": "false", "encoding": "utf8", "x": 530, "y": 80, "wires": [["ex4_debug1"]]},
+    {"id": "ex4_inject", "type": "inject", "z": "ex4_tab", "name": "センサーデータ", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "25.5", "payloadType": "num", "x": 160, "y": 80, "wires": [["ex4_change_write"]]},
+    {"id": "ex4_change_write", "type": "change", "z": "ex4_tab", "name": "日付別ファイル名", "rules": [{"t": "set", "p": "filename", "pt": "msg", "to": "\"/tmp/sensor_\" &amp; $substring($now(), 0, 10) &amp; \".log\"", "tot": "jsonata"}, {"t": "set", "p": "payload", "pt": "msg", "to": "$now() &amp; \",\" &amp; payload", "tot": "jsonata"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 350, "y": 80, "wires": [["ex4_file_write"]]},
+    {"id": "ex4_file_write", "type": "file", "z": "ex4_tab", "name": "ログ追記", "filename": "filename", "filenameType": "msg", "appendNewline": true, "createDir": true, "overwriteFile": "false", "encoding": "utf8", "x": 530, "y": 80, "wires": [["ex4_debug1"]]},
     {"id": "ex4_debug1", "type": "debug", "z": "ex4_tab", "name": "保存先", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "filename", "targetType": "msg", "statusVal": "filename", "statusType": "msg", "x": 690, "y": 80, "wires": []},
-    {"id": "ex4_inject_del", "type": "inject", "z": "ex4_tab", "name": "古いファイル削除", "props": [], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "x": 170, "y": 160, "wires": [["ex4_func_del"]]},
-    {"id": "ex4_func_del", "type": "function", "z": "ex4_tab", "name": "7日前のファイル名", "func": "const d = new Date();\nd.setDate(d.getDate() - 7);\nconst oldDate = d.toISOString().slice(0,10);\nmsg.filename = \"/tmp/sensor_\" + oldDate + \".log\";\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 370, "y": 160, "wires": [["ex4_file_del"]]},
-    {"id": "ex4_file_del", "type": "file", "z": "ex4_tab", "name": "ファイル削除", "filename": "", "filenameType": "msg", "appendNewline": true, "createDir": false, "overwriteFile": "delete", "encoding": "utf8", "x": 550, "y": 160, "wires": [["ex4_debug2"]]},
+    {"id": "ex4_inject_del", "type": "inject", "z": "ex4_tab", "name": "古いファイル削除", "props": [], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "x": 170, "y": 160, "wires": [["ex4_change_del"]]},
+    {"id": "ex4_change_del", "type": "change", "z": "ex4_tab", "name": "7日前のファイル名", "rules": [{"t": "set", "p": "filename", "pt": "msg", "to": "\"/tmp/sensor_\" &amp; $substring($fromMillis($millis() - 7 * 24 * 60 * 60 * 1000), 0, 10) &amp; \".log\"", "tot": "jsonata"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 370, "y": 160, "wires": [["ex4_file_del"]]},
+    {"id": "ex4_file_del", "type": "file", "z": "ex4_tab", "name": "ファイル削除", "filename": "filename", "filenameType": "msg", "appendNewline": true, "createDir": false, "overwriteFile": "delete", "encoding": "utf8", "x": 550, "y": 160, "wires": [["ex4_debug2"]]},
     {"id": "ex4_debug2", "type": "debug", "z": "ex4_tab", "name": "削除結果", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "filename", "targetType": "msg", "statusVal": "\"削除試行\"", "statusType": "str", "x": 700, "y": 160, "wires": []}
 ]</div>
             </details>

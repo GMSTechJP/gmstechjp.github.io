@@ -1027,18 +1027,32 @@ nc -ul 8000</div>
 
             <details>
                 <summary>💡 ヒント</summary>
+                <p>デバイスIDごとの一覧を flow コンテキストに積み上げ、登録数をステータスに出すため、解答例は Function ノード1つで書いています。処理の意味はコメントで説明しています。</p>
                 <p><strong>Function ノード:</strong></p>
-                <div class="code-block">const data = JSON.parse(msg.payload);
-const devices = flow.get('devices') || {};
+                <div class="code-block">try {
+    // 受信した文字列（JSON形式）をオブジェクトに変換する
+    const data = JSON.parse(msg.payload);
+    // flowコンテキストから、これまでのデバイス一覧を読み出す（無ければ空のオブジェクト）
+    const devices = flow.get('devices') || {};
 
-devices[data.deviceId] = {
-    value: data.value,
-    lastSeen: new Date().toISOString(),
-    ip: msg.ip
-};
+    // デバイスIDをキーにして最新値で上書きする。同じIDは重複せず更新される
+    devices[data.deviceId] = {
+        value: data.value,
+        lastSeen: new Date().toISOString(),
+        ip: msg.ip  // 送信元のIPアドレス（UDP In が付ける）
+    };
 
-flow.set('devices', devices);
-msg.devices = devices;
+    // 一覧を flowコンテキストへ書き戻し、Debug で見られるよう msg.devices にも入れる
+    flow.set('devices', devices);
+    msg.devices = devices;
+
+    // ノードの下のステータスに登録済みデバイス数を表示する
+    node.status({fill: "green", shape: "dot", text: Object.keys(devices).length + " devices"});
+} catch(e) {
+    // JSONとして読めなかったときは、エラー内容を msg.error に入れて赤いステータスを出す
+    msg.error = e.message;
+    node.status({fill: "red", shape: "ring", text: "Error"});
+}
 return msg;</div>
             </details>
             
@@ -1047,7 +1061,7 @@ return msg;</div>
                 <div class="flow-json">[
     {"id": "ex3_tab", "type": "tab", "label": "演習3"},
     {"id": "ex3_udp_in", "type": "udp in", "z": "ex3_tab", "name": "UDP In :9002", "iface": "", "port": "9002", "ipv": "udp4", "multicast": "false", "group": "", "datatype": "utf8", "x": 170, "y": 100, "wires": [["ex3_func"]]},
-    {"id": "ex3_func", "type": "function", "z": "ex3_tab", "name": "データ集約", "func": "try {\n    const data = JSON.parse(msg.payload);\n    const devices = flow.get('devices') || {};\n    \n    devices[data.deviceId] = {\n        value: data.value,\n        lastSeen: new Date().toISOString(),\n        ip: msg.ip\n    };\n    \n    flow.set('devices', devices);\n    msg.devices = devices;\n    \n    node.status({fill: \"green\", shape: \"dot\", text: Object.keys(devices).length + \" devices\"});\n} catch(e) {\n    msg.error = e.message;\n    node.status({fill: \"red\", shape: \"ring\", text: \"Error\"});\n}\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 370, "y": 100, "wires": [["ex3_debug"]]},
+    {"id": "ex3_func", "type": "function", "z": "ex3_tab", "name": "データ集約", "func": "try {\n    // 受信した文字列（JSON形式）をオブジェクトに変換する\n    const data = JSON.parse(msg.payload);\n    // flowコンテキストから、これまでのデバイス一覧を読み出す（無ければ空のオブジェクト）\n    const devices = flow.get('devices') || {};\n\n    // デバイスIDをキーにして最新値で上書きする。同じIDは重複せず更新される\n    devices[data.deviceId] = {\n        value: data.value,\n        lastSeen: new Date().toISOString(),\n        ip: msg.ip  // 送信元のIPアドレス（UDP In が付ける）\n    };\n\n    // 一覧を flowコンテキストへ書き戻し、Debug で見られるよう msg.devices にも入れる\n    flow.set('devices', devices);\n    msg.devices = devices;\n\n    // ノードの下のステータスに登録済みデバイス数を表示する\n    node.status({fill: \"green\", shape: \"dot\", text: Object.keys(devices).length + \" devices\"});\n} catch(e) {\n    // JSONとして読めなかったときは、エラー内容を msg.error に入れて赤いステータスを出す\n    msg.error = e.message;\n    node.status({fill: \"red\", shape: \"ring\", text: \"Error\"});\n}\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 370, "y": 100, "wires": [["ex3_debug"]]},
     {"id": "ex3_debug", "type": "debug", "z": "ex3_tab", "name": "デバイス一覧", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "devices", "targetType": "msg", "x": 570, "y": 100, "wires": []},
     {"id": "ex3_inject1", "type": "inject", "z": "ex3_tab", "name": "dev-001", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "{\"deviceId\":\"dev-001\",\"value\":25}", "payloadType": "str", "x": 160, "y": 200, "wires": [["ex3_udp_out"]]},
     {"id": "ex3_inject2", "type": "inject", "z": "ex3_tab", "name": "dev-002", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "{\"deviceId\":\"dev-002\",\"value\":30}", "payloadType": "str", "x": 160, "y": 240, "wires": [["ex3_udp_out"]]},
@@ -1097,8 +1111,9 @@ return msg;</div>
             <details>
                 <summary>💡 ヒント</summary>
                 <p>「発見側」と「デバイス側」両方の機能を同一フローに実装します。</p>
-                <p><strong>デバイス側:</strong> 受信データが「DISCOVER」なら自デバイス情報を返信</p>
-                <p><strong>発見側:</strong> 応答（DISCOVER以外）を収集してリスト化</p>
+                <p><strong>デバイス側:</strong> 受信データが「DISCOVER」なら自デバイス情報を返信します。Change ノードで <code>msg.payload</code> に情報のオブジェクトを組み立て、JSON ノード（「常にJSON文字列に変換」）で文字列にしてから UDP Out に渡します。UDP Out はオブジェクトをそのままでは送れません（<code>[object Object]</code> という文字列になります）。返信先は、受信した msg に入っている <code>msg.ip</code> と <code>msg.port</code> です。</p>
+                <p><strong>発見側:</strong> 応答（DISCOVER以外）を収集してリスト化します。収集は、JSON の解析・種類の確認・flow コンテキストへの追加・ステータス表示を1か所で行うため、解答例では Function ノードで書き、処理の意味をコメントで説明しています。</p>
+                <p><strong>リストのリセット:</strong> DISCOVER を送るときに、Change ノードの「値の代入」で <code>flow.discoveredDevices</code> に「JSON」型の <code>{}</code>（空のオブジェクト）を入れます。</p>
             </details>
             
             <details>
@@ -1106,15 +1121,16 @@ return msg;</div>
                 <div class="flow-json">[
     {"id": "ex4_tab", "type": "tab", "label": "演習4"},
     {"id": "ex4_comment1", "type": "comment", "z": "ex4_tab", "name": "【発見リクエスト送信】", "info": "", "x": 170, "y": 40, "wires": []},
-    {"id": "ex4_inject_discover", "type": "inject", "z": "ex4_tab", "name": "DISCOVER送信", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "DISCOVER", "payloadType": "str", "x": 180, "y": 100, "wires": [["ex4_func_clear", "ex4_udp_broadcast"]]},
-    {"id": "ex4_func_clear", "type": "function", "z": "ex4_tab", "name": "リストクリア", "func": "flow.set('discoveredDevices', {});\nreturn null;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 390, "y": 100, "wires": [[]]},
+    {"id": "ex4_inject_discover", "type": "inject", "z": "ex4_tab", "name": "DISCOVER送信", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "DISCOVER", "payloadType": "str", "x": 180, "y": 100, "wires": [["ex4_change_clear", "ex4_udp_broadcast"]]},
+    {"id": "ex4_change_clear", "type": "change", "z": "ex4_tab", "name": "リストクリア", "rules": [{"t": "set", "p": "discoveredDevices", "pt": "flow", "to": "{}", "tot": "json"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 390, "y": 100, "wires": [[]]},
     {"id": "ex4_udp_broadcast", "type": "udp out", "z": "ex4_tab", "name": "Broadcast :9003", "addr": "255.255.255.255", "iface": "", "port": "9003", "ipv": "udp4", "outport": "", "base64": false, "multicast": "broadcast", "x": 400, "y": 140, "wires": []},
     {"id": "ex4_comment2", "type": "comment", "z": "ex4_tab", "name": "【デバイス側（応答）】", "info": "", "x": 160, "y": 200, "wires": []},
     {"id": "ex4_udp_in", "type": "udp in", "z": "ex4_tab", "name": "UDP In :9003", "iface": "", "port": "9003", "ipv": "udp4", "multicast": "false", "group": "", "datatype": "utf8", "x": 170, "y": 260, "wires": [["ex4_switch"]]},
-    {"id": "ex4_switch", "type": "switch", "z": "ex4_tab", "name": "DISCOVER判定", "property": "payload", "propertyType": "msg", "rules": [{"t": "eq", "v": "DISCOVER", "vt": "str"}, {"t": "else"}], "checkall": "false", "repair": false, "outputs": 2, "x": 380, "y": 260, "wires": [["ex4_func_response"], ["ex4_func_collect"]]},
-    {"id": "ex4_func_response", "type": "function", "z": "ex4_tab", "name": "デバイス情報返信", "func": "// デバイス情報を作成\nconst deviceInfo = JSON.stringify({\n    type: \"DEVICE_INFO\",\n    deviceId: \"my-device-\" + Math.floor(Math.random() * 1000),\n    name: \"Node-RED Device\",\n    timestamp: new Date().toISOString()\n});\n\nmsg.payload = deviceInfo;\n// msg.ip と msg.port は保持されている\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 620, "y": 240, "wires": [["ex4_udp_reply"]]},
-    {"id": "ex4_udp_reply", "type": "udp out", "z": "ex4_tab", "name": "Reply", "addr": "", "iface": "", "port": "", "ipv": "udp4", "outport": "", "base64": false, "multicast": "false", "x": 810, "y": 240, "wires": []},
-    {"id": "ex4_func_collect", "type": "function", "z": "ex4_tab", "name": "応答収集", "func": "try {\n    const data = JSON.parse(msg.payload);\n    if (data.type === \"DEVICE_INFO\") {\n        const devices = flow.get('discoveredDevices') || {};\n        devices[data.deviceId] = {\n            name: data.name,\n            ip: msg.ip,\n            timestamp: data.timestamp\n        };\n        flow.set('discoveredDevices', devices);\n        msg.devices = devices;\n        node.status({fill: \"green\", shape: \"dot\", text: Object.keys(devices).length + \" found\"});\n        return msg;\n    }\n} catch(e) {}\nreturn null;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 600, "y": 280, "wires": [["ex4_debug"]]},
+    {"id": "ex4_switch", "type": "switch", "z": "ex4_tab", "name": "DISCOVER判定", "property": "payload", "propertyType": "msg", "rules": [{"t": "eq", "v": "DISCOVER", "vt": "str"}, {"t": "else"}], "checkall": "false", "repair": false, "outputs": 2, "x": 380, "y": 260, "wires": [["ex4_change_info"], ["ex4_func_collect"]]},
+    {"id": "ex4_change_info", "type": "change", "z": "ex4_tab", "name": "デバイス情報を作る", "rules": [{"t": "set", "p": "payload", "pt": "msg", "to": "{\"type\":\"DEVICE_INFO\",\"deviceId\":\"\",\"name\":\"Node-RED Device\"}", "tot": "json"}, {"t": "set", "p": "payload.deviceId", "pt": "msg", "to": "\"my-device-\" &amp; $floor($random() * 1000)", "tot": "jsonata"}, {"t": "set", "p": "payload.timestamp", "pt": "msg", "to": "iso", "tot": "date"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 620, "y": 240, "wires": [["ex4_json_info"]]},
+    {"id": "ex4_json_info", "type": "json", "z": "ex4_tab", "name": "JSON文字列に変換", "property": "payload", "action": "str", "pretty": false, "x": 820, "y": 240, "wires": [["ex4_udp_reply"]]},
+    {"id": "ex4_udp_reply", "type": "udp out", "z": "ex4_tab", "name": "Reply", "addr": "", "iface": "", "port": "", "ipv": "udp4", "outport": "", "base64": false, "multicast": "false", "x": 1020, "y": 240, "wires": []},
+    {"id": "ex4_func_collect", "type": "function", "z": "ex4_tab", "name": "応答収集", "func": "try {\n    // 受信した文字列（JSON形式）をオブジェクトに変換する\n    const data = JSON.parse(msg.payload);\n    // デバイスからの応答（DEVICE_INFO）だけを集める\n    if (data.type === \"DEVICE_INFO\") {\n        // これまでに見つかったデバイスの一覧を読み出し、デバイスIDをキーに追加する\n        const devices = flow.get('discoveredDevices') || {};\n        devices[data.deviceId] = {\n            name: data.name,\n            ip: msg.ip,  // 応答してきたデバイスのIPアドレス\n            timestamp: data.timestamp\n        };\n        flow.set('discoveredDevices', devices);\n        msg.devices = devices;\n        // 見つかった台数をステータスに表示する\n        node.status({fill: \"green\", shape: \"dot\", text: Object.keys(devices).length + \" found\"});\n        return msg;\n    }\n} catch(e) {\n    // JSONとして読めないデータは無視する\n}\n// DEVICE_INFO 以外は下流へ流さない\nreturn null;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 600, "y": 280, "wires": [["ex4_debug"]]},
     {"id": "ex4_debug", "type": "debug", "z": "ex4_tab", "name": "発見デバイス", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "devices", "targetType": "msg", "x": 790, "y": 280, "wires": []}
 ]</div>
             </details>
