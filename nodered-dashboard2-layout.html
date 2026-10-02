@@ -822,6 +822,11 @@
 
         <h2 id="section3">3. サンプルフロー</h2>
 
+        <div class="tip">
+            <p><strong>📌 複数のフローを読み込むとき:</strong> このサイトの Dashboard 2.0 のフロー（サンプルフローと演習の解答例）は、すべて同じダッシュボード設定ノード（ui-base）を共有しています。2つ目以降のフローを読み込むと、「読み込もうとしているノードのいくつかは、既にワークスペース内に存在しています。」という通知が出ます。<strong>「コピーを読み込み」</strong>を選んでください。共有している設定ノードは既にあるものが使われ、どのフローのページも1つのダッシュボードにまとまります。ページはダッシュボードの左のメニューから選べます。ダッシュボード全体の見た目（ヘッダーやメニューの表示）は、最初に読み込んだフローの ui-base の設定になります。</p>
+            <p><strong>ページが表示されないとき:</strong> ダッシュボードの設定ノード（ui-base）が2つ以上あると、そのうち1つのページしか表示されません。このサイトの以前の版のフローを読み込んでいると、この状態になります。以前の版のフローのタブを削除してから、エディタの <strong>メニュー → 設定ノード</strong> を開き、画面上部の「未使用」を選んで、どのノードからも使われていない ui-group・ui-page・ui-base・ui-theme を削除します。ui-group を消すとそれを使っていた ui-page が、ui-page を消すと ui-base が未使用になるので、未使用のものが無くなるまで繰り返してください。そのあとで、フローを読み込み直します。</p>
+        </div>
+
         <div class="important">
             <p><strong>まずサンプルフローをインポートする</strong></p>
             <p>以下の<strong>統合サンプルフロー</strong>に、レイアウト機能の一通りが含まれています。</p>
@@ -842,7 +847,7 @@
         <details>
             <summary>📋 Layout機能 統合サンプルフロー（クリックで展開）</summary>
             <p style="margin: 10px 0; color: #666;"><small>このサンプルには Grid, Fixed, Notebook, Tabs, ブレークポイント設定, Theme比較 の全機能が含まれています（62ノード）</small></p>
-            <div class="flow-json">[{"id": "layout_demo_flow", "type": "tab", "label": "Layout Demo", "disabled": false, "info": "Dashboard 2.0 Layout機能のデモフロー"}, {"id": "layout_comment_grid", "type": "comment", "z": "layout_demo_flow", "name": "━━━ 📐 Grid Layout サンプル ━━━", "info": "", "x": 180, "y": 40, "wires": []}, {"id": "grid_inject_1", "type": "inject", "z": "layout_demo_flow", "name": "温度データ", "props": [{"p": "payload"}], "repeat": "5", "crontab": "", "once": true, "onceDelay": 0.1, "topic": "", "payload": "$floor($random() * 30 + 10)", "payloadType": "jsonata", "x": 140, "y": 100, "wires": [["grid_gauge_temp"]]}, {"id": "grid_gauge_temp", "type": "ui-gauge", "z": "layout_demo_flow", "name": "温度ゲージ", "group": "layout_grid_group1", "order": 1, "width": "3", "height": "4", "gtype": "gauge-half", "gstyle": "needle", "title": "温度", "units": "℃", "icon": "", "prefix": "", "suffix": "", "segments": [{"from": "0", "color": "#2196f3"}, {"from": "20", "color": "#4caf50"}, {"from": "30", "color": "#ff9800"}, {"from": "40", "color": "#f44336"}], "min": 0, "max": 50, "sizeThickness": 16, "sizeGap": 4, "sizeKeyThickness": 8, "styleRounded": true, "styleGlow": false, "className": "", "x": 350, "y": 100, "wires": []}, {"id": "grid_inject_2", "type": "inject", "z": "layout_demo_flow", "name": "湿度データ", "props": [{"p": "payload"}], "repeat": "5", "crontab": "", "once": true, "onceDelay": 0.2, "topic": "", "payload": "$floor($random() * 60 + 30)", "payloadType": "jsonata", "x": 140, "y": 160, "wires": [["grid_gauge_humid"]]}, {"id": "grid_gauge_humid", "type": "ui-gauge", "z": "layout_demo_flow", "name": "湿度ゲージ", "group": "layout_grid_group1", "order": 2, "width": "3", "height": "4", "gtype": "gauge-half", "gstyle": "needle", "title": "湿度", "units": "%", "icon": "", "prefix": "", "suffix": "", "segments": [{"from": "0", "color": "#ff9800"}, {"from": "40", "color": "#4caf50"}, {"from": "70", "color": "#2196f3"}], "min": 0, "max": 100, "sizeThickness": 16, "sizeGap": 4, "sizeKeyThickness": 8, "styleRounded": true, "styleGlow": false, "className": "", "x": 350, "y": 160, "wires": []}, {"id": "grid_inject_chart", "type": "inject", "z": "layout_demo_flow", "name": "チャートデータ", "props": [{"p": "payload"}], "repeat": "3", "crontab": "", "once": true, "onceDelay": 0.3, "topic": "", "payload": "$floor($random() * 100)", "payloadType": "jsonata", "x": 150, "y": 220, "wires": [["grid_chart"]]}, {"id": "grid_chart", "type": "ui-chart", "z": "layout_demo_flow", "group": "layout_grid_group2", "name": "リアルタイムチャート", "label": "センサー値推移", "order": 1, "chartType": "line", "category": "topic", "categoryType": "msg", "xAxisLabel": "", "xAxisProperty": "", "xAxisPropertyType": "msg", "xAxisType": "time", "xAxisFormat": "", "xAxisFormatType": "auto", "yAxisLabel": "", "yAxisProperty": "", "ymin": "", "ymax": "", "action": "append", "stackSeries": false, "pointShape": "circle", "pointRadius": 4, "showLegend": true, "removeOlder": 1, "removeOlderUnit": "3600", "removeOlderPoints": "", "colors": ["#1f77b4", "#aec7e8", "#ff7f0e", "#2ca02c", "#98df8a", "#d62728", "#ff9896", "#9467bd", "#c5b0d5"], "textColor": ["#666666"], "textColorDefault": true, "gridColor": ["#e5e5e5"], "gridColorDefault": true, "width": "6", "height": "4", "className": "", "x": 370, "y": 220, "wires": [[]]}, {"id": "layout_comment_notebook", "type": "comment", "z": "layout_demo_flow", "name": "━━━ 📖 Notebook Layout サンプル ━━━", "info": "", "x": 190, "y": 300, "wires": []}, {"id": "notebook_func_md", "type": "function", "z": "layout_demo_flow", "name": "Markdown生成", "func": "const lines = [\n    '# センサーデータレポート',\n    '',\n    '## 概要',\n    '',\n    'このレポートは、IoTセンサーから収集したデータの分析結果を示しています。',\n    '',\n    '### 測定項目',\n    '',\n    '- **温度**: 環境温度（℃）',\n    '- **湿度**: 相対湿度（%）',\n    '- **気圧**: 大気圧（hPa）',\n    '',\n    '> **注意**: データは5秒ごとに更新されます。'\n];\nmsg.payload = lines.join(String.fromCharCode(10));\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 360, "y": 360, "wires": [["notebook_markdown"]]}, {"id": "notebook_inject_md", "type": "inject", "z": "layout_demo_flow", "name": "起動時", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": true, "onceDelay": 0.5, "topic": "", "payload": "", "payloadType": "date", "x": 130, "y": 360, "wires": [["notebook_func_md"]]}, {"id": "notebook_markdown", "type": "ui-markdown", "z": "layout_demo_flow", "group": "layout_notebook_group1", "name": "レポートヘッダー", "order": 1, "width": "6", "height": "1", "content": "", "className": "", "x": 570, "y": 360, "wires": [[]]}, {"id": "notebook_inject_table", "type": "inject", "z": "layout_demo_flow", "name": "テーブルデータ", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": true, "onceDelay": 0.6, "topic": "", "payload": "[{\"id\":1,\"sensor\":\"温度センサー\",\"value\":\"25.3℃\",\"status\":\"正常\"},{\"id\":2,\"sensor\":\"湿度センサー\",\"value\":\"60%\",\"status\":\"正常\"},{\"id\":3,\"sensor\":\"気圧センサー\",\"value\":\"1013hPa\",\"status\":\"正常\"}]", "payloadType": "json", "x": 150, "y": 420, "wires": [["notebook_table"]]}, {"id": "notebook_table", "type": "ui-table", "z": "layout_demo_flow", "group": "layout_notebook_group2", "name": "センサー一覧", "label": "センサーステータス", "order": 1, "width": "6", "height": "4", "maxrows": 10, "autocols": true, "columns": [], "className": "", "x": 360, "y": 420, "wires": [[]]}, {"id": "layout_comment_tabs", "type": "comment", "z": "layout_demo_flow", "name": "━━━ 🗂️ Tabs Layout サンプル ━━━", "info": "", "x": 180, "y": 500, "wires": []}, {"id": "tabs_button_1", "type": "ui-button", "z": "layout_demo_flow", "group": "layout_tabs_group1", "name": "LED ON", "label": "LED ON", "order": 1, "width": "3", "height": "1", "emulateClick": false, "color": "", "bgcolor": "#4caf50", "className": "", "icon": "mdi-lightbulb-on", "iconPosition": "left", "payload": "on", "payloadType": "str", "topic": "led", "topicType": "str", "buttonColor": "", "textColor": "", "iconColor": "", "x": 130, "y": 560, "wires": [["tabs_debug"]]}, {"id": "tabs_button_2", "type": "ui-button", "z": "layout_demo_flow", "group": "layout_tabs_group1", "name": "LED OFF", "label": "LED OFF", "order": 2, "width": "3", "height": "1", "emulateClick": false, "color": "", "bgcolor": "#f44336", "className": "", "icon": "mdi-lightbulb-off", "iconPosition": "left", "payload": "off", "payloadType": "str", "topic": "led", "topicType": "str", "buttonColor": "", "textColor": "", "iconColor": "", "x": 130, "y": 620, "wires": [["tabs_debug"]]}, {"id": "tabs_slider", "type": "ui-slider", "z": "layout_demo_flow", "group": "layout_tabs_group2", "name": "明るさ調整", "label": "明るさ", "order": 1, "width": "6", "height": "1", "passthru": false, "outs": "end", "topic": "brightness", "topicType": "str", "thumbLabel": "true", "showTicks": "always", "min": 0, "max": 100, "step": 1, "className": "", "iconPrepend": "", "iconAppend": "", "color": "", "colorTrack": "", "colorThumb": "", "x": 140, "y": 680, "wires": [["tabs_debug"]]}, {"id": "tabs_debug", "type": "debug", "z": "layout_demo_flow", "name": "Tabs出力", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "payload", "statusType": "auto", "x": 350, "y": 620, "wires": []}, {"id": "layout_ui_base", "type": "ui-base", "name": "Layout Demo Dashboard", "path": "/dashboard", "appIcon": "", "includeClientData": true, "acceptsClientConfig": ["ui-notification", "ui-control"], "showPathInSidebar": false, "headerContent": "page", "navigationStyle": "default", "titleBarStyle": "default", "showReconnectNotification": true, "notificationDisplayTime": 1, "showDisconnectNotification": true, "allowInstall": false}, {"id": "layout_ui_theme", "type": "ui-theme", "name": "Default Theme", "colors": {"surface": "#ffffff", "primary": "#b92d5d", "bgPage": "#eeeeee", "groupBg": "#ffffff", "groupOutline": "#cccccc"}, "sizes": {"pagePadding": "12px", "groupGap": "12px", "groupBorderRadius": "4px", "widgetGap": "12px", "density": "default"}}, {"id": "layout_page_grid", "type": "ui-page", "name": "Grid Demo", "ui": "layout_ui_base", "path": "/grid-demo", "icon": "mdi-grid", "layout": "grid", "theme": "layout_ui_theme", "breakpoints": [{"name": "Default", "px": 0, "cols": 3}, {"name": "Tablet", "px": 576, "cols": 6}, {"name": "Small Desktop", "px": 768, "cols": 9}, {"name": "Desktop", "px": 1024, "cols": 12}], "order": 1, "className": "", "visible": "true", "disabled": "false"}, {"id": "layout_page_notebook", "type": "ui-page", "name": "Notebook Demo", "ui": "layout_ui_base", "path": "/notebook-demo", "icon": "mdi-notebook", "layout": "notebook", "theme": "layout_ui_theme", "breakpoints": [{"name": "Default", "px": 0, "cols": 3}, {"name": "Tablet", "px": 576, "cols": 6}], "order": 2, "className": "", "visible": "true", "disabled": "false"}, {"id": "layout_page_tabs", "type": "ui-page", "name": "Tabs Demo", "ui": "layout_ui_base", "path": "/tabs-demo", "icon": "mdi-tab", "layout": "tabs", "theme": "layout_ui_theme", "breakpoints": [{"name": "Default", "px": 0, "cols": 3}, {"name": "Tablet", "px": 576, "cols": 6}], "order": 3, "className": "", "visible": "true", "disabled": "false"}, {"id": "layout_grid_group1", "type": "ui-group", "name": "📊 センサーゲージ", "page": "layout_page_grid", "width": "6", "height": "-1", "order": 1, "showTitle": true, "groupType": "default", "className": "", "visible": true, "disabled": false}, {"id": "layout_grid_group2", "type": "ui-group", "name": "📈 チャート", "page": "layout_page_grid", "width": "6", "height": "-1", "order": 2, "showTitle": true, "groupType": "default", "className": "", "visible": true, "disabled": false}, {"id": "layout_notebook_group1", "type": "ui-group", "name": "📝 レポートヘッダー", "page": "layout_page_notebook", "width": "6", "height": "-1", "order": 1, "showTitle": false, "groupType": "default", "className": "", "visible": true, "disabled": false}, {"id": "layout_notebook_group2", "type": "ui-group", "name": "📋 データテーブル", "page": "layout_page_notebook", "width": "6", "height": "-1", "order": 2, "showTitle": true, "groupType": "default", "className": "", "visible": true, "disabled": false}, {"id": "layout_tabs_group1", "type": "ui-group", "name": "💡 LED制御", "page": "layout_page_tabs", "width": "6", "height": "-1", "order": 1, "showTitle": true, "groupType": "default", "className": "", "visible": true, "disabled": false}, {"id": "layout_tabs_group2", "type": "ui-group", "name": "🔆 調光設定", "page": "layout_page_tabs", "width": "6", "height": "-1", "order": 2, "showTitle": true, "groupType": "default", "className": "", "visible": true, "disabled": false}, {"id": "layout_comment_fixed", "type": "comment", "z": "layout_demo_flow", "name": "━━━ 📏 Fixed Layout サンプル ━━━", "info": "固定ピクセル幅レイアウト（90px × width）", "x": 180, "y": 580, "wires": []}, {"id": "fixed_inject_status", "type": "inject", "z": "layout_demo_flow", "name": "ステータス更新", "props": [{"p": "payload"}], "repeat": "3", "crontab": "", "once": true, "onceDelay": 0.1, "topic": "", "payload": "{\"line1\": \"稼働中\", \"line2\": \"停止\", \"line3\": \"メンテ中\"}", "payloadType": "json", "x": 160, "y": 640, "wires": [["fixed_func_status"]]}, {"id": "fixed_func_status", "type": "function", "z": "layout_demo_flow", "name": "ステータス分配", "func": "let statuses = ['稼働中', '停止', 'メンテ中', '準備完了'];\nlet colors = ['#4caf50', '#f44336', '#ff9800', '#2196f3'];\nlet idx = Math.floor(Math.random() * statuses.length);\nmsg.payload = statuses[idx];\nmsg.ui_update = { color: colors[idx] };\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 360, "y": 640, "wires": [["fixed_text_status"]]}, {"id": "fixed_text_status", "type": "ui-text", "z": "layout_demo_flow", "group": "layout_fixed_group1", "order": 1, "width": "2", "height": "1", "name": "ライン状態", "label": "ライン1", "format": "{{msg.payload}}", "layout": "row-spread", "style": false, "font": "", "fontSize": 16, "color": "#4caf50", "wrapText": false, "className": "", "value": "payload", "valueType": "msg", "x": 550, "y": 640, "wires": []}, {"id": "fixed_inject_count", "type": "inject", "z": "layout_demo_flow", "name": "生産数更新", "props": [{"p": "payload"}], "repeat": "2", "crontab": "", "once": true, "onceDelay": 0.1, "topic": "", "payload": "$floor($random() * 1000 + 500)", "payloadType": "jsonata", "x": 160, "y": 700, "wires": [["fixed_text_count"]]}, {"id": "fixed_text_count", "type": "ui-text", "z": "layout_demo_flow", "group": "layout_fixed_group1", "order": 2, "width": "2", "height": "1", "name": "生産数", "label": "生産数", "format": "{{msg.payload}} 個", "layout": "row-spread", "style": false, "font": "", "fontSize": 16, "color": "#000000", "wrapText": false, "className": "", "value": "payload", "valueType": "msg", "x": 350, "y": 700, "wires": []}, {"id": "fixed_button_start", "type": "ui-button", "z": "layout_demo_flow", "group": "layout_fixed_group2", "name": "開始ボタン", "label": "開始", "order": 1, "width": "1", "height": "1", "emulateClick": false, "color": "#ffffff", "bgcolor": "#4caf50", "className": "", "icon": "mdi-play", "iconPosition": "left", "payload": "start", "payloadType": "str", "topic": "control", "topicType": "str", "buttonColor": "", "textColor": "", "iconColor": "", "x": 150, "y": 760, "wires": [["fixed_debug"]]}, {"id": "fixed_button_stop", "type": "ui-button", "z": "layout_demo_flow", "group": "layout_fixed_group2", "name": "停止ボタン", "label": "停止", "order": 2, "width": "1", "height": "1", "emulateClick": false, "color": "#ffffff", "bgcolor": "#f44336", "className": "", "icon": "mdi-stop", "iconPosition": "left", "payload": "stop", "payloadType": "str", "topic": "control", "topicType": "str", "buttonColor": "", "textColor": "", "iconColor": "", "x": 150, "y": 820, "wires": [["fixed_debug"]]}, {"id": "fixed_debug", "type": "debug", "z": "layout_demo_flow", "name": "Fixed操作ログ", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "payload", "statusType": "auto", "x": 360, "y": 790, "wires": []}, {"id": "layout_page_fixed", "type": "ui-page", "name": "Fixed Demo", "ui": "layout_ui_base", "path": "/fixed-demo", "icon": "mdi-view-grid-outline", "layout": "fixed", "theme": "layout_ui_theme", "breakpoints": [{"name": "Default", "px": 0, "cols": 3}, {"name": "Tablet", "px": 576, "cols": 6}, {"name": "Desktop", "px": 1024, "cols": 12}], "order": 4, "className": "", "visible": "true", "disabled": "false"}, {"id": "layout_fixed_group1", "type": "ui-group", "name": "📊 ステータスモニター", "page": "layout_page_fixed", "width": "4", "height": "-1", "order": 1, "showTitle": true, "groupType": "default", "className": "", "visible": true, "disabled": false}, {"id": "layout_fixed_group2", "type": "ui-group", "name": "🎮 制御パネル", "page": "layout_page_fixed", "width": "2", "height": "-1", "order": 2, "showTitle": true, "groupType": "default", "className": "", "visible": true, "disabled": false}, {"id": "bp_demo_flow", "type": "tab", "label": "Breakpoint Demo", "disabled": false, "info": "カスタムブレークポイント設定のデモ"}, {"id": "bp_comment", "type": "comment", "z": "bp_demo_flow", "name": "━━━ 📱 カスタムブレークポイント ━━━", "info": "5段階のブレークポイント設定例", "x": 200, "y": 40, "wires": []}, {"id": "bp_inject_data", "type": "inject", "z": "bp_demo_flow", "name": "テストデータ", "props": [{"p": "payload"}], "repeat": "5", "crontab": "", "once": true, "onceDelay": 0.1, "topic": "", "payload": "$floor($random() * 100)", "payloadType": "jsonata", "x": 150, "y": 100, "wires": [["bp_gauge"]]}, {"id": "bp_gauge", "type": "ui-gauge", "z": "bp_demo_flow", "name": "レスポンシブゲージ", "group": "bp_group1", "order": 1, "width": "3", "height": "3", "gtype": "gauge-half", "gstyle": "needle", "title": "値", "units": "%", "icon": "", "prefix": "", "suffix": "", "segments": [{"from": "0", "color": "#4caf50"}, {"from": "50", "color": "#ff9800"}, {"from": "80", "color": "#f44336"}], "min": 0, "max": 100, "sizeThickness": 16, "sizeGap": 4, "sizeKeyThickness": 8, "styleRounded": true, "styleGlow": false, "className": "", "x": 370, "y": 100, "wires": []}, {"id": "bp_text_info", "type": "ui-text", "z": "bp_demo_flow", "group": "bp_group2", "order": 1, "width": "6", "height": "1", "name": "画面幅情報", "label": "説明", "format": "画面幅を変更してカラム数の変化を確認してください", "layout": "row-spread", "style": false, "font": "", "fontSize": 14, "color": "#666666", "wrapText": false, "className": "", "value": "payload", "valueType": "msg", "x": 360, "y": 160, "wires": []}, {"id": "bp_page", "type": "ui-page", "name": "ブレークポイントデモ", "ui": "layout_ui_base", "path": "/breakpoint-demo", "icon": "mdi-cellphone-link", "layout": "grid", "theme": "layout_ui_theme", "breakpoints": [{"name": "Mobile S", "px": 0, "cols": 3}, {"name": "Mobile L", "px": 480, "cols": 6}, {"name": "Tablet", "px": 768, "cols": 9}, {"name": "Desktop", "px": 1024, "cols": 12}, {"name": "Large", "px": 1440, "cols": 18}], "order": 1, "className": "", "visible": "true", "disabled": "false"}, {"id": "bp_group1", "type": "ui-group", "name": "📊 ゲージ（width: 3）", "page": "bp_page", "width": "3", "height": "-1", "order": 1, "showTitle": true, "groupType": "default", "className": "", "visible": true, "disabled": false}, {"id": "bp_group2", "type": "ui-group", "name": "📝 情報（width: 6）", "page": "bp_page", "width": "6", "height": "-1", "order": 2, "showTitle": true, "groupType": "default", "className": "", "visible": true, "disabled": false}, {"id": "theme_demo_flow", "type": "tab", "label": "Theme Demo", "disabled": false, "info": "Theme設定によるスペーシング調整のデモ"}, {"id": "theme_comment", "type": "comment", "z": "theme_demo_flow", "name": "━━━ 🎨 Theme スペーシング比較 ━━━", "info": "コンパクトとゆったりの2種類", "x": 200, "y": 40, "wires": []}, {"id": "theme_inject_1", "type": "inject", "z": "theme_demo_flow", "name": "データ1", "props": [{"p": "payload"}], "repeat": "3", "crontab": "", "once": true, "onceDelay": 0.1, "topic": "", "payload": "$floor($random() * 50 + 20)", "payloadType": "jsonata", "x": 130, "y": 100, "wires": [["theme_gauge_compact"]]}, {"id": "theme_gauge_compact", "type": "ui-gauge", "z": "theme_demo_flow", "name": "コンパクトゲージ", "group": "theme_compact_group", "order": 1, "width": "3", "height": "3", "gtype": "gauge-half", "gstyle": "needle", "title": "温度", "units": "℃", "icon": "", "prefix": "", "suffix": "", "segments": [{"from": "0", "color": "#2196f3"}, {"from": "30", "color": "#4caf50"}, {"from": "40", "color": "#f44336"}], "min": 0, "max": 60, "sizeThickness": 16, "sizeGap": 4, "sizeKeyThickness": 8, "styleRounded": true, "styleGlow": false, "className": "", "x": 350, "y": 100, "wires": []}, {"id": "theme_inject_2", "type": "inject", "z": "theme_demo_flow", "name": "データ2", "props": [{"p": "payload"}], "repeat": "3", "crontab": "", "once": true, "onceDelay": 0.1, "topic": "", "payload": "$floor($random() * 50 + 20)", "payloadType": "jsonata", "x": 130, "y": 180, "wires": [["theme_gauge_spacious"]]}, {"id": "theme_gauge_spacious", "type": "ui-gauge", "z": "theme_demo_flow", "name": "ゆったりゲージ", "group": "theme_spacious_group", "order": 1, "width": "3", "height": "3", "gtype": "gauge-half", "gstyle": "needle", "title": "温度", "units": "℃", "icon": "", "prefix": "", "suffix": "", "segments": [{"from": "0", "color": "#2196f3"}, {"from": "30", "color": "#4caf50"}, {"from": "40", "color": "#f44336"}], "min": 0, "max": 60, "sizeThickness": 16, "sizeGap": 4, "sizeKeyThickness": 8, "styleRounded": true, "styleGlow": false, "className": "", "x": 350, "y": 180, "wires": []}, {"id": "theme_compact", "type": "ui-theme", "name": "Compact Theme", "colors": {"surface": "#ffffff", "primary": "#e91e63", "bgPage": "#fafafa", "groupBg": "#ffffff", "groupOutline": "#e0e0e0"}, "sizes": {"pagePadding": "4px", "groupGap": "4px", "groupBorderRadius": "2px", "widgetGap": "4px", "density": "default"}}, {"id": "theme_spacious", "type": "ui-theme", "name": "Spacious Theme", "colors": {"surface": "#ffffff", "primary": "#009688", "bgPage": "#eceff1", "groupBg": "#ffffff", "groupOutline": "#b0bec5"}, "sizes": {"pagePadding": "24px", "groupGap": "24px", "groupBorderRadius": "12px", "widgetGap": "16px", "density": "default"}}, {"id": "theme_page_compact", "type": "ui-page", "name": "コンパクト表示", "ui": "layout_ui_base", "path": "/compact", "icon": "mdi-view-compact", "layout": "grid", "theme": "theme_compact", "breakpoints": [{"name": "Default", "px": 0, "cols": 3}, {"name": "Tablet", "px": 576, "cols": 6}, {"name": "Desktop", "px": 1024, "cols": 12}], "order": 1, "className": "", "visible": "true", "disabled": "false"}, {"id": "theme_page_spacious", "type": "ui-page", "name": "ゆったり表示", "ui": "layout_ui_base", "path": "/spacious", "icon": "mdi-view-comfy", "layout": "grid", "theme": "theme_spacious", "breakpoints": [{"name": "Default", "px": 0, "cols": 3}, {"name": "Tablet", "px": 576, "cols": 6}, {"name": "Desktop", "px": 1024, "cols": 12}], "order": 2, "className": "", "visible": "true", "disabled": "false"}, {"id": "theme_compact_group", "type": "ui-group", "name": "📊 コンパクト（4px gap）", "page": "theme_page_compact", "width": "6", "height": "-1", "order": 1, "showTitle": true, "groupType": "default", "className": "", "visible": true, "disabled": false}, {"id": "theme_spacious_group", "type": "ui-group", "name": "📊 ゆったり（24px gap）", "page": "theme_page_spacious", "width": "6", "height": "-1", "order": 1, "showTitle": true, "groupType": "default", "className": "", "visible": true, "disabled": false}]</div>
+            <div class="flow-json">[{"id": "layout_demo_flow", "type": "tab", "label": "Layout Demo", "disabled": false, "info": "Dashboard 2.0 Layout機能のデモフロー"}, {"id": "layout_comment_grid", "type": "comment", "z": "layout_demo_flow", "name": "━━━ 📐 Grid Layout サンプル ━━━", "info": "", "x": 180, "y": 40, "wires": []}, {"id": "grid_inject_1", "type": "inject", "z": "layout_demo_flow", "name": "温度データ", "props": [{"p": "payload"}], "repeat": "5", "crontab": "", "once": true, "onceDelay": 0.1, "topic": "", "payload": "$floor($random() * 30 + 10)", "payloadType": "jsonata", "x": 140, "y": 100, "wires": [["grid_gauge_temp"]]}, {"id": "grid_gauge_temp", "type": "ui-gauge", "z": "layout_demo_flow", "name": "温度ゲージ", "group": "layout_grid_group1", "order": 1, "width": "3", "height": "4", "gtype": "gauge-half", "gstyle": "needle", "title": "温度", "units": "℃", "icon": "", "prefix": "", "suffix": "", "segments": [{"from": "0", "color": "#2196f3"}, {"from": "20", "color": "#4caf50"}, {"from": "30", "color": "#ff9800"}, {"from": "40", "color": "#f44336"}], "min": 0, "max": 50, "sizeThickness": 16, "sizeGap": 4, "sizeKeyThickness": 8, "styleRounded": true, "styleGlow": false, "className": "", "x": 350, "y": 100, "wires": []}, {"id": "grid_inject_2", "type": "inject", "z": "layout_demo_flow", "name": "湿度データ", "props": [{"p": "payload"}], "repeat": "5", "crontab": "", "once": true, "onceDelay": 0.2, "topic": "", "payload": "$floor($random() * 60 + 30)", "payloadType": "jsonata", "x": 140, "y": 160, "wires": [["grid_gauge_humid"]]}, {"id": "grid_gauge_humid", "type": "ui-gauge", "z": "layout_demo_flow", "name": "湿度ゲージ", "group": "layout_grid_group1", "order": 2, "width": "3", "height": "4", "gtype": "gauge-half", "gstyle": "needle", "title": "湿度", "units": "%", "icon": "", "prefix": "", "suffix": "", "segments": [{"from": "0", "color": "#ff9800"}, {"from": "40", "color": "#4caf50"}, {"from": "70", "color": "#2196f3"}], "min": 0, "max": 100, "sizeThickness": 16, "sizeGap": 4, "sizeKeyThickness": 8, "styleRounded": true, "styleGlow": false, "className": "", "x": 350, "y": 160, "wires": []}, {"id": "grid_inject_chart", "type": "inject", "z": "layout_demo_flow", "name": "チャートデータ", "props": [{"p": "payload"}], "repeat": "3", "crontab": "", "once": true, "onceDelay": 0.3, "topic": "", "payload": "$floor($random() * 100)", "payloadType": "jsonata", "x": 150, "y": 220, "wires": [["grid_chart"]]}, {"id": "grid_chart", "type": "ui-chart", "z": "layout_demo_flow", "group": "layout_grid_group2", "name": "リアルタイムチャート", "label": "センサー値推移", "order": 1, "chartType": "line", "category": "topic", "categoryType": "msg", "xAxisLabel": "", "xAxisProperty": "", "xAxisPropertyType": "msg", "xAxisType": "time", "xAxisFormat": "", "xAxisFormatType": "auto", "yAxisLabel": "", "yAxisProperty": "", "ymin": "", "ymax": "", "action": "append", "stackSeries": false, "pointShape": "circle", "pointRadius": 4, "showLegend": true, "removeOlder": 1, "removeOlderUnit": "3600", "removeOlderPoints": "", "colors": ["#1f77b4", "#aec7e8", "#ff7f0e", "#2ca02c", "#98df8a", "#d62728", "#ff9896", "#9467bd", "#c5b0d5"], "textColor": ["#666666"], "textColorDefault": true, "gridColor": ["#e5e5e5"], "gridColorDefault": true, "width": "6", "height": "4", "className": "", "x": 370, "y": 220, "wires": [[]]}, {"id": "layout_comment_notebook", "type": "comment", "z": "layout_demo_flow", "name": "━━━ 📖 Notebook Layout サンプル ━━━", "info": "", "x": 190, "y": 300, "wires": []}, {"id": "notebook_func_md", "type": "function", "z": "layout_demo_flow", "name": "Markdown生成", "func": "const lines = [\n    '# センサーデータレポート',\n    '',\n    '## 概要',\n    '',\n    'このレポートは、IoTセンサーから収集したデータの分析結果を示しています。',\n    '',\n    '### 測定項目',\n    '',\n    '- **温度**: 環境温度（℃）',\n    '- **湿度**: 相対湿度（%）',\n    '- **気圧**: 大気圧（hPa）',\n    '',\n    '> **注意**: データは5秒ごとに更新されます。'\n];\nmsg.payload = lines.join(String.fromCharCode(10));\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 360, "y": 360, "wires": [["notebook_markdown"]]}, {"id": "notebook_inject_md", "type": "inject", "z": "layout_demo_flow", "name": "起動時", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": true, "onceDelay": 0.5, "topic": "", "payload": "", "payloadType": "date", "x": 130, "y": 360, "wires": [["notebook_func_md"]]}, {"id": "notebook_markdown", "type": "ui-markdown", "z": "layout_demo_flow", "group": "layout_notebook_group1", "name": "レポートヘッダー", "order": 1, "width": "6", "height": "1", "content": "", "className": "", "x": 570, "y": 360, "wires": [[]]}, {"id": "notebook_inject_table", "type": "inject", "z": "layout_demo_flow", "name": "テーブルデータ", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": true, "onceDelay": 0.6, "topic": "", "payload": "[{\"id\":1,\"sensor\":\"温度センサー\",\"value\":\"25.3℃\",\"status\":\"正常\"},{\"id\":2,\"sensor\":\"湿度センサー\",\"value\":\"60%\",\"status\":\"正常\"},{\"id\":3,\"sensor\":\"気圧センサー\",\"value\":\"1013hPa\",\"status\":\"正常\"}]", "payloadType": "json", "x": 150, "y": 420, "wires": [["notebook_table"]]}, {"id": "notebook_table", "type": "ui-table", "z": "layout_demo_flow", "group": "layout_notebook_group2", "name": "センサー一覧", "label": "センサーステータス", "order": 1, "width": "6", "height": "4", "maxrows": 10, "autocols": true, "columns": [], "className": "", "x": 360, "y": 420, "wires": [[]]}, {"id": "layout_comment_tabs", "type": "comment", "z": "layout_demo_flow", "name": "━━━ 🗂️ Tabs Layout サンプル ━━━", "info": "", "x": 180, "y": 500, "wires": []}, {"id": "tabs_button_1", "type": "ui-button", "z": "layout_demo_flow", "group": "layout_tabs_group1", "name": "LED ON", "label": "LED ON", "order": 1, "width": "3", "height": "1", "emulateClick": false, "color": "", "bgcolor": "#4caf50", "className": "", "icon": "mdi-lightbulb-on", "iconPosition": "left", "payload": "on", "payloadType": "str", "topic": "led", "topicType": "str", "buttonColor": "", "textColor": "", "iconColor": "", "x": 130, "y": 560, "wires": [["tabs_debug"]]}, {"id": "tabs_button_2", "type": "ui-button", "z": "layout_demo_flow", "group": "layout_tabs_group1", "name": "LED OFF", "label": "LED OFF", "order": 2, "width": "3", "height": "1", "emulateClick": false, "color": "", "bgcolor": "#f44336", "className": "", "icon": "mdi-lightbulb-off", "iconPosition": "left", "payload": "off", "payloadType": "str", "topic": "led", "topicType": "str", "buttonColor": "", "textColor": "", "iconColor": "", "x": 130, "y": 620, "wires": [["tabs_debug"]]}, {"id": "tabs_slider", "type": "ui-slider", "z": "layout_demo_flow", "group": "layout_tabs_group2", "name": "明るさ調整", "label": "明るさ", "order": 1, "width": "6", "height": "1", "passthru": false, "outs": "end", "topic": "brightness", "topicType": "str", "thumbLabel": "true", "showTicks": "always", "min": 0, "max": 100, "step": 1, "className": "", "iconPrepend": "", "iconAppend": "", "color": "", "colorTrack": "", "colorThumb": "", "x": 140, "y": 680, "wires": [["tabs_debug"]]}, {"id": "tabs_debug", "type": "debug", "z": "layout_demo_flow", "name": "Tabs出力", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "payload", "statusType": "auto", "x": 350, "y": 620, "wires": []}, {"id": "c2e1aa56f50f03bd", "type": "ui-base", "name": "Layout Demo Dashboard", "path": "/dashboard", "appIcon": "", "includeClientData": true, "acceptsClientConfig": ["ui-notification", "ui-control"], "showPathInSidebar": false, "headerContent": "page", "navigationStyle": "default", "titleBarStyle": "default", "showReconnectNotification": true, "notificationDisplayTime": 1, "showDisconnectNotification": true, "allowInstall": false}, {"id": "layout_ui_theme", "type": "ui-theme", "name": "Default Theme", "colors": {"surface": "#ffffff", "primary": "#b92d5d", "bgPage": "#eeeeee", "groupBg": "#ffffff", "groupOutline": "#cccccc"}, "sizes": {"pagePadding": "12px", "groupGap": "12px", "groupBorderRadius": "4px", "widgetGap": "12px", "density": "default"}}, {"id": "theme_compact", "type": "ui-theme", "name": "Compact Theme", "colors": {"surface": "#ffffff", "primary": "#e91e63", "bgPage": "#fafafa", "groupBg": "#ffffff", "groupOutline": "#e0e0e0"}, "sizes": {"pagePadding": "4px", "groupGap": "4px", "groupBorderRadius": "2px", "widgetGap": "4px", "density": "default"}}, {"id": "theme_spacious", "type": "ui-theme", "name": "Spacious Theme", "colors": {"surface": "#ffffff", "primary": "#009688", "bgPage": "#eceff1", "groupBg": "#ffffff", "groupOutline": "#b0bec5"}, "sizes": {"pagePadding": "24px", "groupGap": "24px", "groupBorderRadius": "12px", "widgetGap": "16px", "density": "default"}}, {"id": "layout_page_grid", "type": "ui-page", "name": "Grid Demo", "ui": "c2e1aa56f50f03bd", "path": "/grid-demo", "icon": "mdi-grid", "layout": "grid", "theme": "layout_ui_theme", "breakpoints": [{"name": "Default", "px": 0, "cols": 3}, {"name": "Tablet", "px": 576, "cols": 6}, {"name": "Small Desktop", "px": 768, "cols": 9}, {"name": "Desktop", "px": 1024, "cols": 12}], "order": 1, "className": "", "visible": "true", "disabled": "false"}, {"id": "layout_page_notebook", "type": "ui-page", "name": "Notebook Demo", "ui": "c2e1aa56f50f03bd", "path": "/notebook-demo", "icon": "mdi-notebook", "layout": "notebook", "theme": "layout_ui_theme", "breakpoints": [{"name": "Default", "px": 0, "cols": 3}, {"name": "Tablet", "px": 576, "cols": 6}], "order": 2, "className": "", "visible": "true", "disabled": "false"}, {"id": "layout_page_tabs", "type": "ui-page", "name": "Tabs Demo", "ui": "c2e1aa56f50f03bd", "path": "/tabs-demo", "icon": "mdi-tab", "layout": "tabs", "theme": "layout_ui_theme", "breakpoints": [{"name": "Default", "px": 0, "cols": 3}, {"name": "Tablet", "px": 576, "cols": 6}], "order": 3, "className": "", "visible": "true", "disabled": "false"}, {"id": "layout_page_fixed", "type": "ui-page", "name": "Fixed Demo", "ui": "c2e1aa56f50f03bd", "path": "/fixed-demo", "icon": "mdi-view-grid-outline", "layout": "fixed", "theme": "layout_ui_theme", "breakpoints": [{"name": "Default", "px": 0, "cols": 3}, {"name": "Tablet", "px": 576, "cols": 6}, {"name": "Desktop", "px": 1024, "cols": 12}], "order": 4, "className": "", "visible": "true", "disabled": "false"}, {"id": "bp_page", "type": "ui-page", "name": "ブレークポイントデモ", "ui": "c2e1aa56f50f03bd", "path": "/breakpoint-demo", "icon": "mdi-cellphone-link", "layout": "grid", "theme": "layout_ui_theme", "breakpoints": [{"name": "Mobile S", "px": 0, "cols": 3}, {"name": "Mobile L", "px": 480, "cols": 6}, {"name": "Tablet", "px": 768, "cols": 9}, {"name": "Desktop", "px": 1024, "cols": 12}, {"name": "Large", "px": 1440, "cols": 18}], "order": 1, "className": "", "visible": "true", "disabled": "false"}, {"id": "theme_page_compact", "type": "ui-page", "name": "コンパクト表示", "ui": "c2e1aa56f50f03bd", "path": "/compact", "icon": "mdi-view-compact", "layout": "grid", "theme": "theme_compact", "breakpoints": [{"name": "Default", "px": 0, "cols": 3}, {"name": "Tablet", "px": 576, "cols": 6}, {"name": "Desktop", "px": 1024, "cols": 12}], "order": 1, "className": "", "visible": "true", "disabled": "false"}, {"id": "theme_page_spacious", "type": "ui-page", "name": "ゆったり表示", "ui": "c2e1aa56f50f03bd", "path": "/spacious", "icon": "mdi-view-comfy", "layout": "grid", "theme": "theme_spacious", "breakpoints": [{"name": "Default", "px": 0, "cols": 3}, {"name": "Tablet", "px": 576, "cols": 6}, {"name": "Desktop", "px": 1024, "cols": 12}], "order": 2, "className": "", "visible": "true", "disabled": "false"}, {"id": "layout_comment_fixed", "type": "comment", "z": "layout_demo_flow", "name": "━━━ 📏 Fixed Layout サンプル ━━━", "info": "固定ピクセル幅レイアウト（90px × width）", "x": 180, "y": 580, "wires": []}, {"id": "fixed_inject_status", "type": "inject", "z": "layout_demo_flow", "name": "ステータス更新", "props": [{"p": "payload"}], "repeat": "3", "crontab": "", "once": true, "onceDelay": 0.1, "topic": "", "payload": "{\"line1\": \"稼働中\", \"line2\": \"停止\", \"line3\": \"メンテ中\"}", "payloadType": "json", "x": 160, "y": 640, "wires": [["fixed_func_status"]]}, {"id": "fixed_func_status", "type": "function", "z": "layout_demo_flow", "name": "ステータス分配", "func": "let statuses = ['稼働中', '停止', 'メンテ中', '準備完了'];\nlet colors = ['#4caf50', '#f44336', '#ff9800', '#2196f3'];\nlet idx = Math.floor(Math.random() * statuses.length);\nmsg.payload = statuses[idx];\nmsg.ui_update = { color: colors[idx] };\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 360, "y": 640, "wires": [["fixed_text_status"]]}, {"id": "fixed_text_status", "type": "ui-text", "z": "layout_demo_flow", "group": "layout_fixed_group1", "order": 1, "width": "2", "height": "1", "name": "ライン状態", "label": "ライン1", "format": "{{msg.payload}}", "layout": "row-spread", "style": false, "font": "", "fontSize": 16, "color": "#4caf50", "wrapText": false, "className": "", "value": "payload", "valueType": "msg", "x": 550, "y": 640, "wires": []}, {"id": "fixed_inject_count", "type": "inject", "z": "layout_demo_flow", "name": "生産数更新", "props": [{"p": "payload"}], "repeat": "2", "crontab": "", "once": true, "onceDelay": 0.1, "topic": "", "payload": "$floor($random() * 1000 + 500)", "payloadType": "jsonata", "x": 160, "y": 700, "wires": [["fixed_text_count"]]}, {"id": "fixed_text_count", "type": "ui-text", "z": "layout_demo_flow", "group": "layout_fixed_group1", "order": 2, "width": "2", "height": "1", "name": "生産数", "label": "生産数", "format": "{{msg.payload}} 個", "layout": "row-spread", "style": false, "font": "", "fontSize": 16, "color": "#000000", "wrapText": false, "className": "", "value": "payload", "valueType": "msg", "x": 350, "y": 700, "wires": []}, {"id": "fixed_button_start", "type": "ui-button", "z": "layout_demo_flow", "group": "layout_fixed_group2", "name": "開始ボタン", "label": "開始", "order": 1, "width": "1", "height": "1", "emulateClick": false, "color": "#ffffff", "bgcolor": "#4caf50", "className": "", "icon": "mdi-play", "iconPosition": "left", "payload": "start", "payloadType": "str", "topic": "control", "topicType": "str", "buttonColor": "", "textColor": "", "iconColor": "", "x": 150, "y": 760, "wires": [["fixed_debug"]]}, {"id": "fixed_button_stop", "type": "ui-button", "z": "layout_demo_flow", "group": "layout_fixed_group2", "name": "停止ボタン", "label": "停止", "order": 2, "width": "1", "height": "1", "emulateClick": false, "color": "#ffffff", "bgcolor": "#f44336", "className": "", "icon": "mdi-stop", "iconPosition": "left", "payload": "stop", "payloadType": "str", "topic": "control", "topicType": "str", "buttonColor": "", "textColor": "", "iconColor": "", "x": 150, "y": 820, "wires": [["fixed_debug"]]}, {"id": "fixed_debug", "type": "debug", "z": "layout_demo_flow", "name": "Fixed操作ログ", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "payload", "statusType": "auto", "x": 360, "y": 790, "wires": []}, {"id": "layout_grid_group1", "type": "ui-group", "name": "📊 センサーゲージ", "page": "layout_page_grid", "width": "6", "height": "-1", "order": 1, "showTitle": true, "groupType": "default", "className": "", "visible": true, "disabled": false}, {"id": "layout_grid_group2", "type": "ui-group", "name": "📈 チャート", "page": "layout_page_grid", "width": "6", "height": "-1", "order": 2, "showTitle": true, "groupType": "default", "className": "", "visible": true, "disabled": false}, {"id": "layout_notebook_group1", "type": "ui-group", "name": "📝 レポートヘッダー", "page": "layout_page_notebook", "width": "6", "height": "-1", "order": 1, "showTitle": false, "groupType": "default", "className": "", "visible": true, "disabled": false}, {"id": "bp_demo_flow", "type": "tab", "label": "Breakpoint Demo", "disabled": false, "info": "カスタムブレークポイント設定のデモ"}, {"id": "bp_comment", "type": "comment", "z": "bp_demo_flow", "name": "━━━ 📱 カスタムブレークポイント ━━━", "info": "5段階のブレークポイント設定例", "x": 200, "y": 40, "wires": []}, {"id": "bp_inject_data", "type": "inject", "z": "bp_demo_flow", "name": "テストデータ", "props": [{"p": "payload"}], "repeat": "5", "crontab": "", "once": true, "onceDelay": 0.1, "topic": "", "payload": "$floor($random() * 100)", "payloadType": "jsonata", "x": 150, "y": 100, "wires": [["bp_gauge"]]}, {"id": "bp_gauge", "type": "ui-gauge", "z": "bp_demo_flow", "name": "レスポンシブゲージ", "group": "bp_group1", "order": 1, "width": "3", "height": "3", "gtype": "gauge-half", "gstyle": "needle", "title": "値", "units": "%", "icon": "", "prefix": "", "suffix": "", "segments": [{"from": "0", "color": "#4caf50"}, {"from": "50", "color": "#ff9800"}, {"from": "80", "color": "#f44336"}], "min": 0, "max": 100, "sizeThickness": 16, "sizeGap": 4, "sizeKeyThickness": 8, "styleRounded": true, "styleGlow": false, "className": "", "x": 370, "y": 100, "wires": []}, {"id": "bp_text_info", "type": "ui-text", "z": "bp_demo_flow", "group": "bp_group2", "order": 1, "width": "6", "height": "1", "name": "画面幅情報", "label": "説明", "format": "画面幅を変更してカラム数の変化を確認してください", "layout": "row-spread", "style": false, "font": "", "fontSize": 14, "color": "#666666", "wrapText": false, "className": "", "value": "payload", "valueType": "msg", "x": 360, "y": 160, "wires": []}, {"id": "layout_notebook_group2", "type": "ui-group", "name": "📋 データテーブル", "page": "layout_page_notebook", "width": "6", "height": "-1", "order": 2, "showTitle": true, "groupType": "default", "className": "", "visible": true, "disabled": false}, {"id": "layout_tabs_group1", "type": "ui-group", "name": "💡 LED制御", "page": "layout_page_tabs", "width": "6", "height": "-1", "order": 1, "showTitle": true, "groupType": "default", "className": "", "visible": true, "disabled": false}, {"id": "layout_tabs_group2", "type": "ui-group", "name": "🔆 調光設定", "page": "layout_page_tabs", "width": "6", "height": "-1", "order": 2, "showTitle": true, "groupType": "default", "className": "", "visible": true, "disabled": false}, {"id": "theme_demo_flow", "type": "tab", "label": "Theme Demo", "disabled": false, "info": "Theme設定によるスペーシング調整のデモ"}, {"id": "theme_comment", "type": "comment", "z": "theme_demo_flow", "name": "━━━ 🎨 Theme スペーシング比較 ━━━", "info": "コンパクトとゆったりの2種類", "x": 200, "y": 40, "wires": []}, {"id": "theme_inject_1", "type": "inject", "z": "theme_demo_flow", "name": "データ1", "props": [{"p": "payload"}], "repeat": "3", "crontab": "", "once": true, "onceDelay": 0.1, "topic": "", "payload": "$floor($random() * 50 + 20)", "payloadType": "jsonata", "x": 130, "y": 100, "wires": [["theme_gauge_compact"]]}, {"id": "theme_gauge_compact", "type": "ui-gauge", "z": "theme_demo_flow", "name": "コンパクトゲージ", "group": "theme_compact_group", "order": 1, "width": "3", "height": "3", "gtype": "gauge-half", "gstyle": "needle", "title": "温度", "units": "℃", "icon": "", "prefix": "", "suffix": "", "segments": [{"from": "0", "color": "#2196f3"}, {"from": "30", "color": "#4caf50"}, {"from": "40", "color": "#f44336"}], "min": 0, "max": 60, "sizeThickness": 16, "sizeGap": 4, "sizeKeyThickness": 8, "styleRounded": true, "styleGlow": false, "className": "", "x": 350, "y": 100, "wires": []}, {"id": "theme_inject_2", "type": "inject", "z": "theme_demo_flow", "name": "データ2", "props": [{"p": "payload"}], "repeat": "3", "crontab": "", "once": true, "onceDelay": 0.1, "topic": "", "payload": "$floor($random() * 50 + 20)", "payloadType": "jsonata", "x": 130, "y": 180, "wires": [["theme_gauge_spacious"]]}, {"id": "theme_gauge_spacious", "type": "ui-gauge", "z": "theme_demo_flow", "name": "ゆったりゲージ", "group": "theme_spacious_group", "order": 1, "width": "3", "height": "3", "gtype": "gauge-half", "gstyle": "needle", "title": "温度", "units": "℃", "icon": "", "prefix": "", "suffix": "", "segments": [{"from": "0", "color": "#2196f3"}, {"from": "30", "color": "#4caf50"}, {"from": "40", "color": "#f44336"}], "min": 0, "max": 60, "sizeThickness": 16, "sizeGap": 4, "sizeKeyThickness": 8, "styleRounded": true, "styleGlow": false, "className": "", "x": 350, "y": 180, "wires": []}, {"id": "layout_fixed_group1", "type": "ui-group", "name": "📊 ステータスモニター", "page": "layout_page_fixed", "width": "4", "height": "-1", "order": 1, "showTitle": true, "groupType": "default", "className": "", "visible": true, "disabled": false}, {"id": "layout_fixed_group2", "type": "ui-group", "name": "🎮 制御パネル", "page": "layout_page_fixed", "width": "2", "height": "-1", "order": 2, "showTitle": true, "groupType": "default", "className": "", "visible": true, "disabled": false}, {"id": "bp_group1", "type": "ui-group", "name": "📊 ゲージ（width: 3）", "page": "bp_page", "width": "3", "height": "-1", "order": 1, "showTitle": true, "groupType": "default", "className": "", "visible": true, "disabled": false}, {"id": "bp_group2", "type": "ui-group", "name": "📝 情報（width: 6）", "page": "bp_page", "width": "6", "height": "-1", "order": 2, "showTitle": true, "groupType": "default", "className": "", "visible": true, "disabled": false}, {"id": "theme_compact_group", "type": "ui-group", "name": "📊 コンパクト（4px gap）", "page": "theme_page_compact", "width": "6", "height": "-1", "order": 1, "showTitle": true, "groupType": "default", "className": "", "visible": true, "disabled": false}, {"id": "theme_spacious_group", "type": "ui-group", "name": "📊 ゆったり（24px gap）", "page": "theme_page_spacious", "width": "6", "height": "-1", "order": 1, "showTitle": true, "groupType": "default", "className": "", "visible": true, "disabled": false}]</div>
         </details>
         
         <h2 id="section4">4. Grid Layout（グリッドレイアウト）</h2>
@@ -1335,6 +1340,11 @@ Width: 6 → タブ内は6カラムグリッド</div>
         </div>
 
         <h2 id="section11">11. 実践演習</h2>
+
+        <div class="tip">
+            <p><strong>📌 複数のフローを読み込むとき:</strong> このサイトの Dashboard 2.0 のフロー（サンプルフローと演習の解答例）は、すべて同じダッシュボード設定ノード（ui-base）を共有しています。2つ目以降のフローを読み込むと、「読み込もうとしているノードのいくつかは、既にワークスペース内に存在しています。」という通知が出ます。<strong>「コピーを読み込み」</strong>を選んでください。共有している設定ノードは既にあるものが使われ、どのフローのページも1つのダッシュボードにまとまります。ページはダッシュボードの左のメニューから選べます。ダッシュボード全体の見た目（ヘッダーやメニューの表示）は、最初に読み込んだフローの ui-base の設定になります。</p>
+            <p><strong>ページが表示されないとき:</strong> ダッシュボードの設定ノード（ui-base）が2つ以上あると、そのうち1つのページしか表示されません。このサイトの以前の版のフローを読み込んでいると、この状態になります。以前の版のフローのタブを削除してから、エディタの <strong>メニュー → 設定ノード</strong> を開き、画面上部の「未使用」を選んで、どのノードからも使われていない ui-group・ui-page・ui-base・ui-theme を削除します。ui-group を消すとそれを使っていた ui-page が、ui-page を消すと ui-base が未使用になるので、未使用のものが無くなるまで繰り返してください。そのあとで、フローを読み込み直します。</p>
+        </div>
         
         <div class="exercise">
             <h3>演習1: Grid Layoutでセンサーダッシュボード<span class="difficulty difficulty-easy">初級</span></h3>
@@ -1386,7 +1396,7 @@ Width: 6 → タブ内は6カラムグリッド</div>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
     {
-        "id": "ex1_tab",
+        "id": "d2lay_ex1_tab",
         "type": "tab",
         "label": "演習1: Grid Layout",
         "disabled": false,
@@ -1395,7 +1405,7 @@ Width: 6 → タブ内は6カラムグリッド</div>
     {
         "id": "ex1_inject_temp",
         "type": "inject",
-        "z": "ex1_tab",
+        "z": "d2lay_ex1_tab",
         "name": "温度データ",
         "props": [{"p": "payload"}],
         "repeat": "5",
@@ -1412,7 +1422,7 @@ Width: 6 → タブ内は6カラムグリッド</div>
     {
         "id": "ex1_inject_humid",
         "type": "inject",
-        "z": "ex1_tab",
+        "z": "d2lay_ex1_tab",
         "name": "湿度データ",
         "props": [{"p": "payload"}],
         "repeat": "5",
@@ -1429,9 +1439,9 @@ Width: 6 → タブ内は6カラムグリッド</div>
     {
         "id": "ex1_gauge_temp",
         "type": "ui-gauge",
-        "z": "ex1_tab",
+        "z": "d2lay_ex1_tab",
         "name": "温度",
-        "group": "ex1_group",
+        "group": "layout_ex1_group",
         "order": 1,
         "width": "3",
         "height": "4",
@@ -1462,9 +1472,9 @@ Width: 6 → タブ内は6カラムグリッド</div>
     {
         "id": "ex1_gauge_humid",
         "type": "ui-gauge",
-        "z": "ex1_tab",
+        "z": "d2lay_ex1_tab",
         "name": "湿度",
-        "group": "ex1_group",
+        "group": "layout_ex1_group",
         "order": 2,
         "width": "3",
         "height": "4",
@@ -1493,7 +1503,7 @@ Width: 6 → タブ内は6カラムグリッド</div>
         "wires": []
     },
     {
-        "id": "ex1_ui_base",
+        "id": "c2e1aa56f50f03bd",
         "type": "ui-base",
         "name": "Exercise Dashboard",
         "path": "/dashboard",
@@ -1510,7 +1520,7 @@ Width: 6 → タブ内は6カラムグリッド</div>
         "allowInstall": false
     },
     {
-        "id": "ex1_ui_theme",
+        "id": "d2lay_ex1_ui_theme",
         "type": "ui-theme",
         "name": "Default Theme",
         "colors": {
@@ -1529,14 +1539,14 @@ Width: 6 → タブ内は6カラムグリッド</div>
         }
     },
     {
-        "id": "ex1_page",
+        "id": "layout_ex1_page",
         "type": "ui-page",
         "name": "センサーダッシュボード",
-        "ui": "ex1_ui_base",
-        "path": "/exercise1",
+        "ui": "c2e1aa56f50f03bd",
+        "path": "/layout-ex1",
         "icon": "mdi-thermometer",
         "layout": "grid",
-        "theme": "ex1_ui_theme",
+        "theme": "d2lay_ex1_ui_theme",
         "breakpoints": [
             {"name": "Default", "px": 0, "cols": 3},
             {"name": "Tablet", "px": 576, "cols": 6},
@@ -1548,10 +1558,10 @@ Width: 6 → タブ内は6カラムグリッド</div>
         "disabled": "false"
     },
     {
-        "id": "ex1_group",
+        "id": "layout_ex1_group",
         "type": "ui-group",
         "name": "📊 センサー値",
-        "page": "ex1_page",
+        "page": "layout_ex1_page",
         "width": "6",
         "height": "-1",
         "order": 1,
@@ -1598,7 +1608,7 @@ Width: 6 → タブ内は6カラムグリッド</div>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
     {
-        "id": "ex2_tab",
+        "id": "d2lay_ex2_tab",
         "type": "tab",
         "label": "演習2: Notebook Layout",
         "disabled": false,
@@ -1607,7 +1617,7 @@ Width: 6 → タブ内は6カラムグリッド</div>
     {
         "id": "ex2_inject_md",
         "type": "inject",
-        "z": "ex2_tab",
+        "z": "d2lay_ex2_tab",
         "name": "起動時",
         "props": [{"p": "payload"}],
         "repeat": "",
@@ -1624,7 +1634,7 @@ Width: 6 → タブ内は6カラムグリッド</div>
     {
         "id": "ex2_func_md",
         "type": "function",
-        "z": "ex2_tab",
+        "z": "d2lay_ex2_tab",
         "name": "Markdown生成",
         "func": "const lines = [\n    '# 📊 センサーレポート',\n    '',\n    '## 概要',\n    '',\n    '本レポートは、IoTセンサーから収集したデータを分析した結果です。',\n    '',\n    '### 測定期間',\n    '',\n    '- **開始**: 2024年1月1日',\n    '- **終了**: 2024年1月31日',\n    '',\n    '> 以下のテーブルに詳細データを示します。'\n];\nmsg.payload = lines.join(String.fromCharCode(10));\nreturn msg;",
         "outputs": 1,
@@ -1640,7 +1650,7 @@ Width: 6 → タブ内は6カラムグリッド</div>
     {
         "id": "ex2_markdown",
         "type": "ui-markdown",
-        "z": "ex2_tab",
+        "z": "d2lay_ex2_tab",
         "group": "ex2_group1",
         "name": "レポートヘッダー",
         "order": 1,
@@ -1655,7 +1665,7 @@ Width: 6 → タブ内は6カラムグリッド</div>
     {
         "id": "ex2_inject_table",
         "type": "inject",
-        "z": "ex2_tab",
+        "z": "d2lay_ex2_tab",
         "name": "テーブルデータ",
         "props": [{"p": "payload"}],
         "repeat": "",
@@ -1672,7 +1682,7 @@ Width: 6 → タブ内は6カラムグリッド</div>
     {
         "id": "ex2_table",
         "type": "ui-table",
-        "z": "ex2_tab",
+        "z": "d2lay_ex2_tab",
         "group": "ex2_group2",
         "name": "センサーデータ",
         "label": "センサー統計",
@@ -1688,7 +1698,7 @@ Width: 6 → タブ内は6カラムグリッド</div>
         "wires": [[]]
     },
     {
-        "id": "ex2_ui_base",
+        "id": "c2e1aa56f50f03bd",
         "type": "ui-base",
         "name": "Exercise Dashboard",
         "path": "/dashboard",
@@ -1705,7 +1715,7 @@ Width: 6 → タブ内は6カラムグリッド</div>
         "allowInstall": false
     },
     {
-        "id": "ex2_ui_theme",
+        "id": "d2lay_ex2_ui_theme",
         "type": "ui-theme",
         "name": "Default Theme",
         "colors": {
@@ -1724,14 +1734,14 @@ Width: 6 → タブ内は6カラムグリッド</div>
         }
     },
     {
-        "id": "ex2_page",
+        "id": "layout_ex2_page",
         "type": "ui-page",
         "name": "レポート",
-        "ui": "ex2_ui_base",
-        "path": "/exercise2",
+        "ui": "c2e1aa56f50f03bd",
+        "path": "/layout-ex2",
         "icon": "mdi-file-document",
         "layout": "notebook",
-        "theme": "ex2_ui_theme",
+        "theme": "d2lay_ex2_ui_theme",
         "breakpoints": [
             {"name": "Default", "px": 0, "cols": 3},
             {"name": "Tablet", "px": 576, "cols": 6}
@@ -1745,7 +1755,7 @@ Width: 6 → タブ内は6カラムグリッド</div>
         "id": "ex2_group1",
         "type": "ui-group",
         "name": "📝 ヘッダー",
-        "page": "ex2_page",
+        "page": "layout_ex2_page",
         "width": "6",
         "height": "-1",
         "order": 1,
@@ -1759,7 +1769,7 @@ Width: 6 → タブ内は6カラムグリッド</div>
         "id": "ex2_group2",
         "type": "ui-group",
         "name": "📋 データ",
-        "page": "ex2_page",
+        "page": "layout_ex2_page",
         "width": "6",
         "height": "-1",
         "order": 2,
@@ -1801,7 +1811,7 @@ Width: 6 → タブ内は6カラムグリッド</div>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
     {
-        "id": "ex3_tab",
+        "id": "d2lay_ex3_tab",
         "type": "tab",
         "label": "演習3: Tabs Layout",
         "disabled": false,
@@ -1810,7 +1820,7 @@ Width: 6 → タブ内は6カラムグリッド</div>
     {
         "id": "ex3_button_on",
         "type": "ui-button",
-        "z": "ex3_tab",
+        "z": "d2lay_ex3_tab",
         "group": "ex3_group1",
         "name": "電源ON",
         "label": "電源 ON",
@@ -1829,12 +1839,12 @@ Width: 6 → タブ内は6カラムグリッド</div>
         "topicType": "str",
         "x": 130,
         "y": 100,
-        "wires": [["ex3_debug"]]
+        "wires": [["d2lay_ex3_debug"]]
     },
     {
         "id": "ex3_button_off",
         "type": "ui-button",
-        "z": "ex3_tab",
+        "z": "d2lay_ex3_tab",
         "group": "ex3_group1",
         "name": "電源OFF",
         "label": "電源 OFF",
@@ -1853,12 +1863,12 @@ Width: 6 → タブ内は6カラムグリッド</div>
         "topicType": "str",
         "x": 130,
         "y": 160,
-        "wires": [["ex3_debug"]]
+        "wires": [["d2lay_ex3_debug"]]
     },
     {
         "id": "ex3_slider",
         "type": "ui-slider",
-        "z": "ex3_tab",
+        "z": "d2lay_ex3_tab",
         "group": "ex3_group1",
         "name": "レベル",
         "label": "出力レベル",
@@ -1882,12 +1892,12 @@ Width: 6 → タブ内は6カラムグリッド</div>
         "colorThumb": "",
         "x": 120,
         "y": 220,
-        "wires": [["ex3_debug"]]
+        "wires": [["d2lay_ex3_debug"]]
     },
     {
-        "id": "ex3_switch",
+        "id": "d2lay_ex3_switch",
         "type": "ui-switch",
-        "z": "ex3_tab",
+        "z": "d2lay_ex3_tab",
         "group": "ex3_group2",
         "name": "通知ON/OFF",
         "label": "通知を有効にする",
@@ -1909,12 +1919,12 @@ Width: 6 → タブ内は6カラムグリッド</div>
         "className": "",
         "x": 150,
         "y": 300,
-        "wires": [["ex3_debug"]]
+        "wires": [["d2lay_ex3_debug"]]
     },
     {
         "id": "ex3_dropdown",
         "type": "ui-dropdown",
-        "z": "ex3_tab",
+        "z": "d2lay_ex3_tab",
         "group": "ex3_group2",
         "name": "通知方法",
         "label": "通知方法",
@@ -1935,12 +1945,12 @@ Width: 6 → タブ内は6カラムグリッド</div>
         "className": "",
         "x": 140,
         "y": 360,
-        "wires": [["ex3_debug"]]
+        "wires": [["d2lay_ex3_debug"]]
     },
     {
-        "id": "ex3_debug",
+        "id": "d2lay_ex3_debug",
         "type": "debug",
-        "z": "ex3_tab",
+        "z": "d2lay_ex3_tab",
         "name": "設定出力",
         "active": true,
         "tosidebar": true,
@@ -1955,7 +1965,7 @@ Width: 6 → タブ内は6カラムグリッド</div>
         "wires": []
     },
     {
-        "id": "ex3_ui_base",
+        "id": "c2e1aa56f50f03bd",
         "type": "ui-base",
         "name": "Exercise Dashboard",
         "path": "/dashboard",
@@ -1972,7 +1982,7 @@ Width: 6 → タブ内は6カラムグリッド</div>
         "allowInstall": false
     },
     {
-        "id": "ex3_ui_theme",
+        "id": "d2lay_ex3_ui_theme",
         "type": "ui-theme",
         "name": "Default Theme",
         "colors": {
@@ -1991,14 +2001,14 @@ Width: 6 → タブ内は6カラムグリッド</div>
         }
     },
     {
-        "id": "ex3_page",
+        "id": "layout_ex3_page",
         "type": "ui-page",
         "name": "設定画面",
-        "ui": "ex3_ui_base",
-        "path": "/exercise3",
+        "ui": "c2e1aa56f50f03bd",
+        "path": "/layout-ex3",
         "icon": "mdi-cog",
         "layout": "tabs",
-        "theme": "ex3_ui_theme",
+        "theme": "d2lay_ex3_ui_theme",
         "breakpoints": [
             {"name": "Default", "px": 0, "cols": 3},
             {"name": "Tablet", "px": 576, "cols": 6}
@@ -2012,7 +2022,7 @@ Width: 6 → タブ内は6カラムグリッド</div>
         "id": "ex3_group1",
         "type": "ui-group",
         "name": "⚡ デバイス制御",
-        "page": "ex3_page",
+        "page": "layout_ex3_page",
         "width": "6",
         "height": "-1",
         "order": 1,
@@ -2026,7 +2036,7 @@ Width: 6 → タブ内は6カラムグリッド</div>
         "id": "ex3_group2",
         "type": "ui-group",
         "name": "🔔 通知設定",
-        "page": "ex3_page",
+        "page": "layout_ex3_page",
         "width": "6",
         "height": "-1",
         "order": 2,
@@ -2070,16 +2080,16 @@ Width: 6 → タブ内は6カラムグリッド</div>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
     {
-        "id": "ex4_tab",
+        "id": "d2lay_ex4_tab",
         "type": "tab",
         "label": "演習4: 複合ダッシュボード",
         "disabled": false,
         "info": ""
     },
     {
-        "id": "ex4_comment1",
+        "id": "d2lay_ex4_comment1",
         "type": "comment",
-        "z": "ex4_tab",
+        "z": "d2lay_ex4_tab",
         "name": "━━━ ページ1: 監視（Grid） ━━━",
         "info": "",
         "x": 170,
@@ -2087,9 +2097,9 @@ Width: 6 → タブ内は6カラムグリッド</div>
         "wires": []
     },
     {
-        "id": "ex4_inject_temp",
+        "id": "d2lay_ex4_inject_temp",
         "type": "inject",
-        "z": "ex4_tab",
+        "z": "d2lay_ex4_tab",
         "name": "温度",
         "props": [{"p": "payload"}],
         "repeat": "5",
@@ -2101,12 +2111,12 @@ Width: 6 → タブ内は6カラムグリッド</div>
         "payloadType": "jsonata",
         "x": 110,
         "y": 100,
-        "wires": [["ex4_gauge_temp"]]
+        "wires": [["d2lay_ex4_gauge_temp"]]
     },
     {
-        "id": "ex4_gauge_temp",
+        "id": "d2lay_ex4_gauge_temp",
         "type": "ui-gauge",
-        "z": "ex4_tab",
+        "z": "d2lay_ex4_tab",
         "name": "温度",
         "group": "ex4_group_monitor1",
         "order": 1,
@@ -2133,9 +2143,9 @@ Width: 6 → タブ内は6カラムグリッド</div>
         "wires": []
     },
     {
-        "id": "ex4_inject_humid",
+        "id": "d2lay_ex4_inject_humid",
         "type": "inject",
-        "z": "ex4_tab",
+        "z": "d2lay_ex4_tab",
         "name": "湿度",
         "props": [{"p": "payload"}],
         "repeat": "5",
@@ -2147,12 +2157,12 @@ Width: 6 → タブ内は6カラムグリッド</div>
         "payloadType": "jsonata",
         "x": 110,
         "y": 160,
-        "wires": [["ex4_gauge_humid"]]
+        "wires": [["d2lay_ex4_gauge_humid"]]
     },
     {
-        "id": "ex4_gauge_humid",
+        "id": "d2lay_ex4_gauge_humid",
         "type": "ui-gauge",
-        "z": "ex4_tab",
+        "z": "d2lay_ex4_tab",
         "name": "湿度",
         "group": "ex4_group_monitor1",
         "order": 2,
@@ -2181,7 +2191,7 @@ Width: 6 → タブ内は6カラムグリッド</div>
     {
         "id": "ex4_inject_chart",
         "type": "inject",
-        "z": "ex4_tab",
+        "z": "d2lay_ex4_tab",
         "name": "チャート",
         "props": [{"p": "payload"}],
         "repeat": "3",
@@ -2198,7 +2208,7 @@ Width: 6 → タブ内は6カラムグリッド</div>
     {
         "id": "ex4_chart",
         "type": "ui-chart",
-        "z": "ex4_tab",
+        "z": "d2lay_ex4_tab",
         "group": "ex4_group_monitor2",
         "name": "推移",
         "label": "センサー推移",
@@ -2237,9 +2247,9 @@ Width: 6 → タブ内は6カラムグリッド</div>
         "wires": [[]]
     },
     {
-        "id": "ex4_comment2",
+        "id": "d2lay_ex4_comment2",
         "type": "comment",
-        "z": "ex4_tab",
+        "z": "d2lay_ex4_tab",
         "name": "━━━ ページ2: レポート（Notebook） ━━━",
         "info": "",
         "x": 190,
@@ -2249,7 +2259,7 @@ Width: 6 → タブ内は6カラムグリッド</div>
     {
         "id": "ex4_inject_md",
         "type": "inject",
-        "z": "ex4_tab",
+        "z": "d2lay_ex4_tab",
         "name": "Markdown",
         "props": [{"p": "payload"}],
         "repeat": "",
@@ -2266,7 +2276,7 @@ Width: 6 → タブ内は6カラムグリッド</div>
     {
         "id": "ex4_func_md",
         "type": "function",
-        "z": "ex4_tab",
+        "z": "d2lay_ex4_tab",
         "name": "Markdown生成",
         "func": "const lines = [\n    '# 📊 システムレポート',\n    '',\n    '## 本日のサマリー',\n    '',\n    '- センサー正常稼働中',\n    '- 異常値検出なし',\n    '- 次回メンテナンス: 来月1日'\n];\nmsg.payload = lines.join(String.fromCharCode(10));\nreturn msg;",
         "outputs": 1,
@@ -2282,7 +2292,7 @@ Width: 6 → タブ内は6カラムグリッド</div>
     {
         "id": "ex4_markdown",
         "type": "ui-markdown",
-        "z": "ex4_tab",
+        "z": "d2lay_ex4_tab",
         "group": "ex4_group_report",
         "name": "レポート",
         "order": 1,
@@ -2297,7 +2307,7 @@ Width: 6 → タブ内は6カラムグリッド</div>
     {
         "id": "ex4_comment3",
         "type": "comment",
-        "z": "ex4_tab",
+        "z": "d2lay_ex4_tab",
         "name": "━━━ ページ3: 設定（Tabs） ━━━",
         "info": "",
         "x": 170,
@@ -2305,9 +2315,9 @@ Width: 6 → タブ内は6カラムグリッド</div>
         "wires": []
     },
     {
-        "id": "ex4_switch",
+        "id": "d2lay_ex4_switch",
         "type": "ui-switch",
-        "z": "ex4_tab",
+        "z": "d2lay_ex4_tab",
         "group": "ex4_group_settings1",
         "name": "自動運転",
         "label": "自動運転モード",
@@ -2329,12 +2339,12 @@ Width: 6 → タブ内は6カラムグリッド</div>
         "className": "",
         "x": 130,
         "y": 500,
-        "wires": [["ex4_debug"]]
+        "wires": [["d2lay_ex4_debug"]]
     },
     {
         "id": "ex4_text_input",
         "type": "ui-text-input",
-        "z": "ex4_tab",
+        "z": "d2lay_ex4_tab",
         "group": "ex4_group_settings2",
         "name": "ユーザー名",
         "label": "ユーザー名",
@@ -2351,12 +2361,12 @@ Width: 6 → タブ内は6カラムグリッド</div>
         "className": "",
         "x": 150,
         "y": 560,
-        "wires": [["ex4_debug"]]
+        "wires": [["d2lay_ex4_debug"]]
     },
     {
-        "id": "ex4_debug",
+        "id": "d2lay_ex4_debug",
         "type": "debug",
-        "z": "ex4_tab",
+        "z": "d2lay_ex4_tab",
         "name": "設定出力",
         "active": true,
         "tosidebar": true,
@@ -2369,7 +2379,7 @@ Width: 6 → タブ内は6カラムグリッド</div>
         "wires": []
     },
     {
-        "id": "ex4_ui_base",
+        "id": "c2e1aa56f50f03bd",
         "type": "ui-base",
         "name": "総合Dashboard",
         "path": "/dashboard",
@@ -2386,7 +2396,7 @@ Width: 6 → タブ内は6カラムグリッド</div>
         "allowInstall": false
     },
     {
-        "id": "ex4_ui_theme",
+        "id": "d2lay_ex4_ui_theme",
         "type": "ui-theme",
         "name": "Default Theme",
         "colors": {
@@ -2408,11 +2418,11 @@ Width: 6 → タブ内は6カラムグリッド</div>
         "id": "ex4_page_monitor",
         "type": "ui-page",
         "name": "監視",
-        "ui": "ex4_ui_base",
+        "ui": "c2e1aa56f50f03bd",
         "path": "/monitor",
         "icon": "mdi-monitor-dashboard",
         "layout": "grid",
-        "theme": "ex4_ui_theme",
+        "theme": "d2lay_ex4_ui_theme",
         "breakpoints": [
             {"name": "Default", "px": 0, "cols": 3},
             {"name": "Tablet", "px": 576, "cols": 6},
@@ -2427,11 +2437,11 @@ Width: 6 → タブ内は6カラムグリッド</div>
         "id": "ex4_page_report",
         "type": "ui-page",
         "name": "レポート",
-        "ui": "ex4_ui_base",
+        "ui": "c2e1aa56f50f03bd",
         "path": "/report",
         "icon": "mdi-file-document",
         "layout": "notebook",
-        "theme": "ex4_ui_theme",
+        "theme": "d2lay_ex4_ui_theme",
         "breakpoints": [
             {"name": "Default", "px": 0, "cols": 3},
             {"name": "Tablet", "px": 576, "cols": 6}
@@ -2445,11 +2455,11 @@ Width: 6 → タブ内は6カラムグリッド</div>
         "id": "ex4_page_settings",
         "type": "ui-page",
         "name": "設定",
-        "ui": "ex4_ui_base",
+        "ui": "c2e1aa56f50f03bd",
         "path": "/settings",
         "icon": "mdi-cog",
         "layout": "tabs",
-        "theme": "ex4_ui_theme",
+        "theme": "d2lay_ex4_ui_theme",
         "breakpoints": [
             {"name": "Default", "px": 0, "cols": 3},
             {"name": "Tablet", "px": 576, "cols": 6}
