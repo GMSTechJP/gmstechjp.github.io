@@ -1290,7 +1290,7 @@ msg.retain: true
             <ul>
                 <li>Node-RED起動時に即座に実行</li>
                 <li>その後1分ごとに繰り返し実行</li>
-                <li>Functionノードでタイムスタンプを日時文字列に変換</li>
+                <li>Changeノードでタイムスタンプを日時文字列に変換</li>
                 <li>出力形式: "2024/01/15 09:30:00 - ヘルスチェックOK"</li>
             </ul>
             
@@ -1316,10 +1316,13 @@ msg.retain: true
                     <li>繰り返し: 60秒</li>
                     <li>Node-RED起動の〜秒後、以下を行う: ✓</li>
                 </ul>
-                <p><strong>Functionノードの設定:</strong></p>
+                <p><strong>Changeノードの設定:</strong></p>
                 <ul>
-                    <li>new Date(msg.payload) でDateオブジェクト作成</li>
-                    <li>toLocaleString() で日本語形式に変換</li>
+                    <li>「値の代入」で <code>msg.payload</code> に「JSONata式」型の次の式を設定する<br>
+                    <code>$fromMillis(payload, "[Y0001]/[M01]/[D01] [H01]:[m01]:[s01]", "+0900") &amp; " - ヘルスチェックOK"</code></li>
+                    <li><code>$fromMillis()</code> は、ミリ秒のタイムスタンプを日時の文字列に変える関数。2つ目の引数が書式で、<code>[Y0001]</code> は4桁の年、<code>[M01]</code>・<code>[D01]</code>・<code>[H01]</code>・<code>[m01]</code>・<code>[s01]</code> は2桁の月・日・時・分・秒を表す</li>
+                    <li>3つ目の引数 <code>"+0900"</code> は日本時間を指定する。省略すると UTC（日本時間より9時間遅い時刻）になる</li>
+                    <li><code>&amp;</code> は文字列をつなぐ演算子</li>
                 </ul>
             </details>
             
@@ -1356,22 +1359,29 @@ msg.retain: true
         "y": 100,
         "wires": [
             [
-                "ex4_function"
+                "ex4_change"
             ]
         ]
     },
     {
-        "id": "ex4_function",
-        "type": "function",
+        "id": "ex4_change",
+        "type": "change",
         "z": "inject_node_guide_tab_4",
         "name": "日時フォーマット",
-        "func": "const date = new Date(msg.payload);\nconst options = {\n    year: 'numeric',\n    month: '2-digit',\n    day: '2-digit',\n    hour: '2-digit',\n    minute: '2-digit',\n    second: '2-digit',\n    hour12: false\n};\nconst formatted = date.toLocaleString('ja-JP', options);\nmsg.payload = formatted + \" - ヘルスチェックOK\";\nreturn msg;",
-        "outputs": 1,
-        "timeout": 0,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "$fromMillis(payload, \"[Y0001]/[M01]/[D01] [H01]:[m01]:[s01]\", \"+0900\") &amp; \" - ヘルスチェックOK\"",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
         "x": 390,
         "y": 100,
         "wires": [
@@ -1469,7 +1479,7 @@ msg.retain: true
             <tr>
                 <td>タイムスタンプが数字</td>
                 <td>仕様通り</td>
-                <td>Functionで日時形式に変換</td>
+                <td>Change ノードの JSONata（<code>$fromMillis</code>）などで日時形式に変換（演習4を参照）</td>
             </tr>
             <tr>
                 <td>繰り返しが止まらない</td>

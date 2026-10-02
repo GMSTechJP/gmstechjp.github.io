@@ -1544,15 +1544,15 @@ msg.payload = msg.payload.data.temperature;  // 25.5</div>
             
             <p><strong>要求仕様:</strong></p>
             <ul>
-                <li>Inject、Template、JSON、Function、Debugノードを使用</li>
+                <li>Inject、Template、JSON、Change、Debugノードを使用</li>
                 <li>入力: APIレスポンス形式のネストしたJSON</li>
                 <li>出力: データ配列の各要素から名前とスコアを抽出した新しい配列</li>
             </ul>
             
             <p><strong>期待される動作:</strong></p>
             <ul>
-                <li>入力: {"status":"ok","data":[{"name":"A","score":80},{"name":"B","score":90}]}</li>
-                <li>出力: [{name:"A",score:80},{name:"B",score:90}]</li>
+                <li>入力: {"status":"ok","timestamp":"…","data":[{"name":"センサーA","score":80,"detail":"正常"}, …（センサーB・Cも同じ形）]}</li>
+                <li>出力: [{name:"センサーA",score:80},{name:"センサーB",score:90},{name:"センサーC",score:75}]</li>
             </ul>
             
             <p><strong>成功の条件:</strong></p>
@@ -1570,14 +1570,15 @@ msg.payload = msg.payload.data.temperature;  // 25.5</div>
                     <li>ネストしたJSONオブジェクトを文字列として設定</li>
                     <li>出力形式: 文字列</li>
                 </ul>
-                <p><strong>Functionノードのコード:</strong></p>
+                <p><strong>Changeノードの設定:</strong></p>
                 <ul>
-                    <li>msg.payload.data でデータ配列にアクセス</li>
-                    <li>必要に応じてmapで加工</li>
+                    <li>「値の代入」で <code>msg.payload</code> に「JSONata式」型の次の式を設定する</li>
                 </ul>
-                <div class="code-block">// Functionノードの例
-msg.payload = msg.payload.data;
-return msg;</div>
+                <div class="code-block">[payload.data.{"name": name, "score": score}]</div>
+                <ul>
+                    <li><code>payload.data</code> でデータ配列を取り出し、続く <code>.{ … }</code> で配列の要素ごとに、<code>name</code> と <code>score</code> だけを持つ新しいオブジェクトを作る</li>
+                    <li>式全体を <code>[ ]</code> で囲むと、要素が1つだけのときも配列のまま出力される（囲まないと、1件のときはオブジェクトが1つだけ返る）</li>
+                </ul>
             </details>
             
             <details>
@@ -1647,21 +1648,29 @@ return msg;</div>
         "y": 100,
         "wires": [
             [
-                "ex4_function"
+                "ex4_change"
             ]
         ]
     },
     {
-        "id": "ex4_function",
-        "type": "function",
+        "id": "ex4_change",
+        "type": "change",
         "z": "json_node_guide_tab_4",
         "name": "データ抽出",
-        "func": "// data配列から名前とスコアのみ抽出\nmsg.payload = msg.payload.data.map(item => ({\n    name: item.name,\n    score: item.score\n}));\nreturn msg;",
-        "outputs": 1,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "[payload.data.{\"name\": name, \"score\": score}]",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
         "x": 600,
         "y": 100,
         "wires": [
