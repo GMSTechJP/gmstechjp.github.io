@@ -30,3 +30,13 @@ jobs:
       # どちらも描画して初めて分かる誤りで、ソースを読むレビューやフローの検証では見つからない。
       - name: ノード図の色を検証
         run: python3 scripts/check-node-colors.py
+
+      # Dashboard 2.0 のフローが ui-base を共有する決まりを守っているか検証する（CLAUDE.md）。
+      # deploy.yml でも実行するが、それだけではマージした後にしか止まらないため、PR でも走らせる。
+      - name: Dashboard 2.0 のフローを検証
+        run: python3 scripts/check-dashboard-flows.py
+
+      # ガイドに埋め込んだ動作の図が、scripts/comic の定義から生成したものと一致するか検証する。
+      # これまで deploy.yml でしか実行しておらず、PR の時点では食い違いを止められなかった。
+      - name: 動作の図を検証
+        run: python3 scripts/comic/build.py --check
