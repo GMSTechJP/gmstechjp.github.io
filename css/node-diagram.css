@@ -1,0 +1,758 @@
+/*
+ * ノード図（node-example）の共有スタイル
+ *
+ * このファイルは scripts/gen-node-diagram-css.py が生成する。直接編集しない。
+ * ノードの見た目は Node-RED エディターに合わせている（ノードの色・アイコン・
+ * ポート・配線の色はエディターの既定のテーマ）。
+ */
+
+/* ワークスペース（方眼の白い背景） */
+.node-example {
+    background-color: #ffffff;
+    background-image:
+        linear-gradient(#eeeeee 1px, transparent 1px),
+        linear-gradient(90deg, #eeeeee 1px, transparent 1px);
+    background-size: 20px 20px;
+    border: 1px solid #cccccc;
+    border-radius: 5px;
+    padding: 20px 16px;
+    margin: 20px 0;
+    color: #333333;
+    font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    line-height: 2.6;
+    white-space: nowrap;
+    overflow-x: auto;
+}
+
+/* ノード */
+.node-example .node {
+    position: relative;
+    display: inline-block;
+    box-sizing: border-box;
+    min-width: 100px;
+    min-height: 30px;
+    margin: 4px 5px;
+    padding: 6px 12px 6px 38px;
+    border: 1px solid #999999;
+    border-radius: 5px;
+    background-color: #ffffff;
+    background-image:
+        var(--node-icon, none),
+        linear-gradient(to right,
+            rgba(0, 0, 0, 0.05) 0 30px,
+            rgba(0, 0, 0, 0.1) 30px 31px,
+            transparent 31px);
+    background-repeat: no-repeat, no-repeat;
+    background-position: 5px center, 0 0;
+    background-size: 20px 30px, 100% 100%;
+    color: #212121;
+    font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    font-weight: normal;
+    line-height: 16px;
+    text-align: left;
+    vertical-align: middle;
+    white-space: nowrap;
+    z-index: 1;
+}
+
+/* 補足の行（ノード名の下の小さい文字） */
+.node-example .node small {
+    font-size: 12px;
+    color: inherit;
+}
+
+/* 入力ポート（左）と出力ポート（右） */
+.node-example .node::before,
+.node-example .node::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 10px;
+    height: 10px;
+    margin-top: -5px;
+    box-sizing: border-box;
+    border: 1px solid #999999;
+    border-radius: 3px;
+    background: #d9d9d9;
+}
+
+.node-example .node::before {
+    left: -6px;
+}
+
+.node-example .node::after {
+    right: -6px;
+}
+
+/* ノードの下のステータス表示 */
+.node-example .status-label {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 3px;
+    font-size: 11px;
+    line-height: 12px;
+    color: #424242;
+    white-space: nowrap;
+}
+
+.node-example .status-label::before {
+    content: "";
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    margin-right: 4px;
+    border-radius: 50%;
+    background: #5a8;
+    vertical-align: -1px;
+}
+
+/* 届かないノード（点線の枠で表す） */
+.node-example .node.unreached {
+    border: 2px dashed #c62828;
+}
+
+/* 配線 */
+.node-example .arrow,
+.node-example .arrow-dashed {
+    display: inline-block;
+    position: relative;
+    width: 32px;
+    height: 3px;
+    margin: 0 -5px;
+    background: #999999;
+    vertical-align: middle;
+    z-index: 0;
+    font-size: 0;
+    line-height: 0;
+    color: transparent;
+}
+
+/* link ノードの仮想配線（エディターでも点線で描かれる） */
+.node-example .arrow-dashed {
+    width: 48px;
+    background: repeating-linear-gradient(to right, #999999 0 6px, transparent 6px 10px);
+}
+
+/* 時間をおいて届く配線 */
+.node-example .arrow.delayed {
+    width: 48px;
+    background: repeating-linear-gradient(to right, #999999 0 3px, transparent 3px 7px);
+}
+
+/* 複数の msg が流れる配線（線の上に msg を 3 つ描く） */
+.node-example .arrow.multi {
+    width: 56px;
+}
+
+.node-example .arrow.multi::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 8px;
+    height: 8px;
+    margin: -4px 0 0 -4px;
+    border-radius: 50%;
+    background: #ff9800;
+    box-shadow: -14px 0 0 #ff9800, 14px 0 0 #ff9800;
+}
+
+/* 途中で止まる配線（✗ 印） */
+.node-example .arrow.broken::before {
+    content: "\2715";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    padding: 0 2px;
+    background: #ffffff;
+    color: #c62828;
+    font-size: 16px;
+    font-weight: bold;
+    line-height: 16px;
+}
+
+/* 配線の途中に置く説明 */
+.node-example .wire-label {
+    display: inline-block;
+    margin: 0 4px;
+    font-size: 12px;
+    line-height: 16px;
+    color: #424242;
+    vertical-align: middle;
+}
+
+/* 分岐（1つの出力から複数のノードへ配線する） */
+.node-example .branch {
+    display: inline-flex;
+    flex-direction: column;
+    position: relative;
+    margin-left: -5px;
+    padding-left: 18px;
+    vertical-align: middle;
+    line-height: 16px;
+}
+
+.node-example .branch::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 18px;
+    height: 3px;
+    margin-top: -1px;
+    background: #999999;
+}
+
+.node-example .branch-row {
+    display: flex;
+    align-items: center;
+    position: relative;
+    padding: 2px 0;
+}
+
+.node-example .branch-row::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: #999999;
+}
+
+.node-example .branch-row:first-child::before {
+    top: 50%;
+}
+
+.node-example .branch-row:last-child::before {
+    bottom: 50%;
+}
+
+.node-example .branch-row .arrow {
+    width: 24px;
+    margin-left: 0;
+}
+
+/* 合流（複数のノードから1つのノードへ配線する）。分岐を左右反転したもの */
+.node-example .merge {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-end;
+    position: relative;
+    margin-right: -5px;
+    padding-right: 18px;
+    vertical-align: middle;
+    line-height: 16px;
+}
+
+.node-example .merge::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 50%;
+    width: 18px;
+    height: 3px;
+    margin-top: -1px;
+    background: #999999;
+}
+
+.node-example .merge-row {
+    display: flex;
+    align-items: center;
+    position: relative;
+    padding: 2px 0;
+}
+
+.node-example .merge-row::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: #999999;
+}
+
+.node-example .merge-row:first-child::after {
+    top: 50%;
+}
+
+.node-example .merge-row:last-child::after {
+    bottom: 50%;
+}
+
+.node-example .merge-row .arrow {
+    width: 24px;
+    margin-right: 0;
+}
+
+/* 配線でつながらない隣どうしのノード（ポートが重ならないよう離す） */
+.node-example .node + .node {
+    margin-left: 16px;
+}
+
+/* 図の中の注記 */
+.node-example .diagram-note {
+    display: inline-block;
+    margin: 0 8px;
+    font-size: 12px;
+    line-height: 16px;
+    color: #424242;
+    vertical-align: middle;
+}
+
+.node-example .diagram-note.error {
+    color: #c62828;
+}
+
+/* 分岐の点線版（link の仮想配線や、配線せずに監視する関係） */
+.node-example .branch.dashed::before,
+.node-example .branch.dashed .branch-row::before {
+    background: none;
+}
+
+.node-example .branch.dashed::before {
+    border-top: 3px dashed #999999;
+    height: 0;
+}
+
+.node-example .branch.dashed .branch-row::before {
+    width: 0;
+    border-left: 3px dashed #999999;
+}
+
+.node-example .branch-row .arrow-dashed {
+    width: 32px;
+    margin-left: 0;
+}
+
+/* 設定ノードどうし・設定ノードとウィジェットの関係（配線ではないので細い点線で描く） */
+.node-example .node.config + .arrow,
+.node-example .node-ui-page + .arrow,
+.node-example .node-ui-group + .arrow {
+    height: 0;
+    margin: 0 4px;
+    background: none;
+    border-top: 2px dotted #999999;
+}
+
+/* 設定ノード（ワークスペースには置かれない） */
+.node-example .node.config {
+    min-width: 0;
+    padding: 6px 12px;
+    background-image: none;
+    border-color: #bbbbbb;
+}
+
+.node-example .node.config::before,
+.node-example .node.config::after {
+    content: none;
+}
+
+/* ノードの色・アイコン・ポート */
+.node-example .node-inject {
+    background-color: #a6bbcf;
+    --node-icon: url("../img/node-icons/inject.svg");
+}
+.node-example .node-debug {
+    background-color: #87a980;
+    --node-icon: url("../img/node-icons/debug.svg");
+}
+.node-example .node-complete {
+    background-color: #c0edc0;
+    --node-icon: url("../img/node-icons/alert.svg");
+}
+.node-example .node-catch {
+    background-color: #e49191;
+    --node-icon: url("../img/node-icons/alert.svg");
+}
+.node-example .node-status {
+    background-color: #94c1d0;
+    --node-icon: url("../img/node-icons/status.svg");
+}
+.node-example .node-link-in {
+    background-color: #dddddd;
+    --node-icon: url("../img/node-icons/link-out.svg");
+}
+.node-example .node-link-call {
+    background-color: #dddddd;
+    --node-icon: url("../img/node-icons/link-call.svg");
+}
+.node-example .node-link-out {
+    background-color: #dddddd;
+    --node-icon: url("../img/node-icons/link-out.svg");
+}
+.node-example .node-link-return {
+    background-color: #dddddd;
+    --node-icon: url("../img/node-icons/link-return.svg");
+}
+.node-example .node-comment {
+    background-color: #ffffff;
+    --node-icon: url("../img/node-icons/comment.svg");
+}
+.node-example .node-function {
+    background-color: #fdd0a2;
+    --node-icon: url("../img/node-icons/function.svg");
+}
+.node-example .node-switch {
+    background-color: #e2d96e;
+    --node-icon: url("../img/node-icons/switch.svg");
+}
+.node-example .node-change {
+    background-color: #e2d96e;
+    --node-icon: url("../img/node-icons/swap.svg");
+}
+.node-example .node-range {
+    background-color: #e2d96e;
+    --node-icon: url("../img/node-icons/range.svg");
+}
+.node-example .node-template {
+    background-color: #f3b567;
+    --node-icon: url("../img/node-icons/template.svg");
+}
+.node-example .node-delay {
+    background-color: #e6e0f8;
+    --node-icon: url("../img/node-icons/timer.svg");
+}
+.node-example .node-trigger {
+    background-color: #e6e0f8;
+    --node-icon: url("../img/node-icons/trigger.svg");
+}
+.node-example .node-exec {
+    background-color: #e9967a;
+    --node-icon: url("../img/node-icons/cog.svg");
+}
+.node-example .node-filter {
+    background-color: #e2d96e;
+    --node-icon: url("../img/node-icons/rbe.svg");
+}
+.node-example .node-mqtt-in {
+    background-color: #d8bfd8;
+    --node-icon: url("../img/node-icons/bridge.svg");
+}
+.node-example .node-mqtt-out {
+    background-color: #d8bfd8;
+    --node-icon: url("../img/node-icons/bridge.svg");
+}
+.node-example .node-http-in {
+    background-color: #e7e7ae;
+    --node-icon: url("../img/node-icons/white-globe.svg");
+}
+.node-example .node-http-response {
+    background-color: #e7e7ae;
+    --node-icon: url("../img/node-icons/white-globe.svg");
+}
+.node-example .node-http-request {
+    background-color: #e7e7ae;
+    --node-icon: url("../img/node-icons/white-globe.svg");
+}
+.node-example .node-http {
+    background-color: #e7e7ae;
+    --node-icon: url("../img/node-icons/white-globe.svg");
+}
+.node-example .node-websocket-in {
+    background-color: #d7d7a0;
+    --node-icon: url("../img/node-icons/white-globe.svg");
+}
+.node-example .node-websocket-out {
+    background-color: #d7d7a0;
+    --node-icon: url("../img/node-icons/white-globe.svg");
+}
+.node-example .node-tcp-in {
+    background-color: #c0c0c0;
+    --node-icon: url("../img/node-icons/bridge-dash.svg");
+}
+.node-example .node-tcp-out {
+    background-color: #c0c0c0;
+    --node-icon: url("../img/node-icons/bridge-dash.svg");
+}
+.node-example .node-tcp-request {
+    background-color: #c0c0c0;
+    --node-icon: url("../img/node-icons/bridge-dash.svg");
+}
+.node-example .node-udp-in {
+    background-color: #c0c0c0;
+    --node-icon: url("../img/node-icons/bridge-dash.svg");
+}
+.node-example .node-udp-out {
+    background-color: #c0c0c0;
+    --node-icon: url("../img/node-icons/bridge-dash.svg");
+}
+.node-example .node-split {
+    background-color: #e2d96e;
+    --node-icon: url("../img/node-icons/split.svg");
+}
+.node-example .node-join {
+    background-color: #e2d96e;
+    --node-icon: url("../img/node-icons/join.svg");
+}
+.node-example .node-sort {
+    background-color: #e2d96e;
+    --node-icon: url("../img/node-icons/sort.svg");
+}
+.node-example .node-batch {
+    background-color: #e2d96e;
+    --node-icon: url("../img/node-icons/batch.svg");
+}
+.node-example .node-csv {
+    background-color: #debd5c;
+    --node-icon: url("../img/node-icons/parser-csv.svg");
+}
+.node-example .node-html {
+    background-color: #debd5c;
+    --node-icon: url("../img/node-icons/parser-html.svg");
+}
+.node-example .node-json {
+    background-color: #debd5c;
+    --node-icon: url("../img/node-icons/parser-json.svg");
+}
+.node-example .node-xml {
+    background-color: #debd5c;
+    --node-icon: url("../img/node-icons/parser-xml.svg");
+}
+.node-example .node-yaml {
+    background-color: #debd5c;
+    --node-icon: url("../img/node-icons/parser-yaml.svg");
+}
+.node-example .node-base64 {
+    background-color: #debd5c;
+    --node-icon: url("../img/node-icons/parser-base64.png");
+}
+.node-example .node-buffer-parser {
+    background-color: #0090d4;
+    --node-icon: url("../img/node-icons/fa-expand.svg");
+}
+.node-example .node-buffer-maker {
+    background-color: #0090d4;
+    --node-icon: url("../img/node-icons/fa-compress.svg");
+}
+.node-example .node-file {
+    background-color: #deb887;
+    --node-icon: url("../img/node-icons/file-out.svg");
+}
+.node-example .node-file-in {
+    background-color: #deb887;
+    --node-icon: url("../img/node-icons/file-in.svg");
+}
+.node-example .node-watch {
+    background-color: #deb887;
+    --node-icon: url("../img/node-icons/watch.svg");
+}
+.node-example .node-sqlite {
+    background-color: #e97b00;
+    --node-icon: url("../img/node-icons/sqlite.png");
+}
+.node-example .node-email-in {
+    background-color: #c7e9c0;
+    --node-icon: url("../img/node-icons/envelope.svg");
+}
+.node-example .node-email-out {
+    background-color: #c7e9c0;
+    --node-icon: url("../img/node-icons/envelope.svg");
+}
+.node-example .node-ftp {
+    background-color: #deb887;
+    --node-icon: url("../img/node-icons/file.svg");
+}
+.node-example .node-ftp-server {
+    background-color: #f37a33;
+    --node-icon: url("../img/node-icons/ftp.png");
+}
+.node-example .node-modbus-read {
+    background-color: #e9967a;
+    --node-icon: url("../img/node-icons/modbus.png");
+}
+.node-example .node-modbus-getter {
+    background-color: #e9967a;
+    --node-icon: url("../img/node-icons/modbus.png");
+}
+.node-example .node-modbus-flex-getter {
+    background-color: #e9967a;
+    --node-icon: url("../img/node-icons/modbus.png");
+}
+.node-example .node-modbus-write {
+    background-color: #e9967a;
+    --node-icon: url("../img/node-icons/modbus.png");
+}
+.node-example .node-modbus-server {
+    background-color: #e9967a;
+    --node-icon: url("../img/node-icons/modbus.png");
+}
+.node-example .node-sensehat-in {
+    background-color: #c6dbef;
+    --node-icon: url("../img/node-icons/rpi.svg");
+}
+.node-example .node-sensehat-out {
+    background-color: #c6dbef;
+    --node-icon: url("../img/node-icons/rpi.svg");
+}
+.node-example .node-ui-button {
+    background-color: #a0e6ec;
+    --node-icon: url("../img/node-icons/fa-hand-pointer-o.svg");
+}
+.node-example .node-ui-button-group {
+    background-color: #a0e6ec;
+    --node-icon: url("../img/node-icons/fa-toggle-off.svg");
+}
+.node-example .node-ui-dropdown {
+    background-color: #a0e6ec;
+    --node-icon: url("../img/node-icons/fa-bars.svg");
+}
+.node-example .node-ui-form {
+    background-color: #a0e6ec;
+    --node-icon: url("../img/node-icons/fa-list-alt.svg");
+}
+.node-example .node-ui-progress {
+    background-color: #a0e6ec;
+    --node-icon: url("../img/node-icons/fa-percent.svg");
+}
+.node-example .node-ui-radio {
+    background-color: #a0e6ec;
+    --node-icon: url("../img/node-icons/fa-dot-circle-o.svg");
+}
+.node-example .node-ui-slider {
+    background-color: #a0e6ec;
+    --node-icon: url("../img/node-icons/fa-sliders.svg");
+}
+.node-example .node-ui-spacer {
+    background-color: #a0e6ec;
+    --node-icon: url("../img/node-icons/fa-arrows-h.svg");
+}
+.node-example .node-ui-switch {
+    background-color: #a0e6ec;
+    --node-icon: url("../img/node-icons/fa-toggle-on.svg");
+}
+.node-example .node-ui-text-input {
+    background-color: #a0e6ec;
+    --node-icon: url("../img/node-icons/fa-i-cursor.svg");
+}
+.node-example .node-ui-audio {
+    background-color: #5ad2dc;
+    --node-icon: url("../img/node-icons/fa-volume-up.svg");
+}
+.node-example .node-ui-chart {
+    background-color: #5ad2dc;
+    --node-icon: url("../img/node-icons/fa-line-chart.svg");
+}
+.node-example .node-ui-gauge {
+    background-color: #5ad2dc;
+    --node-icon: url("../img/node-icons/ui-gauge.svg");
+}
+.node-example .node-ui-led {
+    background-color: #5ad2dc;
+    --node-icon: url("../img/node-icons/fa-lightbulb-o.svg");
+}
+.node-example .node-ui-notification {
+    background-color: #5ad2dc;
+    --node-icon: url("../img/node-icons/fa-envelope-o.svg");
+}
+.node-example .node-ui-table {
+    background-color: #5ad2dc;
+    --node-icon: url("../img/node-icons/fa-table.svg");
+}
+.node-example .node-ui-text {
+    background-color: #5ad2dc;
+    --node-icon: url("../img/node-icons/fa-font.svg");
+}
+.node-example .node-ui-markdown {
+    background-color: #27b7c3;
+    --node-icon: url("../img/node-icons/ui-markdown.svg");
+}
+.node-example .node-ui-template {
+    background-color: #27b7c3;
+    --node-icon: url("../img/node-icons/fa-code.svg");
+}
+.node-example .node-ui-control {
+    background-color: #20a0aa;
+    --node-icon: url("../img/node-icons/fa-arrow-circle-right.svg");
+}
+
+/* 入力ポートの無いノード */
+.node-example .node-inject::before,
+.node-example .node-complete::before,
+.node-example .node-catch::before,
+.node-example .node-status::before,
+.node-example .node-link-in::before,
+.node-example .node-comment::before,
+.node-example .node-mqtt-in::before,
+.node-example .node-http-in::before,
+.node-example .node-websocket-in::before,
+.node-example .node-tcp-in::before,
+.node-example .node-udp-in::before,
+.node-example .node-watch::before,
+.node-example .node-email-in::before,
+.node-example .node-ftp-server::before,
+.node-example .node-modbus-read::before,
+.node-example .node-sensehat-in::before,
+.node-example .node-ui-spacer::before {
+    content: none;
+}
+
+/* 出力ポートの無いノード */
+.node-example .node-debug::after,
+.node-example .node-link-out::after,
+.node-example .node-link-return::after,
+.node-example .node-comment::after,
+.node-example .node-mqtt-out::after,
+.node-example .node-http-response::after,
+.node-example .node-websocket-out::after,
+.node-example .node-tcp-out::after,
+.node-example .node-udp-out::after,
+.node-example .node-email-out::after,
+.node-example .node-sensehat-out::after,
+.node-example .node-ui-progress::after,
+.node-example .node-ui-spacer::after,
+.node-example .node-ui-led::after,
+.node-example .node-ui-text::after {
+    content: none;
+}
+
+/* アイコンが右側にあるノード */
+.node-example .node-debug,
+.node-example .node-link-out,
+.node-example .node-link-return,
+.node-example .node-mqtt-out,
+.node-example .node-http-response,
+.node-example .node-websocket-out,
+.node-example .node-tcp-out,
+.node-example .node-udp-out,
+.node-example .node-email-out,
+.node-example .node-modbus-write,
+.node-example .node-modbus-server,
+.node-example .node-sensehat-out,
+.node-example .node-ui-audio,
+.node-example .node-ui-chart,
+.node-example .node-ui-gauge,
+.node-example .node-ui-notification,
+.node-example .node-ui-text,
+.node-example .node-ui-control {
+    padding: 6px 38px 6px 12px;
+    background-position: right 5px center, 0 0;
+    background-image:
+        var(--node-icon, none),
+        linear-gradient(to left,
+            rgba(0, 0, 0, 0.05) 0 30px,
+            rgba(0, 0, 0, 0.1) 30px 31px,
+            transparent 31px);
+}
+
+/* 設定ノード */
+.node-example .node-ui-page,
+.node-example .node-ui-group {
+    min-width: 0;
+    padding: 6px 12px;
+    background-color: #f3f3f3;
+    background-image: none;
+    border-color: #bbbbbb;
+}
+
+.node-example .node-ui-page::before,
+.node-example .node-ui-group::before,
+.node-example .node-ui-page::after,
+.node-example .node-ui-group::after {
+    content: none;
+}

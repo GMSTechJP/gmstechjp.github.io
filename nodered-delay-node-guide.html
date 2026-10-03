@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Node-RED Delayノード ガイド</title>
+    <link rel="stylesheet" href="css/node-diagram.css">
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -39,75 +40,6 @@
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             margin-bottom: 20px;
-        }
-        
-        .node-example {
-            background-color: #2d3133;
-            padding: 20px;
-            border-radius: 5px;
-            margin: 20px 0;
-            color: white;
-            font-family: 'Courier New', monospace;
-        }
-        
-        .node {
-            display: inline-block;
-            padding: 8px 15px;
-            border-radius: 4px;
-            margin: 5px;
-            font-weight: bold;
-            font-size: 14px;
-        }
-        
-        .node-inject {
-            background-color: #3fadb5;
-            color: #212121;
-        }
-        
-        .node-debug {
-            background-color: #87a48d;
-            color: #212121;
-        }
-        
-        .node-function {
-            background-color: #e8a658;
-            color: #212121;
-        }
-        
-        .node-change {
-            background-color: #e7a070;
-            color: #212121;
-        }
-        
-        .node-switch {
-            background-color: #e2d96e;
-            color: #333;
-        }
-        
-        .node-delay {
-            background-color: #e6bcbe;
-            color: #333;
-        }
-        
-        .node-split {
-            background-color: #e2d96e;
-            color: #333;
-        }
-        
-        .node-http-request {
-            background-color: #e2d96e;
-            color: #333;
-        }
-        
-        .node-mqtt-in {
-            background-color: #d0a0c0;
-            color: #333;
-        }
-        
-        .arrow {
-            color: #999;
-            font-size: 20px;
-            margin: 0 10px;
         }
         
         .important {
@@ -485,7 +417,7 @@
             <span class="node node-inject">Inject</span>
             <span class="arrow">→</span>
             <span class="node node-delay">Delay<br><small>(3秒)</small></span>
-            <span class="arrow">→→→</span>
+            <span class="arrow multi">→→→</span>
             <span class="node node-debug">Debug</span>
         </div>
         
@@ -1231,14 +1163,13 @@
         <p><strong>用途:</strong> メッセージごとに異なる遅延時間を設定</p>
         
         <div class="node-example">
-            <span class="node node-inject">Inject<br><small>(delay=1000)</small></span>
-            <span class="arrow">→</span>
+            <span class="merge">
+                <span class="merge-row"><span class="node node-inject">Inject<br><small>(delay=1000)</small></span><span class="arrow">→</span></span>
+                <span class="merge-row"><span class="node node-inject">Inject<br><small>(delay=10000)</small></span><span class="arrow">→</span></span>
+            </span>
             <span class="node node-delay">Delay<br><small>(msg.delay)</small></span>
             <span class="arrow">→</span>
             <span class="node node-debug">Debug</span>
-            <br><br>
-            <span class="node node-inject">Inject<br><small>(delay=10000)</small></span>
-            <span class="arrow">→</span>
         </div>
         
         <div class="tip">
@@ -1261,19 +1192,14 @@
         <p><strong>用途:</strong> 待機中のメッセージをクリアまたは即座に送信</p>
         
         <div class="node-example">
-            <span class="node node-inject">メッセージ</span>
-            <span class="arrow">→</span>
+            <span class="merge">
+                <span class="merge-row"><span class="node node-inject">メッセージ</span><span class="arrow">→</span></span>
+                <span class="merge-row"><span class="node node-inject">reset</span><span class="arrow">→</span></span>
+                <span class="merge-row"><span class="node node-inject">flush</span><span class="arrow">→</span></span>
+            </span>
             <span class="node node-delay">Delay<br><small>(10秒)</small></span>
             <span class="arrow">→</span>
             <span class="node node-debug">Debug</span>
-            <br><br>
-            <span class="node node-inject">reset</span>
-            <span class="arrow">→</span>
-            <span class="node node-delay"></span>
-            <br>
-            <span class="node node-inject">flush</span>
-            <span class="arrow">→</span>
-            <span class="node node-delay"></span>
         </div>
         
         <div class="tip">
@@ -1302,7 +1228,7 @@ Flushの場合:
             <span class="node node-inject">配列<br><small>[0-9]</small></span>
             <span class="arrow">→</span>
             <span class="node node-split">Split</span>
-            <span class="arrow">→→→</span>
+            <span class="arrow multi">→→→</span>
             <span class="node node-delay">Delay<br><small>(1msg/秒)</small></span>
             <span class="arrow">→</span>
             <span class="node node-debug">Debug</span>

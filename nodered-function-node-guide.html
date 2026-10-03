@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Node-RED Functionノード ガイド</title>
+    <link rel="stylesheet" href="css/node-diagram.css">
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -39,55 +40,6 @@
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             margin-bottom: 20px;
-        }
-        
-        .node-example {
-            background-color: #2d3133;
-            padding: 20px;
-            border-radius: 5px;
-            margin: 20px 0;
-            color: white;
-            font-family: 'Courier New', monospace;
-        }
-        
-        .node {
-            display: inline-block;
-            padding: 8px 15px;
-            border-radius: 4px;
-            margin: 5px;
-            font-weight: bold;
-            font-size: 14px;
-        }
-        
-        .node-inject {
-            background-color: #3fadb5;
-            color: #212121;
-        }
-        
-        .node-function {
-            background-color: #e8a658;
-            color: #212121;
-        }
-        
-        .node-debug {
-            background-color: #87a48d;
-            color: #212121;
-        }
-        
-        .node-catch {
-            background-color: #e87d7d;
-            color: #212121;
-        }
-        
-        .node-change {
-            background-color: #e7a070;
-            color: #212121;
-        }
-        
-        .arrow {
-            color: #999;
-            font-size: 20px;
-            margin: 0 10px;
         }
         
         .important {
@@ -1522,11 +1474,10 @@ return msg;</div>
             <span class="node node-inject">Inject</span>
             <span class="arrow">→</span>
             <span class="node node-function">Function<br><small>(2出力)</small></span>
-            <span class="arrow">→</span>
-            <span class="node node-debug">Debug 1</span>
-            <br><br>
-            <span style="margin-left: 232px;" class="arrow">→</span>
-            <span class="node node-debug">Debug 2</span>
+            <span class="branch">
+                <span class="branch-row"><span class="arrow">→</span><span class="node node-debug">Debug 1</span></span>
+                <span class="branch-row"><span class="arrow">→</span><span class="node node-debug">Debug 2</span></span>
+            </span>
         </div>
         
         <div class="tip">
@@ -1554,7 +1505,7 @@ if (msg.payload >= 50) {
             <span class="node node-inject">Inject<br><small>(1回)</small></span>
             <span class="arrow">→</span>
             <span class="node node-function">Function</span>
-            <span class="arrow">→→→</span>
+            <span class="arrow multi">→→→</span>
             <span class="node node-debug">Debug<br><small>(3回受信)</small></span>
         </div>
         
@@ -1582,7 +1533,7 @@ return [[msg1, msg2, msg3]];</div>
             <span class="node node-inject">Inject</span>
             <span class="arrow">→</span>
             <span class="node node-function">Function<br><small>(2秒待機)</small></span>
-            <span class="arrow">⋯→</span>
+            <span class="arrow delayed">⋯→</span>
             <span class="node node-debug">Debug</span>
         </div>
         
@@ -1639,12 +1590,10 @@ return msg;</div>
         <h3>パターン6: ステータス表示</h3>
         <p><strong>用途:</strong> ノードの下に状態を表示して可視化</p>
         
-        <div class="node-example">
+        <div class="node-example" style="padding-bottom: 32px;">
             <span class="node node-inject">Inject</span>
             <span class="arrow">→</span>
-            <span class="node node-function" style="position: relative;">Function<br>
-                <small style="display: block; margin-top: 5px; padding: 2px 6px; background: #4caf50; border-radius: 3px; font-size: 10px;">● 接続中</small>
-            </span>
+            <span class="node node-function">Function<span class="status-label">接続中</span></span>
             <span class="arrow">→</span>
             <span class="node node-debug">Debug</span>
         </div>

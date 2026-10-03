@@ -491,24 +491,69 @@ ID の一意性はファイルをまたぐため、常にサイトの全 HTML �
 - [ ] 図解やコード例の適切な配置
 - [ ] トラブルシューティングセクション
 
-### ノード図の色（node-example の色付きの箱）
+### ノード図（node-example）
 
-処理の流れを示すノードの箱（`class="node node-inject"` など）は、ページの CSS の
-`.node-*` 規則で色を付ける。次の誤りは HTML としては正しく、ソースを読むレビューでも
-フローの検証でも見つからないため、`python3 scripts/check-node-colors.py` で検査する
-（CI でも実行する）。
+処理の流れを示すノード図（`<div class="node-example">`）は、Node-RED エディターの
+ノードと同じ見た目（ノードの色、アイコン、入出力ポート、灰色の配線、方眼のワークスペース）で
+描く。見た目はサイト共通の `css/node-diagram.css` で決め、ページの `<style>` には
+ノード図の規則を書かない。各ページは `<head>` で
+`<link rel="stylesheet" href="css/node-diagram.css">` を読み込む。
 
-- **未定義のクラスを使わない**: 使ったクラスは、そのページの CSS に定義する。
-  定義が無いと箱に色が付かず、暗い背景に文字だけが並ぶ
-  （実例: websocket ガイドのパターン4で node-http-in 等が未定義だった）
-- **文字と背景のコントラスト比を 4.5 以上にする**（WCAG 2.x AA）。箱の文字は太字 14px で
-  「大きい文字」に当たらない。Node-RED のエディターと同じく、明るいノード色には
-  暗い文字（`#212121`）を使う。箱にインライン style で色を付けて上書きする場合も同じ
-- **箱を opacity で薄くしない**: 下の背景と混ざって読めなくなる。「届かない」などの
-  状態は、読める色や点線の枠で表す
-- 検査が判定できない書き方がある。rgb() や CSS 変数の色、背景色か文字色の片方が
-  どこにも決まらない箱（もう片方は継承で決まる）、CSS 規則側の opacity は検査されない
-  ため、そう書いたときは描画して確かめる
+**書き方**:
+
+```html
+<div class="node-example">
+    <span class="node node-inject">Inject</span>
+    <span class="arrow">→</span>
+    <span class="node node-function">Function<br><small>(加工)</small></span>
+    <span class="arrow">→</span>
+    <span class="node node-debug">Debug</span>
+</div>
+```
+
+| 部品 | 書き方 | 表すもの |
+| --- | --- | --- |
+| ノード | `<span class="node node-種類">名前</span>` | 種類ごとの色・アイコン・ポートで描く。補足は `<br><small>` |
+| 配線 | `<span class="arrow">→</span>` | 灰色の線。矢印の文字は描かない |
+| 複数の msg | `<span class="arrow multi">→→→</span>` | 線の上に msg を 3 つ描く（split の出力など） |
+| 時間をおいて届く | `<span class="arrow delayed">⋯→</span>` | 点線 |
+| 途中で止まる | `<span class="arrow broken">✗</span>` | 線の上に ✗ |
+| link の仮想配線 | `<span class="arrow-dashed">- - -</span>` | 破線（エディターと同じ） |
+| 配線の途中の説明 | `<span class="wire-label">正常完了</span>` | 線と線の間に置く小さい文字 |
+| 分岐 | `<span class="branch">` の中に `<span class="branch-row">` を並べる | 1つの出力から複数のノードへ。点線にするときは `branch dashed` |
+| 合流 | `<span class="merge">` の中に `<span class="merge-row">` を並べる | 複数のノードから1つのノードへ |
+| 届かないノード | `class="node node-debug unreached"` | 赤い点線の枠 |
+| ステータス | ノードの中に `<span class="status-label">接続中</span>` | ノードの下の緑の点と文字 |
+| 注記 | `<span class="diagram-note">…</span>`（赤字は `diagram-note error`） | 図の中の説明 |
+
+- 分岐・合流・複数行の図を、`margin-left` の px や `visibility: hidden` の箱で
+  位置合わせしない。ノードの幅が変わると崩れる。`branch` / `merge` を使う
+- ノードのクラスは、ラベルではなく**実際のノードの種類**に合わせる
+  （例: 「mqtt in」を node-inject で描かない。「file read」は node-file-in）。
+  図はアイコンでも種類を示すため、食い違いが目に付く
+- ノードの色・アイコン・ポートの有無は、ノードのエディター HTML の
+  `RED.nodes.registerType()`（color / icon / inputs / outputs / align）に合わせる。
+  ノードの種類を追加するときは `scripts/gen-node-diagram-css.py` の対応表に1行足して
+  実行し、`css/node-diagram.css` を生成し直す。CSS を直接編集しない。
+  アイコンは `img/node-icons/` に置き、出典を同じフォルダの README.md に書く
+- 箱をインライン style で塗り替えない（エディターではノードの色は変わらない）。
+  状態は `unreached` などの部品で表す
+
+**検査**: 次の誤りは HTML としては正しく、ソースを読むレビューでも
+フローの検証でも見つからないため、スクリプトで検査する（CI でも実行する）。
+
+```bash
+python3 scripts/check-node-colors.py          # 未定義のクラス、コントラスト、opacity
+python3 scripts/gen-node-diagram-css.py --check  # 共有 CSS が対応表と一致するか、アイコンがあるか
+```
+
+- **未定義のクラスを使わない**: 使ったクラスが `css/node-diagram.css`（またはページの CSS）に
+  無いと、箱に色もアイコンも付かない
+- **文字と背景のコントラスト比を 4.5 以上にする**（WCAG 2.x AA）。箱の文字は 14px で
+  「大きい文字」に当たらない。文字色は共通で `#212121`
+- **箱を opacity で薄くしない**: 下の背景と混ざって読めなくなる
+- 検査が判定できない書き方がある。rgb() や CSS 変数の色、CSS 規則側の opacity は
+  検査されないため、そう書いたときは描画して確かめる
 
 **レビューでの扱い**: 見た目に関わる変更（CSS、色、図、レイアウト）は、レビュー依頼で
 「描画したときに読めるか」も確認対象に含め、可能ならヘッドレスブラウザで描画して確かめる。
@@ -943,8 +988,9 @@ curl -o inject-source.html \
 | 2026-10-02 | 1.3.0 | ノード図の色（未定義クラスとコントラスト）の決まりと検査を追加 |
 | 2026-10-02 | 1.4.0 | サンプルフローと演習の解答例での function ノードの使い方の基準と、Dashboard 2.0 のフローで ui-base を共有する決まりを追加 |
 | 2026-10-02 | 1.5.0 | Dashboard 2.0 のフローの決まりを検査する scripts/check-dashboard-flows.py を追加 |
+| 2026-10-03 | 1.6.0 | ノード図を Node-RED エディターの見た目に統一し、共有 CSS（css/node-diagram.css）と部品の書き方を追加 |
 
 ---
 
 **作成者**: Claude Sonnet 4.5
-**最終更新**: 2026-10-02
+**最終更新**: 2026-10-03
