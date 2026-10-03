@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Node-RED Triggerノード ガイド</title>
     <link rel="stylesheet" href="css/node-diagram.css">
+    <script src="js/node-diagram.js" defer></script>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -268,7 +269,7 @@
         .timeline-row {
             display: flex;
             align-items: center;
-            margin: 15px 0;
+            margin: 15px 0 40px;
         }
         
         .timeline-label {
@@ -298,6 +299,8 @@
             font-size: 12px;
             font-weight: bold;
             color: white;
+            transform: translateX(-50%);
+            z-index: 1;
         }
         
         .event-input {
@@ -321,82 +324,13 @@
         
         .timeline-time {
             position: absolute;
-            bottom: -20px;
+            top: 100%;
+            margin-top: 4px;
+            text-align: center;
+            white-space: nowrap;
             font-size: 11px;
             color: #666;
             transform: translateX(-50%);
-        }
-        
-        .trigger-diagram {
-            background-color: #fff;
-            border: 2px solid #c9b6d5;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 15px 0;
-        }
-        
-        .trigger-flow {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-        
-        .trigger-box {
-            background-color: #c9b6d5;
-            padding: 15px 25px;
-            border-radius: 8px;
-            text-align: center;
-        }
-        
-        .trigger-box .title {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        
-        .trigger-box .subtitle {
-            font-size: 12px;
-            color: #555;
-        }
-        
-        .output-group {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        
-        .output-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .output-badge {
-            width: 25px;
-            height: 25px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 12px;
-        }
-        
-        .output-badge-1 {
-            background-color: #28a745;
-        }
-        
-        .output-badge-2 {
-            background-color: #dc3545;
-        }
-        
-        .output-text {
-            background-color: #e9ecef;
-            padding: 5px 15px;
-            border-radius: 4px;
-            font-size: 13px;
         }
         /* 漫画風の図（scripts/comic/build.py で生成） */
         .comic-fig { margin: 20px auto; max-width: 620px; }
@@ -465,7 +399,7 @@
                     <div class="timeline-wait" style="left: 12%; width: 38%;"></div>
                     <div class="timeline-event event-output2" style="left: 50%;">0</div>
                     <span class="timeline-time" style="left: 10%;">0秒</span>
-                    <span class="timeline-time" style="left: 30%;">待機中...</span>
+                    <span class="timeline-time" style="left: 30%; top: 0; margin-top: 0;">待機中...</span>
                     <span class="timeline-time" style="left: 50%;">2秒後</span>
                 </div>
             </div>
@@ -1060,30 +994,17 @@
             <span class="node node-debug">Debug</span>
         </div>
         
-        <div class="trigger-diagram">
-            <p><strong>🔄 動作の流れ:</strong></p>
-            <div class="trigger-flow">
-                <div style="background-color: #3fadb5; color: white; padding: 10px 20px; border-radius: 8px;">
-                    入力<br>メッセージ
-                </div>
-                <div style="font-size: 24px;">→</div>
-                <div class="trigger-box">
-                    <div class="title">Trigger</div>
-                    <div class="subtitle">2秒待機</div>
-                </div>
-                <div style="font-size: 24px;">→</div>
-                <div class="output-group">
-                    <div class="output-item">
-                        <span class="output-badge output-badge-1">1</span>
-                        <span class="output-text">即座に "1" を出力</span>
-                    </div>
-                    <div class="output-item">
-                        <span class="output-badge output-badge-2">2</span>
-                        <span class="output-text">2秒後に "0" を出力</span>
-                    </div>
-                </div>
-            </div>
+        <p><strong>🔄 動作の流れ:</strong></p>
+        <div class="node-example">
+            <span class="node node-inject">入力<br><small>メッセージ</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-trigger">Trigger<br><small>2秒待機</small></span>
+            <span class="arrow">→</span>
+            <span class="wire-label">① すぐに "1"<br>② 2秒後に "0"</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
         </div>
+        <p>出力は1つで、同じ配線に "1" と "0" が順に流れます。</p>
         
         <div class="tip">
             <p><strong>📌 Raspberry Pi LEDの点滅例:</strong></p>
@@ -1202,36 +1123,22 @@
         <div class="node-example">
             <span class="node node-inject">処理開始</span>
             <span class="arrow">→</span>
-            <span class="node node-trigger">Trigger<br><small>(2出力)</small></span>
+            <span class="node node-trigger outputs-2">Trigger<br><small>(2出力)</small></span>
             <span class="branch">
                 <span class="branch-row"><span class="arrow">→</span><span class="wire-label">出力1</span><span class="arrow">→</span><span class="node node-function">処理</span></span>
                 <span class="branch-row"><span class="arrow">→</span><span class="wire-label">出力2</span><span class="arrow">→</span><span class="node node-debug">結果</span></span>
             </span>
         </div>
         
-        <div class="trigger-diagram">
-            <p><strong>🔀 2出力モードの動作:</strong></p>
-            <div class="trigger-flow">
-                <div style="background-color: #3fadb5; color: white; padding: 10px 20px; border-radius: 8px;">
-                    入力
-                </div>
-                <div style="font-size: 24px;">→</div>
-                <div class="trigger-box">
-                    <div class="title">Trigger</div>
-                    <div class="subtitle">3秒タイムアウト</div>
-                </div>
-                <div style="font-size: 24px;">→</div>
-                <div class="output-group">
-                    <div class="output-item">
-                        <span class="output-badge output-badge-1">1</span>
-                        <span class="output-text">出力1: 即座にpayloadを送信 → 処理へ</span>
-                    </div>
-                    <div class="output-item">
-                        <span class="output-badge output-badge-2">2</span>
-                        <span class="output-text">出力2: 3秒後に"timeout"を送信</span>
-                    </div>
-                </div>
-            </div>
+        <p><strong>🔀 2出力モードの動作:</strong></p>
+        <div class="node-example">
+            <span class="node node-inject">入力</span>
+            <span class="arrow">→</span>
+            <span class="node node-trigger outputs-2">Trigger<br><small>3秒タイムアウト</small></span>
+            <span class="branch">
+                <span class="branch-row"><span class="arrow">→</span><span class="wire-label">出力1: すぐに payload</span><span class="arrow">→</span><span class="node node-function">処理</span></span>
+                <span class="branch-row"><span class="arrow">→</span><span class="wire-label">出力2: 3秒後に "timeout"</span><span class="arrow">→</span><span class="node node-debug">タイムアウト</span></span>
+            </span>
         </div>
         
         <p><strong>設定例:</strong></p>
