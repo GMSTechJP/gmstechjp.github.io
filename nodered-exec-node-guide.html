@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Node-RED Execノード ガイド</title>
+    <link rel="stylesheet" href="css/node-diagram.css">
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -39,69 +40,6 @@
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             margin-bottom: 20px;
-        }
-        
-        .node-example {
-            background-color: #2d3133;
-            padding: 20px;
-            border-radius: 5px;
-            margin: 20px 0;
-            color: white;
-            font-family: 'Courier New', monospace;
-        }
-        
-        .node {
-            display: inline-block;
-            padding: 8px 15px;
-            border-radius: 4px;
-            margin: 5px;
-            font-weight: bold;
-            font-size: 14px;
-        }
-        
-        .node-inject {
-            background-color: #3fadb5;
-            color: #212121;
-        }
-        
-        .node-exec {
-            background-color: #d4b8a0;
-            color: #333;
-        }
-        
-        .node-debug {
-            background-color: #87a48d;
-            color: #212121;
-        }
-        
-        .node-template {
-            background-color: #d4b8a0;
-            color: #333;
-        }
-        
-        .node-function {
-            background-color: #e8a658;
-            color: #212121;
-        }
-        
-        .node-change {
-            background-color: #e7a070;
-            color: #212121;
-        }
-        
-        .node-switch {
-            background-color: #e2d96e;
-            color: #333;
-        }
-        
-        .node-catch {
-            background-color: #e8967a;
-            color: #212121;
-        }
-        
-        .node-trigger {
-            background-color: #c9b6d5;
-            color: #333;
         }
         
         .arrow {
@@ -452,16 +390,11 @@
             <span class="node node-inject">Inject</span>
             <span class="arrow">→</span>
             <span class="node node-exec">Exec</span>
-            <span class="arrow">→</span>
-            <span class="node node-debug">Debug<br><small>(stdout)</small></span>
-            <br><br>
-            <span style="margin-left: 200px;"></span>
-            <span class="arrow">→</span>
-            <span class="node node-debug">Debug<br><small>(stderr)</small></span>
-            <br><br>
-            <span style="margin-left: 200px;"></span>
-            <span class="arrow">→</span>
-            <span class="node node-debug">Debug<br><small>(rc)</small></span>
+            <span class="branch">
+                <span class="branch-row"><span class="arrow">→</span><span class="node node-debug">Debug<br><small>(stdout)</small></span></span>
+                <span class="branch-row"><span class="arrow">→</span><span class="node node-debug">Debug<br><small>(stderr)</small></span></span>
+                <span class="branch-row"><span class="arrow">→</span><span class="node node-debug">Debug<br><small>(rc)</small></span></span>
+            </span>
         </div>
         
         <p>
@@ -1032,12 +965,10 @@ msg.payload = {
             <span class="node node-inject">Inject</span>
             <span class="arrow">→</span>
             <span class="node node-exec">Exec<br><small>(存在しない<br>コマンド)</small></span>
-            <span class="arrow">→</span>
-            <span class="node node-debug">Debug<br><small>(stderr)</small></span>
-            <br><br>
-            <span style="margin-left: 320px;"></span>
-            <span class="arrow">→</span>
-            <span class="node node-debug">Debug<br><small>(rc)</small></span>
+            <span class="branch">
+                <span class="branch-row"><span class="arrow">→</span><span class="node node-debug">Debug<br><small>(stderr)</small></span></span>
+                <span class="branch-row"><span class="arrow">→</span><span class="node node-debug">Debug<br><small>(rc)</small></span></span>
+            </span>
         </div>
         
         <div class="tip">
@@ -1061,15 +992,13 @@ msg.payload = {
         <p><strong>用途:</strong> 長時間実行するコマンドの出力をリアルタイムで取得</p>
         
         <div class="node-example">
-            <span class="node node-inject">Inject<br><small>(開始)</small></span>
-            <span class="arrow">→</span>
+            <span class="merge">
+                <span class="merge-row"><span class="node node-inject">Inject<br><small>(開始)</small></span><span class="arrow">→</span></span>
+                <span class="merge-row"><span class="node node-inject">Inject<br><small>(Kill)</small></span><span class="arrow">→</span></span>
+            </span>
             <span class="node node-exec">Exec<br><small>(spawn)</small></span>
-            <span class="arrow">→→→</span>
+            <span class="arrow multi">→→→</span>
             <span class="node node-debug">Debug<br><small>(リアルタイム)</small></span>
-            <br><br>
-            <span class="node node-inject">Inject<br><small>(Kill)</small></span>
-            <span class="arrow">→</span>
-            <span style="margin-left: 50px;"></span>
         </div>
         
         <div class="tip">

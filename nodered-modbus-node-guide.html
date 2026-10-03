@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Node-RED MODBUS ノードガイド（サードパーティ）</title>
+    <link rel="stylesheet" href="css/node-diagram.css">
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.8; max-width: 1000px; margin: 0 auto; padding: 20px; background-color: #f5f5f5; color: #333; }
         h1 { color: #37474f; border-bottom: 3px solid #37474f; padding-bottom: 10px; }
@@ -11,13 +12,6 @@
         h3 { color: #555; margin-top: 25px; }
         h4 { color: #666; margin-top: 20px; }
         .container { background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .node-example { background-color: #2d3133; padding: 20px; border-radius: 5px; margin: 20px 0; color: white; font-family: 'Courier New', monospace; display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
-        .node { display: inline-block; padding: 8px 15px; border-radius: 4px; margin: 5px; font-weight: bold; font-size: 14px; }
-        .node-inject { background-color: #3fadb5; color: #212121; }
-        .node-debug { background-color: #87a48d; color: #212121; }
-        .node-modbus { background-color: #546e7a; color: white; }
-        .node-modbus-server { background-color: #455a64; color: white; }
-        .arrow { color: #999; font-size: 20px; margin: 0 10px; }
         .important { background-color: #eceff1; border-left: 4px solid #37474f; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
         .tip { background-color: #e8f5e9; border-left: 4px solid #4caf50; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
         .warning { background-color: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
@@ -71,7 +65,6 @@
             .comic-fig { overflow-x: auto; }
             .comic-fig .comic { min-width: 520px; }
         }
-        .node-function { background-color: #fdd0a2; color: #212121; }
     </style>
 </head>
 <body>
@@ -237,11 +230,11 @@ npm install node-red-contrib-modbus</div>
         <h2 id="section4">4. ノード構成</h2>
         <p><code>node-red-contrib-modbus</code> は 14 個のノードを提供します。最初は次の<strong>主要 5 ノード</strong>だけ押さえれば十分です。</p>
 
-        <div class="node-example">
-            <span class="node node-modbus">Modbus Read</span>
-            <span class="node node-modbus">Modbus Getter</span>
-            <span class="node node-modbus">Modbus Write</span>
-            <span class="node node-modbus">Modbus Flex Getter</span>
+        <div class="node-example" style="white-space: normal;">
+            <span class="node node-modbus-read">Modbus Read</span>
+            <span class="node node-modbus-getter">Modbus Getter</span>
+            <span class="node node-modbus-write">Modbus Write</span>
+            <span class="node node-modbus-flex-getter">Modbus Flex Getter</span>
             <span class="node node-modbus-server">Modbus Server</span>
         </div>
 
@@ -391,20 +384,20 @@ return msg;</div>
 
         <h3>パターン1: センサー値を定期収集してダッシュボード表示</h3>
         <div class="node-example">
-            <span class="node node-modbus">Modbus Read</span>
+            <span class="node node-modbus-read">Modbus Read</span>
             <span class="arrow">→</span>
             <span class="node node-function">scale</span>
             <span class="arrow">→</span>
-            <span class="node node-debug">chart</span>
+            <span class="node node-ui-chart">chart</span>
         </div>
         <p>Modbus-Read で温度センサー（Input Register）を 5 秒ごとに読み、Function で実値にスケーリング（例: 生値 ÷ 10）して、Dashboard のチャートへ。最も典型的な構成です。</p>
         <p><strong>用途:</strong> 温度センサーなど計測値の定期収集とダッシュボード表示</p>
 
         <h3>パターン2: ボタン操作で機器を起動/停止（書込）</h3>
         <div class="node-example">
-            <span class="node node-inject">button</span>
+            <span class="node node-ui-button">button</span>
             <span class="arrow">→</span>
-            <span class="node node-modbus">Modbus Write</span>
+            <span class="node node-modbus-write">Modbus Write</span>
             <span class="arrow">→</span>
             <span class="node node-debug">debug</span>
         </div>

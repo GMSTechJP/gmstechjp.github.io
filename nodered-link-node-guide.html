@@ -4,22 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Node-RED Link ノードガイド</title>
+    <link rel="stylesheet" href="css/node-diagram.css">
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.8; max-width: 1000px; margin: 0 auto; padding: 20px; background-color: #f5f5f5; color: #333; }
         h1 { color: #b92d5d; border-bottom: 3px solid #b92d5d; padding-bottom: 10px; }
         h2 { color: #d33682; margin-top: 40px; border-left: 5px solid #d33682; padding-left: 15px; }
         h3 { color: #555; margin-top: 25px; }
         .container { background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .node-example { background-color: #2d3133; padding: 20px; border-radius: 5px; margin: 20px 0; color: white; font-family: 'Courier New', monospace; display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
-        .node { display: inline-block; padding: 8px 15px; border-radius: 4px; margin: 5px; font-weight: bold; font-size: 14px; }
-        .node-inject { background-color: #3fadb5; color: #212121; }
-        .node-debug { background-color: #87a48d; color: #212121; }
-        .node-function { background-color: #e8a658; color: #212121; }
-        .node-link-in { background-color: #ddd; color: #333; border-left: 4px solid #3fadb5; }
-        .node-link-out { background-color: #ddd; color: #333; border-right: 4px solid #87a48d; }
-        .node-link-call { background-color: #ddd; color: #333; border: 2px solid #e8a658; }
-        .arrow { color: #999; font-size: 20px; margin: 0 10px; }
-        .arrow-dashed { color: #666; font-size: 16px; margin: 0 10px; font-style: italic; }
         .important { background-color: #fce4ec; border-left: 4px solid #b92d5d; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
         .tip { background-color: #e8f5e9; border-left: 4px solid #4caf50; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
         .warning { background-color: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
@@ -116,7 +107,7 @@
         <div class="node-compare">
             <div class="node-card">
                 <h4>📥 Link In</h4>
-                <div class="node-example" style="justify-content: center;">
+                <div class="node-example" style="text-align: center;">
                     <span class="node node-link-in">Link In</span>
                 </div>
                 <p><strong>役割:</strong> メッセージの受信口</p>
@@ -129,7 +120,7 @@
             
             <div class="node-card">
                 <h4>📤 Link Out</h4>
-                <div class="node-example" style="justify-content: center;">
+                <div class="node-example" style="text-align: center;">
                     <span class="node node-link-out">Link Out</span>
                 </div>
                 <p><strong>役割:</strong> メッセージの送信口</p>
@@ -142,7 +133,7 @@
             
             <div class="node-card">
                 <h4>📞 Link Call</h4>
-                <div class="node-example" style="justify-content: center;">
+                <div class="node-example" style="text-align: center;">
                     <span class="node node-link-call">Link Call</span>
                 </div>
                 <p><strong>役割:</strong> サブフローを呼び出して結果を受け取る</p>
@@ -509,13 +500,13 @@
             <span class="arrow">→</span>
             <span class="node node-debug">結果</span>
         </div>
-        <div class="node-example" style="background-color: #1a3a3a;">
-            <span style="color: #888;">【呼び出し先】</span>
+        <div class="node-example">
+            <span class="diagram-note">【呼び出し先】</span>
             <span class="node node-link-in">共通処理（3倍）</span>
             <span class="arrow">→</span>
             <span class="node node-function">処理</span>
             <span class="arrow">→</span>
-            <span class="node node-link-out" style="border: 2px solid #4caf50;">返却</span>
+            <span class="node node-link-return">返却</span>
         </div>
         <p><strong>ポイント:</strong></p>
         <ul>
@@ -528,13 +519,10 @@
         <p><strong>用途:</strong> 1つの送信元から複数の受信先へ同時に送信</p>
         <div class="node-example">
             <span class="node node-link-out">Link Out</span>
-            <span class="arrow-dashed">- - -</span>
-            <span class="node node-link-in">受信A</span>
-        </div>
-        <div class="node-example" style="margin-top: -10px;">
-            <span style="width: 100px;"></span>
-            <span class="arrow-dashed">- - -</span>
-            <span class="node node-link-in">受信B</span>
+            <span class="branch dashed">
+                <span class="branch-row"><span class="arrow-dashed">- - -</span><span class="node node-link-in">受信A</span></span>
+                <span class="branch-row"><span class="arrow-dashed">- - -</span><span class="node node-link-in">受信B</span></span>
+            </span>
         </div>
         <p><strong>ポイント:</strong> 1つの Link Out から複数の Link In に送信可能</p>
         

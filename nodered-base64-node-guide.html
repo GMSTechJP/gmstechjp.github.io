@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Node-RED base64 ノードガイド</title>
+    <link rel="stylesheet" href="css/node-diagram.css">
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.8; max-width: 1000px; margin: 0 auto; padding: 20px; background-color: #f5f5f5; color: #333; }
         h1 { color: #b92d5d; border-bottom: 3px solid #b92d5d; padding-bottom: 10px; }
@@ -11,16 +12,6 @@
         h3 { color: #555; margin-top: 25px; }
         h4 { color: #666; margin-top: 20px; }
         .container { background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .node-example { background-color: #2d3133; padding: 20px; border-radius: 5px; margin: 20px 0; color: white; font-family: 'Courier New', monospace; display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
-        .node { display: inline-block; padding: 8px 15px; border-radius: 4px; margin: 5px; font-weight: bold; font-size: 14px; }
-        .node-inject { background-color: #3fadb5; color: #212121; }
-        .node-debug { background-color: #87a48d; color: #212121; }
-        .node-function { background-color: #e8a658; color: #212121; }
-        .node-change { background-color: #e7a070; color: #212121; }
-        .node-base64 { background-color: #DEBD5C; color: #333; }
-        .node-http-request { background-color: #e8d44d; color: #333; }
-        .node-file { background-color: #d4b8a0; color: #333; }
-        .node-template { background-color: #e8a658; color: #212121; }
         .arrow { color: #999; font-size: 20px; margin: 0 10px; }
         .important { background-color: #fce4ec; border-left: 4px solid #b92d5d; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
         .tip { background-color: #e8f5e9; border-left: 4px solid #4caf50; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
@@ -50,8 +41,6 @@
         .copy-button:hover { background-color: #9a2550; }
         .copy-button.copied { background-color: #28a745; }
         .copy-button svg { width: 14px; height: 14px; fill: currentColor; }
-        .node-compare { display: flex; gap: 20px; flex-wrap: wrap; margin: 20px 0; }
-        .node-card { background: #f9f9f9; border: 1px solid #ddd; border-radius: 8px; padding: 15px; flex: 1; min-width: 280px; }
         .node-card h4 { margin-top: 0; color: #b92d5d; }
         .conversion-diagram { background: #f8f9fa; border: 2px solid #DEBD5C; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center; }
         .conversion-diagram .arrow-down { font-size: 24px; color: #DEBD5C; margin: 10px 0; }
@@ -290,7 +279,7 @@ msg.data = {
         <p><strong>用途:</strong> 画像ファイルをBase64文字列に変換してAPIへ送信</p>
 
         <div class="node-example">
-            <span class="node node-file">file read</span>
+            <span class="node node-file-in">file read</span>
             <span class="arrow">→</span>
             <span class="node node-base64">base64</span>
             <span class="arrow">→</span>
@@ -313,7 +302,7 @@ return msg;</div>
         <p><strong>用途:</strong> 画像をBase64化してHTMLにData URIとして埋め込み</p>
 
         <div class="node-example">
-            <span class="node node-file">file read</span>
+            <span class="node node-file-in">file read</span>
             <span class="arrow">→</span>
             <span class="node node-base64">base64</span>
             <span class="arrow">→</span>
@@ -339,12 +328,12 @@ return msg;</div>
             <span class="arrow">→</span>
             <span class="node node-base64">base64</span>
             <span class="arrow">→</span>
-            <span class="node node-function">MQTT out</span>
+            <span class="node node-mqtt-out">MQTT out</span>
         </div>
 
         <h4>受信側</h4>
         <div class="node-example">
-            <span class="node node-function">MQTT in</span>
+            <span class="node node-mqtt-in">MQTT in</span>
             <span class="arrow">→</span>
             <span class="node node-base64">base64</span>
             <span class="arrow">→</span>
@@ -404,7 +393,7 @@ return null;</div>
             <span class="arrow">→</span>
             <span class="node node-base64">base64</span>
             <span class="arrow">→</span>
-            <span class="node node-template">ui-template</span>
+            <span class="node node-ui-template">ui-template</span>
         </div>
 
         <div class="code-block">// http requestノードの設定:
