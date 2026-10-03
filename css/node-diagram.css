@@ -178,7 +178,9 @@
 /* 配線の途中に置く説明 */
 .node-example .wire-label {
     display: inline-block;
-    margin: 0 4px;
+    position: relative;
+    z-index: 1;
+    margin: 0 8px;
     font-size: 12px;
     line-height: 16px;
     color: #424242;
@@ -351,6 +353,45 @@
 .node-example .node.config::before,
 .node-example .node.config::after {
     content: none;
+}
+
+/*
+ * 配線のスクリプト（js/node-diagram.js）が動いたときの表示。
+ * スクリプトは分岐・合流・複数の出力ポートからの配線を、エディターと同じ曲線で描き、
+ * .node-example に .wired を付ける。スクリプトが動かない環境では、上の直線の表示のまま。
+ */
+.node-example.wired {
+    position: relative;
+}
+
+.node-example .node-wires {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    overflow: visible;
+    z-index: 0;
+}
+
+.node-example.wired .branch::before,
+.node-example.wired .branch-row::before,
+.node-example.wired .merge::after,
+.node-example.wired .merge-row::after {
+    content: none;
+}
+
+.node-example.wired .branch {
+    padding-left: 36px;
+}
+
+.node-example.wired .merge {
+    padding-right: 36px;
+}
+
+/* 曲線で描き直した配線（線だけを消し、msg の印などは残す） */
+.node-example.wired .arrow.redrawn {
+    width: 48px;
+    background: transparent;
 }
 
 /* ノードの色・アイコン・ポート */
@@ -738,6 +779,74 @@
             rgba(0, 0, 0, 0.05) 0 30px,
             rgba(0, 0, 0, 0.1) 30px 31px,
             transparent 31px);
+}
+
+/* 出力ポートが 2 個のノード */
+.node-example .node.outputs-2,
+.node-example .node-ftp-server,
+.node-example .node-modbus-read,
+.node-example .node-modbus-getter,
+.node-example .node-modbus-flex-getter,
+.node-example .node-modbus-write {
+    min-height: 30px;
+    --node-outputs: 2;
+}
+
+.node-example .node.outputs-2::after,
+.node-example .node-ftp-server::after,
+.node-example .node-modbus-read::after,
+.node-example .node-modbus-getter::after,
+.node-example .node-modbus-flex-getter::after,
+.node-example .node-modbus-write::after {
+    margin-top: -11.5px;
+    box-shadow:
+        0 13px 0 -1px #d9d9d9, 0 13px 0 0 #999999;
+}
+
+/* 出力ポートが 3 個のノード */
+.node-example .node.outputs-3,
+.node-example .node-exec {
+    min-height: 45px;
+    --node-outputs: 3;
+}
+
+.node-example .node.outputs-3::after,
+.node-example .node-exec::after {
+    margin-top: -18px;
+    box-shadow:
+        0 13px 0 -1px #d9d9d9, 0 13px 0 0 #999999,
+        0 26px 0 -1px #d9d9d9, 0 26px 0 0 #999999;
+}
+
+/* 出力ポートが 4 個のノード */
+.node-example .node.outputs-4 {
+    min-height: 60px;
+    --node-outputs: 4;
+}
+
+.node-example .node.outputs-4::after {
+    margin-top: -24.5px;
+    box-shadow:
+        0 13px 0 -1px #d9d9d9, 0 13px 0 0 #999999,
+        0 26px 0 -1px #d9d9d9, 0 26px 0 0 #999999,
+        0 39px 0 -1px #d9d9d9, 0 39px 0 0 #999999;
+}
+
+/* 出力ポートが 5 個のノード */
+.node-example .node.outputs-5,
+.node-example .node-modbus-server {
+    min-height: 75px;
+    --node-outputs: 5;
+}
+
+.node-example .node.outputs-5::after,
+.node-example .node-modbus-server::after {
+    margin-top: -31px;
+    box-shadow:
+        0 13px 0 -1px #d9d9d9, 0 13px 0 0 #999999,
+        0 26px 0 -1px #d9d9d9, 0 26px 0 0 #999999,
+        0 39px 0 -1px #d9d9d9, 0 39px 0 0 #999999,
+        0 52px 0 -1px #d9d9d9, 0 52px 0 0 #999999;
 }
 
 /* 設定ノード */
