@@ -16,6 +16,19 @@
 3. 箱を opacity で薄くしている: 下の背景と混ざって読みにくくなるため、色で表現する。
    検査するのは箱のインライン style の opacity で、.node-* の規則側の opacity は見ない。
 
+CSS は、ページの <style> と、<link rel="stylesheet"> で読み込むサイト内のファイル
+（css/node-diagram.css など）の両方を読む。共有の CSS は箱の色を
+.node-example .node-inject のように図の中だけに効かせ、文字色は .node-example .node に
+まとめて書いているため、箱の色はクラスごとに背景色と文字色を集めてから判定する
+（クラスが文字色を決めていなければ、この共通の文字色を使う）。
+
+箱の色は、クラスごとに、詳細度と出現順（<link> と <style> の HTML 内の順）で
+カスケードを再現して解決する。次は再現しない（見逃しや誤検出の方向に働きうる）。
+- ブラウザの暗黙の終了タグ（閉じていない <p> や <li>）。箱が図の中にあるかの判定は
+  タグの対応だけで行う
+- 図の中だけに効く規則（.node-example .node-x）と、図の外にも効く規則の両方があるとき、
+  図の外の箱にも図の中の色を当てはめる
+
 色は、16進（#rgb / #rrggbb）と white / black だけを解釈する。次は検査しない
 （いずれも見逃す方向にしか働かない）。
 - rgb() や CSS 変数など、上記以外の書き方の色
@@ -23,6 +36,7 @@
 """
 
 import glob
+import os
 import re
 import sys
 from html.parser import HTMLParser
@@ -30,7 +44,11 @@ from html.parser import HTMLParser
 MIN_RATIO = 4.5
 NAMED = {"white": "#ffffff", "black": "#000000"}
 
-STYLE = re.compile(r"<style[^>]*>(.*?)</style>", re.S | re.I)
+HREF = re.compile(r"""\bhref\s*=\s*["']([^"']+)["']""", re.I)
+# 箱の色を決める単独のセレクタ（.node-x、または図の中だけに効かせた .node-example .node-x）
+BOX_SELECTOR = re.compile(r"(?:\.node-example\s+)?\.(node-[A-Za-z0-9_-]+)")
+# 箱すべてに効く文字色のセレクタ
+BASE_SELECTORS = {".node", ".node-example .node"}
 NODE_CLASS = re.compile(r"\.(node-[A-Za-z0-9_-]+)")
 COLOR = r"(#[0-9a-fA-F]{6}\b|#[0-9a-fA-F]{3}\b|\bwhite\b|\bblack\b)"
 BG_DECL = re.compile(r"(?<![\w-])background(?:-color)?\s*:([^;]*)", re.I)
@@ -112,19 +130,39 @@ def mask_css(css):
 
 
 class NodeTags(HTMLParser):
-    """class に "node" を含む要素の (行, class の語, style) を集める。"""
+    """class に "node" を含む要素の (行, class の語, style, node-example の中か) を集める。"""
+
+    VOID = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta",
+            "source", "track", "wbr"}
 
     def __init__(self):
         super().__init__(convert_charrefs=True)
         self.found = []
+        self.stack = []  # (タグ名, node-example か)
+
+    def in_diagram(self):
+        return any(is_diagram for _, is_diagram in self.stack)
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
         tokens = (attrs.get("class") or "").split()
         if "node" in tokens:
-            self.found.append((self.getpos()[0], tokens, attrs.get("style") or ""))
+            self.found.append((self.getpos()[0], tokens, attrs.get("style") or "",
+                               self.in_diagram()))
+        if tag not in self.VOID:
+            self.stack.append((tag, "node-example" in tokens))
 
-    handle_startendtag = handle_starttag
+    def handle_startendtag(self, tag, attrs):
+        self.handle_starttag(tag, attrs)
+        if tag not in self.VOID and self.stack:
+            self.stack.pop()
+
+    def handle_endtag(self, tag):
+        # 閉じ忘れがあっても、対応する開きタグまで戻す
+        for i in range(len(self.stack) - 1, -1, -1):
+            if self.stack[i][0] == tag:
+                del self.stack[i:]
+                break
 
 
 def css_rules(css):
@@ -160,6 +198,17 @@ def css_rules(css):
     return rules
 
 
+def specificity(selector):
+    """セレクタの詳細度 (ID, クラス・属性・疑似クラス, 要素・疑似要素) を返す（:not() などは近似）。"""
+    sel = re.sub(r"\[[^\]]*\]", ".a", selector)  # 属性セレクタはクラスと同じ重み
+    ids = len(re.findall(r"#[\w-]+", sel))
+    pseudo_el = len(re.findall(r"::[\w-]+", sel))
+    sel = re.sub(r"::[\w-]+", "", sel)
+    classes = len(re.findall(r"\.[\w-]+|:[\w-]+", sel))
+    elements = len(re.findall(r"(?:^|[\s>+~])([a-zA-Z][\w-]*)", sel)) + pseudo_el
+    return (ids, classes, elements)
+
+
 def line_of(src, pos):
     return src.count("\n", 0, pos) + 1
 
@@ -168,34 +217,97 @@ def check(path):
     src = open(path, encoding="utf-8").read()
     errors = []
     defined = set()
-    class_colors = {}  # .node-x 単独セレクタの色（インライン上書きの判定に使う）
+    # 箱の色の候補。プロパティごとに (詳細度, 出現順, 色, 位置) を集め、カスケードと同じく
+    # 詳細度が高いもの、同じなら後に出たものを採る
+    box_bg = {}  # クラス名 -> 候補のリスト
+    box_fg = {}
+    base_fg = []  # 箱すべてに効く文字色（.node / .node-example .node）の候補
+    unscoped = set()  # 図の外でも効きうる書き方（.node-example で始まらない）で定義されたクラス
+    order = 0
 
-    for style in STYLE.finditer(src):
-        for selector, body, effective, pos in css_rules(style.group(1)):
-            classes = NODE_CLASS.findall(selector)
-            if not classes or not effective:
+    # <link> と <style> を HTML 内の出現順に読む（後のものが同じ詳細度の規則に勝つ）
+    sheets = []  # (表示名, CSS の本文, ファイル内での本文の開始位置, 行番号を数えるファイルの中身)
+    for m in re.finditer(r"<link\b[^>]*>|<style[^>]*>(.*?)</style>", src, re.S | re.I):
+        if m.group(0).lower().startswith("<style"):
+            sheets.append((path, m.group(1), m.start(1), src))
+            continue
+        tag = m.group(0)
+        href = HREF.search(tag)
+        if "stylesheet" not in tag.lower() or not href or re.match(r"[a-z]+:|//", href.group(1)):
+            continue
+        css_path = os.path.normpath(os.path.join(os.path.dirname(path), href.group(1)))
+        if not os.path.exists(css_path):
+            errors.append(f"{path}:{line_of(src, m.start())}: 読み込む CSS {href.group(1)} が無い")
+            continue
+        css = open(css_path, encoding="utf-8").read()
+        sheets.append((css_path, css, 0, css))
+
+    for where, css, offset, whole in sheets:
+        for selector, body, effective, pos in css_rules(css):
+            if not effective:
                 continue
-            defined.update(classes)
             bg, fg = first_color(BG_DECL, body), first_color(FG_DECL, body)
-            for sel in (s.strip() for s in selector.split(",")):
-                m = re.fullmatch(r"\.(node-[A-Za-z0-9_-]+)", sel)
+            loc = f"{where}:{line_of(whole, offset + pos)}"
+            for sel in (x.strip() for x in selector.split(",")):
+                order += 1
+                spec = specificity(sel)
+                if sel in BASE_SELECTORS:
+                    if fg:
+                        base_fg.append((spec, order, fg, loc))
+                    continue
+                classes = NODE_CLASS.findall(sel)
+                if not classes:
+                    continue
+                defined.update(classes)
+                if not sel.startswith(".node-example"):
+                    unscoped.update(classes)
+                m = BOX_SELECTOR.fullmatch(sel)
                 if m:
-                    old = class_colors.get(m.group(1), (None, None))
-                    class_colors[m.group(1)] = (bg or old[0], fg or old[1])
-            if bg and fg:
-                ratio = contrast(bg, fg)
-                if ratio < MIN_RATIO:
-                    errors.append(
-                        f"{path}:{line_of(src, style.start(1) + pos)}: {selector} の文字色 {fg} と"
-                        f"背景色 {bg} のコントラスト比が {ratio:.2f}（{MIN_RATIO} 以上が必要）"
-                    )
+                    # 箱の色を決めるセレクタ。クラスごとに集めて、あとでまとめて判定する
+                    if bg:
+                        box_bg.setdefault(m.group(1), []).append((spec, order, bg, loc))
+                    if fg:
+                        box_fg.setdefault(m.group(1), []).append((spec, order, fg, loc))
+                elif bg and fg:
+                    # 箱の色を決めるもの以外（.node-card .node-x など）は、規則の中だけで判定する
+                    ratio = contrast(bg, fg)
+                    if ratio < MIN_RATIO:
+                        errors.append(
+                            f"{loc}: {sel} の文字色 {fg} と"
+                            f"背景色 {bg} のコントラスト比が {ratio:.2f}（{MIN_RATIO} 以上が必要）"
+                        )
+
+    def winner(candidates):
+        return max(candidates, key=lambda c: (c[0], c[1])) if candidates else None
+
+    # 箱の色は、クラスごとに背景色と文字色を解決してから判定する。文字色は、そのクラスの
+    # 規則と、箱すべてに効く規則のうち、カスケードで勝つものを使う
+    class_colors = {}  # クラス名 -> (背景色, 文字色)（インライン上書きの判定に使う）
+    for name in sorted(set(box_bg) | set(box_fg)):
+        b = winner(box_bg.get(name, []))
+        f = winner(box_fg.get(name, []) + base_fg)
+        class_colors[name] = (b and b[2], f and f[2])
+        if b and f:
+            ratio = contrast(b[2], f[2])
+            if ratio < MIN_RATIO:
+                errors.append(
+                    f"{b[3]}: .{name} の文字色 {f[2]} と背景色 {b[2]} の"
+                    f"コントラスト比が {ratio:.2f}（{MIN_RATIO} 以上が必要）"
+                )
+    common_fg = winner(base_fg)
+    common_fg = common_fg and common_fg[2]
 
     parser = NodeTags()
     parser.feed(src)
     parser.close()
-    for line, tokens, inline in parser.found:
+    for line, tokens, inline, in_diagram in parser.found:
         node_classes = [t for t in tokens if t.startswith("node-")]
         for token in node_classes:
+            if token in defined and not in_diagram and token not in unscoped:
+                errors.append(
+                    f"{path}:{line}: クラス {token} の箱が node-example の外にある"
+                    f"（共有の CSS は図の中だけに効くため、箱に色が付かない）"
+                )
             if token not in defined:
                 errors.append(
                     f"{path}:{line}: クラス {token} がこのページの CSS に定義されていない"
@@ -217,7 +329,7 @@ def check(path):
         for token in node_classes:
             b, f = class_colors.get(token, (None, None))
             cbg, cfg = b or cbg, f or cfg
-        bg, fg = ibg or cbg, ifg or cfg
+        bg, fg = ibg or cbg, ifg or cfg or common_fg
         if bg and fg:
             ratio = contrast(bg, fg)
             if ratio < MIN_RATIO:
