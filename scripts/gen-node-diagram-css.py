@@ -39,7 +39,8 @@ DB_DARK = "#27b7c3"
 DB_DARKEST = "#20a0aa"
 
 # クラス名（node- を除く）: (色, アイコン, 入力ポート数, 出力ポート数, アイコンの位置)
-# 出力ポートは 1 個だけ描く（exec や switch の複数出力は、図の配線で表す）。
+# 出力ポート数は、エディターで数が決まっているノードだけ 2 以上にする。switch・function・trigger
+# のように設定で数が変わるノードは 1 にしておき、図ごとに outputs-N のクラスで指定する。
 NODES = {
     # common
     "inject": ("#a6bbcf", "inject.svg", 0, 1, "left"),
@@ -61,7 +62,7 @@ NODES = {
     "template": ("#f3b567", "template.svg", 1, 1, "left"),
     "delay": ("#e6e0f8", "timer.svg", 1, 1, "left"),
     "trigger": ("#e6e0f8", "trigger.svg", 1, 1, "left"),
-    "exec": ("#e9967a", "cog.svg", 1, 1, "left"),
+    "exec": ("#e9967a", "cog.svg", 1, 3, "left"),
     "filter": ("#e2d96e", "rbe.svg", 1, 1, "left"),
     # network
     "mqtt-in": ("#d8bfd8", "bridge.svg", 0, 1, "left"),
@@ -100,12 +101,12 @@ NODES = {
     "email-in": ("#c7e9c0", "envelope.svg", 0, 1, "left"),
     "email-out": ("#c7e9c0", "envelope.svg", 1, 0, "right"),
     "ftp": ("#deb887", "file.svg", 1, 1, "left"),
-    "ftp-server": ("#f37a33", "ftp.png", 0, 1, "left"),
-    "modbus-read": ("#e9967a", "modbus.png", 0, 1, "left"),
-    "modbus-getter": ("#e9967a", "modbus.png", 1, 1, "left"),
-    "modbus-flex-getter": ("#e9967a", "modbus.png", 1, 1, "left"),
-    "modbus-write": ("#e9967a", "modbus.png", 1, 1, "right"),
-    "modbus-server": ("#e9967a", "modbus.png", 1, 1, "right"),
+    "ftp-server": ("#f37a33", "ftp.png", 0, 2, "left"),
+    "modbus-read": ("#e9967a", "modbus.png", 0, 2, "left"),
+    "modbus-getter": ("#e9967a", "modbus.png", 1, 2, "left"),
+    "modbus-flex-getter": ("#e9967a", "modbus.png", 1, 2, "left"),
+    "modbus-write": ("#e9967a", "modbus.png", 1, 2, "right"),
+    "modbus-server": ("#e9967a", "modbus.png", 1, 5, "right"),
     "sensehat-in": ("#c6dbef", "rpi.svg", 0, 1, "left"),
     "sensehat-out": ("#c6dbef", "rpi.svg", 1, 0, "right"),
     # Dashboard 2.0
@@ -130,6 +131,12 @@ NODES = {
     "ui-template": (DB_DARK, "fa-code.svg", 1, 1, "left"),
     "ui-control": (DB_DARKEST, "fa-arrow-circle-right.svg", 1, 1, "right"),
 }
+
+# 図ごとに outputs-N で指定できる出力ポート数の上限
+MAX_OUTPUTS = 5
+# エディターと同じ寸法（@node-red/editor-client の view.js）。ノードの高さは
+# max(30, 出力数 × 15)、出力ポートは中央を基準に 13px 間隔で並ぶ
+PORT_GAP = 13
 
 # 設定ノード（ワークスペースには置かれず、サイドバーの「設定ノード」に並ぶ）。
 # ポートもアイコンも無い箱で描く。
@@ -316,7 +323,9 @@ BASE = """\
 /* 配線の途中に置く説明 */
 .node-example .wire-label {
     display: inline-block;
-    margin: 0 4px;
+    position: relative;
+    z-index: 1;
+    margin: 0 8px;
     font-size: 12px;
     line-height: 16px;
     color: #424242;
@@ -491,6 +500,45 @@ BASE = """\
     content: none;
 }
 
+/*
+ * 配線のスクリプト（js/node-diagram.js）が動いたときの表示。
+ * スクリプトは分岐・合流・複数の出力ポートからの配線を、エディターと同じ曲線で描き、
+ * .node-example に .wired を付ける。スクリプトが動かない環境では、上の直線の表示のまま。
+ */
+.node-example.wired {
+    position: relative;
+}
+
+.node-example .node-wires {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    overflow: visible;
+    z-index: 0;
+}
+
+.node-example.wired .branch::before,
+.node-example.wired .branch-row::before,
+.node-example.wired .merge::after,
+.node-example.wired .merge-row::after {
+    content: none;
+}
+
+.node-example.wired .branch {
+    padding-left: 36px;
+}
+
+.node-example.wired .merge {
+    padding-right: 36px;
+}
+
+/* 曲線で描き直した配線（線だけを消し、msg の印などは残す） */
+.node-example.wired .arrow.redrawn {
+    width: 48px;
+    background: transparent;
+}
+
 /* ノードの色・アイコン・ポート */
 """
 
@@ -522,6 +570,23 @@ def build():
         "            transparent 31px);\n"
         "}\n"
     )
+    # 複数の出力ポート。::after を一番上のポートにし、残りを box-shadow で下へ並べる
+    # （2 つ重ねた影で、ポートの塗りと枠を描く）。ポートの数は --node-outputs で配線のスクリプトに伝える
+    for n in range(2, MAX_OUTPUTS + 1):
+        names = [k for k, v in NODES.items() if v[3] == n]
+        node_sel = ",\n".join([f".node-example .node.outputs-{n}"] + [f".node-example .node-{k}" for k in names])
+        after_sel = ",\n".join([f".node-example .node.outputs-{n}::after"] + [f".node-example .node-{k}::after" for k in names])
+        shadows = ",\n        ".join(
+            f"0 {PORT_GAP * j}px 0 -1px #d9d9d9, 0 {PORT_GAP * j}px 0 0 #999999" for j in range(1, n))
+        out.append(
+            f"\n/* 出力ポートが {n} 個のノード */\n{node_sel} {{\n"
+            f"    min-height: {max(30, n * 15)}px;\n"
+            f"    --node-outputs: {n};\n"
+            f"}}\n\n{after_sel} {{\n"
+            f"    margin-top: {-5 - (n - 1) * PORT_GAP / 2:g}px;\n"
+            f"    box-shadow:\n        {shadows};\n"
+            f"}}\n"
+        )
     out.append(
         "\n/* 設定ノード */\n" + sel(CONFIG_NODES) + " {\n"
         "    min-width: 0;\n"

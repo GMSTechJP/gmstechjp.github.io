@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Node-RED Switchノード ガイド</title>
     <link rel="stylesheet" href="css/node-diagram.css">
+    <script src="js/node-diagram.js" defer></script>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -296,77 +297,6 @@
             text-align: center;
         }
         
-        .switch-diagram {
-            background-color: #f8f9fa;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 15px 0;
-        }
-        
-        .switch-visual {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-        
-        .switch-input {
-            background-color: #3fadb5;
-            color: white;
-            padding: 15px 25px;
-            border-radius: 8px;
-            font-weight: bold;
-            text-align: center;
-        }
-        
-        .switch-box {
-            background-color: #e2d96e;
-            padding: 20px;
-            border-radius: 8px;
-            min-width: 120px;
-            text-align: center;
-        }
-        
-        .switch-box .title {
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: #333;
-        }
-        
-        .switch-outputs {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        
-        .switch-output {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .output-port {
-            width: 30px;
-            height: 30px;
-            background-color: #87a48d;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 12px;
-        }
-        
-        .output-label {
-            background-color: #e9ecef;
-            padding: 5px 15px;
-            border-radius: 4px;
-            font-size: 13px;
-        }
-        
         .rule-example {
             background-color: #fff;
             border: 2px solid #e2d96e;
@@ -477,7 +407,7 @@
         <div class="node-example">
             <span class="node node-inject">Inject</span>
             <span class="arrow">→</span>
-            <span class="node node-switch">Switch</span>
+            <span class="node node-switch outputs-3">Switch</span>
             <span class="branch">
                 <span class="branch-row"><span class="arrow">→</span><span class="node node-debug">出力1</span></span>
                 <span class="branch-row"><span class="arrow">→</span><span class="node node-debug">出力2</span></span>
@@ -490,33 +420,16 @@
             複数の条件を設定でき、プログラミングのif-else文やswitch-case文に相当します。
         </p>
         
-        <div class="switch-diagram">
-            <p><strong>Switchノードの動作イメージ:</strong></p>
-            <div class="switch-visual">
-                <div class="switch-input">
-                    入力<br>msg.payload
-                </div>
-                <div style="font-size: 24px;">→</div>
-                <div class="switch-box">
-                    <div class="title">Switch</div>
-                    <div style="font-size: 12px; color: #666;">条件評価</div>
-                </div>
-                <div style="font-size: 24px;">→</div>
-                <div class="switch-outputs">
-                    <div class="switch-output">
-                        <div class="output-port">1</div>
-                        <div class="output-label">&lt; 0 → 負の数</div>
-                    </div>
-                    <div class="switch-output">
-                        <div class="output-port">2</div>
-                        <div class="output-label">== 0 → ゼロ</div>
-                    </div>
-                    <div class="switch-output">
-                        <div class="output-port">3</div>
-                        <div class="output-label">&gt; 0 → 正の数</div>
-                    </div>
-                </div>
-            </div>
+        <p><strong>Switchノードの動作イメージ:</strong></p>
+        <div class="node-example">
+            <span class="node node-inject">入力<br><small>msg.payload</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-switch outputs-3">Switch<br><small>条件評価</small></span>
+            <span class="branch">
+                <span class="branch-row"><span class="arrow">→</span><span class="wire-label">&lt; 0</span><span class="arrow">→</span><span class="node node-debug">負の数</span></span>
+                <span class="branch-row"><span class="arrow">→</span><span class="wire-label">== 0</span><span class="arrow">→</span><span class="node node-debug">ゼロ</span></span>
+                <span class="branch-row"><span class="arrow">→</span><span class="wire-label">&gt; 0</span><span class="arrow">→</span><span class="node node-debug">正の数</span></span>
+            </span>
         </div>
         
         <h3>動作を図で見る</h3>
@@ -1014,11 +927,12 @@
         <div class="node-example">
             <span class="node node-inject">-10 / 0 / 10</span>
             <span class="arrow">→</span>
-            <span class="node node-switch">Switch<br><small>(正負判定)</small></span>
-            <span class="arrow">→</span>
-            <span class="node node-change">Negative</span>
-            <span class="arrow">→</span>
-            <span class="node node-debug">Debug</span>
+            <span class="node node-switch outputs-3">Switch<br><small>(正負判定)</small></span>
+            <span class="branch">
+                <span class="branch-row"><span class="arrow">→</span><span class="node node-change">Negative</span><span class="arrow">→</span><span class="node node-debug">負の数</span></span>
+                <span class="branch-row"><span class="arrow">→</span><span class="node node-change">Zero</span><span class="arrow">→</span><span class="node node-debug">ゼロ</span></span>
+                <span class="branch-row"><span class="arrow">→</span><span class="node node-change">Positive</span><span class="arrow">→</span><span class="node node-debug">正の数</span></span>
+            </span>
         </div>
         
         <div class="rule-example">
@@ -1073,9 +987,12 @@
         <div class="node-example">
             <span class="node node-inject">temp/humid/press</span>
             <span class="arrow">→</span>
-            <span class="node node-switch">Switch<br><small>(topic)</small></span>
-            <span class="arrow">→</span>
-            <span class="node node-debug">Temperature</span>
+            <span class="node node-switch outputs-3">Switch<br><small>(topic)</small></span>
+            <span class="branch">
+                <span class="branch-row"><span class="arrow">→</span><span class="node node-debug">Temperature</span></span>
+                <span class="branch-row"><span class="arrow">→</span><span class="node node-debug">Humidity</span></span>
+                <span class="branch-row"><span class="arrow">→</span><span class="node node-debug">Pressure</span></span>
+            </span>
         </div>
         
         <div class="tip">

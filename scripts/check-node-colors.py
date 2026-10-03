@@ -139,6 +139,7 @@ class NodeTags(HTMLParser):
         super().__init__(convert_charrefs=True)
         self.found = []
         self.stack = []  # (タグ名, node-example か)
+        self.diagram_tokens = set()  # 図（node-example）の中の要素の class の語
 
     def in_diagram(self):
         return any(is_diagram for _, is_diagram in self.stack)
@@ -146,6 +147,8 @@ class NodeTags(HTMLParser):
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
         tokens = (attrs.get("class") or "").split()
+        if self.in_diagram():
+            self.diagram_tokens.update(tokens)
         if "node" in tokens:
             self.found.append((self.getpos()[0], tokens, attrs.get("style") or "",
                                self.in_diagram()))
@@ -300,6 +303,29 @@ def check(path):
     parser = NodeTags()
     parser.feed(src)
     parser.close()
+    # 分岐・合流・複数の出力ポートの配線は js/node-diagram.js が描く。読み込んでいないと、
+    # ポートだけが並んで配線がつながらない（図の外の class="branch" などは数えない）
+    # 出力ポートが複数のクラス（--node-outputs を決める規則のセレクタに出てくるもの）
+    multi = set()
+    for _, css, _, _ in sheets:
+        for selector, body, effective, _ in css_rules(css):
+            # 同じ規則に複数あれば、CSS と同じく最後の宣言が効く
+            found = re.findall(r"--node-outputs\s*:\s*(\d+)", body)
+            if not effective or not found or int(found[-1]) < 2:
+                continue
+            for sel in (x.strip() for x in selector.split(",")):
+                b = BOX_SELECTOR.fullmatch(sel)
+                if b:
+                    multi.add(b.group(1)[len("node-"):])
+    needs_js = any(
+        t in ("branch", "merge") or re.fullmatch(r"outputs-\d+", t)
+        or (t.startswith("node-") and t[len("node-"):] in multi)
+        for t in parser.diagram_tokens)
+    if needs_js and "js/node-diagram.js" not in src:
+        errors.append(
+            f"{path}:1: 分岐・合流・複数の出力ポートのある図があるのに js/node-diagram.js を読み込んでいない"
+            f"（配線が描かれない）"
+        )
     for line, tokens, inline, in_diagram in parser.found:
         node_classes = [t for t in tokens if t.startswith("node-")]
         for token in node_classes:

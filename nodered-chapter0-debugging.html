@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Node-RED 第0章④ 動かないときの進め方</title>
+    <link rel="stylesheet" href="css/node-diagram.css">
+    <script src="js/node-diagram.js" defer></script>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -150,31 +152,6 @@
             margin: 20px 0;
             text-align: center;
             font-size: 1em;
-        }
-        .flow-diagram .step {
-            display: inline-block;
-            padding: 8px 14px;
-            background: white;
-            border: 2px solid #4a90e2;
-            border-radius: 6px;
-            margin: 4px;
-            font-weight: bold;
-            color: #2c5282;
-        }
-        .flow-diagram .arrow {
-            color: #888;
-            font-size: 1.3em;
-            margin: 0 2px;
-        }
-        .flow-diagram .probe {
-            display: inline-block;
-            padding: 6px 12px;
-            background: #fff3e0;
-            border: 2px dashed #ff9800;
-            border-radius: 6px;
-            margin: 4px;
-            color: #e65100;
-            font-size: 0.9em;
         }
         table {
             width: 100%;
@@ -361,18 +338,17 @@
         <h3>やり方：Debug を 2〜3 箇所に挿して「どこで値がおかしくなったか」を特定する</h3>
         <p>例えば Inject → Change → Change → Debug というフローで最終的な値が想定と違うとき、以下のようにします。</p>
 
-        <div class="flow-diagram">
-            <span class="step">Inject</span>
-            <span class="arrow">→</span>
-            <span class="probe">🐛 Debug A</span>
-            <span class="arrow">→</span>
-            <span class="step">Change 1</span>
-            <span class="arrow">→</span>
-            <span class="probe">🐛 Debug B</span>
-            <span class="arrow">→</span>
-            <span class="step">Change 2</span>
-            <span class="arrow">→</span>
-            <span class="probe">🐛 Debug C</span>
+        <div class="node-example">
+            <span class="node node-inject">Inject</span>
+            <span class="branch">
+                <span class="branch-row"><span class="arrow">→</span><span class="node node-debug">Debug A</span></span>
+                <span class="branch-row"><span class="arrow">→</span><span class="node node-change">Change 1</span>
+                    <span class="branch">
+                        <span class="branch-row"><span class="arrow">→</span><span class="node node-debug">Debug B</span></span>
+                        <span class="branch-row"><span class="arrow">→</span><span class="node node-change">Change 2</span><span class="arrow">→</span><span class="node node-debug">Debug C</span></span>
+                    </span>
+                </span>
+            </span>
         </div>
 
         <ul>
