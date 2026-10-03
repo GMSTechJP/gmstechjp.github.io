@@ -497,7 +497,9 @@ ID の一意性はファイルをまたぐため、常にサイトの全 HTML �
 ノードと同じ見た目（ノードの色、アイコン、入出力ポート、灰色の配線、方眼のワークスペース）で
 描く。見た目はサイト共通の `css/node-diagram.css` で決め、ページの `<style>` には
 ノード図の規則を書かない。各ページは `<head>` で
-`<link rel="stylesheet" href="css/node-diagram.css">` を読み込む。
+`<link rel="stylesheet" href="css/node-diagram.css">` と
+`<script src="js/node-diagram.js" defer></script>` を読み込む。分岐・合流・複数の出力ポートからの
+配線は、このスクリプトがエディターと同じ曲線で描く（スクリプトが動かない環境では直線のまま）。
 
 **書き方**:
 
@@ -520,7 +522,9 @@ ID の一意性はファイルをまたぐため、常にサイトの全 HTML �
 | 途中で止まる | `<span class="arrow broken">✗</span>` | 線の上に ✗ |
 | link の仮想配線 | `<span class="arrow-dashed">- - -</span>` | 破線（エディターと同じ） |
 | 配線の途中の説明 | `<span class="wire-label">正常完了</span>` | 線と線の間に置く小さい文字 |
-| 分岐 | `<span class="branch">` の中に `<span class="branch-row">` を並べる | 1つの出力から複数のノードへ。点線にするときは `branch dashed` |
+| 分岐 | `<span class="branch">` の中に `<span class="branch-row">` を並べる | 直前のノードの出力ポートから複数のノードへ。点線にするときは `branch dashed` |
+| 複数の出力ポート | `class="node node-switch outputs-3"` | switch・function・trigger など、設定で出力の数が変わるノードに付ける。exec（3）・modbus（2）など数が決まっているノードは CSS が自動で描く |
+| ポートの指定 | `<span class="branch-row" data-port="2">`、`<span class="arrow" data-port="3">` | その配線を何番目の出力ポートから出すか。省略すると、分岐は行の順、直線は 1 番目 |
 | 合流 | `<span class="merge">` の中に `<span class="merge-row">` を並べる | 複数のノードから1つのノードへ |
 | 届かないノード | `class="node node-debug unreached"` | 赤い点線の枠 |
 | ステータス | ノードの中に `<span class="status-label">接続中</span>` | ノードの下の緑の点と文字 |
@@ -528,6 +532,11 @@ ID の一意性はファイルをまたぐため、常にサイトの全 HTML �
 
 - 分岐・合流・複数行の図を、`margin-left` の px や `visibility: hidden` の箱で
   位置合わせしない。ノードの幅が変わると崩れる。`branch` / `merge` を使う
+- **出力が複数あるノードは、ポートを出力の数だけ描き、ポートごとに配線する**。
+  1つの配線を途中で分けて、別々の出力に見せない（エディターでは出力ごとにポートがある）。
+  1つのポートから複数のノードへ配線するのは、同じ msg を複数のノードへ送るときだけ
+- 図の配線は、そのガイドのサンプルフローの実際の配線（`wires`）と合わせる。
+  サンプルで出力が3つに分かれているのに、図で1つの Debug にまとめない
 - ノードのクラスは、ラベルではなく**実際のノードの種類**に合わせる
   （例: 「mqtt in」を node-inject で描かない。「file read」は node-file-in）。
   図はアイコンでも種類を示すため、食い違いが目に付く
@@ -557,6 +566,18 @@ python3 scripts/gen-node-diagram-css.py --check  # 共有 CSS が対応表と一
 
 **レビューでの扱い**: 見た目に関わる変更（CSS、色、図、レイアウト）は、レビュー依頼で
 「描画したときに読めるか」も確認対象に含め、可能ならヘッドレスブラウザで描画して確かめる。
+
+**重なりの検査**: 図形が文字に重なって、見せたい文字が隠れていないかは
+`python3 scripts/check-overlap.py` で調べる（Chrome が必要なため CI では実行しない）。
+パソコンの幅（1200px）とスマートフォンの幅（390px）で全ページを描画し、文字の上に
+別の要素が重なっている箇所を報告する。図やレイアウトを変えたら実行する。
+重なりやすい書き方:
+
+- 位置を `left: 10%` で指定した丸やバー。左端の位置なのか中心の位置なのかをそろえ
+  （中心にするなら `transform: translateX(-50%)`）、文字を持つ要素を `z-index` で手前に置く
+- `bottom: -20px` のように上へ伸びる位置指定。2行の文字が上の図形に重なる。下へ伸ばす（`top: 100%`）
+- `position: absolute` で横に並べたラベル。狭い画面でぶつかる。flex などで並べる
+- 回転（`transform: rotate`）させた箱。箱の幅のまま回るので、まわりに重なる
 
 ### 動作の図（顔つきノードの図）
 
@@ -989,6 +1010,7 @@ curl -o inject-source.html \
 | 2026-10-02 | 1.4.0 | サンプルフローと演習の解答例での function ノードの使い方の基準と、Dashboard 2.0 のフローで ui-base を共有する決まりを追加 |
 | 2026-10-02 | 1.5.0 | Dashboard 2.0 のフローの決まりを検査する scripts/check-dashboard-flows.py を追加 |
 | 2026-10-03 | 1.6.0 | ノード図を Node-RED エディターの見た目に統一し、共有 CSS（css/node-diagram.css）と部品の書き方を追加 |
+| 2026-10-03 | 1.7.0 | 複数の出力ポートと配線のスクリプト（js/node-diagram.js）、重なりの検査（scripts/check-overlap.py）を追加 |
 
 ---
 
