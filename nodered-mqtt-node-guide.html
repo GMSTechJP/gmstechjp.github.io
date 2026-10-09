@@ -228,22 +228,24 @@
         <h3>公開MQTTブローカー（学習・テスト用）</h3>
         
         <div class="broker-box">
-            <h4>🐝 broker.hivemq.com（本ガイドで使用）</h4>
-            <p>HiveMQ提供の公開ブローカー。本ガイドのサンプルフローと演習はこのブローカーを使う</p>
-            <p><code>Server: broker.hivemq.com</code> / <code>Port: 1883</code></p>
+            <h4>📦 broker.emqx.io（本ガイドで使用）</h4>
+            <p>EMQX 提供の公開ブローカー。本ガイドのサンプルフローと演習はこのブローカーを使う</p>
+            <p><code>Server: broker.emqx.io</code> / <code>Port: 1883</code></p>
+            <p>利用者の近くのサーバーにつながるため、日本からでも応答が速い</p>
         </div>
-        
+
+        <div class="broker-box">
+            <h4>🐝 broker.hivemq.com</h4>
+            <p>HiveMQ 提供の公開ブローカー</p>
+            <p><code>Server: broker.hivemq.com</code> / <code>Port: 1883</code></p>
+            <p>サーバーが欧州にあり、日本から Node.js 20 以降の Node-RED で使うと、ステータスが「接続中」のまま接続できないことがある（理由は<a href="#section8">トラブルシューティング</a>を参照）</p>
+        </div>
+
         <div class="broker-box">
             <h4>🦟 test.mosquitto.org</h4>
             <p>Eclipse Mosquitto プロジェクト提供の公開ブローカー</p>
             <p><code>Server: test.mosquitto.org</code> / <code>Port: 1883</code>（非暗号化）</p>
-            <p>利用者が多く、接続した直後に切断されることがよくある。接続が安定しないときは、ほかのブローカーを使う</p>
-        </div>
-        
-        <div class="broker-box">
-            <h4>📦 broker.emqx.io</h4>
-            <p>EMQ X提供の公開ブローカー</p>
-            <p><code>Server: broker.emqx.io</code> / <code>Port: 1883</code></p>
+            <p>利用者が多く、接続した直後に切断されることがよくある。サーバーが欧州にあるため、broker.hivemq.com と同じく「接続中」のまま接続できないこともある</p>
         </div>
         
         <div class="warning">
@@ -262,7 +264,7 @@
         <table>
             <tr><th>設定項目</th><th>説明</th><th>例・既定</th></tr>
             <tr><td><strong>名前</strong></td><td>このブローカー設定ノードの表示名。空欄ならサーバ名が表示される</td><td>（任意）</td></tr>
-            <tr><td><strong>サーバ</strong></td><td>ブローカーのホスト名または IP アドレス</td><td>broker.hivemq.com</td></tr>
+            <tr><td><strong>サーバ</strong></td><td>ブローカーのホスト名または IP アドレス</td><td>broker.emqx.io</td></tr>
             <tr><td><strong>ポート</strong></td><td>接続ポート番号</td><td>1883（非暗号化）, 8883（TLS）</td></tr>
             <tr><td><strong>自動接続</strong></td><td>デプロイ時に自動でブローカーへ接続するか。オフにすると接続/切断は MQTT 制御ノードなどで明示的に行う</td><td>オン</td></tr>
             <tr><td><strong>TLSを使用</strong></td><td>暗号化接続（MQTTS）を使う。オンにすると TLS設定ノードを選ぶ欄が現れる。証明書の指定方法は<a href="nodered-tls-guide.html">TLSと証明書ガイド</a>を参照</td><td>オフ</td></tr>
@@ -415,7 +417,7 @@ home/bedroom/temperature     → 22.0</div>
                 <li>サンプルフローをインポート</li>
                 <li>MQTT In/Out ノードをダブルクリック</li>
                 <li>Server の鉛筆アイコンをクリックして<strong>ブローカー設定を確認</strong></li>
-                <li>Server が <code>broker.hivemq.com</code> になっていることを確認する。接続できない場合は、上で紹介した別の公開ブローカー（<code>broker.emqx.io</code> など）に変更する</li>
+                <li>Server が <code>broker.emqx.io</code> になっていることを確認する。ステータスが「接続中」のまま変わらない場合は、<a href="#section8">トラブルシューティング</a>を参照する</li>
                 <li>デプロイ</li>
             </ol>
             <p>※ トピック名の <code>nodered-guide</code> 部分を自分専用の名前に変更することを推奨します</p>
@@ -435,7 +437,7 @@ home/bedroom/temperature     → 22.0</div>
         "id": "mqtt_broker_public",
         "type": "mqtt-broker",
         "name": "Public Broker",
-        "broker": "broker.hivemq.com",
+        "broker": "broker.emqx.io",
         "port": "1883",
         "tls": "",
         "clientid": "",
@@ -907,7 +909,7 @@ home/bedroom/temperature     → 22.0</div>
                     <div class="sys-req">PUBLISH &rarr;</div>
                 </div>
                 <div class="sys-actor">
-                    <div class="sys-name">broker.hivemq.com</div>
+                    <div class="sys-name">broker.emqx.io</div>
                     <div class="sys-role">公開ブローカー<br>（既にあるもの）</div>
                 </div>
                 <div class="sys-link">
@@ -923,12 +925,12 @@ home/bedroom/temperature     → 22.0</div>
             <ul>
                 <li>トピック: <code>あなたの名前/test/hello</code></li>
                 <li>メッセージ: <code>Hello MQTT!</code></li>
-                <li>ブローカー: broker.hivemq.com</li>
+                <li>ブローカー: broker.emqx.io</li>
             </ul>
 
             <p><strong>✅ 成功の条件:</strong></p>
             <ul>
-                <li>MQTT Out ノードのステータスが「接続済み」になる</li>
+                <li>MQTT Out ノードのステータスが緑の「接続済」になる</li>
                 <li>演習2で作る購読フロー（または演習2の解答例フロー）を一緒にデプロイしておくと、Inject ボタンを押したときにそのデバッグパネルへ「Hello MQTT!」が表示される。演習1のフローだけでは、届いたことは目に見えない</li>
                 <li>Node-RED のデバッグパネルにエラーが表示されない</li>
             </ul>
@@ -938,7 +940,7 @@ home/bedroom/temperature     → 22.0</div>
                 <p><strong>Inject ノード:</strong> msg.payload に「Hello MQTT!」を設定</p>
                 <p><strong>MQTT Out ノード:</strong></p>
                 <ul>
-                    <li>Server: broker.hivemq.com（新規作成）</li>
+                    <li>Server: broker.emqx.io（新規作成）</li>
                     <li>Topic: あなたの名前/test/hello</li>
                     <li>QoS: 1</li>
                 </ul>
@@ -948,7 +950,7 @@ home/bedroom/temperature     → 22.0</div>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
     {"id": "ex1_tab", "type": "tab", "label": "演習1"},
-    {"id": "ex1_broker", "type": "mqtt-broker", "name": "Public Broker", "broker": "broker.hivemq.com", "port": "1883", "tls": "", "clientid": "", "autoConnect": true, "usetls": false, "verifyservercert": false, "compatmode": false, "protocolVersion": "4", "keepalive": "60", "cleansession": true, "autoUnsubscribe": true, "birthTopic": "", "birthQos": "0", "birthRetain": "false", "birthPayload": "", "birthMsg": {}, "closeTopic": "", "closeQos": "0", "closeRetain": "false", "closePayload": "", "closeMsg": {}, "willTopic": "", "willQos": "0", "willRetain": "false", "willPayload": "", "willMsg": {}, "userProps": "", "sessionExpiry": 0},
+    {"id": "ex1_broker", "type": "mqtt-broker", "name": "Public Broker", "broker": "broker.emqx.io", "port": "1883", "tls": "", "clientid": "", "autoConnect": true, "usetls": false, "verifyservercert": false, "compatmode": false, "protocolVersion": "4", "keepalive": "60", "cleansession": true, "autoUnsubscribe": true, "birthTopic": "", "birthQos": "0", "birthRetain": "false", "birthPayload": "", "birthMsg": {}, "closeTopic": "", "closeQos": "0", "closeRetain": "false", "closePayload": "", "closeMsg": {}, "willTopic": "", "willQos": "0", "willRetain": "false", "willPayload": "", "willMsg": {}, "userProps": "", "sessionExpiry": 0},
     {"id": "ex1_inject", "type": "inject", "z": "ex1_tab", "name": "Hello送信", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "Hello MQTT!", "payloadType": "str", "x": 160, "y": 100, "wires": [["ex1_mqtt_out"]]},
     {"id": "ex1_mqtt_out", "type": "mqtt out", "z": "ex1_tab", "name": "Publish", "topic": "yourname/test/hello", "qos": "1", "retain": "false", "respTopic": "", "contentType": "", "userProps": "", "correl": "", "expiry": "", "broker": "ex1_broker", "x": 350, "y": 100, "wires": []}
 ]</div>
@@ -970,7 +972,7 @@ home/bedroom/temperature     → 22.0</div>
                     <div class="sys-req">PUBLISH &rarr;</div>
                 </div>
                 <div class="sys-actor">
-                    <div class="sys-name">broker.hivemq.com</div>
+                    <div class="sys-name">broker.emqx.io</div>
                     <div class="sys-role">公開ブローカー<br>（既にあるもの）</div>
                 </div>
                 <div class="sys-link">
@@ -991,7 +993,7 @@ home/bedroom/temperature     → 22.0</div>
 
             <p><strong>✅ 成功の条件:</strong></p>
             <ul>
-                <li>MQTT In ノードのステータスが「接続済み」になる</li>
+                <li>MQTT In ノードのステータスが緑の「接続済」になる</li>
                 <li>演習1のフローで Inject ボタンを押すとデバッグパネルに「Hello MQTT!」が表示される</li>
                 <li>ノードステータスに受信したメッセージ内容が表示される</li>
             </ul>
@@ -1011,7 +1013,7 @@ home/bedroom/temperature     → 22.0</div>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
     {"id": "ex2_tab", "type": "tab", "label": "演習2"},
-    {"id": "ex2_broker", "type": "mqtt-broker", "name": "Public Broker", "broker": "broker.hivemq.com", "port": "1883", "tls": "", "clientid": "", "autoConnect": true, "usetls": false, "verifyservercert": false, "compatmode": false, "protocolVersion": "4", "keepalive": "60", "cleansession": true, "autoUnsubscribe": true, "birthTopic": "", "birthQos": "0", "birthRetain": "false", "birthPayload": "", "birthMsg": {}, "closeTopic": "", "closeQos": "0", "closeRetain": "false", "closePayload": "", "closeMsg": {}, "willTopic": "", "willQos": "0", "willRetain": "false", "willPayload": "", "willMsg": {}, "userProps": "", "sessionExpiry": 0},
+    {"id": "ex2_broker", "type": "mqtt-broker", "name": "Public Broker", "broker": "broker.emqx.io", "port": "1883", "tls": "", "clientid": "", "autoConnect": true, "usetls": false, "verifyservercert": false, "compatmode": false, "protocolVersion": "4", "keepalive": "60", "cleansession": true, "autoUnsubscribe": true, "birthTopic": "", "birthQos": "0", "birthRetain": "false", "birthPayload": "", "birthMsg": {}, "closeTopic": "", "closeQos": "0", "closeRetain": "false", "closePayload": "", "closeMsg": {}, "willTopic": "", "willQos": "0", "willRetain": "false", "willPayload": "", "willMsg": {}, "userProps": "", "sessionExpiry": 0},
     {"id": "ex2_mqtt_in", "type": "mqtt in", "z": "ex2_tab", "name": "Subscribe", "topic": "yourname/test/hello", "qos": "1", "datatype": "auto", "broker": "ex2_broker", "nl": false, "rap": true, "rh": 0, "inputs": 0, "x": 160, "y": 100, "wires": [["ex2_debug"]]},
     {"id": "ex2_debug", "type": "debug", "z": "ex2_tab", "name": "受信メッセージ", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "payload", "statusType": "msg", "x": 380, "y": 100, "wires": []}
 ]</div>
@@ -1035,7 +1037,7 @@ home/bedroom/temperature     → 22.0</div>
                     <div class="sys-res">&larr; 配信 yourname/sensors/+</div>
                 </div>
                 <div class="sys-actor">
-                    <div class="sys-name">broker.hivemq.com</div>
+                    <div class="sys-name">broker.emqx.io</div>
                     <div class="sys-role">公開ブローカー<br>（既にあるもの）</div>
                 </div>
             </div>
@@ -1068,7 +1070,7 @@ home/bedroom/temperature     → 22.0</div>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
     {"id": "ex3_tab", "type": "tab", "label": "演習3"},
-    {"id": "ex3_broker", "type": "mqtt-broker", "name": "Public Broker", "broker": "broker.hivemq.com", "port": "1883", "tls": "", "clientid": "", "autoConnect": true, "usetls": false, "verifyservercert": false, "compatmode": false, "protocolVersion": "4", "keepalive": "60", "cleansession": true, "autoUnsubscribe": true, "birthTopic": "", "birthQos": "0", "birthRetain": "false", "birthPayload": "", "birthMsg": {}, "closeTopic": "", "closeQos": "0", "closeRetain": "false", "closePayload": "", "closeMsg": {}, "willTopic": "", "willQos": "0", "willRetain": "false", "willPayload": "", "willMsg": {}, "userProps": "", "sessionExpiry": 0},
+    {"id": "ex3_broker", "type": "mqtt-broker", "name": "Public Broker", "broker": "broker.emqx.io", "port": "1883", "tls": "", "clientid": "", "autoConnect": true, "usetls": false, "verifyservercert": false, "compatmode": false, "protocolVersion": "4", "keepalive": "60", "cleansession": true, "autoUnsubscribe": true, "birthTopic": "", "birthQos": "0", "birthRetain": "false", "birthPayload": "", "birthMsg": {}, "closeTopic": "", "closeQos": "0", "closeRetain": "false", "closePayload": "", "closeMsg": {}, "willTopic": "", "willQos": "0", "willRetain": "false", "willPayload": "", "willMsg": {}, "userProps": "", "sessionExpiry": 0},
     {"id": "ex3_inject_temp", "type": "inject", "z": "ex3_tab", "name": "温度送信", "props": [{"p": "payload"}, {"p": "topic", "vt": "str"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "yourname/sensors/temperature", "payload": "25.5", "payloadType": "num", "x": 160, "y": 80, "wires": [["ex3_mqtt_out"]]},
     {"id": "ex3_inject_humidity", "type": "inject", "z": "ex3_tab", "name": "湿度送信", "props": [{"p": "payload"}, {"p": "topic", "vt": "str"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "yourname/sensors/humidity", "payload": "60", "payloadType": "num", "x": 160, "y": 120, "wires": [["ex3_mqtt_out"]]},
     {"id": "ex3_mqtt_out", "type": "mqtt out", "z": "ex3_tab", "name": "Publish", "topic": "", "qos": "1", "retain": "false", "respTopic": "", "contentType": "", "userProps": "", "correl": "", "expiry": "", "broker": "ex3_broker", "x": 350, "y": 100, "wires": []},
@@ -1097,7 +1099,7 @@ home/bedroom/temperature     → 22.0</div>
                     <div class="sys-res">&larr; 配信 .../command</div>
                 </div>
                 <div class="sys-actor">
-                    <div class="sys-name">broker.hivemq.com</div>
+                    <div class="sys-name">broker.emqx.io</div>
                     <div class="sys-role">公開ブローカー<br>（既にあるもの）</div>
                 </div>
                 <div class="sys-link">
@@ -1143,7 +1145,7 @@ home/bedroom/temperature     → 22.0</div>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
     {"id": "ex4_tab", "type": "tab", "label": "演習4"},
-    {"id": "ex4_broker", "type": "mqtt-broker", "name": "Public Broker", "broker": "broker.hivemq.com", "port": "1883", "tls": "", "clientid": "", "autoConnect": true, "usetls": false, "verifyservercert": false, "compatmode": false, "protocolVersion": "4", "keepalive": "60", "cleansession": true, "autoUnsubscribe": true, "birthTopic": "", "birthQos": "0", "birthRetain": "false", "birthPayload": "", "birthMsg": {}, "closeTopic": "", "closeQos": "0", "closeRetain": "false", "closePayload": "", "closeMsg": {}, "willTopic": "", "willQos": "0", "willRetain": "false", "willPayload": "", "willMsg": {}, "userProps": "", "sessionExpiry": 0},
+    {"id": "ex4_broker", "type": "mqtt-broker", "name": "Public Broker", "broker": "broker.emqx.io", "port": "1883", "tls": "", "clientid": "", "autoConnect": true, "usetls": false, "verifyservercert": false, "compatmode": false, "protocolVersion": "4", "keepalive": "60", "cleansession": true, "autoUnsubscribe": true, "birthTopic": "", "birthQos": "0", "birthRetain": "false", "birthPayload": "", "birthMsg": {}, "closeTopic": "", "closeQos": "0", "closeRetain": "false", "closePayload": "", "closeMsg": {}, "willTopic": "", "willQos": "0", "willRetain": "false", "willPayload": "", "willMsg": {}, "userProps": "", "sessionExpiry": 0},
     {"id": "ex4_inject", "type": "inject", "z": "ex4_tab", "name": "10秒ごと", "props": [{"p": "payload"}], "repeat": "10", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "", "payloadType": "date", "x": 160, "y": 100, "wires": [["ex4_change_sensor"]]},
     {"id": "ex4_change_sensor", "type": "change", "z": "ex4_tab", "name": "センサー値生成", "rules": [{"t": "set", "p": "payload", "pt": "msg", "to": "{\n    \"deviceId\": \"device001\",\n    \"temperature\": $round(20 + $random() * 10, 1),\n    \"humidity\": $floor(40 + $random() * 40),\n    \"timestamp\": $now()\n}", "tot": "jsonata"}, {"t": "set", "p": "topic", "pt": "msg", "to": "yourname/device001/telemetry", "tot": "str"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 370, "y": 100, "wires": [["ex4_mqtt_out", "ex4_debug_send"]]},
     {"id": "ex4_mqtt_out", "type": "mqtt out", "z": "ex4_tab", "name": "Publish Telemetry", "topic": "", "qos": "1", "retain": "false", "respTopic": "", "contentType": "", "userProps": "", "correl": "", "expiry": "", "broker": "ex4_broker", "x": 590, "y": 100, "wires": []},
@@ -1181,11 +1183,39 @@ home/bedroom/temperature     → 22.0</div>
         <table>
             <tr><th>症状</th><th>原因</th><th>解決方法</th></tr>
             <tr><td>接続できない</td><td>ブローカー設定の誤り</td><td>Server、Port を確認、ファイアウォール確認（ネットワークの通行を制限するセキュリティ機能。ルーターや OS の設定を確認）</td></tr>
+            <tr><td>ステータスが黄色の「接続中」のまま変わらない</td><td>遠いブローカーの応答を、Node.js が待ちきれずに打ち切っている（<a href="#trouble-connecting">下の説明</a>を参照）</td><td>Server を <code>broker.emqx.io</code> に変える</td></tr>
             <tr><td>メッセージが届かない</td><td>トピック名の不一致</td><td>発行/購読のトピック名を正確に一致させる</td></tr>
             <tr><td>接続が切れる</td><td><a href="#term-keepalive">Keep Alive</a> タイムアウト</td><td>Keep Alive 値を調整</td></tr>
             <tr><td>重複メッセージ</td><td><a href="#term-qos">QoS 1</a> の再送</td><td>アプリケーション側で重複排除</td></tr>
             <tr><td>古いメッセージが届く</td><td><a href="#term-retain">Retain</a> メッセージ</td><td>空のRetainメッセージを発行してクリア</td></tr>
         </table>
+
+        <h3 id="trouble-connecting">「接続中」のまま変わらないとき</h3>
+        <p>MQTT ノードの下のステータスが黄色の「接続中」のままで、緑の「接続済」にならないことがあります。Server と Port が正しくても起きます。</p>
+        <p>Node-RED は Node.js の上で動いています。Node.js 20 以降は、接続先の IP アドレスが複数あると、1つのアドレスの応答を <strong>250 ミリ秒</strong>だけ待ち、応答がなければ次のアドレスを試します（待ち時間の制限がないのは最後のアドレスだけ）。使える IPv4 のアドレスが時間切れで打ち切られ、最後に試すアドレスが家庭や職場の回線で通じない IPv6 だと、どのアドレスにもつながらず接続は失敗します。Node-RED は 15 秒ごとに接続し直しますが、毎回同じ理由で失敗するため、ステータスは「接続中」のまま変わりません。</p>
+        <p>broker.hivemq.com と test.mosquitto.org はサーバーが欧州にあり、日本からは応答までに 250 ミリ秒以上かかることがあります。どちらも IPv4 と IPv6 の両方のアドレスを持つため、IPv6 が使えない回線では上の失敗が起きます。本ガイドが broker.emqx.io を使うのはこのためです。</p>
+        <p><strong>対処方法:</strong></p>
+        <ol>
+            <li>ブローカー設定の Server を <code>broker.emqx.io</code> に変えてデプロイする（まずはこれを試す）</li>
+            <li>どうしても遠いブローカーを使う場合は、Node.js の待ち時間を延ばして Node-RED を起動する。<code>node -v</code> で Node.js のバージョンを確かめ、<strong>v20.13 以降（v22 なら v22.1 以降）</strong>の場合だけ使える方法である。いったん Node-RED を止めてから、次のコマンドで起動し直す
+                <ul>
+                    <li>Windows（コマンドプロンプト。PowerShell では効かない）:
+                        <div class="code-block">set NODE_OPTIONS=--network-family-autoselection-attempt-timeout=1000
+node-red</div>
+                    </li>
+                    <li>Mac・Linux（ターミナル）:
+                        <div class="code-block">NODE_OPTIONS=--network-family-autoselection-attempt-timeout=1000 node-red</div>
+                    </li>
+                </ul>
+                <code>1000</code> は待ち時間（ミリ秒）です。Windows ではコマンドプロンプトのウィンドウを閉じるまで、Mac・Linux ではこのコマンドで起動した Node-RED にだけ設定が効きます。
+                <ul>
+                    <li>成功: Node-RED が起動し、ステータスが緑の「接続済」になる</li>
+                    <li>起動しない: <code>--network-family-autoselection-attempt-timeout is not allowed in NODE_OPTIONS</code> と表示されたら、Node.js が古い。設定を外して起動し直し（Windows はコマンドプロンプトを開き直す）、対処1を使う</li>
+                    <li>「接続中」のまま: 待ち時間以外の原因（ファイアウォールなど）を疑う</li>
+                </ul>
+                Raspberry Pi などで Node-RED をサービスとして自動起動している場合、このコマンドの設定は反映されません。対処1を使ってください
+            </li>
+        </ol>
         
         <h2 id="section9">9. 実務活用例</h2>
         
