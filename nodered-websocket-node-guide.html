@@ -573,7 +573,7 @@ ws://localhost:1880/ws/chat</div>
         "complete": "payload",
         "targetType": "msg",
         "statusVal": "\"受信\"",
-        "statusType": "str",
+        "statusType": "jsonata",
         "x": 350,
         "y": 140,
         "wires": []
@@ -638,7 +638,7 @@ ws://localhost:1880/ws/chat</div>
         "complete": "payload",
         "targetType": "msg",
         "statusVal": "\"チャット受信\"",
-        "statusType": "str",
+        "statusType": "jsonata",
         "x": 370,
         "y": 320,
         "wires": []
@@ -958,7 +958,7 @@ ws.onclose = function() {
     {"id": "ex1_ws_listener", "type": "websocket-listener", "path": "/ws/myecho", "wholemsg": "false"},
     {"id": "ex1_ws_in", "type": "websocket in", "z": "ex1_tab", "name": "WS In", "server": "ex1_ws_listener", "client": "", "x": 150, "y": 100, "wires": [["ex1_ws_out", "ex1_debug"]]},
     {"id": "ex1_ws_out", "type": "websocket out", "z": "ex1_tab", "name": "WS Out", "server": "ex1_ws_listener", "client": "", "x": 350, "y": 100, "wires": []},
-    {"id": "ex1_debug", "type": "debug", "z": "ex1_tab", "name": "サーバー側: 受信ログ", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "\"受信\"", "statusType": "str", "x": 350, "y": 140, "wires": []}
+    {"id": "ex1_debug", "type": "debug", "z": "ex1_tab", "name": "サーバー側: 受信ログ", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "\"受信\"", "statusType": "jsonata", "x": 350, "y": 140, "wires": []}
 ]</div>
             </details>
             <p><strong>🔍 動作確認:</strong> 自分で作ったフロー、または解答例フロー（サーバー側）をデプロイしたうえで、動作確認用フローを読み込んでデプロイします。WebSocketノードの下に緑色の丸印が表示されたら、「テスト送信」injectノードの左端のボタンをクリックします。debugサイドバーの「クライアント側: エコー確認」に <code>Hello</code> が表示されれば、送った内容がそのまま返っています。解答例フローを使っている場合は、サーバーが受け取った記録として「サーバー側: 受信ログ」にも同じ <code>Hello</code> が表示されます。debugサイドバーの各行の上に出るノード名で、どちら側の表示かを見分けてください。</p>
@@ -1102,7 +1102,7 @@ ws.onclose = function() {
     {"id": "ex3_inject", "type": "inject", "z": "ex3_tab", "name": "ブロードキャスト", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "{\"type\":\"broadcast\",\"content\":\"全員へのお知らせ\"}", "payloadType": "json", "x": 170, "y": 100, "wires": [["ex3_ws_out"]]},
     {"id": "ex3_ws_out", "type": "websocket out", "z": "ex3_tab", "name": "WS Out (全員)", "server": "ex3_ws_listener", "client": "", "x": 400, "y": 100, "wires": []},
     {"id": "ex3_ws_in", "type": "websocket in", "z": "ex3_tab", "name": "WS In (接続確認用)", "server": "ex3_ws_listener", "client": "", "x": 190, "y": 180, "wires": [["ex3_debug"]]},
-    {"id": "ex3_debug", "type": "debug", "z": "ex3_tab", "name": "サーバー側: 接続ログ", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "\"クライアント接続\"", "statusType": "str", "x": 410, "y": 180, "wires": []}
+    {"id": "ex3_debug", "type": "debug", "z": "ex3_tab", "name": "サーバー側: 接続ログ", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "\"クライアント接続\"", "statusType": "jsonata", "x": 410, "y": 180, "wires": []}
 ]</div>
             </details>
             <p><strong>🔍 動作確認:</strong> 自分で作ったフロー、または解答例フロー（サーバー側）をデプロイしたうえで、動作確認用フローを読み込んでデプロイします。WebSocketノードの下に緑色の丸印が出たことを確認したら、サーバー側で配信するinjectノード（解答例では「ブロードキャスト」）のボタンをクリックします。debugサイドバーの「クライアント側: 配信確認」に配信内容が表示されれば、接続中のクライアントに届いています。</p>

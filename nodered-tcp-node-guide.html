@@ -381,7 +381,7 @@
         "complete": "payload",
         "targetType": "msg",
         "statusVal": "\"受信\"",
-        "statusType": "str",
+        "statusType": "jsonata",
         "x": 590,
         "y": 280,
         "wires": []
@@ -507,7 +507,7 @@
         "complete": "payload",
         "targetType": "msg",
         "statusVal": "\"JSON受信\"",
-        "statusType": "str",
+        "statusType": "jsonata",
         "x": 620,
         "y": 500,
         "wires": []
@@ -925,7 +925,7 @@ return msg;</div>
     {"id": "ex4_inject", "type": "inject", "z": "ex4_tab", "name": "5秒ごと", "props": [{"p": "payload"}], "repeat": "5", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "", "payloadType": "date", "x": 150, "y": 260, "wires": [["ex4_func_client"]]},
     {"id": "ex4_func_client", "type": "function", "z": "ex4_tab", "name": "センサーデータ生成", "func": "// 20.0〜30.0 の範囲で、小数1桁のランダムな温度を作る\n// （toFixed は文字列を返すので、送るときに parseFloat で数値に戻す）\nconst temp = (20 + Math.random() * 10).toFixed(1);\n// 送信データを JSON 文字列にする。TCP Request もオブジェクトをそのままでは送れない\n// 末尾の改行が、サーバー側（TCP In の区切り文字 \\n）でのメッセージの区切りになる\nmsg.payload = JSON.stringify({\n    sensor: \"temperature\",\n    value: parseFloat(temp),\n    timestamp: new Date().toISOString()\n}) + \"\\n\";\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 380, "y": 260, "wires": [["ex4_tcp_request"]]},
     {"id": "ex4_tcp_request", "type": "tcp request", "z": "ex4_tab", "name": "TCP Request", "server": "localhost", "port": "9103", "out": "char", "ret": "string", "splitc": "\\n", "newline": "", "trim": false, "tls": "", "x": 590, "y": 260, "wires": [["ex4_debug_client"]]},
-    {"id": "ex4_debug_client", "type": "debug", "z": "ex4_tab", "name": "クライアント受信", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "\"送受信完了\"", "statusType": "str", "x": 790, "y": 260, "wires": []}
+    {"id": "ex4_debug_client", "type": "debug", "z": "ex4_tab", "name": "クライアント受信", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "\"送受信完了\"", "statusType": "jsonata", "x": 790, "y": 260, "wires": []}
 ]</div>
             </details>
         </div>
