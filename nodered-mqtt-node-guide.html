@@ -794,7 +794,7 @@ home/bedroom/temperature     → 22.0</div>
         "complete": "payload",
         "targetType": "msg",
         "statusVal": "\"💡 ON\"",
-        "statusType": "str",
+        "statusType": "jsonata",
         "x": 580,
         "y": 740,
         "wires": []
@@ -811,7 +811,7 @@ home/bedroom/temperature     → 22.0</div>
         "complete": "payload",
         "targetType": "msg",
         "statusVal": "\"⚫ OFF\"",
-        "statusType": "str",
+        "statusType": "jsonata",
         "x": 580,
         "y": 780,
         "wires": []
@@ -1076,8 +1076,8 @@ home/bedroom/temperature     → 22.0</div>
     {"id": "ex3_mqtt_out", "type": "mqtt out", "z": "ex3_tab", "name": "Publish", "topic": "", "qos": "1", "retain": "false", "respTopic": "", "contentType": "", "userProps": "", "correl": "", "expiry": "", "broker": "ex3_broker", "x": 350, "y": 100, "wires": []},
     {"id": "ex3_mqtt_in", "type": "mqtt in", "z": "ex3_tab", "name": "Subscribe +", "topic": "yourname/sensors/+", "qos": "1", "datatype": "auto", "broker": "ex3_broker", "nl": false, "rap": true, "rh": 0, "inputs": 0, "x": 170, "y": 200, "wires": [["ex3_switch"]]},
     {"id": "ex3_switch", "type": "switch", "z": "ex3_tab", "name": "トピック分岐", "property": "topic", "propertyType": "msg", "rules": [{"t": "cont", "v": "temperature", "vt": "str"}, {"t": "cont", "v": "humidity", "vt": "str"}], "checkall": "false", "repair": false, "outputs": 2, "x": 370, "y": 200, "wires": [["ex3_debug_temp"], ["ex3_debug_humidity"]]},
-    {"id": "ex3_debug_temp", "type": "debug", "z": "ex3_tab", "name": "温度データ", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "\"🌡️\"", "statusType": "str", "x": 570, "y": 180, "wires": []},
-    {"id": "ex3_debug_humidity", "type": "debug", "z": "ex3_tab", "name": "湿度データ", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "\"💧\"", "statusType": "str", "x": 570, "y": 220, "wires": []}
+    {"id": "ex3_debug_temp", "type": "debug", "z": "ex3_tab", "name": "温度データ", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "\"🌡️\"", "statusType": "jsonata", "x": 570, "y": 180, "wires": []},
+    {"id": "ex3_debug_humidity", "type": "debug", "z": "ex3_tab", "name": "湿度データ", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "\"💧\"", "statusType": "jsonata", "x": 570, "y": 220, "wires": []}
 ]</div>
             </details>
         </div>
@@ -1149,7 +1149,7 @@ home/bedroom/temperature     → 22.0</div>
     {"id": "ex4_inject", "type": "inject", "z": "ex4_tab", "name": "10秒ごと", "props": [{"p": "payload"}], "repeat": "10", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "", "payloadType": "date", "x": 160, "y": 100, "wires": [["ex4_change_sensor"]]},
     {"id": "ex4_change_sensor", "type": "change", "z": "ex4_tab", "name": "センサー値生成", "rules": [{"t": "set", "p": "payload", "pt": "msg", "to": "{\n    \"deviceId\": \"device001\",\n    \"temperature\": $round(20 + $random() * 10, 1),\n    \"humidity\": $floor(40 + $random() * 40),\n    \"timestamp\": $now()\n}", "tot": "jsonata"}, {"t": "set", "p": "topic", "pt": "msg", "to": "yourname/device001/telemetry", "tot": "str"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 370, "y": 100, "wires": [["ex4_mqtt_out", "ex4_debug_send"]]},
     {"id": "ex4_mqtt_out", "type": "mqtt out", "z": "ex4_tab", "name": "Publish Telemetry", "topic": "", "qos": "1", "retain": "false", "respTopic": "", "contentType": "", "userProps": "", "correl": "", "expiry": "", "broker": "ex4_broker", "x": 590, "y": 100, "wires": []},
-    {"id": "ex4_debug_send", "type": "debug", "z": "ex4_tab", "name": "送信データ", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "\"送信\"", "statusType": "str", "x": 570, "y": 140, "wires": []},
+    {"id": "ex4_debug_send", "type": "debug", "z": "ex4_tab", "name": "送信データ", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "\"送信\"", "statusType": "jsonata", "x": 570, "y": 140, "wires": []},
     {"id": "ex4_mqtt_in", "type": "mqtt in", "z": "ex4_tab", "name": "Subscribe Command", "topic": "yourname/device001/command", "qos": "1", "datatype": "utf8", "broker": "ex4_broker", "nl": false, "rap": true, "rh": 0, "inputs": 0, "x": 190, "y": 220, "wires": [["ex4_debug_cmd"]]},
     {"id": "ex4_debug_cmd", "type": "debug", "z": "ex4_tab", "name": "コマンド受信", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "payload", "statusType": "msg", "x": 430, "y": 220, "wires": []}
 ]</div>

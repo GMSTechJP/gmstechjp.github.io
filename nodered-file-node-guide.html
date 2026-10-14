@@ -276,7 +276,7 @@ return msg;</div>
         "complete": "payload",
         "targetType": "msg",
         "statusVal": "\"書き込み完了\"",
-        "statusType": "str",
+        "statusType": "jsonata",
         "x": 690,
         "y": 100,
         "wires": []
@@ -405,7 +405,7 @@ return msg;</div>
         "complete": "payload",
         "targetType": "msg",
         "statusVal": "\"設定保存完了\"",
-        "statusType": "str",
+        "statusType": "jsonata",
         "x": 700,
         "y": 380,
         "wires": []
@@ -662,7 +662,7 @@ return msg;</div>
     {"id": "ex1_change", "type": "change", "z": "ex1_tab", "name": "時刻を用意", "rules": [{"t": "set", "p": "timestamp", "pt": "msg", "to": "iso", "tot": "date"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 300, "y": 100, "wires": [["ex1_template"]]},
     {"id": "ex1_template", "type": "template", "z": "ex1_tab", "name": "ログの行を作る", "field": "payload", "fieldType": "msg", "format": "text", "syntax": "mustache", "template": "{{{timestamp}}} - {{{payload}}}", "output": "str", "x": 470, "y": 100, "wires": [["ex1_file"]]},
     {"id": "ex1_file", "type": "file", "z": "ex1_tab", "name": "ログ追記", "filename": "/tmp/exercise1.log", "filenameType": "str", "appendNewline": true, "createDir": true, "overwriteFile": "false", "encoding": "utf8", "x": 640, "y": 100, "wires": [["ex1_debug"]]},
-    {"id": "ex1_debug", "type": "debug", "z": "ex1_tab", "name": "完了", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "\"追記完了\"", "statusType": "str", "x": 790, "y": 100, "wires": []}
+    {"id": "ex1_debug", "type": "debug", "z": "ex1_tab", "name": "完了", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "\"追記完了\"", "statusType": "jsonata", "x": 790, "y": 100, "wires": []}
 ]</div>
             </details>
         </div>
@@ -714,7 +714,7 @@ return msg;</div>
     {"id": "ex3_inject1", "type": "inject", "z": "ex3_tab", "name": "設定保存", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "x": 140, "y": 80, "wires": [["ex3_json_str"]], "payload": "{\"server\":\"localhost\",\"port\":8080,\"debug\":true}", "payloadType": "json"},
     {"id": "ex3_json_str", "type": "json", "z": "ex3_tab", "name": "JSON文字列に変換", "property": "payload", "action": "str", "pretty": true, "x": 290, "y": 80, "wires": [["ex3_file_write"]]},
     {"id": "ex3_file_write", "type": "file", "z": "ex3_tab", "name": "JSON保存", "filename": "/tmp/config.json", "filenameType": "str", "appendNewline": false, "createDir": true, "overwriteFile": "true", "encoding": "utf8", "x": 450, "y": 80, "wires": [["ex3_debug1"]]},
-    {"id": "ex3_debug1", "type": "debug", "z": "ex3_tab", "name": "保存完了", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "\"保存完了\"", "statusType": "str", "x": 620, "y": 80, "wires": []},
+    {"id": "ex3_debug1", "type": "debug", "z": "ex3_tab", "name": "保存完了", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "\"保存完了\"", "statusType": "jsonata", "x": 620, "y": 80, "wires": []},
     {"id": "ex3_inject2", "type": "inject", "z": "ex3_tab", "name": "設定読込", "props": [], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "x": 140, "y": 160, "wires": [["ex3_file_read"]]},
     {"id": "ex3_file_read", "type": "file in", "z": "ex3_tab", "name": "JSON読込", "filename": "/tmp/config.json", "filenameType": "str", "format": "utf8", "chunk": false, "sendError": false, "encoding": "utf8", "allProps": false, "x": 290, "y": 160, "wires": [["ex3_json"]]},
     {"id": "ex3_json", "type": "json", "z": "ex3_tab", "name": "JSON解析", "property": "payload", "action": "", "pretty": false, "x": 450, "y": 160, "wires": [["ex3_debug2"]]},
@@ -756,7 +756,7 @@ return msg;</div>
     {"id": "ex4_inject_del", "type": "inject", "z": "ex4_tab", "name": "古いファイル削除", "props": [], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "x": 170, "y": 160, "wires": [["ex4_change_del"]]},
     {"id": "ex4_change_del", "type": "change", "z": "ex4_tab", "name": "7日前のファイル名", "rules": [{"t": "set", "p": "filename", "pt": "msg", "to": "\"/tmp/sensor_\" &amp; $substring($fromMillis($millis() - 7 * 24 * 60 * 60 * 1000), 0, 10) &amp; \".log\"", "tot": "jsonata"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 370, "y": 160, "wires": [["ex4_file_del"]]},
     {"id": "ex4_file_del", "type": "file", "z": "ex4_tab", "name": "ファイル削除", "filename": "filename", "filenameType": "msg", "appendNewline": true, "createDir": false, "overwriteFile": "delete", "encoding": "utf8", "x": 550, "y": 160, "wires": [["ex4_debug2"]]},
-    {"id": "ex4_debug2", "type": "debug", "z": "ex4_tab", "name": "削除結果", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "filename", "targetType": "msg", "statusVal": "\"削除試行\"", "statusType": "str", "x": 700, "y": 160, "wires": []}
+    {"id": "ex4_debug2", "type": "debug", "z": "ex4_tab", "name": "削除結果", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "filename", "targetType": "msg", "statusVal": "\"削除試行\"", "statusType": "jsonata", "x": 700, "y": 160, "wires": []}
 ]</div>
             </details>
         </div>
