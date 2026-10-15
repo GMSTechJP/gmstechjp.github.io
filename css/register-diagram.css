@@ -290,9 +290,10 @@
     color: #37474f;
 }
 
-/* 左上のマス（列の名前、または空き） */
+/* 左上のマス（列の名前、または空き）。下のアドレスに合わせて右に寄せる */
 .rd-mem-corner {
     align-self: end;
+    text-align: right;
     padding-bottom: 2px;
     font-size: 12px;
     font-weight: bold;
@@ -323,21 +324,28 @@
     white-space: nowrap;
 }
 
-/* 帯の下の「↓ アドレスが大きくなる」 */
+/*
+ * 帯の下の「↓ アドレスが大きくなる」。全列にまたがる長い文が、名前とアドレスの列（auto）を
+ * 押し広げないよう、自分の幅を列の幅の計算に入れない（contain: inline-size）
+ */
 .rd-mem-axis {
     grid-column: 1 / -1;
+    contain: inline-size;
     font-size: 12px;
     color: #546e7a;
 }
 
-/* 結果の行の左の名前（届く配列、読み取れる値など）。名前とアドレスの 2 列にまたがる */
+/*
+ * 結果の行の左の名前（届く配列、読み取れる値など）。名前とアドレスの 2 列にまたがる。
+ * 長い名前が列を押し広げないよう、自分の幅を列の幅の計算に入れず、列の幅で折り返す
+ */
 .rd-mem-label {
     grid-column: span 2;
     align-self: center;
+    contain: inline-size;
     font-size: 12px;
     text-align: right;
     color: #37474f;
-    white-space: nowrap;
 }
 
 .rd-mem.rd-nogroup .rd-mem-label {
@@ -397,5 +405,9 @@
 
     .rd-bit {
         width: 1.5em;
+    }
+
+    .rd-reg-note {
+        max-width: 9em;
     }
 }
