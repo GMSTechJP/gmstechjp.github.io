@@ -579,6 +579,43 @@ ID の一意性はファイルをまたぐため、常にサイトの全 HTML �
 `python3 scripts/check-table-fit.py` で検査する（CI でも実行する）。読み込みを忘れても
 表示は崩れず、折り返しが戻るだけなので、見た目の確認では気づきにくい。
 
+### データの並びの図（レジスタ・バイト・ビットのマス目）
+
+PLC のレジスタにデータがどう並ぶか（ワード順、エンディアン、ビット、BCD）は、文字だけで
+書くと、どのバイトがどこへ移ったのかを読み手が頭の中で組み立てることになる。これらは
+マス目の図で描く。見た目はサイト共通の `css/register-diagram.css` で決め、使うページは
+`<head>` で `<link rel="stylesheet" href="css/register-diagram.css">` を読み込む
+（ノード図の CSS があるページは、その直後）。使用例は PLC レジスタ・buffer-parser・
+MODBUS（用語集のエンディアン）の各ガイドにある。
+
+| 部品 | 書き方 | 表すもの |
+| --- | --- | --- |
+| 図の枠 | `<figure class="rd-figure">` と `<figcaption>` | 図全体。中の小見出しは `<span class="rd-title">` |
+| バイト | `<span class="rd-byte">FD<small>下位</small></span>` | 1 マス = 1 バイト。`<small>` は下に添える小さい文字 |
+| A〜D の色 | `rd-byte rd-a`（〜 `rd-d`） | 32 ビットの値の上位から A B C D。並べ替えても同じ色で追える |
+| バイトの横並び | `<span class="rd-strip">` | 値の 4 バイトなど |
+| レジスタ | `rd-regs` の中に `rd-reg`（`rd-reg-name`・`rd-reg-box`・`rd-reg-val`・`rd-reg-note`） | 16 ビットの箱。箱の中に 2 バイトを並べる |
+| ビット | `rd-bits` の中に `rd-bits-byte` を 2 つ、各 8 個の `rd-bit`（1 は `rd-on`） | 16 ビット。狭い画面では 1 バイトずつ 2 段になる |
+| BCD | `rd-nibbles` の中に `rd-nibble` | 4 ビットずつの区切りと 10 進の桁 |
+| 縦の帯 | `rd-mem rd-cols-N`（列が N 個） | アドレスの小さい方を上に、1 行 = 1 バイト。左にレジスタ名（2 行にまたがる `rd-mem-group`）とアドレス（`rd-mem-addr`）。レジスタ名の列が要らないときは `rd-nogroup` |
+| 帯の見出しと結果 | 左上 `rd-mem-corner`、列の見出し `rd-mem-head`、注記 `rd-mem-axis`（1 行全体）、結果の行は `rd-mem-label` と列ごとの `rd-mem-result`（`rd-good` / `rd-bad` で緑・赤） | 帯の中は書いた順に左上から埋まる。1 行に置く数（名前・アドレス・列の数）をそろえる |
+| 小さいマス | `rd-byte rd-sm` | 表の中に置くバイト |
+| ビットの補助 | `rd-mark`（説明を付けたビットの番号を太字に）、`rd-bits-name`（バイトの名前）、`rd-legend`（ビットの説明の一覧） | |
+| 図の中の文 | `rd-note`（赤は `rd-note rd-bad`） | 図の中の短い説明 |
+
+- **色だけで区別しない**。A〜D の色のマスには、文字（A〜D）か「上位／下位」を必ず添える。
+  32 ビットの値は C と D が同じ 00 のことが多く、16 進だけでは見分けられない
+- 図に書く値（16 進、10 進、float の読み値）は計算して確かめる。本文や表の値と食い違わせない
+- スマートフォンの幅（390px）で枠に収まるよう、縦の帯の列は 4 つまでにする。
+  CSS が狭い画面で余白を詰める。収まらないときは図の枠の中で横にスクロールする
+- 文字だけの図（`diagram-box` や `code-block` に等幅の文字で並べたもの）で、バイトや
+  レジスタの並びを描かない
+
+**検査**: rd- のクラスを使うページがスタイルを読み込んでいるか、CSS に無いクラスを使って
+いないかは `python3 scripts/check-register-diagram.py` で検査する（CI でも実行する）。
+見た目（枠からのはみ出し、文字の重なり）は検査しないので、図を足したら
+1200px と 390px で描画して確かめる。
+
 ### ノード図（node-example）
 
 処理の流れを示すノード図（`<div class="node-example">`）は、Node-RED エディターの
@@ -1101,6 +1138,7 @@ curl -o inject-source.html \
 | 2026-10-03 | 1.7.0 | 複数の出力ポートと配線のスクリプト（js/node-diagram.js）、重なりの検査（scripts/check-overlap.py）を追加 |
 | 2026-10-09 | 1.8.0 | 外部に接続するフローを Node-RED で動かして確かめる決まりと、その手順（scripts/live-check-flow.py）を追加 |
 | 2026-10-15 | 1.9.0 | 表の短い列の不要な折り返しを防ぐ共有スクリプト（js/table-fit.js）と、その読み込みの検査（scripts/check-table-fit.py）を追加 |
+| 2026-10-15 | 1.10.0 | データの並び（レジスタ・バイト・ビット）をマス目で描く共有スタイル（css/register-diagram.css）と、その検査（scripts/check-register-diagram.py）を追加 |
 
 ---
 
