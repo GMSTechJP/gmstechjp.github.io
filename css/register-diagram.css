@@ -1,0 +1,401 @@
+/*
+ * データの並びの図（レジスタ・バイト・ビットのマス目）の共有スタイル
+ *
+ * PLC のレジスタにデータがどう並んでいるかを、マス目で描く。
+ * 部品と書き方は CLAUDE.md の「データの並びの図」を参照。
+ *
+ * バイトの色（rd-a 〜 rd-d）は、32 ビットの値の上位から A B C D と呼ぶ約束に合わせる。
+ * 並べ替えても同じバイトは同じ色のまま動くので、どこへ移ったかを目で追える。
+ * 色だけで区別しないよう、マスには A〜D の文字も書く。
+ */
+
+.rd-figure {
+    margin: 20px 0;
+    padding: 16px;
+    background-color: #fafafa;
+    border: 1px solid #cfd8dc;
+    border-radius: 8px;
+    color: #212121;
+    line-height: 1.4;
+    overflow-x: auto;
+}
+
+.rd-figure figcaption {
+    margin-top: 12px;
+    font-size: 13px;
+    color: #546e7a;
+}
+
+/* 図の中の小見出し（「32 ビットの値」「レジスタに入った姿」など） */
+.rd-title {
+    display: block;
+    margin: 12px 0 6px;
+    font-size: 13px;
+    font-weight: bold;
+    color: #455a64;
+}
+
+.rd-title:first-child {
+    margin-top: 0;
+}
+
+/* 図の中の説明（矢印の横の短い文など） */
+.rd-note {
+    font-size: 13px;
+    color: #546e7a;
+}
+
+.rd-note.rd-bad {
+    color: #c62828;
+}
+
+/* ---------- バイト（1マス = 1バイト） ---------- */
+
+.rd-byte {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    min-width: 2.6em;
+    padding: 4px 6px;
+    background-color: #ffffff;
+    border: 1px solid #90a4ae;
+    border-radius: 3px;
+    font-family: "Courier New", Consolas, monospace;
+    font-size: 15px;
+    font-weight: bold;
+    line-height: 1.2;
+    color: #212121;
+}
+
+/* マスの下の小さい文字（A〜D、ビット番号など） */
+.rd-byte small {
+    font-family: "Segoe UI", sans-serif;
+    font-size: 11px;
+    font-weight: normal;
+    color: #455a64;
+}
+
+/* 32 ビットの値の 4 バイト。上位から A B C D */
+.rd-byte.rd-a { background-color: #ffcdd2; border-color: #e57373; }
+.rd-byte.rd-b { background-color: #ffe0b2; border-color: #ffb74d; }
+.rd-byte.rd-c { background-color: #c8e6c9; border-color: #81c784; }
+.rd-byte.rd-d { background-color: #bbdefb; border-color: #64b5f6; }
+
+/* 表の中などで使う小さいマス */
+.rd-byte.rd-sm {
+    min-width: 2.2em;
+    padding: 1px 4px;
+    font-size: 13px;
+}
+
+/* バイトを横に並べる */
+.rd-strip {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    vertical-align: middle;
+}
+
+/* ---------- レジスタ（16 ビットの箱）を横に並べる ---------- */
+
+.rd-regs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: flex-start;
+}
+
+.rd-reg {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+/* 箱の上の名前（アドレス、レジスタ N など） */
+.rd-reg-name {
+    font-size: 12px;
+    color: #455a64;
+    white-space: nowrap;
+}
+
+/* 箱。中に 2 バイトを並べる */
+.rd-reg-box {
+    display: flex;
+    gap: 2px;
+    padding: 4px;
+    background-color: #eceff1;
+    border: 2px solid #546e7a;
+    border-radius: 4px;
+}
+
+/* 箱の下の値（10 進） */
+.rd-reg-val {
+    font-family: "Courier New", Consolas, monospace;
+    font-size: 15px;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+/* 値の下の補足（payload[0] など） */
+.rd-reg-note {
+    max-width: 13em;
+    font-size: 12px;
+    text-align: center;
+    color: #546e7a;
+}
+
+
+
+/* ---------- ビット（16 マス） ---------- */
+
+.rd-bits {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+/* 1 バイト分（8 ビット）のまとまり。狭い画面では 2 段になる */
+.rd-bits-byte {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.rd-bits-row {
+    display: flex;
+    gap: 2px;
+}
+
+/* 4 ビットごとに少し離す（16 進の 1 桁分） */
+.rd-bits-row .rd-bit:nth-child(4) {
+    margin-right: 6px;
+}
+
+.rd-bit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 1.7em;
+}
+
+.rd-bit-no {
+    font-size: 10px;
+    color: #455a64;
+}
+
+.rd-bit-val {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 3px 0;
+    text-align: center;
+    background-color: #ffffff;
+    border: 1px solid #b0bec5;
+    border-radius: 2px;
+    font-family: "Courier New", Consolas, monospace;
+    font-size: 14px;
+    font-weight: bold;
+    color: #757575;
+}
+
+/* 1 のビット */
+.rd-bit.rd-on .rd-bit-val {
+    background-color: #fff59d;
+    border-color: #f9a825;
+    color: #212121;
+}
+
+/* 説明を付けたビット */
+.rd-bit.rd-mark .rd-bit-no {
+    font-weight: bold;
+    color: #212121;
+}
+
+/* バイトのまとまりの下の名前（上位バイト 00 など） */
+.rd-bits-name {
+    font-size: 12px;
+    color: #455a64;
+    white-space: nowrap;
+}
+
+/* 4 ビットずつの区切り（BCD） */
+.rd-nibbles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.rd-nibble {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 8px;
+    background-color: #ffffff;
+    border: 1px solid #90a4ae;
+    border-radius: 4px;
+}
+
+.rd-nibble-bits {
+    font-family: "Courier New", Consolas, monospace;
+    font-size: 14px;
+    letter-spacing: 1px;
+    color: #455a64;
+}
+
+.rd-nibble-digit {
+    font-family: "Courier New", Consolas, monospace;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+/* ---------- 縦の帯（アドレスの小さい方を上に、1 行 = 1 バイト） ---------- */
+
+/*
+ * 列は左から「レジスタの名前」「アドレス」「並べ方ごとの列（1〜4）」。
+ * レジスタの名前は 2 行にまたがる（rd-group）。名前の列が要らない図は rd-nogroup を付ける。
+ */
+.rd-mem {
+    --rd-col-min: 3.2em;
+    display: grid;
+    gap: 3px 6px;
+    align-items: stretch;
+    justify-content: start;
+}
+
+.rd-mem.rd-cols-1 { grid-template-columns: auto auto repeat(1, minmax(var(--rd-col-min), 5.5em)); }
+.rd-mem.rd-cols-2 { grid-template-columns: auto auto repeat(2, minmax(var(--rd-col-min), 5.5em)); }
+.rd-mem.rd-cols-3 { grid-template-columns: auto auto repeat(3, minmax(var(--rd-col-min), 5.5em)); }
+.rd-mem.rd-cols-4 { grid-template-columns: auto auto repeat(4, minmax(var(--rd-col-min), 5.5em)); }
+.rd-mem.rd-nogroup.rd-cols-1 { grid-template-columns: auto repeat(1, minmax(var(--rd-col-min), 5.5em)); }
+.rd-mem.rd-nogroup.rd-cols-2 { grid-template-columns: auto repeat(2, minmax(var(--rd-col-min), 5.5em)); }
+.rd-mem.rd-nogroup.rd-cols-3 { grid-template-columns: auto repeat(3, minmax(var(--rd-col-min), 5.5em)); }
+.rd-mem.rd-nogroup.rd-cols-4 { grid-template-columns: auto repeat(4, minmax(var(--rd-col-min), 5.5em)); }
+
+.rd-mem .rd-byte {
+    width: 100%;
+}
+
+/* 列の見出し（ABCD、ビッグエンディアンなど） */
+.rd-mem-head {
+    align-self: end;
+    padding-bottom: 2px;
+    font-size: 12px;
+    font-weight: bold;
+    text-align: center;
+    color: #37474f;
+}
+
+/* 左上のマス（列の名前、または空き） */
+.rd-mem-corner {
+    align-self: end;
+    padding-bottom: 2px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #37474f;
+    white-space: nowrap;
+}
+
+/* アドレス（+0、+1 …） */
+.rd-mem-addr {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    font-family: "Courier New", Consolas, monospace;
+    font-size: 13px;
+    color: #455a64;
+    white-space: nowrap;
+}
+
+/* 2 行にまたがるレジスタの名前。右の線で 2 バイトをくくる */
+.rd-mem-group {
+    grid-row: span 2;
+    display: flex;
+    align-items: center;
+    padding-right: 6px;
+    border-right: 3px solid #78909c;
+    font-size: 12px;
+    color: #37474f;
+    white-space: nowrap;
+}
+
+/* 帯の下の「↓ アドレスが大きくなる」 */
+.rd-mem-axis {
+    grid-column: 1 / -1;
+    font-size: 12px;
+    color: #546e7a;
+}
+
+/* 結果の行の左の名前（届く配列、読み取れる値など）。名前とアドレスの 2 列にまたがる */
+.rd-mem-label {
+    grid-column: span 2;
+    align-self: center;
+    font-size: 12px;
+    text-align: right;
+    color: #37474f;
+    white-space: nowrap;
+}
+
+.rd-mem.rd-nogroup .rd-mem-label {
+    grid-column: span 1;
+}
+
+/* 列の下の結果（読み取れる値など） */
+.rd-mem-result {
+    font-family: "Courier New", Consolas, monospace;
+    font-size: 13px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.rd-mem-result.rd-bad {
+    color: #c62828;
+}
+
+.rd-mem-result.rd-good {
+    color: #2e7d32;
+}
+
+/* ビットの説明の一覧 */
+.rd-legend {
+    margin: 10px 0 0;
+    padding-left: 0;
+    list-style: none;
+    font-size: 14px;
+}
+
+.rd-legend li {
+    padding: 1px 0;
+}
+
+.rd-legend code {
+    font-weight: bold;
+}
+
+/* スマートフォンの幅では余白を詰め、帯が枠に収まるようにする */
+@media (max-width: 600px) {
+    .rd-figure {
+        padding: 10px;
+    }
+
+    .rd-mem {
+        --rd-col-min: 2.9em;
+        gap: 3px;
+    }
+
+    .rd-mem-group {
+        padding-right: 4px;
+    }
+
+    .rd-mem-result {
+        font-size: 11px;
+    }
+
+    .rd-bit {
+        width: 1.5em;
+    }
+}
