@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Node-RED PLCレジスタの読み方ガイド</title>
     <link rel="stylesheet" href="css/node-diagram.css">
+    <link rel="stylesheet" href="css/register-diagram.css">
     <script src="js/node-diagram.js" defer></script>
     <script src="js/table-fit.js" defer></script>
     <style>
@@ -124,6 +125,39 @@
             </tr>
         </table>
 
+        <figure class="rd-figure">
+            <span class="rd-title">レジスタ1個の中身（値が 253 のとき）</span>
+            <div class="rd-bits">
+                <div class="rd-bits-byte">
+                    <div class="rd-bits-row">
+                        <span class="rd-bit"><span class="rd-bit-no">15</span><span class="rd-bit-val">0</span></span>
+                        <span class="rd-bit"><span class="rd-bit-no">14</span><span class="rd-bit-val">0</span></span>
+                        <span class="rd-bit"><span class="rd-bit-no">13</span><span class="rd-bit-val">0</span></span>
+                        <span class="rd-bit"><span class="rd-bit-no">12</span><span class="rd-bit-val">0</span></span>
+                        <span class="rd-bit"><span class="rd-bit-no">11</span><span class="rd-bit-val">0</span></span>
+                        <span class="rd-bit"><span class="rd-bit-no">10</span><span class="rd-bit-val">0</span></span>
+                        <span class="rd-bit"><span class="rd-bit-no">9</span><span class="rd-bit-val">0</span></span>
+                        <span class="rd-bit"><span class="rd-bit-no">8</span><span class="rd-bit-val">0</span></span>
+                    </div>
+                    <span class="rd-bits-name">上位バイト 00</span>
+                </div>
+                <div class="rd-bits-byte">
+                    <div class="rd-bits-row">
+                        <span class="rd-bit rd-on"><span class="rd-bit-no">7</span><span class="rd-bit-val">1</span></span>
+                        <span class="rd-bit rd-on"><span class="rd-bit-no">6</span><span class="rd-bit-val">1</span></span>
+                        <span class="rd-bit rd-on"><span class="rd-bit-no">5</span><span class="rd-bit-val">1</span></span>
+                        <span class="rd-bit rd-on"><span class="rd-bit-no">4</span><span class="rd-bit-val">1</span></span>
+                        <span class="rd-bit rd-on"><span class="rd-bit-no">3</span><span class="rd-bit-val">1</span></span>
+                        <span class="rd-bit rd-on"><span class="rd-bit-no">2</span><span class="rd-bit-val">1</span></span>
+                        <span class="rd-bit"><span class="rd-bit-no">1</span><span class="rd-bit-val">0</span></span>
+                        <span class="rd-bit rd-on"><span class="rd-bit-no">0</span><span class="rd-bit-val">1</span></span>
+                    </div>
+                    <span class="rd-bits-name">下位バイト FD</span>
+                </div>
+            </div>
+            <figcaption>1つのマスが1ビットで、マスの上の数字がビット番号。bit0 が最下位、bit15 が最上位になる。8 ビットずつが1バイトで、bit15〜8 を上位バイト、bit7〜0 を下位バイトと呼ぶ。253 は 16 進で 00 FD なので、上位バイトは 00、下位バイトは FD になる。</figcaption>
+        </figure>
+
         <p>16 ビットで表せるのは 0 から 65535 までである。これより大きい値、負の値、小数を含む値は、この箱にそのままでは入らない。そこで機器のメーカーは、何らかの工夫をして押し込む。その工夫が、読む側から見た「解釈のしかた」になる。</p>
 
         <div class="tip">
@@ -134,9 +168,30 @@
 
         <p>MODBUS ノードでレジスタを読むと、<code>msg.payload</code> には数値の配列が入る。読み出し個数を3個に指定したなら、要素が3つの配列になる。</p>
 
-        <div class="code-block">msg.payload = [253, 65523, 40000]
-             ↑    ↑      ↑
-        アドレス+0  +1     +2</div>
+        <figure class="rd-figure">
+            <span class="rd-title">機器のレジスタ（先頭のアドレスから 3 個読んだとき）</span>
+            <div class="rd-regs">
+                <div class="rd-reg">
+                    <span class="rd-reg-name">先頭 +0</span>
+                    <span class="rd-reg-box"><span class="rd-byte">00</span><span class="rd-byte">FD</span></span>
+                    <span class="rd-reg-val">253</span>
+                    <span class="rd-reg-note">msg.payload[0]</span>
+                </div>
+                <div class="rd-reg">
+                    <span class="rd-reg-name">先頭 +1</span>
+                    <span class="rd-reg-box"><span class="rd-byte">FF</span><span class="rd-byte">F3</span></span>
+                    <span class="rd-reg-val">65523</span>
+                    <span class="rd-reg-note">msg.payload[1]</span>
+                </div>
+                <div class="rd-reg">
+                    <span class="rd-reg-name">先頭 +2</span>
+                    <span class="rd-reg-box"><span class="rd-byte">9C</span><span class="rd-byte">40</span></span>
+                    <span class="rd-reg-val">40000</span>
+                    <span class="rd-reg-note">msg.payload[2]</span>
+                </div>
+            </div>
+            <figcaption>箱1つがレジスタ1個（2 バイト）で、箱の中が上位バイトと下位バイト、箱の下が Node-RED に届く値。読み出した順に配列の要素になり、<code>msg.payload</code> は <code>[253, 65523, 40000]</code> になる。</figcaption>
+        </figure>
 
         <p>この配列の各要素が、上の表の「ワード」に相当する。値はすべて 0 〜 65535 の範囲で届く。負の数や小数がここに現れることはない。届いた時点では、まだ何の解釈もされていない生の値である。</p>
 
@@ -274,17 +329,80 @@ return msg;</div>
 
         <p>32 ビットの値を 16 ビットとして読むと、上半分か下半分だけが見えることになる。</p>
 
-        <div class="code-block">積算カウンタ 100000 = 0x000186A0
-
-  レジスタに入っている姿  : [1, 34464]
-  上位のレジスタだけ読むと : 1        ← 「値が 1 のまま増えない」
-  下位のレジスタだけ読むと : 34464    ← 「65535 を超えると 0 に戻ってしまう」</div>
+        <figure class="rd-figure">
+            <span class="rd-title">積算カウンタ 100000 は、16 進で 00 01 86 A0 の 4 バイト</span>
+            <div class="rd-regs">
+                <div class="rd-reg">
+                    <span class="rd-reg-box"><span class="rd-byte rd-a">00<small>A</small></span><span class="rd-byte rd-b">01<small>B</small></span><span class="rd-byte rd-c">86<small>C</small></span><span class="rd-byte rd-d">A0<small>D</small></span></span>
+                    <span class="rd-reg-val">100000</span>
+                </div>
+            </div>
+            <span class="rd-title">レジスタ2個に分けて入る</span>
+            <div class="rd-regs">
+                <div class="rd-reg">
+                    <span class="rd-reg-name">レジスタ N（上位）</span>
+                    <span class="rd-reg-box"><span class="rd-byte rd-a">00<small>A</small></span><span class="rd-byte rd-b">01<small>B</small></span></span>
+                    <span class="rd-reg-val">1</span>
+                    <span class="rd-reg-note">これだけ読むと「1 のまま増えない」</span>
+                </div>
+                <div class="rd-reg">
+                    <span class="rd-reg-name">レジスタ N+1（下位）</span>
+                    <span class="rd-reg-box"><span class="rd-byte rd-c">86<small>C</small></span><span class="rd-byte rd-d">A0<small>D</small></span></span>
+                    <span class="rd-reg-val">34464</span>
+                    <span class="rd-reg-note">これだけ読むと「65535 を超えると 0 に戻る」</span>
+                </div>
+            </div>
+            <figcaption>Node-RED には <code>[1, 34464]</code> として届く。2つを1組にして 1 × 65536 + 34464 = 100000 と読んで、はじめて元の値になる。</figcaption>
+        </figure>
 
         <p>カウンタが増えないように見える、あるいは 65535 で一周してしまう場合は、2レジスタ組で読むべき値を1つだけ読んでいる可能性が高い。</p>
 
         <h3>ワード順とバイト順</h3>
 
         <p>32 ビットは4バイトからなる。この4バイトを、上位から順に <strong>A B C D</strong> と呼ぶ約束が、PLC の仕様書では広く使われる。機器がどの順で送ってくるかは、この4文字の並びで表記される。</p>
+
+        <figure class="rd-figure">
+            <span class="rd-title">12.5（float）の 4 バイトを、上位から A B C D と呼ぶ</span>
+            <span class="rd-strip"><span class="rd-byte rd-a">41<small>A</small></span><span class="rd-byte rd-b">48<small>B</small></span><span class="rd-byte rd-c">00<small>C</small></span><span class="rd-byte rd-d">00<small>D</small></span></span>
+            <span class="rd-title">機器ごとの、レジスタ N と N+1 への入れ方</span>
+            <div class="rd-mem rd-cols-4">
+                <span class="rd-mem-corner"></span>
+                <span class="rd-mem-corner"></span>
+                <span class="rd-mem-head">ABCD</span>
+                <span class="rd-mem-head">CDAB</span>
+                <span class="rd-mem-head">BADC</span>
+                <span class="rd-mem-head">DCBA</span>
+                <span class="rd-mem-group">N</span>
+                <span class="rd-mem-addr">上位</span>
+                <span class="rd-byte rd-a">A<small>41</small></span>
+                <span class="rd-byte rd-c">C<small>00</small></span>
+                <span class="rd-byte rd-b">B<small>48</small></span>
+                <span class="rd-byte rd-d">D<small>00</small></span>
+                <span class="rd-mem-addr">下位</span>
+                <span class="rd-byte rd-b">B<small>48</small></span>
+                <span class="rd-byte rd-d">D<small>00</small></span>
+                <span class="rd-byte rd-a">A<small>41</small></span>
+                <span class="rd-byte rd-c">C<small>00</small></span>
+                <span class="rd-mem-group">N+1</span>
+                <span class="rd-mem-addr">上位</span>
+                <span class="rd-byte rd-c">C<small>00</small></span>
+                <span class="rd-byte rd-a">A<small>41</small></span>
+                <span class="rd-byte rd-d">D<small>00</small></span>
+                <span class="rd-byte rd-b">B<small>48</small></span>
+                <span class="rd-mem-addr">下位</span>
+                <span class="rd-byte rd-d">D<small>00</small></span>
+                <span class="rd-byte rd-b">B<small>48</small></span>
+                <span class="rd-byte rd-c">C<small>00</small></span>
+                <span class="rd-byte rd-a">A<small>41</small></span>
+                <span class="rd-mem-axis">↓ 上のマスから順に送られてくる</span>
+                <span class="rd-mem-label">届く配列</span>
+                <span class="rd-mem-result">[16712, 0]</span>
+                <span class="rd-mem-result">[0, 16712]</span>
+                <span class="rd-mem-result">[18497, 0]</span>
+                <span class="rd-mem-result">[0, 18497]</span>
+            </div>
+            <figcaption>色と文字が同じマスは同じバイトである。ABCD はレジスタ N に上位の A と B を入れ、CDAB はレジスタの順を、BADC は各レジスタの中のバイトの順を、DCBA はその両方を入れ替える。同じ 12.5 でも、機器によって届く配列が変わる。</figcaption>
+        </figure>
 
         <table>
             <tr>
@@ -295,7 +413,7 @@ return msg;</div>
             <tr>
                 <td><strong>ABCD</strong></td>
                 <td>Big Endian / High word first</td>
-                <td>入れ替えなし。MODBUS の標準的な並び</td>
+                <td>入れ替えなし。MODBUS のレジスタの中の順（上位バイトが先）を、ワードの順にも当てはめた並び</td>
             </tr>
             <tr>
                 <td><strong>CDAB</strong></td>
@@ -330,22 +448,22 @@ return msg;</div>
             </tr>
             <tr>
                 <td>ABCD（そのまま）</td>
-                <td>41 48 00 00</td>
+                <td><span class="rd-strip"><span class="rd-byte rd-a rd-sm">41<small>A</small></span><span class="rd-byte rd-b rd-sm">48<small>B</small></span><span class="rd-byte rd-c rd-sm">00<small>C</small></span><span class="rd-byte rd-d rd-sm">00<small>D</small></span></span></td>
                 <td><strong>12.5</strong></td>
             </tr>
             <tr>
                 <td>CDAB（ワード入れ替え）</td>
-                <td>00 00 41 48</td>
+                <td><span class="rd-strip"><span class="rd-byte rd-c rd-sm">00<small>C</small></span><span class="rd-byte rd-d rd-sm">00<small>D</small></span><span class="rd-byte rd-a rd-sm">41<small>A</small></span><span class="rd-byte rd-b rd-sm">48<small>B</small></span></span></td>
                 <td>2.3418e-41</td>
             </tr>
             <tr>
                 <td>BADC（ワード内で入れ替え）</td>
-                <td>48 41 00 00</td>
+                <td><span class="rd-strip"><span class="rd-byte rd-b rd-sm">48<small>B</small></span><span class="rd-byte rd-a rd-sm">41<small>A</small></span><span class="rd-byte rd-d rd-sm">00<small>D</small></span><span class="rd-byte rd-c rd-sm">00<small>C</small></span></span></td>
                 <td>197632</td>
             </tr>
             <tr>
                 <td>DCBA（完全に逆）</td>
-                <td>00 00 48 41</td>
+                <td><span class="rd-strip"><span class="rd-byte rd-d rd-sm">00<small>D</small></span><span class="rd-byte rd-c rd-sm">00<small>C</small></span><span class="rd-byte rd-b rd-sm">48<small>B</small></span><span class="rd-byte rd-a rd-sm">41<small>A</small></span></span></td>
                 <td>2.5920e-41</td>
             </tr>
         </table>
@@ -428,12 +546,44 @@ return msg;</div>
 
         <p>運転中、異常、準備完了といった ON/OFF を、1つのレジスタに 16 個まで詰め込める。この場合、レジスタの値を数値として読んでも意味をなさない。</p>
 
-        <div class="code-block">レジスタ値 13 = 2進で 0000 0000 0000 1101
-
-  bit0 = 1  運転中
-  bit1 = 0  停止中ではない
-  bit2 = 1  警報あり
-  bit3 = 1  メンテナンス要求</div>
+        <figure class="rd-figure">
+            <span class="rd-title">レジスタの値 13（2 進で 0000 0000 0000 1101）</span>
+            <div class="rd-bits">
+                <div class="rd-bits-byte">
+                    <div class="rd-bits-row">
+                        <span class="rd-bit"><span class="rd-bit-no">15</span><span class="rd-bit-val">0</span></span>
+                        <span class="rd-bit"><span class="rd-bit-no">14</span><span class="rd-bit-val">0</span></span>
+                        <span class="rd-bit"><span class="rd-bit-no">13</span><span class="rd-bit-val">0</span></span>
+                        <span class="rd-bit"><span class="rd-bit-no">12</span><span class="rd-bit-val">0</span></span>
+                        <span class="rd-bit"><span class="rd-bit-no">11</span><span class="rd-bit-val">0</span></span>
+                        <span class="rd-bit"><span class="rd-bit-no">10</span><span class="rd-bit-val">0</span></span>
+                        <span class="rd-bit"><span class="rd-bit-no">9</span><span class="rd-bit-val">0</span></span>
+                        <span class="rd-bit"><span class="rd-bit-no">8</span><span class="rd-bit-val">0</span></span>
+                    </div>
+                    <span class="rd-bits-name">上位バイト 00</span>
+                </div>
+                <div class="rd-bits-byte">
+                    <div class="rd-bits-row">
+                        <span class="rd-bit"><span class="rd-bit-no">7</span><span class="rd-bit-val">0</span></span>
+                        <span class="rd-bit"><span class="rd-bit-no">6</span><span class="rd-bit-val">0</span></span>
+                        <span class="rd-bit"><span class="rd-bit-no">5</span><span class="rd-bit-val">0</span></span>
+                        <span class="rd-bit"><span class="rd-bit-no">4</span><span class="rd-bit-val">0</span></span>
+                        <span class="rd-bit rd-on rd-mark"><span class="rd-bit-no">3</span><span class="rd-bit-val">1</span></span>
+                        <span class="rd-bit rd-on rd-mark"><span class="rd-bit-no">2</span><span class="rd-bit-val">1</span></span>
+                        <span class="rd-bit rd-mark"><span class="rd-bit-no">1</span><span class="rd-bit-val">0</span></span>
+                        <span class="rd-bit rd-on rd-mark"><span class="rd-bit-no">0</span><span class="rd-bit-val">1</span></span>
+                    </div>
+                    <span class="rd-bits-name">下位バイト 0D</span>
+                </div>
+            </div>
+            <ul class="rd-legend">
+                <li><code>bit0 = 1</code> 運転中</li>
+                <li><code>bit1 = 0</code> 停止中ではない</li>
+                <li><code>bit2 = 1</code> 警報あり</li>
+                <li><code>bit3 = 1</code> メンテナンス要求</li>
+            </ul>
+            <figcaption>黄色のマスが 1 のビット。13 という数そのものには意味がなく、1 つ 1 つのマスが別々の状態を表す。</figcaption>
+        </figure>
 
         <p>「状態が 0 か 1 のはずなのに 5 や 13 が返る」という症状は、この形式であることのサインである。特定のビットを取り出すには、右へずらして最下位だけを見る。</p>
 
@@ -451,6 +601,17 @@ return msg;</div>
         <h3>BCD（表示用の10進形式）</h3>
 
         <p>表示器やカウンタでは、10 進数の各桁を4ビットずつに割り当てる <strong>BCD</strong> という形式が使われることがある。1234 という表示値は、16 進で <code>0x1234</code> として格納される。これを普通の整数として読むと 4660 になる。</p>
+
+        <figure class="rd-figure">
+            <span class="rd-title">表示値 1234 を BCD で入れたレジスタ</span>
+            <div class="rd-nibbles">
+                <span class="rd-nibble"><span class="rd-nibble-bits">0001</span><span class="rd-nibble-digit">1</span></span>
+                <span class="rd-nibble"><span class="rd-nibble-bits">0010</span><span class="rd-nibble-digit">2</span></span>
+                <span class="rd-nibble"><span class="rd-nibble-bits">0011</span><span class="rd-nibble-digit">3</span></span>
+                <span class="rd-nibble"><span class="rd-nibble-bits">0100</span><span class="rd-nibble-digit">4</span></span>
+            </div>
+            <figcaption>4 ビットずつの区切り 1 つが、10 進の 1 桁を表す。16 ビット全体を 1 つの整数として読むと 0x1234 = 4660 になり、区切りごとに読むと 1234 になる。</figcaption>
+        </figure>
 
         <table>
             <tr>

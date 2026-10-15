@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Node-RED buffer-parser ノード ガイド</title>
     <link rel="stylesheet" href="css/node-diagram.css">
+    <link rel="stylesheet" href="css/register-diagram.css">
     <script src="js/node-diagram.js" defer></script>
     <script src="js/table-fit.js" defer></script>
     <style>
@@ -181,10 +182,22 @@ return msg;</div>
         <h3>エンディアン（バイトの並び順）</h3>
         <p>2バイト以上の数値をメモリに置くとき、上位バイトを先に置く方式と、下位バイトを先に置く方式がある。前者を<strong>ビッグエンディアン</strong>（be）、後者を<strong>リトルエンディアン</strong>（le）と呼ぶ。</p>
 
-        <div class="diagram-box">数値 253 を 2 バイトで表すと
-
-  ビッグエンディアン (be) :  00 FD    ← 上位が先
-  リトルエンディアン (le) :  FD 00    ← 下位が先</div>
+        <figure class="rd-figure">
+            <span class="rd-title">数値 253（16 進で 00 FD）をメモリに置くと</span>
+            <div class="rd-mem rd-cols-2 rd-nogroup">
+                <span class="rd-mem-corner">アドレス</span>
+                <span class="rd-mem-head">ビッグ<br>エンディアン (be)</span>
+                <span class="rd-mem-head">リトル<br>エンディアン (le)</span>
+                <span class="rd-mem-addr">+0</span>
+                <span class="rd-byte rd-a">00<small>上位</small></span>
+                <span class="rd-byte rd-b">FD<small>下位</small></span>
+                <span class="rd-mem-addr">+1</span>
+                <span class="rd-byte rd-b">FD<small>下位</small></span>
+                <span class="rd-byte rd-a">00<small>上位</small></span>
+                <span class="rd-mem-axis">↓ アドレスが大きくなる（上のマスから順に読み書きされる）</span>
+            </div>
+            <figcaption>be は上位バイトを小さいアドレスに、le は下位バイトを小さいアドレスに置く。バイトの中身は同じで、置く順だけが違う。</figcaption>
+        </figure>
 
         <p>同じバイト列でも、どちらとして読むかで結果が変わる。<code>00 FD</code> を be で読めば 253、le で読めば 64768 になる。機器の仕様書に記載があるのが本来だが、記載がない場合は両方試して意味の通る側を採用することになる。</p>
 
@@ -193,18 +206,75 @@ return msg;</div>
 
         <p>ややこしいのは、バイト順とワード順が別々に入れ替わることである。32 ビットの値は2つのワードに跨るため、バイト順が合っていてもワードの順番が逆なら、値は意味をなさない。</p>
 
-        <div class="diagram-box">float の 12.5 は 4 バイトで 41 48 00 00
-
-  正しい順で読む             :  41 48 00 00  →  12.5
-  ワードの順が逆の機器なら   :  00 00 41 48  →  2.34e-41（無意味な値）</div>
+        <figure class="rd-figure">
+            <span class="rd-title">float の 12.5 は 4 バイトで、上位から A B C D</span>
+            <span class="rd-strip"><span class="rd-byte rd-a">41<small>A</small></span><span class="rd-byte rd-b">48<small>B</small></span><span class="rd-byte rd-c">00<small>C</small></span><span class="rd-byte rd-d">00<small>D</small></span></span>
+            <span class="rd-title">届いたバイト列</span>
+            <div class="rd-mem rd-cols-2">
+                <span class="rd-mem-corner"></span>
+                <span class="rd-mem-corner">アドレス</span>
+                <span class="rd-mem-head">正しい順</span>
+                <span class="rd-mem-head">ワード順が<br>逆の機器</span>
+                <span class="rd-mem-group">ワード 1</span>
+                <span class="rd-mem-addr">+0</span>
+                <span class="rd-byte rd-a">A<small>41</small></span>
+                <span class="rd-byte rd-c">C<small>00</small></span>
+                <span class="rd-mem-addr">+1</span>
+                <span class="rd-byte rd-b">B<small>48</small></span>
+                <span class="rd-byte rd-d">D<small>00</small></span>
+                <span class="rd-mem-group">ワード 2</span>
+                <span class="rd-mem-addr">+2</span>
+                <span class="rd-byte rd-c">C<small>00</small></span>
+                <span class="rd-byte rd-a">A<small>41</small></span>
+                <span class="rd-mem-addr">+3</span>
+                <span class="rd-byte rd-d">D<small>00</small></span>
+                <span class="rd-byte rd-b">B<small>48</small></span>
+                <span class="rd-mem-axis">↓ アドレスが大きくなる</span>
+                <span class="rd-mem-label">そのまま読むと</span>
+                <span class="rd-mem-result rd-good">12.5</span>
+                <span class="rd-mem-result rd-bad">2.34e-41</span>
+            </div>
+            <figcaption>ワードの中のバイトの順（A の次に B）は合っているが、ワード 1 とワード 2 が入れ替わっている。このまま float として読むと、意味のない値になる。</figcaption>
+        </figure>
 
         <p>buffer-parser の「Byte swap」は、この入れ替えを設定で吸収するためにある。swap16 は2バイトごと、swap32 は4バイトごと、swap64 は8バイトごとに並びを反転する。</p>
 
         <h3>スワップの効き方を目で見る</h3>
         <p>16bit の配列 <code>[25185, 25699, 26213, 26727]</code> は、そのままバイト列にすると <code>62 61 64 63 66 65 68 67</code> になる。文字として読むと <code>badcfehg</code> で、2文字ずつ入れ替わっている。</p>
 
-        <div class="diagram-box">swap16 なし :  62 61 64 63 66 65 68 67  →  "badcfehg"
-swap16 あり :  61 62 63 64 65 66 67 68  →  "abcdefgh"</div>
+        <figure class="rd-figure">
+            <span class="rd-title">swap16 なし → "badcfehg"</span>
+            <div class="rd-regs">
+                <div class="rd-reg">
+                    <span class="rd-reg-box"><span class="rd-byte">62<small>b</small></span><span class="rd-byte">61<small>a</small></span></span>
+                </div>
+                <div class="rd-reg">
+                    <span class="rd-reg-box"><span class="rd-byte">64<small>d</small></span><span class="rd-byte">63<small>c</small></span></span>
+                </div>
+                <div class="rd-reg">
+                    <span class="rd-reg-box"><span class="rd-byte">66<small>f</small></span><span class="rd-byte">65<small>e</small></span></span>
+                </div>
+                <div class="rd-reg">
+                    <span class="rd-reg-box"><span class="rd-byte">68<small>h</small></span><span class="rd-byte">67<small>g</small></span></span>
+                </div>
+            </div>
+            <span class="rd-title">swap16 あり（2 バイトごとに入れ替える） → "abcdefgh"</span>
+            <div class="rd-regs">
+                <div class="rd-reg">
+                    <span class="rd-reg-box"><span class="rd-byte">61<small>a</small></span><span class="rd-byte">62<small>b</small></span></span>
+                </div>
+                <div class="rd-reg">
+                    <span class="rd-reg-box"><span class="rd-byte">63<small>c</small></span><span class="rd-byte">64<small>d</small></span></span>
+                </div>
+                <div class="rd-reg">
+                    <span class="rd-reg-box"><span class="rd-byte">65<small>e</small></span><span class="rd-byte">66<small>f</small></span></span>
+                </div>
+                <div class="rd-reg">
+                    <span class="rd-reg-box"><span class="rd-byte">67<small>g</small></span><span class="rd-byte">68<small>h</small></span></span>
+                </div>
+            </div>
+            <figcaption>箱1つが 16bit の配列の要素1つ（2 バイト）。swap16 は、どの箱でも中の 2 バイトを入れ替える。</figcaption>
+        </figure>
 
         <p>swap16 を1回かけるだけで、意図した並びに戻る。数値でも同じことが起きているため、値が桁違いにおかしいときはまずスワップを疑う。</p>
 

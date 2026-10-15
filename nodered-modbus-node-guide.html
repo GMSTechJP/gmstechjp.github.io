@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Node-RED MODBUS ノードガイド（サードパーティ）</title>
     <link rel="stylesheet" href="css/node-diagram.css">
+    <link rel="stylesheet" href="css/register-diagram.css">
     <script src="js/node-diagram.js" defer></script>
     <script src="js/table-fit.js" defer></script>
     <style>
@@ -867,11 +868,35 @@ diagslave -m tcp -p 10502</div>
         <h3 id="term-endian">エンディアン（Endian / ワード順序）</h3>
         <p>MODBUS のレジスタは <strong>16 bit（1 ワード）単位</strong>ですが、温度（32 bit float）や 32 bit カウンタなど <strong>1 レジスタに収まらない値</strong>を扱うときに問題になります。</p>
         <p>32 bit 値を 2 つの 16 bit レジスタに分けて格納するとき、<strong>どちらのワードを上位にするか</strong>は機器メーカーごとに異なります。</p>
-        <table>
-            <tr><th>並べ方</th><th>32 bit 値 <code>0x12345678</code> をレジスタ N と N+1 に</th></tr>
-            <tr><td><strong>ビッグエンディアン（上位ワード先）</strong></td><td>レジスタ N: <code>0x1234</code>、N+1: <code>0x5678</code>。Modbus の標準仕様（バイト順）</td></tr>
-            <tr><td><strong>リトルエンディアン（下位ワード先）</strong></td><td>レジスタ N: <code>0x5678</code>、N+1: <code>0x1234</code>。多くの PLC やパソコン CPU が内部で採用</td></tr>
-        </table>
+        <figure class="rd-figure">
+            <span class="rd-title">32 bit 値 <code>0x12345678</code> の 4 バイト</span>
+            <span class="rd-strip"><span class="rd-byte rd-a">12<small>A</small></span><span class="rd-byte rd-b">34<small>B</small></span><span class="rd-byte rd-c">56<small>C</small></span><span class="rd-byte rd-d">78<small>D</small></span></span>
+            <span class="rd-title">レジスタ N と N+1 への入れ方</span>
+            <div class="rd-mem rd-cols-2">
+                <span class="rd-mem-corner"></span>
+                <span class="rd-mem-corner"></span>
+                <span class="rd-mem-head">上位ワード先</span>
+                <span class="rd-mem-head">下位ワード先</span>
+                <span class="rd-mem-group">N</span>
+                <span class="rd-mem-addr">上位</span>
+                <span class="rd-byte rd-a">12<small>A</small></span>
+                <span class="rd-byte rd-c">56<small>C</small></span>
+                <span class="rd-mem-addr">下位</span>
+                <span class="rd-byte rd-b">34<small>B</small></span>
+                <span class="rd-byte rd-d">78<small>D</small></span>
+                <span class="rd-mem-group">N+1</span>
+                <span class="rd-mem-addr">上位</span>
+                <span class="rd-byte rd-c">56<small>C</small></span>
+                <span class="rd-byte rd-a">12<small>A</small></span>
+                <span class="rd-mem-addr">下位</span>
+                <span class="rd-byte rd-d">78<small>D</small></span>
+                <span class="rd-byte rd-b">34<small>B</small></span>
+                <span class="rd-mem-label">届く配列</span>
+                <span class="rd-mem-result">[0x1234, 0x5678]</span>
+                <span class="rd-mem-result">[0x5678, 0x1234]</span>
+            </div>
+            <figcaption>上位ワード先（ABCD）は、レジスタ N に上位の 0x1234 を入れる。下位ワード先（CDAB、ワードスワップ）は、レジスタ N に下位の 0x5678 を入れる。どちらも、レジスタの中のバイトは上位が先に並ぶ。Modbus の規格が決めているのはこの 1 レジスタの中の順だけで、どちらのワードを先に置くかは機器によって違う。</figcaption>
+        </figure>
         <div class="warning">
             <strong>⚠️ 値が読めるのに桁が大きすぎる／符号が逆／変な数になる</strong>ときは、まずワード順を疑ってください。<code>node-red-contrib-modbus</code> 側でスワップする処理を Function ノードで挟むか、機器マニュアルの「<strong>Word Order</strong>」「<strong>Byte Swap</strong>」項目を確認します。
         </div>
