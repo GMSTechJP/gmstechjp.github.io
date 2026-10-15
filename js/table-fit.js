@@ -119,6 +119,9 @@
 
     function fit(table) {
         clear(table);
+        if (table.querySelector(":scope > colgroup")) {
+            return; // 作者が列の幅を決めている表には手を出さない（測る前に判定する）
+        }
         var width = table.getBoundingClientRect().width;
         if (width < MIN_TABLE_WIDTH) {
             return;
@@ -168,9 +171,6 @@
         // うち選ばなかった列は、<col> の幅で元の幅に固定し、長い列だけに縮める分を
         // 引き受けさせる。長い列が細くなりすぎる（表の幅の REST_COL_RATIO 未満。もともと
         // それより細い列は元の幅未満）とき、または表が枠からはみ出すときは、その列を戻す
-        if (table.querySelector(":scope > colgroup")) {
-            return; // 作者が列の幅を決めている表には手を出さない
-        }
         var original = columnWidths(cols);
         var group = document.createElement("colgroup");
         group.setAttribute(PIN, "");
