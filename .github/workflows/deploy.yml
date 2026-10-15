@@ -20,17 +20,20 @@ concurrency:
   group: pages
   cancel-in-progress: false
 
+# 実行環境は ubuntu-latest にせず、版を書く。ubuntu-latest は GitHub の都合で新しい版へ
+# 切り替わり（2026-10-19 から 24.04 → 26.04）、公開が知らないうちに別の環境で動くため。
+# 上げるときは validate.yml も同じ版にそろえる。
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
       - name: チェックアウト（全履歴）
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
       - name: Python セットアップ
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: '3.x'
 
@@ -84,20 +87,21 @@ jobs:
             ./ _site/
 
       - name: Pages 設定
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
 
+      # v4 以降は、名前が . で始まるファイル（.gitignore など）を公開物に含めない
       - name: 成果物をアップロード
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: _site
 
   deploy:
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Pages へデプロイ
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
