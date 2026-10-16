@@ -1105,11 +1105,11 @@ home/bedroom/temperature     → 22.0</div>
                     <div class="sys-role">公開ブローカー<br>（既にあるもの）</div>
                 </div>
                 <div class="sys-link">
-                    <div class="sys-req">コマンド送信 &rarr;</div>
+                    <div class="sys-res">&larr; PUBLISH .../command</div>
                 </div>
                 <div class="sys-actor">
                     <div class="sys-name">操作する人</div>
-                    <div class="sys-role">Inject + MQTT Out<br>（確認用に自分で足す）</div>
+                    <div class="sys-role">Inject + MQTT Out<br>（確認用に自分で足す。<br>解答例フローにも入っている）</div>
                 </div>
             </div>
 
@@ -1125,7 +1125,7 @@ home/bedroom/temperature     → 22.0</div>
             <ul>
                 <li>デプロイ後、10秒ごとにデバッグパネルに温度・湿度データが自動表示される</li>
                 <li>送信データに <code>deviceId</code>, <code>temperature</code>, <code>humidity</code>, <code>timestamp</code> が含まれている</li>
-                <li><code>yourname/device001/command</code> に「ON」や「OFF」を発行するとデバッグパネルに受信内容が表示される。発行には、同じタブに Inject ノード（payload に ON または OFF）と MQTT Out ノード（同じブローカー、トピック <code>yourname/device001/command</code>）を足して使う</li>
+                <li><code>yourname/device001/command</code> に「ON」や「OFF」を発行するとデバッグパネルに受信内容が表示される。発行には、同じタブに Inject ノード（payload に ON または OFF）と MQTT Out ノード（同じブローカー、トピック <code>yourname/device001/command</code>）を足して使う。解答例フローには、この確認用のノードも「確認用:」の名前で入っている</li>
             </ul>
 
             <details>
@@ -1153,7 +1153,11 @@ home/bedroom/temperature     → 22.0</div>
     {"id": "ex4_mqtt_out", "type": "mqtt out", "z": "ex4_tab", "name": "Publish Telemetry", "topic": "", "qos": "1", "retain": "false", "respTopic": "", "contentType": "", "userProps": "", "correl": "", "expiry": "", "broker": "ex4_broker", "x": 590, "y": 100, "wires": []},
     {"id": "ex4_debug_send", "type": "debug", "z": "ex4_tab", "name": "送信データ", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "\"送信\"", "statusType": "jsonata", "x": 570, "y": 140, "wires": []},
     {"id": "ex4_mqtt_in", "type": "mqtt in", "z": "ex4_tab", "name": "Subscribe Command", "topic": "yourname/device001/command", "qos": "1", "datatype": "utf8", "broker": "ex4_broker", "nl": false, "rap": true, "rh": 0, "inputs": 0, "x": 190, "y": 220, "wires": [["ex4_debug_cmd"]]},
-    {"id": "ex4_debug_cmd", "type": "debug", "z": "ex4_tab", "name": "コマンド受信", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "payload", "statusType": "msg", "x": 430, "y": 220, "wires": []}
+    {"id": "ex4_debug_cmd", "type": "debug", "z": "ex4_tab", "name": "コマンド受信", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "payload", "statusType": "msg", "x": 430, "y": 220, "wires": []},
+    {"id": "ex4_comment_check", "type": "comment", "z": "ex4_tab", "name": "確認用: 操作する人の代わりに command を発行する", "info": "", "x": 260, "y": 300, "wires": []},
+    {"id": "ex4_inject_on", "type": "inject", "z": "ex4_tab", "name": "確認用: ON", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "ON", "payloadType": "str", "x": 170, "y": 340, "wires": [["ex4_mqtt_out_cmd"]]},
+    {"id": "ex4_inject_off", "type": "inject", "z": "ex4_tab", "name": "確認用: OFF", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "OFF", "payloadType": "str", "x": 170, "y": 380, "wires": [["ex4_mqtt_out_cmd"]]},
+    {"id": "ex4_mqtt_out_cmd", "type": "mqtt out", "z": "ex4_tab", "name": "確認用: コマンド送信", "topic": "yourname/device001/command", "qos": "1", "retain": "false", "respTopic": "", "contentType": "", "userProps": "", "correl": "", "expiry": "", "broker": "ex4_broker", "x": 420, "y": 360, "wires": []}
 ]</div>
             </details>
         </div>
