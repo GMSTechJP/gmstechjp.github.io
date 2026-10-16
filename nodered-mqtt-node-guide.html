@@ -36,6 +36,7 @@
         .sys-role { font-size: 11px; line-height: 1.7; margin-top: 5px; color: #b0bec5; }
         .sys-build { border-color: #ffca28; border-width: 3px; background-color: #3f3722; }
         .sys-badge { display: inline-block; background-color: #ffca28; color: #3e2723; font-size: 11px; font-weight: bold; padding: 2px 10px; border-radius: 10px; margin-bottom: 6px; }
+        .sys-badge-check { background-color: #b0bec5; color: #263238; }
         .sys-link { flex: 0 0 auto; display: flex; flex-direction: column; gap: 5px; padding: 0 4px; font-family: 'Courier New', Consolas, monospace; font-size: 11px; white-space: nowrap; text-align: center; }
         .sys-req { color: #4fc3f7; }
         .sys-res { color: #a6e22e; }
@@ -1105,13 +1106,16 @@ home/bedroom/temperature     → 22.0</div>
                     <div class="sys-role">公開ブローカー<br>（既にあるもの）</div>
                 </div>
                 <div class="sys-link">
+                    <div class="sys-req">配信 .../telemetry &rarr;</div>
                     <div class="sys-res">&larr; PUBLISH .../command</div>
                 </div>
                 <div class="sys-actor">
-                    <div class="sys-name">操作する人</div>
-                    <div class="sys-role">Inject + MQTT Out<br>（確認用に自分で足す。<br>解答例フローにも入っている）</div>
+                    <div><span class="sys-badge sys-badge-check">確認用ノード</span></div>
+                    <div class="sys-name">操作・監視する人</div>
+                    <div class="sys-role">MQTT In + Debug で telemetry を見る<br>Inject + MQTT Out で command を送る<br>（同じタブに自分で足す。<br>解答例フローにも入っている）</div>
                 </div>
             </div>
+            <p>右端の「操作・監視する人」は、実際の運用ではダッシュボードやスマートフォンのアプリなど、デバイスの外にいる利用者です。この演習では、その代わりになるノードを「確認用」として同じタブに置き、ブローカーを経由して telemetry が届くことと、command が仮想デバイスへ届くことを確かめます。</p>
 
             <p><strong>🎯 要求仕様:</strong></p>
             <ul>
@@ -1123,9 +1127,15 @@ home/bedroom/temperature     → 22.0</div>
 
             <p><strong>✅ 成功の条件:</strong></p>
             <ul>
-                <li>デプロイ後、10秒ごとにデバッグパネルに温度・湿度データが自動表示される</li>
-                <li>送信データに <code>deviceId</code>, <code>temperature</code>, <code>humidity</code>, <code>timestamp</code> が含まれている</li>
-                <li><code>yourname/device001/command</code> に「ON」や「OFF」を発行するとデバッグパネルに受信内容が表示される。発行には、同じタブに Inject ノード（payload に ON または OFF）と MQTT Out ノード（同じブローカー、トピック <code>yourname/device001/command</code>）を足して使う。解答例フローには、この確認用のノードも「確認用:」の名前で入っている</li>
+                <li>デプロイ後、10秒ごとに、<code>yourname/device001/telemetry</code> を購読した確認用の MQTT In ノードから、温度・湿度データがデバッグパネルに自動表示される</li>
+                <li>受信したデータに <code>deviceId</code>, <code>temperature</code>, <code>humidity</code>, <code>timestamp</code> が含まれている</li>
+                <li><code>yourname/device001/command</code> に「ON」や「OFF」を発行すると、仮想デバイス側のデバッグパネルに受信内容が表示される</li>
+            </ul>
+
+            <p><strong>🔍 確認用ノード（図の「操作・監視する人」）:</strong> 作った仮想デバイスと同じタブに、次のノードを足して確かめます。解答例フローには、これらも「確認用:」で始まる名前で入っています。</p>
+            <ul>
+                <li><strong>telemetry を見る:</strong> MQTT In ノード（同じブローカー、トピック <code>yourname/device001/telemetry</code>、出力は「JSONオブジェクト」）→ Debug ノード</li>
+                <li><strong>command を送る:</strong> Inject ノード（payload に ON または OFF の文字列）→ MQTT Out ノード（同じブローカー、トピック <code>yourname/device001/command</code>）</li>
             </ul>
 
             <details>
@@ -1154,7 +1164,9 @@ home/bedroom/temperature     → 22.0</div>
     {"id": "ex4_debug_send", "type": "debug", "z": "ex4_tab", "name": "送信データ", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "\"送信\"", "statusType": "jsonata", "x": 570, "y": 140, "wires": []},
     {"id": "ex4_mqtt_in", "type": "mqtt in", "z": "ex4_tab", "name": "Subscribe Command", "topic": "yourname/device001/command", "qos": "1", "datatype": "utf8", "broker": "ex4_broker", "nl": false, "rap": true, "rh": 0, "inputs": 0, "x": 190, "y": 220, "wires": [["ex4_debug_cmd"]]},
     {"id": "ex4_debug_cmd", "type": "debug", "z": "ex4_tab", "name": "コマンド受信", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "payload", "statusType": "msg", "x": 430, "y": 220, "wires": []},
-    {"id": "ex4_comment_check", "type": "comment", "z": "ex4_tab", "name": "確認用: 操作する人の代わりに command を発行する", "info": "", "x": 260, "y": 300, "wires": []},
+    {"id": "ex4_comment_check", "type": "comment", "z": "ex4_tab", "name": "確認用: 操作・監視する人の代わりに telemetry を見て command を送る", "info": "", "x": 300, "y": 300, "wires": []},
+    {"id": "ex4_mqtt_in_telemetry", "type": "mqtt in", "z": "ex4_tab", "name": "確認用: telemetry 購読", "topic": "yourname/device001/telemetry", "qos": "1", "datatype": "json", "broker": "ex4_broker", "nl": false, "rap": true, "rh": 0, "inputs": 0, "x": 200, "y": 440, "wires": [["ex4_debug_telemetry"]]},
+    {"id": "ex4_debug_telemetry", "type": "debug", "z": "ex4_tab", "name": "確認用: telemetry 受信", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "payload.temperature", "statusType": "msg", "x": 450, "y": 440, "wires": []},
     {"id": "ex4_inject_on", "type": "inject", "z": "ex4_tab", "name": "確認用: ON", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "ON", "payloadType": "str", "x": 170, "y": 340, "wires": [["ex4_mqtt_out_cmd"]]},
     {"id": "ex4_inject_off", "type": "inject", "z": "ex4_tab", "name": "確認用: OFF", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "OFF", "payloadType": "str", "x": 170, "y": 380, "wires": [["ex4_mqtt_out_cmd"]]},
     {"id": "ex4_mqtt_out_cmd", "type": "mqtt out", "z": "ex4_tab", "name": "確認用: コマンド送信", "topic": "yourname/device001/command", "qos": "1", "retain": "false", "respTopic": "", "contentType": "", "userProps": "", "correl": "", "expiry": "", "broker": "ex4_broker", "x": 420, "y": 360, "wires": []}
