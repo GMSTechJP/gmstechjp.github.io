@@ -667,7 +667,7 @@
         "iface": "",
         "port": "",
         "ipv": "udp4",
-        "outport": "",
+        "outport": "8002",
         "base64": false,
         "multicast": "false",
         "x": 620,
@@ -775,19 +775,60 @@
             <p>サンプルフローをデプロイしたら、UDPでデータを送受信してみて動作を確認できます。初心者の方は、まず「Node-RED内」の方法から試すのがおすすめです。</p>
             <ul>
                 <li><strong>Node-RED内（追加ツール不要）:</strong> UDP Outノードで自分自身にテスト送信するなど、サンプルフローの他のノードと組み合わせて動作確認します。</li>
-                <li><strong>netcat（nc）:</strong> ターミナル（コマンドプロンプト）からUDP通信を手軽に試せるコマンドラインツールです。Linux/Macには標準搭載されています（Windowsは別途インストールが必要）。</li>
+                <li><strong>Mac・Linux: netcat（nc）:</strong> ターミナルからUDP通信を手軽に試せるコマンドラインツールです。Mac と多くの Linux に入っています。</li>
+                <li><strong>Windows: PowerShell:</strong> Windows には nc が入っていません。PowerShell に下の関数を貼り付けると、何もインストールせずに送信と返信の確認ができます。コマンドプロンプトでは使えません。</li>
                 <li><strong>socat:</strong> netcatより高機能な通信テストツールです。netcatでうまく送受信できない場合の代替として使えます。</li>
                 <li><strong>Python（任意）:</strong> Pythonのsocketモジュールでテスト用スクリプトを自作する方法です。プログラミング経験がある場合に。</li>
             </ul>
         </div>
         
-        <h3>netcat でのテスト例</h3>
-        <p>ターミナル（コマンドプロンプト）を2つ開き、一方で受信を待ち受け、もう一方から送信すると動作を確認できます。<code>[Node-REDのホスト]</code> は、お使いのNode-REDエディタを開いているアドレスに置き換えてください（ローカル環境なら <code>localhost</code>）。</p>
-        <div class="code-block"># UDP送信
-echo "Hello UDP" | nc -u [Node-REDのホスト] 8000
+        <h3 id="test-nc">Mac・Linux: netcat でのテスト例</h3>
+        <p>ターミナルを開いて以下のコマンドを実行すると、サンプルフローのUDP Inへ送れます。<code>[Node-REDのホスト]</code> は、お使いのNode-REDエディタを開いているアドレスに置き換えてください（ローカル環境なら <code>127.0.0.1</code>）。</p>
+        <div class="code-block"># UDP送信（「UDP In :8000」へ。届いた内容は debug サイドバーで確かめる）
+echo "Hello UDP" | nc -u -w1 [Node-REDのホスト] 8000
 
-# UDP受信（別ターミナル）
-nc -ul 8000</div>
+# 返信を受ける（「UDP In :8002」のエコーが [ECHO] Hello を返す）
+echo "Hello" | nc -u -w1 [Node-REDのホスト] 8002</div>
+        <ul>
+            <li><strong>localhost ではなく 127.0.0.1 と書く:</strong> nc は <code>localhost</code> を IPv6 の <code>::1</code> として送ることがあります。UDP In は既定で IPv4 で待ち受けるため、届きません。UDP には接続がないので、届かなくてもエラーは出ません</li>
+            <li><strong><code>-w1</code>:</strong> Mac の nc では、1秒間何も届かなければ nc を終わらせます。付けないと、返信が来たあとも nc が終わらないので、Ctrl+C で止めます。Linux の nc は種類によってオプションの意味が違い、<code>-w1</code> を付けても終わらないことがあります。そのときも Ctrl+C で止めます</li>
+            <li><strong>Node-RED が待ち受けているポートを nc で待ち受けない:</strong> たとえば <code>nc -ul 8000</code> は、「UDP In :8000」と同じポートを取り合います。起動できないか、起動できても届いたデータは Node-RED 側に渡り、nc には表示されません</li>
+        </ul>
+
+        <h3 id="test-powershell">Windows: PowerShell でのテスト例</h3>
+        <p>スタートメニューで「PowerShell」と検索して開きます。次の関数をコピーして PowerShell の画面に貼り付け、Enter キーを押します。画面に何も表示されなければ、関数を作れています。関数は PowerShell の画面を閉じるまで使えるので、開き直したときはもう一度貼り付けます。</p>
+        <div class="code-block" data-copy="true">function Send-UdpText {
+    param([int]$Port, [string]$Text, [switch]$Wait, [string]$HostName = "127.0.0.1")
+    # UDP で Text の末尾に改行を付けて1回送る（nc に echo で渡したときと同じ）
+    # 送り先の既定は 127.0.0.1（Node-RED の UDP In の既定は ipv4 のため）
+    $udp = New-Object System.Net.Sockets.UdpClient
+    try {
+        $bytes = [System.Text.Encoding]::UTF8.GetBytes($Text + "`n")
+        [void]$udp.Send($bytes, $bytes.Length, $HostName, $Port)
+        if ($Wait) {
+            # -Wait を付けたときは、3秒まで返信を待って、UTF-8 の文字列にして表示する
+            $udp.Client.ReceiveTimeout = 3000
+            $remote = New-Object System.Net.IPEndPoint([System.Net.IPAddress]::Any, 0)
+            $reply = $udp.Receive([ref]$remote)
+            [System.Text.Encoding]::UTF8.GetString($reply)
+        }
+    } finally {
+        $udp.Close()
+    }
+}</div>
+        <p>使い方は <code>Send-UdpText ポート番号 "送る文字"</code> です。サンプルフローの「UDP In :8000」へは、次のように送ります。</p>
+        <div class="code-block">Send-UdpText 8000 "Hello UDP"</div>
+        <p>Node-RED が別のパソコン（Raspberry Pi など）で動いているときは、最後に <code>-HostName</code> で送り先の IPv4 アドレスを指定します。指定しないと、PowerShell を開いているパソコン自身（127.0.0.1）へ送ります。</p>
+        <div class="code-block">Send-UdpText 8000 "Hello UDP" -HostName 192.168.1.20</div>
+        <p>UDP は送りっぱなしなので、送るだけのときは PowerShell の画面に何も表示されません。届いたかは、Node-RED の debug サイドバーで確かめます。返信を待つときは、最後に <code>-Wait</code> を付けます（例: <code>Send-UdpText 8002 "Hello" -Wait</code>）。<code>-Wait</code> を付けたときの表示の意味は次のとおりです。</p>
+        <table>
+            <tr><th>表示</th><th>意味</th></tr>
+            <tr><td>返信の文字</td><td>成功。送った文字が届き、返信が戻った</td></tr>
+            <tr><td>「既存の接続はリモート ホストに強制的に切断されました」を含む赤いエラー</td><td>そのポートで待ち受けているものが無い。フローをデプロイしたか、ポート番号が合っているかを確かめる</td></tr>
+            <tr><td>「一定の時間を過ぎても正しく応答しなかった」を含む赤いエラー</td><td>3秒以内に返信が無かった。返信する側の UDP Out のアドレスとポートが空欄（msg.ip と msg.port を使う）になっているかを確かめる</td></tr>
+            <tr><td>「言語モード」を含む赤いエラー（「この言語モードでは、コア型のみがサポートされています」など）</td><td>会社のパソコンなどで、PowerShell の機能が制限されている。演習に付けた「動作確認用フロー」で確かめる</td></tr>
+        </table>
+        <p>エラーの文言は、Windows の言語の設定によって英語で表示されることがあります（待ち受け無し: <code>forcibly closed</code>、時間切れ: <code>failed to respond</code>、制限: <code>Only core types are supported in this language mode</code>）。</p>
         
         
         <h3>使用パターン</h3>
@@ -846,7 +887,7 @@ nc -ul 8000</div>
             <li>受信時: JSON ノードでパース</li>
         </ul>
         
-        <h3>パターン4: 受信元への返信（エコー）</h3>
+        <h3 id="pattern-echo">パターン4: 受信元への返信（エコー）</h3>
         <p><strong>用途:</strong> 受信した送信元へのエコー返信</p>
         <p>サンプルフローの「受信元への返信（エコー）」を参照してください。</p>
         <div class="node-example">
@@ -860,7 +901,12 @@ nc -ul 8000</div>
         <ul>
             <li>UDP Out のアドレス/ポートを空にすると msg.ip, msg.port を使用</li>
             <li>受信したパケットの送信元に返信可能</li>
+            <li>UDP Out の「ローカルポート」（アドレスの下のドロップダウン）を「ローカルポートを使用」にして、UDP In と同じ番号を入れると、返信を受けたのと同じポートから送る。既定の「ローカルポートをランダムに使用」では、送り元のポートが自動で決まり、UDP In の待ち受けポートとは別になる。返信を受ける側（nc や多くの機器）は、送った先と同じポートからの返信しか受け取らないことが多い</li>
         </ul>
+        <div class="warning">
+            <p><strong>⚠️ 同じポートの UDP In と UDP Out は、1つのソケットを使い回す</strong></p>
+            <p>UDP Out の「ローカルポートを使用」に UDP In と同じ番号を入れると、UDP Out は UDP In のソケットをそのまま使います。デプロイの種類を「変更したノード」にしていて、どちらか片方だけを変えてデプロイすると、片方だけが作り直され、UDP In が受信しなくなったり、返信が送られなくなったりします。デプロイボタンの右の ▼ で「全て」か「変更したフロー」を選んでデプロイします（Node-RED の既定は「全て」）。止まってしまったときは、同じメニューの「フローを再起動」で戻ります。</p>
+        </div>
         
         <h3>パターン5: 定期的なセンサーデータ送信</h3>
         <p><strong>用途:</strong> センサーデータの定期送信</p>
@@ -881,7 +927,9 @@ nc -ul 8000</div>
         <h2 id="section6">📝 6. 演習問題</h2>
         
         <p><small>💡 以下の演習例に出てくる <code>localhost</code> はローカル環境での例です。共有クラウド環境などでは、ご利用のNode-REDエディタを開いているアドレスに置き換えてください。</small></p>
-        
+        <p>演習1・2の成功の条件では、手元の端末から送って確かめる手順があります。Mac・Linux では <code>nc</code> を（送り先は <code>localhost</code> ではなく <code>127.0.0.1</code>。理由は<a href="#test-nc">netcat でのテスト例</a>）、Windows では PowerShell の <code>Send-UdpText</code> を使います（<a href="#test-powershell">Windows: PowerShell でのテスト例</a>で関数を作っておきます）。演習2でどちらも使えないときは、「🧪 動作確認用フロー」を自分のフローと一緒にデプロイして確かめます。</p>
+        <p>演習1〜4は1台のNode-REDの中で完結します。演習5は2人1組で、社内LANにある相手のNode-REDと通信します。</p>
+
         <div class="exercise">
             <h3>演習1: UDPメッセージの送受信 <span class="difficulty difficulty-easy">初級</span></h3>
             <p><strong>📋 課題:</strong> ポート9000でUDPパケットを受信し、デバッグサイドバーに表示してください。同時に、送信ノードでテストメッセージを送れるようにしてください。</p>
@@ -914,7 +962,7 @@ nc -ul 8000</div>
             <ul>
                 <li>Inject ボタンを押すとデバッグパネルに「Hello UDP!」が表示される</li>
                 <li>デバッグパネルのノードステータスに送信元のIPアドレスが表示される</li>
-                <li><code>echo "test" | nc -u localhost 9000</code> を実行してもデバッグパネルに受信データが表示される</li>
+                <li><code>echo "test" | nc -u -w1 127.0.0.1 9000</code>（Windows の PowerShell では <code>Send-UdpText 9000 "test"</code>）を実行してもデバッグパネルに受信データが表示される</li>
             </ul>
 
             <details>
@@ -935,11 +983,11 @@ nc -ul 8000</div>
             <details>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
-    {"id": "ex1_tab", "type": "tab", "label": "演習1"},
-    {"id": "ex1_udp_in", "type": "udp in", "z": "ex1_tab", "name": "UDP In :9000", "iface": "", "port": "9000", "ipv": "udp4", "multicast": "false", "group": "", "datatype": "utf8", "x": 170, "y": 100, "wires": [["ex1_debug"]]},
-    {"id": "ex1_debug", "type": "debug", "z": "ex1_tab", "name": "受信データ", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "ip", "statusType": "msg", "x": 390, "y": 100, "wires": []},
-    {"id": "ex1_inject", "type": "inject", "z": "ex1_tab", "name": "テスト送信", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "Hello UDP!", "payloadType": "str", "x": 170, "y": 180, "wires": [["ex1_udp_out"]]},
-    {"id": "ex1_udp_out", "type": "udp out", "z": "ex1_tab", "name": "UDP Out", "addr": "localhost", "iface": "", "port": "9000", "ipv": "udp4", "outport": "", "base64": false, "multicast": "false", "x": 380, "y": 180, "wires": []}
+    {"id": "udp_ex1_tab", "type": "tab", "label": "演習1"},
+    {"id": "udp_ex1_udp_in", "type": "udp in", "z": "udp_ex1_tab", "name": "UDP In :9000", "iface": "", "port": "9000", "ipv": "udp4", "multicast": "false", "group": "", "datatype": "utf8", "x": 170, "y": 100, "wires": [["udp_ex1_debug"]]},
+    {"id": "udp_ex1_debug", "type": "debug", "z": "udp_ex1_tab", "name": "受信データ", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "ip", "statusType": "msg", "x": 390, "y": 100, "wires": []},
+    {"id": "udp_ex1_inject", "type": "inject", "z": "udp_ex1_tab", "name": "テスト送信", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "Hello UDP!", "payloadType": "str", "x": 170, "y": 180, "wires": [["udp_ex1_udp_out"]]},
+    {"id": "udp_ex1_udp_out", "type": "udp out", "z": "udp_ex1_tab", "name": "UDP Out", "addr": "localhost", "iface": "", "port": "9000", "ipv": "udp4", "outport": "", "base64": false, "multicast": "false", "x": 380, "y": 180, "wires": []}
 ]</div>
             </details>
         </div>
@@ -953,7 +1001,7 @@ nc -ul 8000</div>
             <div class="sys-map">
                 <div class="sys-actor">
                     <div class="sys-name">送信元</div>
-                    <div class="sys-role">nc コマンドなど<br>（既にあるもの）</div>
+                    <div class="sys-role">nc / PowerShell など<br>（ガイドのコマンドを使う）</div>
                 </div>
                 <div class="sys-link">
                     <div class="sys-req">ポート9001 へ "Hello" &rarr;</div>
@@ -971,14 +1019,27 @@ nc -ul 8000</div>
                 <li>ポート: 9001</li>
                 <li>受信: <code>Hello</code></li>
                 <li>返信: <code>[REPLY] Hello</code></li>
+                <li>返信の送り元のポート: 9001（受けたのと同じポートから送り返す）</li>
             </ul>
 
             <p><strong>✅ 成功の条件:</strong></p>
             <ul>
-                <li><code>echo "Hello" | nc -u localhost 9001</code> を実行すると「[REPLY] Hello」が返ってくる</li>
+                <li><code>echo "Hello" | nc -u -w1 127.0.0.1 9001</code>（Windows の PowerShell では <code>Send-UdpText 9001 "Hello" -Wait</code>）を実行すると「[REPLY] Hello」が返ってくる</li>
                 <li>異なるメッセージを送っても、常に「[REPLY] 」が先頭に付いて返ってくる</li>
                 <li>返信が送信元の IP アドレスとポートに対して送られている（送信元に届く）</li>
             </ul>
+            <details>
+                <summary>🧪 動作確認用フロー（nc も PowerShell も使えないとき）</summary>
+                <p>自作のフロー（または解答例フロー）と一緒にデプロイし、inject のボタンを押します。UDP Out ノードが送り元のポートを 9011 番にして localhost:9001 へ送り、9011 番に戻ってきた返信を debug サイドバーに「クライアント側: 返信」として表示します。確かめるためのフローで、演習で作るものではありません。送り先は UDP Out ノードの「アドレス」と「ポート」、送り元のポートは、アドレスの下の欄が「ローカルポートを使用」と 9011 になっていることで確かめられます。</p>
+                <div class="flow-json">[
+    {"id": "udpchk2_tab", "type": "tab", "label": "演習2 動作確認", "disabled": false, "info": "", "env": []},
+    {"id": "udpchk2_comment", "type": "comment", "z": "udpchk2_tab", "name": "9011番から localhost:9001 の自作のフローへ送り、9011番で返信を受ける", "info": "", "x": 290, "y": 40, "wires": []},
+    {"id": "udpchk2_udp_in", "type": "udp in", "z": "udpchk2_tab", "name": "UDP In :9011（返信を受ける）", "iface": "", "port": "9011", "ipv": "udp4", "multicast": "false", "group": "", "datatype": "utf8", "x": 200, "y": 160, "wires": [["udpchk2_debug"]]},
+    {"id": "udpchk2_debug", "type": "debug", "z": "udpchk2_tab", "name": "クライアント側: 返信", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "statusVal": "", "statusType": "auto", "x": 460, "y": 160, "wires": []},
+    {"id": "udpchk2_inject", "type": "inject", "z": "udpchk2_tab", "name": "Hello を送る", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "Hello", "payloadType": "str", "x": 150, "y": 100, "wires": [["udpchk2_udp_out"]]},
+    {"id": "udpchk2_udp_out", "type": "udp out", "z": "udpchk2_tab", "name": "9011番から localhost:9001 へ", "addr": "localhost", "iface": "", "port": "9001", "ipv": "udp4", "outport": "9011", "base64": false, "multicast": "false", "x": 410, "y": 100, "wires": []}
+]</div>
+            </details>
 
             <details>
                 <summary>💡 ヒント</summary>
@@ -992,16 +1053,18 @@ nc -ul 8000</div>
                 <ul>
                     <li>アドレス: 空欄（msg.ip を使用）</li>
                     <li>ポート: 空欄（msg.port を使用）</li>
+                    <li>ローカルポート（アドレスの下のドロップダウン）: 「ローカルポートを使用」にして、右の欄に 9001（受けたのと同じポートから返信する。nc は、送った先と同じポートからの返信しか表示しない。既定の「ローカルポートをランダムに使用」のままだと、PowerShell と動作確認用フローには返信が届くが、nc には表示されない）</li>
                 </ul>
+                <p>UDP In と UDP Out が同じ 9001 番のソケットを使うため、片方だけを変えて「変更したノード」でデプロイすると止まります（<a href="#pattern-echo">パターン4</a>の注意を参照）。</p>
             </details>
             
             <details>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
-    {"id": "ex2_tab", "type": "tab", "label": "演習2"},
-    {"id": "ex2_udp_in", "type": "udp in", "z": "ex2_tab", "name": "UDP In :9001", "iface": "", "port": "9001", "ipv": "udp4", "multicast": "false", "group": "", "datatype": "utf8", "x": 170, "y": 100, "wires": [["ex2_change"]]},
-    {"id": "ex2_change", "type": "change", "z": "ex2_tab", "name": "返信作成", "rules": [{"t": "set", "p": "payload", "pt": "msg", "to": "\"[REPLY] \" &amp; msg.payload", "tot": "jsonata"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 370, "y": 100, "wires": [["ex2_udp_out"]]},
-    {"id": "ex2_udp_out", "type": "udp out", "z": "ex2_tab", "name": "UDP Reply", "addr": "", "iface": "", "port": "", "ipv": "udp4", "outport": "", "base64": false, "multicast": "false", "x": 560, "y": 100, "wires": []}
+    {"id": "udp_ex2_tab", "type": "tab", "label": "演習2"},
+    {"id": "udp_ex2_udp_in", "type": "udp in", "z": "udp_ex2_tab", "name": "UDP In :9001", "iface": "", "port": "9001", "ipv": "udp4", "multicast": "false", "group": "", "datatype": "utf8", "x": 170, "y": 100, "wires": [["udp_ex2_change"]]},
+    {"id": "udp_ex2_change", "type": "change", "z": "udp_ex2_tab", "name": "返信作成", "rules": [{"t": "set", "p": "payload", "pt": "msg", "to": "\"[REPLY] \" &amp; msg.payload", "tot": "jsonata"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 370, "y": 100, "wires": [["udp_ex2_udp_out"]]},
+    {"id": "udp_ex2_udp_out", "type": "udp out", "z": "udp_ex2_tab", "name": "UDP Reply", "addr": "", "iface": "", "port": "", "ipv": "udp4", "outport": "9001", "base64": false, "multicast": "false", "x": 560, "y": 100, "wires": []}
 ]</div>
             </details>
         </div>
@@ -1076,13 +1139,13 @@ return msg;</div>
             <details>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
-    {"id": "ex3_tab", "type": "tab", "label": "演習3"},
-    {"id": "ex3_udp_in", "type": "udp in", "z": "ex3_tab", "name": "UDP In :9002", "iface": "", "port": "9002", "ipv": "udp4", "multicast": "false", "group": "", "datatype": "utf8", "x": 170, "y": 100, "wires": [["ex3_func"]]},
-    {"id": "ex3_func", "type": "function", "z": "ex3_tab", "name": "データ集約", "func": "try {\n    // 受信した文字列（JSON形式）をオブジェクトに変換する\n    const data = JSON.parse(msg.payload);\n    // flowコンテキストから、これまでのデバイス一覧を読み出す（無ければ空のオブジェクト）\n    const devices = flow.get('devices') || {};\n\n    // デバイスIDをキーにして最新値で上書きする。同じIDは重複せず更新される\n    devices[data.deviceId] = {\n        value: data.value,\n        lastSeen: new Date().toISOString(),\n        ip: msg.ip  // 送信元のIPアドレス（UDP In が付ける）\n    };\n\n    // 一覧を flowコンテキストへ書き戻し、Debug で見られるよう msg.devices にも入れる\n    flow.set('devices', devices);\n    msg.devices = devices;\n\n    // ノードの下のステータスに登録済みデバイス数を表示する\n    node.status({fill: \"green\", shape: \"dot\", text: Object.keys(devices).length + \" devices\"});\n} catch(e) {\n    // JSONとして読めなかったときは、エラー内容を msg.error に入れて赤いステータスを出す\n    msg.error = e.message;\n    node.status({fill: \"red\", shape: \"ring\", text: \"Error\"});\n}\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 370, "y": 100, "wires": [["ex3_debug"]]},
-    {"id": "ex3_debug", "type": "debug", "z": "ex3_tab", "name": "デバイス一覧", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "devices", "targetType": "msg", "x": 570, "y": 100, "wires": []},
-    {"id": "ex3_inject1", "type": "inject", "z": "ex3_tab", "name": "dev-001", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "{\"deviceId\":\"dev-001\",\"value\":25}", "payloadType": "str", "x": 160, "y": 200, "wires": [["ex3_udp_out"]]},
-    {"id": "ex3_inject2", "type": "inject", "z": "ex3_tab", "name": "dev-002", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "{\"deviceId\":\"dev-002\",\"value\":30}", "payloadType": "str", "x": 160, "y": 240, "wires": [["ex3_udp_out"]]},
-    {"id": "ex3_udp_out", "type": "udp out", "z": "ex3_tab", "name": "UDP Out", "addr": "localhost", "iface": "", "port": "9002", "ipv": "udp4", "outport": "", "base64": false, "multicast": "false", "x": 360, "y": 220, "wires": []}
+    {"id": "udp_ex3_tab", "type": "tab", "label": "演習3"},
+    {"id": "udp_ex3_udp_in", "type": "udp in", "z": "udp_ex3_tab", "name": "UDP In :9002", "iface": "", "port": "9002", "ipv": "udp4", "multicast": "false", "group": "", "datatype": "utf8", "x": 170, "y": 100, "wires": [["udp_ex3_func"]]},
+    {"id": "udp_ex3_func", "type": "function", "z": "udp_ex3_tab", "name": "データ集約", "func": "try {\n    // 受信した文字列（JSON形式）をオブジェクトに変換する\n    const data = JSON.parse(msg.payload);\n    // flowコンテキストから、これまでのデバイス一覧を読み出す（無ければ空のオブジェクト）\n    const devices = flow.get('devices') || {};\n\n    // デバイスIDをキーにして最新値で上書きする。同じIDは重複せず更新される\n    devices[data.deviceId] = {\n        value: data.value,\n        lastSeen: new Date().toISOString(),\n        ip: msg.ip  // 送信元のIPアドレス（UDP In が付ける）\n    };\n\n    // 一覧を flowコンテキストへ書き戻し、Debug で見られるよう msg.devices にも入れる\n    flow.set('devices', devices);\n    msg.devices = devices;\n\n    // ノードの下のステータスに登録済みデバイス数を表示する\n    node.status({fill: \"green\", shape: \"dot\", text: Object.keys(devices).length + \" devices\"});\n} catch(e) {\n    // JSONとして読めなかったときは、エラー内容を msg.error に入れて赤いステータスを出す\n    msg.error = e.message;\n    node.status({fill: \"red\", shape: \"ring\", text: \"Error\"});\n}\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 370, "y": 100, "wires": [["udp_ex3_debug"]]},
+    {"id": "udp_ex3_debug", "type": "debug", "z": "udp_ex3_tab", "name": "デバイス一覧", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "devices", "targetType": "msg", "x": 570, "y": 100, "wires": []},
+    {"id": "udp_ex3_inject1", "type": "inject", "z": "udp_ex3_tab", "name": "dev-001", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "{\"deviceId\":\"dev-001\",\"value\":25}", "payloadType": "str", "x": 160, "y": 200, "wires": [["udp_ex3_udp_out"]]},
+    {"id": "udp_ex3_inject2", "type": "inject", "z": "udp_ex3_tab", "name": "dev-002", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "{\"deviceId\":\"dev-002\",\"value\":30}", "payloadType": "str", "x": 160, "y": 240, "wires": [["udp_ex3_udp_out"]]},
+    {"id": "udp_ex3_udp_out", "type": "udp out", "z": "udp_ex3_tab", "name": "UDP Out", "addr": "localhost", "iface": "", "port": "9002", "ipv": "udp4", "outport": "", "base64": false, "multicast": "false", "x": 360, "y": 220, "wires": []}
 ]</div>
             </details>
         </div>
@@ -1136,19 +1199,117 @@ return msg;</div>
             <details>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
-    {"id": "ex4_tab", "type": "tab", "label": "演習4"},
-    {"id": "ex4_comment1", "type": "comment", "z": "ex4_tab", "name": "【発見リクエスト送信】", "info": "", "x": 170, "y": 40, "wires": []},
-    {"id": "ex4_inject_discover", "type": "inject", "z": "ex4_tab", "name": "DISCOVER送信", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "DISCOVER", "payloadType": "str", "x": 180, "y": 100, "wires": [["ex4_change_clear", "ex4_udp_broadcast"]]},
-    {"id": "ex4_change_clear", "type": "change", "z": "ex4_tab", "name": "リストクリア", "rules": [{"t": "set", "p": "discoveredDevices", "pt": "flow", "to": "{}", "tot": "json"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 390, "y": 100, "wires": [[]]},
-    {"id": "ex4_udp_broadcast", "type": "udp out", "z": "ex4_tab", "name": "Broadcast :9003", "addr": "255.255.255.255", "iface": "", "port": "9003", "ipv": "udp4", "outport": "", "base64": false, "multicast": "broadcast", "x": 400, "y": 140, "wires": []},
-    {"id": "ex4_comment2", "type": "comment", "z": "ex4_tab", "name": "【デバイス側（応答）】", "info": "", "x": 160, "y": 200, "wires": []},
-    {"id": "ex4_udp_in", "type": "udp in", "z": "ex4_tab", "name": "UDP In :9003", "iface": "", "port": "9003", "ipv": "udp4", "multicast": "false", "group": "", "datatype": "utf8", "x": 170, "y": 260, "wires": [["ex4_switch"]]},
-    {"id": "ex4_switch", "type": "switch", "z": "ex4_tab", "name": "DISCOVER判定", "property": "payload", "propertyType": "msg", "rules": [{"t": "eq", "v": "DISCOVER", "vt": "str"}, {"t": "else"}], "checkall": "false", "repair": false, "outputs": 2, "x": 380, "y": 260, "wires": [["ex4_change_info"], ["ex4_func_collect"]]},
-    {"id": "ex4_change_info", "type": "change", "z": "ex4_tab", "name": "デバイス情報を作る", "rules": [{"t": "set", "p": "payload", "pt": "msg", "to": "{\"type\":\"DEVICE_INFO\",\"deviceId\":\"\",\"name\":\"Node-RED Device\"}", "tot": "json"}, {"t": "set", "p": "payload.deviceId", "pt": "msg", "to": "\"my-device-\" &amp; $floor($random() * 1000)", "tot": "jsonata"}, {"t": "set", "p": "payload.timestamp", "pt": "msg", "to": "iso", "tot": "date"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 620, "y": 240, "wires": [["ex4_json_info"]]},
-    {"id": "ex4_json_info", "type": "json", "z": "ex4_tab", "name": "JSON文字列に変換", "property": "payload", "action": "str", "pretty": false, "x": 820, "y": 240, "wires": [["ex4_udp_reply"]]},
-    {"id": "ex4_udp_reply", "type": "udp out", "z": "ex4_tab", "name": "Reply", "addr": "", "iface": "", "port": "", "ipv": "udp4", "outport": "", "base64": false, "multicast": "false", "x": 1020, "y": 240, "wires": []},
-    {"id": "ex4_func_collect", "type": "function", "z": "ex4_tab", "name": "応答収集", "func": "try {\n    // 受信した文字列（JSON形式）をオブジェクトに変換する\n    const data = JSON.parse(msg.payload);\n    // デバイスからの応答（DEVICE_INFO）だけを集める\n    if (data.type === \"DEVICE_INFO\") {\n        // これまでに見つかったデバイスの一覧を読み出し、デバイスIDをキーに追加する\n        const devices = flow.get('discoveredDevices') || {};\n        devices[data.deviceId] = {\n            name: data.name,\n            ip: msg.ip,  // 応答してきたデバイスのIPアドレス\n            timestamp: data.timestamp\n        };\n        flow.set('discoveredDevices', devices);\n        msg.devices = devices;\n        // 見つかった台数をステータスに表示する\n        node.status({fill: \"green\", shape: \"dot\", text: Object.keys(devices).length + \" found\"});\n        return msg;\n    }\n} catch(e) {\n    // JSONとして読めないデータは無視する\n}\n// DEVICE_INFO 以外は下流へ流さない\nreturn null;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 600, "y": 280, "wires": [["ex4_debug"]]},
-    {"id": "ex4_debug", "type": "debug", "z": "ex4_tab", "name": "発見デバイス", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "devices", "targetType": "msg", "x": 790, "y": 280, "wires": []}
+    {"id": "udp_ex4_tab", "type": "tab", "label": "演習4"},
+    {"id": "udp_ex4_comment1", "type": "comment", "z": "udp_ex4_tab", "name": "【発見リクエスト送信】", "info": "", "x": 170, "y": 40, "wires": []},
+    {"id": "udp_ex4_inject_discover", "type": "inject", "z": "udp_ex4_tab", "name": "DISCOVER送信", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "DISCOVER", "payloadType": "str", "x": 180, "y": 100, "wires": [["udp_ex4_change_clear", "udp_ex4_udp_broadcast"]]},
+    {"id": "udp_ex4_change_clear", "type": "change", "z": "udp_ex4_tab", "name": "リストクリア", "rules": [{"t": "set", "p": "discoveredDevices", "pt": "flow", "to": "{}", "tot": "json"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 390, "y": 100, "wires": [[]]},
+    {"id": "udp_ex4_udp_broadcast", "type": "udp out", "z": "udp_ex4_tab", "name": "Broadcast :9003", "addr": "255.255.255.255", "iface": "", "port": "9003", "ipv": "udp4", "outport": "", "base64": false, "multicast": "broadcast", "x": 400, "y": 140, "wires": []},
+    {"id": "udp_ex4_comment2", "type": "comment", "z": "udp_ex4_tab", "name": "【デバイス側（応答）】", "info": "", "x": 160, "y": 200, "wires": []},
+    {"id": "udp_ex4_udp_in", "type": "udp in", "z": "udp_ex4_tab", "name": "UDP In :9003", "iface": "", "port": "9003", "ipv": "udp4", "multicast": "false", "group": "", "datatype": "utf8", "x": 170, "y": 260, "wires": [["udp_ex4_switch"]]},
+    {"id": "udp_ex4_switch", "type": "switch", "z": "udp_ex4_tab", "name": "DISCOVER判定", "property": "payload", "propertyType": "msg", "rules": [{"t": "eq", "v": "DISCOVER", "vt": "str"}, {"t": "else"}], "checkall": "false", "repair": false, "outputs": 2, "x": 380, "y": 260, "wires": [["udp_ex4_change_info"], ["udp_ex4_func_collect"]]},
+    {"id": "udp_ex4_change_info", "type": "change", "z": "udp_ex4_tab", "name": "デバイス情報を作る", "rules": [{"t": "set", "p": "payload", "pt": "msg", "to": "{\"type\":\"DEVICE_INFO\",\"deviceId\":\"\",\"name\":\"Node-RED Device\"}", "tot": "json"}, {"t": "set", "p": "payload.deviceId", "pt": "msg", "to": "\"my-device-\" &amp; $floor($random() * 1000)", "tot": "jsonata"}, {"t": "set", "p": "payload.timestamp", "pt": "msg", "to": "iso", "tot": "date"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 620, "y": 240, "wires": [["udp_ex4_json_info"]]},
+    {"id": "udp_ex4_json_info", "type": "json", "z": "udp_ex4_tab", "name": "JSON文字列に変換", "property": "payload", "action": "str", "pretty": false, "x": 820, "y": 240, "wires": [["udp_ex4_udp_reply"]]},
+    {"id": "udp_ex4_udp_reply", "type": "udp out", "z": "udp_ex4_tab", "name": "Reply", "addr": "", "iface": "", "port": "", "ipv": "udp4", "outport": "", "base64": false, "multicast": "false", "x": 1020, "y": 240, "wires": []},
+    {"id": "udp_ex4_func_collect", "type": "function", "z": "udp_ex4_tab", "name": "応答収集", "func": "try {\n    // 受信した文字列（JSON形式）をオブジェクトに変換する\n    const data = JSON.parse(msg.payload);\n    // デバイスからの応答（DEVICE_INFO）だけを集める\n    if (data.type === \"DEVICE_INFO\") {\n        // これまでに見つかったデバイスの一覧を読み出し、デバイスIDをキーに追加する\n        const devices = flow.get('discoveredDevices') || {};\n        devices[data.deviceId] = {\n            name: data.name,\n            ip: msg.ip,  // 応答してきたデバイスのIPアドレス\n            timestamp: data.timestamp\n        };\n        flow.set('discoveredDevices', devices);\n        msg.devices = devices;\n        // 見つかった台数をステータスに表示する\n        node.status({fill: \"green\", shape: \"dot\", text: Object.keys(devices).length + \" found\"});\n        return msg;\n    }\n} catch(e) {\n    // JSONとして読めないデータは無視する\n}\n// DEVICE_INFO 以外は下流へ流さない\nreturn null;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 600, "y": 280, "wires": [["udp_ex4_debug"]]},
+    {"id": "udp_ex4_debug", "type": "debug", "z": "udp_ex4_tab", "name": "発見デバイス", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "devices", "targetType": "msg", "x": 790, "y": 280, "wires": []}
+]</div>
+            </details>
+        </div>
+
+        <div class="exercise">
+            <h3>演習5: 2人でUDP通信する（社内LAN） <span class="difficulty difficulty-hard">上級</span></h3>
+            <p><strong>📋 課題:</strong> 2人1組になり、片方が受けて返信する側、もう片方が送って返信を受ける側を作って、社内LAN越しにUDPで通信してください。ここまでの演習は1台のNode-REDの中で完結していましたが、この演習では相手のNode-REDへ、実際にネットワークを越えて送ります。</p>
+            <p><strong>💼 使いどころ:</strong> 別の機器（センサーや装置、別のパソコンで動くNode-REDなど）へUDPでデータを送り、その機器からの返事を受け取る場面で使います。</p>
+
+            <p><strong>作る範囲:</strong></p>
+            <div class="sys-map">
+                <div class="sys-actor sys-build">
+                    <div><span class="sys-badge">Bさんが作る</span></div>
+                    <div class="sys-name">Bさんの Node-RED</div>
+                    <div class="sys-role">送る側<br>9005番から相手の9004番へ送り<br>9005番で返信を待ち受ける</div>
+                </div>
+                <div class="sys-link">
+                    <div class="sys-req">(AさんのIP):9004 へ "こんにちは、Bです" &rarr;</div>
+                    <div class="sys-res">&larr; (BさんのIP):9005 へ "Aさんが受け取りました: こんにちは、Bです"</div>
+                </div>
+                <div class="sys-actor sys-build">
+                    <div><span class="sys-badge">Aさんが作る</span></div>
+                    <div class="sys-name">Aさんの Node-RED</div>
+                    <div class="sys-role">受けて返信する側<br>9004番で待ち受け<br>送ってきた相手へ返信する</div>
+                </div>
+            </div>
+            <p>UDP には接続がありません。TCP のように、送った接続の上で返信が戻ってくるわけではないので、返信を受け取るには、Bさんも自分のポート（9005番）で待ち受けておきます。</p>
+
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>受けて返信する担当（Aさん）: UDP In でポート 9004 を待ち受ける。受け取った文字の前に「（自分の名前）が受け取りました: 」を付け、送ってきた相手（<code>msg.ip</code> と <code>msg.port</code>）へ UDP Out で返す。返信は、受けたのと同じ 9004 番から送る（演習2と同じ）</li>
+                <li>Aさんは、受け取った文字と、送ってきた相手のIPアドレス（<code>msg.ip</code>）をデバッグパネルで確かめられるようにする</li>
+                <li>送る担当（Bさん）: Inject でトリガーし、UDP Out で（AさんのIPアドレス）のポート 9004 へ送る。送り元のポートは 9005 にする</li>
+                <li>Bさんは UDP In でポート 9005 を待ち受け、届いた返信を Debug に表示する</li>
+                <li>通信できたら、Aさんが自分のタブ（「演習5 受けて返信する側」）を無効にしてデプロイし、Bさんがもう一度送って、何が起きるかを確かめる</li>
+                <li>最後に役割を入れ替え、両方を体験する</li>
+            </ul>
+
+            <p><strong>✅ 成功の条件:</strong></p>
+            <ul>
+                <li>Bさんのデバッグパネルに、「Aさんが受け取りました: こんにちは、Bです」のように、Aさんの名前が付いた返信が表示される</li>
+                <li>Aさんのデバッグパネルに Bさんが送った文字が表示され、debug ノードの下に BさんのIPアドレスが表示される</li>
+                <li>Aさんのタブを無効にしたあと Bさんが送ると、Bさんの画面にはエラーが出ず、返信も来ない（AさんのPCはLANにつながったまま、タブを無効にしただけの場合）。UDP は届いたかを確かめないので、送った側は相手が受け取ったかどうかを知らないことを説明できる</li>
+                <li>役割を入れ替えても同じように通信できる</li>
+            </ul>
+
+            <div class="warning">
+                <strong>⚠️ 注意:</strong> この演習で開くポートには、認証も暗号化もありません。IPアドレスとポート番号を知っていれば、同じLANにいる誰でも送れます。Aさんのフローは、届いたものに返信するため、送り元を偽ったデータにも返信してしまいます。社内LANでの学習に限って行い、終わったら両方のフローを削除するか無効にしてデプロイし、ポートを閉じてください。
+            </div>
+
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>自分のIPアドレスの調べ方:</strong> Windows は <code>ipconfig</code> の「IPv4 アドレス」、ラズパイ・Linux は <code>hostname -I</code>。Mac の <code>hostname</code> には <code>-I</code> が無いため、「システム設定」の「ネットワーク」で、使っている接続（Wi-Fi など）の「詳細」を開き、「TCP/IP」の「IPアドレス」を見ます。詳しくは<a href="nodered-local-pi-exercise-guide.html#common">ローカル/ラズパイ演習ガイドの共通の準備</a>を参照してください。</p>
+                <p><strong>待ち受けるアドレスの設定は不要:</strong> UDP In は、アドレスを限らずにポートを開きます。そのため設定を変えなくても、他のPCから届きます。</p>
+                <p><strong>ファイアウォール:</strong> Windows では Defender ファイアウォールが受信をブロックすることがあります。初回の待ち受け時に出る許可ダイアログで許可するか、受信するポートを許可してください（<a href="nodered-local-pi-exercise-guide.html#win">Windows編</a>）。UDP では、Aさん（9004番）だけでなく、返信を受けるBさん（9005番）も受信側になります。</p>
+                <p><strong>受けて返信する担当（Aさん）のノード:</strong></p>
+                <ul>
+                    <li>UDP In: ポート 9004、出力「文字列」</li>
+                    <li>Change: <code>msg.payload</code> を「値の代入」で設定し、型は JSONata 式、式は <code>"Aさんが受け取りました: " &amp; msg.payload</code>。<code>msg.ip</code> と <code>msg.port</code> はそのまま残る</li>
+                    <li>UDP Out: アドレスとポートは空欄（<code>msg.ip</code> と <code>msg.port</code> を使う）。アドレスの下のドロップダウンを「ローカルポートを使用」にして、右の欄に 9004</li>
+                    <li>Debug: 「ノードステータス」に <code>msg.ip</code> を表示すると、送ってきた相手のIPアドレスがノードの下に出る</li>
+                </ul>
+                <p><strong>送る担当（Bさん）のノード:</strong></p>
+                <ul>
+                    <li>UDP Out: アドレス（AさんのIPアドレス）、ポート 9004。アドレスの下のドロップダウンを「ローカルポートを使用」にして、右の欄に 9005</li>
+                    <li>UDP In: ポート 9005、出力「文字列」</li>
+                </ul>
+                <p>Bさんの UDP Out の送り元を 9005 にするのは、Aさんの返信の宛先（<code>msg.port</code>）が 9005 になるようにするためです。既定の「ローカルポートをランダムに使用」のままだと、送り元のポートが自動で決まり、返信はBさんの UDP In（9005番）に届きません。</p>
+                <p>どちらの PC でも、同じ番号の UDP In と UDP Out は1つのソケットを使います。片方だけを変えて「変更したノード」でデプロイすると止まります（<a href="#pattern-echo">パターン4</a>の注意を参照）。</p>
+                <p><strong>つながらないときの切り分け順:</strong></p>
+                <ol>
+                    <li>Aさん自身が、自分のPCから送って返信を得られるか。Mac・Linux では <code>echo "Hello" | nc -u -w1 127.0.0.1 9004</code>、Windows の PowerShell では <code>Send-UdpText 9004 "Hello" -Wait</code>。返信が得られなければAさんのフロー側の問題（デプロイ忘れ、ポート番号の違い、UDP Out のアドレスとポートが空欄でない、ローカルポートが 9004 でない）。</li>
+                    <li>Bさんが自分のPCから、Aさんへ送って返信を得られるか。Mac・Linux では <code>echo "Hello" | nc -u -w1 （AさんのIP） 9004</code>、Windows の PowerShell では <code>Send-UdpText 9004 "Hello" -HostName （AさんのIP） -Wait</code>。返信が得られなければ、ネットワークかAさん側のファイアウォールの問題。PowerShell の表示の意味は<a href="#test-powershell">Windows: PowerShell でのテスト例</a>の表を参照してください。</li>
+                    <li>端末からは返信が得られるのに、Bさんの Node-RED にだけ届かないなら、Bさんの UDP Out のローカルポートが 9005 になっているか、UDP In が 9005 番か、Bさん側のファイアウォールが 9005 番の受信を止めていないかを確かめる。Aさんのデバッグパネルに届いていれば、行きの経路は通じている。</li>
+                </ol>
+            </details>
+
+            <details>
+                <summary>✅ 解答例フロー（受けて返信する担当・Aさん）</summary>
+                <p>「返信を作る」Change ノードの式にある「Aさん」を、自分の名前に書き換えてください。</p>
+                <div class="flow-json">[
+    {"id": "udp_ex5s_tab", "type": "tab", "label": "演習5 受けて返信する側"},
+    {"id": "udp_ex5s_udp_in", "type": "udp in", "z": "udp_ex5s_tab", "name": "UDP In :9004", "iface": "", "port": "9004", "ipv": "udp4", "multicast": "false", "group": "", "datatype": "utf8", "x": 170, "y": 100, "wires": [["udp_ex5s_change", "udp_ex5s_debug"]]},
+    {"id": "udp_ex5s_change", "type": "change", "z": "udp_ex5s_tab", "name": "返信を作る", "rules": [{"t": "set", "p": "payload", "pt": "msg", "to": "\"Aさんが受け取りました: \" &amp; msg.payload", "tot": "jsonata"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 370, "y": 100, "wires": [["udp_ex5s_udp_out"]]},
+    {"id": "udp_ex5s_udp_out", "type": "udp out", "z": "udp_ex5s_tab", "name": "9004番から返信", "addr": "", "iface": "", "port": "", "ipv": "udp4", "outport": "9004", "base64": false, "multicast": "false", "x": 580, "y": 100, "wires": []},
+    {"id": "udp_ex5s_debug", "type": "debug", "z": "udp_ex5s_tab", "name": "受けた側: 受信", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "ip", "statusType": "msg", "x": 380, "y": 140, "wires": []}
+]</div>
+            </details>
+
+            <details>
+                <summary>✅ 解答例フロー（送る担当・Bさん）</summary>
+                <p>UDP Out ノードの「アドレス」を、Aさんから聞いたIPアドレスに書き換えてください（下の例は <code>192.168.1.10</code>）。送る文字は Inject ノードの <code>msg.payload</code> で変えられます。</p>
+                <div class="flow-json">[
+    {"id": "udp_ex5c_tab", "type": "tab", "label": "演習5 送る側"},
+    {"id": "udp_ex5c_inject", "type": "inject", "z": "udp_ex5c_tab", "name": "送る", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "こんにちは、Bです", "payloadType": "str", "x": 150, "y": 100, "wires": [["udp_ex5c_udp_out"]]},
+    {"id": "udp_ex5c_udp_out", "type": "udp out", "z": "udp_ex5c_tab", "name": "9005番から相手の9004番へ", "addr": "192.168.1.10", "iface": "", "port": "9004", "ipv": "udp4", "outport": "9005", "base64": false, "multicast": "false", "x": 380, "y": 100, "wires": []},
+    {"id": "udp_ex5c_udp_in", "type": "udp in", "z": "udp_ex5c_tab", "name": "UDP In :9005（返信を受ける）", "iface": "", "port": "9005", "ipv": "udp4", "multicast": "false", "group": "", "datatype": "utf8", "x": 200, "y": 160, "wires": [["udp_ex5c_debug"]]},
+    {"id": "udp_ex5c_debug", "type": "debug", "z": "udp_ex5c_tab", "name": "送った側: 相手の返信", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "statusVal": "", "statusType": "auto", "x": 470, "y": 160, "wires": []}
 ]</div>
             </details>
         </div>
@@ -1274,7 +1435,8 @@ return msg;</div>
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.flow-json').forEach(function(block) {
+            // フローと、data-copy="true" を付けたコードブロック（PowerShell の関数など）にコピーボタンを付ける
+            document.querySelectorAll('.flow-json, .code-block[data-copy="true"]').forEach(function(block) {
                 var button = document.createElement('button');
                 button.className = 'copy-button';
                 button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
