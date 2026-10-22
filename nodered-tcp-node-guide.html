@@ -622,13 +622,19 @@ nc [Node-REDのホスト] 9000
 # メッセージを入力してEnter
 Hello Server!
 
-# サーバーからのレスポンスが表示される</div>
+# サーバーからのレスポンスが表示される
+
+# 終わるときは Ctrl+C</div>
+        <ul>
+            <li><strong>接続してから入力する:</strong> <code>echo "Hello" | nc [Node-REDのホスト] 9000</code> のように、送る文字を <code>echo</code> で渡す書き方はしません。Mac の nc は、渡された文字を送り終えたところで終わってしまい、返信が表示されません</li>
+            <li><strong>返信が表示されても nc は終わらない:</strong> Node-RED のサーバーが接続を閉じないためです。続けて別の文字を入力して送ることもできます。終わるときは Ctrl+C を押します</li>
+        </ul>
 
         <h3 id="test-powershell">Windows: PowerShell でのテスト例</h3>
         <p>スタートメニューで「PowerShell」と検索して開きます。次の関数をコピーして PowerShell の画面に貼り付け、Enter キーを押します。画面に何も表示されなければ、関数を作れています。関数は PowerShell の画面を閉じるまで使えるので、開き直したときはもう一度貼り付けます。</p>
         <div class="code-block" data-copy="true">function Send-TcpText {
     param([int]$Port, [string]$Text, [string]$HostName = "localhost")
-    # TCP で接続し、Text の末尾に改行を付けて送る（nc に echo で渡したときと同じ）
+    # TCP で接続し、Text の末尾に改行を付けて送る（nc で入力して Enter を押したときと同じ）
     $client = New-Object System.Net.Sockets.TcpClient
     try {
         $client.Connect($HostName, $Port)
@@ -737,7 +743,7 @@ Hello Server!
         <h2 id="section6">📝 6. 演習問題</h2>
         
         <p><small>💡 以下の演習例に出てくる <code>localhost</code> はローカル環境での例です。共有クラウド環境などでは、ご利用のNode-REDエディタを開いているアドレスに置き換えてください。</small></p>
-        <p>演習1〜3の成功の条件では、自分で作ったサーバーへ手元の端末から送って確かめます。Mac・Linux では <code>nc</code> を、Windows では PowerShell の <code>Send-TcpText</code> を使います（<a href="#test-powershell">Windows: PowerShell でのテスト例</a>で関数を作っておきます）。どちらも使えないときは、各演習の「🧪 動作確認用フロー」を自分のフローと一緒にデプロイして確かめます。</p>
+        <p>演習1〜3の成功の条件では、自分で作ったサーバーへ手元の端末から送って確かめます。Mac・Linux では <code>nc</code> で接続してから文字を入力し（書き方は<a href="#test-nc">netcat でのテスト例</a>）、Windows では PowerShell の <code>Send-TcpText</code> を使います（<a href="#test-powershell">Windows: PowerShell でのテスト例</a>で関数を作っておきます）。どちらも使えないときは、各演習の「🧪 動作確認用フロー」を自分のフローと一緒にデプロイして確かめます。</p>
         <p>演習1〜4は1台のNode-REDの中で完結します。演習5は2人1組で、社内LANにある相手のNode-REDと通信します。</p>
         
         <div class="exercise">
@@ -770,7 +776,7 @@ Hello Server!
 
             <p><strong>✅ 成功の条件:</strong></p>
             <ul>
-                <li><code>echo "Hello" | nc localhost 9100</code>（Windows の PowerShell では <code>Send-TcpText 9100 "Hello"</code>）を実行すると「Hello」がそのまま返ってくる</li>
+                <li><code>nc localhost 9100</code> で接続し、<code>Hello</code> と入力して Enter キーを押す（Windows の PowerShell では <code>Send-TcpText 9100 "Hello"</code> を実行する）と、「Hello」がそのまま返ってくる</li>
                 <li>デバッグパネルに受信データとクライアントのIPアドレスが表示される</li>
                 <li>複数回接続しても毎回正常にエコー応答が返ってくる</li>
             </ul>
@@ -843,7 +849,7 @@ Hello Server!
 
             <p><strong>✅ 成功の条件:</strong></p>
             <ul>
-                <li><code>echo "Hello" | nc localhost 9101</code>（Windows の PowerShell では <code>Send-TcpText 9101 "Hello"</code>）を実行すると <code>[ISO日時] Hello</code> 形式のレスポンスが返ってくる</li>
+                <li><code>nc localhost 9101</code> で接続し、<code>Hello</code> と入力して Enter キーを押す（Windows の PowerShell では <code>Send-TcpText 9101 "Hello"</code> を実行する）と、<code>[ISO日時] Hello</code> 形式のレスポンスが返ってくる</li>
                 <li>異なるメッセージを送っても、常に現在時刻が先頭に付いて返ってくる</li>
                 <li>返答内の日時がリクエストを送った時刻と一致している</li>
             </ul>
@@ -862,7 +868,7 @@ Hello Server!
             <details>
                 <summary>💡 ヒント</summary>
                 <p><strong>Change ノード:</strong> 「値の代入」で <code>msg.timestamp</code> に「日時」型の <code>YYYY-MM-DDTHH:mm:ss.sssZ</code>（ISO 8601形式）を設定します。</p>
-                <p><strong>Template ノード:</strong> 「プロパティ」を <code>msg.payload</code> にし、テンプレートに次のように書きます。<code>echo</code> で送った文字列は末尾に改行が付いたまま届くので、返信も改行で終わり、nc の画面で1行ずつ区切られます（PowerShell の <code>Send-TcpText</code> も、末尾に改行を付けて送ります）。</p>
+                <p><strong>Template ノード:</strong> 「プロパティ」を <code>msg.payload</code> にし、テンプレートに次のように書きます。nc で入力して Enter キーを押すと、送った文字列は末尾に改行が付いたまま届くので、返信も改行で終わり、nc の画面で1行ずつ区切られます（PowerShell の <code>Send-TcpText</code> も、末尾に改行を付けて送ります）。</p>
                 <div class="code-block">[{{{timestamp}}}] {{{payload}}}</div>
                 <p><code>{{ }}</code> ではなく <code>{{{ }}}</code>（波かっこ3つ）を使うのは、受信した文字に <code>&amp;</code> や <code>&lt;</code> が含まれていても、HTML用の書き換え（<code>&amp;amp;</code> など）をさせずにそのまま入れるためです。</p>
             </details>
@@ -911,10 +917,11 @@ Hello Server!
             </ul>
 
             <p><strong>✅ 成功の条件:</strong></p>
+            <p>nc では、コマンドを1行ずつ、返信が表示されてから次を入力します。まとめて貼り付けたり、返信を待たずに続けて打ったりすると、2つのコマンドがつながって届き、「Unknown command」が返ります。</p>
             <ul>
-                <li><code>echo "PING" | nc localhost 9102</code>（PowerShell では <code>Send-TcpText 9102 "PING"</code>）を実行すると「PONG」が返ってくる</li>
-                <li><code>echo "TIME" | nc localhost 9102</code>（PowerShell では <code>Send-TcpText 9102 "TIME"</code>）を実行するとISO 8601形式の現在時刻が返ってくる</li>
-                <li><code>echo "HELLO Alice" | nc localhost 9102</code>（PowerShell では <code>Send-TcpText 9102 "HELLO Alice"</code>）を実行すると「Hello, Alice!」が返ってくる</li>
+                <li><code>nc localhost 9102</code> で接続し、<code>PING</code> と入力して Enter キーを押す（PowerShell では <code>Send-TcpText 9102 "PING"</code>）と「PONG」が返ってくる</li>
+                <li>続けて <code>TIME</code> と入力して Enter キーを押す（PowerShell では <code>Send-TcpText 9102 "TIME"</code>）と、ISO 8601形式の現在時刻が返ってくる</li>
+                <li>続けて <code>HELLO Alice</code> と入力して Enter キーを押す（PowerShell では <code>Send-TcpText 9102 "HELLO Alice"</code>）と「Hello, Alice!」が返ってくる</li>
                 <li>未定義のコマンドを送ると「Unknown command」が返ってくる</li>
             </ul>
             <details>
@@ -937,7 +944,7 @@ Hello Server!
                 <p>コマンドの判定と返信文の組み立てを、Function ノード1つで行います。Switch ノードと Change ノードに分けることもできますが、大文字小文字の区別をなくす処理や、名前が無いときの既定値まで含めるとノードが多くなるため、ここでは Function ノードで書き、処理の意味をコメントで説明しています。</p>
                 <p><strong>Function ノード:</strong></p>
                 <div class="code-block">// 前後の空白と改行を取り除いて、大文字にそろえる
-// （echo は末尾に改行を付けて送ってくる。小文字の "ping" も受け付けるため）
+// （nc で入力して Enter を押すと、末尾に改行が付いて届く。小文字の "ping" も受け付けるため）
 const cmd = msg.payload.trim().toUpperCase();
 // 空白で単語に分ける（例: "HELLO Alice" → ["HELLO", "Alice"]）
 const parts = msg.payload.trim().split(' ');
@@ -966,7 +973,7 @@ return msg;</div>
                 <div class="flow-json">[
     {"id": "tcp_ex3_tab", "type": "tab", "label": "演習3"},
     {"id": "tcp_ex3_tcp_in", "type": "tcp in", "z": "tcp_ex3_tab", "name": "TCP Server :9102", "server": "server", "host": "", "port": "9102", "datamode": "stream", "datatype": "utf8", "newline": "", "topic": "", "trim": false, "base64": false, "tls": "", "x": 180, "y": 100, "wires": [["tcp_ex3_func"]]},
-    {"id": "tcp_ex3_func", "type": "function", "z": "tcp_ex3_tab", "name": "コマンド処理", "func": "// 前後の空白と改行を取り除いて、大文字にそろえる\n// （echo は末尾に改行を付けて送ってくる。小文字の \"ping\" も受け付けるため）\nconst cmd = msg.payload.trim().toUpperCase();\n// 空白で単語に分ける（例: \"HELLO Alice\" → [\"HELLO\", \"Alice\"]）\nconst parts = msg.payload.trim().split(' ');\n\n// コマンドごとに返信内容を決める\nif (cmd === 'TIME') {\n    // 現在時刻（ISO 8601形式）\n    msg.payload = new Date().toISOString();\n} else if (cmd === 'PING') {\n    msg.payload = 'PONG';\n} else if (parts[0].toUpperCase() === 'HELLO') {\n    // 2つ目の単語を名前として使う。名前が無ければ Guest\n    const name = parts[1] || 'Guest';\n    msg.payload = 'Hello, ' + name + '!';\n} else {\n    // どれにも当てはまらないコマンド\n    msg.payload = 'Unknown command';\n}\n// nc の画面で行が区切られるよう、末尾に改行を付ける\nmsg.payload += '\\n';\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 400, "y": 100, "wires": [["tcp_ex3_tcp_out"]]},
+    {"id": "tcp_ex3_func", "type": "function", "z": "tcp_ex3_tab", "name": "コマンド処理", "func": "// 前後の空白と改行を取り除いて、大文字にそろえる\n// （nc で入力して Enter を押すと、末尾に改行が付いて届く。小文字の \"ping\" も受け付けるため）\nconst cmd = msg.payload.trim().toUpperCase();\n// 空白で単語に分ける（例: \"HELLO Alice\" → [\"HELLO\", \"Alice\"]）\nconst parts = msg.payload.trim().split(' ');\n\n// コマンドごとに返信内容を決める\nif (cmd === 'TIME') {\n    // 現在時刻（ISO 8601形式）\n    msg.payload = new Date().toISOString();\n} else if (cmd === 'PING') {\n    msg.payload = 'PONG';\n} else if (parts[0].toUpperCase() === 'HELLO') {\n    // 2つ目の単語を名前として使う。名前が無ければ Guest\n    const name = parts[1] || 'Guest';\n    msg.payload = 'Hello, ' + name + '!';\n} else {\n    // どれにも当てはまらないコマンド\n    msg.payload = 'Unknown command';\n}\n// nc の画面で行が区切られるよう、末尾に改行を付ける\nmsg.payload += '\\n';\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 400, "y": 100, "wires": [["tcp_ex3_tcp_out"]]},
     {"id": "tcp_ex3_tcp_out", "type": "tcp out", "z": "tcp_ex3_tab", "name": "Reply", "host": "", "port": "", "beserver": "reply", "base64": false, "end": false, "tls": "", "x": 590, "y": 100, "wires": []}
 ]</div>
             </details>
@@ -1103,7 +1110,7 @@ return msg;</div>
                     <li>Bさんが自分のPCから、Aさんへ送って返信を得られるか。Mac・Linux では <code>nc （AさんのIP） 9104</code> で接続して同じように入力する。Windows の PowerShell では <code>Send-TcpText 9104 "Hello" -HostName （AさんのIP）</code>。返信が得られなければネットワークかファイアウォールの問題。PowerShell のエラーの意味は<a href="#test-powershell">Windows: PowerShell でのテスト例</a>の表を参照してください。</li>
                     <li>端末からは返信が得られるのに Node-RED からだけ失敗するなら、TCP Request ノードの「サーバ」と「ポート」のつづりを確かめる。</li>
                 </ol>
-                <p>nc は、返信が表示されても終わりません。Ctrl+C で終わらせます。<code>echo "Hello" | nc （アドレス） 9104</code> の形で送ると、Mac の nc は送り終えたところで終わってしまい、返信が表示されません。</p>
+                <p>nc は、返信が表示されても終わりません。Ctrl+C で終わらせます（<a href="#test-nc">netcat でのテスト例</a>）。</p>
             </details>
 
             <details>
