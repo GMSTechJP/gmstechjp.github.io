@@ -607,14 +607,15 @@
             <p>サンプルフローをデプロイしたら、TCPサーバーにデータを送ってみて動作を確認できます。初心者の方は、まず「Node-RED内」の方法から試すのがおすすめです。</p>
             <ul>
                 <li><strong>Node-RED内（追加ツール不要）:</strong> サンプルフローの「TCP Request（クライアント）」パターンのように、TCP Requestノードで自分自身のTCPサーバーへ接続してテストします。</li>
-                <li><strong>netcat（nc）:</strong> ターミナル（コマンドプロンプト）からTCP通信を手軽に試せるコマンドラインツールです。Linux/Macには標準搭載されています（Windowsは別途インストールが必要）。</li>
-                <li><strong>telnet:</strong> netcatと同様にターミナルからTCP接続を試せる、古くからある標準ツールです。</li>
+                <li><strong>Mac・Linux: netcat（nc）:</strong> ターミナルからTCP通信を手軽に試せるコマンドラインツールです。Mac と多くの Linux に入っています。</li>
+                <li><strong>Windows: PowerShell:</strong> Windows には nc が入っていません。PowerShell に下の関数を貼り付けると、何もインストールせずに nc と同じ確かめ方ができます。コマンドプロンプトでは使えません。</li>
                 <li><strong>Python（任意）:</strong> Pythonのsocketモジュールでテスト用クライアントスクリプトを自作する方法です。プログラミング経験がある場合に。</li>
             </ul>
+            <p>telnet でも TCP 接続を試せますが、Windows では既定で無効になっていて、有効にするには管理者の権限が要ります。Mac には macOS 10.13 から入っていません。</p>
         </div>
-        
-        <h3>netcat でのテスト例</h3>
-        <p>ターミナル（コマンドプロンプト）を開いて以下のコマンドを実行すると、サンプルフローのTCPサーバーに接続できます。<code>[Node-REDのホスト]</code> は、お使いのNode-REDエディタを開いているアドレスに置き換えてください（ローカル環境なら <code>localhost</code>）。</p>
+
+        <h3 id="test-nc">Mac・Linux: netcat でのテスト例</h3>
+        <p>ターミナルを開いて以下のコマンドを実行すると、サンプルフローのTCPサーバーに接続できます。<code>[Node-REDのホスト]</code> は、お使いのNode-REDエディタを開いているアドレスに置き換えてください（ローカル環境なら <code>localhost</code>）。</p>
         <div class="code-block"># サーバーに接続（サンプルフロー実行後）
 nc [Node-REDのホスト] 9000
 
@@ -622,7 +623,46 @@ nc [Node-REDのホスト] 9000
 Hello Server!
 
 # サーバーからのレスポンスが表示される</div>
-        
+
+        <h3 id="test-powershell">Windows: PowerShell でのテスト例</h3>
+        <p>スタートメニューで「PowerShell」と検索して開きます。次の関数をコピーして PowerShell の画面に貼り付け、Enter キーを押します。画面に何も表示されなければ、関数を作れています。関数は PowerShell の画面を閉じるまで使えるので、開き直したときはもう一度貼り付けます。</p>
+        <div class="code-block" data-copy="true">function Send-TcpText {
+    param([int]$Port, [string]$Text, [string]$HostName = "localhost")
+    # TCP で接続し、Text の末尾に改行を付けて送る（nc に echo で渡したときと同じ）
+    $client = New-Object System.Net.Sockets.TcpClient
+    try {
+        $client.Connect($HostName, $Port)
+        $stream = $client.GetStream()
+        # 3秒待っても返信が無ければ、エラーにする
+        $stream.ReadTimeout = 3000
+        $bytes = [System.Text.Encoding]::UTF8.GetBytes($Text + "`n")
+        $stream.Write($bytes, 0, $bytes.Length)
+        # 最初に届いた返信を、UTF-8 の文字列にして表示する
+        $buffer = New-Object byte[] 4096
+        $count = $stream.Read($buffer, 0, $buffer.Length)
+        if ($count -gt 0) {
+            [System.Text.Encoding]::UTF8.GetString($buffer, 0, $count)
+        }
+    } finally {
+        $client.Close()
+    }
+}</div>
+        <p>使い方は <code>Send-TcpText ポート番号 "送る文字"</code> です。サンプルフローのTCPサーバーには、次のように送ります。</p>
+        <div class="code-block">Send-TcpText 9000 "Hello Server!"</div>
+        <p>Node-RED が別のパソコン（Raspberry Pi など）で動いているときは、最後に <code>-HostName</code> で送り先を指定します。指定しないと、PowerShell を開いているパソコン自身（localhost）へ送ります。</p>
+        <div class="code-block">Send-TcpText 9000 "Hello Server!" -HostName 192.168.1.20</div>
+        <p>表示されたものの意味は次のとおりです。</p>
+        <table>
+            <tr><th>表示</th><th>意味</th></tr>
+            <tr><td>サーバーからの返信（サンプルフローなら <code>[Echo] Hello Server!</code> で始まる文字）</td><td>成功。送った文字がサーバーに届き、返信が戻った</td></tr>
+            <tr><td>「対象のコンピューターによって拒否されたため、接続できませんでした」を含む赤いエラー</td><td>そのポートで待ち受けているものが無い。フローをデプロイしたか、ポート番号が合っているかを確かめる</td></tr>
+            <tr><td>「一定の時間を過ぎても正しく応答しなかった」と <code>"Read"</code> を含む赤いエラー</td><td>接続はできたが、3秒以内に返信が無かった。TCP Out の種類が「TCP応答」になっているか、TCP In から TCP Out までつながっているかを確かめる</td></tr>
+            <tr><td>「一定の時間を過ぎても正しく応答しなかった」と <code>"Connect"</code> を含む赤いエラー（しばらく待ったあとに出る）</td><td>接続先に届かなかった。<code>-HostName</code> のアドレスが合っているか、途中のファイアウォールで止められていないかを確かめる</td></tr>
+            <tr><td>何も表示されない、または「既存の接続はリモート ホストに強制的に切断されました」を含む赤いエラー</td><td>返信が無いまま、サーバーが接続を閉じた</td></tr>
+            <tr><td>「言語モード」を含む赤いエラー（「この言語モードでは、コア型のみがサポートされています」など）</td><td>会社のパソコンなどで、PowerShell の機能が制限されている。演習に付けた「動作確認用フロー」で確かめる</td></tr>
+        </table>
+        <p>エラーの文言は、Windows の言語の設定によって英語で表示されることがあります（拒否: <code>actively refused it</code>、時間切れ: <code>failed to respond</code>、切断: <code>forcibly closed</code>、制限: <code>Only core types are supported in this language mode</code>）。</p>
+
         
         <h3>使用パターン</h3>
         <p>サンプルフローに含まれる代表的な使用パターンを紹介します。</p>
@@ -697,6 +737,7 @@ Hello Server!
         <h2 id="section6">📝 6. 演習問題</h2>
         
         <p><small>💡 以下の演習例に出てくる <code>localhost</code> はローカル環境での例です。共有クラウド環境などでは、ご利用のNode-REDエディタを開いているアドレスに置き換えてください。</small></p>
+        <p>演習1〜3の成功の条件では、自分で作ったサーバーへ手元の端末から送って確かめます。Mac・Linux では <code>nc</code> を、Windows では PowerShell の <code>Send-TcpText</code> を使います（<a href="#test-powershell">Windows: PowerShell でのテスト例</a>で関数を作っておきます）。どちらも使えないときは、各演習の「🧪 動作確認用フロー」を自分のフローと一緒にデプロイして確かめます。</p>
         
         <div class="exercise">
             <h3>演習1: シンプルなTCPエコーサーバー <span class="difficulty difficulty-easy">初級</span></h3>
@@ -706,8 +747,8 @@ Hello Server!
             <p><strong>作る範囲:</strong></p>
             <div class="sys-map">
                 <div class="sys-actor">
-                    <div class="sys-name">nc コマンド</div>
-                    <div class="sys-role">手元の端末から叩く<br>（既にあるもの）</div>
+                    <div class="sys-name">nc / PowerShell</div>
+                    <div class="sys-role">手元の端末から送る<br>（ガイドのコマンドを使う）</div>
                 </div>
                 <div class="sys-link">
                     <div class="sys-req">ポート9100 へ "Hello" &rarr;</div>
@@ -728,10 +769,21 @@ Hello Server!
 
             <p><strong>✅ 成功の条件:</strong></p>
             <ul>
-                <li><code>echo "Hello" | nc localhost 9100</code> を実行すると「Hello」がそのまま返ってくる</li>
+                <li><code>echo "Hello" | nc localhost 9100</code>（Windows の PowerShell では <code>Send-TcpText 9100 "Hello"</code>）を実行すると「Hello」がそのまま返ってくる</li>
                 <li>デバッグパネルに受信データとクライアントのIPアドレスが表示される</li>
                 <li>複数回接続しても毎回正常にエコー応答が返ってくる</li>
             </ul>
+            <details>
+                <summary>🧪 動作確認用フロー（nc も PowerShell も使えないとき）</summary>
+                <p>自作のフロー（または解答例フロー）と一緒にデプロイし、inject のボタンを押します。TCP Request ノードが localhost:9100 へ送り、届いた返信を debug サイドバーに「クライアント側: 返信」として表示します。確かめるためのフローで、演習で作るものではありません。送り先は TCP Request ノードの「サーバ」と「ポート」で確かめられます。</p>
+                <div class="flow-json">[
+    {"id": "tcpchk1_tab", "type": "tab", "label": "演習1 動作確認", "disabled": false, "info": "", "env": []},
+    {"id": "tcpchk1_comment", "type": "comment", "z": "tcpchk1_tab", "name": "localhost:9100 の自作サーバーへ送り、返信を表示する", "info": "", "x": 250, "y": 40, "wires": []},
+    {"id": "tcpchk1_inject1", "type": "inject", "z": "tcpchk1_tab", "name": "Hello を送る", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "Hello", "payloadType": "str", "x": 150, "y": 100, "wires": [["tcpchk1_request"]]},
+    {"id": "tcpchk1_request", "type": "tcp request", "z": "tcpchk1_tab", "name": "localhost:9100 へ送る", "server": "localhost", "port": "9100", "out": "time", "ret": "string", "splitc": "500", "newline": "", "trim": false, "tls": "", "x": 390, "y": 100, "wires": [["tcpchk1_debug"]]},
+    {"id": "tcpchk1_debug", "type": "debug", "z": "tcpchk1_tab", "name": "クライアント側: 返信", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "statusVal": "", "statusType": "auto", "x": 620, "y": 100, "wires": []}
+]</div>
+            </details>
 
             <details>
                 <summary>💡 ヒント</summary>
@@ -754,7 +806,7 @@ Hello Server!
     {"id": "ex1_tab", "type": "tab", "label": "演習1"},
     {"id": "ex1_tcp_in", "type": "tcp in", "z": "ex1_tab", "name": "TCP Server :9100", "server": "server", "host": "", "port": "9100", "datamode": "stream", "datatype": "utf8", "newline": "", "topic": "", "trim": false, "base64": false, "tls": "", "x": 180, "y": 100, "wires": [["ex1_tcp_out", "ex1_debug"]]},
     {"id": "ex1_tcp_out", "type": "tcp out", "z": "ex1_tab", "name": "Reply", "host": "", "port": "", "beserver": "reply", "base64": false, "end": false, "tls": "", "x": 410, "y": 100, "wires": []},
-    {"id": "ex1_debug", "type": "debug", "z": "ex1_tab", "name": "受信ログ", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "ip", "statusType": "msg", "x": 410, "y": 140, "wires": []}
+    {"id": "ex1_debug", "type": "debug", "z": "ex1_tab", "name": "サーバー側: 受信ログ", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "ip", "statusType": "msg", "x": 410, "y": 140, "wires": []}
 ]</div>
             </details>
         </div>
@@ -767,8 +819,8 @@ Hello Server!
             <p><strong>作る範囲:</strong></p>
             <div class="sys-map">
                 <div class="sys-actor">
-                    <div class="sys-name">nc コマンド</div>
-                    <div class="sys-role">手元の端末から叩く<br>（既にあるもの）</div>
+                    <div class="sys-name">nc / PowerShell</div>
+                    <div class="sys-role">手元の端末から送る<br>（ガイドのコマンドを使う）</div>
                 </div>
                 <div class="sys-link">
                     <div class="sys-req">ポート9101 へ "Hello" &rarr;</div>
@@ -790,15 +842,26 @@ Hello Server!
 
             <p><strong>✅ 成功の条件:</strong></p>
             <ul>
-                <li><code>echo "Hello" | nc localhost 9101</code> を実行すると <code>[ISO日時] Hello</code> 形式のレスポンスが返ってくる</li>
+                <li><code>echo "Hello" | nc localhost 9101</code>（Windows の PowerShell では <code>Send-TcpText 9101 "Hello"</code>）を実行すると <code>[ISO日時] Hello</code> 形式のレスポンスが返ってくる</li>
                 <li>異なるメッセージを送っても、常に現在時刻が先頭に付いて返ってくる</li>
                 <li>返答内の日時がリクエストを送った時刻と一致している</li>
             </ul>
+            <details>
+                <summary>🧪 動作確認用フロー（nc も PowerShell も使えないとき）</summary>
+                <p>自作のフロー（または解答例フロー）と一緒にデプロイし、inject のボタンを押します。TCP Request ノードが localhost:9101 へ送り、届いた返信を debug サイドバーに「クライアント側: 返信」として表示します。確かめるためのフローで、演習で作るものではありません。送り先は TCP Request ノードの「サーバ」と「ポート」で確かめられます。</p>
+                <div class="flow-json">[
+    {"id": "tcpchk2_tab", "type": "tab", "label": "演習2 動作確認", "disabled": false, "info": "", "env": []},
+    {"id": "tcpchk2_comment", "type": "comment", "z": "tcpchk2_tab", "name": "localhost:9101 の自作サーバーへ送り、返信を表示する", "info": "", "x": 250, "y": 40, "wires": []},
+    {"id": "tcpchk2_inject1", "type": "inject", "z": "tcpchk2_tab", "name": "Hello を送る", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "Hello", "payloadType": "str", "x": 150, "y": 100, "wires": [["tcpchk2_request"]]},
+    {"id": "tcpchk2_request", "type": "tcp request", "z": "tcpchk2_tab", "name": "localhost:9101 へ送る", "server": "localhost", "port": "9101", "out": "time", "ret": "string", "splitc": "500", "newline": "", "trim": false, "tls": "", "x": 390, "y": 100, "wires": [["tcpchk2_debug"]]},
+    {"id": "tcpchk2_debug", "type": "debug", "z": "tcpchk2_tab", "name": "クライアント側: 返信", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "statusVal": "", "statusType": "auto", "x": 620, "y": 100, "wires": []}
+]</div>
+            </details>
 
             <details>
                 <summary>💡 ヒント</summary>
                 <p><strong>Change ノード:</strong> 「値の代入」で <code>msg.timestamp</code> に「日時」型の <code>YYYY-MM-DDTHH:mm:ss.sssZ</code>（ISO 8601形式）を設定します。</p>
-                <p><strong>Template ノード:</strong> 「プロパティ」を <code>msg.payload</code> にし、テンプレートに次のように書きます。<code>echo</code> で送った文字列は末尾に改行が付いたまま届くので、返信も改行で終わり、nc の画面で1行ずつ区切られます。</p>
+                <p><strong>Template ノード:</strong> 「プロパティ」を <code>msg.payload</code> にし、テンプレートに次のように書きます。<code>echo</code> で送った文字列は末尾に改行が付いたまま届くので、返信も改行で終わり、nc の画面で1行ずつ区切られます（PowerShell の <code>Send-TcpText</code> も、末尾に改行を付けて送ります）。</p>
                 <div class="code-block">[{{{timestamp}}}] {{{payload}}}</div>
                 <p><code>{{ }}</code> ではなく <code>{{{ }}}</code>（波かっこ3つ）を使うのは、受信した文字に <code>&amp;</code> や <code>&lt;</code> が含まれていても、HTML用の書き換え（<code>&amp;amp;</code> など）をさせずにそのまま入れるためです。</p>
             </details>
@@ -823,8 +886,8 @@ Hello Server!
             <p><strong>作る範囲:</strong></p>
             <div class="sys-map">
                 <div class="sys-actor">
-                    <div class="sys-name">nc コマンド</div>
-                    <div class="sys-role">手元の端末から叩く<br>（既にあるもの）</div>
+                    <div class="sys-name">nc / PowerShell</div>
+                    <div class="sys-role">手元の端末から送る<br>（ガイドのコマンドを使う）</div>
                 </div>
                 <div class="sys-link">
                     <div class="sys-req">ポート9102 へ PING / TIME / HELLO &rarr;</div>
@@ -848,11 +911,25 @@ Hello Server!
 
             <p><strong>✅ 成功の条件:</strong></p>
             <ul>
-                <li><code>echo "PING" | nc localhost 9102</code> を実行すると「PONG」が返ってくる</li>
-                <li><code>echo "TIME" | nc localhost 9102</code> を実行するとISO 8601形式の現在時刻が返ってくる</li>
-                <li><code>echo "HELLO Alice" | nc localhost 9102</code> を実行すると「Hello, Alice!」が返ってくる</li>
+                <li><code>echo "PING" | nc localhost 9102</code>（PowerShell では <code>Send-TcpText 9102 "PING"</code>）を実行すると「PONG」が返ってくる</li>
+                <li><code>echo "TIME" | nc localhost 9102</code>（PowerShell では <code>Send-TcpText 9102 "TIME"</code>）を実行するとISO 8601形式の現在時刻が返ってくる</li>
+                <li><code>echo "HELLO Alice" | nc localhost 9102</code>（PowerShell では <code>Send-TcpText 9102 "HELLO Alice"</code>）を実行すると「Hello, Alice!」が返ってくる</li>
                 <li>未定義のコマンドを送ると「Unknown command」が返ってくる</li>
             </ul>
+            <details>
+                <summary>🧪 動作確認用フロー（nc も PowerShell も使えないとき）</summary>
+                <p>自作のフロー（または解答例フロー）と一緒にデプロイし、inject のボタンを押します。TCP Request ノードが localhost:9102 へ送り、届いた返信を debug サイドバーに「クライアント側: 返信」として表示します。ボタンは1つずつ、返信が表示されてから押します。続けて押すと、2つのコマンドが同じ接続で1つにつながって届き（例: <code>PINGTIME</code>）、「Unknown command」が返ります。演習3のサーバーは区切り文字を使わないため、どこまでが1つのコマンドかを見分けられません。確かめるためのフローで、演習で作るものではありません。送り先は TCP Request ノードの「サーバ」と「ポート」で確かめられます。</p>
+                <div class="flow-json">[
+    {"id": "tcpchk3_tab", "type": "tab", "label": "演習3 動作確認", "disabled": false, "info": "", "env": []},
+    {"id": "tcpchk3_comment", "type": "comment", "z": "tcpchk3_tab", "name": "localhost:9102 の自作サーバーへ送り、返信を表示する", "info": "", "x": 250, "y": 40, "wires": []},
+    {"id": "tcpchk3_inject1", "type": "inject", "z": "tcpchk3_tab", "name": "PING を送る", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "PING", "payloadType": "str", "x": 150, "y": 100, "wires": [["tcpchk3_request"]]},
+    {"id": "tcpchk3_inject2", "type": "inject", "z": "tcpchk3_tab", "name": "TIME を送る", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "TIME", "payloadType": "str", "x": 150, "y": 140, "wires": [["tcpchk3_request"]]},
+    {"id": "tcpchk3_inject3", "type": "inject", "z": "tcpchk3_tab", "name": "HELLO Alice を送る", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "HELLO Alice", "payloadType": "str", "x": 150, "y": 180, "wires": [["tcpchk3_request"]]},
+    {"id": "tcpchk3_inject4", "type": "inject", "z": "tcpchk3_tab", "name": "未定義 ABC を送る", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "ABC", "payloadType": "str", "x": 150, "y": 220, "wires": [["tcpchk3_request"]]},
+    {"id": "tcpchk3_request", "type": "tcp request", "z": "tcpchk3_tab", "name": "localhost:9102 へ送る", "server": "localhost", "port": "9102", "out": "time", "ret": "string", "splitc": "500", "newline": "", "trim": false, "tls": "", "x": 390, "y": 100, "wires": [["tcpchk3_debug"]]},
+    {"id": "tcpchk3_debug", "type": "debug", "z": "tcpchk3_tab", "name": "クライアント側: 返信", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "statusVal": "", "statusType": "auto", "x": 620, "y": 100, "wires": []}
+]</div>
+            </details>
 
             <details>
                 <summary>💡 ヒント</summary>
@@ -1081,7 +1158,8 @@ return msg;</div>
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.flow-json').forEach(function(block) {
+            // フローと、data-copy="true" を付けたコードブロック（PowerShell の関数など）にコピーボタンを付ける
+            document.querySelectorAll('.flow-json, .code-block[data-copy="true"]').forEach(function(block) {
                 var button = document.createElement('button');
                 button.className = 'copy-button';
                 button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
