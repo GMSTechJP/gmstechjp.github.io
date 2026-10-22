@@ -775,19 +775,55 @@
             <p>サンプルフローをデプロイしたら、UDPでデータを送受信してみて動作を確認できます。初心者の方は、まず「Node-RED内」の方法から試すのがおすすめです。</p>
             <ul>
                 <li><strong>Node-RED内（追加ツール不要）:</strong> UDP Outノードで自分自身にテスト送信するなど、サンプルフローの他のノードと組み合わせて動作確認します。</li>
-                <li><strong>netcat（nc）:</strong> ターミナル（コマンドプロンプト）からUDP通信を手軽に試せるコマンドラインツールです。Linux/Macには標準搭載されています（Windowsは別途インストールが必要）。</li>
+                <li><strong>Mac・Linux: netcat（nc）:</strong> ターミナルからUDP通信を手軽に試せるコマンドラインツールです。Mac と多くの Linux に入っています。</li>
+                <li><strong>Windows: PowerShell:</strong> Windows には nc が入っていません。PowerShell に下の関数を貼り付けると、何もインストールせずに送信と返信の確認ができます。コマンドプロンプトでは使えません。</li>
                 <li><strong>socat:</strong> netcatより高機能な通信テストツールです。netcatでうまく送受信できない場合の代替として使えます。</li>
                 <li><strong>Python（任意）:</strong> Pythonのsocketモジュールでテスト用スクリプトを自作する方法です。プログラミング経験がある場合に。</li>
             </ul>
         </div>
         
-        <h3>netcat でのテスト例</h3>
-        <p>ターミナル（コマンドプロンプト）を2つ開き、一方で受信を待ち受け、もう一方から送信すると動作を確認できます。<code>[Node-REDのホスト]</code> は、お使いのNode-REDエディタを開いているアドレスに置き換えてください（ローカル環境なら <code>localhost</code>）。</p>
+        <h3 id="test-nc">Mac・Linux: netcat でのテスト例</h3>
+        <p>ターミナルを2つ開き、一方で受信を待ち受け、もう一方から送信すると動作を確認できます。<code>[Node-REDのホスト]</code> は、お使いのNode-REDエディタを開いているアドレスに置き換えてください（ローカル環境なら <code>localhost</code>）。</p>
         <div class="code-block"># UDP送信
 echo "Hello UDP" | nc -u [Node-REDのホスト] 8000
 
 # UDP受信（別ターミナル）
 nc -ul 8000</div>
+
+        <h3 id="test-powershell">Windows: PowerShell でのテスト例</h3>
+        <p>スタートメニューで「PowerShell」と検索して開きます。次の関数をコピーして PowerShell の画面に貼り付け、Enter キーを押します。画面に何も表示されなければ、関数を作れています。関数は PowerShell の画面を閉じるまで使えるので、開き直したときはもう一度貼り付けます。</p>
+        <div class="code-block" data-copy="true">function Send-UdpText {
+    param([int]$Port, [string]$Text, [switch]$Wait, [string]$HostName = "127.0.0.1")
+    # UDP で Text の末尾に改行を付けて1回送る（nc に echo で渡したときと同じ）
+    # 送り先の既定は 127.0.0.1（Node-RED の UDP In の既定は ipv4 のため）
+    $udp = New-Object System.Net.Sockets.UdpClient
+    try {
+        $bytes = [System.Text.Encoding]::UTF8.GetBytes($Text + "`n")
+        [void]$udp.Send($bytes, $bytes.Length, $HostName, $Port)
+        if ($Wait) {
+            # -Wait を付けたときは、3秒まで返信を待って、UTF-8 の文字列にして表示する
+            $udp.Client.ReceiveTimeout = 3000
+            $remote = New-Object System.Net.IPEndPoint([System.Net.IPAddress]::Any, 0)
+            $reply = $udp.Receive([ref]$remote)
+            [System.Text.Encoding]::UTF8.GetString($reply)
+        }
+    } finally {
+        $udp.Close()
+    }
+}</div>
+        <p>使い方は <code>Send-UdpText ポート番号 "送る文字"</code> です。サンプルフローの「UDP In :8000」へは、次のように送ります。</p>
+        <div class="code-block">Send-UdpText 8000 "Hello UDP"</div>
+        <p>Node-RED が別のパソコン（Raspberry Pi など）で動いているときは、最後に <code>-HostName</code> で送り先の IPv4 アドレスを指定します。指定しないと、PowerShell を開いているパソコン自身（127.0.0.1）へ送ります。</p>
+        <div class="code-block">Send-UdpText 8000 "Hello UDP" -HostName 192.168.1.20</div>
+        <p>UDP は送りっぱなしなので、送るだけのときは PowerShell の画面に何も表示されません。届いたかは、Node-RED の debug サイドバーで確かめます。返信を待つときは、最後に <code>-Wait</code> を付けます（例: <code>Send-UdpText 8002 "Hello" -Wait</code>）。<code>-Wait</code> を付けたときの表示の意味は次のとおりです。</p>
+        <table>
+            <tr><th>表示</th><th>意味</th></tr>
+            <tr><td>返信の文字</td><td>成功。送った文字が届き、返信が戻った</td></tr>
+            <tr><td>「既存の接続はリモート ホストに強制的に切断されました」を含む赤いエラー</td><td>そのポートで待ち受けているものが無い。フローをデプロイしたか、ポート番号が合っているかを確かめる</td></tr>
+            <tr><td>「一定の時間を過ぎても正しく応答しなかった」を含む赤いエラー</td><td>3秒以内に返信が無かった。返信する側の UDP Out のアドレスとポートが空欄（msg.ip と msg.port を使う）になっているかを確かめる</td></tr>
+            <tr><td>「言語モード」を含む赤いエラー（「この言語モードでは、コア型のみがサポートされています」など）</td><td>会社のパソコンなどで、PowerShell の機能が制限されている。演習に付けた「動作確認用フロー」で確かめる</td></tr>
+        </table>
+        <p>エラーの文言は、Windows の言語の設定によって英語で表示されることがあります（待ち受け無し: <code>forcibly closed</code>、時間切れ: <code>failed to respond</code>、制限: <code>Only core types are supported in this language mode</code>）。</p>
         
         
         <h3>使用パターン</h3>
@@ -881,6 +917,7 @@ nc -ul 8000</div>
         <h2 id="section6">📝 6. 演習問題</h2>
         
         <p><small>💡 以下の演習例に出てくる <code>localhost</code> はローカル環境での例です。共有クラウド環境などでは、ご利用のNode-REDエディタを開いているアドレスに置き換えてください。</small></p>
+        <p>演習1・2の成功の条件では、手元の端末から送って確かめる手順があります。Mac・Linux では <code>nc</code> を、Windows では PowerShell の <code>Send-UdpText</code> を使います（<a href="#test-powershell">Windows: PowerShell でのテスト例</a>で関数を作っておきます）。演習2でどちらも使えないときは、「🧪 動作確認用フロー」を自分のフローと一緒にデプロイして確かめます。</p>
         
         <div class="exercise">
             <h3>演習1: UDPメッセージの送受信 <span class="difficulty difficulty-easy">初級</span></h3>
@@ -914,7 +951,7 @@ nc -ul 8000</div>
             <ul>
                 <li>Inject ボタンを押すとデバッグパネルに「Hello UDP!」が表示される</li>
                 <li>デバッグパネルのノードステータスに送信元のIPアドレスが表示される</li>
-                <li><code>echo "test" | nc -u localhost 9000</code> を実行してもデバッグパネルに受信データが表示される</li>
+                <li><code>echo "test" | nc -u localhost 9000</code>（Windows の PowerShell では <code>Send-UdpText 9000 "test"</code>）を実行してもデバッグパネルに受信データが表示される</li>
             </ul>
 
             <details>
@@ -953,7 +990,7 @@ nc -ul 8000</div>
             <div class="sys-map">
                 <div class="sys-actor">
                     <div class="sys-name">送信元</div>
-                    <div class="sys-role">nc コマンドなど<br>（既にあるもの）</div>
+                    <div class="sys-role">nc / PowerShell など<br>（ガイドのコマンドを使う）</div>
                 </div>
                 <div class="sys-link">
                     <div class="sys-req">ポート9001 へ "Hello" &rarr;</div>
@@ -975,10 +1012,22 @@ nc -ul 8000</div>
 
             <p><strong>✅ 成功の条件:</strong></p>
             <ul>
-                <li><code>echo "Hello" | nc -u localhost 9001</code> を実行すると「[REPLY] Hello」が返ってくる</li>
+                <li><code>echo "Hello" | nc -u localhost 9001</code>（Windows の PowerShell では <code>Send-UdpText 9001 "Hello" -Wait</code>）を実行すると「[REPLY] Hello」が返ってくる</li>
                 <li>異なるメッセージを送っても、常に「[REPLY] 」が先頭に付いて返ってくる</li>
                 <li>返信が送信元の IP アドレスとポートに対して送られている（送信元に届く）</li>
             </ul>
+            <details>
+                <summary>🧪 動作確認用フロー（nc も PowerShell も使えないとき）</summary>
+                <p>自作のフロー（または解答例フロー）と一緒にデプロイし、inject のボタンを押します。UDP Out ノードが送り元のポートを 9011 番にして localhost:9001 へ送り、9011 番に戻ってきた返信を debug サイドバーに「クライアント側: 返信」として表示します。確かめるためのフローで、演習で作るものではありません。送り先は UDP Out ノードの「アドレス」と「ポート」、送り元のポートは、アドレスの下の欄が「ローカルポートを使用」と 9011 になっていることで確かめられます。</p>
+                <div class="flow-json">[
+    {"id": "udpchk2_tab", "type": "tab", "label": "演習2 動作確認", "disabled": false, "info": "", "env": []},
+    {"id": "udpchk2_comment", "type": "comment", "z": "udpchk2_tab", "name": "9011番から localhost:9001 の自作のフローへ送り、9011番で返信を受ける", "info": "", "x": 290, "y": 40, "wires": []},
+    {"id": "udpchk2_udp_in", "type": "udp in", "z": "udpchk2_tab", "name": "UDP In :9011（返信を受ける）", "iface": "", "port": "9011", "ipv": "udp4", "multicast": "false", "group": "", "datatype": "utf8", "x": 200, "y": 160, "wires": [["udpchk2_debug"]]},
+    {"id": "udpchk2_debug", "type": "debug", "z": "udpchk2_tab", "name": "クライアント側: 返信", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "statusVal": "", "statusType": "auto", "x": 460, "y": 160, "wires": []},
+    {"id": "udpchk2_inject", "type": "inject", "z": "udpchk2_tab", "name": "Hello を送る", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "Hello", "payloadType": "str", "x": 150, "y": 100, "wires": [["udpchk2_udp_out"]]},
+    {"id": "udpchk2_udp_out", "type": "udp out", "z": "udpchk2_tab", "name": "9011番から localhost:9001 へ", "addr": "localhost", "iface": "", "port": "9001", "ipv": "udp4", "outport": "9011", "base64": false, "multicast": "false", "x": 410, "y": 100, "wires": []}
+]</div>
+            </details>
 
             <details>
                 <summary>💡 ヒント</summary>
@@ -1274,7 +1323,8 @@ return msg;</div>
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.flow-json').forEach(function(block) {
+            // フローと、data-copy="true" を付けたコードブロック（PowerShell の関数など）にコピーボタンを付ける
+            document.querySelectorAll('.flow-json, .code-block[data-copy="true"]').forEach(function(block) {
                 var button = document.createElement('button');
                 button.className = 'copy-button';
                 button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
