@@ -928,7 +928,8 @@ echo "Hello" | nc -u -w1 [Node-REDのホスト] 8002</div>
         
         <p><small>💡 以下の演習例に出てくる <code>localhost</code> はローカル環境での例です。共有クラウド環境などでは、ご利用のNode-REDエディタを開いているアドレスに置き換えてください。</small></p>
         <p>演習1・2の成功の条件では、手元の端末から送って確かめる手順があります。Mac・Linux では <code>nc</code> を（送り先は <code>localhost</code> ではなく <code>127.0.0.1</code>。理由は<a href="#test-nc">netcat でのテスト例</a>）、Windows では PowerShell の <code>Send-UdpText</code> を使います（<a href="#test-powershell">Windows: PowerShell でのテスト例</a>で関数を作っておきます）。演習2でどちらも使えないときは、「🧪 動作確認用フロー」を自分のフローと一緒にデプロイして確かめます。</p>
-        
+        <p>演習1〜4は1台のNode-REDの中で完結します。演習5は2人1組で、社内LANにある相手のNode-REDと通信します。</p>
+
         <div class="exercise">
             <h3>演習1: UDPメッセージの送受信 <span class="difficulty difficulty-easy">初級</span></h3>
             <p><strong>📋 課題:</strong> ポート9000でUDPパケットを受信し、デバッグサイドバーに表示してください。同時に、送信ノードでテストメッセージを送れるようにしてください。</p>
@@ -1211,6 +1212,104 @@ return msg;</div>
     {"id": "udp_ex4_udp_reply", "type": "udp out", "z": "udp_ex4_tab", "name": "Reply", "addr": "", "iface": "", "port": "", "ipv": "udp4", "outport": "", "base64": false, "multicast": "false", "x": 1020, "y": 240, "wires": []},
     {"id": "udp_ex4_func_collect", "type": "function", "z": "udp_ex4_tab", "name": "応答収集", "func": "try {\n    // 受信した文字列（JSON形式）をオブジェクトに変換する\n    const data = JSON.parse(msg.payload);\n    // デバイスからの応答（DEVICE_INFO）だけを集める\n    if (data.type === \"DEVICE_INFO\") {\n        // これまでに見つかったデバイスの一覧を読み出し、デバイスIDをキーに追加する\n        const devices = flow.get('discoveredDevices') || {};\n        devices[data.deviceId] = {\n            name: data.name,\n            ip: msg.ip,  // 応答してきたデバイスのIPアドレス\n            timestamp: data.timestamp\n        };\n        flow.set('discoveredDevices', devices);\n        msg.devices = devices;\n        // 見つかった台数をステータスに表示する\n        node.status({fill: \"green\", shape: \"dot\", text: Object.keys(devices).length + \" found\"});\n        return msg;\n    }\n} catch(e) {\n    // JSONとして読めないデータは無視する\n}\n// DEVICE_INFO 以外は下流へ流さない\nreturn null;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 600, "y": 280, "wires": [["udp_ex4_debug"]]},
     {"id": "udp_ex4_debug", "type": "debug", "z": "udp_ex4_tab", "name": "発見デバイス", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "devices", "targetType": "msg", "x": 790, "y": 280, "wires": []}
+]</div>
+            </details>
+        </div>
+
+        <div class="exercise">
+            <h3>演習5: 2人でUDP通信する（社内LAN） <span class="difficulty difficulty-hard">上級</span></h3>
+            <p><strong>📋 課題:</strong> 2人1組になり、片方が受けて返信する側、もう片方が送って返信を受ける側を作って、社内LAN越しにUDPで通信してください。ここまでの演習は1台のNode-REDの中で完結していましたが、この演習では相手のNode-REDへ、実際にネットワークを越えて送ります。</p>
+            <p><strong>💼 使いどころ:</strong> 別の機器（センサーや装置、別のパソコンで動くNode-REDなど）へUDPでデータを送り、その機器からの返事を受け取る場面で使います。</p>
+
+            <p><strong>作る範囲:</strong></p>
+            <div class="sys-map">
+                <div class="sys-actor sys-build">
+                    <div><span class="sys-badge">Bさんが作る</span></div>
+                    <div class="sys-name">Bさんの Node-RED</div>
+                    <div class="sys-role">送る側<br>9005番から相手の9004番へ送り<br>9005番で返信を待ち受ける</div>
+                </div>
+                <div class="sys-link">
+                    <div class="sys-req">(AさんのIP):9004 へ "こんにちは、Bです" &rarr;</div>
+                    <div class="sys-res">&larr; (BさんのIP):9005 へ "Aさんが受け取りました: こんにちは、Bです"</div>
+                </div>
+                <div class="sys-actor sys-build">
+                    <div><span class="sys-badge">Aさんが作る</span></div>
+                    <div class="sys-name">Aさんの Node-RED</div>
+                    <div class="sys-role">受けて返信する側<br>9004番で待ち受け<br>送ってきた相手へ返信する</div>
+                </div>
+            </div>
+            <p>UDP には接続がありません。TCP のように、送った接続の上で返信が戻ってくるわけではないので、返信を受け取るには、Bさんも自分のポート（9005番）で待ち受けておきます。</p>
+
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>受けて返信する担当（Aさん）: UDP In でポート 9004 を待ち受ける。受け取った文字の前に「（自分の名前）が受け取りました: 」を付け、送ってきた相手（<code>msg.ip</code> と <code>msg.port</code>）へ UDP Out で返す。返信は、受けたのと同じ 9004 番から送る（演習2と同じ）</li>
+                <li>Aさんは、受け取った文字と、送ってきた相手のIPアドレス（<code>msg.ip</code>）をデバッグパネルで確かめられるようにする</li>
+                <li>送る担当（Bさん）: Inject でトリガーし、UDP Out で（AさんのIPアドレス）のポート 9004 へ送る。送り元のポートは 9005 にする</li>
+                <li>Bさんは UDP In でポート 9005 を待ち受け、届いた返信を Debug に表示する</li>
+                <li>通信できたら、Aさんが自分のタブ（「演習5 受けて返信する側」）を無効にしてデプロイし、Bさんがもう一度送って、何が起きるかを確かめる</li>
+                <li>最後に役割を入れ替え、両方を体験する</li>
+            </ul>
+
+            <p><strong>✅ 成功の条件:</strong></p>
+            <ul>
+                <li>Bさんのデバッグパネルに、「Aさんが受け取りました: こんにちは、Bです」のように、Aさんの名前が付いた返信が表示される</li>
+                <li>Aさんのデバッグパネルに Bさんが送った文字が表示され、debug ノードの下に BさんのIPアドレスが表示される</li>
+                <li>Aさんのタブを無効にしたあと Bさんが送ると、Bさんの画面にはエラーが出ず、返信も来ない（AさんのPCはLANにつながったまま、タブを無効にしただけの場合）。UDP は届いたかを確かめないので、送った側は相手が受け取ったかどうかを知らないことを説明できる</li>
+                <li>役割を入れ替えても同じように通信できる</li>
+            </ul>
+
+            <div class="warning">
+                <strong>⚠️ 注意:</strong> この演習で開くポートには、認証も暗号化もありません。IPアドレスとポート番号を知っていれば、同じLANにいる誰でも送れます。Aさんのフローは、届いたものに返信するため、送り元を偽ったデータにも返信してしまいます。社内LANでの学習に限って行い、終わったら両方のフローを削除するか無効にしてデプロイし、ポートを閉じてください。
+            </div>
+
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>自分のIPアドレスの調べ方:</strong> Windows は <code>ipconfig</code> の「IPv4 アドレス」、ラズパイ・Linux は <code>hostname -I</code>。Mac の <code>hostname</code> には <code>-I</code> が無いため、「システム設定」の「ネットワーク」で、使っている接続（Wi-Fi など）の「詳細」を開き、「TCP/IP」の「IPアドレス」を見ます。詳しくは<a href="nodered-local-pi-exercise-guide.html#common">ローカル/ラズパイ演習ガイドの共通の準備</a>を参照してください。</p>
+                <p><strong>待ち受けるアドレスの設定は不要:</strong> UDP In は、アドレスを限らずにポートを開きます。そのため設定を変えなくても、他のPCから届きます。</p>
+                <p><strong>ファイアウォール:</strong> Windows では Defender ファイアウォールが受信をブロックすることがあります。初回の待ち受け時に出る許可ダイアログで許可するか、受信するポートを許可してください（<a href="nodered-local-pi-exercise-guide.html#win">Windows編</a>）。UDP では、Aさん（9004番）だけでなく、返信を受けるBさん（9005番）も受信側になります。</p>
+                <p><strong>受けて返信する担当（Aさん）のノード:</strong></p>
+                <ul>
+                    <li>UDP In: ポート 9004、出力「文字列」</li>
+                    <li>Change: <code>msg.payload</code> を「値の代入」で設定し、型は JSONata 式、式は <code>"Aさんが受け取りました: " &amp; msg.payload</code>。<code>msg.ip</code> と <code>msg.port</code> はそのまま残る</li>
+                    <li>UDP Out: アドレスとポートは空欄（<code>msg.ip</code> と <code>msg.port</code> を使う）。アドレスの下のドロップダウンを「ローカルポートを使用」にして、右の欄に 9004</li>
+                    <li>Debug: 「ノードステータス」に <code>msg.ip</code> を表示すると、送ってきた相手のIPアドレスがノードの下に出る</li>
+                </ul>
+                <p><strong>送る担当（Bさん）のノード:</strong></p>
+                <ul>
+                    <li>UDP Out: アドレス（AさんのIPアドレス）、ポート 9004。アドレスの下のドロップダウンを「ローカルポートを使用」にして、右の欄に 9005</li>
+                    <li>UDP In: ポート 9005、出力「文字列」</li>
+                </ul>
+                <p>Bさんの UDP Out の送り元を 9005 にするのは、Aさんの返信の宛先（<code>msg.port</code>）が 9005 になるようにするためです。既定の「ローカルポートをランダムに使用」のままだと、送り元のポートが自動で決まり、返信はBさんの UDP In（9005番）に届きません。</p>
+                <p>どちらの PC でも、同じ番号の UDP In と UDP Out は1つのソケットを使います。片方だけを変えて「変更したノード」でデプロイすると止まります（<a href="#pattern-echo">パターン4</a>の注意を参照）。</p>
+                <p><strong>つながらないときの切り分け順:</strong></p>
+                <ol>
+                    <li>Aさん自身が、自分のPCから送って返信を得られるか。Mac・Linux では <code>echo "Hello" | nc -u -w1 127.0.0.1 9004</code>、Windows の PowerShell では <code>Send-UdpText 9004 "Hello" -Wait</code>。返信が得られなければAさんのフロー側の問題（デプロイ忘れ、ポート番号の違い、UDP Out のアドレスとポートが空欄でない、ローカルポートが 9004 でない）。</li>
+                    <li>Bさんが自分のPCから、Aさんへ送って返信を得られるか。Mac・Linux では <code>echo "Hello" | nc -u -w1 （AさんのIP） 9004</code>、Windows の PowerShell では <code>Send-UdpText 9004 "Hello" -HostName （AさんのIP） -Wait</code>。返信が得られなければ、ネットワークかAさん側のファイアウォールの問題。PowerShell の表示の意味は<a href="#test-powershell">Windows: PowerShell でのテスト例</a>の表を参照してください。</li>
+                    <li>端末からは返信が得られるのに、Bさんの Node-RED にだけ届かないなら、Bさんの UDP Out のローカルポートが 9005 になっているか、UDP In が 9005 番か、Bさん側のファイアウォールが 9005 番の受信を止めていないかを確かめる。Aさんのデバッグパネルに届いていれば、行きの経路は通じている。</li>
+                </ol>
+            </details>
+
+            <details>
+                <summary>✅ 解答例フロー（受けて返信する担当・Aさん）</summary>
+                <p>「返信を作る」Change ノードの式にある「Aさん」を、自分の名前に書き換えてください。</p>
+                <div class="flow-json">[
+    {"id": "udp_ex5s_tab", "type": "tab", "label": "演習5 受けて返信する側"},
+    {"id": "udp_ex5s_udp_in", "type": "udp in", "z": "udp_ex5s_tab", "name": "UDP In :9004", "iface": "", "port": "9004", "ipv": "udp4", "multicast": "false", "group": "", "datatype": "utf8", "x": 170, "y": 100, "wires": [["udp_ex5s_change", "udp_ex5s_debug"]]},
+    {"id": "udp_ex5s_change", "type": "change", "z": "udp_ex5s_tab", "name": "返信を作る", "rules": [{"t": "set", "p": "payload", "pt": "msg", "to": "\"Aさんが受け取りました: \" &amp; msg.payload", "tot": "jsonata"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 370, "y": 100, "wires": [["udp_ex5s_udp_out"]]},
+    {"id": "udp_ex5s_udp_out", "type": "udp out", "z": "udp_ex5s_tab", "name": "9004番から返信", "addr": "", "iface": "", "port": "", "ipv": "udp4", "outport": "9004", "base64": false, "multicast": "false", "x": 580, "y": 100, "wires": []},
+    {"id": "udp_ex5s_debug", "type": "debug", "z": "udp_ex5s_tab", "name": "受けた側: 受信", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "ip", "statusType": "msg", "x": 380, "y": 140, "wires": []}
+]</div>
+            </details>
+
+            <details>
+                <summary>✅ 解答例フロー（送る担当・Bさん）</summary>
+                <p>UDP Out ノードの「アドレス」を、Aさんから聞いたIPアドレスに書き換えてください（下の例は <code>192.168.1.10</code>）。送る文字は Inject ノードの <code>msg.payload</code> で変えられます。</p>
+                <div class="flow-json">[
+    {"id": "udp_ex5c_tab", "type": "tab", "label": "演習5 送る側"},
+    {"id": "udp_ex5c_inject", "type": "inject", "z": "udp_ex5c_tab", "name": "送る", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "こんにちは、Bです", "payloadType": "str", "x": 150, "y": 100, "wires": [["udp_ex5c_udp_out"]]},
+    {"id": "udp_ex5c_udp_out", "type": "udp out", "z": "udp_ex5c_tab", "name": "9005番から相手の9004番へ", "addr": "192.168.1.10", "iface": "", "port": "9004", "ipv": "udp4", "outport": "9005", "base64": false, "multicast": "false", "x": 380, "y": 100, "wires": []},
+    {"id": "udp_ex5c_udp_in", "type": "udp in", "z": "udp_ex5c_tab", "name": "UDP In :9005（返信を受ける）", "iface": "", "port": "9005", "ipv": "udp4", "multicast": "false", "group": "", "datatype": "utf8", "x": 200, "y": 160, "wires": [["udp_ex5c_debug"]]},
+    {"id": "udp_ex5c_debug", "type": "debug", "z": "udp_ex5c_tab", "name": "送った側: 相手の返信", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "statusVal": "", "statusType": "auto", "x": 470, "y": 160, "wires": []}
 ]</div>
             </details>
         </div>
