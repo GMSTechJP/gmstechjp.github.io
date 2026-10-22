@@ -243,7 +243,7 @@
             <p><strong>💡 「終了」の選択肢（補足）:</strong> 上の表の「終了」は、以下の5つから選べます。</p>
             <table>
                 <tr><th>選択肢</th><th>説明</th><th>右欄の入力</th></tr>
-                <tr><td><strong>指定時間後</strong></td><td>送信してから、指定したミリ秒が経過したら出力する。</td><td>ミリ秒</td></tr>
+                <tr><td><strong>指定時間後</strong></td><td>最初の返信が届いてから、指定したミリ秒が経過したら、それまでに届いた分を出力して接続を閉じる。</td><td>ミリ秒</td></tr>
                 <tr><td><strong>指定文字の受信時</strong></td><td>指定した文字（例: 改行 <code>\n</code>）を受信したら出力する。</td><td>区切り文字</td></tr>
                 <tr><td><strong>指定数の文字列</strong></td><td>指定した文字数を受信したら出力する。</td><td>文字数</td></tr>
                 <tr><td><strong>なし - 接続を維持</strong></td><td>接続を閉じずに保ち、データが届くたびに出力する。</td><td>（入力なし）</td></tr>
@@ -738,6 +738,7 @@ Hello Server!
         
         <p><small>💡 以下の演習例に出てくる <code>localhost</code> はローカル環境での例です。共有クラウド環境などでは、ご利用のNode-REDエディタを開いているアドレスに置き換えてください。</small></p>
         <p>演習1〜3の成功の条件では、自分で作ったサーバーへ手元の端末から送って確かめます。Mac・Linux では <code>nc</code> を、Windows では PowerShell の <code>Send-TcpText</code> を使います（<a href="#test-powershell">Windows: PowerShell でのテスト例</a>で関数を作っておきます）。どちらも使えないときは、各演習の「🧪 動作確認用フロー」を自分のフローと一緒にデプロイして確かめます。</p>
+        <p>演習1〜4は1台のNode-REDの中で完結します。演習5は2人1組で、社内LANにある相手のNode-REDと通信します。</p>
         
         <div class="exercise">
             <h3>演習1: シンプルなTCPエコーサーバー <span class="difficulty difficulty-easy">初級</span></h3>
@@ -972,7 +973,7 @@ return msg;</div>
         </div>
         
         <div class="exercise">
-            <h3>演習4: 2台のNode-RED間通信 <span class="difficulty difficulty-hard">上級</span></h3>
+            <h3>演習4: クライアントとサーバーを1台で作る <span class="difficulty difficulty-hard">上級</span></h3>
             <p><strong>📋 課題:</strong> センサーデータを送信するクライアントと、受信して処理するサーバーを同一フロー内に作成してください。</p>
             
             <p><strong>💼 使いどころ:</strong> 送信側と受信側の両方を自分で用意し、機器間のデータ送受信を1台で試す場面で使います。</p>
@@ -1030,6 +1031,101 @@ return msg;</div>
     {"id": "tcp_ex4_func_client", "type": "function", "z": "tcp_ex4_tab", "name": "センサーデータ生成", "func": "// 20.0〜30.0 の範囲で、小数1桁のランダムな温度を作る\n// （toFixed は文字列を返すので、送るときに parseFloat で数値に戻す）\nconst temp = (20 + Math.random() * 10).toFixed(1);\n// 送信データを JSON 文字列にする。TCP Request もオブジェクトをそのままでは送れない\n// 末尾の改行が、サーバー側（TCP In の区切り文字 \\n）でのメッセージの区切りになる\nmsg.payload = JSON.stringify({\n    sensor: \"temperature\",\n    value: parseFloat(temp),\n    timestamp: new Date().toISOString()\n}) + \"\\n\";\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 380, "y": 260, "wires": [["tcp_ex4_tcp_request"]]},
     {"id": "tcp_ex4_tcp_request", "type": "tcp request", "z": "tcp_ex4_tab", "name": "TCP Request", "server": "localhost", "port": "9103", "out": "char", "ret": "string", "splitc": "\\n", "newline": "", "trim": false, "tls": "", "x": 590, "y": 260, "wires": [["tcp_ex4_debug_client"]]},
     {"id": "tcp_ex4_debug_client", "type": "debug", "z": "tcp_ex4_tab", "name": "クライアント受信", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "\"送受信完了\"", "statusType": "jsonata", "x": 790, "y": 260, "wires": []}
+]</div>
+            </details>
+        </div>
+
+        <div class="exercise">
+            <h3>演習5: 2人でTCP通信する（社内LAN） <span class="difficulty difficulty-hard">上級</span></h3>
+            <p><strong>📋 課題:</strong> 2人1組になり、片方がサーバー側、もう片方がクライアント側を作って、社内LAN越しにTCPで通信してください。ここまでの演習は1台のNode-REDの中で完結していましたが、この演習では相手のNode-REDへ、実際にネットワークを越えて接続します。</p>
+            <p><strong>💼 使いどころ:</strong> 別の機器（装置や、別のパソコンで動くNode-REDなど）が待ち受けているTCPポートへ接続し、データを送って応答を受け取る場面で使います。</p>
+
+            <p><strong>作る範囲:</strong></p>
+            <div class="sys-map">
+                <div class="sys-actor sys-build">
+                    <div><span class="sys-badge">Bさんが作る</span></div>
+                    <div class="sys-name">Bさんの Node-RED</div>
+                    <div class="sys-role">クライアント側<br>相手のIPアドレスの<br>9104番へ接続して送る</div>
+                </div>
+                <div class="sys-link">
+                    <div class="sys-req">(AさんのIP):9104 へ "こんにちは、Bです" &rarr;</div>
+                    <div class="sys-res">&larr; "Aさんが受け取りました: こんにちは、Bです"</div>
+                </div>
+                <div class="sys-actor sys-build">
+                    <div><span class="sys-badge">Aさんが作る</span></div>
+                    <div class="sys-name">Aさんの Node-RED</div>
+                    <div class="sys-role">サーバー側<br>9104番で待ち受け<br>自分の名前を付けて返す</div>
+                </div>
+            </div>
+
+            <p><strong>🎯 要求仕様:</strong></p>
+            <ul>
+                <li>サーバー担当（Aさん）: TCP In を種類「待ち受け」、ポート 9104 にする。受け取った文字の前に「（自分の名前）が受け取りました: 」を付け、TCP Out（種類「TCP応答」）で返す</li>
+                <li>サーバー担当は、受け取った文字と、送ってきた相手のIPアドレス（<code>msg.ip</code>）をデバッグパネルで確かめられるようにする</li>
+                <li>クライアント担当（Bさん）: Inject でトリガーし、TCP Request で（AさんのIPアドレス）のポート 9104 へ送り、返信を Debug に表示する</li>
+                <li>ポート 9104 は、TCP In ノードをデプロイした時点で開く。エディターの 1880 番とは別のポートになる</li>
+                <li>通信できたら役割を入れ替え、両方を体験する</li>
+            </ul>
+
+            <p><strong>✅ 成功の条件:</strong></p>
+            <ul>
+                <li>Bさんのデバッグパネルに、「Aさんが受け取りました: こんにちは、Bです」のように、Aさんの名前が付いた返信が表示される</li>
+                <li>Aさんのデバッグパネルに Bさんが送った文字が表示され、debug ノードの下に BさんのIPアドレスが表示される（<code>::ffff:192.168.1.20</code> のように、先頭に <code>::ffff:</code> が付くことがある。IPv4 のアドレスを IPv6 の書き方で表したもの）</li>
+                <li>役割を入れ替えても同じように通信できる</li>
+                <li>つながらないとき、Aさん自身の PC から送って返信が得られるかどうかで、フロー側の問題かネットワーク側の問題かを切り分けられる（手順はヒントの「つながらないときの切り分け順」）</li>
+            </ul>
+
+            <div class="warning">
+                <strong>⚠️ 注意:</strong> この演習で開くポートには、認証も暗号化もありません。IPアドレスとポート番号を知っていれば、同じLANにいる誰でも接続して文字を送れます。社内LANでの学習に限って行い、終わったらサーバー側のフローを削除するか無効にしてデプロイし、ポートを閉じてください。
+            </div>
+
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>自分のIPアドレスの調べ方:</strong> Windows は <code>ipconfig</code> の「IPv4 アドレス」、ラズパイ・Linux は <code>hostname -I</code>。Mac の <code>hostname</code> には <code>-I</code> が無いため、「システム設定」の「ネットワーク」で、使っている接続（Wi-Fi など）の「詳細」を開き、「TCP/IP」の「IPアドレス」を見ます。詳しくは<a href="nodered-local-pi-exercise-guide.html#common">ローカル/ラズパイ演習ガイドの共通の準備</a>を参照してください。</p>
+                <p><strong>待ち受けるアドレスの設定は不要:</strong> TCP In の「待ち受け」は、アドレスを限らずにポートを開きます。そのため設定を変えなくても、他のPCから接続できます。</p>
+                <p><strong>ファイアウォール:</strong> Windows では Defender ファイアウォールが受信をブロックすることがあります。初回の待ち受け時に出る許可ダイアログで許可するか、9104番の受信を許可してください（<a href="nodered-local-pi-exercise-guide.html#win">Windows編</a>）。</p>
+                <p><strong>サーバー担当（Aさん）のノード:</strong></p>
+                <ul>
+                    <li>TCP In: 種類「待ち受け」、ポート 9104、出力「ストリーム」の「文字列」</li>
+                    <li>Template: プロパティ <code>msg.payload</code>、テンプレート <code>Aさんが受け取りました: {{{payload}}}</code></li>
+                    <li>TCP Out: 種類「TCP応答」</li>
+                    <li>Debug: 「ノードステータス」に <code>msg.ip</code> を表示すると、送ってきた相手のIPアドレスがノードの下に出る</li>
+                </ul>
+                <p>Template ノードは <code>msg.payload</code> だけを書き換え、<code>msg._session</code> はそのまま残します。そのため、TCP In と TCP Out の間に置いても、TCP Out は送ってきた相手に返信できます。</p>
+                <p><strong>クライアント担当（Bさん）のノード:</strong></p>
+                <ul>
+                    <li>TCP Request: サーバ（AさんのIPアドレス）、ポート 9104、戻り値「文字列」、終了「指定時間後」500 ミリ秒</li>
+                </ul>
+                <p>「指定時間後」は、最初の返信が届いてから 500 ミリ秒待って、それまでに届いた分をまとめて出力し、接続を閉じます。</p>
+                <p><strong>つながらないときの切り分け順:</strong></p>
+                <ol>
+                    <li>Aさん自身が、自分のPCから送って返信を得られるか。Mac・Linux では <code>nc localhost 9104</code> で接続し、<code>Hello</code> と入力して Enter キーを押す。Windows の PowerShell では <code>Send-TcpText 9104 "Hello"</code>。返信が得られなければフロー側の問題（デプロイ忘れ、ポート番号の違い、TCP Out の種類が「TCP応答」でない）。</li>
+                    <li>Bさんが自分のPCから、Aさんへ送って返信を得られるか。Mac・Linux では <code>nc （AさんのIP） 9104</code> で接続して同じように入力する。Windows の PowerShell では <code>Send-TcpText 9104 "Hello" -HostName （AさんのIP）</code>。返信が得られなければネットワークかファイアウォールの問題。PowerShell のエラーの意味は<a href="#test-powershell">Windows: PowerShell でのテスト例</a>の表を参照してください。</li>
+                    <li>端末からは返信が得られるのに Node-RED からだけ失敗するなら、TCP Request ノードの「サーバ」と「ポート」のつづりを確かめる。</li>
+                </ol>
+                <p>nc は、返信が表示されても終わりません。Ctrl+C で終わらせます。<code>echo "Hello" | nc （アドレス） 9104</code> の形で送ると、Mac の nc は送り終えたところで終わってしまい、返信が表示されません。</p>
+            </details>
+
+            <details>
+                <summary>✅ 解答例フロー（サーバー担当・Aさん）</summary>
+                <p>「返信文を組み立て」Template ノードのテンプレートにある「Aさん」を、自分の名前に書き換えてください。</p>
+                <div class="flow-json">[
+    {"id": "tcp_ex5s_tab", "type": "tab", "label": "演習5 サーバー側"},
+    {"id": "tcp_ex5s_tcp_in", "type": "tcp in", "z": "tcp_ex5s_tab", "name": "TCP Server :9104", "server": "server", "host": "", "port": "9104", "datamode": "stream", "datatype": "utf8", "newline": "", "topic": "", "trim": false, "base64": false, "tls": "", "x": 180, "y": 100, "wires": [["tcp_ex5s_template", "tcp_ex5s_debug"]]},
+    {"id": "tcp_ex5s_template", "type": "template", "z": "tcp_ex5s_tab", "name": "返信文を組み立て", "field": "payload", "fieldType": "msg", "format": "text", "syntax": "mustache", "template": "Aさんが受け取りました: {{{payload}}}", "output": "str", "x": 410, "y": 100, "wires": [["tcp_ex5s_tcp_out"]]},
+    {"id": "tcp_ex5s_tcp_out", "type": "tcp out", "z": "tcp_ex5s_tab", "name": "Reply", "host": "", "port": "", "beserver": "reply", "base64": false, "end": false, "tls": "", "x": 610, "y": 100, "wires": []},
+    {"id": "tcp_ex5s_debug", "type": "debug", "z": "tcp_ex5s_tab", "name": "サーバー側: 受信", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "ip", "statusType": "msg", "x": 410, "y": 140, "wires": []}
+]</div>
+            </details>
+
+            <details>
+                <summary>✅ 解答例フロー（クライアント担当・Bさん）</summary>
+                <p>TCP Request ノードの「サーバ」を、Aさんから聞いたIPアドレスに書き換えてください（下の例は <code>192.168.1.10</code>）。送る文字は Inject ノードの <code>msg.payload</code> で変えられます。</p>
+                <div class="flow-json">[
+    {"id": "tcp_ex5c_tab", "type": "tab", "label": "演習5 クライアント側"},
+    {"id": "tcp_ex5c_inject", "type": "inject", "z": "tcp_ex5c_tab", "name": "送る", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "こんにちは、Bです", "payloadType": "str", "x": 150, "y": 100, "wires": [["tcp_ex5c_request"]]},
+    {"id": "tcp_ex5c_request", "type": "tcp request", "z": "tcp_ex5c_tab", "name": "相手のNode-RED", "server": "192.168.1.10", "port": "9104", "out": "time", "ret": "string", "splitc": "500", "newline": "", "trim": false, "tls": "", "x": 360, "y": 100, "wires": [["tcp_ex5c_debug"]]},
+    {"id": "tcp_ex5c_debug", "type": "debug", "z": "tcp_ex5c_tab", "name": "クライアント側: 相手の返信", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "statusVal": "", "statusType": "auto", "x": 590, "y": 100, "wires": []}
 ]</div>
             </details>
         </div>
