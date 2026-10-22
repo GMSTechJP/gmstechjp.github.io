@@ -667,7 +667,7 @@
         "iface": "",
         "port": "",
         "ipv": "udp4",
-        "outport": "",
+        "outport": "8002",
         "base64": false,
         "multicast": "false",
         "x": 620,
@@ -783,12 +783,17 @@
         </div>
         
         <h3 id="test-nc">Mac・Linux: netcat でのテスト例</h3>
-        <p>ターミナルを2つ開き、一方で受信を待ち受け、もう一方から送信すると動作を確認できます。<code>[Node-REDのホスト]</code> は、お使いのNode-REDエディタを開いているアドレスに置き換えてください（ローカル環境なら <code>localhost</code>）。</p>
-        <div class="code-block"># UDP送信
-echo "Hello UDP" | nc -u [Node-REDのホスト] 8000
+        <p>ターミナルを開いて以下のコマンドを実行すると、サンプルフローのUDP Inへ送れます。<code>[Node-REDのホスト]</code> は、お使いのNode-REDエディタを開いているアドレスに置き換えてください（ローカル環境なら <code>127.0.0.1</code>）。</p>
+        <div class="code-block"># UDP送信（「UDP In :8000」へ。届いた内容は debug サイドバーで確かめる）
+echo "Hello UDP" | nc -u -w1 [Node-REDのホスト] 8000
 
-# UDP受信（別ターミナル）
-nc -ul 8000</div>
+# 返信を受ける（「UDP In :8002」のエコーが [ECHO] Hello を返す）
+echo "Hello" | nc -u -w1 [Node-REDのホスト] 8002</div>
+        <ul>
+            <li><strong>localhost ではなく 127.0.0.1 と書く:</strong> nc は <code>localhost</code> を IPv6 の <code>::1</code> として送ることがあります。UDP In は既定で IPv4 で待ち受けるため、届きません。UDP には接続がないので、届かなくてもエラーは出ません</li>
+            <li><strong><code>-w1</code>:</strong> Mac の nc では、1秒間何も届かなければ nc を終わらせます。付けないと、返信が来たあとも nc が終わらないので、Ctrl+C で止めます。Linux の nc は種類によってオプションの意味が違い、<code>-w1</code> を付けても終わらないことがあります。そのときも Ctrl+C で止めます</li>
+            <li><strong>Node-RED が待ち受けているポートを nc で待ち受けない:</strong> たとえば <code>nc -ul 8000</code> は、「UDP In :8000」と同じポートを取り合います。起動できないか、起動できても届いたデータは Node-RED 側に渡り、nc には表示されません</li>
+        </ul>
 
         <h3 id="test-powershell">Windows: PowerShell でのテスト例</h3>
         <p>スタートメニューで「PowerShell」と検索して開きます。次の関数をコピーして PowerShell の画面に貼り付け、Enter キーを押します。画面に何も表示されなければ、関数を作れています。関数は PowerShell の画面を閉じるまで使えるので、開き直したときはもう一度貼り付けます。</p>
@@ -882,7 +887,7 @@ nc -ul 8000</div>
             <li>受信時: JSON ノードでパース</li>
         </ul>
         
-        <h3>パターン4: 受信元への返信（エコー）</h3>
+        <h3 id="pattern-echo">パターン4: 受信元への返信（エコー）</h3>
         <p><strong>用途:</strong> 受信した送信元へのエコー返信</p>
         <p>サンプルフローの「受信元への返信（エコー）」を参照してください。</p>
         <div class="node-example">
@@ -896,7 +901,12 @@ nc -ul 8000</div>
         <ul>
             <li>UDP Out のアドレス/ポートを空にすると msg.ip, msg.port を使用</li>
             <li>受信したパケットの送信元に返信可能</li>
+            <li>UDP Out の「ローカルポート」（アドレスの下のドロップダウン）を「ローカルポートを使用」にして、UDP In と同じ番号を入れると、返信を受けたのと同じポートから送る。既定の「ローカルポートをランダムに使用」では、送り元のポートが自動で決まり、UDP In の待ち受けポートとは別になる。返信を受ける側（nc や多くの機器）は、送った先と同じポートからの返信しか受け取らないことが多い</li>
         </ul>
+        <div class="warning">
+            <p><strong>⚠️ 同じポートの UDP In と UDP Out は、1つのソケットを使い回す</strong></p>
+            <p>UDP Out の「ローカルポートを使用」に UDP In と同じ番号を入れると、UDP Out は UDP In のソケットをそのまま使います。デプロイの種類を「変更したノード」にしていて、どちらか片方だけを変えてデプロイすると、片方だけが作り直され、UDP In が受信しなくなったり、返信が送られなくなったりします。デプロイボタンの右の ▼ で「全て」か「変更したフロー」を選んでデプロイします（Node-RED の既定は「全て」）。止まってしまったときは、同じメニューの「フローを再起動」で戻ります。</p>
+        </div>
         
         <h3>パターン5: 定期的なセンサーデータ送信</h3>
         <p><strong>用途:</strong> センサーデータの定期送信</p>
@@ -917,7 +927,7 @@ nc -ul 8000</div>
         <h2 id="section6">📝 6. 演習問題</h2>
         
         <p><small>💡 以下の演習例に出てくる <code>localhost</code> はローカル環境での例です。共有クラウド環境などでは、ご利用のNode-REDエディタを開いているアドレスに置き換えてください。</small></p>
-        <p>演習1・2の成功の条件では、手元の端末から送って確かめる手順があります。Mac・Linux では <code>nc</code> を、Windows では PowerShell の <code>Send-UdpText</code> を使います（<a href="#test-powershell">Windows: PowerShell でのテスト例</a>で関数を作っておきます）。演習2でどちらも使えないときは、「🧪 動作確認用フロー」を自分のフローと一緒にデプロイして確かめます。</p>
+        <p>演習1・2の成功の条件では、手元の端末から送って確かめる手順があります。Mac・Linux では <code>nc</code> を（送り先は <code>localhost</code> ではなく <code>127.0.0.1</code>。理由は<a href="#test-nc">netcat でのテスト例</a>）、Windows では PowerShell の <code>Send-UdpText</code> を使います（<a href="#test-powershell">Windows: PowerShell でのテスト例</a>で関数を作っておきます）。演習2でどちらも使えないときは、「🧪 動作確認用フロー」を自分のフローと一緒にデプロイして確かめます。</p>
         
         <div class="exercise">
             <h3>演習1: UDPメッセージの送受信 <span class="difficulty difficulty-easy">初級</span></h3>
@@ -951,7 +961,7 @@ nc -ul 8000</div>
             <ul>
                 <li>Inject ボタンを押すとデバッグパネルに「Hello UDP!」が表示される</li>
                 <li>デバッグパネルのノードステータスに送信元のIPアドレスが表示される</li>
-                <li><code>echo "test" | nc -u localhost 9000</code>（Windows の PowerShell では <code>Send-UdpText 9000 "test"</code>）を実行してもデバッグパネルに受信データが表示される</li>
+                <li><code>echo "test" | nc -u -w1 127.0.0.1 9000</code>（Windows の PowerShell では <code>Send-UdpText 9000 "test"</code>）を実行してもデバッグパネルに受信データが表示される</li>
             </ul>
 
             <details>
@@ -1008,11 +1018,12 @@ nc -ul 8000</div>
                 <li>ポート: 9001</li>
                 <li>受信: <code>Hello</code></li>
                 <li>返信: <code>[REPLY] Hello</code></li>
+                <li>返信の送り元のポート: 9001（受けたのと同じポートから送り返す）</li>
             </ul>
 
             <p><strong>✅ 成功の条件:</strong></p>
             <ul>
-                <li><code>echo "Hello" | nc -u localhost 9001</code>（Windows の PowerShell では <code>Send-UdpText 9001 "Hello" -Wait</code>）を実行すると「[REPLY] Hello」が返ってくる</li>
+                <li><code>echo "Hello" | nc -u -w1 127.0.0.1 9001</code>（Windows の PowerShell では <code>Send-UdpText 9001 "Hello" -Wait</code>）を実行すると「[REPLY] Hello」が返ってくる</li>
                 <li>異なるメッセージを送っても、常に「[REPLY] 」が先頭に付いて返ってくる</li>
                 <li>返信が送信元の IP アドレスとポートに対して送られている（送信元に届く）</li>
             </ul>
@@ -1041,7 +1052,9 @@ nc -ul 8000</div>
                 <ul>
                     <li>アドレス: 空欄（msg.ip を使用）</li>
                     <li>ポート: 空欄（msg.port を使用）</li>
+                    <li>ローカルポート（アドレスの下のドロップダウン）: 「ローカルポートを使用」にして、右の欄に 9001（受けたのと同じポートから返信する。nc は、送った先と同じポートからの返信しか表示しない。既定の「ローカルポートをランダムに使用」のままだと、PowerShell と動作確認用フローには返信が届くが、nc には表示されない）</li>
                 </ul>
+                <p>UDP In と UDP Out が同じ 9001 番のソケットを使うため、片方だけを変えて「変更したノード」でデプロイすると止まります（<a href="#pattern-echo">パターン4</a>の注意を参照）。</p>
             </details>
             
             <details>
@@ -1050,7 +1063,7 @@ nc -ul 8000</div>
     {"id": "udp_ex2_tab", "type": "tab", "label": "演習2"},
     {"id": "udp_ex2_udp_in", "type": "udp in", "z": "udp_ex2_tab", "name": "UDP In :9001", "iface": "", "port": "9001", "ipv": "udp4", "multicast": "false", "group": "", "datatype": "utf8", "x": 170, "y": 100, "wires": [["udp_ex2_change"]]},
     {"id": "udp_ex2_change", "type": "change", "z": "udp_ex2_tab", "name": "返信作成", "rules": [{"t": "set", "p": "payload", "pt": "msg", "to": "\"[REPLY] \" &amp; msg.payload", "tot": "jsonata"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 370, "y": 100, "wires": [["udp_ex2_udp_out"]]},
-    {"id": "udp_ex2_udp_out", "type": "udp out", "z": "udp_ex2_tab", "name": "UDP Reply", "addr": "", "iface": "", "port": "", "ipv": "udp4", "outport": "", "base64": false, "multicast": "false", "x": 560, "y": 100, "wires": []}
+    {"id": "udp_ex2_udp_out", "type": "udp out", "z": "udp_ex2_tab", "name": "UDP Reply", "addr": "", "iface": "", "port": "", "ipv": "udp4", "outport": "9001", "base64": false, "multicast": "false", "x": 560, "y": 100, "wires": []}
 ]</div>
             </details>
         </div>
