@@ -2,64 +2,649 @@
     "guides": {
         "nodered-tcp-node-guide.html": {
             "tcp_sample_tab": {
-                "inject": ["リクエスト送信", "JSONリクエスト", "JSONでない文字を送る", "つないで送る"],
+                "inject": [
+                    "リクエスト送信",
+                    "JSONリクエスト",
+                    "JSONでない文字を送る",
+                    "つないで送る"
+                ],
                 "expect": [
-                    {"debug": "サーバー側: 受信データ", "contains": "Hello TCP Server!"},
-                    {"debug": "クライアント側: レスポンス", "match": "^\\[Echo\\] Hello TCP Server! \\(from .+:\\d+\\)"},
-                    {"debug": "サーバー側: 受け取ったJSON", "contains": "{\"command\":\"getData\",\"id\":123}"},
-                    {"debug": "クライアント側: JSONレスポンス", "contains": "\"status\":\"success\",\"received\":{\"command\":\"getData\",\"id\":123}"},
-                    {"debug": "クライアント側: JSONレスポンス", "contains": "\"status\":\"error\""},
-                    {"debug": "接続・切断", "contains": "\"event\":\"connect\""},
-                    {"debug": "接続・切断", "contains": "\"event\":\"disconnect\""},
-                    {"debug": "クライアント側: 9002 の返信", "contains": "受け付けました: Hello 9002"}
+                    {
+                        "debug": "サーバー側: 受信データ",
+                        "contains": "Hello TCP Server!"
+                    },
+                    {
+                        "debug": "クライアント側: レスポンス",
+                        "match": "^\\[Echo\\] Hello TCP Server! \\(from .+:\\d+\\)"
+                    },
+                    {
+                        "debug": "サーバー側: 受け取ったJSON",
+                        "contains": "{\"command\":\"getData\",\"id\":123}"
+                    },
+                    {
+                        "debug": "クライアント側: JSONレスポンス",
+                        "contains": "\"status\":\"success\",\"received\":{\"command\":\"getData\",\"id\":123}"
+                    },
+                    {
+                        "debug": "クライアント側: JSONレスポンス",
+                        "contains": "\"status\":\"error\""
+                    },
+                    {
+                        "debug": "接続・切断",
+                        "contains": "\"event\":\"connect\""
+                    },
+                    {
+                        "debug": "接続・切断",
+                        "contains": "\"event\":\"disconnect\""
+                    },
+                    {
+                        "debug": "クライアント側: 9002 の返信",
+                        "contains": "受け付けました: Hello 9002"
+                    }
                 ]
             },
             "tcpchk1_tab": {
-                "with": ["tcp_ex1_tab"],
-                "inject": ["Hello を送る"],
+                "with": [
+                    "tcp_ex1_tab"
+                ],
+                "inject": [
+                    "Hello を送る"
+                ],
                 "expect": [
-                    {"debug": "クライアント側: 返信", "match": "^Hello"},
-                    {"debug": "サーバー側: 受信ログ", "match": "^Hello"}
+                    {
+                        "debug": "クライアント側: 返信",
+                        "match": "^Hello"
+                    },
+                    {
+                        "debug": "サーバー側: 受信ログ",
+                        "match": "^Hello"
+                    }
                 ]
             },
-            "tcp_ex1_tab": {"covered_by": "tcpchk1_tab"},
+            "tcp_ex1_tab": {
+                "covered_by": "tcpchk1_tab"
+            },
             "tcpchk2_tab": {
-                "with": ["tcp_ex2_tab"],
-                "inject": ["Hello を送る"],
+                "with": [
+                    "tcp_ex2_tab"
+                ],
+                "inject": [
+                    "Hello を送る"
+                ],
                 "expect": [
-                    {"debug": "クライアント側: 返信", "match": "^\\[\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}[^\\]]*\\] Hello"}
+                    {
+                        "debug": "クライアント側: 返信",
+                        "match": "^\\[\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}[^\\]]*\\] Hello"
+                    }
                 ]
             },
-            "tcp_ex2_tab": {"covered_by": "tcpchk2_tab"},
+            "tcp_ex2_tab": {
+                "covered_by": "tcpchk2_tab"
+            },
             "tcpchk3_tab": {
-                "with": ["tcp_ex3_tab"],
-                "inject": ["PING を送る", "TIME を送る", "HELLO Alice を送る", "未定義 ABC を送る"],
+                "with": [
+                    "tcp_ex3_tab"
+                ],
+                "inject": [
+                    "PING を送る",
+                    "TIME を送る",
+                    "HELLO Alice を送る",
+                    "未定義 ABC を送る"
+                ],
                 "expect": [
-                    {"debug": "クライアント側: 返信", "match": "^PONG"},
-                    {"debug": "クライアント側: 返信", "match": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}"},
-                    {"debug": "クライアント側: 返信", "contains": "Hello, Alice!"},
-                    {"debug": "クライアント側: 返信", "contains": "Unknown command"}
+                    {
+                        "debug": "クライアント側: 返信",
+                        "match": "^PONG"
+                    },
+                    {
+                        "debug": "クライアント側: 返信",
+                        "match": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}"
+                    },
+                    {
+                        "debug": "クライアント側: 返信",
+                        "contains": "Hello, Alice!"
+                    },
+                    {
+                        "debug": "クライアント側: 返信",
+                        "contains": "Unknown command"
+                    }
                 ]
             },
-            "tcp_ex3_tab": {"covered_by": "tcpchk3_tab"},
+            "tcp_ex3_tab": {
+                "covered_by": "tcpchk3_tab"
+            },
             "tcp_ex4_tab": {
-                "inject": ["5秒ごと"],
+                "inject": [
+                    "5秒ごと"
+                ],
                 "expect": [
-                    {"debug": "サーバー処理", "contains": "\"status\":\"received\""},
-                    {"debug": "クライアント受信", "contains": "\"status\":\"received\",\"data\":{\"sensor\":\"temperature\""}
+                    {
+                        "debug": "サーバー処理",
+                        "contains": "\"status\":\"received\""
+                    },
+                    {
+                        "debug": "クライアント受信",
+                        "contains": "\"status\":\"received\",\"data\":{\"sensor\":\"temperature\""
+                    }
                 ]
             },
             "tcp_ex5c_tab": {
-                "with": ["tcp_ex5s_tab"],
+                "with": [
+                    "tcp_ex5s_tab"
+                ],
                 "note": "2台の PC で通信する演習。CI では、送り先（相手の PC の IP）を 127.0.0.1 にして1台で動かす",
-                "override": {"tcp_ex5c_request": {"server": "127.0.0.1"}},
-                "inject": ["送る"],
+                "override": {
+                    "tcp_ex5c_request": {
+                        "server": "127.0.0.1"
+                    }
+                },
+                "inject": [
+                    "送る"
+                ],
                 "expect": [
-                    {"debug": "サーバー側: 受信", "contains": "こんにちは、Bです"},
-                    {"debug": "クライアント側: 相手の返信", "contains": "が受け取りました: こんにちは、Bです"}
+                    {
+                        "debug": "サーバー側: 受信",
+                        "contains": "こんにちは、Bです"
+                    },
+                    {
+                        "debug": "クライアント側: 相手の返信",
+                        "contains": "が受け取りました: こんにちは、Bです"
+                    }
                 ]
             },
-            "tcp_ex5s_tab": {"covered_by": "tcp_ex5c_tab"}
+            "tcp_ex5s_tab": {
+                "covered_by": "tcp_ex5c_tab"
+            }
+        },
+        "nodered-http-node-guide.html": {
+            "http_examples_tab": {
+                "inject": [
+                    "GET /hello を送る",
+                    "msg.url で GET /hello を送る",
+                    "GET /hello-query?name=Nick を送る",
+                    "GET /hello-param/Nick を送る",
+                    "ヘッダー付きで GET /hello-headers を送る",
+                    "POST /hello-raw に Nick を送る"
+                ],
+                "expect": [
+                    {
+                        "debug": "/hello の応答",
+                        "contains": "<h1>Hello World!</h1>"
+                    },
+                    {
+                        "debug": "msg.url で呼んだ /hello の応答",
+                        "contains": "<h1>Hello World!</h1>"
+                    },
+                    {
+                        "debug": "/hello-query の応答",
+                        "contains": "<h1>Hello Nick!</h1>"
+                    },
+                    {
+                        "debug": "/hello-param の応答",
+                        "contains": "<h1>Hello Nick!</h1>"
+                    },
+                    {
+                        "debug": "/hello-headers の応答",
+                        "contains": "<h1>User agent: Node-RED</h1>"
+                    },
+                    {
+                        "debug": "/hello-raw の応答",
+                        "contains": "<h1>Hello Nick</h1>"
+                    }
+                ],
+                "requests": [
+                    {
+                        "path": "/hello-upload",
+                        "contains": "enctype=\"multipart/form-data\""
+                    },
+                    {
+                        "method": "POST",
+                        "path": "/hello-upload",
+                        "headers": {
+                            "Content-Type": "multipart/form-data; boundary=flowtest"
+                        },
+                        "body": "--flowtest\r\nContent-Disposition: form-data; name=\"file\"; filename=\"test.txt\"\r\nContent-Type: text/plain\r\n\r\nhello\r\n--flowtest--\r\n",
+                        "contains": "<h1>Hello test.txt</h1>"
+                    },
+                    {
+                        "path": "/hello-cookie",
+                        "headers": {
+                            "Cookie": "demo-1=123"
+                        },
+                        "contains": "&quot;demo-1&quot;: &quot;123&quot;"
+                    },
+                    {
+                        "path": "/hello-cookie/add",
+                        "contains": "<h1>Cookies</h1>"
+                    },
+                    {
+                        "path": "/hello-cookie/clear",
+                        "contains": "<h1>Cookies</h1>"
+                    }
+                ]
+            },
+            "http_sample_tab": {
+                "inject": [
+                    "東京の時刻取得",
+                    "404テスト",
+                    "APIテスト"
+                ],
+                "expect": [
+                    {
+                        "debug": "リクエスト確認",
+                        "contains": "\"message\":\"Hello from Node-RED!\""
+                    },
+                    {
+                        "debug": "テスト結果",
+                        "contains": "\"message\":\"Hello from Node-RED!\""
+                    },
+                    {
+                        "debug": "受信データ",
+                        "contains": "\"received\":{\"temperature\":25}"
+                    },
+                    {
+                        "debug": "検索結果",
+                        "contains": "田中太郎"
+                    },
+                    {
+                        "debug": "検索結果",
+                        "contains": "ユーザーが見つかりません"
+                    },
+                    {
+                        "debug": "時刻表示",
+                        "contains": "\"timezone\":\"Asia/Tokyo\""
+                    },
+                    {
+                        "debug": "クライアントエラー (4xx)",
+                        "contains": "404"
+                    }
+                ],
+                "skip_debug": {
+                    "成功 (2xx)": "サンプルには 2xx を返す相手を呼ぶボタンが無い（「404テスト」は 4xx の分岐だけを通す）",
+                    "サーバーエラー (5xx)": "サンプルには 5xx を返す相手を呼ぶボタンが無い（「404テスト」は 4xx の分岐だけを通す）"
+                },
+                "requests": [
+                    {
+                        "method": "POST",
+                        "path": "/api/data",
+                        "json": {
+                            "temperature": 25
+                        },
+                        "status": 201,
+                        "contains": "\"success\":true",
+                        "content_type": "application/json"
+                    },
+                    {
+                        "path": "/api/users/1",
+                        "contains": "\"name\":\"田中太郎\"",
+                        "content_type": "application/json"
+                    },
+                    {
+                        "path": "/api/users/99",
+                        "status": 404,
+                        "contains": "ユーザーが見つかりません"
+                    },
+                    {
+                        "path": "/page",
+                        "match": "\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}",
+                        "content_type": "text/html"
+                    }
+                ],
+                "external": [
+                    "postman-echo.com",
+                    "timeapi.io"
+                ]
+            },
+            "ex1_tab": {
+                "expect": [],
+                "requests": [
+                    {
+                        "path": "/api/status",
+                        "contains": "{\"status\":\"running\",\"version\":\"1.0.0\"}",
+                        "content_type": "application/json"
+                    }
+                ]
+            },
+            "ex2_tab": {
+                "inject": [
+                    "NY時刻取得"
+                ],
+                "expect": [
+                    {
+                        "debug": "NY時刻",
+                        "contains": "\"timeZone\":\"America/New_York\""
+                    },
+                    {
+                        "debug": "NY時刻",
+                        "contains": "\"dateTime\":"
+                    }
+                ],
+                "external": [
+                    "timeapi.io"
+                ]
+            },
+            "ex3_tab": {
+                "expect": [],
+                "requests": [
+                    {
+                        "method": "POST",
+                        "path": "/api/echo",
+                        "json": {
+                            "name": "太郎"
+                        },
+                        "contains": "\"received\":{\"name\":\"太郎\"}"
+                    },
+                    {
+                        "method": "POST",
+                        "path": "/api/echo",
+                        "json": {
+                            "name": "太郎"
+                        },
+                        "match": "\"receivedAt\":\"\\d{4}-\\d{2}-\\d{2}T"
+                    },
+                    {
+                        "path": "/api/echo",
+                        "status": 404,
+                        "contains": "Cannot GET /api/echo"
+                    }
+                ]
+            },
+            "ex4_tab": {
+                "expect": [],
+                "requests": [
+                    {
+                        "path": "/api/items/1",
+                        "contains": "{\"success\":true,\"item\":{\"id\":\"1\",\"name\":\"りんご\",\"price\":150}}"
+                    },
+                    {
+                        "path": "/api/items/2",
+                        "contains": "\"name\":\"みかん\",\"price\":100"
+                    },
+                    {
+                        "path": "/api/items/3",
+                        "contains": "\"name\":\"バナナ\",\"price\":120"
+                    },
+                    {
+                        "path": "/api/items/99",
+                        "status": 404,
+                        "contains": "商品が見つかりません"
+                    }
+                ]
+            },
+            "ex5_tab": {
+                "expect": [],
+                "requests": [
+                    {
+                        "path": "/api/tokyo-time",
+                        "match": "^\\{\"timeZone\":\"Asia/Tokyo\",\"date\":\"\\d{2}/\\d{2}/\\d{4}\",\"time\":\"\\d{2}:\\d{2}\",\"dayOfWeek\":\"\\w+\"\\}$",
+                        "not_contains": [
+                            "year",
+                            "milliSeconds"
+                        ],
+                        "content_type": "application/json"
+                    }
+                ],
+                "external": [
+                    "timeapi.io"
+                ]
+            },
+            "ex6_tab": {
+                "expect": [],
+                "requests": [
+                    {
+                        "method": "POST",
+                        "path": "/api/notes",
+                        "json": {
+                            "text": "テストメモ"
+                        },
+                        "status": 201,
+                        "contains": "\"text\":\"テストメモ\"",
+                        "save": {
+                            "id": "note.id"
+                        }
+                    },
+                    {
+                        "path": "/api/notes",
+                        "contains": "\"text\":\"テストメモ\""
+                    },
+                    {
+                        "path": "/api/notes/{id}",
+                        "contains": "\"text\":\"テストメモ\""
+                    },
+                    {
+                        "method": "DELETE",
+                        "path": "/api/notes/{id}",
+                        "contains": "Deleted"
+                    },
+                    {
+                        "path": "/api/notes/{id}",
+                        "status": 404
+                    },
+                    {
+                        "path": "/api/notes",
+                        "contains": "\"count\":0"
+                    },
+                    {
+                        "path": "/api/notes/999",
+                        "status": 404
+                    },
+                    {
+                        "method": "DELETE",
+                        "path": "/api/notes/999",
+                        "status": 404
+                    }
+                ]
+            },
+            "ex7c_tab": {
+                "with": [
+                    "ex7s_tab"
+                ],
+                "note": "2台の PC で通信する演習。CI では、呼び出し先（相手の PC の IP）を 127.0.0.1 にして1台で動かす",
+                "override": {
+                    "ex7c_request": {
+                        "url": "http://127.0.0.1:1880/api/hello"
+                    }
+                },
+                "inject": [
+                    "呼び出す"
+                ],
+                "expect": [
+                    {
+                        "debug": "相手の応答",
+                        "contains": "\"from\":\"Aさん\""
+                    }
+                ],
+                "requests": [
+                    {
+                        "path": "/api/hello",
+                        "contains": "\"from\":\"Aさん\""
+                    }
+                ]
+            },
+            "ex7s_tab": {
+                "covered_by": "ex7c_tab"
+            },
+            "ex8c_tab": {
+                "with": [
+                    "ex8s_tab"
+                ],
+                "note": "複数の PC を呼ぶ演習。CI では、IP の一覧を自分（127.0.0.1）と、つながらない相手（nonexistent.invalid）にして1台で動かす",
+                "override": {
+                    "ex8c_inject": {
+                        "payload": "[\"127.0.0.1\",\"nonexistent.invalid\"]"
+                    }
+                },
+                "allow_status": {
+                    "相手を呼ぶ": "つながらない相手を呼んだときに error 付きで一覧に残ることを確かめるため、わざと失敗させる"
+                },
+                "inject": [
+                    "全員のIP一覧"
+                ],
+                "expect": [
+                    {
+                        "debug": "全員の一覧",
+                        "contains": "{\"ip\":\"127.0.0.1\",\"name\":\"山田\"}"
+                    },
+                    {
+                        "debug": "全員の一覧",
+                        "match": "\\{\"ip\":\"nonexistent\\.invalid\",\"error\":\"[^\"]+\"\\}"
+                    }
+                ],
+                "requests": [
+                    {
+                        "path": "/api/whoami",
+                        "contains": "{\"name\":\"山田\"}"
+                    }
+                ]
+            },
+            "ex8s_tab": {
+                "covered_by": "ex8c_tab"
+            }
+        },
+        "nodered-udp-node-guide.html": {
+            "udp_examples_tab": {
+                "inject": [
+                    "Hello, World! を送る"
+                ],
+                "expect": [
+                    {
+                        "debug": "受信データ",
+                        "contains": "Hello, World!"
+                    }
+                ]
+            },
+            "udp_sample_tab": {
+                "inject": [
+                    "ユニキャスト送信",
+                    "ブロードキャスト送信",
+                    "JSON送信",
+                    "JSONでない文字を送る",
+                    "エコーを頼む",
+                    "3秒ごと"
+                ],
+                "expect": [
+                    {
+                        "debug": "受信データ",
+                        "contains": "Hello UDP!"
+                    },
+                    {
+                        "debug": "受信データ",
+                        "contains": "BROADCAST: Hello everyone!"
+                    },
+                    {
+                        "debug": "送信元情報",
+                        "match": "\"ip\":\"127\\.0\\.0\\.1\",\"port\":\\d+,\"data\":\"Hello UDP!\""
+                    },
+                    {
+                        "debug": "JSON データ",
+                        "contains": "\"sensor\":\"temp\",\"value\":25.5,\"unit\":\"C\""
+                    },
+                    {
+                        "debug": "JSON データ",
+                        "contains": "\"from\":\"127.0.0.1\""
+                    },
+                    {
+                        "debug": "JSON として読めなかったもの",
+                        "contains": "hello"
+                    },
+                    {
+                        "debug": "エコー送信",
+                        "contains": "[ECHO] Hello"
+                    },
+                    {
+                        "debug": "クライアント側: エコーの返信",
+                        "contains": "[ECHO] Hello"
+                    },
+                    {
+                        "debug": "送信データ",
+                        "match": "^\\{\"deviceId\":\"sensor-001\",\"temperature\":\\d+(\\.\\d)?,\"humidity\":\\d+,\"timestamp\":\"\\d{4}-\\d{2}-\\d{2}T[^\"]+Z\"\\}$"
+                    },
+                    {
+                        "debug": "受信側: センサーデータ",
+                        "contains": "\"deviceId\":\"sensor-001\""
+                    }
+                ]
+            },
+            "udp_ex1_tab": {
+                "inject": [
+                    "テスト送信"
+                ],
+                "expect": [
+                    {
+                        "debug": "受信データ",
+                        "contains": "Hello UDP!"
+                    }
+                ]
+            },
+            "udpchk2_tab": {
+                "with": [
+                    "udp_ex2_tab"
+                ],
+                "inject": [
+                    "Hello を送る"
+                ],
+                "expect": [
+                    {
+                        "debug": "クライアント側: 返信",
+                        "contains": "[REPLY] Hello"
+                    }
+                ]
+            },
+            "udp_ex2_tab": {
+                "covered_by": "udpchk2_tab"
+            },
+            "udp_ex3_tab": {
+                "inject": [
+                    "dev-001",
+                    "dev-002",
+                    "dev-001"
+                ],
+                "expect": [
+                    {
+                        "debug": "デバイス一覧",
+                        "match": "\\{\"dev-001\":\\{\"value\":25,[^}]*\\},\"dev-002\":\\{\"value\":30,"
+                    }
+                ]
+            },
+            "udp_ex4_tab": {
+                "inject": [
+                    "DISCOVER送信",
+                    "DISCOVER送信"
+                ],
+                "expect": [
+                    {
+                        "debug": "発見デバイス",
+                        "match": "\"my-device-\\d+\":\\{\"name\":\"Node-RED Device\""
+                    }
+                ]
+            },
+            "udp_ex5c_tab": {
+                "with": [
+                    "udp_ex5s_tab"
+                ],
+                "note": "2台の PC で通信する演習。CI では、送り先（相手の PC の IP）を 127.0.0.1 にして1台で動かす",
+                "override": {
+                    "udp_ex5c_udp_out": {
+                        "addr": "127.0.0.1"
+                    }
+                },
+                "inject": [
+                    "送る"
+                ],
+                "expect": [
+                    {
+                        "debug": "受けた側: 受信",
+                        "contains": "こんにちは、Bです"
+                    },
+                    {
+                        "debug": "送った側: 相手の返信",
+                        "contains": "Aさんが受け取りました: こんにちは、Bです"
+                    }
+                ]
+            },
+            "udp_ex5s_tab": {
+                "covered_by": "udp_ex5c_tab"
+            }
         }
     }
 }

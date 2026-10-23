@@ -54,7 +54,9 @@ if [ "$VERSION" != "$NODE_RED_VERSION" ] || ! kill -0 "$PID" 2>/dev/null; then
 fi
 
 status=0
-python3 scripts/test-flows.py --url "http://localhost:$NODE_RED_PORT" --port-offset "$PORT_OFFSET" || status=$?
+# デプロイの前（deploy.yml）は EXTERNAL_WARN=1 にして、外部のサービスに頼る記載の不合格を警告にとどめる
+python3 scripts/test-flows.py --url "http://localhost:$NODE_RED_PORT" --port-offset "$PORT_OFFSET" \
+    ${EXTERNAL_WARN:+--external-warn} || status=$?
 if [ "$status" -ne 0 ]; then
     echo "----- Node-RED のログ -----"
     cat "$LOG"

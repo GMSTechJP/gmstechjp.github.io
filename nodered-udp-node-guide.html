@@ -352,15 +352,105 @@
                 <li>下のサンプルフローJSONをコピー</li>
                 <li>Node-REDエディタで <strong>メニュー → 読み込み</strong> を選択</li>
                 <li>JSONをペーストして「読み込み」をクリック</li>
+                <li>エディタ右上の<strong>「デプロイ」ボタンをクリック</strong>（クリックするまでフローは動きません）</li>
             </ol>
-            <p>このサンプルフローには、以下で説明するパターンの実例が含まれています。</p>
         </div>
 
-        
-
-        
+        <h3>公式サンプルフロー</h3>
+        <p>最初のサンプルフローは、Node-RED本体に同梱されている公式サンプル（「Transfer data using UDP protocol」）を1つのタブにしたもので、ノード名を日本語で付けています。エディタの <strong>メニュー → 読み込み → サンプル → network → udp</strong> からも同じものを開けます。</p>
+        <p>UDP Out が localhost の 1881 番へ「Hello, World!」を送り、同じ 1881 番で待ち受ける UDP In が受け取ります。inject「Hello, World! を送る」のボタンを押すと、debug サイドバーに「受信データ」として <code>Hello, World!</code> が表示されます。共有クラウドで試すときは、1881 を自分専用の番号に変えます（UDP In と UDP Out の2か所）。</p>
         <details>
-            <summary>📥 サンプルフローJSON（クリックで展開）</summary>
+            <summary>📥 公式サンプルフローJSON（クリックで展開）</summary>
+            <div class="flow-json">[
+    {
+        "id": "udp_examples_tab",
+        "type": "tab",
+        "label": "udp",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "73279b5.5151664",
+        "type": "udp in",
+        "z": "udp_examples_tab",
+        "name": "UDP In :1881",
+        "iface": "",
+        "port": "1881",
+        "ipv": "udp4",
+        "multicast": "false",
+        "group": "",
+        "datatype": "utf8",
+        "x": 220,
+        "y": 220,
+        "wires": [["d98b60d3.7331e"]]
+    },
+    {
+        "id": "fb19b98f.d5aa58",
+        "type": "udp out",
+        "z": "udp_examples_tab",
+        "name": "UDP Out localhost:1881",
+        "addr": "localhost",
+        "iface": "",
+        "port": "1881",
+        "ipv": "udp4",
+        "outport": "",
+        "base64": false,
+        "multicast": "false",
+        "x": 410,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "33f18897.35d5b8",
+        "type": "inject",
+        "z": "udp_examples_tab",
+        "name": "Hello, World! を送る",
+        "props": [{"p": "payload"}, {"p": "topic", "vt": "str"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "Hello, World!",
+        "payloadType": "str",
+        "x": 230,
+        "y": 160,
+        "wires": [["fb19b98f.d5aa58"]]
+    },
+    {
+        "id": "d98b60d3.7331e",
+        "type": "debug",
+        "z": "udp_examples_tab",
+        "name": "受信データ",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 370,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "f86495aa.8a9848",
+        "type": "comment",
+        "z": "udp_examples_tab",
+        "name": "Transfer data using UDP protocol",
+        "info": "`UDP in` node can be used to receive data from `UDP out` node using UDP protocol.",
+        "x": 230,
+        "y": 100,
+        "wires": []
+    }
+]</div>
+        </details>
+
+        <h3>応用（サイト独自）: 実用パターン集</h3>
+        <p>ここから先は公式サンプルではなく、<strong>本サイトが用意した応用教材</strong>です。受信、ユニキャスト送信、ブロードキャスト送信、JSON データの送受信、送り元への返信（エコー）、定期的なセンサーデータ送信を1つのタブにまとめたもので、以下で説明する使用パターンの実例になっています。どの部分にも inject のボタンがあり、Node-RED の中だけで試せます。</p>
+        <details>
+            <summary>📥 応用フローJSON（クリックで展開）</summary>
             <div class="flow-json">[
     {
         "id": "udp_sample_tab",
@@ -373,9 +463,9 @@
         "id": "udp_comment1",
         "type": "comment",
         "z": "udp_sample_tab",
-        "name": "━━━ 基本: UDP受信 ━━━",
-        "info": "ポート8000でUDPパケットを受信",
-        "x": 170,
+        "name": "━━━ 1. 受信（ポート8000） ━━━",
+        "info": "ポート8000で UDP のデータを待ち受ける。\n送り元のアドレスとポートは msg.ip と msg.port に入る。\n2 のユニキャスト送信、3 のブロードキャスト送信、または nc（127.0.0.1 の 8000 番）から送って試す。",
+        "x": 200,
         "y": 40,
         "wires": []
     },
@@ -392,7 +482,7 @@
         "datatype": "utf8",
         "x": 170,
         "y": 100,
-        "wires": [["udp_debug_received", "udp_func_info"]]
+        "wires": [["udp_debug_received", "udp_change_info"]]
     },
     {
         "id": "udp_debug_received",
@@ -407,23 +497,22 @@
         "targetType": "msg",
         "statusVal": "ip",
         "statusType": "msg",
-        "x": 390,
+        "x": 400,
         "y": 100,
         "wires": []
     },
     {
-        "id": "udp_func_info",
-        "type": "function",
+        "id": "udp_change_info",
+        "type": "change",
         "z": "udp_sample_tab",
-        "name": "送信元情報",
-        "func": "msg.senderInfo = {\n    ip: msg.ip,\n    port: msg.port,\n    data: msg.payload,\n    timestamp: new Date().toISOString()\n};\nnode.status({fill: \"green\", shape: \"dot\", text: msg.ip + \":\" + msg.port});\nreturn msg;",
-        "outputs": 1,
-        "timeout": 0,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 390,
+        "name": "送信元情報をまとめる",
+        "rules": [{"t": "set", "p": "senderInfo", "pt": "msg", "to": "{\"ip\": ip, \"port\": port, \"data\": payload, \"timestamp\": $now()}", "tot": "jsonata"}],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 410,
         "y": 140,
         "wires": [["udp_debug_info"]]
     },
@@ -438,7 +527,7 @@
         "tostatus": false,
         "complete": "senderInfo",
         "targetType": "msg",
-        "x": 590,
+        "x": 640,
         "y": 140,
         "wires": []
     },
@@ -446,10 +535,10 @@
         "id": "udp_comment2",
         "type": "comment",
         "z": "udp_sample_tab",
-        "name": "━━━ 基本: UDP送信（ユニキャスト） ━━━",
-        "info": "",
-        "x": 210,
-        "y": 220,
+        "name": "━━━ 2. ユニキャスト送信 ━━━",
+        "info": "1 の UDP In（localhost の 8000 番）へ1回送る。",
+        "x": 180,
+        "y": 200,
         "wires": []
     },
     {
@@ -465,8 +554,8 @@
         "topic": "",
         "payload": "Hello UDP!",
         "payloadType": "str",
-        "x": 180,
-        "y": 280,
+        "x": 170,
+        "y": 240,
         "wires": [["udp_out_unicast"]]
     },
     {
@@ -481,18 +570,18 @@
         "outport": "",
         "base64": false,
         "multicast": "false",
-        "x": 440,
-        "y": 280,
+        "x": 420,
+        "y": 240,
         "wires": []
     },
     {
         "id": "udp_comment3",
         "type": "comment",
         "z": "udp_sample_tab",
-        "name": "━━━ ブロードキャスト送信 ━━━",
-        "info": "同一サブネット内の全デバイスに送信",
+        "name": "━━━ 3. ブロードキャスト送信 ━━━",
+        "info": "同じネットワーク（サブネット）の全員の 8000 番へ一斉に送る。\n自分の 1 の UDP In にも届く（送り元は自分の PC の LAN の IP アドレスになる）。",
         "x": 190,
-        "y": 360,
+        "y": 300,
         "wires": []
     },
     {
@@ -508,8 +597,8 @@
         "topic": "",
         "payload": "BROADCAST: Hello everyone!",
         "payloadType": "str",
-        "x": 190,
-        "y": 420,
+        "x": 180,
+        "y": 340,
         "wires": [["udp_out_broadcast"]]
     },
     {
@@ -524,18 +613,18 @@
         "outport": "",
         "base64": false,
         "multicast": "broadcast",
-        "x": 440,
-        "y": 420,
+        "x": 420,
+        "y": 340,
         "wires": []
     },
     {
         "id": "udp_comment4",
         "type": "comment",
         "z": "udp_sample_tab",
-        "name": "━━━ JSON データの送受信 ━━━",
-        "info": "",
-        "x": 190,
-        "y": 500,
+        "name": "━━━ 4. JSON データの送受信（ポート8001） ━━━",
+        "info": "UDP で送れるのは文字（バイト）だけなので、オブジェクトは JSON の文字列にして送り、受け取った側で json ノードを使ってオブジェクトに戻す。\nchange ノードで、受け取った時刻と送り元を足す。\nJSON として読めない文字が届くと、json ノードがエラーを出す。catch ノードでそのエラーを受け取る。",
+        "x": 240,
+        "y": 400,
         "wires": []
     },
     {
@@ -550,23 +639,34 @@
         "group": "",
         "datatype": "utf8",
         "x": 190,
-        "y": 560,
-        "wires": [["udp_func_json_parse"]]
+        "y": 460,
+        "wires": [["udp_json_parse"]]
     },
     {
-        "id": "udp_func_json_parse",
-        "type": "function",
+        "id": "udp_json_parse",
+        "type": "json",
         "z": "udp_sample_tab",
-        "name": "JSONパース",
-        "func": "try {\n    msg.data = JSON.parse(msg.payload);\n    msg.data.receivedAt = new Date().toISOString();\n    msg.data.from = msg.ip;\n    node.status({fill: \"green\", shape: \"dot\", text: \"JSON OK\"});\n} catch(e) {\n    msg.data = {error: \"Invalid JSON\", raw: msg.payload};\n    node.status({fill: \"red\", shape: \"ring\", text: \"JSON Error\"});\n}\nreturn msg;",
-        "outputs": 1,
-        "timeout": 0,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 430,
-        "y": 560,
+        "name": "文字列→オブジェクト",
+        "property": "payload",
+        "action": "obj",
+        "pretty": false,
+        "x": 410,
+        "y": 460,
+        "wires": [["udp_change_json"]]
+    },
+    {
+        "id": "udp_change_json",
+        "type": "change",
+        "z": "udp_sample_tab",
+        "name": "受信時刻と送信元を足す",
+        "rules": [{"t": "set", "p": "payload.receivedAt", "pt": "msg", "to": "$now()", "tot": "jsonata"}, {"t": "set", "p": "payload.from", "pt": "msg", "to": "ip", "tot": "jsonata"}],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 640,
+        "y": 460,
         "wires": [["udp_debug_json"]]
     },
     {
@@ -578,10 +678,36 @@
         "tosidebar": true,
         "console": false,
         "tostatus": false,
-        "complete": "data",
+        "complete": "payload",
         "targetType": "msg",
-        "x": 610,
-        "y": 560,
+        "x": 860,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "udp_catch_json",
+        "type": "catch",
+        "z": "udp_sample_tab",
+        "name": "JSON として読めない",
+        "scope": ["udp_json_parse"],
+        "uncaught": false,
+        "x": 400,
+        "y": 500,
+        "wires": [["udp_debug_json_error"]]
+    },
+    {
+        "id": "udp_debug_json_error",
+        "type": "debug",
+        "z": "udp_sample_tab",
+        "name": "JSON として読めなかったもの",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 650,
+        "y": 500,
         "wires": []
     },
     {
@@ -598,7 +724,24 @@
         "payload": "{\"sensor\":\"temp\",\"value\":25.5,\"unit\":\"C\"}",
         "payloadType": "str",
         "x": 170,
-        "y": 620,
+        "y": 540,
+        "wires": [["udp_out_json"]]
+    },
+    {
+        "id": "udp_inject_json_bad",
+        "type": "inject",
+        "z": "udp_sample_tab",
+        "name": "JSONでない文字を送る",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "hello",
+        "payloadType": "str",
+        "x": 180,
+        "y": 580,
         "wires": [["udp_out_json"]]
     },
     {
@@ -613,18 +756,18 @@
         "outport": "",
         "base64": false,
         "multicast": "false",
-        "x": 400,
-        "y": 620,
+        "x": 420,
+        "y": 560,
         "wires": []
     },
     {
         "id": "udp_comment5",
         "type": "comment",
         "z": "udp_sample_tab",
-        "name": "━━━ 受信元への返信（エコー） ━━━",
-        "info": "msg.ip と msg.port を使って返信",
-        "x": 200,
-        "y": 700,
+        "name": "━━━ 5. 受信元への返信（エコー）（ポート8002） ━━━",
+        "info": "受け取った文字に [ECHO] を付けて、送り元へ返す。\nUDP Out のアドレスとポートを空にすると、msg.ip と msg.port（送り元）へ送る。\nローカルポートを UDP In と同じ 8002 にして、受けたのと同じポートから返す。\n試し方: 「エコーを頼む」を押すと、8012 番から 8002 番へ送り、8012 番で返信を受ける。",
+        "x": 250,
+        "y": 640,
         "wires": []
     },
     {
@@ -639,23 +782,22 @@
         "group": "",
         "datatype": "utf8",
         "x": 170,
-        "y": 760,
-        "wires": [["udp_func_echo"]]
+        "y": 700,
+        "wires": [["udp_change_echo"]]
     },
     {
-        "id": "udp_func_echo",
-        "type": "function",
+        "id": "udp_change_echo",
+        "type": "change",
         "z": "udp_sample_tab",
-        "name": "エコー処理",
-        "func": "// 送信元情報を保持（返信用）\nconst replyTo = {\n    ip: msg.ip,\n    port: msg.port\n};\n\n// エコー応答を作成\nmsg.payload = \"[ECHO] \" + msg.payload;\n\n// 返信先を設定\nmsg.ip = replyTo.ip;\nmsg.port = replyTo.port;\n\nnode.status({fill: \"blue\", shape: \"dot\", text: \"Reply to \" + replyTo.ip});\nreturn msg;",
-        "outputs": 1,
-        "timeout": 0,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 390,
-        "y": 760,
+        "name": "[ECHO] を付ける",
+        "rules": [{"t": "set", "p": "payload", "pt": "msg", "to": "\"[ECHO] \" &amp; payload", "tot": "jsonata"}],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 380,
+        "y": 700,
         "wires": [["udp_out_echo", "udp_debug_echo"]]
     },
     {
@@ -670,8 +812,8 @@
         "outport": "8002",
         "base64": false,
         "multicast": "false",
-        "x": 620,
-        "y": 760,
+        "x": 630,
+        "y": 700,
         "wires": []
     },
     {
@@ -687,18 +829,81 @@
         "targetType": "msg",
         "statusVal": "ip",
         "statusType": "msg",
-        "x": 590,
+        "x": 610,
+        "y": 740,
+        "wires": []
+    },
+    {
+        "id": "udp_inject_echo",
+        "type": "inject",
+        "z": "udp_sample_tab",
+        "name": "エコーを頼む",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "Hello",
+        "payloadType": "str",
+        "x": 160,
         "y": 800,
+        "wires": [["udp_out_echo_client"]]
+    },
+    {
+        "id": "udp_out_echo_client",
+        "type": "udp out",
+        "z": "udp_sample_tab",
+        "name": "8012番から localhost:8002 へ",
+        "addr": "localhost",
+        "iface": "",
+        "port": "8002",
+        "ipv": "udp4",
+        "outport": "8012",
+        "base64": false,
+        "multicast": "false",
+        "x": 410,
+        "y": 800,
+        "wires": []
+    },
+    {
+        "id": "udp_in_echo_reply",
+        "type": "udp in",
+        "z": "udp_sample_tab",
+        "name": "UDP In :8012（返信を受ける）",
+        "iface": "",
+        "port": "8012",
+        "ipv": "udp4",
+        "multicast": "false",
+        "group": "",
+        "datatype": "utf8",
+        "x": 210,
+        "y": 840,
+        "wires": [["udp_debug_echo_reply"]]
+    },
+    {
+        "id": "udp_debug_echo_reply",
+        "type": "debug",
+        "z": "udp_sample_tab",
+        "name": "クライアント側: エコーの返信",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 480,
+        "y": 840,
         "wires": []
     },
     {
         "id": "udp_comment6",
         "type": "comment",
         "z": "udp_sample_tab",
-        "name": "━━━ 定期的なセンサーデータ送信 ━━━",
-        "info": "",
-        "x": 210,
-        "y": 880,
+        "name": "━━━ 6. 定期的なセンサーデータ送信（ポート8003） ━━━",
+        "info": "3秒ごとに、センサーの値に見立てた乱数を JSON の文字列にして、8003 番へブロードキャストする。\n同じタブの UDP In :8003 が受け取る（同じネットワークのほかの PC の Node-RED でも受け取れる）。",
+        "x": 260,
+        "y": 900,
         "wires": []
     },
     {
@@ -714,24 +919,23 @@
         "topic": "",
         "payload": "",
         "payloadType": "date",
-        "x": 160,
-        "y": 940,
-        "wires": [["udp_func_sensor"]]
+        "x": 150,
+        "y": 960,
+        "wires": [["udp_change_sensor"]]
     },
     {
-        "id": "udp_func_sensor",
-        "type": "function",
+        "id": "udp_change_sensor",
+        "type": "change",
         "z": "udp_sample_tab",
-        "name": "センサーデータ生成",
-        "func": "const temp = (20 + Math.random() * 10).toFixed(1);\nconst humidity = Math.floor(40 + Math.random() * 40);\n\nmsg.payload = JSON.stringify({\n    deviceId: \"sensor-001\",\n    temperature: parseFloat(temp),\n    humidity: humidity,\n    timestamp: new Date().toISOString()\n});\n\nnode.status({fill: \"green\", shape: \"dot\", text: temp + \"°C\"});\nreturn msg;",
-        "outputs": 1,
-        "timeout": 0,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 380,
-        "y": 940,
+        "name": "センサーデータを作る",
+        "rules": [{"t": "set", "p": "payload", "pt": "msg", "to": "$string({\"deviceId\": \"sensor-001\", \"temperature\": $round(20 + $random() * 10, 1), \"humidity\": $floor(40 + $random() * 40), \"timestamp\": $now()})", "tot": "jsonata"}],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 360,
+        "y": 960,
         "wires": [["udp_out_sensor", "udp_debug_sensor"]]
     },
     {
@@ -746,8 +950,8 @@
         "outport": "",
         "base64": false,
         "multicast": "broadcast",
-        "x": 620,
-        "y": 940,
+        "x": 600,
+        "y": 960,
         "wires": []
     },
     {
@@ -763,8 +967,38 @@
         "targetType": "msg",
         "statusVal": "\"送信\"",
         "statusType": "jsonata",
-        "x": 590,
-        "y": 980,
+        "x": 580,
+        "y": 1000,
+        "wires": []
+    },
+    {
+        "id": "udp_in_sensor",
+        "type": "udp in",
+        "z": "udp_sample_tab",
+        "name": "UDP In :8003",
+        "iface": "",
+        "port": "8003",
+        "ipv": "udp4",
+        "multicast": "false",
+        "group": "",
+        "datatype": "utf8",
+        "x": 170,
+        "y": 1060,
+        "wires": [["udp_debug_sensor_received"]]
+    },
+    {
+        "id": "udp_debug_sensor_received",
+        "type": "debug",
+        "z": "udp_sample_tab",
+        "name": "受信側: センサーデータ",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 400,
+        "y": 1060,
         "wires": []
     }
 ]</div>
@@ -774,7 +1008,7 @@
             <p><strong>⚠️ 動作確認方法:</strong></p>
             <p>サンプルフローをデプロイしたら、UDPでデータを送受信してみて動作を確認できます。初心者の方は、まず「Node-RED内」の方法から試すのがおすすめです。</p>
             <ul>
-                <li><strong>Node-RED内（追加ツール不要）:</strong> UDP Outノードで自分自身にテスト送信するなど、サンプルフローの他のノードと組み合わせて動作確認します。</li>
+                <li><strong>Node-RED内（追加ツール不要）:</strong> 公式サンプルフローと応用フローの inject のボタンを押すと、UDP Out が自分自身の UDP In へ送り、届いたものが debug サイドバーに表示されます。</li>
                 <li><strong>Mac・Linux: netcat（nc）:</strong> ターミナルからUDP通信を手軽に試せるコマンドラインツールです。Mac と多くの Linux に入っています。</li>
                 <li><strong>Windows: PowerShell:</strong> Windows には nc が入っていません。PowerShell に下の関数を貼り付けると、何もインストールせずに送信と返信の確認ができます。コマンドプロンプトでは使えません。</li>
                 <li><strong>socat:</strong> netcatより高機能な通信テストツールです。netcatでうまく送受信できない場合の代替として使えます。</li>
@@ -783,7 +1017,7 @@
         </div>
         
         <h3 id="test-nc">Mac・Linux: netcat でのテスト例</h3>
-        <p>ターミナルを開いて以下のコマンドを実行すると、サンプルフローのUDP Inへ送れます。<code>[Node-REDのホスト]</code> は、お使いのNode-REDエディタを開いているアドレスに置き換えてください（ローカル環境なら <code>127.0.0.1</code>）。</p>
+        <p>ターミナルを開いて以下のコマンドを実行すると、応用フローのUDP Inへ送れます。<code>[Node-REDのホスト]</code> は、お使いのNode-REDエディタを開いているアドレスに置き換えてください（ローカル環境なら <code>127.0.0.1</code>）。</p>
         <div class="code-block"># UDP送信（「UDP In :8000」へ。届いた内容は debug サイドバーで確かめる）
 echo "Hello UDP" | nc -u -w1 [Node-REDのホスト] 8000
 
@@ -816,7 +1050,7 @@ echo "Hello" | nc -u -w1 [Node-REDのホスト] 8002</div>
         $udp.Close()
     }
 }</div>
-        <p>使い方は <code>Send-UdpText ポート番号 "送る文字"</code> です。サンプルフローの「UDP In :8000」へは、次のように送ります。</p>
+        <p>使い方は <code>Send-UdpText ポート番号 "送る文字"</code> です。応用フローの「UDP In :8000」へは、次のように送ります。</p>
         <div class="code-block">Send-UdpText 8000 "Hello UDP"</div>
         <p>Node-RED が別のパソコン（Raspberry Pi など）で動いているときは、最後に <code>-HostName</code> で送り先の IPv4 アドレスを指定します。指定しないと、PowerShell を開いているパソコン自身（127.0.0.1）へ送ります。</p>
         <div class="code-block">Send-UdpText 8000 "Hello UDP" -HostName 192.168.1.20</div>
@@ -832,98 +1066,157 @@ echo "Hello" | nc -u -w1 [Node-REDのホスト] 8002</div>
         
         
         <h3>使用パターン</h3>
-        <p>サンプルフローに含まれる代表的な使用パターンを紹介します。</p>
+        <p>応用フローの6つの部分を、パターンごとに紹介します。</p>
 
         <h3>パターン1: 基本UDP送受信</h3>
         <p><strong>用途:</strong> UDPメッセージの送受信</p>
-        <p>サンプルフローの「基本: UDP受信」「基本: UDP送信（ユニキャスト）」を参照してください。</p>
+        <p>応用フローの「1. 受信（ポート8000）」「2. ユニキャスト送信」を参照してください。</p>
         <div class="node-example">
-            <span class="node node-inject">データ</span>
+            <span class="node node-inject">ユニキャスト送信</span>
             <span class="arrow">→</span>
-            <span class="node node-udp-out">UDP Out</span>
+            <span class="node node-udp-out">UDP Out (localhost:8000)</span>
         </div>
         <div class="node-example">
-            <span class="node node-udp-in">UDP In</span>
-            <span class="arrow">→</span>
-            <span class="node node-debug">表示</span>
+            <span class="node node-udp-in">UDP In :8000</span>
+            <span class="branch">
+                <span class="branch-row">
+                    <span class="arrow">→</span>
+                    <span class="node node-debug">受信データ</span>
+                </span>
+                <span class="branch-row">
+                    <span class="arrow">→</span>
+                    <span class="node node-change">送信元情報をまとめる</span>
+                    <span class="arrow">→</span>
+                    <span class="node node-debug">送信元情報</span>
+                </span>
+            </span>
         </div>
         <p><strong>ポイント:</strong></p>
         <ul>
             <li>UDP In: 受信時に msg.ip, msg.port が設定される</li>
             <li>UDP Out: 宛先アドレスとポートを指定</li>
+            <li>change ノードの JSONata <code>{"ip": ip, "port": port, "data": payload, "timestamp": $now()}</code> で、送り元の情報を1つのオブジェクトにまとめる</li>
         </ul>
-        
+
         <h3>パターン2: ブロードキャスト送信</h3>
         <p><strong>用途:</strong> 同一ネットワークへの一斉送信</p>
-        <p>サンプルフローの「ブロードキャスト送信」を参照してください。</p>
+        <p>応用フローの「3. ブロードキャスト送信」を参照してください。</p>
         <div class="node-example">
-            <span class="node node-inject">メッセージ</span>
+            <span class="node node-inject">ブロードキャスト送信</span>
             <span class="arrow">→</span>
-            <span class="node node-udp-out">UDP Out (255.255.255.255)</span>
+            <span class="node node-udp-out">UDP Broadcast</span>
         </div>
         <p><strong>ポイント:</strong></p>
         <ul>
             <li>アドレス: 255.255.255.255 または サブネットのブロードキャスト（192.168.1.255）</li>
             <li>ネットワーク上の全デバイスにデータを一斉配信</li>
+            <li>送った自分の「UDP In :8000」にも届く。送り元（msg.ip）は 127.0.0.1 ではなく、自分の PC の LAN の IP アドレスになる</li>
         </ul>
-        
+
         <h3>パターン3: JSONデータの送受信</h3>
         <p><strong>用途:</strong> JSON形式データの送受信</p>
-        <p>サンプルフローの「JSON データの送受信」を参照してください。</p>
+        <p>応用フローの「4. JSON データの送受信（ポート8001）」を参照してください。</p>
+        <p>送る側:</p>
         <div class="node-example">
-            <span class="node node-inject">JSON生成</span>
+            <span class="node node-inject">JSON送信</span>
             <span class="arrow">→</span>
-            <span class="node node-udp-out">UDP送信</span>
-            <span style="margin: 0 20px;">｜</span>
-            <span class="node node-udp-in">UDP受信</span>
+            <span class="node node-udp-out">UDP Out :8001</span>
+        </div>
+        <p>受ける側:</p>
+        <div class="node-example">
+            <span class="node node-udp-in">UDP In :8001 (JSON)</span>
             <span class="arrow">→</span>
-            <span class="node node-json">JSONパース</span>
+            <span class="node node-json">文字列→オブジェクト</span>
             <span class="arrow">→</span>
-            <span class="node node-debug">確認</span>
+            <span class="node node-change">受信時刻と送信元を足す</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">JSON データ</span>
+        </div>
+        <p>受ける側（JSON として読めなかったとき）:</p>
+        <div class="node-example">
+            <span class="node node-catch">JSON として読めない</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">JSON として読めなかったもの</span>
         </div>
         <p><strong>ポイント:</strong></p>
         <ul>
-            <li>送信時: JSON.stringify() で文字列化</li>
-            <li>受信時: JSON ノードでパース</li>
+            <li>UDP で送れるのは文字（バイト）だけなので、オブジェクトは JSON の文字列にして送る。サンプルの inject は、JSON の文字列 <code>{"sensor":"temp","value":25.5,"unit":"C"}</code> を種類「文字列」で送る</li>
+            <li>受信時: json ノードでオブジェクトに戻す</li>
+            <li>JSON として読めない文字が届くと、json ノードがエラーを出す。catch ノードでそのエラーを受け取る（「JSONでない文字を送る」のボタンで試せる）</li>
         </ul>
-        
+
         <h3 id="pattern-echo">パターン4: 受信元への返信（エコー）</h3>
         <p><strong>用途:</strong> 受信した送信元へのエコー返信</p>
-        <p>サンプルフローの「受信元への返信（エコー）」を参照してください。</p>
+        <p>応用フローの「5. 受信元への返信（エコー）（ポート8002）」を参照してください。</p>
+        <p>返信する側:</p>
         <div class="node-example">
-            <span class="node node-udp-in">受信</span>
+            <span class="node node-udp-in">UDP In :8002</span>
             <span class="arrow">→</span>
-            <span class="node node-function">処理</span>
+            <span class="node node-change">[ECHO] を付ける</span>
+            <span class="branch">
+                <span class="branch-row">
+                    <span class="arrow">→</span>
+                    <span class="node node-udp-out">UDP Reply (msg.ip/port)</span>
+                </span>
+                <span class="branch-row">
+                    <span class="arrow">→</span>
+                    <span class="node node-debug">エコー送信</span>
+                </span>
+            </span>
+        </div>
+        <p>試す側（8012 番から送り、8012 番で返信を受ける）:</p>
+        <div class="node-example">
+            <span class="node node-inject">エコーを頼む</span>
             <span class="arrow">→</span>
-            <span class="node node-udp-out">返信(msg.ip/port)</span>
+            <span class="node node-udp-out">8012番から localhost:8002 へ</span>
+        </div>
+        <div class="node-example">
+            <span class="node node-udp-in">UDP In :8012（返信を受ける）</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">クライアント側: エコーの返信</span>
         </div>
         <p><strong>ポイント:</strong></p>
         <ul>
             <li>UDP Out のアドレス/ポートを空にすると msg.ip, msg.port を使用</li>
-            <li>受信したパケットの送信元に返信可能</li>
+            <li>受信したパケットの送信元に返信可能。UDP In が付けた msg.ip と msg.port は、change ノードを通っても残る</li>
             <li>UDP Out の「ローカルポート」（アドレスの下のドロップダウン）を「ローカルポートを使用」にして、UDP In と同じ番号を入れると、返信を受けたのと同じポートから送る。既定の「ローカルポートをランダムに使用」では、送り元のポートが自動で決まり、UDP In の待ち受けポートとは別になる。返信を受ける側（nc や多くの機器）は、送った先と同じポートからの返信しか受け取らないことが多い</li>
+            <li>試す側も同じ考え方で、送る UDP Out のローカルポートを 8012 にし、8012 番の UDP In で返信を受ける</li>
         </ul>
         <div class="warning">
             <p><strong>⚠️ 同じポートの UDP In と UDP Out は、1つのソケットを使い回す</strong></p>
             <p>UDP Out の「ローカルポートを使用」に UDP In と同じ番号を入れると、UDP Out は UDP In のソケットをそのまま使います。デプロイの種類を「変更したノード」にしていて、どちらか片方だけを変えてデプロイすると、片方だけが作り直され、UDP In が受信しなくなったり、返信が送られなくなったりします。デプロイボタンの右の ▼ で「全て」か「変更したフロー」を選んでデプロイします（Node-RED の既定は「全て」）。止まってしまったときは、同じメニューの「フローを再起動」で戻ります。</p>
         </div>
-        
+
         <h3>パターン5: 定期的なセンサーデータ送信</h3>
         <p><strong>用途:</strong> センサーデータの定期送信</p>
-        <p>サンプルフローの「定期的なセンサーデータ送信」を参照してください。</p>
+        <p>応用フローの「6. 定期的なセンサーデータ送信（ポート8003）」を参照してください。</p>
         <div class="node-example">
             <span class="node node-inject">3秒ごと</span>
             <span class="arrow">→</span>
-            <span class="node node-function">センサーデータ生成</span>
+            <span class="node node-change">センサーデータを作る</span>
+            <span class="branch">
+                <span class="branch-row">
+                    <span class="arrow">→</span>
+                    <span class="node node-udp-out">UDP Broadcast :8003</span>
+                </span>
+                <span class="branch-row">
+                    <span class="arrow">→</span>
+                    <span class="node node-debug">送信データ</span>
+                </span>
+            </span>
+        </div>
+        <div class="node-example">
+            <span class="node node-udp-in">UDP In :8003</span>
             <span class="arrow">→</span>
-            <span class="node node-udp-out">ブロードキャスト</span>
+            <span class="node node-debug">受信側: センサーデータ</span>
         </div>
         <p><strong>ポイント:</strong></p>
         <ul>
             <li>Inject の repeat 設定で定期実行</li>
-            <li>センサーデータをJSON形式でブロードキャスト</li>
+            <li>change ノードの JSONata で乱数の値を作り、<code>$string(...)</code> で JSON の文字列にしてブロードキャスト</li>
+            <li>同じタブの「UDP In :8003」が受け取る。同じネットワークのほかの PC の Node-RED でも、8003 番の UDP In を置けば受け取れる</li>
         </ul>
-        
+
         <h2 id="section6">📝 6. 演習問題</h2>
         
         <p><small>💡 以下の演習例に出てくる <code>localhost</code> はローカル環境での例です。共有クラウド環境などでは、ご利用のNode-REDエディタを開いているアドレスに置き換えてください。</small></p>

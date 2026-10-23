@@ -81,8 +81,12 @@ jobs:
         with:
           node-version: '22'
 
+      # 外部のサービス（timeapi.io など）に頼る記載の不合格は、ここでは警告にとどめる。
+      # PR の時点（validate.yml）では不合格にするので、ガイドの誤りはそこで止まる。
       - name: フローを Node-RED で動かして検証
         run: bash scripts/ci-flow-tests.sh
+        env:
+          EXTERNAL_WARN: '1'
 
       - name: 更新履歴と最終更新日を生成
         run: python3 scripts/gen_updates.py
