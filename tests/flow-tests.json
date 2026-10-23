@@ -645,6 +645,179 @@
             "udp_ex5s_tab": {
                 "covered_by": "udp_ex5c_tab"
             }
+        },
+        "nodered-websocket-node-guide.html": {
+            "ws_examples_tab": {
+                "inject": [
+                    "「Hello, World!」を送信",
+                    "「Goodbye, World!」を送信"
+                ],
+                "expect": [
+                    {
+                        "debug": "受信確認1",
+                        "contains": "Hello, World!"
+                    },
+                    {
+                        "debug": "受信確認2",
+                        "contains": "Goodbye, World!"
+                    }
+                ]
+            },
+            "ws_sample_tab": {
+                "inject": [
+                    "エコーを頼む",
+                    "チャットで発言する",
+                    "名前なしで発言する",
+                    "プッシュ送信",
+                    "5秒ごとに時刻配信"
+                ],
+                "expect": [
+                    {
+                        "debug": "受信ログ",
+                        "contains": "こんにちは"
+                    },
+                    {
+                        "debug": "クライアント側: エコーの返信",
+                        "match": "\"type\":\"echo\",\"original\":\"こんにちは\",\"timestamp\":\"\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}"
+                    },
+                    {
+                        "debug": "クライアント側: エコーの返信",
+                        "contains": "\"message\":\"あなたは「こんにちは」と言いました\""
+                    },
+                    {
+                        "debug": "チャットログ",
+                        "contains": "{\"name\":\"太郎\",\"message\":\"こんにちは\"}"
+                    },
+                    {
+                        "debug": "チャットログ",
+                        "contains": "やあ"
+                    },
+                    {
+                        "debug": "クライアント側: チャットに届いた内容",
+                        "contains": "\"type\":\"chat\",\"name\":\"太郎\",\"message\":\"こんにちは\""
+                    },
+                    {
+                        "debug": "クライアント側: チャットに届いた内容",
+                        "contains": "\"type\":\"chat\",\"name\":\"匿名\",\"message\":\"やあ\""
+                    },
+                    {
+                        "debug": "クライアント側: チャットに届いた内容",
+                        "contains": "\"message\":\"サーバーからのお知らせです\""
+                    },
+                    {
+                        "debug": "クライアント側: チャットに届いた内容",
+                        "match": "\"type\":\"time\",\"serverTime\":\"\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}"
+                    },
+                    {
+                        "debug": "別の参加者: チャットに届いた内容",
+                        "contains": "\"type\":\"chat\",\"name\":\"太郎\",\"message\":\"こんにちは\""
+                    },
+                    {
+                        "debug": "別の参加者: チャットに届いた内容",
+                        "contains": "\"type\":\"chat\",\"name\":\"匿名\",\"message\":\"やあ\""
+                    },
+                    {
+                        "debug": "別の参加者: エコーに届いた内容",
+                        "absent": true
+                    }
+                ],
+                "requests": [
+                    {
+                        "path": "/ws-test",
+                        "contains": "location.protocol === 'https:' ? 'wss://' : 'ws://'"
+                    },
+                    {
+                        "path": "/ws-test",
+                        "contains": "pre.textContent = text;",
+                        "not_contains": [
+                            ".innerHTML =",
+                            ".innerHTML+=",
+                            ".innerHTML +=",
+                            "insertAdjacentHTML",
+                            "document.write"
+                        ]
+                    }
+                ]
+            },
+            "ex1_test_tab": {
+                "with": [
+                    "ex1_tab"
+                ],
+                "inject": [
+                    "テスト送信"
+                ],
+                "expect": [
+                    {
+                        "debug": "クライアント側: エコー確認",
+                        "match": "^Hello$"
+                    },
+                    {
+                        "debug": "サーバー側: 受信ログ",
+                        "match": "^Hello$"
+                    }
+                ]
+            },
+            "ex1_tab": {
+                "covered_by": "ex1_test_tab"
+            },
+            "ex2_test_tab": {
+                "with": [
+                    "ex2_tab"
+                ],
+                "inject": [
+                    "テスト送信"
+                ],
+                "expect": [
+                    {
+                        "debug": "クライアント側: 返信確認",
+                        "match": "^\\{\"message\":\"こんにちは\",\"receivedAt\":\"\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}"
+                    }
+                ]
+            },
+            "ex2_tab": {
+                "covered_by": "ex2_test_tab"
+            },
+            "ex3_tab": {
+                "with": [
+                    "ex3_test_tab"
+                ],
+                "inject": [
+                    "ブロードキャスト"
+                ],
+                "expect": [
+                    {
+                        "debug": "クライアント側: 配信確認",
+                        "contains": "{\"type\":\"broadcast\",\"content\":\"全員へのお知らせ\"}"
+                    }
+                ],
+                "skip_debug": {
+                    "サーバー側: クライアントからの受信": "演習3の成功の条件は配信だけで、動作確認用フローは受信するだけで送らない。クライアントから文字が届く経路は通らない"
+                }
+            },
+            "ex3_test_tab": {
+                "covered_by": "ex3_tab"
+            },
+            "ex4_test_tab": {
+                "with": [
+                    "ex4_tab"
+                ],
+                "inject": [
+                    "テスト送信"
+                ],
+                "expect": [
+                    {
+                        "debug": "クライアント側: Bさんに届いた内容",
+                        "match": "^\\{\"name\":\"太郎\",\"message\":\"こんにちは\",\"type\":\"chat\",\"timestamp\":\"\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}"
+                    },
+                    {
+                        "debug": "サーバー側: チャットログ",
+                        "contains": "\"name\":\"太郎\",\"message\":\"こんにちは\",\"type\":\"chat\""
+                    }
+                ]
+            },
+            "ex4_tab": {
+                "covered_by": "ex4_test_tab"
+            }
         }
     }
 }

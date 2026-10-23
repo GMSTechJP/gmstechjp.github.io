@@ -21,6 +21,7 @@ tests/flow-tests.json に載せたガイド（対象のガイド）では、次�
   inject と debug には名前を付ける（名前で指定するため）。確かめない部分を黙って残せないようにするため
 - http in の待ち受けは、"requests" で呼ぶか、同じフローの http request が localhost:1880 の
   URL で呼んでいるか、"skip_http" に理由を書く（"GET /api/users/:id" の形で書く）
+- expect の "absent": true は、その debug に何も届かないことを確かめる（届いてはいけない経路の確認）
 - "requests" は、テストの実行役が送る HTTP リクエスト。応答のステータス（status、既定 200）、
   本文（contains / not_contains / match）、Content-Type（content_type）を確かめる。
   "save": {"id": "note.id"} で応答の値を覚え、後の path に {id} と書いて使える
@@ -172,8 +173,9 @@ def check_entry(guide, tab, entry, spec, by_tab):
             errs.append(f"{where}: with の {t} の記載を {{\"covered_by\": \"{tab}\"}} にする")
     flow = [n for t in [tab] + entry.get("with", []) if t in by_tab for n in by_tab[t]["flow"]]
     for e in entry["expect"]:
-        if not e.get("debug") or len({"contains", "match"} & set(e)) != 1:
-            errs.append(f"{where}: expect の各件は debug と、contains か match のどちらかを書く: {e}")
+        if not e.get("debug") or len({"contains", "match", "absent"} & set(e)) != 1 \
+                or "absent" in e and e["absent"] is not True:
+            errs.append(f"{where}: expect の各件は debug と、contains・match・absent（true）のどれか1つを書く: {e}")
 
     injects = {n.get("name") for n in flow if n.get("type") == "inject"}
     if None in injects or "" in injects:
