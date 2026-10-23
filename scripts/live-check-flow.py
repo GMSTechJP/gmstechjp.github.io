@@ -352,6 +352,8 @@ def cleanup(url, label, flow_id):
 def expectation_text(e):
     """期待の1件を、表示用の文字列にする。"""
     where = f"debug「{e['debug']}」に" if e.get("debug") else "debug のどれかに"
+    if e.get("absent"):
+        return f"{where}何も届かない"
     if "match" in e:
         return f"{where}正規表現 {e['match']!r} に合う値"
     return f"{where} {e['contains']!r} を含む値"
@@ -360,6 +362,9 @@ def expectation_text(e):
 def met(e, received):
     """期待の1件を満たす値が届いたか。"""
     values = [r["value"] for r in received if not e.get("debug") or r["debug"] == e["debug"]]
+    if e.get("absent"):
+        # 届いてはいけない debug（例: エコーの返信が、送っていない別のクライアントに届かないこと）
+        return not values
     if "match" in e:
         return any(re.search(e["match"], v) for v in values)
     return any(e["contains"] in v for v in values)
@@ -546,7 +551,8 @@ def check(url, picked, label, inject=(), expect=(), wait=10, after=5, gap=0,
     for e in expect:
         hit = met(e, received)
         failed |= not hit
-        print(f"\n期待: {expectation_text(e)} → {'届いた' if hit else '届かなかった'}")
+        outcome = ("届かなかった" if hit else "届いた") if e.get("absent") else ("届いた" if hit else "届かなかった")
+        print(f"\n期待: {expectation_text(e)} → {outcome}（{'合う' if hit else '合わない'}）")
 
     for r, status, text, ctype in answers:
         ok = request_met(r, status, text, ctype)
