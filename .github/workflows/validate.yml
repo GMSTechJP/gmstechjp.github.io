@@ -40,3 +40,14 @@ jobs:
       # これまで deploy.yml でしか実行しておらず、PR の時点では食い違いを止められなかった。
       - name: 動作の図を検証
         run: python3 scripts/comic/build.py --check
+
+      # ガイドのフローを Node-RED で実際に動かし、tests/flow-tests.json に書いた結果になるか検証する。
+      # 書き方の検査では、動かしたときに止まるフロー（送る側と受ける側の区切り文字の食い違いなど）を
+      # 見つけられない。対象のガイドでは、記載の無いフローや、確かめない inject・debug も失敗にする。
+      - name: Node.js セットアップ
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+
+      - name: フローを Node-RED で動かして検証
+        run: bash scripts/ci-flow-tests.sh

@@ -46,6 +46,7 @@ import http.client
 import importlib.util
 import json
 import os
+import re
 import secrets
 import sys
 import time
@@ -334,13 +335,13 @@ def find_tab(base, label, tries=1):
     return None
 
 
-def cleanup(args, label, flow_id):
+def cleanup(url, label, flow_id):
     """一時的なタブを消す。消せた（または作られていない）なら True。"""
     try:
         # POST が時間切れや中断でも、タブは作られていることがある。ラベルで探して消す
-        flow_id = flow_id or find_tab(args.url, label, tries=5)
+        flow_id = flow_id or find_tab(url, label, tries=5)
         if flow_id:
-            api(args.url, "DELETE", f"/flow/{flow_id}")
+            api(url, "DELETE", f"/flow/{flow_id}")
             print("タブを削除した")
         return True
     except LiveCheckError as e:
@@ -348,38 +349,54 @@ def cleanup(args, label, flow_id):
         return False
 
 
-def run(args):
-    blocks = load_blocks(args.guide)
-    if args.list or not args.blocks:
-        for i, b in enumerate(blocks, 1):
-            print(f"{i:2d}. {b['line']}行目  {describe(b)}")
-        return 0
+def expectation_text(e):
+    """期待の1件を、表示用の文字列にする。"""
+    where = f"debug「{e['debug']}」に" if e.get("debug") else "debug のどれかに"
+    if "match" in e:
+        return f"{where}正規表現 {e['match']!r} に合う値"
+    return f"{where} {e['contains']!r} を含む値"
 
-    try:
-        picked = [blocks[int(i) - 1] for i in args.blocks.split(",") if int(i) > 0]
-    except (ValueError, IndexError):
-        picked = []
-    if len(picked) != len(args.blocks.split(",")):
-        raise LiveCheckError(f"--blocks の指定が誤っている（ブロックは 1〜{len(blocks)}）")
+
+def met(e, received):
+    """期待の1件を満たす値が届いたか。"""
+    values = [r["value"] for r in received if not e.get("debug") or r["debug"] == e["debug"]]
+    if "match" in e:
+        return any(re.search(e["match"], v) for v in values)
+    return any(e["contains"] in v for v in values)
+
+
+def check(url, picked, label, inject=(), expect=(), wait=10, after=5, gap=0,
+          allow_unsafe=False, keep=False):
+    """選んだブロックを一時的なタブで動かし、ステータスと debug に届いた値を確かめる。
+
+    expect は {"contains": 文字列} か {"match": 正規表現} の並びで、"debug" に debug ノードの
+    名前を書くと、その debug に届いた値だけを見る。
+    戻り値は 0 = 合格、1 = 不合格、2 = 一時的なタブを消せなかった。
+    実行できないときは LiveCheckError を送出する。
+    """
     if any(b["flow"] is None for b in picked):
         raise LiveCheckError("フローとして読めないブロックがある。先に validate-flow-json.py を通すこと")
     unsafe = sorted({t for b in picked for t in unsafe_types(b["flow"])})
-    if unsafe and not args.allow_unsafe:
+    if unsafe and not allow_unsafe:
         raise LiveCheckError(f"手元の環境に副作用のあるノードを含む: {', '.join(unsafe)}。"
                              "エディターで確かめるか、内容を確かめたうえで --allow-unsafe を付ける")
 
     prefix = f"lc{secrets.token_hex(3)}_"
-    label = f"live-check {prefix} {os.path.basename(args.guide)} {args.blocks}"
+    label = f"live-check {prefix} {label}"
     flow = build_flow(picked, prefix, label)
     configs = {c["id"]: c for c in flow["configs"]}
     injects = {}
     for n in flow["nodes"]:
         if n.get("type") == "inject" and n.get("name"):
             injects.setdefault(n["name"], []).append(n["id"])
-    missing = [name for name in args.inject if name not in injects]
+    missing = [name for name in inject if name not in injects]
     if missing:
         raise LiveCheckError(f"inject ノードが見つからない: {', '.join(missing)}"
                              f"（あるもの: {', '.join(injects) or 'なし'}）")
+    debugs = {n.get("name") for n in flow["nodes"] if n.get("type") == "debug"}
+    missing = [e["debug"] for e in expect if e.get("debug") and e["debug"] not in debugs]
+    if missing:
+        raise LiveCheckError(f"debug ノードが見つからない: {', '.join(missing)}")
 
     # 選んだブロックどうしでも、同じ待ち受けを2つ置くと2つ目が動かない
     seen = set()
@@ -391,12 +408,12 @@ def run(args):
                 + ", ".join(":".join(c) for c in sorted(inner)))
         seen |= endpoints(b["flow"])
     unverified = sorted({n["type"] for n in flow["nodes"] if needs_expect(n, configs)})
-    if not args.expect and (unverified or not any(is_connecting(n, configs) for n in flow["nodes"])):
+    if not expect and (unverified or not any(is_connecting(n, configs) for n in flow["nodes"])):
         raise LiveCheckError(
             f"ステータスでは確かめられないノード（{', '.join(unverified) or 'mqtt、WebSocket client 以外'}）"
             "があるので、--expect で debug に届くべき文字列を指定すること（何も確かめずに合格にしない）")
 
-    clash = seen & endpoints(api(args.url, "GET", "/flows") or [])
+    clash = seen & endpoints(api(url, "GET", "/flows") or [])
     if clash:
         raise LiveCheckError(
             "既存のフローと重なるため追加しない（利用者のフローが動かなくなる）: "
@@ -407,24 +424,26 @@ def run(args):
     cleaned = True
     try:
         posted = True
-        res = api(args.url, "POST", "/flow", flow)
+        res = api(url, "POST", "/flow", flow)
         if not isinstance(res, dict) or "id" not in res:
             raise LiveCheckError(f"POST /flow の応答に id が無い: {res!r}")
         flow_id = res["id"]
-        print(f"タブ「{label}」を追加した（{flow_id}）。{args.wait:g} 秒待つ")
-        time.sleep(args.wait)
-        for name in args.inject:
+        print(f"タブ「{label}」を追加した（{flow_id}）。{wait:g} 秒待つ")
+        time.sleep(wait)
+        for i, name in enumerate(inject):
+            if i and gap:
+                time.sleep(gap)
             for nid in injects[name]:
-                api(args.url, "POST", f"/inject/{nid}")
+                api(url, "POST", f"/inject/{nid}")
             print(f"inject「{name}」を押した")
-        if args.inject:
-            time.sleep(args.after)
+        if inject:
+            time.sleep(after)
 
-        status = read_context(args.url, flow_id, "status") or {}
-        received = read_context(args.url, flow_id, "received") or []
+        status = read_context(url, flow_id, "status") or {}
+        received = read_context(url, flow_id, "received") or []
     finally:
-        if posted and not args.keep:
-            cleaned = cleanup(args, label, flow_id)
+        if posted and not keep:
+            cleaned = cleanup(url, label, flow_id)
 
     failed = False
     print("\n[ステータス]")
@@ -448,16 +467,34 @@ def run(args):
     for r in received:
         print(f"  {r['debug']}: topic={r['topic']!r} 値={r['value'][:200]}")
 
-    for text in args.expect:
-        hit = any(text in r["value"] for r in received)
+    for e in expect:
+        hit = met(e, received)
         failed |= not hit
-        print(f"\n期待: {text!r} → {'届いた' if hit else '届かなかった'}")
+        print(f"\n期待: {expectation_text(e)} → {'届いた' if hit else '届かなかった'}")
 
     print("\n結果: " + ("不合格" if failed else "合格"))
     if not cleaned:
         print("一時的なタブを消せなかったため、終了コードは 2 にする")
         return 2
     return 1 if failed else 0
+
+
+def run(args):
+    blocks = load_blocks(args.guide)
+    if args.list or not args.blocks:
+        for i, b in enumerate(blocks, 1):
+            print(f"{i:2d}. {b['line']}行目  {describe(b)}")
+        return 0
+
+    try:
+        picked = [blocks[int(i) - 1] for i in args.blocks.split(",") if int(i) > 0]
+    except (ValueError, IndexError):
+        picked = []
+    if len(picked) != len(args.blocks.split(",")):
+        raise LiveCheckError(f"--blocks の指定が誤っている（ブロックは 1〜{len(blocks)}）")
+    return check(args.url, picked, f"{os.path.basename(args.guide)} {args.blocks}",
+                 inject=args.inject, expect=[{"contains": t} for t in args.expect],
+                 wait=args.wait, after=args.after, allow_unsafe=args.allow_unsafe, keep=args.keep)
 
 
 def main():

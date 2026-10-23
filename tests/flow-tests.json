@@ -1,0 +1,65 @@
+{
+    "guides": {
+        "nodered-tcp-node-guide.html": {
+            "tcp_sample_tab": {
+                "inject": ["リクエスト送信", "JSONリクエスト", "JSONでない文字を送る", "つないで送る"],
+                "expect": [
+                    {"debug": "サーバー側: 受信データ", "contains": "Hello TCP Server!"},
+                    {"debug": "クライアント側: レスポンス", "match": "^\\[Echo\\] Hello TCP Server! \\(from .+:\\d+\\)"},
+                    {"debug": "サーバー側: 受け取ったJSON", "contains": "{\"command\":\"getData\",\"id\":123}"},
+                    {"debug": "クライアント側: JSONレスポンス", "contains": "\"status\":\"success\",\"received\":{\"command\":\"getData\",\"id\":123}"},
+                    {"debug": "クライアント側: JSONレスポンス", "contains": "\"status\":\"error\""},
+                    {"debug": "接続・切断", "contains": "\"event\":\"connect\""},
+                    {"debug": "接続・切断", "contains": "\"event\":\"disconnect\""},
+                    {"debug": "クライアント側: 9002 の返信", "contains": "受け付けました: Hello 9002"}
+                ]
+            },
+            "tcpchk1_tab": {
+                "with": ["tcp_ex1_tab"],
+                "inject": ["Hello を送る"],
+                "expect": [
+                    {"debug": "クライアント側: 返信", "match": "^Hello"},
+                    {"debug": "サーバー側: 受信ログ", "match": "^Hello"}
+                ]
+            },
+            "tcp_ex1_tab": {"covered_by": "tcpchk1_tab"},
+            "tcpchk2_tab": {
+                "with": ["tcp_ex2_tab"],
+                "inject": ["Hello を送る"],
+                "expect": [
+                    {"debug": "クライアント側: 返信", "match": "^\\[\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}[^\\]]*\\] Hello"}
+                ]
+            },
+            "tcp_ex2_tab": {"covered_by": "tcpchk2_tab"},
+            "tcpchk3_tab": {
+                "with": ["tcp_ex3_tab"],
+                "inject": ["PING を送る", "TIME を送る", "HELLO Alice を送る", "未定義 ABC を送る"],
+                "expect": [
+                    {"debug": "クライアント側: 返信", "match": "^PONG"},
+                    {"debug": "クライアント側: 返信", "match": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}"},
+                    {"debug": "クライアント側: 返信", "contains": "Hello, Alice!"},
+                    {"debug": "クライアント側: 返信", "contains": "Unknown command"}
+                ]
+            },
+            "tcp_ex3_tab": {"covered_by": "tcpchk3_tab"},
+            "tcp_ex4_tab": {
+                "inject": ["5秒ごと"],
+                "expect": [
+                    {"debug": "サーバー処理", "contains": "\"status\":\"received\""},
+                    {"debug": "クライアント受信", "contains": "\"status\":\"received\",\"data\":{\"sensor\":\"temperature\""}
+                ]
+            },
+            "tcp_ex5c_tab": {
+                "with": ["tcp_ex5s_tab"],
+                "note": "2台の PC で通信する演習。CI では、送り先（相手の PC の IP）を 127.0.0.1 にして1台で動かす",
+                "override": {"tcp_ex5c_request": {"server": "127.0.0.1"}},
+                "inject": ["送る"],
+                "expect": [
+                    {"debug": "サーバー側: 受信", "contains": "こんにちは、Bです"},
+                    {"debug": "クライアント側: 相手の返信", "contains": "が受け取りました: こんにちは、Bです"}
+                ]
+            },
+            "tcp_ex5s_tab": {"covered_by": "tcp_ex5c_tab"}
+        }
+    }
+}
