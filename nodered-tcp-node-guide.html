@@ -418,7 +418,7 @@
         "type": "comment",
         "z": "tcp_sample_tab",
         "name": "━━━ JSONデータの送受信 ━━━",
-        "info": "",
+        "info": "サーバー（TCP Server :9001）は改行（\\n）を区切り文字にしているため、\n改行が届くまで msg を送り出さない。\nクライアント側は template ノードで末尾に改行を付けてから送る。\n返信も末尾が改行で、TCP Request はその改行で応答の終わりを判断する。",
         "x": 190,
         "y": 360,
         "wires": []
@@ -503,6 +503,21 @@
         "payloadType": "str",
         "x": 180,
         "y": 500,
+        "wires": [["tcp_template_newline"]]
+    },
+    {
+        "id": "tcp_template_newline",
+        "type": "template",
+        "z": "tcp_sample_tab",
+        "name": "末尾に改行を付ける",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "text",
+        "syntax": "mustache",
+        "template": "{{{payload}}}\n",
+        "output": "str",
+        "x": 390,
+        "y": 500,
         "wires": [["tcp_request_json"]]
     },
     {
@@ -518,7 +533,7 @@
         "newline": "",
         "trim": false,
         "tls": "",
-        "x": 410,
+        "x": 610,
         "y": 500,
         "wires": [["tcp_debug_json_response"]]
     },
@@ -535,7 +550,7 @@
         "targetType": "msg",
         "statusVal": "\"JSON受信\"",
         "statusType": "jsonata",
-        "x": 620,
+        "x": 820,
         "y": 500,
         "wires": []
     },
@@ -709,18 +724,29 @@ Hello Server!
         <h3>パターン3: JSONデータの送受信</h3>
         <p>サンプルフローの「JSONデータの送受信」を参照してください。</p>
         <p><strong>用途:</strong> JSON形式のデータの送受信</p>
+        <p>クライアント側:</p>
         <div class="node-example">
-            <span class="node node-inject">JSONデータ</span>
+            <span class="node node-inject">JSONリクエスト</span>
             <span class="arrow">→</span>
-            <span class="node node-json">JSON変換</span>
+            <span class="node node-template">末尾に改行を付ける</span>
             <span class="arrow">→</span>
-            <span class="node node-tcp-out">TCP Out</span>
+            <span class="node node-tcp-request">TCP Request JSON</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">JSONレスポンス</span>
+        </div>
+        <p>サーバー側:</p>
+        <div class="node-example">
+            <span class="node node-tcp-in">TCP Server :9001</span>
+            <span class="arrow">→</span>
+            <span class="node node-function">JSON処理</span>
+            <span class="arrow">→</span>
+            <span class="node node-tcp-out">Reply JSON</span>
         </div>
         <p><strong>ポイント:</strong></p>
         <ul>
-            <li>構造化データはJSON文字列に変換して送信</li>
-            <li>受信側もJSONノードでパース</li>
+            <li>構造化データはJSON文字列にして送信し、受信側で <code>JSON.parse</code> してオブジェクトに戻す</li>
             <li><a href="#term-delimiter">デリミタ</a>（改行など）で区切りを明確に</li>
+            <li>送る側と受ける側で、区切り文字をそろえる。サーバーの TCP In は区切り文字を <code>\n</code> にしているので、改行が届くまで msg を送り出さない。クライアントが改行を付けずに送ると、サーバーは改行を、TCP Request はサーバーの返信を待ち続け、どちらも止まったままになる</li>
         </ul>
         
         <h3>パターン4: 接続状態の監視</h3>
