@@ -262,6 +262,14 @@
             <p>このサンプルフローには、以下で説明するパターンの実例が含まれています。</p>
         </div>
 
+        <div class="tip">
+            <p><strong>📌 公式サンプルについて:</strong> Node-RED 本体にも TCP の公式サンプルが3つあります（エディタの <strong>メニュー → 読み込み → サンプル → network → tcp</strong>）。このガイドでは、次の理由で公式サンプルではなく、サイト独自のサンプルフローを使います。</p>
+            <ul>
+                <li>待ち受けにポート 1881〜1883 を使う。共有クラウドでは、1880・1881… がほかの学習者のエディターのポートなので重なる。1883 は MQTT ブローカーの標準のポートでもあり、手元に mosquitto などを入れていると重なる</li>
+                <li>3つ目のサンプル（Send reply to client of TCP connection）の区切り文字が、改行（<code>\n</code>）ではなく「<code>¥n</code>」（円記号と n の2文字）になっている。サンプルの中では送る側も同じ「<code>¥n</code>」を送るので動くが、nc などで改行を送ると区切られず、返信が来ない</li>
+            </ul>
+        </div>
+
         
 
         
@@ -279,9 +287,9 @@
         "id": "tcp_comment1",
         "type": "comment",
         "z": "tcp_sample_tab",
-        "name": "━━━ TCPサーバー（エコー） ━━━",
-        "info": "ポート9000で待ち受け、受信データをそのまま返す",
-        "x": 200,
+        "name": "━━━ 1. エコーサーバー（ポート9000） ━━━",
+        "info": "ポート9000で待ち受け、受け取った1行に送信元のアドレスを添えて返す。\nTCP In の区切り文字は改行（\\n）。改行が届いた時点で、その手前までを1つの msg にする。\nnc localhost 9000 で接続して文字を入力し、Enter を押すと返信が表示される。",
+        "x": 220,
         "y": 40,
         "wires": []
     },
@@ -295,28 +303,27 @@
         "port": "9000",
         "datamode": "stream",
         "datatype": "utf8",
-        "newline": "",
+        "newline": "\\n",
         "topic": "",
         "trim": false,
         "base64": false,
         "tls": "",
         "x": 180,
         "y": 100,
-        "wires": [["tcp_func_echo", "tcp_debug_received"]]
+        "wires": [["tcp_change_echo", "tcp_debug_received"]]
     },
     {
-        "id": "tcp_func_echo",
-        "type": "function",
+        "id": "tcp_change_echo",
+        "type": "change",
         "z": "tcp_sample_tab",
-        "name": "エコー処理",
-        "func": "// 受信データに情報を追加して返信\nconst received = msg.payload;\nconst clientInfo = msg.ip + \":\" + msg.port;\n\nnode.status({fill: \"green\", shape: \"dot\", text: clientInfo});\n\nmsg.payload = \"[Echo] \" + received + \" (from \" + clientInfo + \")\\n\";\n\nreturn msg;",
-        "outputs": 1,
-        "timeout": 0,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 390,
+        "name": "返信を作る",
+        "rules": [{"t": "set", "p": "payload", "pt": "msg", "to": "\"[Echo] \" &amp; payload &amp; \" (from \" &amp; ip &amp; \":\" &amp; $string(port) &amp; \")\\n\"", "tot": "jsonata"}],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 400,
         "y": 100,
         "wires": [["tcp_out_reply"]]
     },
@@ -331,7 +338,7 @@
         "base64": false,
         "end": false,
         "tls": "",
-        "x": 600,
+        "x": 620,
         "y": 100,
         "wires": []
     },
@@ -339,7 +346,7 @@
         "id": "tcp_debug_received",
         "type": "debug",
         "z": "tcp_sample_tab",
-        "name": "受信データ",
+        "name": "サーバー側: 受信データ",
         "active": true,
         "tosidebar": true,
         "console": false,
@@ -348,7 +355,7 @@
         "targetType": "msg",
         "statusVal": "ip",
         "statusType": "msg",
-        "x": 390,
+        "x": 420,
         "y": 140,
         "wires": []
     },
@@ -356,10 +363,10 @@
         "id": "tcp_comment2",
         "type": "comment",
         "z": "tcp_sample_tab",
-        "name": "━━━ TCP Request（クライアント） ━━━",
-        "info": "上記サーバーにリクエストを送信",
-        "x": 210,
-        "y": 220,
+        "name": "━━━ 2. TCP Request（クライアント） ━━━",
+        "info": "1 のサーバーへ送り、返信を受け取る。\ninject は JSONata の文字列で、末尾に改行（\\n）を付けて送る。サーバーは改行で1行の終わりを知る。\nTCP Request の「終了」は「指定文字の受信時」（\\n）。返信の改行が届いたら出力し、接続を閉じる。",
+        "x": 220,
+        "y": 200,
         "wires": []
     },
     {
@@ -373,10 +380,10 @@
         "once": false,
         "onceDelay": 0.1,
         "topic": "",
-        "payload": "Hello TCP Server!",
-        "payloadType": "str",
-        "x": 180,
-        "y": 280,
+        "payload": "\"Hello TCP Server!\\n\"",
+        "payloadType": "jsonata",
+        "x": 170,
+        "y": 260,
         "wires": [["tcp_request"]]
     },
     {
@@ -386,21 +393,21 @@
         "name": "TCP Request",
         "server": "localhost",
         "port": "9000",
-        "out": "sit",
+        "out": "char",
         "ret": "string",
-        "splitc": " ",
+        "splitc": "\\n",
         "newline": "",
         "trim": false,
         "tls": "",
-        "x": 390,
-        "y": 280,
+        "x": 400,
+        "y": 260,
         "wires": [["tcp_debug_response"]]
     },
     {
         "id": "tcp_debug_response",
         "type": "debug",
         "z": "tcp_sample_tab",
-        "name": "レスポンス",
+        "name": "クライアント側: レスポンス",
         "active": true,
         "tosidebar": true,
         "console": false,
@@ -409,18 +416,18 @@
         "targetType": "msg",
         "statusVal": "\"受信\"",
         "statusType": "jsonata",
-        "x": 590,
-        "y": 280,
+        "x": 640,
+        "y": 260,
         "wires": []
     },
     {
         "id": "tcp_comment3",
         "type": "comment",
         "z": "tcp_sample_tab",
-        "name": "━━━ JSONデータの送受信 ━━━",
-        "info": "サーバー（TCP Server :9001）は改行（\\n）を区切り文字にしているため、\n改行が届くまで msg を送り出さない。\nクライアント側は template ノードで末尾に改行を付けてから送る。\n返信も末尾が改行で、TCP Request はその改行で応答の終わりを判断する。",
-        "x": 190,
-        "y": 360,
+        "name": "━━━ 3. JSONデータの送受信（ポート9001） ━━━",
+        "info": "TCP で送れるのは文字（バイト）だけなので、オブジェクトは JSON の文字列にして送り、受け取った側でオブジェクトに戻す。\n1行に1つの JSON を書き、末尾の改行で区切る。送る側と受ける側で区切り文字をそろえないと、受ける側は改行を待ち続けて止まる。\nサーバー: 受け取った文字列を json ノードでオブジェクトにし、change ノードで応答を作って返す。JSON として読めないときは、catch ノードがエラーを受け取り、エラーの応答を返す。\nクライアント: inject で JSON の文字列に改行を付けて送り、返ってきた応答を json ノードでオブジェクトに戻す。",
+        "x": 240,
+        "y": 320,
         "wires": []
     },
     {
@@ -439,24 +446,35 @@
         "base64": false,
         "tls": "",
         "x": 180,
-        "y": 420,
-        "wires": [["tcp_func_json_process"]]
+        "y": 380,
+        "wires": [["tcp_json_server_parse"]]
     },
     {
-        "id": "tcp_func_json_process",
-        "type": "function",
+        "id": "tcp_json_server_parse",
+        "type": "json",
         "z": "tcp_sample_tab",
-        "name": "JSON処理",
-        "func": "try {\n    // 受信データをJSONとしてパース\n    const data = JSON.parse(msg.payload);\n    \n    // 処理結果を作成\n    const response = {\n        status: \"success\",\n        received: data,\n        processed: true,\n        timestamp: new Date().toISOString()\n    };\n    \n    msg.payload = JSON.stringify(response) + \"\\n\";\n} catch(e) {\n    msg.payload = JSON.stringify({status: \"error\", message: \"Invalid JSON\"}) + \"\\n\";\n}\n\nreturn msg;",
-        "outputs": 1,
-        "timeout": 0,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
+        "name": "文字列→オブジェクト",
+        "property": "payload",
+        "action": "obj",
+        "pretty": false,
         "x": 390,
-        "y": 420,
-        "wires": [["tcp_out_json_reply", "tcp_debug_json"]]
+        "y": 380,
+        "wires": [["tcp_change_json_reply", "tcp_debug_json"]]
+    },
+    {
+        "id": "tcp_change_json_reply",
+        "type": "change",
+        "z": "tcp_sample_tab",
+        "name": "応答を作る",
+        "rules": [{"t": "set", "p": "payload", "pt": "msg", "to": "$string({\"status\": \"success\", \"received\": payload, \"processed\": true, \"timestamp\": $now()}) &amp; \"\\n\"", "tot": "jsonata"}],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 600,
+        "y": 380,
+        "wires": [["tcp_out_json_reply"]]
     },
     {
         "id": "tcp_out_json_reply",
@@ -469,24 +487,50 @@
         "base64": false,
         "end": false,
         "tls": "",
-        "x": 590,
-        "y": 420,
+        "x": 800,
+        "y": 400,
         "wires": []
     },
     {
         "id": "tcp_debug_json",
         "type": "debug",
         "z": "tcp_sample_tab",
-        "name": "JSON処理結果",
+        "name": "サーバー側: 受け取ったJSON",
         "active": true,
         "tosidebar": true,
         "console": false,
         "tostatus": false,
         "complete": "payload",
         "targetType": "msg",
-        "x": 600,
-        "y": 460,
+        "x": 620,
+        "y": 340,
         "wires": []
+    },
+    {
+        "id": "tcp_catch_json",
+        "type": "catch",
+        "z": "tcp_sample_tab",
+        "name": "JSON として読めない",
+        "scope": ["tcp_json_server_parse"],
+        "uncaught": false,
+        "x": 380,
+        "y": 440,
+        "wires": [["tcp_change_json_error"]]
+    },
+    {
+        "id": "tcp_change_json_error",
+        "type": "change",
+        "z": "tcp_sample_tab",
+        "name": "エラー応答を作る",
+        "rules": [{"t": "set", "p": "payload", "pt": "msg", "to": "$string({\"status\": \"error\", \"message\": \"Invalid JSON\"}) &amp; \"\\n\"", "tot": "jsonata"}],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 600,
+        "y": 440,
+        "wires": [["tcp_out_json_reply"]]
     },
     {
         "id": "tcp_inject_json",
@@ -499,25 +543,27 @@
         "once": false,
         "onceDelay": 0.1,
         "topic": "",
-        "payload": "{\"command\":\"getData\",\"id\":123}",
-        "payloadType": "str",
-        "x": 180,
+        "payload": "$string({\"command\": \"getData\", \"id\": 123}) &amp; \"\\n\"",
+        "payloadType": "jsonata",
+        "x": 170,
         "y": 500,
-        "wires": [["tcp_template_newline"]]
+        "wires": [["tcp_request_json"]]
     },
     {
-        "id": "tcp_template_newline",
-        "type": "template",
+        "id": "tcp_inject_json_bad",
+        "type": "inject",
         "z": "tcp_sample_tab",
-        "name": "末尾に改行を付ける",
-        "field": "payload",
-        "fieldType": "msg",
-        "format": "text",
-        "syntax": "mustache",
-        "template": "{{{payload}}}\n",
-        "output": "str",
-        "x": 390,
-        "y": 500,
+        "name": "JSONでない文字を送る",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "\"hello\\n\"",
+        "payloadType": "jsonata",
+        "x": 180,
+        "y": 540,
         "wires": [["tcp_request_json"]]
     },
     {
@@ -533,15 +579,27 @@
         "newline": "",
         "trim": false,
         "tls": "",
-        "x": 610,
-        "y": 500,
+        "x": 410,
+        "y": 520,
+        "wires": [["tcp_json_client_parse"]]
+    },
+    {
+        "id": "tcp_json_client_parse",
+        "type": "json",
+        "z": "tcp_sample_tab",
+        "name": "文字列→オブジェクト",
+        "property": "payload",
+        "action": "obj",
+        "pretty": false,
+        "x": 620,
+        "y": 520,
         "wires": [["tcp_debug_json_response"]]
     },
     {
         "id": "tcp_debug_json_response",
         "type": "debug",
         "z": "tcp_sample_tab",
-        "name": "JSONレスポンス",
+        "name": "クライアント側: JSONレスポンス",
         "active": true,
         "tosidebar": true,
         "console": false,
@@ -550,18 +608,18 @@
         "targetType": "msg",
         "statusVal": "\"JSON受信\"",
         "statusType": "jsonata",
-        "x": 820,
-        "y": 500,
+        "x": 860,
+        "y": 520,
         "wires": []
     },
     {
         "id": "tcp_comment4",
         "type": "comment",
         "z": "tcp_sample_tab",
-        "name": "━━━ 接続状態の監視 ━━━",
-        "info": "",
-        "x": 180,
-        "y": 580,
+        "name": "━━━ 4. 接続と切断の監視（ポート9002） ━━━",
+        "info": "TCP In（待ち受け）は、クライアントが接続・切断するたびに、自分のステータス（ノードの下の「接続数 N」）を変える。\nstatus ノードでそのステータスを受け取ると、いつ・どこから接続され、いつ切断されたかが分かる。\nmsg.status.event が connect（接続）か disconnect（切断）、msg.status.ip と msg.status.port が相手のアドレス。\n試し方: 「つないで送る」を押すと、TCP Request が接続して送り、返信を受け取って切断する。debug に connect と disconnect が順に出る。\nnc localhost 9002 で接続すると connect が、Ctrl+C で終えると disconnect が出る。",
+        "x": 230,
+        "y": 600,
         "wires": []
     },
     {
@@ -574,29 +632,28 @@
         "port": "9002",
         "datamode": "stream",
         "datatype": "utf8",
-        "newline": "",
+        "newline": "\\n",
         "topic": "",
         "trim": false,
         "base64": false,
         "tls": "",
         "x": 180,
-        "y": 640,
-        "wires": [["tcp_func_monitor"]]
+        "y": 660,
+        "wires": [["tcp_change_monitor_reply"]]
     },
     {
-        "id": "tcp_func_monitor",
-        "type": "function",
+        "id": "tcp_change_monitor_reply",
+        "type": "change",
         "z": "tcp_sample_tab",
-        "name": "接続管理",
-        "func": "// クライアント情報を取得\nconst clientId = msg.ip + \":\" + msg.port;\nconst session = msg._session;\n\n// 接続リストを管理\nconst clients = flow.get('tcpClients') || {};\n\nif (msg.payload === '') {\n    // 空データは切断を意味することがある\n    delete clients[session];\n    node.warn(\"Client disconnected: \" + clientId);\n} else {\n    // 接続中のクライアントを記録\n    clients[session] = {\n        ip: msg.ip,\n        port: msg.port,\n        lastSeen: new Date().toISOString()\n    };\n}\n\nflow.set('tcpClients', clients);\nnode.status({fill: \"blue\", shape: \"dot\", text: Object.keys(clients).length + \" clients\"});\n\nmsg.payload = \"Welcome! You are: \" + clientId + \"\\n\";\nreturn msg;",
-        "outputs": 1,
-        "timeout": 0,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 390,
-        "y": 640,
+        "name": "返信を作る",
+        "rules": [{"t": "set", "p": "payload", "pt": "msg", "to": "\"受け付けました: \" &amp; payload &amp; \"\\n\"", "tot": "jsonata"}],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 400,
+        "y": 660,
         "wires": [["tcp_out_monitor"]]
     },
     {
@@ -610,8 +667,82 @@
         "base64": false,
         "end": false,
         "tls": "",
-        "x": 570,
-        "y": 640,
+        "x": 600,
+        "y": 660,
+        "wires": []
+    },
+    {
+        "id": "tcp_status_monitor",
+        "type": "status",
+        "z": "tcp_sample_tab",
+        "name": "TCP Server :9002 のステータス",
+        "scope": ["tcp_in_monitor"],
+        "x": 220,
+        "y": 720,
+        "wires": [["tcp_debug_monitor"]]
+    },
+    {
+        "id": "tcp_debug_monitor",
+        "type": "debug",
+        "z": "tcp_sample_tab",
+        "name": "接続・切断",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "status",
+        "targetType": "msg",
+        "x": 480,
+        "y": 720,
+        "wires": []
+    },
+    {
+        "id": "tcp_inject_monitor",
+        "type": "inject",
+        "z": "tcp_sample_tab",
+        "name": "つないで送る",
+        "props": [{"p": "payload"}],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "\"Hello 9002\\n\"",
+        "payloadType": "jsonata",
+        "x": 160,
+        "y": 780,
+        "wires": [["tcp_request_monitor"]]
+    },
+    {
+        "id": "tcp_request_monitor",
+        "type": "tcp request",
+        "z": "tcp_sample_tab",
+        "name": "TCP Request :9002",
+        "server": "localhost",
+        "port": "9002",
+        "out": "char",
+        "ret": "string",
+        "splitc": "\\n",
+        "newline": "",
+        "trim": false,
+        "tls": "",
+        "x": 380,
+        "y": 780,
+        "wires": [["tcp_debug_monitor_reply"]]
+    },
+    {
+        "id": "tcp_debug_monitor_reply",
+        "type": "debug",
+        "z": "tcp_sample_tab",
+        "name": "クライアント側: 9002 の返信",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 620,
+        "y": 780,
         "wires": []
     }
 ]</div>
@@ -621,7 +752,7 @@
             <p><strong>⚠️ 動作確認方法:</strong></p>
             <p>サンプルフローをデプロイしたら、TCPサーバーにデータを送ってみて動作を確認できます。初心者の方は、まず「Node-RED内」の方法から試すのがおすすめです。</p>
             <ul>
-                <li><strong>Node-RED内（追加ツール不要）:</strong> サンプルフローの「TCP Request（クライアント）」パターンのように、TCP Requestノードで自分自身のTCPサーバーへ接続してテストします。</li>
+                <li><strong>Node-RED内（追加ツール不要）:</strong> サンプルフローの「2. TCP Request（クライアント）」のように、TCP Requestノードで自分自身のTCPサーバーへ接続してテストします。サンプルフローの4つの部分には、それぞれ inject のボタンを用意しています。</li>
                 <li><strong>Mac・Linux: netcat（nc）:</strong> ターミナルからTCP通信を手軽に試せるコマンドラインツールです。Mac と多くの Linux に入っています。</li>
                 <li><strong>Windows: PowerShell:</strong> Windows には nc が入っていません。PowerShell に下の関数を貼り付けると、何もインストールせずに nc と同じ確かめ方ができます。コマンドプロンプトでは使えません。</li>
                 <li><strong>Python（任意）:</strong> Pythonのsocketモジュールでテスト用クライアントスクリプトを自作する方法です。プログラミング経験がある場合に。</li>
@@ -631,15 +762,12 @@
 
         <h3 id="test-nc">Mac・Linux: netcat でのテスト例</h3>
         <p>ターミナルを開いて以下のコマンドを実行すると、サンプルフローのTCPサーバーに接続できます。<code>[Node-REDのホスト]</code> は、お使いのNode-REDエディタを開いているアドレスに置き換えてください（ローカル環境なら <code>localhost</code>）。</p>
-        <div class="code-block"># サーバーに接続（サンプルフロー実行後）
-nc [Node-REDのホスト] 9000
-
-# メッセージを入力してEnter
-Hello Server!
-
-# サーバーからのレスポンスが表示される
-
-# 終わるときは Ctrl+C</div>
+        <div class="code-block"># サーバーに接続（サンプルフローをデプロイした後）
+nc [Node-REDのホスト] 9000</div>
+        <p>接続しても、画面には何も表示されません。プロンプトも出ず、カーソルが止まったままになりますが、これは入力を待っている状態です。続けて文字を入力し、Enter キーを押すと、サーバーからの返信が次の行に表示されます。</p>
+        <div class="code-block">Hello Server!                                  ← 入力して Enter
+[Echo] Hello Server! (from ::1:54321)          ← サーバーからの返信</div>
+        <p><code>(from …)</code> は、サーバーから見たあなたの送り元のアドレスとポートです。番号は接続のたびに変わります。</p>
         <ul>
             <li><strong>接続してから入力する:</strong> <code>echo "Hello" | nc [Node-REDのホスト] 9000</code> のように、送る文字を <code>echo</code> で渡す書き方はしません。Mac の nc は、渡された文字を送り終えたところで終わってしまい、返信が表示されません</li>
             <li><strong>返信が表示されても nc は終わらない:</strong> Node-RED のサーバーが接続を閉じないためです。続けて別の文字を入力して送ることもできます。終わるときは Ctrl+C を押します</li>
@@ -686,51 +814,52 @@ Hello Server!
 
         
         <h3>使用パターン</h3>
-        <p>サンプルフローに含まれる代表的な使用パターンを紹介します。</p>
+        <p>サンプルフローの4つの部分を、1つずつ紹介します。どの部分も、TCP In（待ち受け）の区切り文字を改行（<code>\n</code>）にしています。送る側は文字の末尾に改行を付け、受ける側は改行が届いた時点で、その手前までを1つの msg にします。</p>
 
         <h3>パターン1: TCPサーバー（エコー）</h3>
-        <p>サンプルフローの「TCPサーバー（エコー）」を参照してください。</p>
+        <p>サンプルフローの「1. エコーサーバー（ポート9000）」を参照してください。</p>
         <p><strong>用途:</strong> 受信データに送信元情報を添えて返信</p>
         <div class="node-example">
-            <span class="node node-tcp-in">TCP In (Listen)</span>
+            <span class="node node-tcp-in">TCP Server :9000</span>
             <span class="arrow">→</span>
-            <span class="node node-function">処理</span>
+            <span class="node node-change">返信を作る</span>
             <span class="arrow">→</span>
-            <span class="node node-tcp-out">TCP Out (Reply)</span>
+            <span class="node node-tcp-out">Reply to Client</span>
         </div>
         <p><strong>ポイント:</strong></p>
         <ul>
-            <li>TCP In を Listen モードで待ち受け</li>
-            <li>TCP Out を Reply モードで送信元に返信</li>
-            <li>msg._session で接続を識別</li>
+            <li>TCP In を種類「待ち受け」で使い、区切り文字を <code>\n</code> にする。nc で入力して Enter を押すと、1行が1つの msg になる</li>
+            <li>送り元のアドレスとポートは <code>msg.ip</code> と <code>msg.port</code> に入る。返信は change ノードの JSONata で組み立てる</li>
+            <li>TCP Out を種類「TCP応答」で使うと、<code>msg._session</code> を手がかりに、送ってきた相手へ返す</li>
         </ul>
-        
+
         <h3>パターン2: TCP Request（クライアント）</h3>
-        <p>サンプルフローの「TCP Request（クライアント）」を参照してください。</p>
+        <p>サンプルフローの「2. TCP Request（クライアント）」を参照してください。</p>
         <p><strong>用途:</strong> リクエスト送信と応答の受信</p>
         <div class="node-example">
-            <span class="node node-inject">トリガー</span>
+            <span class="node node-inject">リクエスト送信</span>
             <span class="arrow">→</span>
             <span class="node node-tcp-request">TCP Request</span>
             <span class="arrow">→</span>
-            <span class="node node-debug">結果</span>
+            <span class="node node-debug">レスポンス</span>
         </div>
         <p><strong>ポイント:</strong></p>
         <ul>
             <li>TCP Request は接続→送信→受信→切断を1ノードで実行</li>
-            <li>外部TCPサーバーにコマンドを送信して結果を取得</li>
+            <li>inject の種類を JSONata にすると、<code>"Hello TCP Server!\n"</code> のように末尾に改行の付いた文字を送れる。種類「文字列」の欄は1行なので、改行を入力できない</li>
+            <li>「終了」を「指定文字の受信時」（<code>\n</code>）にすると、返信の改行が届いた時点で出力し、接続を閉じる</li>
         </ul>
-        
+
         <h3>パターン3: JSONデータの送受信</h3>
-        <p>サンプルフローの「JSONデータの送受信」を参照してください。</p>
+        <p>サンプルフローの「3. JSONデータの送受信（ポート9001）」を参照してください。</p>
         <p><strong>用途:</strong> JSON形式のデータの送受信</p>
         <p>クライアント側:</p>
         <div class="node-example">
             <span class="node node-inject">JSONリクエスト</span>
             <span class="arrow">→</span>
-            <span class="node node-template">末尾に改行を付ける</span>
-            <span class="arrow">→</span>
             <span class="node node-tcp-request">TCP Request JSON</span>
+            <span class="arrow">→</span>
+            <span class="node node-json">文字列→オブジェクト</span>
             <span class="arrow">→</span>
             <span class="node node-debug">JSONレスポンス</span>
         </div>
@@ -738,34 +867,45 @@ Hello Server!
         <div class="node-example">
             <span class="node node-tcp-in">TCP Server :9001</span>
             <span class="arrow">→</span>
-            <span class="node node-function">JSON処理</span>
+            <span class="node node-json">文字列→オブジェクト</span>
+            <span class="arrow">→</span>
+            <span class="node node-change">応答を作る</span>
+            <span class="arrow">→</span>
+            <span class="node node-tcp-out">Reply JSON</span>
+        </div>
+        <p>サーバー側（JSON として読めなかったとき）:</p>
+        <div class="node-example">
+            <span class="node node-catch">JSON として読めない</span>
+            <span class="arrow">→</span>
+            <span class="node node-change">エラー応答を作る</span>
             <span class="arrow">→</span>
             <span class="node node-tcp-out">Reply JSON</span>
         </div>
         <p><strong>ポイント:</strong></p>
         <ul>
-            <li>構造化データはJSON文字列にして送信し、受信側で <code>JSON.parse</code> してオブジェクトに戻す</li>
+            <li>TCP で送れるのは文字（バイト）だけなので、オブジェクトは JSON の文字列にして送り、受け取った側で json ノードを使ってオブジェクトに戻す</li>
+            <li>inject の JSONata <code>$string({"command": "getData", "id": 123}) &amp; "\n"</code> は、オブジェクトを JSON の文字列にし、末尾に改行を付ける</li>
             <li><a href="#term-delimiter">デリミタ</a>（改行など）で区切りを明確に</li>
             <li>送る側と受ける側で、区切り文字をそろえる。サーバーの TCP In は区切り文字を <code>\n</code> にしているので、改行が届くまで msg を送り出さない。クライアントが改行を付けずに送ると、サーバーは改行を、TCP Request はサーバーの返信を待ち続け、どちらも止まったままになる</li>
+            <li>JSON として読めない文字が届くと、json ノードがエラーを出す。catch ノードでそのエラーを受け取り、エラーの応答を返す。返さないと、クライアントは返信を待ち続ける（「JSONでない文字を送る」のボタンで試せる）</li>
         </ul>
-        
-        <h3>パターン4: 接続状態の監視</h3>
-        <p>サンプルフローの「接続状態の監視」を参照してください。</p>
-        <p><strong>用途:</strong> 接続中クライアントの一覧管理</p>
+
+        <h3>パターン4: 接続と切断の監視</h3>
+        <p>サンプルフローの「4. 接続と切断の監視（ポート9002）」を参照してください。</p>
+        <p><strong>用途:</strong> いつ・どこから接続され、いつ切断されたかを知る</p>
         <div class="node-example">
-            <span class="node node-tcp-in">TCP In</span>
+            <span class="node node-status">TCP Server :9002 のステータス</span>
             <span class="arrow">→</span>
-            <span class="node node-function">接続管理</span>
-            <span class="arrow">→</span>
-            <span class="node node-tcp-out">Welcome返信</span>
+            <span class="node node-debug">接続・切断</span>
         </div>
         <p><strong>ポイント:</strong></p>
         <ul>
-            <li>msg.ip, msg.port でクライアント情報を取得</li>
-            <li>flow変数で接続中クライアントを管理</li>
-            <li>ノードステータスで接続数を表示</li>
+            <li>TCP In（待ち受け）は、クライアントが接続・切断するたびに、自分のステータス（ノードの下の「接続数 N」）を変える。status ノードの対象をこの TCP In にすると、そのステータスを msg として受け取れる</li>
+            <li><code>msg.status.event</code> が <code>connect</code>（接続）か <code>disconnect</code>（切断）、<code>msg.status.ip</code> と <code>msg.status.port</code> が相手のアドレスとポート</li>
+            <li>試し方: 「つないで送る」のボタンを押すと、TCP Request が接続して送り、返信を受け取って切断するので、debug に connect と disconnect が順に出る。<code>nc localhost 9002</code> で接続すると connect が、Ctrl+C で終えると disconnect が出る</li>
+            <li>データを受け取ったときの msg（<code>msg.payload</code>）には、接続・切断の知らせは含まれない。切断を知るには、このようにステータスを使う</li>
         </ul>
-        
+
         <h2 id="section6">📝 6. 演習問題</h2>
         
         <p><small>💡 以下の演習例に出てくる <code>localhost</code> はローカル環境での例です。共有クラウド環境などでは、ご利用のNode-REDエディタを開いているアドレスに置き換えてください。</small></p>
