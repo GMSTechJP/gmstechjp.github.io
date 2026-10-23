@@ -488,9 +488,12 @@ python3 scripts/live-check-flow.py nodered-mqtt-node-guide.html --blocks 2,3 \
 - 記載の無いタブがある。どのタブも次のどれか1つを書く
   - `expect`（動かして確かめる。`inject` で押すボタン、`with` で一緒に動かすタブ）
   - `covered_by`（ほかのタブの `with` で一緒に動かしている。演習と動作確認用フローなど）
-  - `manual`（CI では動かせない理由。実機、外部サービス、OS を操作するノードなど）
+  - `manual`（CI では動かせない理由。実機、OS を操作するノード、サインインの要るサービスなど）
 - 動かすタブに、押していない inject、確かめていない debug がある。確かめないものは
-  `skip_inject` / `skip_debug` に理由を書く
+  `skip_inject` / `skip_debug` に理由を書く。名前の無い inject・debug も失敗にする
+- 動かすタブの http in の待ち受けを、どこからも呼んでいない。`requests` で呼ぶか
+  （同じフローの http request が `localhost:1880` の URL で呼んでいれば、それでよい）、
+  `skip_http` に理由を書く
 - 記載のタブがガイドに無い（タブの ID を変えた・消した）
 
 **書き方の決まり**:
@@ -498,7 +501,19 @@ python3 scripts/live-check-flow.py nodered-mqtt-node-guide.html --blocks 2,3 \
 - `expect` は、各部分が**名前・コメントのとおりに動いたこと**が分かる値にする。
   「何か届いた」ではなく、届くべき中身を書く（例: JSON の応答なら `"status":"success"` と
   受け取った内容）。エラーの経路（catch など）も、ボタンを用意して確かめる
-- inject には名前を付ける（押すボタンを名前で指定するため）
+- inject と debug には名前を付ける（名前で指定するため）。公式サンプルの名前の無い
+  ノードにも、日本語で名前を付ける（公式サンプル第一の原則で、ノード名の日本語化は認めている）
+- `requests` は、テストの実行役が送る HTTP リクエスト（ブラウザや curl の代わり）。
+  演習の成功の条件に書いた curl をそのまま写し、`status`・`contains`・`not_contains`・
+  `match`・`content_type` で応答を確かめる。作成した ID を後のリクエストで使うときは
+  `"save": {"id": "note.id"}` で覚え、`path` に `{id}` と書く
+- エラーの経路（つながらない相手を呼ぶなど）をわざと通してステータスが赤になるノードは、
+  `allow_status` に名前と理由を書く。書かないと、赤のステータスは不合格になる
+- 公開の外部 API（timeapi.io など）を呼ぶ部分も、manual にせず動かす。外部の API が
+  使えなくなると、演習の時間の利用者も同じところで止まるため。呼ぶホストは `external` に
+  書く（書き漏らすと失敗）。PR の CI（validate.yml）では不合格にし、デプロイの前
+  （deploy.yml）では警告にとどめる。外部のサービスが一時的に止まっただけで、ほかの修正の
+  公開を止めないため。警告が続くときは、ガイドの API を見直す
 - 2台の PC で通信する演習など、送り先が手元に無いフローは、`override` でノードの設定を
   書き換えて1台で動かす（例: 相手の IP を `127.0.0.1` に）。理由を `note` に書く
 - 対象でないガイドは失敗にしない。通信系（TCP・UDP・HTTP・WebSocket・MQTT）から順に、
@@ -1214,6 +1229,7 @@ curl -o inject-source.html \
 | 2026-10-15 | 1.9.0 | 表の短い列の不要な折り返しを防ぐ共有スクリプト（js/table-fit.js）と、その読み込みの検査（scripts/check-table-fit.py）を追加 |
 | 2026-10-15 | 1.10.0 | データの並び（レジスタ・バイト・ビット）をマス目で描く共有スタイル（css/register-diagram.css）と、その検査（scripts/check-register-diagram.py）を追加 |
 | 2026-10-23 | 1.11.0 | フローを CI で動かして確かめる仕組み（tests/flow-tests.json、scripts/test-flows.py、scripts/ci-flow-tests.sh）と、公式サンプル第一の原則の例外（TCP）を追加 |
+| 2026-10-23 | 1.12.0 | フローを CI で動かす仕組みに、HTTP の待ち受けの確かめ方（requests、skip_http）と allow_status を追加。対象に UDP・HTTP を追加 |
 
 ---
 

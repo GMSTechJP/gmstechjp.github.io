@@ -365,12 +365,67 @@ def met(e, received):
     return any(e["contains"] in v for v in values)
 
 
+def send_request(base, r):
+    """記載の HTTP リクエストを送り、(ステータスコード, 本文, Content-Type) を返す。
+
+    r は {"method", "path", "json" か "body", "headers"}。4xx・5xx も応答として返す。
+    """
+    headers = dict(r.get("headers") or {})
+    data = None
+    if "json" in r:
+        data = json.dumps(r["json"], ensure_ascii=False).encode()
+        headers.setdefault("Content-Type", "application/json")
+    elif "body" in r:
+        data = str(r["body"]).encode()
+        headers.setdefault("Content-Type", "text/plain")
+    req = urllib.request.Request(base + r["path"], data=data, method=r.get("method", "GET").upper(),
+                                 headers=headers)
+    try:
+        with urllib.request.urlopen(req, timeout=HTTP_TIMEOUT) as res:
+            return res.status, res.read().decode(errors="replace"), res.headers.get("Content-Type", "")
+    except urllib.error.HTTPError as e:
+        return e.code, e.read().decode(errors="replace"), e.headers.get("Content-Type", "")
+    except (urllib.error.URLError, OSError, http.client.HTTPException) as e:
+        return None, f"（応答なし: {e}）", ""
+
+
+def request_met(r, status, text, ctype):
+    """記載の HTTP リクエストの期待（status、contains、not_contains、match、content_type）を満たすか。"""
+    if status != r.get("status", 200):
+        return False
+    if "content_type" in r and r["content_type"] not in ctype:
+        return False
+    if "not_contains" in r and any(t in text for t in r["not_contains"]):
+        return False
+    if "contains" in r and r["contains"] not in text:
+        return False
+    if "match" in r and not re.search(r["match"], text):
+        return False
+    return True
+
+
+def saved_value(text, path):
+    """応答の JSON から、"note.id" のような . 区切りの位置の値を取り出す。無ければ None。"""
+    try:
+        v = json.loads(text)
+        for k in path.split("."):
+            v = v[int(k)] if isinstance(v, list) else v[k]
+        return v
+    except (ValueError, KeyError, IndexError, TypeError):
+        return None
+
+
 def check(url, picked, label, inject=(), expect=(), wait=10, after=5, gap=0,
-          allow_unsafe=False, keep=False):
+          allow_unsafe=False, keep=False, requests=(), allow_status=()):
     """選んだブロックを一時的なタブで動かし、ステータスと debug に届いた値を確かめる。
 
     expect は {"contains": 文字列} か {"match": 正規表現} の並びで、"debug" に debug ノードの
     名前を書くと、その debug に届いた値だけを見る。
+    requests は、inject を押した後に送る HTTP リクエスト（send_request）の並びで、
+    応答のステータス（既定 200）と本文（contains / match）を確かめる。書いた順に送る。
+    "save": {"名前": "note.id"} で応答の値を覚え、後のリクエストの path に {名前} で使える。
+    allow_status に書いた名前のノードは、ステータスが赤・黄でも不合格にしない
+    （エラーの経路をわざと通す確かめ方のため。呼び出し側で理由を記録する）。
     戻り値は 0 = 合格、1 = 不合格、2 = 一時的なタブを消せなかった。
     実行できないときは LiveCheckError を送出する。
     """
@@ -408,7 +463,8 @@ def check(url, picked, label, inject=(), expect=(), wait=10, after=5, gap=0,
                 + ", ".join(":".join(c) for c in sorted(inner)))
         seen |= endpoints(b["flow"])
     unverified = sorted({n["type"] for n in flow["nodes"] if needs_expect(n, configs)})
-    if not expect and (unverified or not any(is_connecting(n, configs) for n in flow["nodes"])):
+    if not expect and not requests and (
+            unverified or not any(is_connecting(n, configs) for n in flow["nodes"])):
         raise LiveCheckError(
             f"ステータスでは確かめられないノード（{', '.join(unverified) or 'mqtt、WebSocket client 以外'}）"
             "があるので、--expect で debug に届くべき文字列を指定すること（何も確かめずに合格にしない）")
@@ -436,7 +492,25 @@ def check(url, picked, label, inject=(), expect=(), wait=10, after=5, gap=0,
             for nid in injects[name]:
                 api(url, "POST", f"/inject/{nid}")
             print(f"inject「{name}」を押した")
-        if inject:
+        answers = []
+        saved = {}
+        for r in requests:
+            if gap and (inject or answers):
+                time.sleep(gap)
+            names = re.findall(r"\{(\w+)\}", r["path"])
+            if any(saved.get(n) is None for n in names):
+                # 前の応答から値を取り出せなかった。/api/notes/None のように送ると、
+                # 404 を期待するリクエストがたまたま合格するため、送らずに不合格にする
+                answers.append((r, None, f"（前の応答から {', '.join(names)} を取り出せなかった）", ""))
+                continue
+            for n in names:
+                r = dict(r, path=r["path"].replace("{" + n + "}", str(saved[n])))
+            status, text, ctype = send_request(url, r)
+            for name, path in (r.get("save") or {}).items():
+                saved[name] = saved_value(text, path)
+            answers.append((r, status, text, ctype))
+            print(f"{r.get('method', 'GET').upper()} {r['path']} を送った → {status}")
+        if inject or requests:
             time.sleep(after)
 
         status = read_context(url, flow_id, "status") or {}
@@ -455,8 +529,10 @@ def check(url, picked, label, inject=(), expect=(), wait=10, after=5, gap=0,
         # 赤はエラー、黄は「接続中」など未完了。文字が "undefined" なのは、ステータスに
         # 出す値を読み取れていない（例: debug ノードの statusType がエディターに無い値）
         bad = s["fill"] in ("red", "yellow") or s["text"] == "undefined"
-        failed |= bad
-        print(f"  {'NG' if bad else 'OK'}  {s['name'] or s['type']}（{s['type']}）: "
+        allowed = bad and s["name"] in allow_status
+        failed |= bad and not allowed
+        mark = "許容" if allowed else ("NG" if bad else "OK")
+        print(f"  {mark}  {s['name'] or s['type']}（{s['type']}）: "
               f"{s['fill'] or '-'} {s['text']}")
     if not status:
         print("  （ステータスを出したノードはない）")
@@ -471,6 +547,14 @@ def check(url, picked, label, inject=(), expect=(), wait=10, after=5, gap=0,
         hit = met(e, received)
         failed |= not hit
         print(f"\n期待: {expectation_text(e)} → {'届いた' if hit else '届かなかった'}")
+
+    for r, status, text, ctype in answers:
+        ok = request_met(r, status, text, ctype)
+        failed |= not ok
+        want = [f"ステータス {r.get('status', 200)}"] + \
+               [f"{k} {r[k]!r}" for k in ("contains", "not_contains", "match", "content_type") if k in r]
+        print(f"\n応答: {r.get('method', 'GET').upper()} {r['path']}（{', '.join(want)}）→ "
+              f"{'合った' if ok else '合わない'}: {status} {text[:200]!r}")
 
     print("\n結果: " + ("不合格" if failed else "合格"))
     if not cleaned:
