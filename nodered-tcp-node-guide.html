@@ -1159,7 +1159,7 @@ return msg;</div>
                 </div>
                 <div class="sys-link">
                     <div class="sys-req">ポート9103 へ {"sensor":"temp",..} &rarr;</div>
-                    <div class="sys-res">&larr; サーバーからの応答</div>
+                    <div class="sys-res">&larr; 受信完了: temp=25.5</div>
                 </div>
                 <div class="sys-actor sys-build">
                     <div><span class="sys-badge">これを作る</span></div>
@@ -1170,24 +1170,30 @@ return msg;</div>
 
             <p><strong>🎯 要求仕様:</strong></p>
             <ul>
-                <li>サーバー: ポート9103で待ち受け、JSONデータを受信して処理</li>
-                <li>クライアント: 5秒ごとにランダムなセンサーデータを送信</li>
-                <li>送信データ: <code>{"sensor":"temp","value":25.5}</code></li>
+                <li>クライアント: 5秒ごとに、20.0〜30.0 のランダムな温度を <code>{"sensor":"temp","value":25.5}</code> の形の JSON 文字列にし、末尾に改行を付けて localhost:9103 へ送る。サーバーからの応答も、改行を区切りとして受け取る</li>
+                <li>サーバー: ポート9103で待ち受け、改行で区切って受信する。受け取った文字列を JSON として読み、次の3つを行う
+                    <ul>
+                        <li>受信したデータを debug サイドバーに表示する</li>
+                        <li>debug ノードのステータスに「temp: 25.5」の形で最新の値を表示する</li>
+                        <li>送り元へ <code>受信完了: temp=25.5</code>（末尾に改行）を返す</li>
+                    </ul>
+                </li>
             </ul>
 
             <p><strong>✅ 成功の条件:</strong></p>
             <ul>
-                <li>デプロイ後、5秒ごとにクライアント側のデバッグパネルにサーバーからの応答が表示される</li>
-                <li>サーバー側のデバッグパネルに受信した温度データが表示される</li>
-                <li>サーバーノードのステータスに「sensor: XX.X」形式で最新値が表示される</li>
-                <li>クライアントのデバッグパネルに「送受信完了」ステータスが表示される</li>
+                <li>debug サイドバーの「サーバー側: 受信データ」に、<code>{sensor: "temp", value: 25.5}</code> のようなオブジェクトが5秒ごとに表示される</li>
+                <li>「サーバー側: 受信データ」ノードの下に、「temp: 25.5」のように最新の値が表示される</li>
+                <li>debug サイドバーの「クライアント側: 応答」に、<code>受信完了: temp=25.5</code> のような文字列が5秒ごとに表示される。数値は、同じときにサーバー側に表示された値と同じになる</li>
             </ul>
+            <p>応答の数値が送った値と同じなら、サーバーが受け取った中身を読んで返したことが分かります。値がちょうど整数のとき（25.0 など）は、<code>temp=25</code> のように小数点以下を付けずに表示されます。</p>
 
             <details>
                 <summary>💡 ヒント</summary>
-                <p><strong>クライアント側:</strong> Inject（5秒repeat）→ Function（JSON生成）→ TCP Request</p>
-                <p><strong>サーバー側:</strong> TCP In → Function（JSON処理）→ TCP Out</p>
-                <p>改行文字（\n）を区切りとして使うと、JSONデータの境界が分かりやすくなります。</p>
+                <p><strong>クライアント側:</strong> Inject（5秒ごとに繰り返す）→ Change（送る文字列を作る）→ TCP Request（「戻り値」は「文字列」、「終了」は「指定文字の受信時」で <code>\n</code>）→ Debug</p>
+                <p><strong>サーバー側:</strong> TCP In（区切り文字は <code>\n</code>）→ JSON（文字列をオブジェクトに）→ Change（応答の文字列を作る）→ TCP Out（種類は「TCP応答」）。JSON ノードの出力を Debug にもつなぎます</p>
+                <p>TCP Request と TCP Out は、オブジェクトをそのままでは送れません（<code>[object Object]</code> という文字列になります）。送る値は文字列にし、末尾に改行を付けます。Change ノードの JSONata 式なら、<code>$string()</code> でオブジェクトを JSON 文字列にでき、<code>&amp; "\n"</code> で改行をつなげられます。</p>
+                <p>ランダムな値は JSONata の <code>$random()</code>（0 以上 1 未満）で作り、<code>$round(値, 1)</code> で小数1桁にします。Debug ノードの下の表示は、「ノードステータス(32 文字)」にチェックを入れ、その欄で JSONata 式を選ぶと、msg の値を組み合わせて表示できます。</p>
             </details>
             
             <details>
@@ -1195,15 +1201,16 @@ return msg;</div>
                 <div class="flow-json">[
     {"id": "tcp_ex4_tab", "type": "tab", "label": "演習4"},
     {"id": "tcp_ex4_comment1", "type": "comment", "z": "tcp_ex4_tab", "name": "【サーバー】", "info": "", "x": 130, "y": 40, "wires": []},
-    {"id": "tcp_ex4_tcp_in", "type": "tcp in", "z": "tcp_ex4_tab", "name": "TCP Server :9103", "server": "server", "host": "", "port": "9103", "datamode": "stream", "datatype": "utf8", "newline": "\\n", "topic": "", "trim": false, "base64": false, "tls": "", "x": 180, "y": 100, "wires": [["tcp_ex4_func_server"]]},
-    {"id": "tcp_ex4_func_server", "type": "function", "z": "tcp_ex4_tab", "name": "JSONパース", "func": "try {\n    // 受信した文字列（JSON形式）をオブジェクトに変換する\n    const data = JSON.parse(msg.payload);\n    // ノードの下のステータスに最新の値を表示する（例: temperature: 25.3）\n    node.status({fill: \"green\", shape: \"dot\", text: data.sensor + \": \" + data.value});\n    // 応答を JSON 文字列にする。TCP Out はオブジェクトをそのままでは送れない\n    // （\"[object Object]\" という文字列になる）ため、JSON.stringify が必要\n    // 末尾の改行は、クライアント側がメッセージの区切りとして使う\n    msg.payload = JSON.stringify({status: \"received\", data: data}) + \"\\n\";\n} catch(e) {\n    // JSON として読めなかったときは error を返す\n    msg.payload = JSON.stringify({status: \"error\"}) + \"\\n\";\n}\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 400, "y": 100, "wires": [["tcp_ex4_tcp_out", "tcp_ex4_debug_server"]]},
-    {"id": "tcp_ex4_tcp_out", "type": "tcp out", "z": "tcp_ex4_tab", "name": "Reply", "host": "", "port": "", "beserver": "reply", "base64": false, "end": false, "tls": "", "x": 590, "y": 100, "wires": []},
-    {"id": "tcp_ex4_debug_server", "type": "debug", "z": "tcp_ex4_tab", "name": "サーバー処理", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "x": 610, "y": 140, "wires": []},
+    {"id": "tcp_ex4_tcp_in", "type": "tcp in", "z": "tcp_ex4_tab", "name": "TCP Server :9103", "server": "server", "host": "", "port": "9103", "datamode": "stream", "datatype": "utf8", "newline": "\\n", "topic": "", "trim": false, "base64": false, "tls": "", "x": 180, "y": 100, "wires": [["tcp_ex4_json_server"]]},
+    {"id": "tcp_ex4_json_server", "type": "json", "z": "tcp_ex4_tab", "name": "文字列→オブジェクト", "property": "payload", "action": "obj", "pretty": false, "x": 390, "y": 100, "wires": [["tcp_ex4_change_reply", "tcp_ex4_debug_server"]]},
+    {"id": "tcp_ex4_change_reply", "type": "change", "z": "tcp_ex4_tab", "name": "応答を作る", "rules": [{"t": "set", "p": "payload", "pt": "msg", "to": "\"受信完了: \" &amp; payload.sensor &amp; \"=\" &amp; payload.value &amp; \"\\n\"", "tot": "jsonata"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 600, "y": 100, "wires": [["tcp_ex4_tcp_out"]]},
+    {"id": "tcp_ex4_tcp_out", "type": "tcp out", "z": "tcp_ex4_tab", "name": "Reply", "host": "", "port": "", "beserver": "reply", "base64": false, "end": false, "tls": "", "x": 770, "y": 100, "wires": []},
+    {"id": "tcp_ex4_debug_server", "type": "debug", "z": "tcp_ex4_tab", "name": "サーバー側: 受信データ", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "payload.sensor &amp; \": \" &amp; payload.value", "statusType": "jsonata", "x": 640, "y": 140, "wires": []},
     {"id": "tcp_ex4_comment2", "type": "comment", "z": "tcp_ex4_tab", "name": "【クライアント】", "info": "", "x": 140, "y": 200, "wires": []},
-    {"id": "tcp_ex4_inject", "type": "inject", "z": "tcp_ex4_tab", "name": "5秒ごと", "props": [{"p": "payload"}], "repeat": "5", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "", "payloadType": "date", "x": 150, "y": 260, "wires": [["tcp_ex4_func_client"]]},
-    {"id": "tcp_ex4_func_client", "type": "function", "z": "tcp_ex4_tab", "name": "センサーデータ生成", "func": "// 20.0〜30.0 の範囲で、小数1桁のランダムな温度を作る\n// （toFixed は文字列を返すので、送るときに parseFloat で数値に戻す）\nconst temp = (20 + Math.random() * 10).toFixed(1);\n// 送信データを JSON 文字列にする。TCP Request もオブジェクトをそのままでは送れない\n// 末尾の改行が、サーバー側（TCP In の区切り文字 \\n）でのメッセージの区切りになる\nmsg.payload = JSON.stringify({\n    sensor: \"temperature\",\n    value: parseFloat(temp),\n    timestamp: new Date().toISOString()\n}) + \"\\n\";\nreturn msg;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 380, "y": 260, "wires": [["tcp_ex4_tcp_request"]]},
-    {"id": "tcp_ex4_tcp_request", "type": "tcp request", "z": "tcp_ex4_tab", "name": "TCP Request", "server": "localhost", "port": "9103", "out": "char", "ret": "string", "splitc": "\\n", "newline": "", "trim": false, "tls": "", "x": 590, "y": 260, "wires": [["tcp_ex4_debug_client"]]},
-    {"id": "tcp_ex4_debug_client", "type": "debug", "z": "tcp_ex4_tab", "name": "クライアント受信", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "\"送受信完了\"", "statusType": "jsonata", "x": 790, "y": 260, "wires": []}
+    {"id": "tcp_ex4_inject", "type": "inject", "z": "tcp_ex4_tab", "name": "5秒ごと", "props": [{"p": "payload"}], "repeat": "5", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "", "payloadType": "date", "x": 150, "y": 260, "wires": [["tcp_ex4_change_client"]]},
+    {"id": "tcp_ex4_change_client", "type": "change", "z": "tcp_ex4_tab", "name": "センサーデータを作る", "rules": [{"t": "set", "p": "payload", "pt": "msg", "to": "$string({\"sensor\": \"temp\", \"value\": $round(20 + $random() * 10, 1)}) &amp; \"\\n\"", "tot": "jsonata"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 350, "y": 260, "wires": [["tcp_ex4_tcp_request"]]},
+    {"id": "tcp_ex4_tcp_request", "type": "tcp request", "z": "tcp_ex4_tab", "name": "TCP Request", "server": "localhost", "port": "9103", "out": "char", "ret": "string", "splitc": "\\n", "newline": "", "trim": false, "tls": "", "x": 570, "y": 260, "wires": [["tcp_ex4_debug_client"]]},
+    {"id": "tcp_ex4_debug_client", "type": "debug", "z": "tcp_ex4_tab", "name": "クライアント側: 応答", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "payload", "targetType": "msg", "statusVal": "", "statusType": "auto", "x": 780, "y": 260, "wires": []}
 ]</div>
             </details>
         </div>
