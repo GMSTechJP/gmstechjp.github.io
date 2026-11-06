@@ -64,6 +64,110 @@ def mqtt():
     return p
 
 
+MQTT_COLOR = '#d8bfd8'
+
+
+def _qos_col(p, x, h, title, left, right, bottom):
+    """QoS のやりとりの 1 列。上から下へ時間が進む。戻り値は左右の縦線の x 座標"""
+    lx, rx = x + 28, x + 142
+    p.add(f'<rect x="{x}" y="4" width="170" height="{h - 8}" rx="5" fill="#fafafa" stroke="#e0e0e0"/>')
+    p.add(text(x + 85, 22, title, 12, INK, weight='bold'),
+          text(lx, 38, left, 10, INK), text(rx, 38, right, 10, INK))
+    p.add(line(lx, 44, lx, bottom, '#90a4ae', 2), line(rx, 44, rx, bottom, '#90a4ae', 2))
+    return lx, rx
+
+
+def _qos_send(p, lx, rx, y, label, back=False, lost=False):
+    """パケット 1 つの矢印。lost なら途中で ✗ を付けて止める"""
+    a, b = (rx, lx) if back else (lx, rx)
+    mid = (lx + rx) / 2
+    if lost:
+        p.arrow(a, y, mid, y, RED, 2)
+        p.add(xmark(mid + (-12 if back else 12), y, 5))
+    else:
+        p.arrow(a, y, b, y, INK, 2)
+    p.add(text(mid, y - (10 if lost else 7), label, 10, RED if lost else INK))
+
+
+def _qos_reconnect(p, lx, rx, y):
+    p.add(line(lx - 12, y, rx + 12, y, '#999', 1.5, '4 3'), text((lx + rx) / 2, y - 4, '切れて、つなぎ直す', 10, '#555'))
+
+
+def mqtt_qos_steps():
+    p = Panel('QoS 0 は PUBLISH を送るだけで応答がない。QoS 1 は PUBLISH に PUBACK が返る。QoS 2 は PUBLISH、PUBREC、PUBREL、PUBCOMP の 4 回のやりとりで確かめる', 560, 208, 'mqs')
+    lx, rx = _qos_col(p, 5, 208, 'QoS 0（最大1回）', '送る側', '受ける側', 156)
+    _qos_send(p, lx, rx, 70, 'PUBLISH（データ）')
+    p.add(text(90, 180, 'やりとり 1 回', 11, INK, weight='bold'), text(90, 196, '着いたかは分からない', 10, INK))
+    lx, rx = _qos_col(p, 195, 208, 'QoS 1（最低1回）', '送る側', '受ける側', 156)
+    _qos_send(p, lx, rx, 70, 'PUBLISH（データ）')
+    _qos_send(p, lx, rx, 98, 'PUBACK（受け取った）', back=True)
+    p.add(text(280, 180, 'やりとり 2 回', 11, INK, weight='bold'), text(280, 196, '着くと応答が返る', 10, INK))
+    lx, rx = _qos_col(p, 385, 208, 'QoS 2（正確に1回）', '送る側', '受ける側', 156)
+    _qos_send(p, lx, rx, 70, 'PUBLISH（データ）')
+    _qos_send(p, lx, rx, 98, 'PUBREC（受け取った）', back=True)
+    _qos_send(p, lx, rx, 126, 'PUBREL（確定して）')
+    _qos_send(p, lx, rx, 154, 'PUBCOMP（確定した）', back=True)
+    p.add(text(470, 180, 'やりとり 4 回', 11, INK, weight='bold'), text(470, 196, '2 段階で確かめる', 10, INK))
+    return p
+
+
+def mqtt_qos_lost():
+    p = Panel('通信が切れたとき、QoS 0 は送り直さないので購読側に届かない。QoS 1 は応答が失われると送り直すので購読側に 2 回届く。QoS 2 は送り直しても、この例では購読側に 1 回だけ届く', 560, 286, 'mql')
+    lx, rx = _qos_col(p, 5, 286, 'QoS 0', 'mqtt out', 'ブローカー', 236)
+    _qos_send(p, lx, rx, 70, 'PUBLISH', lost=True)
+    p.add(text(90, 106, '応答を待たないので', 10, '#555'), text(90, 122, '送り直さない', 10, '#555'))
+    p.add(text(90, 256, '購読側に届かない', 11, RED, weight='bold'), text(90, 272, '失われたまま', 10, INK))
+    lx, rx = _qos_col(p, 195, 286, 'QoS 1', 'mqtt out', 'ブローカー', 236)
+    _qos_send(p, lx, rx, 70, 'PUBLISH（1 回目）')
+    _qos_send(p, lx, rx, 98, 'PUBACK', back=True, lost=True)
+    _qos_reconnect(p, lx, rx, 124)
+    _qos_send(p, lx, rx, 152, 'PUBLISH（送り直し）')
+    _qos_send(p, lx, rx, 180, 'PUBACK', back=True)
+    p.add(text(280, 256, '購読側に 2 回届く', 11, DEST_TEXT, weight='bold'), text(280, 272, '同じ msg が重複する', 10, INK))
+    lx, rx = _qos_col(p, 385, 286, 'QoS 2', 'mqtt out', 'ブローカー', 236)
+    _qos_send(p, lx, rx, 70, 'PUBLISH（1 回目）')
+    _qos_send(p, lx, rx, 98, 'PUBREC', back=True, lost=True)
+    _qos_reconnect(p, lx, rx, 124)
+    _qos_send(p, lx, rx, 152, 'PUBLISH（送り直し）')
+    _qos_send(p, lx, rx, 176, 'PUBREC', back=True)
+    _qos_send(p, lx, rx, 200, 'PUBREL')
+    _qos_send(p, lx, rx, 224, 'PUBCOMP', back=True)
+    p.add(text(470, 256, '購読側に 1 回届く', 11, GREEN, weight='bold'), text(470, 272, 'この例では重複しない', 10, INK))
+    return p
+
+
+def _qos_leg(p, x1, x2, y, qos, below):
+    """1 区間の矢印。QoS 0 は確認なしの破線、1 以上は確認ありの実線で描く"""
+    ok = qos > 0
+    color = GREEN if ok else ORANGE
+    p.arrow(x1, y, x2, y, color, 2, None if ok else '6 4')
+    mid = (x1 + x2) / 2
+    p.add(text(mid, y - 8, f'QoS {qos}（確認{"あり" if ok else "なし"}）', 11, GREEN if ok else DEST_TEXT, weight='bold'),
+          text(mid, y + 16, below, 10, INK))
+
+
+def _qos_leg_row(p, y, title, pub, sub, below2, note):
+    got = min(pub, sub)
+    p.add(text(10, y, title, 12, INK, 'start', 'bold'))
+    n1, _, _ = nrnode(75, y + 36, 'mqtt out', MQTT_COLOR, w=100, outputs=0)
+    n2, _, _ = nrnode(450, y + 36, 'mqtt in', MQTT_COLOR, w=100, inputs=0)
+    p.add(n1, n2, server(260, y + 36, 'neutral', 'ブローカー'))
+    _qos_leg(p, 130, 238, y + 36, pub, '応答待ちは送り直す' if pub else '切れると届かない')
+    _qos_leg(p, 282, 396, y + 36, got, below2)
+    p.add(text(75, y + 72, f'QoS を {pub} に設定', 11, INK), text(450, y + 72, f'QoS を {sub} に設定', 11, INK))
+    p.add(text(10, y + 94, note, 11, '#555', 'start'), text(450, y + 90, f'msg.qos: {got}', 11, INK, weight='bold'))
+
+
+def mqtt_qos_legs():
+    p = Panel('mqtt out が 0 で mqtt in が 1 なら、どちらの区間も確認なしで、切れると届かない。mqtt out が 1 で mqtt in が 0 なら、ブローカーまでは確認するが、その先は確認なしで、切れると届かない。両方 1 なら両方の区間で確認するが、ブローカーから先を送り直すのは、セッションを保持する設定のときだけである', 560, 366, 'mqg')
+    _qos_leg_row(p, 18, '例1：mqtt out が 0、mqtt in が 1', 0, 1, '切れると届かない', 'mqtt in を 1 にしても、確認は増えない')
+    p.add(line(10, 124, 550, 124, '#ddd', 1))
+    _qos_leg_row(p, 142, '例2：mqtt out が 1、mqtt in が 0', 1, 0, '切れると届かない', '発行側に異常は見えないまま、ブローカーから先で失われる')
+    p.add(line(10, 248, 550, 248, '#ddd', 1))
+    _qos_leg_row(p, 266, '例3：mqtt out が 1、mqtt in が 1', 1, 1, '条件つきで送り直す', 'ブローカーから先を送り直すのは、セッションを保持する設定のときだけ')
+    return p
+
+
 def tcp():
     p = Panel('tcp in ノード（待ち受け）は、接続してきた機器が送ったデータを、既定では Buffer のまま msg.payload にして送り出す', 560, 150, 'tcp')
     p.add(pc(50, 70, 'happy', '装置'))
@@ -222,5 +326,6 @@ def sensehat():
 
 
 FIGURES = {'http-in': http_in, 'http-request': http_request, 'websocket-basic': websocket, 'mqtt-basic': mqtt,
+           'mqtt-qos-steps': mqtt_qos_steps, 'mqtt-qos-lost': mqtt_qos_lost, 'mqtt-qos-legs': mqtt_qos_legs,
            'tcp-basic': tcp, 'udp-basic': udp, 'udp-ports-fields': udp_ports_fields, 'udp-ports-where': udp_ports_where, 'udp-ports-reply': udp_ports_reply,
            'email-basic': email, 'modbus-basic': modbus, 'sensehat-basic': sensehat}
