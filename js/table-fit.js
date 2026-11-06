@@ -18,16 +18,23 @@
  * もともとそれより細い列は元の幅）より細くなるとき、または表が枠からはみ出すときは、
  * 試した列を戻す。
  *
- * 表の幅が MIN_TABLE_WIDTH 未満（スマートフォンなど）のときは何もしない。
+ * 表の幅が MIN_TABLE_WIDTH 未満（スマートフォンなど）のときは、列を 1 行に保たない。
+ *
+ * 枠からはみ出す表は、折り返せない文字列（URL やトピック名など）があるため、狭い画面で
+ * ページ全体を横に広げる。そのような表だけを <div class="table-scroll"> で囲み、枠の中で
+ * 横にスクロールさせる。囲むのは、はみ出したときだけである。収まる表の見た目は変わらない。
+ * 画面の幅が 640px 以下のときは、セルが細くなりすぎないよう、囲んだ表の幅を 520px 以上にする。
+ *
  * 表の幅が変わったとき（画面の幅の変更、<details> を開いたときなど）は選び直す。
  * 対象から外す表には data-table-fit="off" を付ける。
- * スクリプトが動かない環境では、従来どおり折り返して表示される。
+ * スクリプトが動かない環境では、従来どおり折り返して表示される（はみ出す表もそのまま）。
  */
 (function () {
     "use strict";
 
     var NOWRAP = "table-fit-nowrap";
     var PIN = "data-table-fit-pin"; // このスクリプトが足した <colgroup> の印
+    var SCROLL = "table-scroll";    // はみ出す表を囲む <div> のクラス
     var MIN_TABLE_WIDTH = 600;  // これより狭い表は、従来どおり折り返す
     var SHORT_RATIO = 0.45;     // 最大内容幅が表の幅のこの割合を超えるセルは、折り返してよい
     var LONG_CELL_RATIO = 0.25; // 長いセルがこの割合を超える列は、1 行に保たない
@@ -233,6 +240,44 @@
         return widths;
     }
 
+    // 自分か祖先が、すでに横のスクロールや切り取りを受け持っているか
+    function inScrollBox(element) {
+        for (var p = element.parentElement; p && p !== document.body; p = p.parentElement) {
+            if (getComputedStyle(p).overflowX !== "visible") {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // 枠からはみ出す表を <div class="table-scroll"> で囲む。閉じた <details> の中の表は
+    // 幅が 0 なので、開いて幅が変わったときに判定する。入れ子の表は、外側の表ごと囲む
+    function contain(table) {
+        var parent = table.parentElement;
+        if (!parent || parent.closest("table") || inScrollBox(table)) {
+            return;
+        }
+        var width = table.getBoundingClientRect().width;
+        if (!width || !parent.clientWidth) {
+            return;
+        }
+        var st = getComputedStyle(parent);
+        var room = parent.clientWidth - parseFloat(st.paddingLeft) - parseFloat(st.paddingRight);
+        if (width <= room + 0.5) {
+            return;
+        }
+        var box = document.createElement("div");
+        box.className = SCROLL;
+        parent.insertBefore(box, table);
+        box.appendChild(table);
+    }
+
+    // fit() が先。前の幅で 1 行に保った列を外してから、はみ出すかどうかを測る
+    function update(table) {
+        fit(table);
+        contain(table);
+    }
+
     function init() {
         var tables = [];
         var all = document.querySelectorAll("table");
@@ -245,13 +290,15 @@
             return;
         }
         var style = document.createElement("style");
-        style.textContent = "." + NOWRAP + " { white-space: nowrap; }";
+        style.textContent = "." + NOWRAP + " { white-space: nowrap; }\n" +
+            "." + SCROLL + " { overflow-x: auto; }\n" +
+            "@media (max-width: 640px) { ." + SCROLL + " > table { min-width: 520px; } }";
         document.head.appendChild(style);
 
         // 文字の幅はフォントの読み込みで変わるため、読み込み後に測り直す
         function refitAll() {
             for (var k = 0; k < tables.length; k++) {
-                fit(tables[k]);
+                update(tables[k]);
             }
         }
 
@@ -266,7 +313,7 @@
                     var w = Math.round(entries[e].contentRect.width);
                     if (last.get(table) !== w) {
                         last.set(table, w);
-                        fit(table);
+                        update(table);
                     }
                 }
             });
