@@ -107,7 +107,7 @@
             <li><strong><a href="#term-connectionless">コネクションレス</a></strong>：接続確立なしに即座に送信</li>
             <li><strong>軽量・高速</strong>：オーバーヘッドが少ない</li>
             <li><strong>信頼性なし</strong>：パケット損失や順序逆転の可能性</li>
-            <li><strong><a href="#term-cast">ブロードキャスト</a>可能</strong>：ネットワーク全体に一斉送信</li>
+            <li><strong><a href="#term-cast">ブロードキャスト</a>可能</strong>：同じネットワーク（サブネット）の全機器に一斉送信</li>
             <li><strong><a href="#term-cast">マルチキャスト</a>対応</strong>：特定グループに送信</li>
         </ul>
         
@@ -330,10 +330,10 @@
 
         <div class="tip">
             <p><strong>💡 ブロードキャストアドレスの例（補足）:</strong> 上の表の「アドレス」欄にブロードキャスト送信を選んだ場合の具体例です。</p>
-            <div class="code-block">// 限定ブロードキャスト（同一サブネット内）
+            <div class="code-block">// サブネットブロードキャスト（指定したサブネットの全機器へ）
 192.168.1.255   ← サブネット 192.168.1.0/24 の場合
 
-// ローカルブロードキャスト
+// 限定ブロードキャスト（自分が接続しているサブネットの全機器へ）
 255.255.255.255</div>
         </div>
 
@@ -448,7 +448,7 @@
         </details>
 
         <h3>応用（サイト独自）: 実用パターン集</h3>
-        <p>ここから先は公式サンプルではなく、<strong>本サイトが用意した応用教材</strong>です。受信、ユニキャスト送信、ブロードキャスト送信、JSON データの送受信、送り元への返信（エコー）、定期的なセンサーデータ送信を1つのタブにまとめたもので、以下で説明する使用パターンの実例になっています。どの部分にも inject のボタンがあり、Node-RED の中だけで試せます。</p>
+        <p>ここから先は公式サンプルではなく、<strong>本サイトが用意した応用教材</strong>です。受信、ユニキャスト送信、ブロードキャスト送信、JSON データの送受信、送り元への返信（エコー）、定期的なセンサーデータ送信を1つのタブにまとめたもので、以下で説明する使用パターンの実例になっています。どの部分にも inject があり、Node-RED の中だけで試せます。定期送信の inject「3秒ごと」だけは無効の状態で読み込まれるので、デプロイしただけでは送信しません。試し方は<a href="#pattern-periodic">パターン5</a>にあります。</p>
         <details>
             <summary>📥 応用フローJSON（クリックで展開）</summary>
             <div class="flow-json">[
@@ -901,15 +901,26 @@
         "type": "comment",
         "z": "udp_sample_tab",
         "name": "━━━ 6. 定期的なセンサーデータ送信（ポート8003） ━━━",
-        "info": "3秒ごとに、センサーの値に見立てた乱数を JSON の文字列にして、8003 番へブロードキャストする。\n同じタブの UDP In :8003 が受け取る（同じネットワークのほかの PC の Node-RED でも受け取れる）。",
+        "info": "3秒ごとに、センサーの値に見立てた乱数を JSON の文字列にして、自分の PC（localhost）の 8003 番へ送る。\n同じタブの UDP In :8003 が受け取る。\n定期実行の inject はデプロイした時点で送信を始めるため、「3秒ごと」は無効の状態で読み込まれる。試すときは有効にしてデプロイし、終わったら無効に戻す。",
         "x": 260,
         "y": 900,
+        "wires": []
+    },
+    {
+        "id": "udp_comment6_note",
+        "type": "comment",
+        "z": "udp_sample_tab",
+        "name": "「3秒ごと」は最初は無効。有効にしてデプロイすると送信を始める",
+        "info": "",
+        "x": 280,
+        "y": 930,
         "wires": []
     },
     {
         "id": "udp_inject_periodic",
         "type": "inject",
         "z": "udp_sample_tab",
+        "d": true,
         "name": "3秒ごと",
         "props": [{"p": "payload"}],
         "repeat": "3",
@@ -942,14 +953,14 @@
         "id": "udp_out_sensor",
         "type": "udp out",
         "z": "udp_sample_tab",
-        "name": "UDP Broadcast :8003",
-        "addr": "255.255.255.255",
+        "name": "UDP Out (localhost:8003)",
+        "addr": "localhost",
         "iface": "",
         "port": "8003",
         "ipv": "udp4",
         "outport": "",
         "base64": false,
-        "multicast": "broadcast",
+        "multicast": "false",
         "x": 600,
         "y": 960,
         "wires": []
@@ -1008,7 +1019,7 @@
             <p><strong>⚠️ 動作確認方法:</strong></p>
             <p>サンプルフローをデプロイしたら、UDPでデータを送受信してみて動作を確認できます。初心者の方は、まず「Node-RED内」の方法から試すのがおすすめです。</p>
             <ul>
-                <li><strong>Node-RED内（追加ツール不要）:</strong> 公式サンプルフローと応用フローの inject のボタンを押すと、UDP Out が自分自身の UDP In へ送り、届いたものが debug サイドバーに表示されます。</li>
+                <li><strong>Node-RED内（追加ツール不要）:</strong> 公式サンプルフローと応用フローの inject のボタンを押すと、UDP Out が自分自身の UDP In へ送り、届いたものが debug サイドバーに表示されます（無効にしてある「3秒ごと」を除きます）。</li>
                 <li><strong>Mac・Linux: netcat（nc）:</strong> ターミナルからUDP通信を手軽に試せるコマンドラインツールです。Mac と多くの Linux に入っています。</li>
                 <li><strong>Windows: PowerShell:</strong> Windows には nc が入っていません。PowerShell に下の関数を貼り付けると、何もインストールせずに送信と返信の確認ができます。コマンドプロンプトでは使えません。</li>
                 <li><strong>socat:</strong> netcatより高機能な通信テストツールです。netcatでうまく送受信できない場合の代替として使えます。</li>
@@ -1109,7 +1120,7 @@ echo "Hello" | nc -u -w1 [Node-REDのホスト] 8002</div>
         <p><strong>ポイント:</strong></p>
         <ul>
             <li>アドレス: 255.255.255.255 または サブネットのブロードキャスト（192.168.1.255）</li>
-            <li>ネットワーク上の全デバイスにデータを一斉配信</li>
+            <li>同じサブネットの全デバイスにデータを一斉配信</li>
             <li>送った自分の「UDP In :8000」にも届く。送り元（msg.ip）は 127.0.0.1 ではなく、自分の PC の LAN の IP アドレスになる</li>
         </ul>
 
@@ -1187,17 +1198,30 @@ echo "Hello" | nc -u -w1 [Node-REDのホスト] 8002</div>
             <p>UDP Out の「ローカルポートを使用」に UDP In と同じ番号を入れると、UDP Out は UDP In のソケットをそのまま使います。デプロイの種類を「変更したノード」にしていて、どちらか片方だけを変えてデプロイすると、片方だけが作り直され、UDP In が受信しなくなったり、返信が送られなくなったりします。デプロイボタンの右の ▼ で「全て」か「変更したフロー」を選んでデプロイします（Node-RED の既定は「全て」）。止まってしまったときは、同じメニューの「フローを再起動」で戻ります。</p>
         </div>
 
-        <h3>パターン5: 定期的なセンサーデータ送信</h3>
+        <h3 id="pattern-periodic">パターン5: 定期的なセンサーデータ送信</h3>
         <p><strong>用途:</strong> センサーデータの定期送信</p>
         <p>応用フローの「6. 定期的なセンサーデータ送信（ポート8003）」を参照してください。</p>
+        <div class="warning">
+            <p><strong>⚠️ inject「3秒ごと」は、無効の状態で読み込まれます</strong></p>
+            <p>繰り返しを設定した inject は、デプロイした時点で動き始め、ボタンを押さなくても送り続けます。Node-RED を再起動しても再開し、止めるまで送信が続きます。そのため、このサンプルでは inject を無効にしてあります。試し方は次のとおりです。</p>
+            <ol>
+                <li>「3秒ごと」をダブルクリックし、編集画面の左下にある「無効」のボタンを押して「有効」に切り替え、「完了」を押す</li>
+                <li>デプロイする。debug サイドバーに「送信データ」と「受信側: センサーデータ」が3秒ごとに表示される</li>
+                <li>試し終わったら、同じ手順で「無効」に戻してデプロイする</li>
+            </ol>
+            <p>無効のままボタンを押すと、「ノードのアクションは無効になっています」と通知され、送信されません。</p>
+        </div>
+        <div class="tip">
+            💡 送り先は自分の PC（localhost）です。ブロードキャストで定期的に送ると、社内 LAN などの同じサブネットの全機器へ届き続けるため、このサンプルでは使いません。ブロードキャストは、1回ずつ送れる「3. ブロードキャスト送信」で試せます。
+        </div>
         <div class="node-example">
-            <span class="node node-inject">3秒ごと</span>
+            <span class="node node-inject">3秒ごと<br><small>(最初は無効)</small></span>
             <span class="arrow">→</span>
             <span class="node node-change">センサーデータを作る</span>
             <span class="branch">
                 <span class="branch-row">
                     <span class="arrow">→</span>
-                    <span class="node node-udp-out">UDP Broadcast :8003</span>
+                    <span class="node node-udp-out">UDP Out (localhost:8003)</span>
                 </span>
                 <span class="branch-row">
                     <span class="arrow">→</span>
@@ -1213,8 +1237,8 @@ echo "Hello" | nc -u -w1 [Node-REDのホスト] 8002</div>
         <p><strong>ポイント:</strong></p>
         <ul>
             <li>Inject の repeat 設定で定期実行</li>
-            <li>change ノードの JSONata で乱数の値を作り、<code>$string(...)</code> で JSON の文字列にしてブロードキャスト</li>
-            <li>同じタブの「UDP In :8003」が受け取る。同じネットワークのほかの PC の Node-RED でも、8003 番の UDP In を置けば受け取れる</li>
+            <li>change ノードの JSONata で乱数の値を作り、<code>$string(...)</code> で JSON の文字列にして localhost へ送る</li>
+            <li>同じタブの「UDP In :8003」が受け取る。ほかの PC へ送るときは、UDP Out のアドレスを相手の IP アドレスに変え、相手の Node-RED に 8003 番の UDP In を置く</li>
         </ul>
 
         <h2 id="section6">📝 6. 演習問題</h2>
@@ -1614,7 +1638,7 @@ return msg;</div>
             <ul>
                 <li><strong>コネクションレス</strong>：接続確立不要で即座に送信可能</li>
                 <li><strong>信頼性なし</strong>：パケットロスや順序逆転の可能性があることを考慮</li>
-                <li><strong>ブロードキャスト</strong>：255.255.255.255 または サブネットアドレス</li>
+                <li><strong>ブロードキャスト</strong>：255.255.255.255 または サブネットのブロードキャストアドレス（例 192.168.1.255）</li>
                 <li><strong>返信</strong>：msg.ip と msg.port を使って送信元に返信可能</li>
                 <li><strong>用途</strong>：センサーデータ、発見プロトコル、リアルタイム通信</li>
             </ul>
@@ -1679,7 +1703,7 @@ return msg;</div>
         <table>
             <tr><th>形態</th><th>送信先</th><th>例</th><th>典型用途</th></tr>
             <tr><td><strong>ユニキャスト（unicast）</strong></td><td><strong>特定の 1 台</strong>に送る</td><td><code>192.168.1.10</code> 宛て</td><td>通常の 1 対 1 通信</td></tr>
-            <tr><td><strong>ブロードキャスト（broadcast）</strong></td><td>同じサブネット内の<strong>全員</strong>に送る</td><td><code>192.168.1.255</code>（限定）/ <code>255.255.255.255</code>（全体）</td><td>サービス発見、DHCP、機器探索</td></tr>
+            <tr><td><strong>ブロードキャスト（broadcast）</strong></td><td>同じサブネット内の<strong>全員</strong>に送る</td><td><code>192.168.1.255</code>（サブネット）/ <code>255.255.255.255</code>（限定）</td><td>サービス発見、DHCP、機器探索</td></tr>
             <tr><td><strong>マルチキャスト（multicast）</strong></td><td>「<strong>このグループに加入</strong>している人」だけに送る</td><td><code>224.0.0.0 〜 239.255.255.255</code> の範囲</td><td>動画/音声のストリーミング配信、産業制御</td></tr>
         </table>
         <div class="tip">
