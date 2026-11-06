@@ -65,6 +65,9 @@
             /* 狭い画面では図を縮めすぎず、図の枠内だけ横にスクロールさせる */
             .comic-fig { overflow-x: auto; }
             .comic-fig .comic { min-width: 520px; }
+            /* 折り返せない文字列（IP アドレスなど）のある表も、枠内だけ横にスクロールさせる */
+            .table-scroll { overflow-x: auto; }
+            .table-scroll table { min-width: 520px; }
         }
     </style>
 </head>
@@ -303,8 +306,8 @@
                 <td>（空）</td>
             </tr>
             <tr>
-                <td><strong>種類</strong></td>
-                <td>アドレス欄の右にあり、IPのバージョンを ipv4 と ipv6 から選びます。</td>
+                <td><strong>ipv4 / ipv6</strong>（アドレスの右のドロップダウン）</td>
+                <td>IPのバージョンを選びます。UDP In の「種類」にあたる欄ですが、UDP Out のこの欄には名前がありません。</td>
                 <td>ipv4</td>
             </tr>
             <tr>
@@ -1761,12 +1764,14 @@ return msg;</div>
         <p>こうした「不確実さ」を承知の上で、<strong>速度・軽さ・1 対多配信</strong>のために UDP を選びます。</p>
 
         <h3 id="term-cast">📡 ユニキャスト / マルチキャスト / ブロードキャスト（3 つの配信形態）</h3>
+        <div class="table-scroll">
         <table>
             <tr><th>形態</th><th>送信先</th><th>例</th><th>典型用途</th></tr>
             <tr><td><strong>ユニキャスト（unicast）</strong></td><td><strong>特定の 1 台</strong>に送る</td><td><code>192.168.1.10</code> 宛て</td><td>通常の 1 対 1 通信</td></tr>
             <tr><td><strong>ブロードキャスト（broadcast）</strong></td><td>同じサブネット内の<strong>全員</strong>に送る</td><td><code>192.168.1.255</code>（サブネット）/ <code>255.255.255.255</code>（限定）</td><td>サービス発見、DHCP、機器探索</td></tr>
             <tr><td><strong>マルチキャスト（multicast）</strong></td><td>「<strong>このグループに加入</strong>している人」だけに送る</td><td><code>224.0.0.0 〜 239.255.255.255</code> の範囲</td><td>動画/音声のストリーミング配信、産業制御</td></tr>
         </table>
+        </div>
         <div class="tip">
             💡 <strong>マルチキャストはブロードキャストとユニキャストの中間</strong>です。ブロードキャストのように「興味ない人にも届いて負荷をかける」ことなく、ユニキャストのように「同じデータを N 回コピー送信する」非効率もなく、<strong>受信したい人だけ</strong>が受け取れます。
         </div>
