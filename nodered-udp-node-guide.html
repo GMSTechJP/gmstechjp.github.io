@@ -265,7 +265,7 @@
             <tr><th>プロパティ</th><th>説明</th></tr>
             <tr><td><strong>msg.payload</strong></td><td>受信データ（String または Buffer）</td></tr>
             <tr><td><strong>msg.ip</strong></td><td>送信元IPアドレス</td></tr>
-            <tr><td><strong>msg.port</strong></td><td>送信元ポート番号</td></tr>
+            <tr><td><strong>msg.port</strong></td><td>送信元ポート番号（送った側の<a href="#two-ports">ローカルポート</a>の番号）</td></tr>
         </table>
         
         <h2 id="section4">⚙️ 4. UDP Out ノード</h2>
@@ -289,8 +289,13 @@
             <tr><th>設定項目</th><th>説明</th><th>既定値</th></tr>
             <tr>
                 <td><strong>送信</strong></td>
-                <td>送信方法を選びます。「UDPメッセージ」は通常の単一宛先送信、「ブロードキャストメッセージ」は同一サブネットへの一斉送信、「マルチキャストメッセージ」はグループ宛て送信です。右側の欄に宛先ポートを入れます。</td>
+                <td>送信方法を選びます。「UDPメッセージ」は通常の単一宛先送信、「ブロードキャストメッセージ」は同一サブネットへの一斉送信、「マルチキャストメッセージ」はグループ宛て送信です。</td>
                 <td>UDPメッセージ</td>
+            </tr>
+            <tr>
+                <td><strong>ポート</strong></td>
+                <td>「送信」の右にある欄で、データの送り先（相手）のポート番号を入れます。相手の UDP In が待ち受けている番号です。空にすると <code>msg.port</code> の番号へ送ります。</td>
+                <td>（空）</td>
             </tr>
             <tr>
                 <td><strong>アドレス</strong></td>
@@ -308,9 +313,9 @@
                 <td>（空）</td>
             </tr>
             <tr>
-                <td><strong>ローカルポート</strong></td>
-                <td>送信元のローカルポート。ドロップダウンで「ローカルポートをランダムに使用」か「ローカルポートを使用」（固定）を選び、固定時は右の欄にポート番号を入れます。</td>
-                <td>ランダム</td>
+                <td><strong>ローカルポート</strong>（アドレスの下のドロップダウン）</td>
+                <td>データの送り元（自分）のポート番号を決めます。「ローカルポートをランダムに使用」は番号を自動で決め、「ローカルポートを使用」は右の欄に入れた番号に固定します。上の「ポート」との違いは<a href="#two-ports">図で説明します</a>。</td>
+                <td>ローカルポートをランダムに使用</td>
             </tr>
             <tr>
                 <td><strong>Base64形式のペイロードを復号</strong></td>
@@ -335,6 +340,61 @@
 
 // 限定ブロードキャスト（自分が接続しているサブネットの全機器へ）
 255.255.255.255</div>
+        </div>
+
+        <h3 id="two-ports">「ポート」と「ローカルポート」の違い</h3>
+        <p>UDP Out の画面には、ポート番号を決める場所が2つあります。「送信」の右の「ポート」は<strong>相手</strong>の番号で、アドレスの下のドロップダウンで決める「ローカルポート」は<strong>自分</strong>の番号です。手紙にたとえると、「アドレス」と「ポート」が宛先、「ローカルポート」が差出人にあたります。</p>
+        <figure class="comic-fig">
+            <!-- comic:begin udp-ports-fields -->
+            <svg class="comic" viewBox="0 0 560 196" role="img" aria-label="udp out の編集画面のうち、アドレスとポートは封筒の宛先にあたり、アドレスの下のドロップダウンで決めるローカルポートは差出人にあたる" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', 'Hiragino Sans', 'Meiryo', sans-serif"><defs><marker id="mudpfk" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#37474f"/></marker><marker id="mudpfr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#c62828"/></marker><marker id="mudpfg" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#2e7d32"/></marker><marker id="mudpfb" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#1976d2"/></marker><marker id="mudpfo" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#ef6c00"/></marker></defs><text x="10" y="20" font-size="12" fill="#37474f" text-anchor="start" font-weight="bold">udp out の編集画面</text><text x="10" y="50" font-size="11" fill="#37474f" text-anchor="start" font-weight="normal">送信</text><rect x="60" y="35" width="112" height="22" rx="3" fill="#fff" stroke="#bbb" stroke-width="1.5"/><text x="66" y="50" font-size="11" fill="#37474f" text-anchor="start" font-weight="normal">UDPメッセージ ▾</text><text x="178" y="50" font-size="11" fill="#37474f" text-anchor="start" font-weight="normal">ポート</text><rect x="214" y="35" width="50" height="22" rx="3" fill="#fff3e0" stroke="#ef6c00" stroke-width="1.5"/><text x="220" y="50" font-size="11" fill="#37474f" text-anchor="start" font-weight="normal">1881</text><text x="10" y="84" font-size="11" fill="#37474f" text-anchor="start" font-weight="normal">アドレス</text><rect x="60" y="69" width="130" height="22" rx="3" fill="#fff3e0" stroke="#ef6c00" stroke-width="1.5"/><text x="66" y="84" font-size="11" fill="#37474f" text-anchor="start" font-weight="normal">localhost</text><rect x="196" y="69" width="68" height="22" rx="3" fill="#fff" stroke="#bbb" stroke-width="1.5"/><text x="202" y="84" font-size="11" fill="#37474f" text-anchor="start" font-weight="normal">ipv4 ▾</text><rect x="60" y="103" width="204" height="22" rx="3" fill="#e3f2fd" stroke="#1976d2" stroke-width="1.5"/><text x="66" y="118" font-size="11" fill="#37474f" text-anchor="start" font-weight="normal">ローカルポートをランダムに使用 ▾</text><text x="162" y="140" font-size="10" fill="#666" text-anchor="middle" font-weight="normal">または</text><rect x="60" y="147" width="150" height="22" rx="3" fill="#e3f2fd" stroke="#1976d2" stroke-width="1.5"/><text x="66" y="162" font-size="11" fill="#37474f" text-anchor="start" font-weight="normal">ローカルポートを使用 ▾</text><rect x="214" y="147" width="50" height="22" rx="3" fill="#e3f2fd" stroke="#1976d2" stroke-width="1.5"/><text x="220" y="162" font-size="11" fill="#37474f" text-anchor="start" font-weight="normal">9005</text><path d="M270 35 H276 V91 H270" fill="none" stroke="#ef6c00" stroke-width="2"/><path d="M270 103 H276 V169 H270" fill="none" stroke="#1976d2" stroke-width="2"/><line x1="276" y1="63" x2="338" y2="63" stroke="#ef6c00" stroke-width="2" marker-end="url(#mudpfo)"/><line x1="276" y1="136" x2="338" y2="136" stroke="#1976d2" stroke-width="2" marker-end="url(#mudpfb)"/><text x="332" y="20" font-size="12" fill="#37474f" text-anchor="start" font-weight="bold">送り出すデータ（封筒にたとえる）</text><rect x="332" y="30" width="220" height="158" rx="4" fill="#fff" stroke="#37474f" stroke-width="2"/><rect x="340" y="38" width="204" height="50" rx="3" fill="#fff3e0" stroke="#ef6c00" stroke-width="1.5"/><text x="348" y="57" font-size="11" fill="#bf360c" text-anchor="start" font-weight="bold">宛先（送り先）</text><text x="348" y="77" font-size="12" fill="#37474f" text-anchor="start" font-weight="normal">localhost の 1881 番</text><rect x="340" y="111" width="204" height="50" rx="3" fill="#e3f2fd" stroke="#1976d2" stroke-width="1.5"/><text x="348" y="130" font-size="11" fill="#1976d2" text-anchor="start" font-weight="bold">差出人（送り元）</text><text x="348" y="150" font-size="12" fill="#37474f" text-anchor="start" font-weight="normal">自動の番号、または 9005 番</text><text x="348" y="178" font-size="11" fill="#37474f" text-anchor="start" font-weight="normal">中身：msg.payload</text></svg>
+            <!-- comic:end -->
+            <figcaption>「ポート」は宛先に、ローカルポートは差出人に書かれる</figcaption>
+        </figure>
+        <p>ポート番号は、PC ごとに別々に持っている番号です。データは相手の PC の「ポート」の番号へ届き、自分の「ローカルポート」の番号は差出人として一緒に届きます。受けた UDP In は、この差出人の番号を <code>msg.port</code> に入れます。</p>
+        <figure class="comic-fig">
+            <!-- comic:begin udp-ports-where -->
+            <svg class="comic" viewBox="0 0 560 200" role="img" aria-label="ローカルポートは自分の PC の番号で、ポートは相手の PC の番号である。データは相手のポートに届き、自分のローカルポートの番号が相手の udp in の msg.port に入る" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', 'Hiragino Sans', 'Meiryo', sans-serif"><defs><marker id="mudpwk" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#37474f"/></marker><marker id="mudpwr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#c62828"/></marker><marker id="mudpwg" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#2e7d32"/></marker><marker id="mudpwb" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#1976d2"/></marker><marker id="mudpwo" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#ef6c00"/></marker></defs><text x="105" y="22" font-size="12" fill="#37474f" text-anchor="middle" font-weight="bold">自分の PC</text><text x="455" y="22" font-size="12" fill="#37474f" text-anchor="middle" font-weight="bold">相手の PC</text><rect x="10" y="30" width="190" height="100" rx="8" fill="#f5f5f5" stroke="#90a4ae" stroke-width="1.5"/><rect x="360" y="30" width="190" height="100" rx="8" fill="#f5f5f5" stroke="#90a4ae" stroke-width="1.5"/><rect x="40.0" y="60.0" width="110" height="40" rx="6" fill="#C0DEED" stroke="#999" stroke-width="1.5"/><rect x="40.0" y="60.0" width="30" height="40" rx="6" fill="rgba(0,0,0,0.08)"/><path d="M48.0 76 q2.5 -3.5 5 0 M57.0 76 q2.5 -3.5 5 0" fill="none" stroke="#37474f" stroke-width="1.6"/><path d="M50.0 82 Q55.0 88 60.0 82" fill="none" stroke="#37474f" stroke-width="1.8"/><text x="110.0" y="84.2" font-size="12" fill="#37474f" text-anchor="middle" font-weight="bold">udp out</text><rect x="35.0" y="75" width="10" height="10" rx="2" fill="#d9d9d9" stroke="#999"/><rect x="407.0" y="60.0" width="122" height="40" rx="6" fill="#C0DEED" stroke="#999" stroke-width="1.5"/><rect x="407.0" y="60.0" width="30" height="40" rx="6" fill="rgba(0,0,0,0.08)"/><path d="M415.0 76 q2.5 -3.5 5 0 M424.0 76 q2.5 -3.5 5 0" fill="none" stroke="#37474f" stroke-width="1.6"/><path d="M417.0 82 Q422.0 88 427.0 82" fill="none" stroke="#37474f" stroke-width="1.8"/><text x="483.0" y="83.85" font-size="11" fill="#37474f" text-anchor="middle" font-weight="bold">udp in :1881</text><rect x="524.0" y="75" width="10" height="10" rx="2" fill="#d9d9d9" stroke="#999"/><path d="M150 80 C166.5 80 166.5 80 183 80" fill="none" stroke="#999" stroke-width="2"/><path d="M370 80 C388.5 80 388.5 80 407 80" fill="none" stroke="#999" stroke-width="2"/><rect x="183" y="62" width="40" height="36" rx="3" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/><text x="203.0" y="84.0" font-size="11" fill="#37474f" text-anchor="middle" font-weight="bold">9005</text><rect x="337" y="62" width="40" height="36" rx="3" fill="#fff3e0" stroke="#ef6c00" stroke-width="2"/><text x="357.0" y="84.0" font-size="11" fill="#37474f" text-anchor="middle" font-weight="bold">1881</text><line x1="223" y1="80" x2="335" y2="80" stroke="#37474f" stroke-width="2" marker-end="url(#mudpwk)"/><rect x="235.5" y="48" width="89.0" height="20" rx="3" fill="#fff8e1" stroke="#ef6c00" stroke-width="1.5"/><text x="280" y="62" font-size="11" fill="#37474f" text-anchor="middle" font-weight="normal">9005 → 1881</text><text x="203" y="150" font-size="12" fill="#1976d2" text-anchor="middle" font-weight="bold">ローカルポート</text><text x="203" y="167" font-size="11" fill="#37474f" text-anchor="middle" font-weight="normal">自分の出入り口の番号</text><text x="357" y="150" font-size="12" fill="#bf360c" text-anchor="middle" font-weight="bold">ポート</text><text x="357" y="167" font-size="11" fill="#37474f" text-anchor="middle" font-weight="normal">相手の入口の番号</text><rect x="420" y="138" width="120" height="39" rx="5" fill="#fff" stroke="#7cb342" stroke-width="1.5"/><rect x="420" y="138" width="120" height="18" rx="5" fill="#7cb342"/><rect x="420" y="150" width="120" height="6" fill="#7cb342"/><text x="428" y="151" font-size="11" fill="#fff" text-anchor="start" font-weight="bold">届いた msg</text><rect x="424" y="159" width="112" height="16" rx="3" fill="#fff59d"/><text x="428" y="171" font-size="11" fill="#37474f" font-family="'Courier New', monospace" style="white-space:pre">port: 9005</text></svg>
+            <!-- comic:end -->
+            <figcaption>相手の udp in の msg.port に入るのは、自分のローカルポートの番号</figcaption>
+        </figure>
+        <p>データを送るだけなら、差出人の番号は決めなくても届くので、既定の「ローカルポートをランダムに使用」のままで構いません。番号を決める必要があるのは、返信を受け取るときです。相手は差出人の番号（<code>msg.port</code>）へ返信するので、自分の UDP In が待ち受けている番号を差出人にしておきます。</p>
+        <figure class="comic-fig">
+            <!-- comic:begin udp-ports-reply -->
+            <svg class="comic" viewBox="0 0 560 290" role="img" aria-label="ローカルポートがランダムのときは、相手が自動の番号へ返信するので udp in :9005 に届かない。ローカルポートを 9005 にすると、相手が 9005 番へ返信するので udp in :9005 に届く" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', 'Hiragino Sans', 'Meiryo', sans-serif"><defs><marker id="mudprk" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#37474f"/></marker><marker id="mudprr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#c62828"/></marker><marker id="mudprg" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#2e7d32"/></marker><marker id="mudprb" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#1976d2"/></marker><marker id="mudpro" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#ef6c00"/></marker></defs><text x="10" y="16" font-size="12" fill="#c62828" text-anchor="start" font-weight="bold">「ローカルポートをランダムに使用」のとき：返信は udp in に届かない</text><rect x="10" y="26" width="180" height="104" rx="8" fill="#f5f5f5" stroke="#90a4ae" stroke-width="1.5"/><text x="90" y="42" font-size="11" fill="#37474f" text-anchor="middle" font-weight="normal">自分の Node-RED</text><rect x="28.0" y="50.0" width="120" height="28" rx="5" fill="#C0DEED" stroke="#999" stroke-width="2"/><text x="88" y="67.96" font-size="11" fill="#37474f" text-anchor="middle" font-weight="bold">udp out</text><rect x="28.0" y="92.0" width="120" height="28" rx="5" fill="#C0DEED" stroke="#999" stroke-width="2"/><text x="88" y="109.96" font-size="11" fill="#37474f" text-anchor="middle" font-weight="bold">udp in :9005</text><path d="M148 64 C158.0 64 158.0 64 168 64" fill="none" stroke="#999" stroke-width="2"/><path d="M148 106 C158.0 106 158.0 106 168 106" fill="none" stroke="#999" stroke-width="2"/><rect x="168" y="50" width="44" height="28" rx="3" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/><text x="190.0" y="68.0" font-size="11" fill="#37474f" text-anchor="middle" font-weight="bold">59196</text><rect x="168" y="92" width="44" height="28" rx="3" fill="#fff" stroke="#90a4ae" stroke-width="2"/><text x="190.0" y="110.0" font-size="11" fill="#37474f" text-anchor="middle" font-weight="bold">9005</text><rect x="468" y="61" width="44" height="32" rx="4" fill="#fff" stroke="#37474f" stroke-width="2"/><rect x="472" y="65" width="36" height="24" rx="2" fill="#e3f2fd"/><rect x="486" y="93" width="8" height="5" fill="#37474f"/><rect x="478" y="98" width="24" height="3" rx="1" fill="#37474f"/><circle cx="484" cy="73" r="2.2" fill="#37474f"/><circle cx="496" cy="73" r="2.2" fill="#37474f"/><line x1="485" y1="82" x2="495" y2="82" stroke="#37474f" stroke-width="2"/><text x="490" y="115" font-size="12" fill="#37474f" text-anchor="middle" font-weight="normal">相手</text><text x="490" y="132" font-size="11" fill="#37474f" text-anchor="middle" font-weight="bold">msg.port: 59196</text><line x1="212" y1="58" x2="460" y2="58" stroke="#37474f" stroke-width="2" marker-end="url(#mudprk)"/><text x="336" y="50" font-size="11" fill="#37474f" text-anchor="middle" font-weight="normal">差出人 59196、宛先 1881</text><line x1="460" y1="72" x2="214" y2="72" stroke="#c62828" stroke-width="2" marker-end="url(#mudprr)"/><line x1="240" y1="66" x2="252" y2="78" stroke="#c62828" stroke-width="3" stroke-linecap="round"/><line x1="240" y1="78" x2="252" y2="66" stroke="#c62828" stroke-width="3" stroke-linecap="round"/><text x="336" y="88" font-size="11" fill="#37474f" text-anchor="middle" font-weight="normal">59196 番へ返信</text><text x="222" y="112" font-size="11" fill="#c62828" text-anchor="start" font-weight="bold">受け取るノードがなく、udp in には届かない</text><line x1="10" y1="144" x2="550" y2="144" stroke="#ddd" stroke-width="1" stroke-linecap="round"/><text x="10" y="164" font-size="12" fill="#2e7d32" text-anchor="start" font-weight="bold">「ローカルポートを使用」に 9005 を入れたとき：返信が udp in に届く</text><rect x="10" y="174" width="180" height="104" rx="8" fill="#f5f5f5" stroke="#90a4ae" stroke-width="1.5"/><text x="90" y="190" font-size="11" fill="#37474f" text-anchor="middle" font-weight="normal">自分の Node-RED</text><rect x="28.0" y="198.0" width="120" height="28" rx="5" fill="#C0DEED" stroke="#999" stroke-width="2"/><text x="88" y="215.96" font-size="11" fill="#37474f" text-anchor="middle" font-weight="bold">udp out</text><rect x="28.0" y="240.0" width="120" height="28" rx="5" fill="#C0DEED" stroke="#999" stroke-width="2"/><text x="88" y="257.96" font-size="11" fill="#37474f" text-anchor="middle" font-weight="bold">udp in :9005</text><path d="M148 212 C158.0 212 158.0 212 168 212" fill="none" stroke="#999" stroke-width="2"/><path d="M148 254 C158.0 254 158.0 254 168 254" fill="none" stroke="#999" stroke-width="2"/><rect x="168" y="196" width="44" height="74" rx="3" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/><text x="190.0" y="237.0" font-size="11" fill="#37474f" text-anchor="middle" font-weight="bold">9005</text><rect x="468" y="209" width="44" height="32" rx="4" fill="#fff" stroke="#37474f" stroke-width="2"/><rect x="472" y="213" width="36" height="24" rx="2" fill="#e3f2fd"/><rect x="486" y="241" width="8" height="5" fill="#37474f"/><rect x="478" y="246" width="24" height="3" rx="1" fill="#37474f"/><circle cx="484" cy="221" r="2.2" fill="#37474f"/><circle cx="496" cy="221" r="2.2" fill="#37474f"/><line x1="485" y1="230" x2="495" y2="230" stroke="#37474f" stroke-width="2"/><text x="490" y="263" font-size="12" fill="#37474f" text-anchor="middle" font-weight="normal">相手</text><text x="490" y="280" font-size="11" fill="#37474f" text-anchor="middle" font-weight="bold">msg.port: 9005</text><line x1="212" y1="206" x2="460" y2="206" stroke="#37474f" stroke-width="2" marker-end="url(#mudprk)"/><text x="336" y="198" font-size="11" fill="#37474f" text-anchor="middle" font-weight="normal">差出人 9005、宛先 1881</text><line x1="460" y1="254" x2="214" y2="254" stroke="#2e7d32" stroke-width="2" marker-end="url(#mudprg)"/><text x="336" y="246" font-size="11" fill="#37474f" text-anchor="middle" font-weight="normal">9005 番へ返信</text><text x="336" y="271" font-size="11" fill="#2e7d32" text-anchor="middle" font-weight="bold">udp in :9005 が受け取る</text></svg>
+            <!-- comic:end -->
+            <figcaption>差出人を udp in の番号にしておくと、返信が udp in に届く</figcaption>
+        </figure>
+        <table>
+            <tr><th></th><th>ポート</th><th>ローカルポート</th></tr>
+            <tr>
+                <td><strong>何の番号か</strong></td>
+                <td>送り先（相手）の番号</td>
+                <td>送り元（自分）の番号</td>
+            </tr>
+            <tr>
+                <td><strong>空のとき</strong></td>
+                <td><code>msg.port</code> の番号へ送る。<code>msg.port</code> も無いと、警告を出して送らない</td>
+                <td>番号を自動で決める（例外は下の補足を参照）</td>
+            </tr>
+            <tr>
+                <td><strong>msg で変えられるか</strong></td>
+                <td>欄が空のときだけ <code>msg.port</code> で指定できる</td>
+                <td>変えられない。画面の注釈にある <code>msg.port</code> は、送り先の番号のこと</td>
+            </tr>
+            <tr>
+                <td><strong>設定が要るとき</strong></td>
+                <td>常に（欄か <code>msg.port</code> のどちらか）</td>
+                <td>返信を UDP In で受けたいとき（演習5のBさん）と、受けたのと同じ番号から返信したいとき（<a href="#pattern-echo">パターン4</a>、演習2）</td>
+            </tr>
+        </table>
+        <div class="tip">
+            <p><strong>ドロップダウンの細かい動き（Node-RED 5.0.7 で確認）:</strong></p>
+            <ul>
+                <li>「ランダム」の番号は、送るたびには変わりません。デプロイでノードが作り直されるまで、同じ番号を使います。</li>
+                <li>同じ Node-RED の中に、「ポート」と同じ番号の UDP In があると、UDP Out はそのソケットを使い回します。このときはランダムのままでも、差出人はその番号になります。たとえば公式サンプル（localhost の 1881 番へ送り、UDP In :1881 で受ける）では、<code>msg.port</code> は 1881 です。</li>
+                <li>「ローカルポートを使用」を選んで右の欄を空のまま閉じると、ランダムと同じ扱いになり、開き直すと表示も「ローカルポートをランダムに使用」に戻ります。</li>
+                <li>「送信」がブロードキャストかマルチキャストのときは、「ローカルポートをランダムに使用」の文字が「指定したポートを使用」に変わります。文字が変わるだけで、番号は自動で決まります。</li>
+            </ul>
         </div>
 
         <h3>送信時に設定できる msg プロパティ</h3>
@@ -1191,7 +1251,7 @@ echo "Hello" | nc -u -w1 [Node-REDのホスト] 8002</div>
             <li>UDP Out のアドレス/ポートを空にすると msg.ip, msg.port を使用</li>
             <li>受信したパケットの送信元に返信可能。UDP In が付けた msg.ip と msg.port は、change ノードを通っても残る</li>
             <li>UDP Out の「ローカルポート」（アドレスの下のドロップダウン）を「ローカルポートを使用」にして、UDP In と同じ番号を入れると、返信を受けたのと同じポートから送る。既定の「ローカルポートをランダムに使用」では、送り元のポートが自動で決まり、UDP In の待ち受けポートとは別になる。返信を受ける側（nc や多くの機器）は、送った先と同じポートからの返信しか受け取らないことが多い</li>
-            <li>試す側も同じ考え方で、送る UDP Out のローカルポートを 8012 にし、8012 番の UDP In で返信を受ける</li>
+            <li>試す側も同じ考え方で、送る UDP Out のローカルポートを 8012 にし、8012 番の UDP In で返信を受ける（<a href="#two-ports">図で説明しています</a>）</li>
         </ul>
         <div class="warning">
             <p><strong>⚠️ 同じポートの UDP In と UDP Out は、1つのソケットを使い回す</strong></p>
@@ -1663,6 +1723,7 @@ return msg;</div>
             <tr><td>データが途中で切れる</td><td><a href="#term-mtu">MTU</a> 超過</td><td>データサイズを小さくする（安全圏は 1472 バイト以下）</td></tr>
             <tr><td>文字化け</td><td>エンコーディング不一致</td><td>UTF-8で統一</td></tr>
             <tr><td>返信が届かない</td><td>msg.ip/port が未設定</td><td>受信時のmsg.ip/portを保持</td></tr>
+            <tr><td>相手は受信しているのに、返信が自分の UDP In に届かない</td><td>送る UDP Out のローカルポートがランダムのままで、差出人の番号が UDP In と違う</td><td>「ローカルポートを使用」に UDP In の番号を入れる（<a href="#two-ports">図</a>）</td></tr>
         </table>
         
         <h2 id="section9">🏭 9. 実務活用例</h2>
