@@ -24,6 +24,8 @@
  * ページ全体を横に広げる。そのような表だけを <div class="table-scroll"> で囲み、枠の中で
  * 横にスクロールさせる。囲むのは、はみ出したときだけである。収まる表の見た目は変わらない。
  * 画面の幅が 640px 以下のときは、セルが細くなりすぎないよう、囲んだ表の幅を 520px 以上にする。
+ * 実際にスクロールできる表には、右に続きがあることが分かるよう、表の上に案内の文を出す
+ * （HTML に手で囲みを書いた表も同じ）。スクロールできなくなったら消す。
  *
  * 表の幅が変わったとき（画面の幅の変更、<details> を開いたときなど）は選び直す。
  * 対象から外す表には data-table-fit="off" を付ける。
@@ -35,6 +37,7 @@
     var NOWRAP = "table-fit-nowrap";
     var PIN = "data-table-fit-pin"; // このスクリプトが足した <colgroup> の印
     var SCROLL = "table-scroll";    // はみ出す表を囲む <div> のクラス
+    var HINT = "table-scroll-hint"; // スクロールできることを知らせる案内のクラス
     var MIN_TABLE_WIDTH = 600;  // これより狭い表は、従来どおり折り返す
     var SHORT_RATIO = 0.45;     // 最大内容幅が表の幅のこの割合を超えるセルは、折り返してよい
     var LONG_CELL_RATIO = 0.25; // 長いセルがこの割合を超える列は、1 行に保たない
@@ -272,10 +275,29 @@
         box.appendChild(table);
     }
 
+    // スクロールできる枠の前に案内を置き、スクロールできなくなったら外す
+    function updateHint(box) {
+        var prev = box.previousElementSibling;
+        var hint = prev && prev.classList.contains(HINT) ? prev : null;
+        var scrollable = box.scrollWidth > box.clientWidth + 1;
+        if (scrollable && !hint) {
+            hint = document.createElement("div");
+            hint.className = HINT;
+            hint.textContent = "→ この表は横にスクロールできます";
+            box.parentNode.insertBefore(hint, box);
+        } else if (!scrollable && hint) {
+            hint.parentNode.removeChild(hint);
+        }
+    }
+
     // fit() が先。前の幅で 1 行に保った列を外してから、はみ出すかどうかを測る
     function update(table) {
         fit(table);
         contain(table);
+        var box = table.parentElement;
+        if (box && box.classList.contains(SCROLL)) {
+            updateHint(box);
+        }
     }
 
     function init() {
@@ -292,8 +314,20 @@
         var style = document.createElement("style");
         style.textContent = "." + NOWRAP + " { white-space: nowrap; }\n" +
             "." + SCROLL + " { overflow-x: auto; }\n" +
-            "@media (max-width: 640px) { ." + SCROLL + " > table { min-width: 520px; } }";
+            "@media (max-width: 640px) { ." + SCROLL + " > table { min-width: 520px; } }\n" +
+            "." + HINT + " { margin: 20px 0 0; font-size: 0.85em; color: #555; }\n" +
+            // 案内と表の隙間は、ページごとの表の余白によらず一定にする
+            "." + HINT + " + ." + SCROLL + " > table { margin-top: 6px; }";
         document.head.appendChild(style);
+
+        // 表の幅が 520px で止まったあとも、枠の幅は画面に合わせて変わる。表の監視では
+        // 気づけないので、画面の幅が変わったら案内を見直す
+        window.addEventListener("resize", function () {
+            var boxes = document.querySelectorAll("." + SCROLL);
+            for (var b = 0; b < boxes.length; b++) {
+                updateHint(boxes[b]);
+            }
+        });
 
         // 文字の幅はフォントの読み込みで変わるため、読み込み後に測り直す
         function refitAll() {
