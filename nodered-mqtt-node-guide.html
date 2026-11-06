@@ -71,6 +71,9 @@
             /* 狭い画面では図を縮めすぎず、図の枠内だけ横にスクロールさせる */
             .comic-fig { overflow-x: auto; }
             .comic-fig .comic { min-width: 520px; }
+            /* 折り返せない文字列（トピック名など）のある表も、枠内だけ横にスクロールさせる */
+            .table-scroll { overflow-x: auto; }
+            .table-scroll table { min-width: 520px; }
         }
     </style>
 </head>
@@ -313,6 +316,7 @@
         
         <h3>MQTT In ノード（購読）</h3>
         <p>下表の<strong>（V5）</strong>欄は、ブローカー設定のプロトコルが MQTT V5 のときだけ表示されます。また、<strong>動作</strong>で「動的な購読」を選ぶと、トピック・QoS・フラグ・Retainメッセージ処理の欄は表示されなくなります（購読の内容は受信した msg で指定するため）。</p>
+        <div class="table-scroll">
         <table>
             <tr><th>設定項目</th><th>説明</th><th>例</th></tr>
             <tr><td><strong>サーバ</strong></td><td>使用するブローカー設定ノード</td><td>（設定ノード選択）</td></tr>
@@ -324,6 +328,7 @@
             <tr><td><strong>出力</strong></td><td>受信ペイロードの型。「自動判定(JSONオブジェクト、文字列もしくはバイナリバッファ)」「自動判定(文字列もしくはバイナリバッファ)」「バイナリバッファ」「文字列」「JSONオブジェクト」「Base64文字列」。迷ったら「自動判定」を選べばよい</td><td>自動判定(JSONオブジェクト…)</td></tr>
             <tr><td><strong>名前</strong></td><td>ノードの表示名（任意）</td><td>（任意）</td></tr>
         </table>
+        </div>
         
         <p><strong>受信時の msg プロパティ:</strong></p>
         <table>
@@ -336,6 +341,7 @@
         
         <h3>MQTT Out ノード（発行）</h3>
         <p>トピック・QoS・保持は空欄にすると、それぞれ <code>msg.topic</code> / <code>msg.qos</code> / <code>msg.retain</code> の値が使われます。下表の<strong>（V5）</strong>欄は、ブローカー設定のプロトコルが MQTT V5 のときだけ表示されます。</p>
+        <div class="table-scroll">
         <table>
             <tr><th>設定項目</th><th>説明</th><th>例</th></tr>
             <tr><td><strong>サーバ</strong></td><td>使用するブローカー設定ノード</td><td>（設定ノード選択）</td></tr>
@@ -345,6 +351,7 @@
             <tr><td><strong>ユーザプロパティ / 返信トピック / コリレーション / コンテントタイプ / 有効期限 (秒)</strong>（V5）</td><td>MQTT V5 で付与できる追加メタデータ。<strong>コリレーション</strong>の欄は、返信トピックを指定したときだけ表示される</td><td>—</td></tr>
             <tr><td><strong>名前</strong></td><td>ノードの表示名（任意）</td><td>（任意）</td></tr>
         </table>
+        </div>
         
         <h3 id="qos-diff">QoS の設定による違い</h3>
         <p>QoS は、msg が届いたことをどこまで確かめるかの設定で、0、1、2 の3段階から選びます。数字が大きいほど、確認のやりとりが増えます。</p>
@@ -418,6 +425,7 @@ home/livingroom/humidity     → 60
 home/bedroom/temperature     → 22.0</div>
         
         <h3>ワイルドカード</h3>
+        <div class="table-scroll">
         <table>
             <tr><th>ワイルドカード</th><th>説明</th><th>例</th></tr>
             <tr>
@@ -431,6 +439,7 @@ home/bedroom/temperature     → 22.0</div>
                 <td><code>home/#</code><br>→ home/livingroom/temperature ✓<br>→ home/bedroom/humidity ✓</td>
             </tr>
         </table>
+        </div>
         
         <div class="tip">
             <p><strong>トピック設計のベストプラクティス:</strong></p>
@@ -1305,12 +1314,14 @@ node-red</div>
 
         <h3 id="term-qos">QoS（Quality of Service）</h3>
         <p>メッセージ配信の<strong>信頼性レベル</strong>。送信側と受信側がそれぞれ要求でき、ブローカーは<strong>両者の低い方</strong>で配信します。やりとりの違いと設定の組み合わせは<a href="#qos-diff">図で説明しています</a>。</p>
+        <div class="table-scroll">
         <table>
             <tr><th>レベル</th><th>呼び名</th><th>保証</th><th>パケット往復</th><th>使いどころ</th></tr>
             <tr><td><strong>0</strong></td><td>At most once<br>（最大1回）</td><td>送りっぱなし。失われても気にしない</td><td>1 回（PUBLISH のみ）</td><td>頻繁に流すテレメトリ、損失許容データ</td></tr>
             <tr><td><strong>1</strong></td><td>At least once<br>（少なくとも1回）</td><td>確実に届くが <strong>重複の可能性あり</strong></td><td>2 回（PUBLISH → PUBACK）</td><td>最もよく使われる。重要データ全般</td></tr>
             <tr><td><strong>2</strong></td><td>Exactly once<br>（正確に1回）</td><td>重複なしで確実に 1 回だけ</td><td>4 回（PUBLISH → PUBREC → PUBREL → PUBCOMP）</td><td>「2 回実行されると困る」決済・制御コマンド</td></tr>
         </table>
+        </div>
         <div class="tip">
             QoS が上がるほど確実ですが、パケット往復が増えて重くなります。迷ったら QoS 1 で十分なケースが大半です。Node-RED の既定は QoS 1 ではなく、mqtt in が 2、mqtt out が空欄（<code>msg.qos</code> が無ければ 0）です。表の「確実に届く」「確実に 1 回だけ」には、回線が切れたときの条件があります（<a href="#qos-diff">QoS の設定による違い</a>と、次の「回線が止まったときの挙動」を参照）。
         </div>
