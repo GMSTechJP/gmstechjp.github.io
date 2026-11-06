@@ -89,6 +89,99 @@ def udp():
     return p
 
 
+# udp の 2 つのポートの図で使う色。宛先（相手の番号）は橙、差出人（自分の番号）は青
+DEST_TEXT, DEST_BG = '#bf360c', '#fff3e0'
+SRC_BG = '#e3f2fd'
+
+
+def _field(x, y, w, t, fill='#fff', stroke='#bbb'):
+    """エディターの入力欄。(x, y) は左端の中央"""
+    return (f'<rect x="{x}" y="{y-11}" width="{w}" height="22" rx="3" fill="{fill}" stroke="{stroke}" stroke-width="1.5"/>'
+            + text(x + 6, y + 4, t, 11, INK, 'start'))
+
+
+def _door(x, y, w, h, t, fill, stroke):
+    """PC の出入り口（ポート）。(x, y) は左上"""
+    return (f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="3" fill="{fill}" stroke="{stroke}" stroke-width="2"/>'
+            + text(x + w / 2, y + h / 2 + 4, t, 11, INK, weight='bold'))
+
+
+def udp_ports_fields():
+    p = Panel('udp out の編集画面のうち、アドレスとポートは封筒の宛先にあたり、アドレスの下のドロップダウンで決めるローカルポートは差出人にあたる', 560, 196, 'udpf')
+    p.add(text(10, 20, 'udp out の編集画面', 12, INK, 'start', 'bold'))
+    p.add(text(10, 50, '送信', 11, INK, 'start'), _field(60, 46, 112, 'UDPメッセージ ▾'),
+          text(178, 50, 'ポート', 11, INK, 'start'), _field(214, 46, 50, '1881', DEST_BG, ORANGE))
+    p.add(text(10, 84, 'アドレス', 11, INK, 'start'), _field(60, 80, 130, 'localhost', DEST_BG, ORANGE), _field(196, 80, 68, 'ipv4 ▾'))
+    p.add(_field(60, 114, 204, 'ローカルポートをランダムに使用 ▾', SRC_BG, BLUE))
+    p.add(text(162, 140, 'または', 10, '#666'))
+    p.add(_field(60, 158, 150, 'ローカルポートを使用 ▾', SRC_BG, BLUE), _field(214, 158, 50, '9005', SRC_BG, BLUE))
+    # 欄のまとまりから封筒の行へ
+    p.add(f'<path d="M270 35 H276 V91 H270" fill="none" stroke="{ORANGE}" stroke-width="2"/>')
+    p.add(f'<path d="M270 103 H276 V169 H270" fill="none" stroke="{BLUE}" stroke-width="2"/>')
+    p.arrow(276, 63, 338, 63, ORANGE, 2)
+    p.arrow(276, 136, 338, 136, BLUE, 2)
+    # 封筒
+    p.add(text(332, 20, '送り出すデータ（封筒にたとえる）', 12, INK, 'start', 'bold'))
+    p.add(f'<rect x="332" y="30" width="220" height="158" rx="4" fill="#fff" stroke="{INK}" stroke-width="2"/>')
+    p.add(f'<rect x="340" y="38" width="204" height="50" rx="3" fill="{DEST_BG}" stroke="{ORANGE}" stroke-width="1.5"/>',
+          text(348, 57, '宛先（送り先）', 11, DEST_TEXT, 'start', 'bold'), text(348, 77, 'localhost の 1881 番', 12, INK, 'start'))
+    p.add(f'<rect x="340" y="111" width="204" height="50" rx="3" fill="{SRC_BG}" stroke="{BLUE}" stroke-width="1.5"/>',
+          text(348, 130, '差出人（送り元）', 11, BLUE, 'start', 'bold'), text(348, 150, '自動の番号、または 9005 番', 12, INK, 'start'))
+    p.add(text(348, 178, '中身：msg.payload', 11, INK, 'start'))
+    return p
+
+
+def udp_ports_where():
+    p = Panel('ローカルポートは自分の PC の番号で、ポートは相手の PC の番号である。データは相手のポートに届き、自分のローカルポートの番号が相手の udp in の msg.port に入る', 560, 200, 'udpw')
+    p.add(text(105, 22, '自分の PC', 12, INK, weight='bold'), text(455, 22, '相手の PC', 12, INK, weight='bold'))
+    p.add('<rect x="10" y="30" width="190" height="100" rx="8" fill="#f5f5f5" stroke="#90a4ae" stroke-width="1.5"/>',
+          '<rect x="360" y="30" width="190" height="100" rx="8" fill="#f5f5f5" stroke="#90a4ae" stroke-width="1.5"/>')
+    n1, _, _ = nrnode(95, 80, 'udp out', C, w=110, outputs=0)
+    n2, _, _ = nrnode(468, 80, 'udp in :1881', C, w=122, inputs=0, fs=11)
+    p.add(n1, n2, wire(150, 80, 183, 80), wire(370, 80, 407, 80))
+    p.add(_door(183, 62, 40, 36, '9005', SRC_BG, BLUE), _door(337, 62, 40, 36, '1881', DEST_BG, ORANGE))
+    p.arrow(223, 80, 335, 80, INK, 2)
+    p.add(packet(280, 58, '9005 → 1881'))
+    p.add(text(203, 150, 'ローカルポート', 12, BLUE, weight='bold'), text(203, 167, '自分の出入り口の番号', 11, INK))
+    p.add(text(357, 150, 'ポート', 12, DEST_TEXT, weight='bold'), text(357, 167, '相手の入口の番号', 11, INK))
+    c, _, _ = msgcard(420, 138, ['port: 9005'], '届いた msg', w=120, stroke='#7cb342', hl=(0,))
+    p.add(c)
+    return p
+
+
+def _reply_row(p, y, title, ok):
+    p.add(text(10, y + 14, title, 12, GREEN if ok else RED, 'start', 'bold'))
+    p.add(f'<rect x="10" y="{y+24}" width="180" height="104" rx="8" fill="#f5f5f5" stroke="#90a4ae" stroke-width="1.5"/>',
+          text(90, y + 40, '自分の Node-RED', 11, INK))
+    p.add(box(88, y + 62, 120, 28, 'udp out', fill=C, stroke='#999', fs=11),
+          box(88, y + 104, 120, 28, 'udp in :9005', fill=C, stroke='#999', fs=11))
+    p.add(wire(148, y + 62, 168, y + 62), wire(148, y + 104, 168, y + 104))
+    src = '9005' if ok else '59196'
+    if ok:
+        # 同じ番号の udp out と udp in は 1 つの出入り口（ソケット）を使う
+        p.add(_door(168, y + 46, 44, 74, '9005', SRC_BG, BLUE))
+    else:
+        p.add(_door(168, y + 48, 44, 28, '59196', SRC_BG, BLUE), _door(168, y + 90, 44, 28, '9005', '#fff', '#90a4ae'))
+    p.add(pc(490, y + 76, 'neutral', '相手'), text(490, y + 130, f'msg.port: {src}', 11, INK, weight='bold'))
+    p.arrow(212, y + 56, 460, y + 56, INK, 2)
+    p.add(text(336, y + 48, f'差出人 {src}、宛先 1881', 11, INK))
+    if ok:
+        p.arrow(460, y + 104, 214, y + 104, GREEN, 2)
+        p.add(text(336, y + 96, '9005 番へ返信', 11, INK), text(336, y + 121, 'udp in :9005 が受け取る', 11, GREEN, weight='bold'))
+    else:
+        p.arrow(460, y + 70, 214, y + 70, RED, 2)
+        p.add(xmark(246, y + 70, 6), text(336, y + 86, '59196 番へ返信', 11, INK),
+              text(222, y + 110, '受け取るノードがなく、udp in には届かない', 11, RED, 'start', 'bold'))
+
+
+def udp_ports_reply():
+    p = Panel('ローカルポートがランダムのときは、相手が自動の番号へ返信するので udp in :9005 に届かない。ローカルポートを 9005 にすると、相手が 9005 番へ返信するので udp in :9005 に届く', 560, 290, 'udpr')
+    _reply_row(p, 2, '「ローカルポートをランダムに使用」のとき：返信は udp in に届かない', False)
+    p.add(line(10, 144, 550, 144, '#ddd', 1))
+    _reply_row(p, 150, '「ローカルポートを使用」に 9005 を入れたとき：返信が udp in に届く', True)
+    return p
+
+
 def email():
     p = Panel('email ノード（送信）は、msg.topic を件名、msg.payload を本文にしてメールを送る', 560, 150, 'eml')
     c, w, h = msgcard(8, 35, ['topic: "温度アラート"', 'payload: "35℃ を超えました"'], '入ってくる msg')
@@ -129,4 +222,5 @@ def sensehat():
 
 
 FIGURES = {'http-in': http_in, 'http-request': http_request, 'websocket-basic': websocket, 'mqtt-basic': mqtt,
-           'tcp-basic': tcp, 'udp-basic': udp, 'email-basic': email, 'modbus-basic': modbus, 'sensehat-basic': sensehat}
+           'tcp-basic': tcp, 'udp-basic': udp, 'udp-ports-fields': udp_ports_fields, 'udp-ports-where': udp_ports_where, 'udp-ports-reply': udp_ports_reply,
+           'email-basic': email, 'modbus-basic': modbus, 'sensehat-basic': sensehat}
