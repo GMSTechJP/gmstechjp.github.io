@@ -6,6 +6,7 @@
     <title>Node-RED Filterノード ガイド</title>
     <link rel="stylesheet" href="css/node-diagram.css">
     <script src="js/node-diagram.js" defer></script>
+    <link rel="stylesheet" href="css/text-wrap.css">
     <script src="js/table-fit.js" defer></script>
     <style>
         body {
@@ -417,6 +418,15 @@
             /* 狭い画面では図を縮めすぎず、図の枠内だけ横にスクロールさせる */
             .comic-fig { overflow-x: auto; }
             .comic-fig .comic { min-width: 520px; }
+        }
+        /* デッドバンドの図は、狭い画面では左右の余白を使って目盛りの文字を収める */
+        .deadband-track { margin: 20px 40px 4px; }
+        .deadband-labels { margin: 0 40px; }
+        @media (max-width: 640px) {
+            .deadband-visual { padding: 14px 10px; }
+            .deadband-visual p { text-wrap: balance; }
+            .deadband-track { margin-left: 0; margin-right: 0; }
+            .deadband-labels { margin-left: 0; margin-right: 0; white-space: nowrap; }
         }
     </style>
 </head>
@@ -1044,12 +1054,12 @@
         <div class="deadband-visual">
             <p><strong>デッドバンド 50% の動作イメージ:</strong></p>
             <p style="font-size: 14px; color: #666;">前回の値を基準に、±50%の変化は無視</p>
-            <div style="position: relative; height: 50px; margin: 20px 40px 4px;">
+            <div class="deadband-track" style="position: relative; height: 50px;">
                 <div style="position: absolute; left: 0; right: 0; top: 20px; height: 20px; background: #e9ecef; border-radius: 4px;"></div>
                 <div style="position: absolute; left: 25%; right: 25%; top: 15px; height: 30px; background: #dc3545; border-radius: 4px; opacity: 0.3;"></div>
                 <div style="position: absolute; left: 50%; top: 10px; transform: translateX(-50%); background: #28a745; color: white; padding: 5px 15px; border-radius: 4px; font-size: 12px; font-weight: bold;">前回値</div>
             </div>
-            <div style="display: flex; margin: 0 40px; font-size: 11px; text-align: center;">
+            <div class="deadband-labels" style="display: flex; font-size: 11px; text-align: center;">
                 <div style="flex: 1; color: #666;">-50%以下<br>→通過</div>
                 <div style="flex: 2; color: #dc3545;">±50%以内<br>→ブロック</div>
                 <div style="flex: 1; color: #666;">+50%以上<br>→通過</div>
