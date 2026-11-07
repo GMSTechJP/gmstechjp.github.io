@@ -184,7 +184,7 @@ TEMPLATE = """<!DOCTYPE html>
             margin-top: 3px;
             white-space: nowrap;
         }
-        .u-text { color: var(--text-primary); }
+        .u-text { color: var(--text-primary); min-width: 0; overflow-wrap: break-word; }
         .footer {
             text-align: center;
             padding: 30px 20px;
