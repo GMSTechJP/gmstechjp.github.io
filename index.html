@@ -404,13 +404,24 @@
                 display: none;
             }
 
+            /* 固定のナビが画面を占めないよう、折り返さず 1 行で横にスクロールさせる */
+            .nav-bar {
+                padding: 8px 0;
+            }
+
             .nav-content {
                 gap: 8px;
+                flex-wrap: nowrap;
+                justify-content: flex-start;
+                overflow-x: auto;
+                padding: 0 12px;
             }
 
             .nav-btn {
+                flex: 0 0 auto;
                 padding: 8px 16px;
                 font-size: 0.85em;
+                white-space: nowrap;
             }
         }
     </style>
@@ -1624,13 +1635,26 @@
             event.target.classList.add('active');
         }
 
+        // ナビが横にスクロールする幅で、ボタンをナビの中央へ動かす
+        function revealNavBtn(btn) {
+            const nav = btn.parentElement;
+            if (nav.scrollWidth <= nav.clientWidth) return;
+            const navRect = nav.getBoundingClientRect();
+            const btnRect = btn.getBoundingClientRect();
+            nav.scrollBy({
+                left: btnRect.left - navRect.left - (navRect.width - btnRect.width) / 2,
+                behavior: 'smooth'
+            });
+        }
+
         // スクロール時にナビボタンのアクティブ状態を更新
         window.addEventListener('scroll', () => {
             const sections = document.querySelectorAll('.section');
             const navButtons = document.querySelectorAll('.nav-btn');
             const navHeight = document.querySelector('.nav-bar').offsetHeight;
 
-            let current = '';
+            // 最初のセクションに届く前は、最初のボタンをアクティブにする
+            let current = sections[0].getAttribute('id');
             sections.forEach(section => {
                 const sectionTop = section.offsetTop - navHeight - 100;
                 if (window.pageYOffset >= sectionTop) {
@@ -1639,10 +1663,11 @@
             });
 
             navButtons.forEach(btn => {
-                btn.classList.remove('active');
-                if (btn.getAttribute('onclick').includes(current)) {
-                    btn.classList.add('active');
+                const isCurrent = btn.getAttribute('onclick').includes(`'${current}'`);
+                if (isCurrent && !btn.classList.contains('active')) {
+                    revealNavBtn(btn);
                 }
+                btn.classList.toggle('active', isCurrent);
             });
         });
     </script>
