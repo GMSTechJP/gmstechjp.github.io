@@ -1,0 +1,41 @@
+/*
+ * 狭い画面での文字の折り返しを整える、サイト共通のスタイル。
+ *
+ * 見出しは、最後の行に 1 文字だけ残らないよう、行の長さをそろえて折り返す
+ * （「6. トラブルシューティン／グ」を防ぐ）。対応していないブラウザでは、従来どおり折り返す。
+ * word-break: auto-phrase は使わない。iPhone の Safari が対応しておらず、対応するブラウザでも、
+ * 1 行に入らない長い語の末尾が 1 文字だけ次の行に残る。
+ */
+h1, h2, h3, h4 {
+    text-wrap: balance;
+    overflow-wrap: break-word;
+}
+
+/* 小さい「ュ」や長音「ー」を行の先頭に置かない（「トラブルシ／ューティング」を防ぐ） */
+html {
+    line-break: strict;
+}
+
+/* 部品のルールは狭い画面だけに効かせる。広い画面のレイアウトは変えない */
+@media (max-width: 640px) {
+    /* 枠や背景のある短い部品を、行の途中で 2 つに割らない。幅が足りなければ次の行へ送る */
+    .qtag, .rule-condition, .route-result, .f-data, .data-box, .output-type {
+        display: inline-block;
+        max-width: 100%;
+    }
+
+    /* 部品の中で折り返すときも、最後の行に 1〜2 文字だけ残さない */
+    .qtag, .route-result, .output-type, .f-data, .flow-diagram .step, [data-envbadge] span {
+        text-wrap: balance;
+    }
+
+    /* 横に並ぶバッジは、文字を縦に潰さず、入らないときは見出しごと次の行へ送る */
+    .widget-badge, .layout-badge {
+        flex-shrink: 0;
+        white-space: nowrap;
+    }
+
+    .widget-card h3, .layout-card h3 {
+        flex-wrap: wrap;
+    }
+}

@@ -20,6 +20,11 @@
  *
  * 表の幅が MIN_TABLE_WIDTH 未満（スマートフォンなど）のときは、列を 1 行に保たない。
  *
+ * 画面の幅が NARROW_SCREEN 以下で、枠に収まっていても列の中身が READABLE_EM より細く
+ * 潰れた表（「設定／項／目」のように縦に並ぶ表）は、下のスクロールの枠に入れて幅を確保する。
+ * 枠の中の幅でも潰れる列は、列の先頭のセルに最小の幅を付け、ROOMY_EM（その列の最大内容幅が
+ * 狭ければその幅）まで広げる。
+ *
  * 枠からはみ出す表は、折り返せない文字列（URL やトピック名など）があるため、狭い画面で
  * ページ全体を横に広げる。そのような表だけを <div class="table-scroll"> で囲み、枠の中で
  * 横にスクロールさせる。囲むのは、はみ出したときだけである。収まる表の見た目は変わらない。
@@ -38,10 +43,14 @@
     var PIN = "data-table-fit-pin"; // このスクリプトが足した <colgroup> の印
     var SCROLL = "table-scroll";    // はみ出す表を囲む <div> のクラス
     var HINT = "table-scroll-hint"; // スクロールできることを知らせる案内のクラス
-    var MIN_TABLE_WIDTH = 600;  // これより狭い表は、従来どおり折り返す
+    var WIDENED = "data-table-fit-widened"; // このスクリプトが min-width を付けたセルの印
+    var MIN_TABLE_WIDTH = 500;  // これより狭い表は、列を 1 行に保たない。枠の中の 520px の表を対象に含める
     var SHORT_RATIO = 0.45;     // 最大内容幅が表の幅のこの割合を超えるセルは、折り返してよい
     var LONG_CELL_RATIO = 0.25; // 長いセルがこの割合を超える列は、1 行に保たない
     var REST_COL_RATIO = 0.25;  // ほかの列に残す幅（表の幅の割合）。これより細くしない
+    var NARROW_SCREEN = 900;    // この画面の幅以下で、潰れた列を救う。広い画面の見た目は変えない
+    var READABLE_EM = 3.5;      // 列の中身の幅がこれ未満で、内容がもっと長ければ「潰れた」とする
+    var ROOMY_EM = 7;           // 広げるときに 1 列あたりに確保する中身の幅
 
     // 行と列の位置を、rowspan と colspan を考慮して求める。colspan が 1 のセルだけを列に数える
     function columns(table) {
@@ -243,10 +252,12 @@
         return widths;
     }
 
-    // 自分か祖先が、すでに横のスクロールや切り取りを受け持っているか
+    // 祖先が、すでに横のスクロールを受け持っているか。overflow: hidden の祖先は含めない
+    // （はみ出した分が切れて読めなくなるので、枠で囲む必要がある）
     function inScrollBox(element) {
         for (var p = element.parentElement; p && p !== document.body; p = p.parentElement) {
-            if (getComputedStyle(p).overflowX !== "visible") {
+            var overflow = getComputedStyle(p).overflowX;
+            if (overflow === "auto" || overflow === "scroll") {
                 return true;
             }
         }
@@ -269,10 +280,101 @@
         if (width <= room + 0.5) {
             return;
         }
+        wrap(table);
+    }
+
+    function wrap(table) {
         var box = document.createElement("div");
         box.className = SCROLL;
-        parent.insertBefore(box, table);
+        table.parentElement.insertBefore(box, table);
         box.appendChild(table);
+    }
+
+    // セルの左右の padding と枠線の合計
+    function cellChrome(st) {
+        return parseFloat(st.paddingLeft) + parseFloat(st.paddingRight) +
+            parseFloat(st.borderLeftWidth) + parseFloat(st.borderRightWidth);
+    }
+
+    // 潰れた列ごとに、[列の先頭のセル, 確保したい中身の幅] の一覧を返す
+    function crushedColumns(table) {
+        // 細い列が無ければ、複製を作って測るまでもない
+        var cols = columns(table);
+        var narrow = false;
+        for (var c = 0; c < cols.length && !narrow; c++) {
+            var cell = cols[c] && cols[c][0];
+            if (cell) {
+                var st = getComputedStyle(cell);
+                var inner = cell.getBoundingClientRect().width - cellChrome(st);
+                narrow = inner < parseFloat(st.fontSize) * READABLE_EM;
+            }
+        }
+        if (!narrow) {
+            return [];
+        }
+        var measured = measure(table);
+        var crushed = [];
+        for (var m = 0; m < measured.length; m++) {
+            if (!measured[m].length) {
+                continue;
+            }
+            var first = measured[m][0][0];
+            var fs = getComputedStyle(first);
+            var chrome = cellChrome(fs);
+            var font = parseFloat(fs.fontSize);
+            var max = 0;
+            for (var i = 0; i < measured[m].length; i++) {
+                max = Math.max(max, measured[m][i][1]);
+            }
+            var now = first.getBoundingClientRect().width;
+            if (now < Math.min(max, font * READABLE_EM + chrome) - 0.5) {
+                crushed.push([first, Math.min(max - chrome, font * ROOMY_EM)]);
+            }
+        }
+        return crushed;
+    }
+
+    // このスクリプトがセルに付けた最小の幅を外す。入れ子の表の印には触れない
+    function clearWidened(table) {
+        var marked = table.querySelectorAll("[" + WIDENED + "]");
+        for (var i = 0; i < marked.length; i++) {
+            if (marked[i].closest("table") === table) {
+                marked[i].style.minWidth = "";
+                marked[i].removeAttribute(WIDENED);
+            }
+        }
+    }
+
+    // 枠に収まっていても列が潰れた表に、幅を確保する
+    function relieve(table) {
+        var parent = table.parentElement;
+        // 閉じた <details> の中の表は幅が 0 で、潰れて見えるだけなので、開いたときに判定する
+        if (window.innerWidth > NARROW_SCREEN || !parent || parent.closest("table") ||
+                !table.getBoundingClientRect().width) {
+            return;
+        }
+        // 手で書いた overflow-x: auto の枠の中なら、囲まずに列の幅だけ確保する
+        var boxed = parent.classList.contains(SCROLL) || inScrollBox(table);
+        var crushed = crushedColumns(table);
+        if (!crushed.length) {
+            return;
+        }
+        if (!boxed) {
+            wrap(table);
+            fit(table); // 枠の中の幅で、短い列を選び直す
+        }
+        // ある列を広げると、ほかの列が細くなることがあるので、数回繰り返す
+        for (var round = 0; round < 3; round++) {
+            crushed = crushedColumns(table);
+            if (!crushed.length) {
+                return;
+            }
+            for (var i = 0; i < crushed.length; i++) {
+                var cell = crushed[i][0];
+                cell.style.minWidth = Math.ceil(crushed[i][1]) + "px";
+                cell.setAttribute(WIDENED, "");
+            }
+        }
     }
 
     // スクロールできる枠の前に案内を置き、スクロールできなくなったら外す
@@ -283,7 +385,7 @@
         if (scrollable && !hint) {
             hint = document.createElement("div");
             hint.className = HINT;
-            hint.textContent = "→ この表は横にスクロールできます";
+            hint.textContent = "→ 横にスクロールできます";
             box.parentNode.insertBefore(hint, box);
         } else if (!scrollable && hint) {
             hint.parentNode.removeChild(hint);
@@ -292,8 +394,10 @@
 
     // fit() が先。前の幅で 1 行に保った列を外してから、はみ出すかどうかを測る
     function update(table) {
+        clearWidened(table); // 前回広げた分を外してから測る
         fit(table);
         contain(table);
+        relieve(table);
         var box = table.parentElement;
         if (box && box.classList.contains(SCROLL)) {
             updateHint(box);
