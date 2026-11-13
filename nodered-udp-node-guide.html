@@ -681,7 +681,7 @@
         "ipv": "udp4",
         "outport": "",
         "base64": false,
-        "multicast": "broadcast",
+        "multicast": "broad",
         "x": 420,
         "y": 340,
         "wires": []
@@ -1564,21 +1564,23 @@ return msg;</div>
                 <li>発見側: ポート9003にブロードキャスト「DISCOVER」を送信</li>
                 <li>デバイス側: 「DISCOVER」受信時に自デバイス情報を返信</li>
                 <li>発見側: 応答を収集して一覧表示</li>
+                <li>発見側とデバイス側は、それぞれの UDP In（どちらも 9003 番）から始まる別々の流れにする</li>
             </ul>
 
             <p><strong>✅ 成功の条件:</strong></p>
             <ul>
                 <li>「DISCOVER送信」ボタンを押すと自デバイスからの応答がデバッグパネルに表示される</li>
                 <li>受信した応答メッセージに <code>deviceId</code> やデバイス情報が含まれている</li>
-                <li>「DISCOVER」メッセージは Switch ノードで振り分けられ、応答メッセージは発見リストに蓄積される</li>
+                <li>デバイス側は「DISCOVER」にだけ返信し、発見側は応答（「DISCOVER」以外）だけを発見リストに加える</li>
                 <li>ボタンを押すたびに発見リストがリセットされ、再収集が行われる</li>
             </ul>
 
             <details>
                 <summary>💡 ヒント</summary>
-                <p>「発見側」と「デバイス側」両方の機能を同一フローに実装します。</p>
-                <p><strong>デバイス側:</strong> 受信データが「DISCOVER」なら自デバイス情報を返信します。Change ノードで <code>msg.payload</code> に情報のオブジェクトを組み立て、JSON ノード（「常にJSON文字列に変換」）で文字列にしてから UDP Out に渡します。UDP Out はオブジェクトをそのままでは送れません（<code>[object Object]</code> という文字列になります）。返信先は、受信した msg に入っている <code>msg.ip</code> と <code>msg.port</code> です。</p>
-                <p><strong>発見側:</strong> 応答（DISCOVER以外）を収集してリスト化します。収集は、JSON の解析・種類の確認・flow コンテキストへの追加・ステータス表示を1か所で行うため、解答例では Function ノードで書き、処理の意味をコメントで説明しています。</p>
+                <p>「発見側」と「デバイス側」を、同じタブの中に別々の流れとして作ります。実際には別々の機器で動く処理なので、UDP In もそれぞれに置きます（どちらも 9003 番）。Node-RED の中では、同じ番号の UDP In を複数置けます。1つの受信口を共有し、9003 番に届いたデータは、どちらの UDP In からも出てきます。このため、それぞれの UDP In の直後に Switch ノードを置き、自分の役割に関係するデータだけを通します。デプロイすると Node-RED のログに「udp: 既に9003番ポートが使用されています」と出ますが、受信口を共有していることの知らせで、エラーではありません。</p>
+                <p><strong>DISCOVER の送信:</strong> UDP Out の「送信」で「ブロードキャストメッセージ」を選び、ポートに 9003、アドレスに <code>255.255.255.255</code> を入れます。「送信」が「UDPメッセージ」のままだと、ブロードキャストのアドレスへは送れません。</p>
+                <p><strong>デバイス側:</strong> Switch ノードで「DISCOVER」だけを通し（デバイス側の UDP In には、自分が返した応答も届きます）、自デバイス情報を返信します。Change ノードで <code>msg.payload</code> に情報のオブジェクトを組み立て、JSON ノード（「常にJSON文字列に変換」）で文字列にしてから UDP Out に渡します。UDP Out はオブジェクトをそのままでは送れません（<code>[object Object]</code> という文字列になります）。返信先は、受信した msg に入っている <code>msg.ip</code> と <code>msg.port</code> です。ブロードキャストの UDP Out は、同じ 9003 番の UDP In の受信口を使って送るので、<code>msg.port</code> は 9003 になり、返信は発見側の UDP In に届きます。</p>
+                <p><strong>発見側:</strong> Switch ノードで「DISCOVER」以外だけを通し（発見側の UDP In には、自分がブロードキャストした「DISCOVER」も届きます）、応答を収集してリスト化します。収集は、JSON の解析・種類の確認・flow コンテキストへの追加・ステータス表示を1か所で行うため、解答例では Function ノードで書き、処理の意味をコメントで説明しています。</p>
                 <p><strong>リストのリセット:</strong> DISCOVER を送るときに、Change ノードの「値の代入」で <code>flow.discoveredDevices</code> に「JSON」型の <code>{}</code>（空のオブジェクト）を入れます。</p>
             </details>
             
@@ -1586,18 +1588,20 @@ return msg;</div>
                 <summary>✅ 解答例フロー</summary>
                 <div class="flow-json">[
     {"id": "udp_ex4_tab", "type": "tab", "label": "演習4"},
-    {"id": "udp_ex4_comment1", "type": "comment", "z": "udp_ex4_tab", "name": "【発見リクエスト送信】", "info": "", "x": 170, "y": 40, "wires": []},
+    {"id": "udp_ex4_comment1", "type": "comment", "z": "udp_ex4_tab", "name": "【発見側（DISCOVER送信と応答収集）】", "info": "DISCOVER をブロードキャストし、デバイスからの応答を集めて一覧にする。\n発見側の UDP In には、自分が送った DISCOVER も届くので、switch で DISCOVER 以外だけを通す。", "x": 220, "y": 40, "wires": []},
     {"id": "udp_ex4_inject_discover", "type": "inject", "z": "udp_ex4_tab", "name": "DISCOVER送信", "props": [{"p": "payload"}], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "payload": "DISCOVER", "payloadType": "str", "x": 180, "y": 100, "wires": [["udp_ex4_change_clear", "udp_ex4_udp_broadcast"]]},
     {"id": "udp_ex4_change_clear", "type": "change", "z": "udp_ex4_tab", "name": "リストクリア", "rules": [{"t": "set", "p": "discoveredDevices", "pt": "flow", "to": "{}", "tot": "json"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 390, "y": 100, "wires": [[]]},
-    {"id": "udp_ex4_udp_broadcast", "type": "udp out", "z": "udp_ex4_tab", "name": "Broadcast :9003", "addr": "255.255.255.255", "iface": "", "port": "9003", "ipv": "udp4", "outport": "", "base64": false, "multicast": "broadcast", "x": 400, "y": 140, "wires": []},
-    {"id": "udp_ex4_comment2", "type": "comment", "z": "udp_ex4_tab", "name": "【デバイス側（応答）】", "info": "", "x": 160, "y": 200, "wires": []},
-    {"id": "udp_ex4_udp_in", "type": "udp in", "z": "udp_ex4_tab", "name": "UDP In :9003", "iface": "", "port": "9003", "ipv": "udp4", "multicast": "false", "group": "", "datatype": "utf8", "x": 170, "y": 260, "wires": [["udp_ex4_switch"]]},
-    {"id": "udp_ex4_switch", "type": "switch", "z": "udp_ex4_tab", "name": "DISCOVER判定", "property": "payload", "propertyType": "msg", "rules": [{"t": "eq", "v": "DISCOVER", "vt": "str"}, {"t": "else"}], "checkall": "false", "repair": false, "outputs": 2, "x": 380, "y": 260, "wires": [["udp_ex4_change_info"], ["udp_ex4_func_collect"]]},
-    {"id": "udp_ex4_change_info", "type": "change", "z": "udp_ex4_tab", "name": "デバイス情報を作る", "rules": [{"t": "set", "p": "payload", "pt": "msg", "to": "{\"type\":\"DEVICE_INFO\",\"deviceId\":\"\",\"name\":\"Node-RED Device\"}", "tot": "json"}, {"t": "set", "p": "payload.deviceId", "pt": "msg", "to": "\"my-device-\" &amp; $floor($random() * 1000)", "tot": "jsonata"}, {"t": "set", "p": "payload.timestamp", "pt": "msg", "to": "iso", "tot": "date"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 620, "y": 240, "wires": [["udp_ex4_json_info"]]},
-    {"id": "udp_ex4_json_info", "type": "json", "z": "udp_ex4_tab", "name": "JSON文字列に変換", "property": "payload", "action": "str", "pretty": false, "x": 820, "y": 240, "wires": [["udp_ex4_udp_reply"]]},
-    {"id": "udp_ex4_udp_reply", "type": "udp out", "z": "udp_ex4_tab", "name": "Reply", "addr": "", "iface": "", "port": "", "ipv": "udp4", "outport": "", "base64": false, "multicast": "false", "x": 1020, "y": 240, "wires": []},
-    {"id": "udp_ex4_func_collect", "type": "function", "z": "udp_ex4_tab", "name": "応答収集", "func": "try {\n    // 受信した文字列（JSON形式）をオブジェクトに変換する\n    const data = JSON.parse(msg.payload);\n    // デバイスからの応答（DEVICE_INFO）だけを集める\n    if (data.type === \"DEVICE_INFO\") {\n        // これまでに見つかったデバイスの一覧を読み出し、デバイスIDをキーに追加する\n        const devices = flow.get('discoveredDevices') || {};\n        devices[data.deviceId] = {\n            name: data.name,\n            ip: msg.ip,  // 応答してきたデバイスのIPアドレス\n            timestamp: data.timestamp\n        };\n        flow.set('discoveredDevices', devices);\n        msg.devices = devices;\n        // 見つかった台数をステータスに表示する\n        node.status({fill: \"green\", shape: \"dot\", text: Object.keys(devices).length + \" found\"});\n        return msg;\n    }\n} catch(e) {\n    // JSONとして読めないデータは無視する\n}\n// DEVICE_INFO 以外は下流へ流さない\nreturn null;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 600, "y": 280, "wires": [["udp_ex4_debug"]]},
-    {"id": "udp_ex4_debug", "type": "debug", "z": "udp_ex4_tab", "name": "発見デバイス", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "devices", "targetType": "msg", "x": 790, "y": 280, "wires": []}
+    {"id": "udp_ex4_udp_broadcast", "type": "udp out", "z": "udp_ex4_tab", "name": "Broadcast :9003", "addr": "255.255.255.255", "iface": "", "port": "9003", "ipv": "udp4", "outport": "", "base64": false, "multicast": "broad", "x": 400, "y": 140, "wires": []},
+    {"id": "udp_ex4_udp_in_collect", "type": "udp in", "z": "udp_ex4_tab", "name": "UDP In :9003（発見側）", "iface": "", "port": "9003", "ipv": "udp4", "multicast": "false", "group": "", "datatype": "utf8", "x": 200, "y": 220, "wires": [["udp_ex4_switch_collect"]]},
+    {"id": "udp_ex4_switch_collect", "type": "switch", "z": "udp_ex4_tab", "name": "DISCOVER以外を通す", "property": "payload", "propertyType": "msg", "rules": [{"t": "neq", "v": "DISCOVER", "vt": "str"}], "checkall": "true", "repair": false, "outputs": 1, "x": 450, "y": 220, "wires": [["udp_ex4_func_collect"]]},
+    {"id": "udp_ex4_func_collect", "type": "function", "z": "udp_ex4_tab", "name": "応答収集", "func": "try {\n    // 受信した文字列（JSON形式）をオブジェクトに変換する\n    const data = JSON.parse(msg.payload);\n    // デバイスからの応答（DEVICE_INFO）だけを集める\n    if (data.type === \"DEVICE_INFO\") {\n        // これまでに見つかったデバイスの一覧を読み出し、デバイスIDをキーに追加する\n        const devices = flow.get('discoveredDevices') || {};\n        devices[data.deviceId] = {\n            name: data.name,\n            ip: msg.ip,  // 応答してきたデバイスのIPアドレス\n            timestamp: data.timestamp\n        };\n        flow.set('discoveredDevices', devices);\n        msg.devices = devices;\n        // 見つかった台数をステータスに表示する\n        node.status({fill: \"green\", shape: \"dot\", text: Object.keys(devices).length + \" found\"});\n        return msg;\n    }\n} catch(e) {\n    // JSONとして読めないデータは無視する\n}\n// DEVICE_INFO 以外は下流へ流さない\nreturn null;", "outputs": 1, "timeout": 0, "noerr": 0, "initialize": "", "finalize": "", "libs": [], "x": 660, "y": 220, "wires": [["udp_ex4_debug"]]},
+    {"id": "udp_ex4_debug", "type": "debug", "z": "udp_ex4_tab", "name": "発見デバイス", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "devices", "targetType": "msg", "x": 850, "y": 220, "wires": []},
+    {"id": "udp_ex4_comment2", "type": "comment", "z": "udp_ex4_tab", "name": "【デバイス側（応答）】", "info": "DISCOVER を受け取ったら、自分の情報を送り元へ返す。\n実際には発見側とは別の機器で動く処理。この演習では同じ Node-RED の中に置く。", "x": 160, "y": 320, "wires": []},
+    {"id": "udp_ex4_udp_in", "type": "udp in", "z": "udp_ex4_tab", "name": "UDP In :9003（デバイス側）", "iface": "", "port": "9003", "ipv": "udp4", "multicast": "false", "group": "", "datatype": "utf8", "x": 210, "y": 380, "wires": [["udp_ex4_switch"]]},
+    {"id": "udp_ex4_switch", "type": "switch", "z": "udp_ex4_tab", "name": "DISCOVERだけ通す", "property": "payload", "propertyType": "msg", "rules": [{"t": "eq", "v": "DISCOVER", "vt": "str"}], "checkall": "true", "repair": false, "outputs": 1, "x": 450, "y": 380, "wires": [["udp_ex4_change_info"]]},
+    {"id": "udp_ex4_change_info", "type": "change", "z": "udp_ex4_tab", "name": "デバイス情報を作る", "rules": [{"t": "set", "p": "payload", "pt": "msg", "to": "{\"type\":\"DEVICE_INFO\",\"deviceId\":\"\",\"name\":\"Node-RED Device\"}", "tot": "json"}, {"t": "set", "p": "payload.deviceId", "pt": "msg", "to": "\"my-device-\" &amp; $floor($random() * 1000)", "tot": "jsonata"}, {"t": "set", "p": "payload.timestamp", "pt": "msg", "to": "iso", "tot": "date"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 670, "y": 380, "wires": [["udp_ex4_json_info"]]},
+    {"id": "udp_ex4_json_info", "type": "json", "z": "udp_ex4_tab", "name": "JSON文字列に変換", "property": "payload", "action": "str", "pretty": false, "x": 880, "y": 380, "wires": [["udp_ex4_udp_reply"]]},
+    {"id": "udp_ex4_udp_reply", "type": "udp out", "z": "udp_ex4_tab", "name": "Reply", "addr": "", "iface": "", "port": "", "ipv": "udp4", "outport": "", "base64": false, "multicast": "false", "x": 1070, "y": 380, "wires": []}
 ]</div>
             </details>
         </div>
