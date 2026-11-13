@@ -1,0 +1,7489 @@
+{
+ "note": "scripts/gen-node-schemas.mjs が作る。手で編集しない",
+ "packages": {
+  "@node-red/nodes": "5.0.7",
+  "@flowfuse/node-red-dashboard": "1.36.1",
+  "@flowfuse/node-red-dashboard-2-ui-led": "1.1.1",
+  "node-red-contrib-modbus": "5.62.1",
+  "node-red-contrib-buffer-parser": "3.2.2",
+  "node-red-node-sqlite": "2.0.1",
+  "node-red-contrib-ftp": "0.0.8",
+  "node-red-contrib-ftp-server": "1.0.4",
+  "node-red-node-email": "5.2.5",
+  "node-red-node-base64": "1.0.0",
+  "node-red-node-pi-sense-hat": "0.2.0"
+ },
+ "nodes": {
+  "base64": {
+   "package": "node-red-node-base64",
+   "file": "70-base64.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "action": {
+     "value": ""
+    },
+    "property": {
+     "value": "payload",
+     "required": true,
+     "missing": "ok"
+    }
+   },
+   "selects": {
+    "action": {
+     "values": [
+      "",
+      "str",
+      "b64"
+     ],
+     "multiple": false,
+     "missing": "ok",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    }
+   },
+   "typed": {}
+  },
+  "batch": {
+   "package": "@node-red/nodes",
+   "file": "core/sequence/19-batch.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "mode": {
+     "value": "count"
+    },
+    "count": {
+     "value": 10,
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "overlap": {
+     "value": 0,
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "interval": {
+     "value": 10,
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "allowEmptySequence": {
+     "value": false
+    },
+    "honourParts": {
+     "value": false
+    },
+    "topics": {
+     "value": [
+      {
+       "topic": ""
+      }
+     ]
+    }
+   },
+   "selects": {
+    "mode": {
+     "values": [
+      "count",
+      "interval",
+      "concat"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    }
+   },
+   "typed": {}
+  },
+  "buffer-maker": {
+   "package": "node-red-contrib-buffer-parser",
+   "file": "buffer-maker.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "specification": {
+     "value": ""
+    },
+    "specificationType": {
+     "value": "ui"
+    },
+    "items": {
+     "value": [
+      {
+       "name": "item1",
+       "type": "int16be",
+       "data": "payload",
+       "dataType": "msg"
+      }
+     ],
+     "required": true,
+     "missing": "nofield"
+    },
+    "swap1": {
+     "value": ""
+    },
+    "swap2": {
+     "value": ""
+    },
+    "swap3": {
+     "value": ""
+    },
+    "swap1Type": {
+     "value": "swap"
+    },
+    "swap2Type": {
+     "value": "swap"
+    },
+    "swap3Type": {
+     "value": "swap"
+    },
+    "msgProperty": {
+     "value": "payload"
+    },
+    "msgPropertyType": {
+     "value": "str"
+    }
+   },
+   "selects": {},
+   "typed": {
+    "specificationType": {
+     "types": [
+      "ui",
+      "msg",
+      "flow",
+      "global"
+     ],
+     "default": "ui"
+    },
+    "swap1Type": {
+     "types": [
+      "swap",
+      "json",
+      "msg",
+      "flow",
+      "global",
+      "env"
+     ],
+     "default": "swap"
+    },
+    "swap2Type": {
+     "types": [
+      "swap"
+     ],
+     "default": "swap"
+    },
+    "swap3Type": {
+     "types": [
+      "swap"
+     ],
+     "default": "swap"
+    }
+   }
+  },
+  "buffer-parser": {
+   "package": "node-red-contrib-buffer-parser",
+   "file": "buffer-parser.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "data": {
+     "value": "payload",
+     "validate": {
+      "kind": "typedInput",
+      "typeField": "dataType",
+      "type": null,
+      "allowBlank": false,
+      "allowUndefined": false
+     }
+    },
+    "dataType": {
+     "value": "msg"
+    },
+    "specification": {
+     "value": ""
+    },
+    "specificationType": {
+     "value": "ui"
+    },
+    "items": {
+     "value": [
+      {
+       "name": "item1",
+       "type": "int16be",
+       "offset": 0,
+       "length": 1,
+       "mask": ""
+      }
+     ],
+     "required": true,
+     "missing": "nofield"
+    },
+    "swap1": {
+     "value": ""
+    },
+    "swap2": {
+     "value": ""
+    },
+    "swap3": {
+     "value": ""
+    },
+    "swap1Type": {
+     "value": "swap"
+    },
+    "swap2Type": {
+     "value": "swap"
+    },
+    "swap3Type": {
+     "value": "swap"
+    },
+    "msgProperty": {
+     "value": "payload"
+    },
+    "msgPropertyType": {
+     "value": "str"
+    },
+    "resultType": {
+     "value": "keyvalue"
+    },
+    "resultTypeType": {
+     "value": "return"
+    },
+    "multipleResult": {
+     "value": false
+    },
+    "fanOutMultipleResult": {
+     "value": false
+    },
+    "setTopic": {
+     "value": true,
+     "missing": "unchecked"
+    },
+    "outputs": {
+     "value": 1
+    }
+   },
+   "selects": {},
+   "typed": {
+    "dataType": {
+     "types": [
+      "msg",
+      "json",
+      "bin"
+     ],
+     "default": "msg"
+    },
+    "specificationType": {
+     "types": [
+      "ui",
+      "msg",
+      "flow",
+      "global"
+     ],
+     "default": "ui"
+    },
+    "swap1Type": {
+     "types": [
+      "swap",
+      "json",
+      "msg",
+      "flow",
+      "global",
+      "env"
+     ],
+     "default": "swap"
+    },
+    "swap2Type": {
+     "types": [
+      "swap"
+     ],
+     "default": "swap"
+    },
+    "swap3Type": {
+     "types": [
+      "swap"
+     ],
+     "default": "swap"
+    }
+   }
+  },
+  "catch": {
+   "package": "@node-red/nodes",
+   "file": "core/common/25-catch.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "scope": {
+     "value": null,
+     "type": "*[]"
+    },
+    "uncaught": {
+     "value": false
+    }
+   },
+   "selects": {},
+   "typed": {}
+  },
+  "change": {
+   "package": "@node-red/nodes",
+   "file": "core/function/15-change.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "rules": {
+     "value": [
+      {
+       "t": "set",
+       "p": "payload",
+       "pt": "msg",
+       "to": "",
+       "tot": "str"
+      }
+     ],
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "action": {
+     "value": ""
+    },
+    "property": {
+     "value": ""
+    },
+    "from": {
+     "value": ""
+    },
+    "to": {
+     "value": ""
+    },
+    "reg": {
+     "value": false
+    }
+   },
+   "selects": {},
+   "typed": {}
+  },
+  "comment": {
+   "package": "@node-red/nodes",
+   "file": "core/common/90-comment.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "info": {
+     "value": ""
+    }
+   },
+   "selects": {},
+   "typed": {}
+  },
+  "complete": {
+   "package": "@node-red/nodes",
+   "file": "core/common/24-complete.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "scope": {
+     "value": [],
+     "type": "*[]",
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "uncaught": {
+     "value": false
+    }
+   },
+   "selects": {},
+   "typed": {}
+  },
+  "csv": {
+   "package": "@node-red/nodes",
+   "file": "core/parsers/70-CSV.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "spec": {
+     "value": "rfc"
+    },
+    "sep": {
+     "value": ",",
+     "required": true,
+     "validate": {
+      "kind": "regex",
+      "source": "^.{1,2}$",
+      "flags": ""
+     },
+     "missing": "blank"
+    },
+    "hdrin": {
+     "value": ""
+    },
+    "hdrout": {
+     "value": "none"
+    },
+    "multi": {
+     "value": "one",
+     "required": true
+    },
+    "ret": {
+     "value": "\\r\\n"
+    },
+    "temp": {
+     "value": ""
+    },
+    "skip": {
+     "value": "0"
+    },
+    "strings": {
+     "value": true,
+     "missing": "ok"
+    },
+    "include_empty_strings": {
+     "value": ""
+    },
+    "include_null_values": {
+     "value": ""
+    }
+   },
+   "selects": {
+    "hdrout": {
+     "values": [
+      "none",
+      "all",
+      "once"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "ok",
+      "false": "ok"
+     }
+    },
+    "multi": {
+     "values": [
+      "one",
+      "mult"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    },
+    "ret": {
+     "values": [
+      "\\r\\n",
+      "\\n",
+      "\\r"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    }
+   },
+   "typed": {}
+  },
+  "debug": {
+   "package": "@node-red/nodes",
+   "file": "core/common/21-debug.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": "_DEFAULT_"
+    },
+    "active": {
+     "value": true
+    },
+    "tosidebar": {
+     "value": true,
+     "missing": "ok"
+    },
+    "console": {
+     "value": false
+    },
+    "tostatus": {
+     "value": false
+    },
+    "complete": {
+     "value": "false",
+     "required": true,
+     "missing": "nofield"
+    },
+    "targetType": {},
+    "statusVal": {
+     "value": ""
+    },
+    "statusType": {
+     "value": "auto"
+    }
+   },
+   "selects": {},
+   "typed": {
+    "statusType": {
+     "types": [
+      "auto",
+      "msg",
+      "jsonata",
+      "counter"
+     ],
+     "default": "auto"
+    },
+    "targetType": {
+     "types": [
+      "msg",
+      "full",
+      "jsonata"
+     ],
+     "default": "msg"
+    }
+   }
+  },
+  "delay": {
+   "package": "@node-red/nodes",
+   "file": "core/function/89-delay.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "pauseType": {
+     "value": "delay",
+     "required": true,
+     "missing": "nofield"
+    },
+    "timeout": {
+     "value": "5",
+     "required": true,
+     "validate": {
+      "kind": "custom"
+     },
+     "missing": "blank"
+    },
+    "timeoutUnits": {
+     "value": "seconds"
+    },
+    "rate": {
+     "value": "1",
+     "required": true,
+     "validate": {
+      "kind": "custom"
+     },
+     "missing": "blank"
+    },
+    "nbRateUnits": {
+     "value": "1",
+     "required": false,
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "rateUnits": {
+     "value": "second"
+    },
+    "randomFirst": {
+     "value": "1",
+     "required": true,
+     "validate": {
+      "kind": "custom"
+     },
+     "missing": "blank"
+    },
+    "randomLast": {
+     "value": "5",
+     "required": true,
+     "validate": {
+      "kind": "custom"
+     },
+     "missing": "blank"
+    },
+    "randomUnits": {
+     "value": "seconds"
+    },
+    "drop": {
+     "value": false
+    },
+    "allowrate": {
+     "value": false
+    },
+    "outputs": {
+     "value": 1
+    }
+   },
+   "selects": {
+    "randomUnits": {
+     "values": [
+      "milliseconds",
+      "seconds",
+      "minutes",
+      "hours",
+      "days"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    },
+    "rateUnits": {
+     "values": [
+      "second",
+      "minute",
+      "hour",
+      "day"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    },
+    "timeoutUnits": {
+     "values": [
+      "milliseconds",
+      "seconds",
+      "minutes",
+      "hours",
+      "days"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    }
+   },
+   "typed": {}
+  },
+  "e-mail": {
+   "package": "node-red-node-email",
+   "file": "61-email.html",
+   "config": false,
+   "defaults": {
+    "server": {
+     "value": "smtp.gmail.com",
+     "required": true,
+     "missing": "blank"
+    },
+    "port": {
+     "value": "465",
+     "required": true,
+     "missing": "blank"
+    },
+    "authtype": {
+     "value": "BASIC"
+    },
+    "saslformat": {
+     "value": true,
+     "missing": "unchecked"
+    },
+    "token": {
+     "value": "oauth2Response.access_token"
+    },
+    "secure": {
+     "value": true,
+     "missing": "unchecked"
+    },
+    "tls": {
+     "value": true,
+     "missing": "unchecked"
+    },
+    "name": {
+     "value": ""
+    },
+    "dname": {
+     "value": ""
+    }
+   },
+   "selects": {
+    "authtype": {
+     "values": [
+      "BASIC",
+      "XOAUTH2",
+      "NONE"
+     ],
+     "multiple": false,
+     "missing": "ok",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    }
+   },
+   "typed": {}
+  },
+  "e-mail in": {
+   "package": "node-red-node-email",
+   "file": "61-email.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "protocol": {
+     "value": "IMAP",
+     "required": true
+    },
+    "server": {
+     "value": "imap.gmail.com",
+     "required": true,
+     "missing": "blank"
+    },
+    "useSSL": {
+     "value": true,
+     "missing": "unchecked"
+    },
+    "autotls": {
+     "value": "never"
+    },
+    "port": {
+     "value": "993",
+     "required": true,
+     "missing": "blank"
+    },
+    "authtype": {
+     "value": "BASIC"
+    },
+    "saslformat": {
+     "value": true,
+     "missing": "unchecked"
+    },
+    "token": {
+     "value": "oauth2Response.access_token"
+    },
+    "box": {
+     "value": "INBOX"
+    },
+    "disposition": {
+     "value": "Read"
+    },
+    "criteria": {
+     "value": "UNSEEN"
+    },
+    "repeat": {
+     "value": "300",
+     "required": true,
+     "missing": "blank"
+    },
+    "fetch": {
+     "value": "auto"
+    },
+    "inputs": {
+     "value": 0
+    }
+   },
+   "selects": {
+    "authtype": {
+     "values": [
+      "BASIC",
+      "XOAUTH2",
+      "NONE"
+     ],
+     "multiple": false,
+     "missing": "ok",
+     "bool": {
+      "true": "ok",
+      "false": "ok"
+     }
+    },
+    "autotls": {
+     "values": [
+      "never",
+      "required",
+      "always"
+     ],
+     "multiple": false,
+     "missing": "ok",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    },
+    "criteria": {
+     "values": [
+      "ALL",
+      "ANSWERED",
+      "FLAGGED",
+      "SEEN",
+      "UNANSWERED",
+      "UNFLAGGED",
+      "UNSEEN",
+      "_msg_"
+     ],
+     "multiple": false,
+     "missing": "ok",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    },
+    "disposition": {
+     "values": [
+      "None",
+      "Read",
+      "Delete"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    },
+    "fetch": {
+     "values": [
+      "auto",
+      "trigger"
+     ],
+     "multiple": false,
+     "missing": "ok",
+     "bool": {
+      "true": "ok",
+      "false": "ok"
+     }
+    },
+    "protocol": {
+     "values": [
+      "IMAP",
+      "POP3"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    }
+   },
+   "typed": {}
+  },
+  "e-mail mta": {
+   "package": "node-red-node-email",
+   "file": "61-email.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "port": {
+     "value": "1025",
+     "required": true,
+     "validate": {
+      "kind": "number",
+      "blank": false
+     },
+     "missing": "blank"
+    },
+    "secure": {
+     "value": false
+    },
+    "starttls": {
+     "value": false
+    },
+    "certFile": {
+     "value": ""
+    },
+    "keyFile": {
+     "value": ""
+    },
+    "mtausers": {
+     "value": []
+    },
+    "auth": {
+     "value": false
+    },
+    "authType": {
+     "value": false
+    },
+    "expert": {
+     "value": "{\"logger\":false}"
+    }
+   },
+   "selects": {},
+   "typed": {
+    "authType": {
+     "types": [
+      "none",
+      "built-in",
+      "flow",
+      "global",
+      "jsonata"
+     ],
+     "default": "none"
+    }
+   }
+  },
+  "exec": {
+   "package": "@node-red/nodes",
+   "file": "core/function/90-exec.html",
+   "config": false,
+   "defaults": {
+    "command": {
+     "value": ""
+    },
+    "addpay": {
+     "value": "",
+     "validate": {
+      "kind": "typedInput",
+      "typeField": null,
+      "type": "msg",
+      "allowBlank": true,
+      "allowUndefined": false
+     }
+    },
+    "append": {
+     "value": ""
+    },
+    "useSpawn": {
+     "value": "false"
+    },
+    "timer": {
+     "value": ""
+    },
+    "winHide": {
+     "value": false
+    },
+    "oldrc": {
+     "value": false
+    },
+    "name": {
+     "value": ""
+    }
+   },
+   "selects": {
+    "useSpawn": {
+     "values": [
+      "false",
+      "true"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "ok",
+      "false": "ok"
+     }
+    }
+   },
+   "typed": {}
+  },
+  "file": {
+   "package": "@node-red/nodes",
+   "file": "core/storage/10-file.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "filename": {
+     "value": "",
+     "validate": {
+      "kind": "typedInput",
+      "typeField": "filenameType",
+      "type": null,
+      "allowBlank": false,
+      "allowUndefined": false
+     }
+    },
+    "filenameType": {
+     "value": "str"
+    },
+    "appendNewline": {
+     "value": true,
+     "missing": "unchecked"
+    },
+    "createDir": {
+     "value": false
+    },
+    "overwriteFile": {
+     "value": "false"
+    },
+    "encoding": {
+     "value": "none"
+    }
+   },
+   "selects": {
+    "overwriteFile": {
+     "values": [
+      "false",
+      "true",
+      "delete"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    }
+   },
+   "typed": {
+    "filenameType": {
+     "types": [
+      "str",
+      "msg",
+      "jsonata",
+      "env"
+     ],
+     "default": "str"
+    }
+   }
+  },
+  "file in": {
+   "package": "@node-red/nodes",
+   "file": "core/storage/10-file.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "filename": {
+     "value": "",
+     "validate": {
+      "kind": "typedInput",
+      "typeField": "filenameType",
+      "type": null,
+      "allowBlank": false,
+      "allowUndefined": false
+     }
+    },
+    "filenameType": {
+     "value": "str"
+    },
+    "format": {
+     "value": "utf8"
+    },
+    "chunk": {
+     "value": false
+    },
+    "sendError": {
+     "value": false
+    },
+    "encoding": {
+     "value": "none"
+    },
+    "allProps": {
+     "value": false
+    }
+   },
+   "selects": {
+    "format": {
+     "values": [
+      "utf8",
+      "lines",
+      "",
+      "stream"
+     ],
+     "multiple": false,
+     "missing": "ok",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    }
+   },
+   "typed": {
+    "filenameType": {
+     "types": [
+      "str",
+      "msg",
+      "jsonata",
+      "env"
+     ],
+     "default": "str"
+    }
+   }
+  },
+  "ftp": {
+   "package": "node-red-contrib-ftp",
+   "file": "ftp.html",
+   "config": true,
+   "defaults": {
+    "host": {
+     "value": ""
+    },
+    "port": {
+     "value": ""
+    },
+    "secure": {
+     "value": false
+    },
+    "secureOptions": {
+     "value": ""
+    },
+    "user": {
+     "value": ""
+    },
+    "connTimeout": {
+     "value": ""
+    },
+    "pasvTimeout": {
+     "value": ""
+    },
+    "keepalive": {
+     "value": ""
+    }
+   },
+   "selects": {},
+   "typed": {}
+  },
+  "ftp in": {
+   "package": "node-red-contrib-ftp",
+   "file": "ftp.html",
+   "config": false,
+   "defaults": {
+    "ftp": {
+     "required": true,
+     "type": "ftp"
+    },
+    "operation": {
+     "value": "list",
+     "required": true
+    },
+    "filename": {
+     "value": ""
+    },
+    "localFilename": {
+     "value": ""
+    },
+    "name": {
+     "value": ""
+    }
+   },
+   "selects": {
+    "operation": {
+     "values": [
+      "list",
+      "get",
+      "put",
+      "append",
+      "delete",
+      "mkdir"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    }
+   },
+   "typed": {}
+  },
+  "ftp-server": {
+   "package": "node-red-contrib-ftp-server",
+   "file": "index.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "ip": {
+     "value": ""
+    },
+    "port": {
+     "value": 7021
+    },
+    "passiveportrange": {
+     "value": "",
+     "validate": {
+      "kind": "custom"
+     }
+    }
+   },
+   "selects": {},
+   "typed": {}
+  },
+  "function": {
+   "package": "@node-red/nodes",
+   "file": "core/function/10-function.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": "_DEFAULT_"
+    },
+    "func": {
+     "value": "\nreturn msg;"
+    },
+    "outputs": {
+     "value": 1
+    },
+    "timeout": {},
+    "noerr": {
+     "value": 0,
+     "required": true,
+     "validate": {
+      "kind": "custom"
+     },
+     "missing": "nofield"
+    },
+    "initialize": {
+     "value": ""
+    },
+    "finalize": {
+     "value": ""
+    },
+    "libs": {
+     "value": [],
+     "validate": {
+      "kind": "custom"
+     }
+    }
+   },
+   "selects": {},
+   "typed": {}
+  },
+  "global-config": {
+   "package": "@node-red/nodes",
+   "file": "core/common/91-global-config.html",
+   "config": true,
+   "defaults": {
+    "env": {
+     "value": []
+    },
+    "modules": {
+     "value": {}
+    }
+   },
+   "selects": {},
+   "typed": {}
+  },
+  "html": {
+   "package": "@node-red/nodes",
+   "file": "core/parsers/70-HTML.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "property": {
+     "value": "payload",
+     "validate": {
+      "kind": "typedInput",
+      "typeField": null,
+      "type": "msg",
+      "allowBlank": false,
+      "allowUndefined": true
+     }
+    },
+    "outproperty": {
+     "value": "payload",
+     "validate": {
+      "kind": "typedInput",
+      "typeField": null,
+      "type": "msg",
+      "allowBlank": false,
+      "allowUndefined": true
+     }
+    },
+    "tag": {
+     "value": ""
+    },
+    "ret": {
+     "value": "html"
+    },
+    "as": {
+     "value": "single"
+    },
+    "chr": {
+     "value": "_"
+    }
+   },
+   "selects": {
+    "as": {
+     "values": [
+      "single",
+      "multi"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    },
+    "ret": {
+     "values": [
+      "html",
+      "text",
+      "attr",
+      "compl"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    }
+   },
+   "typed": {}
+  },
+  "http in": {
+   "package": "@node-red/nodes",
+   "file": "core/network/21-httpin.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "url": {
+     "value": "",
+     "required": true,
+     "missing": "blank"
+    },
+    "method": {
+     "value": "get",
+     "required": true
+    },
+    "upload": {
+     "value": false
+    },
+    "skipBodyParsing": {
+     "value": false
+    },
+    "swaggerDoc": {
+     "required": false,
+     "type": "swagger-doc"
+    }
+   },
+   "selects": {
+    "method": {
+     "values": [
+      "get",
+      "post",
+      "put",
+      "delete",
+      "patch"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    }
+   },
+   "typed": {}
+  },
+  "http proxy": {
+   "package": "@node-red/nodes",
+   "file": "core/network/06-httpproxy.html",
+   "config": true,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "url": {
+     "value": "",
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "noproxy": {
+     "value": []
+    }
+   },
+   "selects": {},
+   "typed": {}
+  },
+  "http request": {
+   "package": "@node-red/nodes",
+   "file": "core/network/21-httprequest.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "method": {
+     "value": "GET"
+    },
+    "ret": {
+     "value": "txt"
+    },
+    "paytoqs": {
+     "value": false
+    },
+    "url": {
+     "value": "",
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "tls": {
+     "required": false,
+     "type": "tls-config"
+    },
+    "persist": {
+     "value": false
+    },
+    "proxy": {
+     "required": false,
+     "type": "http proxy"
+    },
+    "insecureHTTPParser": {
+     "value": false
+    },
+    "authType": {
+     "value": ""
+    },
+    "senderr": {
+     "value": false
+    },
+    "headers": {
+     "value": []
+    }
+   },
+   "selects": {
+    "method": {
+     "values": [
+      "GET",
+      "POST",
+      "PUT",
+      "DELETE",
+      "HEAD",
+      "use"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    },
+    "paytoqs": {
+     "values": [
+      "ignore",
+      "query",
+      "body"
+     ],
+     "multiple": false,
+     "missing": "ok",
+     "bool": {
+      "true": "ok",
+      "false": "ok"
+     }
+    },
+    "ret": {
+     "values": [
+      "txt",
+      "bin",
+      "obj"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    }
+   },
+   "typed": {}
+  },
+  "http response": {
+   "package": "@node-red/nodes",
+   "file": "core/network/21-httpin.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "statusCode": {
+     "value": "",
+     "validate": {
+      "kind": "number",
+      "blank": true
+     }
+    },
+    "headers": {
+     "value": {}
+    }
+   },
+   "selects": {},
+   "typed": {}
+  },
+  "inject": {
+   "package": "@node-red/nodes",
+   "file": "core/common/20-inject.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "props": {
+     "value": [
+      {
+       "p": "payload"
+      },
+      {
+       "p": "topic",
+       "vt": "str"
+      }
+     ],
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "repeat": {
+     "value": "",
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "crontab": {
+     "value": ""
+    },
+    "once": {
+     "value": false
+    },
+    "onceDelay": {
+     "value": 0.1,
+     "validate": {
+      "kind": "number",
+      "blank": true
+     }
+    },
+    "topic": {
+     "value": ""
+    },
+    "payload": {
+     "value": "",
+     "validate": {
+      "kind": "typedInput",
+      "typeField": "payloadType",
+      "type": null,
+      "allowBlank": false,
+      "allowUndefined": false
+     }
+    },
+    "payloadType": {
+     "value": "date"
+    }
+   },
+   "selects": {},
+   "typed": {}
+  },
+  "join": {
+   "package": "@node-red/nodes",
+   "file": "core/sequence/17-split.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "mode": {
+     "value": "auto"
+    },
+    "build": {
+     "value": "object"
+    },
+    "property": {
+     "value": "payload",
+     "validate": {
+      "kind": "typedInput",
+      "typeField": "propertyType",
+      "type": null,
+      "allowBlank": false,
+      "allowUndefined": false
+     }
+    },
+    "propertyType": {
+     "value": "msg"
+    },
+    "key": {
+     "value": "topic",
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "joiner": {
+     "value": "\\n"
+    },
+    "joinerType": {
+     "value": "str"
+    },
+    "useparts": {
+     "value": false
+    },
+    "accumulate": {
+     "value": "false"
+    },
+    "timeout": {
+     "value": ""
+    },
+    "count": {
+     "value": ""
+    },
+    "reduceRight": {
+     "value": false
+    },
+    "reduceExp": {},
+    "reduceInit": {},
+    "reduceInitType": {},
+    "reduceFixup": {}
+   },
+   "selects": {
+    "build": {
+     "values": [
+      "string",
+      "buffer",
+      "array",
+      "object",
+      "merged"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    },
+    "mode": {
+     "values": [
+      "auto",
+      "custom",
+      "reduce"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    }
+   },
+   "typed": {
+    "joinerType": {
+     "types": [
+      "str",
+      "bin"
+     ],
+     "default": "str"
+    },
+    "propertyType": {
+     "types": [
+      "msg",
+      "full"
+     ],
+     "default": null
+    }
+   }
+  },
+  "json": {
+   "package": "@node-red/nodes",
+   "file": "core/parsers/70-JSON.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "property": {
+     "value": "payload",
+     "required": true,
+     "validate": {
+      "kind": "typedInput",
+      "typeField": null,
+      "type": "msg",
+      "allowBlank": false,
+      "allowUndefined": true
+     },
+     "missing": "ok"
+    },
+    "action": {
+     "value": ""
+    },
+    "pretty": {
+     "value": false
+    }
+   },
+   "selects": {
+    "action": {
+     "values": [
+      "",
+      "str",
+      "obj"
+     ],
+     "multiple": false,
+     "missing": "ok",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    }
+   },
+   "typed": {}
+  },
+  "link call": {
+   "package": "@node-red/nodes",
+   "file": "core/common/60-link.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "links": {
+     "value": [],
+     "type": "link in[]",
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "linkType": {
+     "value": "static"
+    },
+    "timeout": {
+     "value": "30",
+     "validate": {
+      "kind": "number",
+      "blank": true
+     }
+    }
+   },
+   "selects": {
+    "linkType": {
+     "values": [
+      "static",
+      "dynamic"
+     ],
+     "multiple": false,
+     "missing": "ok",
+     "bool": {
+      "true": "ok",
+      "false": "ok"
+     }
+    }
+   },
+   "typed": {}
+  },
+  "link in": {
+   "package": "@node-red/nodes",
+   "file": "core/common/60-link.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": "_DEFAULT_"
+    },
+    "links": {
+     "value": [],
+     "type": "link out[]"
+    }
+   },
+   "selects": {},
+   "typed": {}
+  },
+  "link out": {
+   "package": "@node-red/nodes",
+   "file": "core/common/60-link.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": "_DEFAULT_"
+    },
+    "mode": {
+     "value": "link"
+    },
+    "links": {
+     "value": [],
+     "type": "link in[]"
+    }
+   },
+   "selects": {
+    "mode": {
+     "values": [
+      "link",
+      "return"
+     ],
+     "multiple": false,
+     "missing": "ok",
+     "bool": {
+      "true": "blank",
+      "false": "ok"
+     }
+    }
+   },
+   "typed": {}
+  },
+  "modbus-client": {
+   "package": "node-red-contrib-modbus",
+   "file": "modbus/modbus-client.html",
+   "config": true,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "clienttype": {
+     "value": "tcp",
+     "required": true
+    },
+    "bufferCommands": {
+     "value": true,
+     "missing": "unchecked"
+    },
+    "stateLogEnabled": {
+     "value": false
+    },
+    "queueLogEnabled": {
+     "value": false
+    },
+    "failureLogEnabled": {
+     "value": true,
+     "missing": "unchecked"
+    },
+    "tcpHost": {
+     "value": "127.0.0.1",
+     "required": true,
+     "missing": "blank"
+    },
+    "tcpPort": {
+     "value": 502,
+     "required": true,
+     "validate": {
+      "kind": "number",
+      "blank": false
+     },
+     "missing": "blank"
+    },
+    "tcpType": {
+     "value": "DEFAULT",
+     "required": true
+    },
+    "serialPort": {
+     "value": "/dev/ttyUSB",
+     "required": true,
+     "missing": "blank"
+    },
+    "serialType": {
+     "value": "RTU-BUFFERD",
+     "required": true
+    },
+    "serialBaudrate": {
+     "value": 9600,
+     "required": true,
+     "validate": {
+      "kind": "number",
+      "blank": false
+     }
+    },
+    "serialDatabits": {
+     "value": 8,
+     "required": true,
+     "validate": {
+      "kind": "number",
+      "blank": false
+     }
+    },
+    "serialStopbits": {
+     "value": 1,
+     "required": true,
+     "validate": {
+      "kind": "number",
+      "blank": false
+     }
+    },
+    "serialParity": {
+     "value": "none",
+     "required": true
+    },
+    "serialConnectionDelay": {
+     "value": 100
+    },
+    "serialAsciiResponseStartDelimiter": {
+     "value": "0x3A"
+    },
+    "unit_id": {
+     "value": 1
+    },
+    "commandDelay": {
+     "value": 1
+    },
+    "clientTimeout": {
+     "value": 1000
+    },
+    "reconnectOnTimeout": {
+     "value": true,
+     "missing": "unchecked"
+    },
+    "reconnectTimeout": {
+     "value": 2000
+    },
+    "parallelUnitIdsAllowed": {
+     "value": true,
+     "missing": "unchecked"
+    },
+    "showErrors": {
+     "value": false
+    },
+    "showWarnings": {
+     "value": true,
+     "missing": "unchecked"
+    },
+    "showLogs": {
+     "value": true,
+     "missing": "unchecked"
+    }
+   },
+   "selects": {
+    "clienttype": {
+     "values": [
+      "tcp",
+      "simpleser",
+      "serial"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    },
+    "serialBaudrate": {
+     "values": [
+      "115200",
+      "57600",
+      "38400",
+      "19200",
+      "9600",
+      "4800",
+      "2400",
+      "1200",
+      "300",
+      "110",
+      "75"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    },
+    "serialDatabits": {
+     "values": [
+      "8",
+      "7",
+      "6",
+      "5"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    },
+    "serialParity": {
+     "values": [
+      "none",
+      "even",
+      "mark",
+      "odd",
+      "space"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    },
+    "serialStopbits": {
+     "values": [
+      "1",
+      "1.5",
+      "2"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    },
+    "serialType": {
+     "values": [
+      "RTU-BUFFERD",
+      "RTU",
+      "ASCII"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    },
+    "tcpType": {
+     "values": [
+      "DEFAULT",
+      "TCP-RTU-BUFFERED",
+      "TELNET",
+      "C701",
+      "UDP"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    }
+   },
+   "typed": {}
+  },
+  "modbus-flex-connector": {
+   "package": "node-red-contrib-modbus",
+   "file": "modbus/modbus-flex-connector.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "maxReconnectsPerMinute": {
+     "value": 4,
+     "required": true,
+     "validate": {
+      "kind": "number",
+      "blank": false
+     },
+     "missing": "nofield"
+    },
+    "emptyQueue": {
+     "value": false
+    },
+    "showStatusActivities": {
+     "value": false
+    },
+    "showErrors": {
+     "value": false
+    },
+    "server": {
+     "required": true,
+     "type": "modbus-client"
+    },
+    "emptyMsgOnFail": {
+     "value": false
+    },
+    "configMsgOnChange": {
+     "value": false
+    }
+   },
+   "selects": {},
+   "typed": {}
+  },
+  "modbus-flex-fc": {
+   "package": "node-red-contrib-modbus",
+   "file": "modbus/modbus-flex-fc.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "showStatusActivities": {
+     "value": false
+    },
+    "showErrors": {
+     "value": true,
+     "missing": "unchecked"
+    },
+    "showWarnings": {
+     "value": true,
+     "missing": "unchecked"
+    },
+    "unitid": {
+     "value": "",
+     "required": true,
+     "missing": "blank"
+    },
+    "server": {
+     "required": true,
+     "type": "modbus-client"
+    },
+    "emptyMsgOnFail": {
+     "value": false
+    },
+    "keepMsgProperties": {
+     "value": false
+    },
+    "mapPath": {
+     "value": ""
+    },
+    "selectedFc": {
+     "value": ""
+    },
+    "fc": {
+     "value": ""
+    },
+    "requestCard": {
+     "value": {}
+    },
+    "responseCard": {
+     "value": {}
+    },
+    "lastSelectedFc": {
+     "value": "0"
+    }
+   },
+   "selects": {},
+   "typed": {}
+  },
+  "modbus-flex-getter": {
+   "package": "node-red-contrib-modbus",
+   "file": "modbus/modbus-flex-getter.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "showStatusActivities": {
+     "value": false
+    },
+    "showErrors": {
+     "value": false
+    },
+    "showWarnings": {
+     "value": true,
+     "missing": "unchecked"
+    },
+    "logIOActivities": {
+     "value": false
+    },
+    "server": {
+     "required": true,
+     "type": "modbus-client"
+    },
+    "useIOFile": {
+     "value": false
+    },
+    "ioFile": {
+     "value": "",
+     "required": false,
+     "type": "modbus-io-config"
+    },
+    "useIOForPayload": {
+     "value": false
+    },
+    "emptyMsgOnFail": {
+     "value": false
+    },
+    "keepMsgProperties": {
+     "value": false
+    },
+    "delayOnStart": {
+     "value": false
+    },
+    "enableDeformedMessages": {
+     "value": false
+    },
+    "startDelayTime": {
+     "value": ""
+    }
+   },
+   "selects": {},
+   "typed": {}
+  },
+  "modbus-flex-sequencer": {
+   "package": "node-red-contrib-modbus",
+   "file": "modbus/modbus-flex-sequencer.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "sequences": {
+     "value": [
+      {
+       "name": null,
+       "unitid": null,
+       "fc": "FC1",
+       "address": null,
+       "quantity": null
+      }
+     ],
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "server": {
+     "required": true,
+     "type": "modbus-client"
+    },
+    "showStatusActivities": {
+     "value": false
+    },
+    "showErrors": {
+     "value": false
+    },
+    "showWarnings": {
+     "value": true,
+     "missing": "unchecked"
+    },
+    "logIOActivities": {
+     "value": false
+    },
+    "useIOFile": {
+     "value": false
+    },
+    "ioFile": {
+     "value": "",
+     "required": false,
+     "type": "modbus-io-config"
+    },
+    "useIOForPayload": {
+     "value": false
+    },
+    "emptyMsgOnFail": {
+     "value": false
+    },
+    "keepMsgProperties": {
+     "value": false
+    },
+    "delayOnStart": {
+     "value": false
+    },
+    "startDelayTime": {
+     "value": ""
+    }
+   },
+   "selects": {},
+   "typed": {}
+  },
+  "modbus-flex-write": {
+   "package": "node-red-contrib-modbus",
+   "file": "modbus/modbus-flex-write.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "showStatusActivities": {
+     "value": false
+    },
+    "showErrors": {
+     "value": false
+    },
+    "showWarnings": {
+     "value": true,
+     "missing": "unchecked"
+    },
+    "server": {
+     "required": true,
+     "type": "modbus-client"
+    },
+    "emptyMsgOnFail": {
+     "value": false
+    },
+    "keepMsgProperties": {
+     "value": false
+    },
+    "delayOnStart": {
+     "value": false
+    },
+    "startDelayTime": {
+     "value": ""
+    }
+   },
+   "selects": {},
+   "typed": {}
+  },
+  "modbus-getter": {
+   "package": "node-red-contrib-modbus",
+   "file": "modbus/modbus-getter.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "showStatusActivities": {
+     "value": false
+    },
+    "showErrors": {
+     "value": false
+    },
+    "showWarnings": {
+     "value": true,
+     "missing": "unchecked"
+    },
+    "logIOActivities": {
+     "value": false
+    },
+    "unitid": {
+     "value": ""
+    },
+    "dataType": {
+     "value": "",
+     "required": true
+    },
+    "adr": {
+     "value": "",
+     "required": true,
+     "validate": {
+      "kind": "number",
+      "blank": false
+     },
+     "missing": "blank"
+    },
+    "quantity": {
+     "value": "",
+     "required": true,
+     "validate": {
+      "kind": "number",
+      "blank": false
+     },
+     "missing": "blank"
+    },
+    "server": {
+     "required": true,
+     "type": "modbus-client"
+    },
+    "useIOFile": {
+     "value": false
+    },
+    "ioFile": {
+     "value": "",
+     "required": false,
+     "type": "modbus-io-config"
+    },
+    "useIOForPayload": {
+     "value": false
+    },
+    "emptyMsgOnFail": {
+     "value": false
+    },
+    "keepMsgProperties": {
+     "value": false
+    },
+    "delayOnStart": {
+     "value": false
+    },
+    "enableDeformedMessages": {
+     "value": false,
+     "required": false
+    },
+    "startDelayTime": {
+     "value": ""
+    }
+   },
+   "selects": {
+    "dataType": {
+     "values": [
+      "Coil",
+      "Input",
+      "HoldingRegister",
+      "InputRegister"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    }
+   },
+   "typed": {}
+  },
+  "modbus-io-config": {
+   "package": "node-red-contrib-modbus",
+   "file": "modbus/modbus-io-config.html",
+   "config": true,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "path": {
+     "value": "",
+     "required": true,
+     "missing": "blank"
+    },
+    "format": {
+     "value": "utf8"
+    },
+    "addressOffset": {
+     "value": 0
+    }
+   },
+   "selects": {
+    "format": {
+     "values": [
+      "utf8",
+      "ansi",
+      ""
+     ],
+     "multiple": false,
+     "missing": "ok",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    }
+   },
+   "typed": {}
+  },
+  "modbus-queue-info": {
+   "package": "node-red-contrib-modbus",
+   "file": "modbus/modbus-queue-info.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "topic": {
+     "value": ""
+    },
+    "unitid": {
+     "value": 1,
+     "validate": {
+      "kind": "number",
+      "blank": false
+     }
+    },
+    "queueReadIntervalTime": {
+     "value": 1000,
+     "validate": {
+      "kind": "number",
+      "blank": false
+     }
+    },
+    "lowLowLevel": {
+     "value": 25,
+     "validate": {
+      "kind": "number",
+      "blank": false
+     }
+    },
+    "lowLevel": {
+     "value": 75,
+     "validate": {
+      "kind": "number",
+      "blank": false
+     }
+    },
+    "highLevel": {
+     "value": 150,
+     "validate": {
+      "kind": "number",
+      "blank": false
+     }
+    },
+    "highHighLevel": {
+     "value": 300,
+     "validate": {
+      "kind": "number",
+      "blank": false
+     }
+    },
+    "server": {
+     "required": true,
+     "type": "modbus-client"
+    },
+    "errorOnHighLevel": {
+     "value": false
+    },
+    "showStatusActivities": {
+     "value": true,
+     "missing": "unchecked"
+    },
+    "updateOnAllQueueChanges": {
+     "value": false
+    },
+    "updateOnAllUnitQueues": {
+     "value": false
+    }
+   },
+   "selects": {},
+   "typed": {}
+  },
+  "modbus-read": {
+   "package": "node-red-contrib-modbus",
+   "file": "modbus/modbus-read.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "topic": {
+     "value": ""
+    },
+    "showStatusActivities": {
+     "value": false
+    },
+    "logIOActivities": {
+     "value": false
+    },
+    "showErrors": {
+     "value": false
+    },
+    "showWarnings": {
+     "value": true,
+     "missing": "unchecked"
+    },
+    "unitid": {
+     "value": ""
+    },
+    "dataType": {
+     "value": "",
+     "required": true
+    },
+    "adr": {
+     "value": "",
+     "required": true,
+     "validate": {
+      "kind": "number",
+      "blank": false
+     },
+     "missing": "blank"
+    },
+    "quantity": {
+     "value": "",
+     "required": true,
+     "validate": {
+      "kind": "number",
+      "blank": false
+     },
+     "missing": "blank"
+    },
+    "rate": {
+     "value": "",
+     "required": true,
+     "validate": {
+      "kind": "custom"
+     },
+     "missing": "blank"
+    },
+    "rateUnit": {
+     "value": "",
+     "required": true,
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "delayOnStart": {
+     "value": false
+    },
+    "enableDeformedMessages": {
+     "value": false
+    },
+    "startDelayTime": {
+     "value": ""
+    },
+    "server": {
+     "required": true,
+     "type": "modbus-client"
+    },
+    "useIOFile": {
+     "value": false
+    },
+    "ioFile": {
+     "value": "",
+     "required": false,
+     "type": "modbus-io-config"
+    },
+    "useIOForPayload": {
+     "value": false
+    },
+    "emptyMsgOnFail": {
+     "value": false
+    }
+   },
+   "selects": {
+    "dataType": {
+     "values": [
+      "Coil",
+      "Input",
+      "HoldingRegister",
+      "InputRegister"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    },
+    "rateUnit": {
+     "values": [
+      "ms",
+      "s",
+      "m",
+      "h"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    }
+   },
+   "typed": {}
+  },
+  "modbus-response": {
+   "package": "node-red-contrib-modbus",
+   "file": "modbus/modbus-response.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "registerShowMax": {
+     "value": 20,
+     "validate": {
+      "kind": "number",
+      "blank": false
+     }
+    }
+   },
+   "selects": {},
+   "typed": {}
+  },
+  "modbus-response-filter": {
+   "package": "node-red-contrib-modbus",
+   "file": "modbus/modbus-response-filter.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "filter": {
+     "value": ""
+    },
+    "registers": {
+     "value": 0,
+     "validate": {
+      "kind": "number",
+      "blank": false
+     }
+    },
+    "ioFile": {
+     "value": "",
+     "required": true,
+     "type": "modbus-io-config"
+    },
+    "filterResponseBuffer": {
+     "value": true,
+     "missing": "unchecked"
+    },
+    "filterValues": {
+     "value": true,
+     "missing": "unchecked"
+    },
+    "filterInput": {
+     "value": true,
+     "missing": "unchecked"
+    },
+    "showStatusActivities": {
+     "value": false
+    },
+    "showErrors": {
+     "value": false
+    },
+    "showWarnings": {
+     "value": true,
+     "missing": "unchecked"
+    }
+   },
+   "selects": {},
+   "typed": {}
+  },
+  "modbus-server": {
+   "package": "node-red-contrib-modbus",
+   "file": "modbus/modbus-server.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "logEnabled": {
+     "value": false
+    },
+    "hostname": {
+     "value": "0.0.0.0"
+    },
+    "serverPort": {
+     "value": 10502,
+     "required": true,
+     "validate": {
+      "kind": "number",
+      "blank": false
+     },
+     "missing": "blank"
+    },
+    "responseDelay": {
+     "value": 100,
+     "required": true,
+     "validate": {
+      "kind": "number",
+      "blank": false
+     },
+     "missing": "nofield"
+    },
+    "delayUnit": {
+     "value": "ms",
+     "required": true,
+     "validate": {
+      "kind": "custom"
+     },
+     "missing": "nofield"
+    },
+    "coilsBufferSize": {
+     "value": 10000,
+     "validate": {
+      "kind": "number",
+      "blank": false
+     }
+    },
+    "holdingBufferSize": {
+     "value": 10000,
+     "validate": {
+      "kind": "number",
+      "blank": false
+     }
+    },
+    "inputBufferSize": {
+     "value": 10000,
+     "validate": {
+      "kind": "number",
+      "blank": false
+     }
+    },
+    "discreteBufferSize": {
+     "value": 10000,
+     "validate": {
+      "kind": "number",
+      "blank": false
+     }
+    },
+    "showErrors": {
+     "value": false
+    },
+    "showStatusActivities": {
+     "value": false
+    }
+   },
+   "selects": {},
+   "typed": {}
+  },
+  "modbus-write": {
+   "package": "node-red-contrib-modbus",
+   "file": "modbus/modbus-write.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "showStatusActivities": {
+     "value": false
+    },
+    "showErrors": {
+     "value": false
+    },
+    "showWarnings": {
+     "value": true,
+     "missing": "unchecked"
+    },
+    "unitid": {
+     "value": ""
+    },
+    "dataType": {
+     "value": "",
+     "required": true
+    },
+    "adr": {
+     "value": "",
+     "required": true,
+     "validate": {
+      "kind": "number",
+      "blank": false
+     },
+     "missing": "blank"
+    },
+    "quantity": {
+     "value": "",
+     "required": true,
+     "validate": {
+      "kind": "number",
+      "blank": false
+     },
+     "missing": "blank"
+    },
+    "server": {
+     "required": true,
+     "type": "modbus-client"
+    },
+    "emptyMsgOnFail": {
+     "value": false
+    },
+    "keepMsgProperties": {
+     "value": false
+    },
+    "delayOnStart": {
+     "value": false
+    },
+    "startDelayTime": {
+     "value": ""
+    }
+   },
+   "selects": {
+    "dataType": {
+     "values": [
+      "Coil",
+      "HoldingRegister",
+      "MCoils",
+      "MHoldingRegisters"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    }
+   },
+   "typed": {}
+  },
+  "mqtt in": {
+   "package": "@node-red/nodes",
+   "file": "core/network/10-mqtt.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "topic": {
+     "value": "",
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "qos": {
+     "value": "2"
+    },
+    "datatype": {
+     "value": "auto-detect",
+     "required": true
+    },
+    "broker": {
+     "required": true,
+     "type": "mqtt-broker"
+    },
+    "nl": {
+     "value": false
+    },
+    "rap": {
+     "value": true,
+     "missing": "unchecked"
+    },
+    "rh": {
+     "value": 0
+    },
+    "inputs": {
+     "value": 0
+    }
+   },
+   "selects": {
+    "datatype": {
+     "values": [
+      "auto-detect",
+      "auto",
+      "buffer",
+      "utf8",
+      "json",
+      "base64"
+     ],
+     "multiple": false,
+     "missing": "ok",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    },
+    "qos": {
+     "values": [
+      "0",
+      "1",
+      "2"
+     ],
+     "multiple": false,
+     "missing": "ok",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    },
+    "rh": {
+     "values": [
+      "0",
+      "1",
+      "2"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    }
+   },
+   "typed": {}
+  },
+  "mqtt out": {
+   "package": "@node-red/nodes",
+   "file": "core/network/10-mqtt.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "topic": {
+     "value": "",
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "qos": {
+     "value": ""
+    },
+    "retain": {
+     "value": ""
+    },
+    "respTopic": {
+     "value": ""
+    },
+    "contentType": {
+     "value": ""
+    },
+    "userProps": {
+     "value": ""
+    },
+    "correl": {
+     "value": ""
+    },
+    "expiry": {
+     "value": ""
+    },
+    "broker": {
+     "required": true,
+     "type": "mqtt-broker"
+    }
+   },
+   "selects": {
+    "qos": {
+     "values": [
+      "",
+      "0",
+      "1",
+      "2"
+     ],
+     "multiple": false,
+     "missing": "ok",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    },
+    "retain": {
+     "values": [
+      "",
+      "false",
+      "true"
+     ],
+     "multiple": false,
+     "missing": "ok",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    }
+   },
+   "typed": {}
+  },
+  "mqtt-broker": {
+   "package": "@node-red/nodes",
+   "file": "core/network/10-mqtt.html",
+   "config": true,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "broker": {
+     "value": "",
+     "required": true,
+     "missing": "blank"
+    },
+    "port": {
+     "value": 1883,
+     "required": false,
+     "validate": {
+      "kind": "number",
+      "blank": true
+     }
+    },
+    "tls": {
+     "required": false,
+     "type": "tls-config"
+    },
+    "clientid": {
+     "value": "",
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "autoConnect": {
+     "value": true,
+     "missing": "ok"
+    },
+    "usetls": {
+     "value": false
+    },
+    "verifyservercert": {
+     "value": false
+    },
+    "compatmode": {
+     "value": false
+    },
+    "protocolVersion": {
+     "value": 4
+    },
+    "keepalive": {
+     "value": 60,
+     "validate": {
+      "kind": "number",
+      "blank": false
+     }
+    },
+    "cleansession": {
+     "value": true,
+     "missing": "ok"
+    },
+    "autoUnsubscribe": {
+     "value": true,
+     "missing": "ok"
+    },
+    "birthTopic": {
+     "value": "",
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "birthQos": {
+     "value": "0"
+    },
+    "birthRetain": {
+     "value": "false"
+    },
+    "birthPayload": {
+     "value": ""
+    },
+    "birthMsg": {
+     "value": {}
+    },
+    "closeTopic": {
+     "value": "",
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "closeQos": {
+     "value": "0"
+    },
+    "closeRetain": {
+     "value": "false"
+    },
+    "closePayload": {
+     "value": ""
+    },
+    "closeMsg": {
+     "value": {}
+    },
+    "willTopic": {
+     "value": "",
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "willQos": {
+     "value": "0"
+    },
+    "willRetain": {
+     "value": "false"
+    },
+    "willPayload": {
+     "value": ""
+    },
+    "willMsg": {
+     "value": {}
+    },
+    "userProps": {
+     "value": ""
+    },
+    "sessionExpiry": {
+     "value": 0
+    }
+   },
+   "selects": {
+    "birthQos": {
+     "values": [
+      "0",
+      "1",
+      "2"
+     ],
+     "multiple": false,
+     "missing": "ok",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    },
+    "birthRetain": {
+     "values": [
+      "false",
+      "true"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    },
+    "closeQos": {
+     "values": [
+      "0",
+      "1",
+      "2"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    },
+    "closeRetain": {
+     "values": [
+      "false",
+      "true"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    },
+    "protocolVersion": {
+     "values": [
+      "3",
+      "4",
+      "5"
+     ],
+     "multiple": false,
+     "missing": "ok",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    },
+    "willQos": {
+     "values": [
+      "0",
+      "1",
+      "2"
+     ],
+     "multiple": false,
+     "missing": "ok",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    },
+    "willRetain": {
+     "values": [
+      "false",
+      "true"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    }
+   },
+   "typed": {}
+  },
+  "range": {
+   "package": "@node-red/nodes",
+   "file": "core/function/16-range.html",
+   "config": false,
+   "defaults": {
+    "minin": {
+     "value": "",
+     "required": true,
+     "validate": {
+      "kind": "number",
+      "blank": false
+     },
+     "missing": "blank"
+    },
+    "maxin": {
+     "value": "",
+     "required": true,
+     "validate": {
+      "kind": "number",
+      "blank": false
+     },
+     "missing": "blank"
+    },
+    "minout": {
+     "value": "",
+     "required": true,
+     "validate": {
+      "kind": "number",
+      "blank": false
+     },
+     "missing": "blank"
+    },
+    "maxout": {
+     "value": "",
+     "required": true,
+     "validate": {
+      "kind": "number",
+      "blank": false
+     },
+     "missing": "blank"
+    },
+    "action": {
+     "value": "scale"
+    },
+    "round": {
+     "value": false
+    },
+    "property": {
+     "value": "payload",
+     "required": true,
+     "validate": {
+      "kind": "typedInput",
+      "typeField": null,
+      "type": "msg",
+      "allowBlank": true,
+      "allowUndefined": false
+     },
+     "missing": "ok"
+    },
+    "name": {
+     "value": ""
+    }
+   },
+   "selects": {
+    "action": {
+     "values": [
+      "scale",
+      "clamp",
+      "roll",
+      "drop"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    }
+   },
+   "typed": {}
+  },
+  "rbe": {
+   "package": "@node-red/nodes",
+   "file": "core/function/rbe.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "func": {
+     "value": "rbe"
+    },
+    "gap": {
+     "value": "",
+     "validate": {
+      "kind": "regex",
+      "source": "^(\\d*[.]*\\d*|)(%|)$",
+      "flags": ""
+     }
+    },
+    "start": {
+     "value": ""
+    },
+    "inout": {
+     "value": "out"
+    },
+    "septopics": {
+     "value": true,
+     "missing": "ok"
+    },
+    "property": {
+     "value": "payload",
+     "required": true,
+     "validate": {
+      "kind": "typedInput",
+      "typeField": null,
+      "type": "msg",
+      "allowBlank": false,
+      "allowUndefined": true
+     },
+     "missing": "ok"
+    },
+    "topi": {
+     "value": "topic",
+     "required": true,
+     "validate": {
+      "kind": "typedInput",
+      "typeField": null,
+      "type": "msg",
+      "allowBlank": false,
+      "allowUndefined": true
+     },
+     "missing": "ok"
+    }
+   },
+   "selects": {
+    "func": {
+     "values": [
+      "rbe",
+      "rbei",
+      "deadbandEq",
+      "deadband",
+      "narrowbandEq",
+      "narrowband"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    },
+    "inout": {
+     "values": [
+      "out",
+      "in"
+     ],
+     "multiple": false,
+     "missing": "ok",
+     "bool": {
+      "true": "ok",
+      "false": "ok"
+     }
+    }
+   },
+   "typed": {}
+  },
+  "rpi-sensehat in": {
+   "package": "node-red-node-pi-sense-hat",
+   "file": "sensehat.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "motion": {
+     "value": true,
+     "missing": "unchecked"
+    },
+    "env": {
+     "value": true,
+     "missing": "unchecked"
+    },
+    "stick": {
+     "value": true,
+     "missing": "unchecked"
+    }
+   },
+   "selects": {},
+   "typed": {}
+  },
+  "rpi-sensehat out": {
+   "package": "node-red-node-pi-sense-hat",
+   "file": "sensehat.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    }
+   },
+   "selects": {},
+   "typed": {}
+  },
+  "sftp": {
+   "package": "node-red-contrib-ftp",
+   "file": "sftp.html",
+   "config": true,
+   "defaults": {
+    "host": {
+     "value": ""
+    },
+    "port": {
+     "value": ""
+    },
+    "forceIPv4": {
+     "value": false
+    },
+    "forceIPv6": {
+     "value": false
+    },
+    "username": {
+     "value": ""
+    },
+    "privateKey": {
+     "value": ""
+    },
+    "readyTimeout": {
+     "value": ""
+    },
+    "strictVendor": {
+     "value": true,
+     "missing": "unchecked"
+    },
+    "debug": {
+     "value": ""
+    },
+    "retries": {
+     "value": ""
+    },
+    "retry_factor": {
+     "value": ""
+    },
+    "retry_minTimeout": {
+     "value": ""
+    }
+   },
+   "selects": {},
+   "typed": {}
+  },
+  "sftp in": {
+   "package": "node-red-contrib-ftp",
+   "file": "sftp.html",
+   "config": false,
+   "defaults": {
+    "sftp": {
+     "required": true,
+     "type": "sftp"
+    },
+    "operation": {
+     "value": "list",
+     "required": true
+    },
+    "path": {
+     "value": ""
+    },
+    "pattern": {
+     "value": ""
+    },
+    "filename": {
+     "value": ""
+    },
+    "localFilename": {
+     "value": ""
+    },
+    "name": {
+     "value": ""
+    }
+   },
+   "selects": {
+    "operation": {
+     "values": [
+      "list",
+      "get",
+      "put",
+      "append",
+      "delete",
+      "mkdir"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    }
+   },
+   "typed": {}
+  },
+  "sort": {
+   "package": "@node-red/nodes",
+   "file": "core/sequence/18-sort.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "order": {
+     "value": "ascending"
+    },
+    "as_num": {
+     "value": false
+    },
+    "target": {
+     "value": "payload"
+    },
+    "targetType": {
+     "value": "msg"
+    },
+    "msgKey": {
+     "value": "payload"
+    },
+    "msgKeyType": {
+     "value": "elem"
+    },
+    "seqKey": {
+     "value": "payload"
+    },
+    "seqKeyType": {
+     "value": "msg"
+    }
+   },
+   "selects": {
+    "order": {
+     "values": [
+      "ascending",
+      "descending"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    }
+   },
+   "typed": {
+    "msgKeyType": {
+     "types": [
+      "elem",
+      "jsonata"
+     ],
+     "default": "elem"
+    },
+    "seqKeyType": {
+     "types": [
+      "msg",
+      "jsonata"
+     ],
+     "default": "msg"
+    },
+    "targetType": {
+     "types": [
+      "msg",
+      "seq"
+     ],
+     "default": "msg"
+    }
+   }
+  },
+  "split": {
+   "package": "@node-red/nodes",
+   "file": "core/sequence/17-split.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "splt": {
+     "value": "\\n"
+    },
+    "spltType": {
+     "value": "str"
+    },
+    "arraySplt": {
+     "value": 1
+    },
+    "arraySpltType": {
+     "value": "len"
+    },
+    "stream": {
+     "value": false
+    },
+    "addname": {
+     "value": "",
+     "validate": {
+      "kind": "typedInput",
+      "typeField": null,
+      "type": "msg",
+      "allowBlank": true,
+      "allowUndefined": false
+     }
+    },
+    "property": {
+     "value": "payload",
+     "required": true,
+     "missing": "ok"
+    }
+   },
+   "selects": {},
+   "typed": {
+    "arraySpltType": {
+     "types": [
+      "len"
+     ],
+     "default": "len"
+    },
+    "spltType": {
+     "types": [
+      "str",
+      "bin",
+      "len"
+     ],
+     "default": "str"
+    }
+   }
+  },
+  "sqlite": {
+   "package": "node-red-node-sqlite",
+   "file": "sqlite.html",
+   "config": false,
+   "defaults": {
+    "mydb": {
+     "required": true,
+     "type": "sqlitedb"
+    },
+    "sqlquery": {
+     "value": "msg.topic",
+     "required": true
+    },
+    "sql": {
+     "value": ""
+    },
+    "name": {
+     "value": ""
+    }
+   },
+   "selects": {
+    "sqlquery": {
+     "values": [
+      "msg.topic",
+      "fixed",
+      "prepared",
+      "batch"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    }
+   },
+   "typed": {}
+  },
+  "sqlitedb": {
+   "package": "node-red-node-sqlite",
+   "file": "sqlite.html",
+   "config": true,
+   "defaults": {
+    "db": {
+     "value": "",
+     "required": true,
+     "missing": "blank"
+    },
+    "mode": {
+     "value": "RWC"
+    }
+   },
+   "selects": {
+    "mode": {
+     "values": [
+      "RWC",
+      "RW",
+      "RO"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    }
+   },
+   "typed": {}
+  },
+  "status": {
+   "package": "@node-red/nodes",
+   "file": "core/common/25-status.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "scope": {
+     "value": null,
+     "type": "*[]"
+    }
+   },
+   "selects": {},
+   "typed": {}
+  },
+  "switch": {
+   "package": "@node-red/nodes",
+   "file": "core/function/10-switch.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "property": {
+     "value": "payload",
+     "required": true,
+     "validate": {
+      "kind": "typedInput",
+      "typeField": "propertyType",
+      "type": null,
+      "allowBlank": false,
+      "allowUndefined": false
+     },
+     "missing": "blank"
+    },
+    "propertyType": {
+     "value": "msg"
+    },
+    "rules": {
+     "value": [
+      {
+       "t": "eq",
+       "v": "",
+       "vt": "str"
+      }
+     ],
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "checkall": {
+     "value": "true",
+     "required": true
+    },
+    "repair": {
+     "value": false
+    },
+    "outputs": {
+     "value": 1
+    }
+   },
+   "selects": {
+    "checkall": {
+     "values": [
+      "true",
+      "false"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    }
+   },
+   "typed": {}
+  },
+  "tcp in": {
+   "package": "@node-red/nodes",
+   "file": "core/network/31-tcpin.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "server": {
+     "value": "server",
+     "required": true
+    },
+    "host": {
+     "value": "",
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "port": {
+     "value": "",
+     "required": true,
+     "validate": {
+      "kind": "number",
+      "blank": false
+     },
+     "missing": "blank"
+    },
+    "datamode": {
+     "value": "stream"
+    },
+    "datatype": {
+     "value": "buffer"
+    },
+    "newline": {
+     "value": ""
+    },
+    "topic": {
+     "value": ""
+    },
+    "trim": {
+     "value": false
+    },
+    "base64": {
+     "value": false,
+     "required": true,
+     "missing": "nofield"
+    },
+    "tls": {
+     "value": "",
+     "required": false,
+     "type": "tls-config"
+    }
+   },
+   "selects": {
+    "datamode": {
+     "values": [
+      "stream",
+      "single"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    },
+    "datatype": {
+     "values": [
+      "buffer",
+      "utf8",
+      "base64"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    },
+    "server": {
+     "values": [
+      "server",
+      "client"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    }
+   },
+   "typed": {}
+  },
+  "tcp out": {
+   "package": "@node-red/nodes",
+   "file": "core/network/31-tcpin.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "host": {
+     "value": "",
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "port": {
+     "value": "",
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "beserver": {
+     "value": "client",
+     "required": true
+    },
+    "base64": {
+     "value": false,
+     "required": true,
+     "missing": "unchecked"
+    },
+    "end": {
+     "value": false,
+     "required": true,
+     "missing": "unchecked"
+    },
+    "tls": {
+     "value": "",
+     "required": false,
+     "type": "tls-config"
+    }
+   },
+   "selects": {
+    "beserver": {
+     "values": [
+      "server",
+      "client",
+      "reply"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    }
+   },
+   "typed": {}
+  },
+  "tcp request": {
+   "package": "@node-red/nodes",
+   "file": "core/network/31-tcpin.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "server": {
+     "value": ""
+    },
+    "port": {
+     "value": "",
+     "validate": {
+      "kind": "regex",
+      "source": "^(\\d*|)$",
+      "flags": ""
+     }
+    },
+    "out": {
+     "value": "time",
+     "required": true
+    },
+    "ret": {
+     "value": "buffer"
+    },
+    "splitc": {
+     "value": "0",
+     "required": true,
+     "missing": "blank"
+    },
+    "newline": {
+     "value": ""
+    },
+    "trim": {
+     "value": false
+    },
+    "tls": {
+     "value": "",
+     "required": false,
+     "type": "tls-config"
+    }
+   },
+   "selects": {
+    "out": {
+     "values": [
+      "time",
+      "char",
+      "count",
+      "sit",
+      "immed"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    },
+    "ret": {
+     "values": [
+      "buffer",
+      "string"
+     ],
+     "multiple": false,
+     "missing": "ok",
+     "bool": {
+      "true": "ok",
+      "false": "ok"
+     }
+    }
+   },
+   "typed": {}
+  },
+  "template": {
+   "package": "@node-red/nodes",
+   "file": "core/function/80-template.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "field": {
+     "value": "payload",
+     "validate": {
+      "kind": "typedInput",
+      "typeField": "fieldType",
+      "type": null,
+      "allowBlank": false,
+      "allowUndefined": false
+     }
+    },
+    "fieldType": {
+     "value": "msg"
+    },
+    "format": {
+     "value": "handlebars"
+    },
+    "syntax": {
+     "value": "mustache"
+    },
+    "template": {
+     "value": "This is the payload: {{payload}} !"
+    },
+    "output": {
+     "value": "str"
+    }
+   },
+   "selects": {
+    "format": {
+     "values": [
+      "handlebars",
+      "html",
+      "json",
+      "javascript",
+      "css",
+      "markdown",
+      "php",
+      "python",
+      "sql",
+      "yaml",
+      "text"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    },
+    "output": {
+     "values": [
+      "str",
+      "json",
+      "yaml"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    },
+    "syntax": {
+     "values": [
+      "mustache",
+      "plain"
+     ],
+     "multiple": false,
+     "missing": "ok",
+     "bool": {
+      "true": "blank",
+      "false": "ok"
+     }
+    }
+   },
+   "typed": {
+    "fieldType": {
+     "types": [
+      "msg",
+      "flow",
+      "global"
+     ],
+     "default": "msg"
+    }
+   }
+  },
+  "tls-config": {
+   "package": "@node-red/nodes",
+   "file": "core/network/05-tls.html",
+   "config": true,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "certType": {
+     "value": "files"
+    },
+    "cert": {
+     "value": "",
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "key": {
+     "value": "",
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "p12": {
+     "value": ""
+    },
+    "p12name": {
+     "value": ""
+    },
+    "ca": {
+     "value": ""
+    },
+    "certname": {
+     "value": ""
+    },
+    "keyname": {
+     "value": ""
+    },
+    "caname": {
+     "value": ""
+    },
+    "servername": {
+     "value": ""
+    },
+    "verifyservercert": {
+     "value": true,
+     "missing": "unchecked"
+    },
+    "alpnprotocol": {
+     "value": ""
+    },
+    "certEnv": {
+     "value": ""
+    },
+    "keyEnv": {
+     "value": ""
+    },
+    "caEnv": {
+     "value": ""
+    }
+   },
+   "selects": {
+    "certType": {
+     "values": [
+      "files",
+      "pfx",
+      "env"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    }
+   },
+   "typed": {}
+  },
+  "trigger": {
+   "package": "@node-red/nodes",
+   "file": "core/function/89-trigger.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "op1": {
+     "value": "1",
+     "validate": {
+      "kind": "typedInput",
+      "typeField": "op1type",
+      "type": null,
+      "allowBlank": false,
+      "allowUndefined": false
+     }
+    },
+    "op2": {
+     "value": "0",
+     "validate": {
+      "kind": "typedInput",
+      "typeField": "op2type",
+      "type": null,
+      "allowBlank": false,
+      "allowUndefined": false
+     }
+    },
+    "op1type": {
+     "value": "val"
+    },
+    "op2type": {
+     "value": "val"
+    },
+    "duration": {
+     "value": "250",
+     "required": true,
+     "validate": {
+      "kind": "number",
+      "blank": false
+     },
+     "missing": "ok"
+    },
+    "extend": {
+     "value": "false"
+    },
+    "overrideDelay": {
+     "value": "false"
+    },
+    "units": {
+     "value": "ms"
+    },
+    "reset": {
+     "value": ""
+    },
+    "bytopic": {
+     "value": "all"
+    },
+    "topic": {
+     "value": "topic",
+     "required": true,
+     "missing": "ok"
+    },
+    "outputs": {
+     "value": 1
+    }
+   },
+   "selects": {
+    "bytopic": {
+     "values": [
+      "all",
+      "topic"
+     ],
+     "multiple": false,
+     "missing": "ok",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    },
+    "units": {
+     "values": [
+      "ms",
+      "s",
+      "min",
+      "hr"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    }
+   },
+   "typed": {
+    "op1type": {
+     "types": [
+      "flow",
+      "global",
+      "str",
+      "num",
+      "bool",
+      "json",
+      "bin",
+      "date",
+      "env",
+      "pay",
+      "nul"
+     ],
+     "default": "str"
+    },
+    "op2type": {
+     "types": [
+      "flow",
+      "global",
+      "str",
+      "num",
+      "bool",
+      "json",
+      "bin",
+      "date",
+      "env",
+      "pay",
+      "payl",
+      "nul"
+     ],
+     "default": "str"
+    }
+   }
+  },
+  "udp in": {
+   "package": "@node-red/nodes",
+   "file": "core/network/32-udp.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "iface": {
+     "value": ""
+    },
+    "port": {
+     "value": "",
+     "required": true,
+     "validate": {
+      "kind": "number",
+      "blank": false
+     },
+     "missing": "blank"
+    },
+    "ipv": {
+     "value": "udp4"
+    },
+    "multicast": {
+     "value": "false"
+    },
+    "group": {
+     "value": "",
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "datatype": {
+     "value": "buffer",
+     "required": true
+    }
+   },
+   "selects": {
+    "datatype": {
+     "values": [
+      "buffer",
+      "utf8",
+      "base64"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    },
+    "ipv": {
+     "values": [
+      "udp4",
+      "udp6"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    },
+    "multicast": {
+     "values": [
+      "false",
+      "true"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    }
+   },
+   "typed": {}
+  },
+  "udp out": {
+   "package": "@node-red/nodes",
+   "file": "core/network/32-udp.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "addr": {
+     "value": ""
+    },
+    "iface": {
+     "value": ""
+    },
+    "port": {
+     "value": ""
+    },
+    "ipv": {
+     "value": "udp4"
+    },
+    "outport": {
+     "value": ""
+    },
+    "base64": {
+     "value": false,
+     "required": true,
+     "missing": "unchecked"
+    },
+    "multicast": {
+     "value": "false"
+    }
+   },
+   "selects": {
+    "ipv": {
+     "values": [
+      "udp4",
+      "udp6"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    },
+    "multicast": {
+     "values": [
+      "false",
+      "broad",
+      "multi"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    }
+   },
+   "typed": {}
+  },
+  "ui-audio": {
+   "package": "@flowfuse/node-red-dashboard",
+   "file": "nodes/widgets/ui_audio.html",
+   "config": false,
+   "defaults": {
+    "group": {
+     "type": "ui-group",
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "ui": {
+     "type": "ui-base",
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "name": {
+     "value": ""
+    },
+    "order": {
+     "value": 0
+    },
+    "width": {
+     "value": 0,
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "height": {
+     "value": 0
+    },
+    "mode": {
+     "value": "src"
+    },
+    "voice": {
+     "value": ""
+    },
+    "src": {
+     "value": ""
+    },
+    "autoplay": {
+     "value": "off"
+    },
+    "loop": {
+     "value": "off"
+    },
+    "muted": {
+     "value": "off"
+    },
+    "className": {
+     "value": ""
+    }
+   },
+   "selects": {
+    "autoplay": {
+     "values": [
+      "on",
+      "off"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    },
+    "loop": {
+     "values": [
+      "on",
+      "off"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    },
+    "mode": {
+     "values": [
+      "src",
+      "tts"
+     ],
+     "multiple": false,
+     "missing": "ok",
+     "bool": {
+      "true": "ok",
+      "false": "ok"
+     }
+    },
+    "muted": {
+     "values": [
+      "on",
+      "off"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    }
+   },
+   "typed": {}
+  },
+  "ui-base": {
+   "package": "@flowfuse/node-red-dashboard",
+   "file": "nodes/config/ui_base.html",
+   "config": true,
+   "defaults": {
+    "name": {
+     "value": "@flowfuse/node-red-dashboard/ui-base:ui-base.label.uiName",
+     "required": true,
+     "missing": "blank"
+    },
+    "path": {
+     "value": "/dashboard",
+     "required": true,
+     "missing": "blank"
+    },
+    "appIcon": {
+     "value": ""
+    },
+    "includeClientData": {
+     "value": true
+    },
+    "acceptsClientConfig": {
+     "value": [
+      "ui-notification",
+      "ui-control"
+     ]
+    },
+    "showPathInSidebar": {
+     "value": false
+    },
+    "headerContent": {
+     "value": "page"
+    },
+    "navigationStyle": {
+     "value": "default"
+    },
+    "titleBarStyle": {
+     "value": "default"
+    },
+    "showReconnectNotification": {
+     "value": true,
+     "missing": "ok"
+    },
+    "notificationDisplayTime": {
+     "value": 1
+    },
+    "showDisconnectNotification": {
+     "value": true,
+     "missing": "ok"
+    },
+    "allowInstall": {
+     "value": false
+    }
+   },
+   "selects": {
+    "headerContent": {
+     "values": [
+      "page",
+      "dashboard",
+      "dashpage",
+      "none"
+     ],
+     "multiple": false,
+     "missing": "ok",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    },
+    "navigationStyle": {
+     "values": [
+      "default",
+      "fixed",
+      "icon",
+      "temporary",
+      "none"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    },
+    "titleBarStyle": {
+     "values": [
+      "default",
+      "hidden",
+      "fixed"
+     ],
+     "multiple": false,
+     "missing": "ok",
+     "bool": {
+      "true": "blank",
+      "false": "ok"
+     }
+    }
+   },
+   "typed": {}
+  },
+  "ui-button": {
+   "package": "@flowfuse/node-red-dashboard",
+   "file": "nodes/widgets/ui_button.html",
+   "config": false,
+   "defaults": {
+    "group": {
+     "required": true,
+     "type": "ui-group"
+    },
+    "name": {
+     "value": ""
+    },
+    "label": {
+     "value": "@flowfuse/node-red-dashboard/ui-button:ui-button.label.button"
+    },
+    "order": {
+     "value": 0
+    },
+    "width": {
+     "value": 0,
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "height": {
+     "value": 0
+    },
+    "emulateClick": {
+     "value": false
+    },
+    "tooltip": {
+     "value": ""
+    },
+    "color": {
+     "value": ""
+    },
+    "bgcolor": {
+     "value": ""
+    },
+    "className": {
+     "value": ""
+    },
+    "icon": {
+     "value": ""
+    },
+    "iconPosition": {
+     "value": "left"
+    },
+    "payload": {
+     "value": "",
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "payloadType": {
+     "value": "str"
+    },
+    "topic": {
+     "value": "topic",
+     "validate": {
+      "kind": "typedInput",
+      "typeField": "topicType",
+      "type": null,
+      "allowBlank": false,
+      "allowUndefined": false
+     }
+    },
+    "topicType": {
+     "value": "msg"
+    },
+    "buttonColor": {
+     "value": ""
+    },
+    "textColor": {
+     "value": ""
+    },
+    "iconColor": {
+     "value": ""
+    },
+    "enableClick": {
+     "value": true,
+     "missing": "ok"
+    },
+    "enablePointerdown": {
+     "value": false
+    },
+    "pointerdownPayload": {
+     "value": "",
+     "validate": {
+      "kind": "typedInput",
+      "typeField": "pointerdownPayloadType",
+      "type": null,
+      "allowBlank": false,
+      "allowUndefined": false
+     }
+    },
+    "pointerdownPayloadType": {
+     "value": "str"
+    },
+    "enablePointerup": {
+     "value": false
+    },
+    "pointerupPayload": {
+     "value": "",
+     "validate": {
+      "kind": "typedInput",
+      "typeField": "pointerupPayloadType",
+      "type": null,
+      "allowBlank": false,
+      "allowUndefined": false
+     }
+    },
+    "pointerupPayloadType": {
+     "value": "str"
+    }
+   },
+   "selects": {
+    "iconPosition": {
+     "values": [
+      "left",
+      "right"
+     ],
+     "multiple": false,
+     "missing": "ok",
+     "bool": {
+      "true": "blank",
+      "false": "ok"
+     }
+    }
+   },
+   "typed": {
+    "payloadType": {
+     "types": [
+      "str",
+      "num",
+      "bool",
+      "json",
+      "bin",
+      "date",
+      "flow",
+      "global",
+      "navigate",
+      "popup",
+      "modal"
+     ],
+     "default": "str"
+    },
+    "pointerdownPayloadType": {
+     "types": [
+      "str",
+      "num",
+      "bool",
+      "json",
+      "bin",
+      "date",
+      "flow",
+      "global"
+     ],
+     "default": "str"
+    },
+    "pointerupPayloadType": {
+     "types": [
+      "str",
+      "num",
+      "bool",
+      "json",
+      "bin",
+      "date",
+      "flow",
+      "global"
+     ],
+     "default": "str"
+    },
+    "topicType": {
+     "types": [
+      "str",
+      "msg",
+      "flow",
+      "global"
+     ],
+     "default": "str"
+    }
+   }
+  },
+  "ui-button-group": {
+   "package": "@flowfuse/node-red-dashboard",
+   "file": "nodes/widgets/ui_button_group.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "group": {
+     "required": true,
+     "type": "ui-group"
+    },
+    "order": {
+     "value": 0
+    },
+    "width": {
+     "value": 6,
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "height": {
+     "value": 1
+    },
+    "label": {
+     "value": "button group"
+    },
+    "className": {
+     "value": ""
+    },
+    "rounded": {
+     "value": true,
+     "missing": "unchecked"
+    },
+    "useThemeColors": {
+     "value": true,
+     "missing": "unchecked"
+    },
+    "passthru": {
+     "value": false
+    },
+    "options": {
+     "value": [],
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "topic": {
+     "value": "topic",
+     "validate": {
+      "kind": "typedInput",
+      "typeField": "topicType",
+      "type": null,
+      "allowBlank": false,
+      "allowUndefined": false
+     }
+    },
+    "topicType": {
+     "value": "msg"
+    }
+   },
+   "selects": {},
+   "typed": {
+    "topicType": {
+     "types": [
+      "str",
+      "msg",
+      "flow",
+      "global"
+     ],
+     "default": "str"
+    }
+   }
+  },
+  "ui-chart": {
+   "package": "@flowfuse/node-red-dashboard",
+   "file": "nodes/widgets/ui_chart.html",
+   "config": false,
+   "defaults": {
+    "group": {
+     "required": true,
+     "type": "ui-group"
+    },
+    "name": {
+     "value": ""
+    },
+    "label": {
+     "value": "chart"
+    },
+    "order": {
+     "value": 9007199254740991
+    },
+    "chartType": {
+     "value": "line"
+    },
+    "category": {
+     "value": "topic"
+    },
+    "categoryType": {
+     "value": "msg"
+    },
+    "xAxisLabel": {
+     "value": ""
+    },
+    "xAxisProperty": {
+     "value": null
+    },
+    "xAxisPropertyType": {
+     "value": "timestamp"
+    },
+    "xAxisType": {
+     "value": "time"
+    },
+    "xAxisFormat": {
+     "value": ""
+    },
+    "xAxisFormatType": {
+     "value": "auto"
+    },
+    "xmin": {
+     "value": "",
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "xmax": {
+     "value": "",
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "yAxisLabel": {
+     "value": ""
+    },
+    "yAxisProperty": {
+     "value": "payload"
+    },
+    "yAxisPropertyType": {
+     "value": "msg"
+    },
+    "ymin": {
+     "value": "",
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "ymax": {
+     "value": "",
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "bins": {
+     "value": 10,
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "action": {
+     "value": "append"
+    },
+    "stackSeries": {
+     "value": false
+    },
+    "pointShape": {
+     "value": "circle"
+    },
+    "pointRadius": {
+     "value": 4
+    },
+    "showLegend": {
+     "value": true,
+     "missing": "unchecked"
+    },
+    "removeOlder": {
+     "value": 1,
+     "required": true,
+     "validate": {
+      "kind": "number",
+      "blank": false
+     },
+     "missing": "blank"
+    },
+    "removeOlderUnit": {
+     "value": "3600",
+     "required": true
+    },
+    "removeOlderPoints": {
+     "value": "",
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "colors": {
+     "value": [
+      "#0095FF",
+      "#FF0000",
+      "#FF7F0E",
+      "#2CA02C",
+      "#A347E1",
+      "#D62728",
+      "#FF9896",
+      "#9467BD",
+      "#C5B0D5"
+     ]
+    },
+    "textColor": {
+     "value": [
+      "#666666"
+     ]
+    },
+    "textColorDefault": {
+     "value": true,
+     "missing": "unchecked"
+    },
+    "gridColor": {
+     "value": [
+      "#e5e5e5"
+     ]
+    },
+    "gridColorDefault": {
+     "value": true,
+     "missing": "unchecked"
+    },
+    "width": {
+     "value": 6,
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "height": {
+     "value": 8
+    },
+    "className": {
+     "value": ""
+    },
+    "interpolation": {
+     "value": "linear"
+    }
+   },
+   "selects": {
+    "action": {
+     "values": [
+      "append",
+      "replace"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    },
+    "chartType": {
+     "values": [
+      "line",
+      "area",
+      "bar",
+      "scatter",
+      "pie",
+      "doughnut",
+      "histogram"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    },
+    "interpolation": {
+     "values": [
+      "linear",
+      "step",
+      "smooth"
+     ],
+     "multiple": false,
+     "missing": "ok",
+     "bool": {
+      "true": "blank",
+      "false": "ok"
+     }
+    },
+    "pointShape": {
+     "values": [
+      "circle",
+      "cross",
+      "crossRot",
+      "dash",
+      "line",
+      "rect",
+      "rectRounded",
+      "rectRot",
+      "star",
+      "triangle",
+      "false"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    },
+    "removeOlderUnit": {
+     "values": [
+      "1",
+      "60",
+      "3600",
+      "86400",
+      "604800"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    }
+   },
+   "typed": {
+    "categoryType": {
+     "types": [
+      "none",
+      "msg",
+      "str",
+      "json",
+      "property"
+     ],
+     "default": "msg"
+    },
+    "xAxisFormatType": {
+     "types": [
+      "{HH}:{mm}:{ss}",
+      "{HH}:{mm}",
+      "{yyyy}-{M}-{d}",
+      "{d}/{M}",
+      "{ee} {HH}:{mm}",
+      "custom",
+      "auto"
+     ],
+     "default": "auto"
+    },
+    "xAxisPropertyType": {
+     "types": [
+      "msg",
+      "property",
+      "str",
+      "timestamp"
+     ],
+     "default": "timestamp"
+    },
+    "yAxisPropertyType": {
+     "types": [
+      "msg",
+      "property"
+     ],
+     "default": null
+    }
+   }
+  },
+  "ui-control": {
+   "package": "@flowfuse/node-red-dashboard",
+   "file": "nodes/widgets/ui_control.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "ui": {
+     "value": "",
+     "required": true,
+     "type": "ui-base"
+    },
+    "events": {
+     "value": "none"
+    },
+    "outputs": {
+     "value": 0
+    },
+    "inputMode": {
+     "value": "payload"
+    },
+    "actions": {
+     "value": [],
+     "validate": {
+      "kind": "custom"
+     }
+    }
+   },
+   "selects": {
+    "inputMode": {
+     "values": [
+      "payload",
+      "actions"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    }
+   },
+   "typed": {}
+  },
+  "ui-dropdown": {
+   "package": "@flowfuse/node-red-dashboard",
+   "file": "nodes/widgets/ui_dropdown.html",
+   "config": false,
+   "defaults": {
+    "group": {
+     "required": true,
+     "type": "ui-group"
+    },
+    "name": {
+     "value": ""
+    },
+    "label": {
+     "value": "@flowfuse/node-red-dashboard/ui-dropdown:ui-dropdown.label.selectOption"
+    },
+    "tooltip": {
+     "value": ""
+    },
+    "order": {
+     "value": 0
+    },
+    "width": {
+     "value": 0,
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "height": {
+     "value": 0
+    },
+    "passthru": {
+     "value": false
+    },
+    "multiple": {
+     "value": false
+    },
+    "chips": {
+     "value": false
+    },
+    "clearable": {
+     "value": false
+    },
+    "options": {
+     "value": [
+      {
+       "value": "",
+       "label": ""
+      }
+     ],
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "payload": {
+     "value": ""
+    },
+    "topic": {
+     "value": "topic",
+     "validate": {
+      "kind": "typedInput",
+      "typeField": "topicType",
+      "type": null,
+      "allowBlank": false,
+      "allowUndefined": false
+     }
+    },
+    "topicType": {
+     "value": "msg"
+    },
+    "className": {
+     "value": ""
+    },
+    "typeIsComboBox": {
+     "value": true,
+     "missing": "ok"
+    },
+    "msgTrigger": {
+     "value": "onChange"
+    }
+   },
+   "selects": {
+    "msgTrigger": {
+     "values": [
+      "onChange",
+      "onClose"
+     ],
+     "multiple": false,
+     "missing": "ok",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    }
+   },
+   "typed": {
+    "topicType": {
+     "types": [
+      "str",
+      "msg",
+      "flow",
+      "global"
+     ],
+     "default": "str"
+    }
+   }
+  },
+  "ui-event": {
+   "package": "@flowfuse/node-red-dashboard",
+   "file": "nodes/widgets/ui_event.html",
+   "config": false,
+   "defaults": {
+    "ui": {
+     "value": "",
+     "required": true,
+     "type": "ui-base"
+    },
+    "name": {
+     "value": ""
+    }
+   },
+   "selects": {},
+   "typed": {}
+  },
+  "ui-file-input": {
+   "package": "@flowfuse/node-red-dashboard",
+   "file": "nodes/widgets/ui_file_input.html",
+   "config": false,
+   "defaults": {
+    "group": {
+     "required": true,
+     "type": "ui-group"
+    },
+    "name": {
+     "value": ""
+    },
+    "order": {
+     "value": 0
+    },
+    "width": {
+     "value": 0,
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "height": {
+     "value": 0
+    },
+    "topic": {
+     "value": "topic",
+     "validate": {
+      "kind": "typedInput",
+      "typeField": "topicType",
+      "type": null,
+      "allowBlank": false,
+      "allowUndefined": false
+     }
+    },
+    "topicType": {
+     "value": "msg"
+    },
+    "label": {
+     "value": "@flowfuse/node-red-dashboard/ui-file-input:ui-file-input.label.defaultLabel"
+    },
+    "icon": {
+     "value": "paperclip"
+    },
+    "allowMultiple": {
+     "value": false
+    },
+    "accept": {
+     "value": ""
+    },
+    "className": {
+     "value": ""
+    }
+   },
+   "selects": {},
+   "typed": {
+    "topicType": {
+     "types": [
+      "str",
+      "msg",
+      "flow",
+      "global"
+     ],
+     "default": "str"
+    }
+   }
+  },
+  "ui-form": {
+   "package": "@flowfuse/node-red-dashboard",
+   "file": "nodes/widgets/ui_form.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "group": {
+     "required": true,
+     "type": "ui-group"
+    },
+    "label": {
+     "value": ""
+    },
+    "order": {
+     "value": 0
+    },
+    "width": {
+     "value": 0,
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "height": {
+     "value": 0
+    },
+    "options": {
+     "value": [
+      {
+       "value": "",
+       "label": "",
+       "type": "",
+       "required": true
+      }
+     ],
+     "required": true,
+     "validate": {
+      "kind": "custom"
+     },
+     "missing": "nofield"
+    },
+    "formValue": {
+     "value": {}
+    },
+    "payload": {
+     "value": ""
+    },
+    "submit": {
+     "value": "@flowfuse/node-red-dashboard/ui-form:ui-form.label.submit"
+    },
+    "cancel": {
+     "value": "@flowfuse/node-red-dashboard/ui-form:ui-form.label.cancel"
+    },
+    "resetOnSubmit": {
+     "value": true,
+     "missing": "unchecked"
+    },
+    "topic": {
+     "value": "topic",
+     "validate": {
+      "kind": "typedInput",
+      "typeField": "topicType",
+      "type": null,
+      "allowBlank": false,
+      "allowUndefined": false
+     }
+    },
+    "topicType": {
+     "value": "msg"
+    },
+    "splitLayout": {
+     "value": ""
+    },
+    "className": {
+     "value": ""
+    },
+    "passthru": {
+     "value": false
+    },
+    "dropdownOptions": {
+     "value": []
+    }
+   },
+   "selects": {},
+   "typed": {
+    "topicType": {
+     "types": [
+      "str",
+      "msg",
+      "flow",
+      "global"
+     ],
+     "default": "str"
+    }
+   }
+  },
+  "ui-gauge": {
+   "package": "@flowfuse/node-red-dashboard",
+   "file": "nodes/widgets/ui_gauge.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "group": {
+     "required": true,
+     "type": "ui-group"
+    },
+    "order": {
+     "value": 0
+    },
+    "value": {
+     "value": "payload",
+     "required": false
+    },
+    "valueType": {
+     "value": "msg"
+    },
+    "width": {
+     "value": 3,
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "height": {
+     "value": 3
+    },
+    "gtype": {
+     "value": "gauge-half"
+    },
+    "gstyle": {
+     "value": "needle"
+    },
+    "title": {
+     "value": "gauge"
+    },
+    "alwaysShowTitle": {
+     "value": false
+    },
+    "floatingTitlePosition": {
+     "value": "top-left"
+    },
+    "units": {
+     "value": "units"
+    },
+    "icon": {
+     "value": ""
+    },
+    "prefix": {
+     "value": ""
+    },
+    "suffix": {
+     "value": ""
+    },
+    "segments": {
+     "value": [
+      {
+       "color": "#5CD65C",
+       "from": 0
+      },
+      {
+       "color": "#FFC800",
+       "from": 4
+      },
+      {
+       "color": "#EA5353",
+       "from": 7
+      }
+     ],
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "min": {
+     "value": 0,
+     "required": true,
+     "validate": {
+      "kind": "number",
+      "blank": false
+     },
+     "missing": "blank"
+    },
+    "max": {
+     "value": 10,
+     "required": true,
+     "validate": {
+      "kind": "number",
+      "blank": false
+     },
+     "missing": "blank"
+    },
+    "sizeThickness": {
+     "value": 16,
+     "validate": {
+      "kind": "number",
+      "blank": false
+     }
+    },
+    "sizeGap": {
+     "value": 4,
+     "validate": {
+      "kind": "number",
+      "blank": false
+     }
+    },
+    "sizeKeyThickness": {
+     "value": 8,
+     "validate": {
+      "kind": "number",
+      "blank": false
+     }
+    },
+    "styleRounded": {
+     "value": true
+    },
+    "styleGlow": {
+     "value": false
+    },
+    "className": {
+     "value": ""
+    }
+   },
+   "selects": {
+    "floatingTitlePosition": {
+     "values": [
+      "top-left",
+      "top-right",
+      "bottom-left",
+      "bottom-right"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    },
+    "gstyle": {
+     "values": [
+      "needle",
+      "rounded"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    },
+    "gtype": {
+     "values": [
+      "gauge-tile",
+      "gauge-34",
+      "gauge-half",
+      "gauge-battery",
+      "gauge-tank"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    }
+   },
+   "typed": {
+    "valueType": {
+     "types": [
+      "msg",
+      "str",
+      "num",
+      "jsonata",
+      "flow",
+      "global"
+     ],
+     "default": "msg"
+    }
+   }
+  },
+  "ui-group": {
+   "package": "@flowfuse/node-red-dashboard",
+   "file": "nodes/config/ui_group.html",
+   "config": true,
+   "defaults": {
+    "name": {
+     "value": "@flowfuse/node-red-dashboard/ui-group:ui-group.label.groupName",
+     "required": true,
+     "missing": "blank"
+    },
+    "page": {
+     "required": true,
+     "type": "ui-page"
+    },
+    "width": {
+     "value": 6
+    },
+    "height": {
+     "value": 1
+    },
+    "order": {
+     "value": -1
+    },
+    "showTitle": {
+     "value": true,
+     "missing": "unchecked"
+    },
+    "className": {
+     "value": ""
+    },
+    "visible": {
+     "value": true
+    },
+    "disabled": {
+     "value": false
+    },
+    "groupType": {
+     "value": "default"
+    },
+    "keepLoaded": {
+     "value": false
+    },
+    "tab": {
+     "value": ""
+    }
+   },
+   "selects": {
+    "disabled": {
+     "values": [
+      "false",
+      "true"
+     ],
+     "multiple": false,
+     "missing": "ok",
+     "bool": {
+      "true": "ok",
+      "false": "ok"
+     }
+    },
+    "groupType": {
+     "values": [
+      "default",
+      "dialog"
+     ],
+     "multiple": false,
+     "missing": "ok",
+     "bool": {
+      "true": "blank",
+      "false": "ok"
+     }
+    },
+    "visible": {
+     "values": [
+      "true",
+      "false"
+     ],
+     "multiple": false,
+     "missing": "ok",
+     "bool": {
+      "true": "ok",
+      "false": "ok"
+     }
+    }
+   },
+   "typed": {}
+  },
+  "ui-led": {
+   "package": "@flowfuse/node-red-dashboard-2-ui-led",
+   "file": "nodes/ui-led.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "group": {
+     "required": true,
+     "type": "ui-group"
+    },
+    "order": {
+     "value": -1
+    },
+    "width": {
+     "value": 0,
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "height": {
+     "value": 0
+    },
+    "label": {
+     "value": ""
+    },
+    "labelPlacement": {
+     "value": "left"
+    },
+    "labelAlignment": {
+     "value": "left"
+    },
+    "states": {
+     "value": [
+      {
+       "color": "#FF0000",
+       "value": false,
+       "valueType": "bool"
+      },
+      {
+       "color": "#00FF00",
+       "value": true,
+       "valueType": "bool"
+      }
+     ],
+     "required": true,
+     "missing": "nofield"
+    },
+    "allowColorForValueInMessage": {
+     "value": false
+    },
+    "shape": {
+     "value": "circle"
+    },
+    "showBorder": {
+     "value": true,
+     "missing": "unchecked"
+    },
+    "showGlow": {
+     "value": true,
+     "missing": "unchecked"
+    }
+   },
+   "selects": {
+    "labelAlignment": {
+     "values": [
+      "flex-start",
+      "center",
+      "flex-end"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    },
+    "labelPlacement": {
+     "values": [
+      "left",
+      "right"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    },
+    "shape": {
+     "values": [
+      "circle",
+      "square"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    }
+   },
+   "typed": {}
+  },
+  "ui-link": {
+   "package": "@flowfuse/node-red-dashboard",
+   "file": "nodes/config/ui_link.html",
+   "config": true,
+   "defaults": {
+    "name": {
+     "value": "@flowfuse/node-red-dashboard/ui-link:ui-link.label.linkName",
+     "required": true,
+     "missing": "blank"
+    },
+    "ui": {
+     "value": "",
+     "required": true,
+     "type": "ui-base"
+    },
+    "path": {
+     "value": -1,
+     "required": false
+    },
+    "icon": {
+     "value": "home",
+     "required": false
+    },
+    "order": {
+     "value": -1
+    },
+    "visible": {
+     "value": true
+    },
+    "disabled": {
+     "value": false
+    }
+   },
+   "selects": {
+    "disabled": {
+     "values": [
+      "false",
+      "true"
+     ],
+     "multiple": false,
+     "missing": "ok",
+     "bool": {
+      "true": "ok",
+      "false": "ok"
+     }
+    },
+    "visible": {
+     "values": [
+      "true",
+      "false"
+     ],
+     "multiple": false,
+     "missing": "ok",
+     "bool": {
+      "true": "ok",
+      "false": "ok"
+     }
+    }
+   },
+   "typed": {}
+  },
+  "ui-markdown": {
+   "package": "@flowfuse/node-red-dashboard",
+   "file": "nodes/widgets/ui_markdown.html",
+   "config": false,
+   "defaults": {
+    "group": {
+     "required": true,
+     "type": "ui-group"
+    },
+    "name": {
+     "value": ""
+    },
+    "order": {
+     "value": 0
+    },
+    "width": {
+     "value": 0,
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "height": {
+     "value": 0
+    },
+    "content": {
+     "value": "@flowfuse/node-red-dashboard/ui-markdown:ui-markdown.label.sampleContent"
+    },
+    "className": {
+     "value": ""
+    }
+   },
+   "selects": {},
+   "typed": {}
+  },
+  "ui-notification": {
+   "package": "@flowfuse/node-red-dashboard",
+   "file": "nodes/widgets/ui_notification.html",
+   "config": false,
+   "defaults": {
+    "ui": {
+     "value": "",
+     "required": true,
+     "type": "ui-base"
+    },
+    "position": {
+     "value": "top right"
+    },
+    "colorDefault": {
+     "value": true,
+     "missing": "unchecked"
+    },
+    "color": {
+     "value": null
+    },
+    "displayTime": {
+     "value": "3"
+    },
+    "showCountdown": {
+     "value": true,
+     "missing": "unchecked"
+    },
+    "outputs": {
+     "value": 1
+    },
+    "allowDismiss": {
+     "value": true,
+     "missing": "unchecked"
+    },
+    "dismissText": {
+     "value": "@flowfuse/node-red-dashboard/ui-notification:ui-notification.label.defaultDismissText"
+    },
+    "allowConfirm": {
+     "value": false
+    },
+    "confirmText": {
+     "value": "@flowfuse/node-red-dashboard/ui-notification:ui-notification.label.defaultConfirmText"
+    },
+    "raw": {
+     "value": false
+    },
+    "className": {
+     "value": ""
+    },
+    "name": {
+     "value": ""
+    }
+   },
+   "selects": {
+    "position": {
+     "values": [
+      "top right",
+      "top center",
+      "top left",
+      "bottom right",
+      "bottom center",
+      "bottom left",
+      "center center"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    }
+   },
+   "typed": {}
+  },
+  "ui-number-input": {
+   "package": "@flowfuse/node-red-dashboard",
+   "file": "nodes/widgets/ui_number_input.html",
+   "config": false,
+   "defaults": {
+    "group": {
+     "required": true,
+     "type": "ui-group"
+    },
+    "name": {
+     "value": ""
+    },
+    "label": {
+     "value": "number"
+    },
+    "order": {
+     "value": 0
+    },
+    "width": {
+     "value": 0,
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "height": {
+     "value": 0
+    },
+    "topic": {
+     "value": "topic",
+     "validate": {
+      "kind": "typedInput",
+      "typeField": "topicType",
+      "type": null,
+      "allowBlank": false,
+      "allowUndefined": false
+     }
+    },
+    "topicType": {
+     "value": "msg"
+    },
+    "min": {
+     "value": 0,
+     "required": true,
+     "validate": {
+      "kind": "number",
+      "blank": false
+     },
+     "missing": "blank"
+    },
+    "max": {
+     "value": 10,
+     "required": true,
+     "validate": {
+      "kind": "number",
+      "blank": false
+     },
+     "missing": "blank"
+    },
+    "step": {
+     "value": 1,
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "tooltip": {
+     "value": ""
+    },
+    "delay": {
+     "value": 300,
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "passthru": {
+     "value": true,
+     "missing": "unchecked"
+    },
+    "sendOnDelay": {
+     "value": false
+    },
+    "sendOnBlur": {
+     "value": true,
+     "missing": "unchecked"
+    },
+    "sendOnEnter": {
+     "value": true,
+     "missing": "unchecked"
+    },
+    "className": {
+     "value": ""
+    },
+    "clearable": {
+     "value": false
+    },
+    "icon": {
+     "value": ""
+    },
+    "iconPosition": {
+     "value": "left"
+    },
+    "iconInnerPosition": {
+     "value": "inside"
+    },
+    "spinner": {
+     "value": "default"
+    }
+   },
+   "selects": {
+    "iconInnerPosition": {
+     "values": [
+      "inside",
+      "outside"
+     ],
+     "multiple": false,
+     "missing": "ok",
+     "bool": {
+      "true": "blank",
+      "false": "ok"
+     }
+    },
+    "iconPosition": {
+     "values": [
+      "left",
+      "right"
+     ],
+     "multiple": false,
+     "missing": "ok",
+     "bool": {
+      "true": "blank",
+      "false": "ok"
+     }
+    },
+    "spinner": {
+     "values": [
+      "default",
+      "stacked"
+     ],
+     "multiple": false,
+     "missing": "ok",
+     "bool": {
+      "true": "blank",
+      "false": "ok"
+     }
+    }
+   },
+   "typed": {
+    "topicType": {
+     "types": [
+      "str",
+      "msg",
+      "flow",
+      "global"
+     ],
+     "default": "str"
+    }
+   }
+  },
+  "ui-page": {
+   "package": "@flowfuse/node-red-dashboard",
+   "file": "nodes/config/ui_page.html",
+   "config": true,
+   "defaults": {
+    "name": {
+     "value": "@flowfuse/node-red-dashboard/ui-page:ui-page.label.pageName",
+     "required": true,
+     "missing": "blank"
+    },
+    "ui": {
+     "value": "",
+     "required": true,
+     "type": "ui-base"
+    },
+    "path": {
+     "value": -1,
+     "required": false
+    },
+    "icon": {
+     "value": "home",
+     "required": false
+    },
+    "layout": {
+     "value": "",
+     "required": true,
+     "missing": "blank"
+    },
+    "theme": {
+     "value": "default",
+     "required": true,
+     "type": "ui-theme"
+    },
+    "breakpoints": {
+     "value": [
+      {
+       "name": "Default",
+       "px": 0,
+       "cols": 3
+      },
+      {
+       "name": "Tablet",
+       "px": 576,
+       "cols": 6
+      },
+      {
+       "name": "Small Desktop",
+       "px": 768,
+       "cols": 9
+      },
+      {
+       "name": "Desktop",
+       "px": 1024,
+       "cols": 12
+      }
+     ]
+    },
+    "tabs": {
+     "value": [],
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "order": {
+     "value": -1
+    },
+    "className": {
+     "value": ""
+    },
+    "visible": {
+     "value": "true"
+    },
+    "disabled": {
+     "value": "false"
+    }
+   },
+   "selects": {
+    "disabled": {
+     "values": [
+      "false",
+      "true"
+     ],
+     "multiple": false,
+     "missing": "ok",
+     "bool": {
+      "true": "ok",
+      "false": "ok"
+     }
+    },
+    "visible": {
+     "values": [
+      "true",
+      "false"
+     ],
+     "multiple": false,
+     "missing": "ok",
+     "bool": {
+      "true": "ok",
+      "false": "ok"
+     }
+    }
+   },
+   "typed": {}
+  },
+  "ui-progress": {
+   "package": "@flowfuse/node-red-dashboard",
+   "file": "nodes/widgets/ui_progress.html",
+   "config": false,
+   "defaults": {
+    "group": {
+     "required": true,
+     "type": "ui-group"
+    },
+    "name": {
+     "value": ""
+    },
+    "label": {
+     "value": "Progress"
+    },
+    "order": {
+     "value": 0
+    },
+    "width": {
+     "value": 0,
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "height": {
+     "value": 0
+    },
+    "color": {
+     "value": ""
+    },
+    "className": {
+     "value": ""
+    }
+   },
+   "selects": {},
+   "typed": {}
+  },
+  "ui-radio-group": {
+   "package": "@flowfuse/node-red-dashboard",
+   "file": "nodes/widgets/ui_radio_group.html",
+   "config": false,
+   "defaults": {
+    "group": {
+     "required": true,
+     "type": "ui-group"
+    },
+    "name": {
+     "value": ""
+    },
+    "label": {
+     "value": "@flowfuse/node-red-dashboard/ui-radio-group:ui-radio-group.label.defaultLabel"
+    },
+    "order": {
+     "value": 0
+    },
+    "width": {
+     "value": 0,
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "height": {
+     "value": 0
+    },
+    "columns": {
+     "value": 1
+    },
+    "passthru": {
+     "value": false
+    },
+    "options": {
+     "value": [
+      {
+       "value": "",
+       "label": ""
+      }
+     ],
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "payload": {
+     "value": ""
+    },
+    "topic": {
+     "value": "topic",
+     "validate": {
+      "kind": "typedInput",
+      "typeField": "topicType",
+      "type": null,
+      "allowBlank": false,
+      "allowUndefined": false
+     }
+    },
+    "topicType": {
+     "value": "msg"
+    },
+    "className": {
+     "value": ""
+    }
+   },
+   "selects": {},
+   "typed": {
+    "topicType": {
+     "types": [
+      "str",
+      "msg",
+      "flow",
+      "global"
+     ],
+     "default": "str"
+    }
+   }
+  },
+  "ui-slider": {
+   "package": "@flowfuse/node-red-dashboard",
+   "file": "nodes/widgets/ui_slider.html",
+   "config": false,
+   "defaults": {
+    "group": {
+     "required": true,
+     "type": "ui-group"
+    },
+    "name": {
+     "value": ""
+    },
+    "label": {
+     "value": "slider"
+    },
+    "tooltip": {
+     "value": ""
+    },
+    "order": {
+     "value": 0
+    },
+    "width": {
+     "value": 0,
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "height": {
+     "value": 0
+    },
+    "passthru": {
+     "value": false
+    },
+    "outs": {
+     "value": "all"
+    },
+    "topic": {
+     "value": "topic",
+     "validate": {
+      "kind": "typedInput",
+      "typeField": "topicType",
+      "type": null,
+      "allowBlank": false,
+      "allowUndefined": false
+     }
+    },
+    "topicType": {
+     "value": "msg"
+    },
+    "thumbLabel": {
+     "value": true
+    },
+    "showTicks": {
+     "value": "always"
+    },
+    "min": {
+     "value": 0,
+     "required": true,
+     "validate": {
+      "kind": "number",
+      "blank": false
+     },
+     "missing": "blank"
+    },
+    "max": {
+     "value": 10,
+     "required": true,
+     "validate": {
+      "kind": "number",
+      "blank": false
+     },
+     "missing": "blank"
+    },
+    "step": {
+     "value": 1
+    },
+    "className": {
+     "value": ""
+    },
+    "iconPrepend": {
+     "value": ""
+    },
+    "iconAppend": {
+     "value": ""
+    },
+    "color": {
+     "value": ""
+    },
+    "colorTrack": {
+     "value": ""
+    },
+    "colorThumb": {
+     "value": ""
+    },
+    "showTextField": {
+     "value": false
+    }
+   },
+   "selects": {
+    "outs": {
+     "values": [
+      "all",
+      "end"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    },
+    "showTicks": {
+     "values": [
+      "false",
+      "true",
+      "always"
+     ],
+     "multiple": false,
+     "missing": "ok",
+     "bool": {
+      "true": "blank",
+      "false": "ok"
+     }
+    },
+    "thumbLabel": {
+     "values": [
+      "false",
+      "true",
+      "always"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "ok",
+      "false": "ok"
+     }
+    }
+   },
+   "typed": {
+    "topicType": {
+     "types": [
+      "str",
+      "msg",
+      "flow",
+      "global"
+     ],
+     "default": "str"
+    }
+   }
+  },
+  "ui-spacer": {
+   "package": "@flowfuse/node-red-dashboard",
+   "file": "nodes/widgets/ui_spacer.html",
+   "config": true,
+   "defaults": {
+    "group": {
+     "required": true,
+     "type": "ui-group"
+    },
+    "name": {
+     "value": "@flowfuse/node-red-dashboard/ui-spacer:ui-spacer.label.spacer"
+    },
+    "tooltip": {
+     "value": ""
+    },
+    "order": {
+     "value": 0
+    },
+    "width": {
+     "value": 1,
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "height": {
+     "value": 1
+    },
+    "className": {
+     "value": ""
+    }
+   },
+   "selects": {},
+   "typed": {}
+  },
+  "ui-switch": {
+   "package": "@flowfuse/node-red-dashboard",
+   "file": "nodes/widgets/ui_switch.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "label": {
+     "value": "switch"
+    },
+    "group": {
+     "required": true,
+     "type": "ui-group"
+    },
+    "order": {
+     "value": 0
+    },
+    "width": {
+     "value": 0,
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "height": {
+     "value": 0
+    },
+    "passthru": {
+     "value": false
+    },
+    "decouple": {
+     "value": false
+    },
+    "topic": {
+     "value": "topic",
+     "validate": {
+      "kind": "typedInput",
+      "typeField": "topicType",
+      "type": null,
+      "allowBlank": false,
+      "allowUndefined": false
+     }
+    },
+    "topicType": {
+     "value": "msg"
+    },
+    "style": {
+     "value": ""
+    },
+    "className": {
+     "value": ""
+    },
+    "layout": {
+     "value": "row-spread"
+    },
+    "clickableArea": {
+     "value": "switch"
+    },
+    "onvalue": {
+     "value": true,
+     "validate": {
+      "kind": "typedInput",
+      "typeField": "onvalueType",
+      "type": null,
+      "allowBlank": false,
+      "allowUndefined": false
+     }
+    },
+    "onvalueType": {
+     "value": "bool"
+    },
+    "onicon": {
+     "value": ""
+    },
+    "oncolor": {
+     "value": ""
+    },
+    "offvalue": {
+     "value": false,
+     "validate": {
+      "kind": "typedInput",
+      "typeField": "offvalueType",
+      "type": null,
+      "allowBlank": false,
+      "allowUndefined": false
+     }
+    },
+    "offvalueType": {
+     "value": "bool"
+    },
+    "officon": {
+     "value": ""
+    },
+    "offcolor": {
+     "value": ""
+    }
+   },
+   "selects": {
+    "clickableArea": {
+     "values": [
+      "switch",
+      "label",
+      "line",
+      "none"
+     ],
+     "multiple": false,
+     "missing": "ok",
+     "bool": {
+      "true": "blank",
+      "false": "ok"
+     }
+    }
+   },
+   "typed": {
+    "offvalueType": {
+     "types": [
+      "str",
+      "num",
+      "bool",
+      "json",
+      "bin",
+      "date",
+      "flow",
+      "global"
+     ],
+     "default": "str"
+    },
+    "onvalueType": {
+     "types": [
+      "str",
+      "num",
+      "bool",
+      "json",
+      "bin",
+      "date",
+      "flow",
+      "global"
+     ],
+     "default": "str"
+    },
+    "topicType": {
+     "types": [
+      "str",
+      "msg",
+      "flow",
+      "global"
+     ],
+     "default": "str"
+    }
+   }
+  },
+  "ui-table": {
+   "package": "@flowfuse/node-red-dashboard",
+   "file": "nodes/widgets/ui_table.html",
+   "config": false,
+   "defaults": {
+    "group": {
+     "required": true,
+     "type": "ui-group"
+    },
+    "name": {
+     "value": ""
+    },
+    "label": {
+     "value": ""
+    },
+    "order": {
+     "value": 0
+    },
+    "width": {
+     "value": 0,
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "height": {
+     "value": 0
+    },
+    "maxrows": {
+     "value": 0,
+     "validate": {
+      "kind": "number",
+      "blank": false
+     }
+    },
+    "passthru": {
+     "value": false
+    },
+    "autocols": {
+     "value": true,
+     "missing": "unchecked"
+    },
+    "showSearch": {
+     "value": true,
+     "missing": "unchecked"
+    },
+    "deselect": {
+     "value": true,
+     "missing": "ok"
+    },
+    "selectionType": {
+     "value": "none"
+    },
+    "columns": {
+     "value": null
+    },
+    "mobileBreakpoint": {
+     "value": "sm"
+    },
+    "mobileBreakpointType": {
+     "value": "defaults"
+    },
+    "action": {
+     "value": "append"
+    },
+    "className": {
+     "value": ""
+    }
+   },
+   "selects": {
+    "action": {
+     "values": [
+      "append",
+      "replace"
+     ],
+     "multiple": false,
+     "missing": "ok",
+     "bool": {
+      "true": "ok",
+      "false": "ok"
+     }
+    },
+    "selectionType": {
+     "values": [
+      "none",
+      "click",
+      "checkbox"
+     ],
+     "multiple": false,
+     "missing": "ok",
+     "bool": {
+      "true": "ok",
+      "false": "ok"
+     }
+    }
+   },
+   "typed": {
+    "mobileBreakpointType": {
+     "types": [
+      "defaults",
+      "px",
+      "none"
+     ],
+     "default": null
+    }
+   }
+  },
+  "ui-template": {
+   "package": "@flowfuse/node-red-dashboard",
+   "file": "nodes/widgets/ui_template.html",
+   "config": false,
+   "defaults": {
+    "group": {
+     "type": "ui-group",
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "page": {
+     "type": "ui-page",
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "ui": {
+     "type": "ui-base",
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "name": {
+     "value": ""
+    },
+    "order": {
+     "value": 0
+    },
+    "width": {
+     "value": 0,
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "height": {
+     "value": 0
+    },
+    "head": {
+     "value": ""
+    },
+    "format": {
+     "value": "<template>\n    <div>\n        <h2>Counter</h2>\n        <!-- Conditional Styling using Attribute Binding (\":\") -->\n        <!-- and rendering content inside <tags></tags> with {{ }} -->\n        <p :style=\"{'color' : (count > 5 ? 'red' : 'green' )}\">Current Count: {{ count }}</p>\n        <!-- Computed Rendering using Vue Computed Variables -->\n        <p class=\"my-class\">Formatted Count: {{ formattedCount }}</p>\n        <!-- Conditional Rendering with \"v-if\" -->\n        <b v-if=\"count > 5\">Too many!</b>\n        <v-btn @click=\"increase()\">Increment</v-btn>\n    </div>\n</template>\n\n<script>\n    export default {\n        data() {\n            // define variables available component-wide\n            // (in <template> and component functions)\n            return {\n                count: 0\n            }\n        },\n        watch: {\n            // watch for any changes of \"count\"\n            count: function () {\n                if (this.count % 5 === 0) {\n                    this.send({payload: 'Multiple of 5'})\n                }\n            }\n        },\n        computed: {\n            // automatically compute this variable\n            // whenever VueJS deems appropriate\n            formattedCount: function () {\n                return this.count + ' Apples'\n            }\n        },\n        methods: {\n            // expose a method to our <template> and Vue Application\n            increase: function () {\n                this.count++\n            }\n        },\n        mounted() {\n            // code here when the component is first loaded\n        },\n        unmounted() {\n            // code here when the component is removed from the Dashboard\n            // i.e. when the user navigates away from the page\n        }\n    }\n</script>\n<style>\n    /* define any styles here - supports raw CSS */\n    .my-class {\n        color: red;\n    }\n</style>"
+    },
+    "noerr": {
+     "value": 0,
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "storeOutMessages": {
+     "value": true
+    },
+    "passthru": {
+     "value": true,
+     "missing": "ok"
+    },
+    "resendOnRefresh": {
+     "value": true
+    },
+    "templateScope": {
+     "value": "local"
+    },
+    "className": {
+     "value": ""
+    }
+   },
+   "selects": {
+    "templateScope": {
+     "values": [
+      "local",
+      "widget:page",
+      "widget:ui",
+      "site:style",
+      "page:style"
+     ],
+     "multiple": false,
+     "missing": "ok",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    }
+   },
+   "typed": {}
+  },
+  "ui-text": {
+   "package": "@flowfuse/node-red-dashboard",
+   "file": "nodes/widgets/ui_text.html",
+   "config": false,
+   "defaults": {
+    "group": {
+     "required": true,
+     "type": "ui-group"
+    },
+    "order": {
+     "value": 0
+    },
+    "width": {
+     "value": 0,
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "height": {
+     "value": 0
+    },
+    "name": {
+     "value": ""
+    },
+    "label": {
+     "value": "text"
+    },
+    "format": {
+     "value": "{{msg.payload}}"
+    },
+    "layout": {
+     "value": "row-spread"
+    },
+    "style": {
+     "value": false
+    },
+    "font": {
+     "value": "Helvetica"
+    },
+    "fontSize": {
+     "value": 16
+    },
+    "color": {
+     "value": "#717171"
+    },
+    "wrapText": {
+     "value": false
+    },
+    "className": {
+     "value": ""
+    },
+    "value": {
+     "value": "payload",
+     "required": false
+    },
+    "valueType": {
+     "value": "msg"
+    }
+   },
+   "selects": {},
+   "typed": {
+    "valueType": {
+     "types": [
+      "msg",
+      "str",
+      "num",
+      "jsonata",
+      "flow",
+      "global"
+     ],
+     "default": "msg"
+    }
+   }
+  },
+  "ui-text-input": {
+   "package": "@flowfuse/node-red-dashboard",
+   "file": "nodes/widgets/ui_text_input.html",
+   "config": false,
+   "defaults": {
+    "group": {
+     "required": true,
+     "type": "ui-group"
+    },
+    "name": {
+     "value": ""
+    },
+    "label": {
+     "value": "text"
+    },
+    "order": {
+     "value": 0
+    },
+    "width": {
+     "value": 0,
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "height": {
+     "value": 0
+    },
+    "topic": {
+     "value": "topic",
+     "validate": {
+      "kind": "typedInput",
+      "typeField": "topicType",
+      "type": null,
+      "allowBlank": false,
+      "allowUndefined": false
+     }
+    },
+    "topicType": {
+     "value": "msg"
+    },
+    "mode": {
+     "value": "text",
+     "required": true
+    },
+    "tooltip": {
+     "value": ""
+    },
+    "delay": {
+     "value": 300,
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "passthru": {
+     "value": true,
+     "missing": "unchecked"
+    },
+    "sendOnDelay": {
+     "value": false
+    },
+    "sendOnBlur": {
+     "value": true,
+     "missing": "unchecked"
+    },
+    "sendOnEnter": {
+     "value": true,
+     "missing": "unchecked"
+    },
+    "className": {
+     "value": ""
+    },
+    "clearable": {
+     "value": false
+    },
+    "sendOnClear": {
+     "value": false
+    },
+    "icon": {
+     "value": ""
+    },
+    "iconPosition": {
+     "value": "left"
+    },
+    "iconInnerPosition": {
+     "value": "inside"
+    }
+   },
+   "selects": {
+    "iconInnerPosition": {
+     "values": [
+      "inside",
+      "outside"
+     ],
+     "multiple": false,
+     "missing": "ok",
+     "bool": {
+      "true": "blank",
+      "false": "ok"
+     }
+    },
+    "iconPosition": {
+     "values": [
+      "left",
+      "right"
+     ],
+     "multiple": false,
+     "missing": "ok",
+     "bool": {
+      "true": "blank",
+      "false": "ok"
+     }
+    },
+    "mode": {
+     "values": [
+      "text",
+      "textarea",
+      "email",
+      "password",
+      "number",
+      "color",
+      "datetime-local",
+      "date",
+      "time",
+      "week",
+      "month"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    }
+   },
+   "typed": {
+    "topicType": {
+     "types": [
+      "str",
+      "msg",
+      "flow",
+      "global"
+     ],
+     "default": "str"
+    }
+   }
+  },
+  "ui-theme": {
+   "package": "@flowfuse/node-red-dashboard",
+   "file": "nodes/config/ui_theme.html",
+   "config": true,
+   "defaults": {
+    "name": {
+     "value": "@flowfuse/node-red-dashboard/ui-theme:ui-theme.label.themeName",
+     "required": true,
+     "missing": "blank"
+    },
+    "colors": {
+     "value": {
+      "surface": "#fcfcfd",
+      "primary": "#0d74ce",
+      "bgPage": "#f9f9fb",
+      "groupBg": "#ffffff",
+      "groupOutline": "#d9d9e0"
+     }
+    },
+    "sizes": {
+     "value": {
+      "density": "default",
+      "pagePadding": "12px",
+      "groupGap": "12px",
+      "groupBorderRadius": "4px",
+      "widgetGap": "12px"
+     }
+    }
+   },
+   "selects": {},
+   "typed": {}
+  },
+  "unknown": {
+   "package": "@node-red/nodes",
+   "file": "core/common/98-unknown.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "modules": {
+     "value": []
+    }
+   },
+   "selects": {},
+   "typed": {}
+  },
+  "watch": {
+   "package": "@node-red/nodes",
+   "file": "core/storage/23-watch.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "files": {
+     "value": "",
+     "required": true,
+     "missing": "blank"
+    },
+    "recursive": {
+     "value": ""
+    }
+   },
+   "selects": {},
+   "typed": {}
+  },
+  "websocket in": {
+   "package": "@node-red/nodes",
+   "file": "core/network/22-websocket.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "server": {
+     "type": "websocket-listener",
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "client": {
+     "type": "websocket-client",
+     "validate": {
+      "kind": "custom"
+     }
+    }
+   },
+   "selects": {},
+   "typed": {}
+  },
+  "websocket out": {
+   "package": "@node-red/nodes",
+   "file": "core/network/22-websocket.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "server": {
+     "type": "websocket-listener",
+     "validate": {
+      "kind": "custom"
+     }
+    },
+    "client": {
+     "type": "websocket-client",
+     "validate": {
+      "kind": "custom"
+     }
+    }
+   },
+   "selects": {},
+   "typed": {}
+  },
+  "websocket-client": {
+   "package": "@node-red/nodes",
+   "file": "core/network/22-websocket.html",
+   "config": true,
+   "defaults": {
+    "path": {
+     "value": "",
+     "required": true,
+     "validate": {
+      "kind": "regex",
+      "source": "^((?!\\/debug\\/ws).)*$",
+      "flags": ""
+     },
+     "missing": "blank"
+    },
+    "tls": {
+     "required": false,
+     "type": "tls-config"
+    },
+    "wholemsg": {
+     "value": "false"
+    },
+    "hb": {
+     "value": "",
+     "validate": {
+      "kind": "number",
+      "blank": true
+     }
+    },
+    "subprotocol": {
+     "value": "",
+     "required": false
+    },
+    "headers": {
+     "value": []
+    }
+   },
+   "selects": {
+    "wholemsg": {
+     "values": [
+      "false",
+      "true"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    }
+   },
+   "typed": {}
+  },
+  "websocket-listener": {
+   "package": "@node-red/nodes",
+   "file": "core/network/22-websocket.html",
+   "config": true,
+   "defaults": {
+    "path": {
+     "value": "",
+     "required": true,
+     "validate": {
+      "kind": "regex",
+      "source": "^((?!\\/debug\\/ws).)*$",
+      "flags": ""
+     },
+     "missing": "blank"
+    },
+    "wholemsg": {
+     "value": "false"
+    }
+   },
+   "selects": {
+    "wholemsg": {
+     "values": [
+      "false",
+      "true"
+     ],
+     "multiple": false,
+     "missing": "blank",
+     "bool": {
+      "true": "blank",
+      "false": "blank"
+     }
+    }
+   },
+   "typed": {}
+  },
+  "xml": {
+   "package": "@node-red/nodes",
+   "file": "core/parsers/70-XML.html",
+   "config": false,
+   "defaults": {
+    "name": {
+     "value": ""
+    },
+    "property": {
+     "value": "payload",
+     "required": true,
+     "validate": {
+      "kind": "typedInput",
+      "typeField": null,
+      "type": "msg",
+      "allowBlank": false,
+      "allowUndefined": true
+     },
+     "missing": "ok"
+    },
+    "attr": {
+     "value": ""
+    },
+    "chr": {
+     "value": ""
+    }
+   },
+   "selects": {},
+   "typed": {}
+  },
+  "yaml": {
+   "package": "@node-red/nodes",
+   "file": "core/parsers/70-YAML.html",
+   "config": false,
+   "defaults": {
+    "property": {
+     "value": "payload",
+     "required": true,
+     "validate": {
+      "kind": "typedInput",
+      "typeField": null,
+      "type": "msg",
+      "allowBlank": false,
+      "allowUndefined": true
+     },
+     "missing": "ok"
+    },
+    "name": {
+     "value": ""
+    }
+   },
+   "selects": {},
+   "typed": {}
+  }
+ }
+}
