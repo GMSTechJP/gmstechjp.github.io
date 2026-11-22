@@ -856,17 +856,54 @@ sudo ufw allow from 192.168.1.0/24 to any port 7022:7032 proto tcp</div>
         </table>
 
         <h2 id="s10">10. サンプルフロー</h2>
-        <p>このパッケージには公式のサンプルフローが同梱されていないため、ここに載せるのは本サイトで作成したものである。読み込んだあと、コンフィグノードのホスト名とユーザー名を自分の環境に合わせて書き換えて使う。パスワードはエクスポートに含まれないため、読み込み後に入力する。</p>
+        <p>このパッケージには公式のサンプルフローが同梱されていないため、ここに載せるのは本サイトで作成したものである。</p>
+
+        <h3>接続先のサーバー</h3>
+        <p>FTP・SFTP のクライアントを試すには、接続先のサーバーが先に動いている必要がある。ftp ノードと sftp ノードは接続しに行く側で、相手がいないと <code>Timeout while connecting to server</code> で失敗する。</p>
+        <p>クライアントのサンプルフローは、接続先を公開の試験用サーバー <code>test.rebex.net</code> にしてある。Rebex 社が自社のライブラリの試験用に公開しているサーバーで、次の値で誰でも接続できる。</p>
+
+        <table>
+            <tr>
+                <th>項目</th>
+                <th>値</th>
+            </tr>
+            <tr>
+                <td>ホスト</td>
+                <td><code>test.rebex.net</code></td>
+            </tr>
+            <tr>
+                <td>ポート</td>
+                <td>FTP は 21、SFTP は 22</td>
+            </tr>
+            <tr>
+                <td>ユーザー名 / パスワード</td>
+                <td><code>demo</code> / <code>password</code>（公開されている値）</td>
+            </tr>
+            <tr>
+                <td>置いてあるもの</td>
+                <td><code>/readme.txt</code> と <code>/pub</code> フォルダ</td>
+            </tr>
+        </table>
+
+        <p>このサーバーは読み取り専用である。一覧（list）と取得（get）は成功するが、送信（put）などの書き込みは失敗する。サンプルフローでは、送信の失敗を「4. 転送の失敗を捕まえる」で受け取る例として使う。</p>
+        <p>他社が好意で公開しているサーバーなので、接続を確かめる程度の用途にとどめる。会社のネットワークでは、外向きの 21 番・22 番が塞がれていて接続できないことがある。自分のサーバーにつなぐときは、コンフィグノードのホスト名・ユーザー名・パスワードを書き換える。11 章の演習1・演習2のフローは、接続先が仮のアドレス（<code>192.168.1.50</code> など）のままなので、自分のサーバーに合わせて書き換えてから動かす。</p>
 
         <div class="tip">
-            <strong>📌 FTP のコンフィグノードにある <code>"credentials"</code> について</strong>
-            <p>本ガイドのフローでは、FTP のコンフィグノードに空のパスワード（<code>"credentials": {"password": ""}</code>）を入れてある。これが無いと、パスワードを一度も保存していないコンフィグノードがデプロイ時に作れず、<code>Cannot read properties of undefined (reading 'password')</code> というエラーになる。<code>node-red-contrib-ftp</code>（v0.0.8）が、資格情報の無いコンフィグノードを想定していないためである。</p>
-            <p>パスワードが空のときは <code>anonymous@</code> が使われる。パスワードが要るサーバーにつなぐときは、コンフィグノードを開いて入力する。一度読み込んでパスワードを入れたあとに、同じフローを「置き換え」で読み込み直すと、パスワードが空に戻る。入れ直すか、「コピーを読み込み」を選ぶ。</p>
+            <strong>📌 コンフィグノードにある <code>"credentials"</code> について</strong>
+            <p>パスワードは、ふつうはフローをエクスポートしても書き出されない。本ガイドのフローでは、読み込んですぐ試せるよう、FTP・SFTP のコンフィグノードに試験用サーバーの公開パスワードを <code>"credentials"</code> として書いてある。自分のサーバーのパスワードを、このようにフローへ書いて人に渡してはいけない。</p>
+            <p>演習1の FTP のコンフィグノードには、空のパスワード（<code>"credentials": {"password": ""}</code>）を入れてある。これが無いと、パスワードを一度も保存していないコンフィグノードがデプロイ時に作れず、<code>Cannot read properties of undefined (reading 'password')</code> というエラーになる。<code>node-red-contrib-ftp</code>（v0.0.8）が、資格情報の無いコンフィグノードを想定していないためである。パスワードが空のときは <code>anonymous@</code> が使われる。</p>
+            <p>一度読み込んでパスワードを書き換えたあとに、同じフローを「置き換え」で読み込み直すと、パスワードはフローに書いてある値に戻る。入れ直すか、「コピーを読み込み」を選ぶ。</p>
             <p>ほかから手に入れたフロー（自分でエクスポートして別の Node-RED へ読み込んだものを含む）で同じエラーが出たら、FTP のコンフィグノードを開いて「更新」を押し、デプロイし直す。パスワード欄は空のままでもよい。編集画面で一度保存すれば、資格情報が保存される。</p>
         </div>
 
         <h3>クライアントとして使う</h3>
-        <p>3つの操作と、失敗を捕まえる経路をまとめたフローである。</p>
+        <p>3つの操作と、失敗を捕まえる経路をまとめたフローである。読み込んでデプロイし、各 inject ノードのボタンを押すと、次のようになる。</p>
+        <ul>
+            <li>「一覧を要求」: debug に <code>readme.txt</code> と <code>pub</code> を含む配列が出る</li>
+            <li>「送信を要求」: 読み取り専用のサーバーなので失敗し、「エラー内容」の debug に出る</li>
+            <li>「取得を要求」: SFTP で <code>/readme.txt</code> を <code>/tmp/readme.txt</code> へ保存し、その中身が debug に出る</li>
+        </ul>
+        <p>送信は、このサンプルではファイルが無くても失敗する。自分のサーバーに書き換えて送るときは、送るファイル（<code>/tmp/reading.csv</code>）を Node-RED のマシンに先に用意しておく。このノードは、ファイルが無いと、ファイル名の文字列そのものを中身として送ってしまう。</p>
         <p><strong>💼 使いどころ:</strong> 他のマシンにあるファイルを一覧・送信・取得し、失敗にも気づけるようにしたい場面で使います。</p>
 
         <details>
@@ -883,40 +920,43 @@ sudo ufw allow from 192.168.1.0/24 to any port 7022:7032 proto tcp</div>
     {
         "id": "conf_ftp",
         "type": "ftp",
-        "host": "192.168.1.50",
+        "host": "test.rebex.net",
         "port": "21",
         "secure": false,
         "secureOptions": "",
-        "user": "nodered",
+        "user": "demo",
         "connTimeout": "10000",
         "pasvTimeout": "10000",
         "keepalive": "10000",
         "credentials": {
-            "password": ""
+            "password": "password"
         }
     },
     {
         "id": "conf_sftp",
         "type": "sftp",
-        "host": "192.168.1.60",
+        "host": "test.rebex.net",
         "port": "22",
         "forceIPv4": false,
         "forceIPv6": false,
-        "username": "nodered",
+        "username": "demo",
         "privateKey": "",
         "readyTimeout": "20000",
         "strictVendor": true,
         "debug": "",
         "retries": "2",
         "retry_factor": "2",
-        "retry_minTimeout": "2000"
+        "retry_minTimeout": "2000",
+        "credentials": {
+            "password": "password"
+        }
     },
     {
         "id": "cmt_list",
         "type": "comment",
         "z": "tab_ftp_client",
         "name": "1. FTP でディレクトリの中身を一覧する",
-        "info": "payload に配列が返る",
+        "info": "payload にファイルとフォルダの配列が返る。\n接続先は公開の試験用サーバー test.rebex.net",
         "x": 250,
         "y": 60,
         "wires": []
@@ -989,7 +1029,7 @@ sudo ufw allow from 192.168.1.0/24 to any port 7022:7032 proto tcp</div>
         "type": "comment",
         "z": "tab_ftp_client",
         "name": "2. ローカルのファイルを FTP で送る",
-        "info": "ローカル = Node-RED が動いているマシン",
+        "info": "ローカル = Node-RED が動いているマシン\ntest.rebex.net は読み取り専用なので、この送信は失敗して 4 の catch に届く",
         "x": 240,
         "y": 190,
         "wires": []
@@ -1104,8 +1144,8 @@ sudo ufw allow from 192.168.1.0/24 to any port 7022:7032 proto tcp</div>
         "operation": "get",
         "path": "",
         "pattern": "",
-        "filename": "/data/reading.csv",
-        "localFilename": "/tmp/reading_sftp.csv",
+        "filename": "/readme.txt",
+        "localFilename": "/tmp/readme.txt",
         "name": "SFTP get",
         "x": 400,
         "y": 370,
@@ -1120,7 +1160,7 @@ sudo ufw allow from 192.168.1.0/24 to any port 7022:7032 proto tcp</div>
         "type": "file in",
         "z": "tab_ftp_client",
         "name": "保存先を読む",
-        "filename": "/tmp/reading_sftp.csv",
+        "filename": "/tmp/readme.txt",
         "filenameType": "str",
         "format": "utf8",
         "chunk": false,
@@ -1343,7 +1383,10 @@ sudo ufw allow from 192.168.1.0/24 to any port 7022:7032 proto tcp</div>
 
         <div class="tip">
             <strong>手元で試すには：</strong>
-            <p>相手の機器がなくても、同じマシンから接続すれば動作を確かめられる。上のサーバーフローをデプロイしたあと、別の端末で <code>ftp -p localhost 7021</code> と打ち、ユーザー名 <code>camera</code>、パスワード <code>change-me</code> でログインして <code>put</code> すると、<code>/tmp/ftp-received/</code> にファイルが現れる。</p>
+            <p>相手の機器がなくても、同じマシンから送れば動作を確かめられる。上のサーバーフローをデプロイしたあと、ターミナルで、送りたいファイルのあるフォルダへ移って次を実行する。<code>/tmp/ftp-received/</code> にファイルが現れ、debug に「保存したパス」が出る。</p>
+            <div class="code-block">curl -T reading.csv ftp://localhost:7021/ --user camera:change-me</div>
+            <p><code>-T</code> は送るファイル、<code>--user</code> はユーザー名とパスワードである。macOS には <code>ftp</code> コマンドが入っていないため、<code>curl</code> を使う。</p>
+            <p>このサーバーは、クライアントのサンプルフローの接続先には使えない。ノードは接続のたびに空のファイルシステムを作り直すため、一覧は常に空になり、取得もできない。</p>
         </div>
 
         <h2 id="s11">11. 演習問題</h2>
@@ -1641,6 +1684,10 @@ sudo ufw allow from 192.168.1.0/24 to any port 7022:7032 proto tcp</div>
             <h3>演習3：受け取ったファイルを種類ごとに振り分ける<span class="difficulty difficulty-hard">上級</span></h3>
             <p>ネットワークカメラが画像を、計測器が CSV を、同じ FTP サーバーへ送ってくる。届いたファイルを拡張子で見分け、画像は <code>/tmp/inbox/images/</code> へ、それ以外は <code>/tmp/inbox/others/</code> へ保存するフローを組んでほしい。</p>
             <p><strong>💼 使いどころ:</strong> 同じ場所に届くファイルを種類ごとに振り分けて保存したい場面で使います。</p>
+            <div class="warning">
+                <strong>サーバーのサンプルフローと同時に動かさない：</strong>
+                <p>この演習は、10 章のサーバーのサンプルフローと同じポート 7021 で待ち受ける。両方をデプロイすると、待ち受けに失敗した ftp server ノードが Node-RED ごと止めてしまう。サンプルのタブを無効にしてから、デプロイする。</p>
+            </div>
             <p><strong>作る範囲:</strong></p>
             <div class="sys-map">
                 <div class="sys-actor">
@@ -1904,6 +1951,16 @@ sudo ufw allow from 192.168.1.0/24 to any port 7022:7032 proto tcp</div>
                 <td>FTP サーバーに接続できない</td>
                 <td>ポート 21 で接続しようとしている</td>
                 <td>ノードの既定ポートは 7021。接続側の設定を合わせる</td>
+            </tr>
+            <tr>
+                <td>デプロイした直後に Node-RED が止まり、起動し直しても止まる。ログに <code>EADDRINUSE: address already in use :::7021</code> と出る</td>
+                <td>同じポートで待ち受ける ftp server ノードが2つある（本ガイドのサーバーのサンプルと演習3など）か、ほかのソフトがそのポートを使っている。このノードは、待ち受けに失敗すると Node-RED ごと止めてしまう</td>
+                <td><code>node-red --safe</code> で起動する（フローを動かさずにエディターが開く）。片方のタブを無効にするかポートを変えてから、デプロイする</td>
+            </tr>
+            <tr>
+                <td>ftp server ノードへ FTP list で接続すると、一覧が常に空になる</td>
+                <td>ftp server ノードは、接続のたびに空のファイルシステムを作り直す</td>
+                <td>クライアントを試すときは、test.rebex.net などのふつうの FTP サーバーにつなぐ</td>
             </tr>
             <tr>
                 <td>Username を空にしたら誰も接続できない</td>
