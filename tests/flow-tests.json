@@ -824,6 +824,176 @@
             "ex4_tab": {
                 "covered_by": "ex4_test_tab"
             }
+        },
+        "nodered-ftp-sftp-node-guide.html": {
+            "tab_ftp_client": {
+                "note": "公開の試験用サーバー test.rebex.net（読み取り専用）につなぐ。送信は読み取り専用のため失敗し、catch で受け取る。送るファイル /tmp/reading.csv は用意しない（ガイドの説明どおり、無くても送信を試みて断られる）",
+                "inject": [
+                    "一覧を要求",
+                    "送信を要求",
+                    "取得を要求"
+                ],
+                "expect": [
+                    {
+                        "debug": "一覧",
+                        "contains": "\"name\":\"readme.txt\""
+                    },
+                    {
+                        "debug": "一覧",
+                        "contains": "\"name\":\"pub\""
+                    },
+                    {
+                        "debug": "送信の結果",
+                        "absent": true
+                    },
+                    {
+                        "debug": "エラー内容",
+                        "contains": "\"name\":\"FTP put\""
+                    },
+                    {
+                        "debug": "ファイルの中身",
+                        "contains": "Rebex"
+                    }
+                ],
+                "allow_status": {
+                    "FTP put": "読み取り専用のサーバーへの送信をわざと失敗させ、catch で受け取ることを確かめるため"
+                },
+                "external": [
+                    "test.rebex.net"
+                ],
+                "allow_unsafe": true,
+                "after": 20
+            },
+            "tab_ftp_server": {
+                "note": "ガイドの curl -T の代わりに、テストの実行役が FTP で送る。演習1の接続先（192.168.1.50）は、このタブの ftp server ノード（localhost:7021、camera / change-me）に書き換えて一緒に動かす。ftp server ノードは接続のたびに空のファイルシステムを作るので、フォルダを作る操作は成功する",
+                "with": [
+                    "tab_ex1"
+                ],
+                "override": {
+                    "ex1_conf": {
+                        "host": "localhost",
+                        "port": "7021",
+                        "user": "camera",
+                        "credentials": {
+                            "password": "change-me"
+                        }
+                    }
+                },
+                "inject": [
+                    "実行"
+                ],
+                "ftp_uploads": [
+                    {
+                        "port": 7021,
+                        "user": "camera",
+                        "password": "change-me",
+                        "file": "reading.csv",
+                        "body": "temp,25.5\n"
+                    },
+                    {
+                        "port": 7021,
+                        "user": "camera",
+                        "password": "wrong",
+                        "file": "denied.csv",
+                        "body": "temp,25.5\n",
+                        "refused": true
+                    }
+                ],
+                "expect": [
+                    {
+                        "debug": "保存したパス",
+                        "match": "^/tmp/ftp-received/reading\\.csv$"
+                    },
+                    {
+                        "debug": "認証の記録",
+                        "contains": "\"ユーザー名\":\"camera\",\"判定\":\"許可\""
+                    },
+                    {
+                        "debug": "認証の記録",
+                        "contains": "\"ユーザー名\":\"camera\",\"判定\":\"拒否\""
+                    },
+                    {
+                        "debug": "結果",
+                        "contains": "\"payload\":\"mkdir operation successful.\""
+                    },
+                    {
+                        "debug": "結果",
+                        "match": "\"filename\":\"/upload/\\d{4}-\\d{2}-\\d{2}\""
+                    }
+                ],
+                "allow_unsafe": true
+            },
+            "tab_ex1": {
+                "covered_by": "tab_ftp_server"
+            },
+            "tab_ex2": {
+                "note": "演習の接続先（192.168.1.60 の /data）が手元に無いため、CI では公開の試験用サーバー test.rebex.net の / を一覧する。/ には CSV が無いので、パターンを *.txt にして、readme.txt だけが残り pub が外れることで絞り込みを確かめる",
+                "override": {
+                    "ex2_conf": {
+                        "host": "test.rebex.net",
+                        "username": "demo",
+                        "credentials": {
+                            "password": "password"
+                        }
+                    },
+                    "ex2_list": {
+                        "path": "/",
+                        "pattern": "*.txt"
+                    }
+                },
+                "inject": [
+                    "実行"
+                ],
+                "expect": [
+                    {
+                        "debug": "CSVの一覧",
+                        "match": "^\\[\"readme\\.txt\"\\]$"
+                    }
+                ],
+                "external": [
+                    "test.rebex.net"
+                ],
+                "allow_unsafe": true,
+                "after": 20
+            },
+            "tab_ex3": {
+                "note": "ガイドの curl -T の代わりに、テストの実行役が FTP で送る。拡張子が大文字の画像も画像として振り分けられることを確かめる",
+                "ftp_uploads": [
+                    {
+                        "port": 7021,
+                        "user": "camera",
+                        "password": "change-me",
+                        "file": "photo.JPG",
+                        "body": "temp,25.5\n"
+                    },
+                    {
+                        "port": 7021,
+                        "user": "camera",
+                        "password": "change-me",
+                        "file": "reading.csv",
+                        "body": "temp,25.5\n"
+                    },
+                    {
+                        "port": 7021,
+                        "user": "camera",
+                        "password": "wrong",
+                        "file": "denied.jpg",
+                        "body": "temp,25.5\n",
+                        "refused": true
+                    }
+                ],
+                "expect": [
+                    {
+                        "debug": "保存したパス",
+                        "match": "^/tmp/inbox/images/photo\\.JPG$"
+                    },
+                    {
+                        "debug": "保存したパス",
+                        "match": "^/tmp/inbox/others/reading\\.csv$"
+                    }
+                ],
+                "allow_unsafe": true
+            }
         }
     }
 }

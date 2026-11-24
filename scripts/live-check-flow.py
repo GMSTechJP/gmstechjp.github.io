@@ -12,7 +12,8 @@ MQTT・HTTP request・WebSocket client など外部へ接続するノードは�
 - 管理 API の POST /flow で、新しいタブを1つ追加する。既存のタブには触れない
 - ノードと設定ノードの ID には、ブロックごとの接頭辞を付ける。同じフローが既に
   読み込まれていても、ブロックどうしで ID が同じでも重ならない
-- ID では避けられない重なり（待ち受けのパス・ポート、MQTT の固定のクライアント ID）が
+- ID では避けられない重なり（待ち受けのパス・ポート、ftp server のポート、MQTT の
+  固定のクライアント ID）が
   既存のフローとあるときは、追加しない
 - 手元の環境に副作用のあるノード（OS コマンド、ファイルの書き込み、実機など）を含む
   ブロックは、--allow-unsafe を付けない限り動かさない
@@ -33,7 +34,8 @@ GET /context/flow で読む。
 - 接続するノード（mqtt in / out、WebSocket client を使う websocket in / out）なのに、
   ステータスが1度も記録されていない
 - --expect の文字列が、debug に届いた値のどれにも含まれない
-ステータスでは確かめられないノード（http request、tcp、udp、待ち受け側の websocket）を
+ステータスでは確かめられないノード（http request、tcp、udp、待ち受け側の websocket、
+ftp in、sftp in、ftp server）を
 含むときは、--expect を指定しないと中止する（何も確かめずに合格にしない）。
 最後のステータスだけを見るため、途中で失敗して復帰したものは分からない。
 
@@ -42,8 +44,10 @@ GET /context/flow で読む。
 """
 
 import argparse
+import ftplib
 import http.client
 import importlib.util
+import io
 import json
 import os
 import re
@@ -51,6 +55,7 @@ import secrets
 import sys
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -62,7 +67,8 @@ _spec.loader.exec_module(validate_flow_json)
 HTTP_TIMEOUT = 10  # 管理 API 1回あたりの待ち時間（秒）
 
 # 手元の環境に副作用があるノード。--allow-unsafe を付けない限り動かさない
-UNSAFE_TYPES = {"exec", "file", "daemon", "sqlite", "ftp", "e-mail", "e-mail in"}
+# （ftp・sftp の設定ノードを使うノードは、取得・送信で手元のファイルを読み書きする）
+UNSAFE_TYPES = {"exec", "file", "daemon", "sqlite", "ftp", "sftp", "e-mail", "e-mail in"}
 UNSAFE_PREFIXES = ("rpi-", "serial ", "modbus-", "mc ", "mcprotocol")
 
 # 接続先へつなぎ、ステータスを出すノード。ステータスが無ければ確かめられていない
@@ -77,7 +83,13 @@ def is_connecting(node, configs):
     return False
 
 # 外部につなぐが、ステータスでは確かめられないノード。--expect が必要
-UNVERIFIED_TYPES = {"http request", "tcp in", "tcp out", "tcp request", "udp in", "udp out"}
+# （ftp in・sftp in は成功するとステータスを消す。ftp server は待ち受けるだけで、届いたかは出さない）
+UNVERIFIED_TYPES = {"http request", "tcp in", "tcp out", "tcp request", "udp in", "udp out",
+                    "ftp in", "sftp in", "ftp-server"}
+
+FTP_TIMEOUT = 10  # ftp_uploads の接続・ログイン・転送の待ち時間（秒）
+# パッシブモードのポート範囲として数える上限。これより広い範囲は、重なりの検査に入れない
+PASSIVE_RANGE_LIMIT = 200
 
 def needs_expect(node, configs):
     if node.get("d"):
@@ -304,10 +316,54 @@ def endpoints(nodes):
             found.add(("tcp", str(n.get("port"))))
         elif t == "udp in":
             found.add(("udp", str(n.get("port"))))
+        elif t == "ftp-server":
+            # 同じポートの ftp server ノードが2つあると、待ち受けに失敗した方が Node-RED ごと止める
+            # （node-red-contrib-ftp-server 1.0.4）。TCP の待ち受けと同じものとして数える
+            found.add(("tcp", str(n.get("port") or 7021)))
+            for p in passive_ports(n.get("passiveportrange")):
+                found.add(("tcp", str(p)))
         elif t == "mqtt-broker" and n.get("clientid") and n["id"] in used_brokers:
             # 同じクライアント ID で接続すると、ブローカーが先の接続を切る
             found.add(("mqtt-clientid", broker_address(n), str(n.get("clientid"))))
     return found
+
+
+def passive_ports(value):
+    """ftp server ノードの「Passive Port Range」（"7022-7032" や "7022"）のポート番号の並び。"""
+    m = re.fullmatch(r"\s*(\d+)\s*(?:-\s*(\d+)\s*)?", str(value or ""))
+    if not m:
+        return []
+    start = int(m.group(1))
+    end = int(m.group(2) or start)
+    if end < start or end - start >= PASSIVE_RANGE_LIMIT:
+        return []
+    return list(range(start, end + 1))
+
+
+def ftp_upload(base, u):
+    """記載の FTP 送信（ガイドの curl -T の代わり）を行い、(合ったか, 説明) を返す。
+
+    u は {"port", "user", "password", "file", "body", "refused"}。Node-RED と同じホストへ送る。
+    "refused": true のときは、ログインが断られる（530）ことを確かめる。
+    """
+    host = urllib.parse.urlsplit(base).hostname or "localhost"
+    try:
+        with ftplib.FTP() as f:
+            f.connect(host, int(u["port"]), timeout=FTP_TIMEOUT)
+            try:
+                f.login(str(u.get("user", "")), str(u.get("password", "")))
+            except ftplib.error_perm as e:
+                # 530 Not logged in だけを「断られた」とする（500 などは別の誤り）
+                if u.get("refused") and str(e).startswith("530"):
+                    return True, f"ログインが断られた: {e}"
+                return False, f"ログインが断られた: {e}"
+            if u.get("refused"):
+                return False, "ログインできてしまった"
+            # ftplib はパッシブモードで、サーバーが返すアドレスでなく接続先のホストへつなぐ
+            f.storbinary(f"STOR {u['file']}", io.BytesIO(str(u.get("body", "")).encode()))
+            return True, "送れた"
+    except (OSError, EOFError, ftplib.Error) as e:
+        return False, f"送れなかった: {type(e).__name__}: {e}"
 
 
 def read_context(base, flow_id, key):
@@ -421,12 +477,13 @@ def saved_value(text, path):
 
 
 def check(url, picked, label, inject=(), expect=(), wait=10, after=5, gap=0,
-          allow_unsafe=False, keep=False, requests=(), allow_status=()):
+          allow_unsafe=False, keep=False, requests=(), allow_status=(), ftp_uploads=()):
     """選んだブロックを一時的なタブで動かし、ステータスと debug に届いた値を確かめる。
 
     expect は {"contains": 文字列} か {"match": 正規表現} の並びで、"debug" に debug ノードの
     名前を書くと、その debug に届いた値だけを見る。
-    requests は、inject を押した後に送る HTTP リクエスト（send_request）の並びで、
+    ftp_uploads は、inject を押した後に FTP で送るファイル（ftp_upload）の並びで、書いた順に送る。
+    requests は、その後に送る HTTP リクエスト（send_request）の並びで、
     応答のステータス（既定 200）と本文（contains / match）を確かめる。書いた順に送る。
     "save": {"名前": "note.id"} で応答の値を覚え、後のリクエストの path に {名前} で使える。
     allow_status に書いた名前のノードは、ステータスが赤・黄でも不合格にしない
@@ -468,7 +525,7 @@ def check(url, picked, label, inject=(), expect=(), wait=10, after=5, gap=0,
                 + ", ".join(":".join(c) for c in sorted(inner)))
         seen |= endpoints(b["flow"])
     unverified = sorted({n["type"] for n in flow["nodes"] if needs_expect(n, configs)})
-    if not expect and not requests and (
+    if not expect and not requests and not ftp_uploads and (
             unverified or not any(is_connecting(n, configs) for n in flow["nodes"])):
         raise LiveCheckError(
             f"ステータスでは確かめられないノード（{', '.join(unverified) or 'mqtt、WebSocket client 以外'}）"
@@ -497,10 +554,17 @@ def check(url, picked, label, inject=(), expect=(), wait=10, after=5, gap=0,
             for nid in injects[name]:
                 api(url, "POST", f"/inject/{nid}")
             print(f"inject「{name}」を押した")
+        uploaded = []
+        for u in ftp_uploads:
+            if gap and (inject or uploaded):
+                time.sleep(gap)
+            ok, note = ftp_upload(url, u)
+            uploaded.append((u, ok, note))
+            print(f"FTP で {u['file']} を送った（ポート {u['port']}、ユーザー {u.get('user', '')}）→ {note}")
         answers = []
         saved = {}
         for r in requests:
-            if gap and (inject or answers):
+            if gap and (inject or uploaded or answers):
                 time.sleep(gap)
             names = re.findall(r"\{(\w+)\}", r["path"])
             if any(saved.get(n) is None for n in names):
@@ -515,7 +579,7 @@ def check(url, picked, label, inject=(), expect=(), wait=10, after=5, gap=0,
                 saved[name] = saved_value(text, path)
             answers.append((r, status, text, ctype))
             print(f"{r.get('method', 'GET').upper()} {r['path']} を送った → {status}")
-        if inject or requests:
+        if inject or ftp_uploads or requests:
             time.sleep(after)
 
         status = read_context(url, flow_id, "status") or {}
@@ -553,6 +617,12 @@ def check(url, picked, label, inject=(), expect=(), wait=10, after=5, gap=0,
         failed |= not hit
         outcome = ("届かなかった" if hit else "届いた") if e.get("absent") else ("届いた" if hit else "届かなかった")
         print(f"\n期待: {expectation_text(e)} → {outcome}（{'合う' if hit else '合わない'}）")
+
+    for u, ok, note in uploaded:
+        failed |= not ok
+        want = "ログインが断られる" if u.get("refused") else "送れる"
+        print(f"\nFTP: {u['file']}（ポート {u['port']}、ユーザー {u.get('user', '')}、{want}）→ "
+              f"{'合った' if ok else '合わない'}: {note}")
 
     for r, status, text, ctype in answers:
         ok = request_met(r, status, text, ctype)
