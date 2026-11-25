@@ -212,16 +212,243 @@ users:
         <div class="important">
             <p><strong>📥 サンプルフローのインポート方法:</strong></p>
             <ol>
-                <li>下のサンプルフローJSONをコピー</li>
+                <li>下のフローJSON（公式サンプルフロー、または応用フロー）をコピー</li>
                 <li>Node-REDエディタで <strong>メニュー → 読み込み</strong> を選択</li>
                 <li>JSONをペーストして「読み込み」をクリック</li>
             </ol>
-            <p>このサンプルフローには、以下で説明するパターンの実例が含まれています。</p>
         </div>
 
-        
+        <h3>公式サンプルフロー</h3>
+        <p>最初のサンプルフローは、Node-RED本体に同梱されている公式サンプル2つ（「Convert JavaScript object to YAML」「Convert YAML to JavaScript object」）を1つのタブにまとめ、名前の無かった inject ノードと debug ノードに日本語の名前を付けたものです。エディタの <strong>メニュー → 読み込み → サンプル → parser → yaml</strong> からも、元のフローを開けます。</p>
         <details>
-            <summary>📥 サンプルフローJSON（クリックで展開）</summary>
+            <summary>📥 公式サンプルフローJSON（クリックで展開）</summary>
+            <div class="flow-json">[
+    {
+        "id": "8d9375172ef3df6f",
+        "type": "tab",
+        "label": "yaml",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "84222b92.d65d18",
+        "type": "inject",
+        "z": "8d9375172ef3df6f",
+        "name": "例1: 実行",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 200,
+        "y": 180,
+        "wires": [
+            [
+                "cdd1c154.3a655"
+            ]
+        ]
+    },
+    {
+        "id": "7b014430.dfd94c",
+        "type": "comment",
+        "z": "8d9375172ef3df6f",
+        "name": "Convert JavaScript object to YAML",
+        "info": "YAML node can convert JavaScript object to YAML string.",
+        "x": 240,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "1cd4ad02.9a5423",
+        "type": "debug",
+        "z": "8d9375172ef3df6f",
+        "name": "例1: 結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 670,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "cdd1c154.3a655",
+        "type": "template",
+        "z": "8d9375172ef3df6f",
+        "name": "JS object",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "json",
+        "syntax": "plain",
+        "template": "{\n    \"fruits\" : {\n        \"kind\": \"Apple\",\n        \"price\": 100,\n        \"origin\": \"Canada\"\n    }\n}",
+        "output": "json",
+        "x": 360,
+        "y": 180,
+        "wires": [
+            [
+                "aaf0100b.16628"
+            ]
+        ]
+    },
+    {
+        "id": "aaf0100b.16628",
+        "type": "yaml",
+        "z": "8d9375172ef3df6f",
+        "property": "payload",
+        "name": "",
+        "x": 510,
+        "y": 180,
+        "wires": [
+            [
+                "1cd4ad02.9a5423"
+            ]
+        ]
+    },
+    {
+        "id": "ba1dab90.8d1da8",
+        "type": "inject",
+        "z": "8d9375172ef3df6f",
+        "name": "例2: 実行",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 200,
+        "y": 360,
+        "wires": [
+            [
+                "16617f26.14ced1"
+            ]
+        ]
+    },
+    {
+        "id": "a9f97b00.57d658",
+        "type": "comment",
+        "z": "8d9375172ef3df6f",
+        "name": "Convert YAML to JavaScript object",
+        "info": "YAML node can convert YAML string to JavaScript object.",
+        "x": 240,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "2d0dde7e.a50082",
+        "type": "debug",
+        "z": "8d9375172ef3df6f",
+        "name": "例2: 結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 690,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "16617f26.14ced1",
+        "type": "template",
+        "z": "8d9375172ef3df6f",
+        "name": "YAML string",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "yaml",
+        "syntax": "plain",
+        "template": "fruits:\n    kind: Apple\n    price: 100\n    origin: Canada",
+        "output": "str",
+        "x": 370,
+        "y": 360,
+        "wires": [
+            [
+                "e2e4f862.f9d7d8"
+            ]
+        ]
+    },
+    {
+        "id": "e2e4f862.f9d7d8",
+        "type": "yaml",
+        "z": "8d9375172ef3df6f",
+        "property": "payload",
+        "name": "",
+        "x": 530,
+        "y": 360,
+        "wires": [
+            [
+                "2d0dde7e.a50082"
+            ]
+        ]
+    }
+]</div>
+        </details>
+
+        <h4>フローの読み解き</h4>
+        <p>フローには、公式サンプルの2つの例が、上から順に並んでいます。それぞれの先頭に、英語の comment ノードがあります。どちらも、「例N: 実行」（inject）のボタンで動かし、「例N: 結果」（debug）に結果が出ます。inject が送る値（時刻）は使われません。変換するデータは、次の template ノードに書いてあります。</p>
+
+        <table>
+            <tr>
+                <th>例</th>
+                <th>comment ノードの見出し（意味）</th>
+                <th>ノードの並びと設定</th>
+                <th>「例N: 結果」に出るもの</th>
+            </tr>
+            <tr>
+                <td><strong>例1</strong></td>
+                <td>Convert JavaScript object to YAML（JavaScript のオブジェクトを YAML に変換する）</td>
+                <td>「例1: 実行」→「JS object」（template）→ yaml →「例1: 結果」。template は「出力形式」が「JSON」で、書いてある JSON をオブジェクトにして <code>msg.payload</code> に入れる</td>
+                <td>4行の YAML の文字列（下の例）</td>
+            </tr>
+            <tr>
+                <td><strong>例2</strong></td>
+                <td>Convert YAML to JavaScript object（YAML を JavaScript のオブジェクトに変換する）</td>
+                <td>「例2: 実行」→「YAML string」（template）→ yaml →「例2: 結果」。template は「出力形式」が「平文」で、YAML の文字列をそのまま <code>msg.payload</code> に入れる</td>
+                <td><code>{"fruits":{"kind":"Apple","price":100,"origin":"Canada"}}</code></td>
+            </tr>
+        </table>
+
+        <div class="code-block">fruits:
+  kind: Apple
+  price: 100
+  origin: Canada</div>
+
+        <p>yaml ノードは、届いた <code>msg.payload</code> がオブジェクトなら YAML の文字列に、文字列ならオブジェクトに変換します。2つの例は、同じデータを逆向きに変換しています。次の点を確かめてください。</p>
+        <ul>
+            <li><strong>字下げ:</strong> 例1の出力は、字下げが2文字です。例2の template に書いてある YAML は、字下げが4文字です。どちらも同じ意味で、YAML は字下げの深さで入れ子を表します。</li>
+            <li><strong>値の型:</strong> 例2の結果では、<code>price</code> が数の <code>100</code> になります（引用符が付かない）。YAML は、書き方から数・真偽値・文字列を見分けます。XML の変換では、数も文字列になります。</li>
+        </ul>
+
+        <h3>応用（サイト独自）: 設定ファイルの形の YAML と、値の取り出し</h3>
+        <p>ここから先は公式サンプルではなく、<strong>本サイトが用意した応用教材</strong>です。設定ファイルのような入れ子のある YAML を変換する部分と、変換した結果から値を取り出す部分があり、下のパターン1〜3の実例になっています。</p>
+        <details>
+            <summary>📥 応用フローJSON（クリックで展開）</summary>
             <div class="flow-json">[
     {
         "id": "yaml_sample_tab",
@@ -446,13 +673,41 @@ users:
     }
 ]</div>
         </details>
-        
-        
-        <h3>使用パターン</h3>
+
+        <h4>フローの読み解き</h4>
+        <p>応用フローは、3つの部分に分かれています。各部分の先頭にある comment ノードの名前が、下の表の「部分」に当たります。3つの inject はどれも「実行」という同じ名前なので、comment ノードのすぐ下の行にあるものを押してください。</p>
+
+        <table>
+            <tr>
+                <th>部分</th>
+                <th>ノードの並び</th>
+                <th>見どころと、debug に出るもの</th>
+                <th>パターン</th>
+            </tr>
+            <tr>
+                <td><strong>YAML → オブジェクト変換</strong></td>
+                <td>「実行」（inject）→「YAML設定」（template）→「YAML→Obj」（yaml）→「オブジェクト出力」（debug）</td>
+                <td>設定ファイルの形の YAML を変換する。出力は <code>{"app":{"name":"My Application","version":"1.0.0","debug":true},"database":{"host":"localhost","port":5432,"name":"mydb"},"features":["auth","logging","cache"]}</code>。<code>#</code> で始まるコメントの行は消える。<code>true</code> は真偽値、<code>5432</code> は数、<code>1.0.0</code> は文字列になり、<code>-</code> で始まる行は配列になる</td>
+                <td>パターン1</td>
+            </tr>
+            <tr>
+                <td><strong>オブジェクト → YAML変換</strong></td>
+                <td>「実行」（inject）→「Docker Compose構造」（function）→「Obj→YAML」（yaml）→「docker-compose.yml」（debug）</td>
+                <td>function が、Docker Compose の設定の形をしたオブジェクトを <code>msg.payload</code> に入れる。出力は、<code>version: '3.8'</code> で始まる複数行の YAML になる。<code>'3.8'</code> に引用符が付くのは、付けないと文字列ではなく数として読まれるため。<code>'80:80'</code> に付くのは、古い規格の YAML を読むソフトが、<code>80:80</code> を数として読むことがあるため（この yaml ノード自身は、引用符が無くても文字列として読む）。「docker-compose.yml」は debug ノードの名前で、ファイルには保存されない</td>
+                <td>パターン2</td>
+            </tr>
+            <tr>
+                <td><strong>設定値の抽出</strong></td>
+                <td>「実行」（inject）→「センサー設定YAML」（template）→「YAML→Obj」（yaml）→「温度センサー設定抽出」（function）→「温度設定」（debug）</td>
+                <td>センサー2種類分の設定の YAML をオブジェクトにしてから、function で温度センサーの設定だけを取り出し、項目の名前を付け直す。出力は <code>{"sensor":"temperature","gpioPin":4,"readInterval":5000,"alertMin":10,"alertMax":40}</code>。XML と違い、値が配列にならないので、<code>msg.payload.sensors.temperature.pin</code> のようにそのままたどれる</td>
+                <td>パターン3</td>
+            </tr>
+        </table>
+
         
         <h3>パターン1: YAML → オブジェクト変換</h3>
         <p><strong>用途:</strong> YAML形式の文字列をオブジェクトに変換</p>
-        <p>サンプルフローの「YAML → オブジェクト変換」を参照してください。</p>
+        <p>応用フローの「YAML → オブジェクト変換」を参照してください。</p>
         <div class="node-example">
             <span class="node node-template">YAML文字列</span>
             <span class="arrow">→</span>
@@ -464,19 +719,19 @@ users:
         
         <h3>パターン2: オブジェクト → YAML変換</h3>
         <p><strong>用途:</strong> オブジェクトをYAML形式の文字列に変換</p>
-        <p>サンプルフローの「オブジェクト → YAML変換」を参照してください。</p>
+        <p>応用フローの「オブジェクト → YAML変換」を参照してください。</p>
         <div class="node-example">
-            <span class="node node-function">オブジェクト生成</span>
+            <span class="node node-function">Docker Compose構造</span>
             <span class="arrow">→</span>
             <span class="node node-yaml">Obj→YAML</span>
             <span class="arrow">→</span>
-            <span class="node node-file">ファイル保存</span>
+            <span class="node node-debug">docker-compose.yml</span>
         </div>
         <p><strong>ポイント:</strong> 設定ファイルの生成やYAML形式での出力に使用</p>
         
         <h3>パターン3: 設定値の抽出</h3>
         <p><strong>用途:</strong> ネストしたYAML設定から特定の値を抽出</p>
-        <p>サンプルフローの「設定値の抽出」を参照してください。</p>
+        <p>応用フローの「設定値の抽出」を参照してください。</p>
         <div class="node-example">
             <span class="node node-template">センサー設定YAML</span>
             <span class="arrow">→</span>
