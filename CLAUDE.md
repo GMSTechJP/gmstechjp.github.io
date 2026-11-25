@@ -635,7 +635,7 @@ python3 scripts/live-check-flow.py nodered-mqtt-node-guide.html --blocks 2,3 \
   送るか、同じフローの ftp in が localhost でつなぐ（どちらも無いと失敗）
 - エラーの経路（つながらない相手を呼ぶなど）をわざと通してステータスが赤になるノードは、
   `allow_status` に名前と理由を書く。書かないと、赤のステータスは不合格になる
-- 公開の外部 API（timeapi.io など）や公開の試験用サーバー（FTP・SFTP の test.rebex.net など）を
+- 公開の外部 API（time.now など）や公開の試験用サーバー（FTP・SFTP の test.rebex.net など）を
   使う部分も、manual にせず動かす。外部のサービスが使えなくなると、演習の時間の利用者も
   同じところで止まるため。http request が呼ぶホストと、ftp in・sftp in の設定ノードの接続先は
   `external` に書く（書き漏らすと失敗）。PR の CI（validate.yml）では不合格にし、デプロイの前
