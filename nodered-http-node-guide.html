@@ -60,6 +60,7 @@
         .api-card { background: linear-gradient(135deg, #5468d4 0%, #764ba2 100%); color: white; padding: 15px 20px; border-radius: 8px; margin: 10px 0; }
         .api-card h4 { margin: 0 0 10px 0; color: white; }
         .api-card code { background: rgba(0,0,0,0.2); padding: 2px 6px; border-radius: 3px; }
+        .api-card a { color: white; text-decoration: underline; }
         /* 漫画風の図（scripts/comic/build.py で生成） */
         .comic-fig { margin: 20px auto; max-width: 620px; }
         .comic-fig .comic { display: block; width: 100%; height: auto; background: #fff; border: 1px solid rgba(0,0,0,0.12); border-radius: 6px; }
@@ -340,9 +341,10 @@ return msg;</div>
         <p>以下の認証不要で安定した公開APIを使ってテストできます：</p>
 
         <div class="api-card">
-            <h4>timeapi.io</h4>
+            <h4>World Time API（time.now）</h4>
             <p>世界各地の現在時刻を取得</p>
-            <p><code>https://timeapi.io/api/Time/current/zone?timeZone=Asia/Tokyo</code></p>
+            <p><code>https://time.now/developer/api/time?timezone=Asia/Tokyo</code></p>
+            <p>提供元: <a href="https://time.now">World Time API by Time.Now</a>（無料で使えるかわりに、使う側のサイトやアプリに提供元へのリンクを載せることが求められています。詳しくは <a href="https://time.now/developer">time.now/developer</a> を参照）</p>
         </div>
 
         <div class="api-card">
@@ -1483,7 +1485,7 @@ return msg;</div>
         </div>
 
         <h3>応用（サイト独自）: 実用パターン集</h3>
-        <p>ここから先は公式サンプルではなく、<strong>本サイトが用意した応用教材</strong>です。JSONを返すAPI、flow変数へのデータ保存、外部API呼び出し（timeapi.io）、ステータスコードによるエラーハンドリング、セルフテストを1つのタブにまとめたもので、以下で説明する使用パターンの実例になっています。</p>
+        <p>ここから先は公式サンプルではなく、<strong>本サイトが用意した応用教材</strong>です。JSONを返すAPI、flow変数へのデータ保存、外部API呼び出し（time.now の World Time API）、ステータスコードによるエラーハンドリング、セルフテストを1つのタブにまとめたもので、以下で説明する使用パターンの実例になっています。</p>
         <details>
             <summary>📥 応用フローJSON（クリックで展開）</summary>
             <div class="flow-json">[
@@ -1704,7 +1706,7 @@ return msg;</div>
         "type": "comment",
         "z": "http_sample_tab",
         "name": "━━━ 外部API呼び出し ━━━",
-        "info": "timeapi.io で時刻取得",
+        "info": "time.now の World Time API で時刻取得",
         "x": 180,
         "y": 520,
         "wires": []
@@ -1728,11 +1730,11 @@ return msg;</div>
         "id": "http_request_time",
         "type": "http request",
         "z": "http_sample_tab",
-        "name": "timeapi.io",
+        "name": "time.now",
         "method": "GET",
         "ret": "obj",
         "paytoqs": "ignore",
-        "url": "https://timeapi.io/api/Time/current/zone?timeZone=Asia/Tokyo",
+        "url": "https://time.now/developer/api/time?timezone=Asia/Tokyo",
         "tls": "",
         "persist": false,
         "proxy": "",
@@ -1749,7 +1751,7 @@ return msg;</div>
         "type": "function",
         "z": "http_sample_tab",
         "name": "時刻を整形",
-        "func": "// APIレスポンスから時刻情報を抽出\nconst timezone = msg.payload.timeZone;\nconst dateTime = msg.payload.dateTime;\nconst formatted = msg.payload.date + ' ' + msg.payload.time;\n\nmsg.payload = {\n    timezone: timezone,\n    datetime: dateTime,\n    formatted: formatted\n};\n\nreturn msg;",
+        "func": "// APIレスポンス（JSONオブジェクト）\nconst data = msg.payload;\n\n// 時刻を取得できなかったとき（APIがエラーを返したなど）は、ここで止めて知らせる\nif (!data || typeof data.datetime !== 'string') {\n    node.error('時刻を取得できませんでした（ステータスコード: ' + msg.statusCode + '）', msg);\n    return null;\n}\n\n// datetime は \"2026-11-25T21:29:55.836985+09:00\" の形の文字列。\n// 日付（先頭の10文字）と時・分（12文字目からの5文字）を取り出して、読みやすい形にする\nconst formatted = data.datetime.slice(0, 10) + ' ' + data.datetime.slice(11, 16);\n\nmsg.payload = {\n    timezone: data.timezone,\n    datetime: data.datetime,\n    formatted: formatted\n};\n\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "initialize": "",
@@ -2173,7 +2175,7 @@ return msg;</div>
 
         <div class="exercise">
             <h3>演習2: 外部APIからデータ取得 <span class="difficulty difficulty-easy">初級</span></h3>
-            <p><strong>課題:</strong> timeapi.io を使って、ニューヨークの現在時刻を取得し、Debugノードに表示してください。</p>
+            <p><strong>課題:</strong> time.now の World Time API を使って、ニューヨークの現在時刻を取得し、Debugノードに表示してください。</p>
             <p><strong>💼 使いどころ:</strong> 天気・為替・時刻など、外部サービスの情報を取り込んで自分の処理に使う場面で使います。</p>
 
             <p><strong>作る範囲:</strong></p>
@@ -2184,11 +2186,11 @@ return msg;</div>
                     <div class="sys-role">クライアント側<br>手動のトリガーで<br>外部APIを呼ぶ</div>
                 </div>
                 <div class="sys-link">
-                    <div class="sys-req">GET /api/Time/current/zone &rarr;</div>
+                    <div class="sys-req">GET /developer/api/time &rarr;</div>
                     <div class="sys-res">&larr; 200 JSON</div>
                 </div>
                 <div class="sys-actor">
-                    <div class="sys-name">timeapi.io</div>
+                    <div class="sys-name">time.now</div>
                     <div class="sys-role">外部サービス<br>（既にあるもの）</div>
                 </div>
             </div>
@@ -2197,15 +2199,15 @@ return msg;</div>
             <ul>
                 <li>Inject ノードでトリガー</li>
                 <li>HTTP Request ノードでGETリクエスト</li>
-                <li>URL: <code>https://timeapi.io/api/Time/current/zone?timeZone=America/New_York</code></li>
+                <li>URL: <code>https://time.now/developer/api/time?timezone=America/New_York</code></li>
                 <li>レスポンスをJSONオブジェクトとして受信</li>
             </ul>
 
             <p><strong>成功の条件:</strong></p>
             <ul>
                 <li>Inject ボタンを押すとデバッグパネルに外部APIのレスポンスが表示される</li>
-                <li>デバッグパネルに <code>dateTime</code> フィールドを含むJavaScriptオブジェクトが表示される</li>
-                <li>ノードステータスにニューヨークの現在日時が表示される</li>
+                <li>デバッグパネルに <code>datetime</code> フィールドを含むJavaScriptオブジェクトが表示される</li>
+                <li>ノードステータスにニューヨークの現在日時が表示される（例: <code>2026-11-25T07:29:56.279089-05:00</code>。末尾の <code>-05:00</code> は協定世界時（UTC）との時差で、夏時間の期間は <code>-04:00</code> になる）</li>
             </ul>
 
             <details>
@@ -2225,8 +2227,8 @@ return msg;</div>
                 <div class="flow-json">[
     {"id": "ex2_tab", "type": "tab", "label": "演習2"},
     {"id": "ex2_inject", "type": "inject", "z": "ex2_tab", "name": "NY時刻取得", "props": [], "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "topic": "", "x": 150, "y": 100, "wires": [["ex2_http"]]},
-    {"id": "ex2_http", "type": "http request", "z": "ex2_tab", "name": "timeapi.io", "method": "GET", "ret": "obj", "paytoqs": "ignore", "url": "https://timeapi.io/api/Time/current/zone?timeZone=America/New_York", "tls": "", "persist": false, "proxy": "", "insecureHTTPParser": false, "authType": "", "senderr": false, "headers": [], "x": 360, "y": 100, "wires": [["ex2_debug"]]},
-    {"id": "ex2_debug", "type": "debug", "z": "ex2_tab", "name": "NY時刻", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "payload.dateTime", "statusType": "msg", "x": 550, "y": 100, "wires": []}
+    {"id": "ex2_http", "type": "http request", "z": "ex2_tab", "name": "time.now", "method": "GET", "ret": "obj", "paytoqs": "ignore", "url": "https://time.now/developer/api/time?timezone=America/New_York", "tls": "", "persist": false, "proxy": "", "insecureHTTPParser": false, "authType": "", "senderr": false, "headers": [], "x": 360, "y": 100, "wires": [["ex2_debug"]]},
+    {"id": "ex2_debug", "type": "debug", "z": "ex2_tab", "name": "NY時刻", "active": true, "tosidebar": true, "console": false, "tostatus": true, "complete": "payload", "targetType": "msg", "statusVal": "payload.datetime", "statusType": "msg", "x": 550, "y": 100, "wires": []}
 ]</div>
             </details>
         </div>
@@ -2361,8 +2363,8 @@ return msg;</div>
 
         <div class="exercise">
             <h3>演習5: 外部APIを自作APIで包む <span class="difficulty difficulty-medium">中級</span></h3>
-            <p><strong>課題:</strong> <code>GET /api/tokyo-time</code> にアクセスすると、外部API（timeapi.io）から東京の現在時刻を取得し、必要な項目だけに絞って返すAPIを作成してください。この演習では、Node-RED が利用者に対してはサーバー役、timeapi.io に対してはクライアント役という、2つの役割を同時に担います。</p>
-            <p><strong>💼 使いどころ:</strong> 外部APIの応答を必要な項目だけに整え、自分のシステム向けのAPIとして提供する場面で使います。</p>
+            <p><strong>課題:</strong> <code>GET /api/tokyo-time</code> にアクセスすると、外部API（time.now の World Time API）から東京の現在時刻を取得し、必要な項目だけに絞って返すAPIを作成してください。この演習では、Node-RED が利用者に対してはサーバー役、time.now に対してはクライアント役という、2つの役割を同時に担います。</p>
+            <p><strong>💼 使いどころ:</strong> 外部APIの応答を必要な項目だけに整え、自分のシステム向けのAPIとして提供する場面で使います。外部APIの応答には、利用者に渡す必要のない項目が混ざっていることがあります。この API の応答には <code>client_ip</code>（API を呼び出した側、つまり Node-RED が動いている回線のIPアドレス）が入っているので、そのまま返すと自分の回線のIPアドレスを利用者に見せることになります。</p>
 
             <p><strong>作る範囲:</strong></p>
             <div class="sys-map">
@@ -2380,11 +2382,11 @@ return msg;</div>
                     <div class="sys-role">サーバー側 と クライアント側<br>受けたリクエストをきっかけに<br>自分が外部APIを呼ぶ</div>
                 </div>
                 <div class="sys-link">
-                    <div class="sys-req">GET timeapi.io &rarr;</div>
-                    <div class="sys-res">&larr; 200 JSON（13項目）</div>
+                    <div class="sys-req">GET time.now &rarr;</div>
+                    <div class="sys-res">&larr; 200 JSON（15項目）</div>
                 </div>
                 <div class="sys-actor">
-                    <div class="sys-name">timeapi.io</div>
+                    <div class="sys-name">time.now</div>
                     <div class="sys-role">外部サービス<br>（既にあるもの）</div>
                 </div>
             </div>
@@ -2392,15 +2394,15 @@ return msg;</div>
             <p><strong>要求仕様:</strong></p>
             <ul>
                 <li>エンドポイント: <code>/api/tokyo-time</code>（GET）</li>
-                <li>呼び出す外部API: <code>https://timeapi.io/api/Time/current/zone?timeZone=Asia/Tokyo</code></li>
-                <li>外部APIの応答から <code>timeZone</code>、<code>date</code>、<code>time</code>、<code>dayOfWeek</code> の4項目だけを取り出す</li>
+                <li>呼び出す外部API: <code>https://time.now/developer/api/time?timezone=Asia/Tokyo</code></li>
+                <li>外部APIの応答から <code>timezone</code>（タイムゾーン名）、<code>datetime</code>（現地の日時）、<code>utc_offset</code>（協定世界時（UTC）との時差）、<code>abbreviation</code>（タイムゾーンの略称）の4項目だけを取り出す</li>
                 <li>Content-Type: application/json</li>
             </ul>
 
             <p><strong>成功の条件:</strong></p>
             <ul>
-                <li><code>curl http://localhost:1880/api/tokyo-time</code> を実行すると <code>{"timeZone":"Asia/Tokyo","date":"08/21/2026","time":"09:58","dayOfWeek":"Friday"}</code> の形式のJSONが返ってくる（日時は実行時のもの）</li>
-                <li>外部APIが返す <code>year</code> や <code>milliSeconds</code> などの項目は含まれない</li>
+                <li><code>curl http://localhost:1880/api/tokyo-time</code> を実行すると <code>{"timezone":"Asia/Tokyo","datetime":"2026-11-25T21:29:55.836985+09:00","utc_offset":"+09:00","abbreviation":"JST"}</code> の形式のJSONが返ってくる（日時は実行時のもの）</li>
+                <li>外部APIが返す <code>client_ip</code> や <code>unixtime</code> などの項目は含まれない</li>
                 <li>レスポンスヘッダーの Content-Type が <code>application/json</code> である</li>
             </ul>
 
@@ -2409,7 +2411,7 @@ return msg;</div>
                 <p><strong>フローの並び:</strong> HTTP In と HTTP Response の間に HTTP Request を挟みます。</p>
                 <p><strong>HTTP Request ノード:</strong> メソッドはGET、URLは上記の外部API、出力形式は「JSONオブジェクト」。</p>
                 <p><strong>上書きされる msg:</strong> HTTP Request ノードは <code>msg.payload</code> だけでなく <code>msg.statusCode</code> と <code>msg.headers</code> も外部APIの応答で上書きします。一方 <code>msg.req</code> と <code>msg.res</code> は残るため、後段の HTTP Response ノードは元のリクエストに応答できます。</p>
-                <p><strong>4項目だけ残す（Change ノード）:</strong> 外部APIの応答を一度 <code>msg.api</code> へ「値の移動」で退避し、<code>msg.payload.timeZone</code> などに <code>msg.api.timeZone</code> などを「値の代入」で1つずつ入れます。最後に「値の削除」で <code>msg.api</code> を消します。</p>
+                <p><strong>4項目だけ残す（Change ノード）:</strong> 外部APIの応答を一度 <code>msg.api</code> へ「値の移動」で退避し、<code>msg.payload.timezone</code> などに <code>msg.api.timezone</code> などを「値の代入」で1つずつ入れます。最後に「値の削除」で <code>msg.api</code> を消します。</p>
                 <p><strong>ヘッダーの扱い:</strong> <code>msg.headers</code> には外部APIの応答ヘッダーが入っていますが、変更せずに HTTP Response へ渡せば、HTTP Response はそれをクライアントへ返しません（HTTP Request が付けた目印で、変更されていないことを判定します）。<code>msg.payload</code> がオブジェクトなら、Content-Type は <code>application/json</code> になります。反対に、<code>msg.headers</code> にプロパティを1つ足すなど一部だけ変更すると、外部APIのヘッダーもまとめて返り、Content-Type が意図しない値になります。Content-Type を自分で指定したいときは、<code>msg.headers</code> を丸ごと置き換えてください。</p>
                 <p><strong>外部APIが応答しない場合:</strong> 分岐のさせ方は<a href="#pattern4">パターン4（エラーハンドリング）</a>を参照してください。</p>
             </details>
@@ -2419,8 +2421,8 @@ return msg;</div>
                 <div class="flow-json">[
     {"id": "ex5_tab", "type": "tab", "label": "演習5"},
     {"id": "ex5_http_in", "type": "http in", "z": "ex5_tab", "name": "GET /api/tokyo-time", "url": "/api/tokyo-time", "method": "get", "upload": false, "skipBodyParsing": false, "swaggerDoc": "", "x": 180, "y": 100, "wires": [["ex5_request"]]},
-    {"id": "ex5_request", "type": "http request", "z": "ex5_tab", "name": "timeapi.io", "method": "GET", "ret": "obj", "paytoqs": "ignore", "url": "https://timeapi.io/api/Time/current/zone?timeZone=Asia/Tokyo", "tls": "", "persist": false, "proxy": "", "insecureHTTPParser": false, "authType": "", "senderr": false, "headers": [], "x": 410, "y": 100, "wires": [["ex5_change"]]},
-    {"id": "ex5_change", "type": "change", "z": "ex5_tab", "name": "必要な項目だけ残す", "rules": [{"t": "move", "p": "payload", "pt": "msg", "to": "api", "tot": "msg"}, {"t": "set", "p": "payload.timeZone", "pt": "msg", "to": "api.timeZone", "tot": "msg"}, {"t": "set", "p": "payload.date", "pt": "msg", "to": "api.date", "tot": "msg"}, {"t": "set", "p": "payload.time", "pt": "msg", "to": "api.time", "tot": "msg"}, {"t": "set", "p": "payload.dayOfWeek", "pt": "msg", "to": "api.dayOfWeek", "tot": "msg"}, {"t": "delete", "p": "api", "pt": "msg"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 630, "y": 100, "wires": [["ex5_response"]]},
+    {"id": "ex5_request", "type": "http request", "z": "ex5_tab", "name": "time.now", "method": "GET", "ret": "obj", "paytoqs": "ignore", "url": "https://time.now/developer/api/time?timezone=Asia/Tokyo", "tls": "", "persist": false, "proxy": "", "insecureHTTPParser": false, "authType": "", "senderr": false, "headers": [], "x": 410, "y": 100, "wires": [["ex5_change"]]},
+    {"id": "ex5_change", "type": "change", "z": "ex5_tab", "name": "必要な項目だけ残す", "rules": [{"t": "move", "p": "payload", "pt": "msg", "to": "api", "tot": "msg"}, {"t": "set", "p": "payload.timezone", "pt": "msg", "to": "api.timezone", "tot": "msg"}, {"t": "set", "p": "payload.datetime", "pt": "msg", "to": "api.datetime", "tot": "msg"}, {"t": "set", "p": "payload.utc_offset", "pt": "msg", "to": "api.utc_offset", "tot": "msg"}, {"t": "set", "p": "payload.abbreviation", "pt": "msg", "to": "api.abbreviation", "tot": "msg"}, {"t": "delete", "p": "api", "pt": "msg"}], "action": "", "property": "", "from": "", "to": "", "reg": false, "x": 630, "y": 100, "wires": [["ex5_response"]]},
     {"id": "ex5_response", "type": "http response", "z": "ex5_tab", "name": "Response", "statusCode": "", "headers": {}, "x": 820, "y": 100, "wires": []}
 ]</div>
             </details>
