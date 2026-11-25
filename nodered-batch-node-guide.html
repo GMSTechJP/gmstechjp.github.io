@@ -558,205 +558,425 @@
             </ol>
             <p>このサンプルフローには、以下で説明する全パターンの実例が含まれています。</p>
         </div>
-        
+
+        <p>サンプルフローは、Node-RED本体に同梱されている公式サンプル（「Number-based group mode」「Time-based group mode」「Concatenate mode」の3つ）を1つのタブにまとめ、名前の無かった inject ノードと debug ノードに日本語の名前を付けたものです。エディタの <strong>メニュー → 読み込み → サンプル → sequence → batch</strong> からも、元の3つを開けます。</p>
+
         <details>
             <summary>📋 サンプルフロー（クリックで展開）</summary>
             <p style="margin: 10px 0; color: #666;"><small>参照元：NodeREDエディター内サンプルフロー</small></p>
             <div class="flow-json">[
     {
-        "id": "batch_sample_tab",
+        "id": "9bc9b0abf92b9e57",
         "type": "tab",
-        "label": "Batch Sample",
+        "label": "batch",
         "disabled": false,
         "info": "",
         "env": []
     },
     {
-        "id": "batch_count_inject",
+        "id": "74853568.22b87c",
+        "type": "batch",
+        "z": "9bc9b0abf92b9e57",
+        "name": "",
+        "mode": "count",
+        "count": "5",
+        "overlap": 0,
+        "interval": "5",
+        "allowEmptySequence": false,
+        "topics": [],
+        "x": 410,
+        "y": 260,
+        "wires": [
+            [
+                "8f4f683.99d1998"
+            ]
+        ]
+    },
+    {
+        "id": "3d208473.f31e1c",
+        "type": "comment",
+        "z": "9bc9b0abf92b9e57",
+        "name": "Group 5 consecutive messages",
+        "info": "",
+        "x": 210,
+        "y": 88,
+        "wires": []
+    },
+    {
+        "id": "8f4f683.99d1998",
+        "type": "join",
+        "z": "9bc9b0abf92b9e57",
+        "name": "",
+        "mode": "auto",
+        "build": "string",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "accumulate": "false",
+        "timeout": "",
+        "count": "",
+        "reduceRight": false,
+        "x": 550,
+        "y": 260,
+        "wires": [
+            [
+                "6c47ccb3.bb0184"
+            ]
+        ]
+    },
+    {
+        "id": "6c47ccb3.bb0184",
+        "type": "debug",
+        "z": "9bc9b0abf92b9e57",
+        "name": "結果: 5個ずつ",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "x": 710,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "49c2ac1.59a9354",
+        "type": "comment",
+        "z": "9bc9b0abf92b9e57",
+        "name": "↑ create message sequence with 5 messages",
+        "info": "",
+        "x": 530,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "311dd6b4.5aeb7a",
+        "type": "comment",
+        "z": "9bc9b0abf92b9e57",
+        "name": "↓ join sequence to array",
+        "info": "",
+        "x": 600,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "e27c55b0.18e9c8",
         "type": "inject",
-        "z": "batch_sample_tab",
-        "name": "実行",
+        "z": "9bc9b0abf92b9e57",
+        "name": "実行: 5個ずつ",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
         "repeat": "",
         "crontab": "",
         "once": false,
         "onceDelay": 0.1,
-        "topic": "",
-        "payload": "",
-        "payloadType": "date",
-        "x": 110,
-        "y": 100,
-        "wires": [["batch_count_func"]]
+        "x": 180,
+        "y": 180,
+        "wires": [
+            [
+                "9e65f29a.69ca2"
+            ]
+        ]
     },
     {
-        "id": "batch_count_func",
+        "id": "9e65f29a.69ca2",
         "type": "function",
-        "z": "batch_sample_tab",
+        "z": "9bc9b0abf92b9e57",
         "name": "send: 0-29",
         "func": "for(var x = 0; x &lt; 30; x++) {\n    node.send({payload: x});\n}",
         "outputs": 1,
-        "x": 250,
-        "y": 100,
-        "wires": [["batch_count_node"]]
+        "noerr": 0,
+        "x": 350,
+        "y": 180,
+        "wires": [
+            [
+                "74853568.22b87c"
+            ]
+        ]
     },
     {
-        "id": "batch_count_node",
+        "id": "817acbfb.452af8",
+        "type": "comment",
+        "z": "9bc9b0abf92b9e57",
+        "name": "↓ send sequence: 0-29",
+        "info": "",
+        "x": 380,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "53645699.a35c48",
         "type": "batch",
-        "z": "batch_sample_tab",
-        "name": "5個ずつ",
+        "z": "9bc9b0abf92b9e57",
+        "name": "",
         "mode": "count",
-        "count": 5,
-        "overlap": 0,
-        "interval": 10,
+        "count": "5",
+        "overlap": "1",
+        "interval": "5",
         "allowEmptySequence": false,
-        "honourParts": false,
         "topics": [],
-        "x": 400,
-        "y": 100,
-        "wires": [["batch_count_join"]]
+        "x": 410,
+        "y": 528,
+        "wires": [
+            [
+                "4cb873e6.f9996c"
+            ]
+        ]
     },
     {
-        "id": "batch_count_join",
+        "id": "ecff527d.d64cb",
+        "type": "comment",
+        "z": "9bc9b0abf92b9e57",
+        "name": "Group 5 consecutive messages with overlap of 1 msg",
+        "info": "",
+        "x": 280,
+        "y": 356,
+        "wires": []
+    },
+    {
+        "id": "4cb873e6.f9996c",
         "type": "join",
-        "z": "batch_sample_tab",
-        "name": "配列化",
+        "z": "9bc9b0abf92b9e57",
+        "name": "",
         "mode": "auto",
-        "build": "array",
+        "build": "string",
         "property": "payload",
         "propertyType": "msg",
         "key": "topic",
         "joiner": "\\n",
         "joinerType": "str",
-        "accumulate": false,
+        "accumulate": "false",
         "timeout": "",
         "count": "",
+        "reduceRight": false,
         "x": 550,
-        "y": 100,
-        "wires": [["batch_count_debug"]]
+        "y": 528,
+        "wires": [
+            [
+                "51089be3.4ecbf4"
+            ]
+        ]
     },
     {
-        "id": "batch_count_debug",
+        "id": "51089be3.4ecbf4",
         "type": "debug",
-        "z": "batch_sample_tab",
-        "name": "結果",
+        "z": "9bc9b0abf92b9e57",
+        "name": "結果: 5個ずつ・1個重ねる",
         "active": true,
         "tosidebar": true,
         "console": false,
         "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "x": 690,
-        "y": 100,
+        "complete": "false",
+        "x": 710,
+        "y": 528,
         "wires": []
     },
     {
-        "id": "batch_overlap_inject",
+        "id": "84c34533.6284a8",
+        "type": "comment",
+        "z": "9bc9b0abf92b9e57",
+        "name": "↑ create message sequence with 5 messages with overlap of 1 msg",
+        "info": "",
+        "x": 600,
+        "y": 568,
+        "wires": []
+    },
+    {
+        "id": "c7241026.18245",
+        "type": "comment",
+        "z": "9bc9b0abf92b9e57",
+        "name": "↓ join sequence to array",
+        "info": "",
+        "x": 600,
+        "y": 488,
+        "wires": []
+    },
+    {
+        "id": "67d24449.028eec",
         "type": "inject",
-        "z": "batch_sample_tab",
-        "name": "実行",
+        "z": "9bc9b0abf92b9e57",
+        "name": "実行: 5個ずつ・1個重ねる",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
         "repeat": "",
         "crontab": "",
         "once": false,
         "onceDelay": 0.1,
-        "topic": "",
-        "payload": "",
-        "payloadType": "date",
-        "x": 110,
-        "y": 200,
-        "wires": [["batch_overlap_func"]]
+        "x": 180,
+        "y": 448,
+        "wires": [
+            [
+                "5d909bfb.6faf44"
+            ]
+        ]
     },
     {
-        "id": "batch_overlap_func",
+        "id": "5d909bfb.6faf44",
         "type": "function",
-        "z": "batch_sample_tab",
-        "name": "send: 0-14",
-        "func": "for(var x = 0; x &lt; 15; x++) {\n    node.send({payload: x});\n}",
+        "z": "9bc9b0abf92b9e57",
+        "name": "send: 0-29",
+        "func": "for(var x = 0; x &lt; 30; x++) {\n    node.send({payload: x});\n}",
         "outputs": 1,
-        "x": 250,
-        "y": 200,
-        "wires": [["batch_overlap_node"]]
+        "noerr": 0,
+        "x": 350,
+        "y": 448,
+        "wires": [
+            [
+                "53645699.a35c48"
+            ]
+        ]
     },
     {
-        "id": "batch_overlap_node",
+        "id": "e7af9fbb.f30ad",
+        "type": "comment",
+        "z": "9bc9b0abf92b9e57",
+        "name": "↓ send sequence: 0-29",
+        "info": "",
+        "x": 380,
+        "y": 408,
+        "wires": []
+    },
+    {
+        "id": "f4a38f7b.8d62f",
+        "type": "comment",
+        "z": "9bc9b0abf92b9e57",
+        "name": "Example: Number-based Group Mode",
+        "info": "*Number-based Group mode* of batch node can be used to create new message sequences from incoming messages. Recently received *N*-messages are grouped to a sequence. Creating message sequences that has overwrap with adjacent message group is possible.\n",
+        "x": 190,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "e3a5c066.16333",
         "type": "batch",
-        "z": "batch_sample_tab",
-        "name": "5個(overlap=2)",
-        "mode": "count",
-        "count": 5,
-        "overlap": 2,
-        "interval": 10,
+        "z": "9bc9b0abf92b9e57",
+        "name": "",
+        "mode": "interval",
+        "count": 10,
+        "overlap": 0,
+        "interval": "5",
         "allowEmptySequence": false,
-        "honourParts": false,
         "topics": [],
-        "x": 420,
-        "y": 200,
-        "wires": [["batch_overlap_join"]]
+        "x": 390,
+        "y": 860,
+        "wires": [
+            [
+                "9223c119.c5268"
+            ]
+        ]
     },
     {
-        "id": "batch_overlap_join",
+        "id": "606bb329.983c9c",
+        "type": "comment",
+        "z": "9bc9b0abf92b9e57",
+        "name": "Group messages received within 5s",
+        "info": "",
+        "x": 220,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "9223c119.c5268",
         "type": "join",
-        "z": "batch_sample_tab",
-        "name": "配列化",
+        "z": "9bc9b0abf92b9e57",
+        "name": "",
         "mode": "auto",
-        "build": "array",
+        "build": "string",
         "property": "payload",
         "propertyType": "msg",
         "key": "topic",
         "joiner": "\\n",
         "joinerType": "str",
-        "accumulate": false,
+        "accumulate": "false",
         "timeout": "",
         "count": "",
-        "x": 570,
-        "y": 200,
-        "wires": [["batch_overlap_debug"]]
+        "reduceRight": false,
+        "x": 530,
+        "y": 860,
+        "wires": [
+            [
+                "e4d07fa1.78c16"
+            ]
+        ]
     },
     {
-        "id": "batch_overlap_debug",
+        "id": "e4d07fa1.78c16",
         "type": "debug",
-        "z": "batch_sample_tab",
-        "name": "結果",
+        "z": "9bc9b0abf92b9e57",
+        "name": "結果: 5秒ごと",
         "active": true,
         "tosidebar": true,
         "console": false,
         "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "x": 710,
-        "y": 200,
+        "complete": "false",
+        "x": 690,
+        "y": 860,
         "wires": []
     },
     {
-        "id": "batch_interval_inject",
+        "id": "848f59e5.7528d8",
+        "type": "comment",
+        "z": "9bc9b0abf92b9e57",
+        "name": "↑ create message sequence received within 5s",
+        "info": "",
+        "x": 520,
+        "y": 900,
+        "wires": []
+    },
+    {
+        "id": "cf1bbb5e.ba3e68",
+        "type": "comment",
+        "z": "9bc9b0abf92b9e57",
+        "name": "↓ join sequence to array",
+        "info": "",
+        "x": 580,
+        "y": 820,
+        "wires": []
+    },
+    {
+        "id": "a1e311d5.4dca1",
         "type": "inject",
-        "z": "batch_sample_tab",
-        "name": "実行",
+        "z": "9bc9b0abf92b9e57",
+        "name": "実行: 5秒ごと",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
         "repeat": "",
         "crontab": "",
         "once": false,
         "onceDelay": 0.1,
-        "topic": "",
-        "payload": "",
-        "payloadType": "date",
-        "x": 110,
-        "y": 320,
-        "wires": [["batch_interval_func"]]
+        "x": 180,
+        "y": 760,
+        "wires": [
+            [
+                "97da73f2.ae01e"
+            ]
+        ]
     },
     {
-        "id": "batch_interval_func",
+        "id": "97da73f2.ae01e",
         "type": "function",
-        "z": "batch_sample_tab",
-        "name": "send: 0-9",
-        "func": "for(var x = 0; x &lt; 10; x++) {\n    node.send({payload: x});\n}",
+        "z": "9bc9b0abf92b9e57",
+        "name": "send: 0-29",
+        "func": "for(var x = 0; x &lt; 30; x++) {\n    node.send({payload: x});\n}",
         "outputs": 1,
-        "x": 250,
-        "y": 320,
-        "wires": [["batch_interval_delay"]]
+        "noerr": 0,
+        "x": 350,
+        "y": 760,
+        "wires": [
+            [
+                "2776c823.77eba8"
+            ]
+        ]
     },
     {
-        "id": "batch_interval_delay",
+        "id": "2776c823.77eba8",
         "type": "delay",
-        "z": "batch_sample_tab",
-        "name": "1msg/sec",
+        "z": "9bc9b0abf92b9e57",
+        "name": "",
         "pauseType": "rate",
         "timeout": "1",
         "timeoutUnits": "seconds",
@@ -767,63 +987,486 @@
         "randomLast": "5",
         "randomUnits": "seconds",
         "drop": false,
-        "x": 400,
-        "y": 320,
-        "wires": [["batch_interval_node"]]
+        "x": 530,
+        "y": 760,
+        "wires": [
+            [
+                "e3a5c066.16333"
+            ]
+        ]
     },
     {
-        "id": "batch_interval_node",
+        "id": "93520648.6a7988",
+        "type": "comment",
+        "z": "9bc9b0abf92b9e57",
+        "name": "↓ send sequence: 0-29",
+        "info": "",
+        "x": 380,
+        "y": 720,
+        "wires": []
+    },
+    {
+        "id": "5842d64f.9fc608",
+        "type": "comment",
+        "z": "9bc9b0abf92b9e57",
+        "name": "Example: Time-based Group Mode",
+        "info": "*Time-based Group mode* of batch node can be used to create new message sequences from incoming messages received within specified time range. \n",
+        "x": 180,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "cf1fd796.197678",
+        "type": "inject",
+        "z": "9bc9b0abf92b9e57",
+        "name": "実行: 2回つなげる",
+        "topic": "SEQ",
+        "payload": "[1,2,3,4,5]",
+        "payloadType": "json",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 200,
+        "y": 1040,
+        "wires": [
+            [
+                "d1c8ddf0.99b4e"
+            ]
+        ]
+    },
+    {
+        "id": "d1c8ddf0.99b4e",
+        "type": "split",
+        "z": "9bc9b0abf92b9e57",
+        "name": "",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "x": 370,
+        "y": 1040,
+        "wires": [
+            [
+                "f727a5d3.ea1a28"
+            ]
+        ]
+    },
+    {
+        "id": "f727a5d3.ea1a28",
         "type": "batch",
-        "z": "batch_sample_tab",
-        "name": "3秒間隔",
-        "mode": "interval",
+        "z": "9bc9b0abf92b9e57",
+        "name": "",
+        "mode": "concat",
         "count": 10,
         "overlap": 0,
-        "interval": 3,
+        "interval": 10,
         "allowEmptySequence": false,
-        "honourParts": false,
-        "topics": [],
-        "x": 540,
-        "y": 320,
-        "wires": [["batch_interval_join"]]
+        "topics": [
+            {
+                "topic": "SEQ"
+            },
+            {
+                "topic": "SEQ"
+            }
+        ],
+        "x": 510,
+        "y": 1040,
+        "wires": [
+            [
+                "f4d6dba4.7e8ab8"
+            ]
+        ]
     },
     {
-        "id": "batch_interval_join",
+        "id": "f4d6dba4.7e8ab8",
         "type": "join",
-        "z": "batch_sample_tab",
-        "name": "配列化",
+        "z": "9bc9b0abf92b9e57",
+        "name": "",
         "mode": "auto",
-        "build": "array",
+        "build": "string",
         "property": "payload",
         "propertyType": "msg",
         "key": "topic",
         "joiner": "\\n",
         "joinerType": "str",
-        "accumulate": false,
+        "accumulate": "false",
         "timeout": "",
         "count": "",
-        "x": 670,
-        "y": 320,
-        "wires": [["batch_interval_debug"]]
+        "reduceRight": false,
+        "x": 650,
+        "y": 1040,
+        "wires": [
+            [
+                "31b81865.611788"
+            ]
+        ]
     },
     {
-        "id": "batch_interval_debug",
+        "id": "31b81865.611788",
         "type": "debug",
-        "z": "batch_sample_tab",
-        "name": "結果",
+        "z": "9bc9b0abf92b9e57",
+        "name": "結果: 2回つなげる",
         "active": true,
         "tosidebar": true,
         "console": false,
         "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
+        "complete": "false",
         "x": 810,
-        "y": 320,
+        "y": 1040,
+        "wires": []
+    },
+    {
+        "id": "8ad6b9c.7ee8548",
+        "type": "comment",
+        "z": "9bc9b0abf92b9e57",
+        "name": "Duplicate",
+        "info": "",
+        "x": 140,
+        "y": 1000,
+        "wires": []
+    },
+    {
+        "id": "5137b2d0.f4838c",
+        "type": "inject",
+        "z": "9bc9b0abf92b9e57",
+        "name": "実行: 負→正の順につなげる",
+        "topic": "SEQ",
+        "payload": "[1,-6,-8,7,2,-3]",
+        "payloadType": "json",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 200,
+        "y": 1160,
+        "wires": [
+            [
+                "408f3032.eafc1"
+            ]
+        ]
+    },
+    {
+        "id": "408f3032.eafc1",
+        "type": "split",
+        "z": "9bc9b0abf92b9e57",
+        "name": "",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "x": 370,
+        "y": 1160,
+        "wires": [
+            [
+                "dbd6e8b8.cbf2b8"
+            ]
+        ]
+    },
+    {
+        "id": "c70a7fad.9ee08",
+        "type": "comment",
+        "z": "9bc9b0abf92b9e57",
+        "name": "Filter &amp; Concat",
+        "info": "",
+        "x": 160,
+        "y": 1120,
+        "wires": []
+    },
+    {
+        "id": "dbd6e8b8.cbf2b8",
+        "type": "switch",
+        "z": "9bc9b0abf92b9e57",
+        "name": "",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "gt",
+                "v": "0",
+                "vt": "num"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": true,
+        "outputs": 2,
+        "x": 430,
+        "y": 1220,
+        "wires": [
+            [
+                "c11e5c5f.876d6"
+            ],
+            [
+                "e99c703b.f404"
+            ]
+        ]
+    },
+    {
+        "id": "356c8654.2ad1aa",
+        "type": "comment",
+        "z": "9bc9b0abf92b9e57",
+        "name": "↑ Duplicate SEQ",
+        "info": "",
+        "x": 540,
+        "y": 1080,
+        "wires": []
+    },
+    {
+        "id": "c11e5c5f.876d6",
+        "type": "change",
+        "z": "9bc9b0abf92b9e57",
+        "name": "Topic←POS",
+        "rules": [
+            {
+                "t": "set",
+                "p": "topic",
+                "pt": "msg",
+                "to": "POS",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 590,
+        "y": 1180,
+        "wires": [
+            [
+                "3412e439.eda55c"
+            ]
+        ]
+    },
+    {
+        "id": "e99c703b.f404",
+        "type": "change",
+        "z": "9bc9b0abf92b9e57",
+        "name": "Topic←NEG",
+        "rules": [
+            {
+                "t": "set",
+                "p": "topic",
+                "pt": "msg",
+                "to": "NEG",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 590,
+        "y": 1240,
+        "wires": [
+            [
+                "3412e439.eda55c"
+            ]
+        ]
+    },
+    {
+        "id": "3412e439.eda55c",
+        "type": "batch",
+        "z": "9bc9b0abf92b9e57",
+        "name": "",
+        "mode": "concat",
+        "count": 10,
+        "overlap": 0,
+        "interval": 10,
+        "allowEmptySequence": false,
+        "topics": [
+            {
+                "topic": "NEG"
+            },
+            {
+                "topic": "POS"
+            }
+        ],
+        "x": 750,
+        "y": 1220,
+        "wires": [
+            [
+                "7f1ce95c.7ddbc8"
+            ]
+        ]
+    },
+    {
+        "id": "e6f01877.16d558",
+        "type": "debug",
+        "z": "9bc9b0abf92b9e57",
+        "name": "結果: 負→正の順につなげる",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "x": 970,
+        "y": 1160,
+        "wires": []
+    },
+    {
+        "id": "7f1ce95c.7ddbc8",
+        "type": "join",
+        "z": "9bc9b0abf92b9e57",
+        "name": "",
+        "mode": "auto",
+        "build": "string",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "accumulate": "false",
+        "timeout": "",
+        "count": "",
+        "reduceRight": false,
+        "x": 810,
+        "y": 1160,
+        "wires": [
+            [
+                "e6f01877.16d558"
+            ]
+        ]
+    },
+    {
+        "id": "c548f2c.641141",
+        "type": "comment",
+        "z": "9bc9b0abf92b9e57",
+        "name": "↑ Order sequence: negative→positive",
+        "info": "",
+        "x": 850,
+        "y": 1260,
+        "wires": []
+    },
+    {
+        "id": "c571b56c.ae63b8",
+        "type": "comment",
+        "z": "9bc9b0abf92b9e57",
+        "name": "Filter pos/neg and make separate sequence↑ (but not a simple sort) ",
+        "info": "",
+        "x": 360,
+        "y": 1280,
+        "wires": []
+    },
+    {
+        "id": "c851c021.a9688",
+        "type": "comment",
+        "z": "9bc9b0abf92b9e57",
+        "name": "Example: Concatenate Mode",
+        "info": "*Concatenate mode* of batch node can be used to combine input message sequences to create a new message sequence. Order of the sequences can be specified using message topic assigned to each message in a sequence.  Message sequence can be specified multiple times.\n",
+        "x": 160,
+        "y": 940,
         "wires": []
     }
 ]</div>
         </details>
-        
+
+        <h4>フローの読み解き</h4>
+        <p>フローには、「Example:」で始まる comment ノードが3つあり、その下に、batch ノードのモードごとの例が並んでいます。例は全部で5つです。どの例も、「実行: …」という名前の inject のボタンで動かし、同じ名前の「結果: …」の debug に結果が出ます。</p>
+
+        <table>
+            <tr>
+                <th>例（inject の名前と、上にある comment の見出し）</th>
+                <th>ノードの並び</th>
+                <th>batch の設定</th>
+                <th>パターン</th>
+            </tr>
+            <tr>
+                <td><strong>実行: 5個ずつ</strong><br>Group 5 consecutive messages（続けて届いた5個をまとめる）</td>
+                <td>inject →「send: 0-29」（function）→ batch → join → debug</td>
+                <td>「モード」は「メッセージ数でグループ化」。「メッセージ数」は 5、「オーバラップ」は 0</td>
+                <td>パターン1</td>
+            </tr>
+            <tr>
+                <td><strong>実行: 5個ずつ・1個重ねる</strong><br>Group 5 consecutive messages with overlap of 1 msg（1個重ねて、5個ずつまとめる）</td>
+                <td>上と同じ</td>
+                <td>「メッセージ数」は 5、「オーバラップ」は 1</td>
+                <td>パターン2</td>
+            </tr>
+            <tr>
+                <td><strong>実行: 5秒ごと</strong><br>Group messages received within 5s（5秒の間に届いたものをまとめる）</td>
+                <td>inject →「send: 0-29」（function）→ delay → batch → join → debug</td>
+                <td>「モード」は「時間間隔でグループ化」。「時間間隔」は 5 秒</td>
+                <td>パターン3</td>
+            </tr>
+            <tr>
+                <td><strong>実行: 2回つなげる</strong><br>Duplicate（同じ列を2回つなげる）</td>
+                <td>inject → split → batch → join → debug</td>
+                <td>「モード」は「列の結合」。「トピック」は <code>SEQ</code>、<code>SEQ</code>（同じものを2回）</td>
+                <td>パターン4</td>
+            </tr>
+            <tr>
+                <td><strong>実行: 負→正の順につなげる</strong><br>Filter &amp; Concat（振り分けてから、つなげる）</td>
+                <td>inject → split → switch →「Topic←POS」または「Topic←NEG」（change）→ batch → join → debug</td>
+                <td>「モード」は「列の結合」。「トピック」は <code>NEG</code>、<code>POS</code> の順</td>
+                <td>パターン4</td>
+            </tr>
+        </table>
+
+        <p>batch の前後にあるノードは、batch の動きを見えるようにするための部品です。</p>
+        <table>
+            <tr>
+                <th>ノード</th>
+                <th>役割と、そこに置いてある理由</th>
+            </tr>
+            <tr>
+                <td>「send: 0-29」（function）</td>
+                <td>0〜29 の数を <code>msg.payload</code> に入れた msg を、30個続けて送る。batch に、続けて届く msg を渡すために置いてある</td>
+            </tr>
+            <tr>
+                <td>batch の後ろの join</td>
+                <td>batch は、まとめた msg を1つの配列にはしない。同じグループであることを示す印（<code>msg.parts</code>）を付けて、1個ずつ送り出す。join（「動作」は「自動」）が、その印を見て1つの配列にまとめる。どの msg が同じグループになったかを、debug で見やすくするために置いてある</td>
+            </tr>
+            <tr>
+                <td>delay（「実行: 5秒ごと」の例）</td>
+                <td>「メッセージの流量制限」で、1秒に1個ずつに絞る。function が一度に送った30個を、1秒おきに batch へ届ける。時間でまとめる様子が見えるようにするために置いてある</td>
+            </tr>
+            <tr>
+                <td>split（「列の結合」の2つの例）</td>
+                <td>inject が送る配列を、要素1個ずつの msg に分け、<code>msg.parts</code>（どの列の、全部で何個のうちの何番目か）を付ける。「列の結合」モードは、「トピック」に書いたトピックの msg に <code>msg.parts</code> が無いとエラーにするので、前に split が要る</td>
+            </tr>
+            <tr>
+                <td>switch と change（「実行: 負→正の順につなげる」の例）</td>
+                <td>switch が、0 より大きい数とそれ以外に分ける。change が、<code>msg.topic</code> に <code>POS</code>（正）または <code>NEG</code>（負）を入れる。switch は「メッセージ列の補正」をオンにしてあり、分けた後のそれぞれを、新しい列として数え直す。batch は、このトピックで列を見分ける</td>
+            </tr>
+        </table>
+
+        <p><strong>ボタンを押すと出るもの:</strong></p>
+        <table>
+            <tr>
+                <th>押すボタン</th>
+                <th>同じ名前の「結果: …」に出るもの</th>
+            </tr>
+            <tr>
+                <td>実行: 5個ずつ</td>
+                <td><code>[0,1,2,3,4]</code>、<code>[5,6,7,8,9]</code>、…、<code>[25,26,27,28,29]</code> の6つ</td>
+            </tr>
+            <tr>
+                <td>実行: 5個ずつ・1個重ねる</td>
+                <td><code>[0,1,2,3,4]</code>、<code>[4,5,6,7,8]</code>、<code>[8,9,10,11,12]</code>、…、<code>[24,25,26,27,28]</code> の7つ。各配列の最後の数が、次の配列の先頭にも入る。最後の <code>29</code> は、次の5個がそろわないので出てこない（重ねる分の <code>28</code> と一緒に batch の中に残り、次にボタンを押したときの先頭に入る。2回目は <code>[28,29,0,1,2]</code> から始まる）</td>
+            </tr>
+            <tr>
+                <td>実行: 5秒ごと</td>
+                <td>約30秒かけて、5秒ごとに1つずつ出る。例: <code>[0,1,2]</code>、<code>[3,4,5,6,7]</code>、…、<code>[23,24,25,26,27]</code>、<code>[28,29]</code>。最初と最後の個数は、ボタンを押すタイミングで変わる。5秒の区切りは、ボタンを押したときからではなく、デプロイしたときから数えているため</td>
+            </tr>
+            <tr>
+                <td>実行: 2回つなげる</td>
+                <td><code>[1,2,3,4,5,1,2,3,4,5]</code>。「トピック」に <code>SEQ</code> を2回書いてあるので、同じ列が2回つながる</td>
+            </tr>
+            <tr>
+                <td>実行: 負→正の順につなげる</td>
+                <td><code>[-6,-8,-3,1,7,2]</code>。入力の <code>[1,-6,-8,7,2,-3]</code> のうち、負の数の列が先、正の数の列が後になる。それぞれの列の中の順番は、入力のまま。大きさの順に並べ替えているのではない</td>
+            </tr>
+        </table>
+
         <h3>パターン1: 数量ベースのグループ化</h3>
         <p><strong>用途:</strong> 連続メッセージを指定数ずつグループ化</p>
         
@@ -890,7 +1533,9 @@
   グループ1: [0,1,2,3,4]
   グループ2: [4,5,6,7,8]    ← 4が共有
   グループ3: [8,9,10,11,12] ← 8が共有
-  ...</div>
+  ...
+  グループ7: [24,25,26,27,28]
+  （29 は、次の5個がそろわないので出力されない。重ねる分の 28 と一緒に batch の中に残る）</div>
         
         <h3>パターン3: 時間ベースのグループ化</h3>
         <p><strong>用途:</strong> 一定時間内に届いたメッセージのまとめ</p>
@@ -921,22 +1566,51 @@
         <p><strong>設定例:</strong></p>
         <div class="code-block">モード: 時間間隔でグループ化
 時間間隔: 5（秒）
-空シーケンスを許可: OFF
+メッセージを受信しない場合、空のメッセージを送信: オフ
 
 入力: 1秒間隔で 0, 1, 2, 3, ... , 29
-出力: 5秒ごとに
-  [0,1,2,3,4] → [5,6,7,8,9] → ...</div>
+出力: 5秒ごとに、その間に届いた分
+  例: [0,1,2] → [3,4,5,6,7] → ... → [28,29]
+  （最初と最後の個数は、ボタンを押すタイミングで変わる）</div>
         
-        <div class="tip">
-            <p><strong>応用パターン（連結モード）:</strong></p>
-            <p>連結モードは、異なるトピックのシーケンスを順番に結合する高度な機能です。サンプルフローには含まれていませんが、以下のような用途で活用できます：</p>
-            <ul>
-                <li><strong>シーケンスの連結</strong>: 同じトピックの複数シーケンスを順番に結合</li>
-                <li><strong>フィルタリング後の再構成</strong>: Switchで分岐したデータをトピック別に再結合</li>
-                <li><strong>データの分類と統合</strong>: 正負の値を分離して、負→正の順に並べ替え</li>
-            </ul>
+        <h3>パターン4: 列の結合（連結モード）</h3>
+        <p><strong>用途:</strong> 複数のメッセージ列を、決めた順番でつなげて1つの列にする</p>
+
+        <div class="node-example">
+            <span class="node node-inject">Inject<br><small>(配列)</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-split">Split</span>
+            <span class="arrow multi">→→→</span>
+            <span class="node node-batch">Batch<br><small>(列の結合)</small></span>
+            <span class="arrow multi">→→→</span>
+            <span class="node node-join">Join</span>
+            <span class="arrow">→</span>
+            <span class="node node-debug">Debug</span>
         </div>
-        
+
+        <div class="tip">
+            <p><strong>動作の流れ:</strong></p>
+            <ol>
+                <li>Splitノードが配列を要素ごとの msg に分け、列の印（msg.parts）を付ける</li>
+                <li>Batchノードは、「トピック」に書いたトピックの列が、すべて最後まで届くのを待つ</li>
+                <li>そろったら、「トピック」に書いた順に列をつなげて、1つの列として送り出す</li>
+                <li>「トピック」に書いていないトピックの msg は、使われない</li>
+            </ol>
+        </div>
+
+        <p><strong>設定例:</strong></p>
+        <div class="code-block">モード: 列の結合
+トピック: SEQ, SEQ（同じトピックを2回）
+
+入力: トピック SEQ の列 1, 2, 3, 4, 5
+出力: [1,2,3,4,5,1,2,3,4,5]
+
+モード: 列の結合
+トピック: NEG, POS
+
+入力: 1, -6, -8, 7, 2, -3（正の数に POS、それ以外に NEG のトピックを付ける）
+出力: [-6,-8,-3,1,7,2]</div>
+
         <h2>4. 実践演習</h2>
         
         <div class="exercise">
@@ -1686,8 +2360,8 @@
             <ul>
                 <li><strong>Joinノードの忘れ</strong>: Batchの出力はシーケンス、配列にするにはJoinが必要</li>
                 <li><strong>オーバラップの計算ミス</strong>: overlap = count - スライド幅</li>
-                <li><strong>時間モードでのタイミング</strong>: 最初の出力は指定秒数後</li>
-                <li><strong>連結モードのトピック未設定</strong>: msg.topicが設定されていないと動作しない</li>
+                <li><strong>時間モードでのタイミング</strong>: 時間の区切りは、最初の msg が届いたときからではなく、デプロイしたときから数える。最初のグループの個数は、msg が届くタイミングで変わる</li>
+                <li><strong>連結モードのトピック未設定</strong>: msg.topicが設定されていないと動作しない。msg.parts（split などが付ける列の印）も要る</li>
                 <li><strong>空シーケンスの扱い</strong>: 時間モードでメッセージがない場合の動作を確認</li>
             </ul>
         </div>
@@ -1729,8 +2403,8 @@
             </tr>
             <tr>
                 <td>連結モードが動かない</td>
-                <td>msg.topicが未設定</td>
-                <td>Changeノードでtopicを設定</td>
+                <td>msg.topicが未設定、または msg.parts が無い</td>
+                <td>Changeノードでtopicを設定する。前に Split ノードを置いて、msg.parts の付いた列にする</td>
             </tr>
             <tr>
                 <td>時間モードで空グループ</td>
