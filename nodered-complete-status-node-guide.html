@@ -139,9 +139,16 @@
         
         <h3>出力メッセージ</h3>
         <div class="code-block">{
-    "payload": /* 完了したノードが最後に出力した payload */,
+    "payload": /* 完了したノードが処理した msg の payload */,
     "_msgid": "元のメッセージID",
     /* 元のメッセージの全プロパティを継承 */
+    "complete": {
+        "source": {           // 処理を終えたノード
+            "id": "ノードID",
+            "type": "debug",
+            "name": "ノードの名前"
+        }
+    }
 }</div>
         
         <h3>Complete が発火するタイミング</h3>
@@ -216,10 +223,266 @@
         </div>
         
         <h2 id="section5">5. サンプルフロー</h2>
-        
+
+        <h3>公式サンプルフロー</h3>
+        <p>最初のサンプルフローは、Node-RED本体に同梱されている公式サンプル（complete の「Handle completion of node execution」と、status の「Handle status message output」）を1つのタブにまとめ、名前の無かった inject ノードと debug ノードに日本語の名前を付けたものです。エディタの <strong>メニュー → 読み込み → サンプル → common → complete</strong>（または <strong>status</strong>）からも、元のフローを開けます。</p>
+        <details>
+            <summary>📥 公式サンプルフローJSON（クリックで展開）</summary>
+            <div class="flow-json">[
+    {
+        "id": "a2046c0f338a6a59",
+        "type": "tab",
+        "label": "complete / status",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "9df3290f.c6d2e8",
+        "type": "inject",
+        "z": "a2046c0f338a6a59",
+        "name": "実行: complete の例",
+        "topic": "",
+        "payload": "Hello, World!",
+        "payloadType": "str",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 210,
+        "y": 140,
+        "wires": [
+            [
+                "96f1096b.2f82a8"
+            ]
+        ]
+    },
+    {
+        "id": "96f1096b.2f82a8",
+        "type": "debug",
+        "z": "a2046c0f338a6a59",
+        "name": "表示（完了を見張られる）",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "x": 390,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "23811105.474c6e",
+        "type": "complete",
+        "z": "a2046c0f338a6a59",
+        "name": "",
+        "scope": [
+            "96f1096b.2f82a8"
+        ],
+        "uncaught": false,
+        "x": 390,
+        "y": 180,
+        "wires": [
+            [
+                "f06a3fc9.6bab7"
+            ]
+        ]
+    },
+    {
+        "id": "f06a3fc9.6bab7",
+        "type": "debug",
+        "z": "a2046c0f338a6a59",
+        "name": "完了の通知",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 580,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "34d5ef47.79e72",
+        "type": "comment",
+        "z": "a2046c0f338a6a59",
+        "name": "Example: Complete Node",
+        "info": "Complete node can catch completion of specified nodes.  It receives input of target node.",
+        "x": 150,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "6ed443a1.a0c3cc",
+        "type": "comment",
+        "z": "a2046c0f338a6a59",
+        "name": "Catch completion of a node",
+        "info": "",
+        "x": 200,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "70b28e37.84edd",
+        "type": "comment",
+        "z": "a2046c0f338a6a59",
+        "name": "Catch completion of 1st debug node",
+        "info": "",
+        "x": 460,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "cf27351f.392d88",
+        "type": "inject",
+        "z": "a2046c0f338a6a59",
+        "name": "実行: status の例",
+        "topic": "",
+        "payload": "Hello, World!",
+        "payloadType": "str",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 270,
+        "y": 420,
+        "wires": [
+            [
+                "75eaadfb.bed014"
+            ]
+        ]
+    },
+    {
+        "id": "cd1ac74a.a149a8",
+        "type": "debug",
+        "z": "a2046c0f338a6a59",
+        "name": "ステータスの通知",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "x": 590,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "fc2e6dfc.2b0e9",
+        "type": "comment",
+        "z": "a2046c0f338a6a59",
+        "name": "Example: Status Node",
+        "info": "Status node can catch change of status message of specified nodes or all nodes in a flow.  It receives metadata of status message.",
+        "x": 200,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "d97b97d0.c4cfe8",
+        "type": "comment",
+        "z": "a2046c0f338a6a59",
+        "name": "Catch status message",
+        "info": "",
+        "x": 240,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "a1914d09.e7ba2",
+        "type": "comment",
+        "z": "a2046c0f338a6a59",
+        "name": "Catch status message of 1st debug node",
+        "info": "",
+        "x": 540,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "75fefe32.3e47d",
+        "type": "status",
+        "z": "a2046c0f338a6a59",
+        "name": "",
+        "scope": [
+            "cf27351f.392d88",
+            "75eaadfb.bed014"
+        ],
+        "x": 440,
+        "y": 480,
+        "wires": [
+            [
+                "cd1ac74a.a149a8"
+            ]
+        ]
+    },
+    {
+        "id": "75eaadfb.bed014",
+        "type": "debug",
+        "z": "a2046c0f338a6a59",
+        "name": "表示（ステータスを見張られる）",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 450,
+        "y": 420,
+        "wires": []
+    }
+]</div>
+        </details>
+
+        <h4>フローの読み解き</h4>
+        <p>フローは、上の complete の例と、下の status の例の、2つの部分に分かれています。それぞれの先頭に、「Example:」で始まる comment ノードがあります。どちらの部分も2行でできていて、上の行が inject → debug のふつうの流れ、下の行がそれを見張る流れです。complete ノードと status ノードには名前が付いていないので、ここでは種類の名前で呼びます。</p>
+
+        <table>
+            <tr>
+                <th>部分（comment ノードの見出しと、その意味）</th>
+                <th>ノードの並び</th>
+                <th>設定と、その理由</th>
+            </tr>
+            <tr>
+                <td><strong>Example: Complete Node</strong><br>Catch completion of a node（1つのノードの完了を捕まえる）</td>
+                <td>上の行:「実行: complete の例」（inject）→「表示（完了を見張られる）」（debug）<br>下の行: complete →「完了の通知」（debug）</td>
+                <td>complete の対象は「表示（完了を見張られる）」だけ。下の comment ノード「Catch completion of 1st debug node」（1つ目の debug ノードの完了を捕まえる）が、このことを示している。complete は、対象のノードが処理し終えた msg に、完了したノードを表す <code>msg.complete</code> を足して出す。<code>msg.payload</code> は元のままなので、「完了の通知」は <code>msg.payload</code> を表示する設定にしてある</td>
+            </tr>
+            <tr>
+                <td><strong>Example: Status Node</strong><br>Catch status message（ステータスの表示を捕まえる）</td>
+                <td>上の行:「実行: status の例」（inject）→「表示（ステータスを見張られる）」（debug）<br>下の行: status →「ステータスの通知」（debug）</td>
+                <td>上の行の debug は、「出力先」の「ノードステータス(32 文字)」をオンにしてある。msg が届くたびに、ノードの下に <code>msg.payload</code> の内容がステータスとして表示される。status の「ステータス取得元」は「選択したノード」で、対象は上の行の inject と debug の2つ。「ステータスの通知」は、「対象」を「msgオブジェクト全体」にしてある（status ノードが出す msg には <code>msg.payload</code> が無いため）</td>
+            </tr>
+        </table>
+
+        <p><strong>ボタンを押すと出るもの:</strong></p>
+        <table>
+            <tr>
+                <th>押すボタン</th>
+                <th>デバッグサイドバーに出るもの</th>
+            </tr>
+            <tr>
+                <td>「実行: complete の例」</td>
+                <td>「表示（完了を見張られる）」に <code>Hello, World!</code>、続いて「完了の通知」にも <code>Hello, World!</code> が出る。2つ目は、debug ノードが表示を終えたことを complete が捕まえて送った msg で、<code>msg.payload</code> は debug ノードが受け取ったものと同じ</td>
+            </tr>
+            <tr>
+                <td>「実行: status の例」</td>
+                <td>「表示（ステータスを見張られる）」に <code>Hello, World!</code> が出て、そのノードの下にも灰色の丸と <code>Hello, World!</code> が表示される。続いて「ステータスの通知」に、そのステータスの内容が出る（下の例）。続けてもう一度押すと、「表示（ステータスを見張られる）」には出るが、「ステータスの通知」には出ない。debug ノードは、ステータスの文字が前と同じときは、ステータスを出し直さないため。もう一度確かめるときは、デプロイし直す</td>
+            </tr>
+        </table>
+
+        <div class="code-block">// 「ステータスの通知」に出る msg
+{"status":{"fill":"grey","shape":"dot","text":"Hello, World!",
+           "source":{"id":"75eaadfb.bed014","type":"debug","name":"表示（ステータスを見張られる）"}},
+ "_msgid":"9f6b41b08aef6cb3"}</div>
+        <p><code>status.text</code> が、ノードの下に表示された文字です。<code>status.source</code> で、どのノードのステータスかが分かります。status の対象には inject も入っていますが、inject ノードはステータスを表示しないので、届くのは debug のステータスだけです。各項目の意味は、3章の「出力メッセージ」と、下の応用フローの読み解きの表を見てください。</p>
+
+        <p>2つの例は、見張る相手がどちらも debug ノードです。complete は「処理が終わった」ことを、status は「ノードの下の表示が変わった」ことを捕まえます。処理が終わってもステータスを変えないノードは complete でしか分からず、接続の状態のように処理の完了と関係なく変わるものは status でしか分かりません。</p>
+
+        <h3>応用（サイト独自）: 完了・ステータス・エラーを使い分ける</h3>
+        <p>ここから先は公式サンプルではなく、<strong>本サイトが用意した応用教材</strong>です。処理にかかった時間の計測、function ノードが自分で変えるステータスの監視、エラーの検知を、1つのタブにまとめています。</p>
         <p><strong>💼 使いどころ:</strong> 処理の完了・状態変化・エラーを、それぞれ別のノードで検知して使い分ける場面で使います。</p>
         <details>
-            <summary>📥 サンプルフローJSON（クリックで展開）</summary>
+            <summary>📥 応用フローJSON（クリックで展開）</summary>
             <div class="flow-json">[
     {
         "id": "complete_status_tab",
@@ -518,7 +781,7 @@
             <tr>
                 <td><strong>Complete ノード：処理完了の検知</strong></td>
                 <td>上の行:「開始」（inject）→「2秒待機」（delay）→「メイン出力」（debug）<br>下の行:「Delay完了検知」（complete）→「処理時間計算」（function）→「完了通知」（debug）</td>
-                <td>complete の対象は「2秒待機」だけ。「開始」は、<code>msg.payload</code> の「処理開始」のほかに、ボタンを押した時刻を <code>msg.startTime</code> に入れて送る。complete は、「2秒待機」が処理し終えた msg をそのまま出すので、<code>msg.startTime</code> が残っている。function は、今の時刻から <code>msg.startTime</code> を引いて、かかった時間を求める</td>
+                <td>complete の対象は「2秒待機」だけ。「開始」は、<code>msg.payload</code> の「処理開始」のほかに、ボタンを押した時刻を <code>msg.startTime</code> に入れて送る。complete は、「2秒待機」が処理し終えた msg を出す（完了したノードを表す <code>msg.complete</code> が足されるほかは、元のまま）ので、<code>msg.startTime</code> が残っている。function は、今の時刻から <code>msg.startTime</code> を引いて、かかった時間を求める</td>
             </tr>
             <tr>
                 <td><strong>Status ノード：ステータス監視</strong></td>
