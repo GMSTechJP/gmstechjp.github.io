@@ -410,10 +410,10 @@
         
         <div class="feature-grid">
             <div class="feature-card">
-                <h4><span class="mode-badge badge-all">全ノード</span> すべてのノード</h4>
+                <h4><span class="mode-badge badge-all">全ノード</span> 全てのノード</h4>
                 <p>同じタブ（フロー）内のすべてのノードからエラーをキャッチ</p>
                 <div class="code-block">scope: null
-（設定で「すべてのノード」を選択）</div>
+（設定で「全てのノード」を選択）</div>
             </div>
             
             <div class="feature-card">
@@ -594,7 +594,58 @@
 ]
             </div>
         </details>
-        
+
+        <h4>フローの読み解き</h4>
+        <p>公式サンプルは、1つの例でできています。下のパターン1が、この例に当たります。inject・catch・debug のノードには名前が付いていないので、ここでは種類の名前で呼びます。フロー上には、英語の comment ノードが3つあります。</p>
+
+        <table>
+            <tr>
+                <th>comment ノードの名前</th>
+                <th>意味と、指しているもの</th>
+            </tr>
+            <tr>
+                <td>Example: Catch Node</td>
+                <td>「例: catch ノード」。フロー全体の見出し。ノードを選ぶと、サイドバーの「情報」タブに説明が出る（catch ノードは、指定したノード、またはフロー内のすべてのノードで起きたエラーを捕まえられる。対象のノードが受け取った msg を受け取る、という内容）</td>
+            </tr>
+            <tr>
+                <td>Catch error of a node</td>
+                <td>「1つのノードのエラーを捕まえる」。下にある2行（エラーを起こす行と、捕まえる行）の見出し</td>
+            </tr>
+            <tr>
+                <td>Catch error caused by function node</td>
+                <td>「function ノードが起こしたエラーを捕まえる」。すぐ上の、catch から始まる行の説明</td>
+            </tr>
+        </table>
+
+        <table>
+            <tr>
+                <th>行</th>
+                <th>ノードの並び</th>
+                <th>設定と、その理由</th>
+            </tr>
+            <tr>
+                <td><strong>エラーを起こす行</strong></td>
+                <td>inject →「Error」（function）</td>
+                <td>inject は、<code>msg.payload</code> に文字列の <code>Hello, World!</code> を入れて送る。function のコードは <code>throw new Error("Error Occured!")</code> の1行だけで、msg を受け取るたびに必ずエラーになる。「出力数」を 0 にしてあるので、右側に端子が無く、次のノードへはつながっていない</td>
+            </tr>
+            <tr>
+                <td><strong>捕まえる行</strong></td>
+                <td>catch → debug</td>
+                <td>catch の「エラー取得元」は「選択したノード」で、対象は「Error」だけ。catch は「Error」と配線でつながっておらず、設定で選んだノードのエラーを受け取る。debug は、「対象」を「msgオブジェクト全体」にしてある。<code>msg.payload</code> だけを表示する設定では、catch が足した <code>msg.error</code> が見えないため</td>
+            </tr>
+        </table>
+
+        <p>inject のボタンを押すと、デバッグサイドバーに次の msg が1つ出ます（<code>_msgid</code> と <code>stack</code> の中身は、実行のたびに変わります）。</p>
+        <div class="code-block">{"_msgid":"25b416a6794995dd","payload":"Hello, World!","topic":"",
+ "error":{"message":"Error: Error Occured!",
+          "source":{"id":"7bab9134.35ad","type":"function","name":"Error","count":1},
+          "stack":"Error: Error Occured!\n    at …"}}</div>
+        <ul>
+            <li><strong><code>payload</code> は <code>Hello, World!</code> のまま:</strong> catch が出す msg は、エラーになったノード（「Error」）が受け取った msg に、<code>msg.error</code> を足したものです。エラーになったときに何を処理していたかを、<code>msg.payload</code> で確かめられます。</li>
+            <li><strong><code>error</code> の中身:</strong> <code>message</code> と <code>source</code> の読み方は、2章の「msg.errorオブジェクト」のとおりです。<code>stack</code> には、エラーが起きたコードの位置が入ります。<code>throw</code> でエラーにしたときに入る項目で、原因を調べるときに使います。</li>
+            <li><strong>赤い文字のエラーは出ない:</strong> catch が受け取ったエラーは、デバッグサイドバーに赤い文字のエラーとしては出ません。catch ノードを消してデプロイし直し、もう一度ボタンを押すと、「Error Occured!」を含むエラーが赤い文字で出ます。catch が無いと、エラーは表示されるだけで、フローの中で処理できません。</li>
+        </ul>
+
         <h3>パターン1: 特定ノードのエラーをキャッチ</h3>
         <p><strong>用途:</strong> 特定のノード（Function等）で発生するエラーを個別に処理</p>
         
@@ -612,7 +663,7 @@
         <div class="tip">
             <p><strong>動作の流れ:</strong></p>
             <ol>
-                <li>Functionノードで <code>throw new Error("Error!")</code> を実行</li>
+                <li>Functionノードで <code>throw new Error("Error Occured!")</code> を実行</li>
                 <li>Catchノードがエラーを捕捉</li>
                 <li>msg.errorにエラー情報が格納されて出力</li>
                 <li>Debugノードでエラー内容を確認</li>
@@ -621,7 +672,7 @@
         
         <p><strong>設定例:</strong></p>
         <div class="code-block">Catchノード設定:
-  エラーをキャッチ: 選択したノード
+  エラー取得元: 選択したノード
   対象: Functionノード「Error」を選択
 
 Functionノードのコード:
@@ -631,8 +682,8 @@ Functionノードのコード:
             <p><strong>応用パターン（サンプルフローには含まれていません）:</strong></p>
             <p>Catchノードは以下のような高度なエラーハンドリングにも活用できます：</p>
             <ul>
-                <li><strong>フロー全体のエラーキャッチ</strong>: 「すべてのノード」を選択して、タブ内の全エラーを一括監視</li>
-                <li><strong>未捕捉エラーのフォールバック</strong>: 「未捕捉のみ」をONにして、他のCatchで捕捉されなかったエラーを最終的にキャッチ</li>
+                <li><strong>フロー全体のエラーキャッチ</strong>: 「全てのノード」を選択して、タブ内の全エラーを一括監視</li>
+                <li><strong>未捕捉エラーのフォールバック</strong>: 「Catchノードで処理済みのエラーを無視」をオンにして、他のCatchで捕捉されなかったエラーを最終的にキャッチ</li>
                 <li><strong>エラー通知フロー</strong>: Catch → Template → HTTP Request で、SlackやLINEなどに通知</li>
                 <li><strong>リトライ処理</strong>: エラー発生時にカウントを管理し、一定回数まで再試行</li>
             </ul>
@@ -681,7 +732,7 @@ Functionノードのコード:
                 </ul>
                 <p><strong>Catchノードの設定:</strong></p>
                 <ul>
-                    <li>エラーをキャッチ: 選択したノード</li>
+                    <li>エラー取得元: 選択したノード</li>
                     <li>対象: Functionノード「エラー発生」を選択</li>
                 </ul>
                 <p><strong>Debugノードの設定:</strong></p>
@@ -819,7 +870,7 @@ Functionノードのコード:
                 </ul>
                 <p><strong>Catchノードの設定:</strong></p>
                 <ul>
-                    <li>エラーをキャッチ: すべてのノード</li>
+                    <li>エラー取得元: 全てのノード</li>
                 </ul>
                 <p><strong>Templateノードの設定:</strong></p>
                 <ul>
@@ -997,14 +1048,14 @@ Functionノードのコード:
                 <p><strong>Catchノード（専用）の設定:</strong></p>
                 <ul>
                     <li>名前: 「専用キャッチ」</li>
-                    <li>エラーをキャッチ: 選択したノード</li>
+                    <li>エラー取得元: 選択したノード</li>
                     <li>対象: 処理Aノードを選択</li>
                 </ul>
                 <p><strong>Catchノード（未捕捉）の設定:</strong></p>
                 <ul>
                     <li>名前: 「未捕捉キャッチ」</li>
-                    <li>エラーをキャッチ: すべてのノード</li>
-                    <li>未捕捉のみ: オン</li>
+                    <li>エラー取得元: 全てのノード</li>
+                    <li>Catchノードで処理済みのエラーを無視: オン</li>
                 </ul>
             </details>
             
@@ -1212,7 +1263,7 @@ Functionノードのコード:
                 </ul>
                 <p><strong>Catchノードの設定:</strong></p>
                 <ul>
-                    <li>エラーをキャッチ: すべてのノード</li>
+                    <li>エラー取得元: 全てのノード</li>
                 </ul>
                 <p><strong>ログ整形用Functionノードの設定:</strong></p>
                 <ul>
@@ -1467,7 +1518,7 @@ return msg;</div>
             </tr>
             <tr>
                 <td>特定ノードのエラーのみキャッチしたい</td>
-                <td>スコープが「すべてのノード」になっている</td>
+                <td>「エラー取得元」が「全てのノード」になっている</td>
                 <td>「選択したノード」に変更して対象を指定</td>
             </tr>
             <tr>
