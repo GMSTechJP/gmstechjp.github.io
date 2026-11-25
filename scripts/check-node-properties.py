@@ -75,6 +75,12 @@ KNOWN = {
         "公式サンプル（common/debug/02）のまま",
     ("nodered-debug-node-guide.html", "6f477e7d.3a8da", 'props の 2 行目 の vt の "string"'):
         "公式サンプル（common/debug/05）のまま",
+    ("nodered-join-node-guide.html", "a46bcdd3.db621", 'hdrout の ""'):
+        "公式サンプル（sequence/join/01）のまま。csv の hdrout が空（古い版の書き方）",
+    ("nodered-join-node-guide.html", "28970739.29e728", 'hdrout の ""'):
+        "公式サンプル（sequence/join/01）のまま",
+    ("nodered-join-node-guide.html", "89a32ebe.a92f1", 'hdrout の ""'):
+        "公式サンプル（sequence/join/02）のまま",
 }
 
 
