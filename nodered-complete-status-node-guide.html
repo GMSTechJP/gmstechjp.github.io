@@ -178,12 +178,12 @@
     "status": {
         "fill": "green",      // 色: red, green, yellow, blue, grey
         "shape": "dot",       // 形状: dot, ring
-        "text": "connected"   // テキスト
-    },
-    "source": {
-        "id": "ノードID",
-        "type": "mqtt in",
-        "name": "MQTT購読"
+        "text": "connected",  // テキスト
+        "source": {           // ステータスを変えたノード
+            "id": "ノードID",
+            "type": "mqtt in",
+            "name": "MQTT購読"
+        }
     }
 }</div>
         
@@ -423,7 +423,7 @@
         "id": "cs_comment3",
         "type": "comment",
         "z": "complete_status_tab",
-        "name": "━━━ 全監視ノードの組み合わせ ━━━",
+        "name": "━━━ Catch ノード：エラーの検知 ━━━",
         "info": "",
         "x": 190,
         "y": 440,
@@ -505,7 +505,87 @@
     }
 ]</div>
         </details>
-        
+
+        <h4>フローの読み解き</h4>
+        <p>フローは3つの部分に分かれています。各部分の先頭にある comment ノードの名前が、下の表の「部分」に当たります。どの部分も2行でできていて、上の行がふつうの流れ、下の行がそれを見張る流れです。見張るノード（complete・status・catch）は、相手のノードと配線でつながっていません。見張る相手は、それぞれの設定で選んであります。</p>
+
+        <table>
+            <tr>
+                <th>部分</th>
+                <th>ノードの並び</th>
+                <th>設定と、その理由</th>
+            </tr>
+            <tr>
+                <td><strong>Complete ノード：処理完了の検知</strong></td>
+                <td>上の行:「開始」（inject）→「2秒待機」（delay）→「メイン出力」（debug）<br>下の行:「Delay完了検知」（complete）→「処理時間計算」（function）→「完了通知」（debug）</td>
+                <td>complete の対象は「2秒待機」だけ。「開始」は、<code>msg.payload</code> の「処理開始」のほかに、ボタンを押した時刻を <code>msg.startTime</code> に入れて送る。complete は、「2秒待機」が処理し終えた msg をそのまま出すので、<code>msg.startTime</code> が残っている。function は、今の時刻から <code>msg.startTime</code> を引いて、かかった時間を求める</td>
+            </tr>
+            <tr>
+                <td><strong>Status ノード：ステータス監視</strong></td>
+                <td>上の行:「ステータス更新」（inject）→「処理中表示」（function）→「出力」（debug）<br>下の行:「ステータス監視」（status）→「ステータス出力」（debug）</td>
+                <td>status の「ステータス取得元」は「選択したノード」で、対象は「処理中表示」だけ。function は、<code>node.status()</code> で自分のステータスを黄色の「処理中...」にし、1秒後に緑の「完了」に変える。msg は1秒待たずに、すぐ次へ渡す。「ステータス出力」は、<code>msg.payload</code> ではなく <code>msg.status</code> を表示する設定にしてある（status ノードが出す msg には <code>msg.payload</code> が無いため）</td>
+            </tr>
+            <tr>
+                <td><strong>Catch ノード：エラーの検知</strong></td>
+                <td>上の行:「実行」（inject）→「ランダムエラー」（function）→「成功」（debug）<br>下の行:「エラー捕捉」（catch）→「エラー内容」（debug）</td>
+                <td>function は、2回に1回の割合で <code>node.error()</code> を呼んでエラーにし、msg を次へ渡さない。残りは msg をそのまま渡す。catch の「エラー取得元」は「選択したノード」で、対象は「ランダムエラー」だけ。「エラー内容」は、<code>msg.error</code> を表示する設定にしてある。4章の表のうち、Catch の行に当たる</td>
+            </tr>
+        </table>
+
+        <p>3つ目の部分の「ランダムエラー」は、自分のステータスも「エラー」「成功」に変えます。ただし、この部分に status ノードは無いので、ステータスはノードの下に表示されるだけで、msg にはなりません。1つのノードを complete・status・catch の3つで同時に見張る例は、演習3で作ります。</p>
+
+        <p><strong>ボタンを押すと出るもの:</strong></p>
+        <table>
+            <tr>
+                <th>押すボタン</th>
+                <th>デバッグサイドバーに出るもの</th>
+            </tr>
+            <tr>
+                <td>「開始」</td>
+                <td>約2秒後に、「メイン出力」に <code>処理開始</code>、「完了通知」に <code>処理完了！ 経過時間: 2006ms</code> が出る（数字は押すたびに少し変わる）。「完了通知」のノードの下にも、同じ文字が出る</td>
+            </tr>
+            <tr>
+                <td>「ステータス更新」</td>
+                <td>すぐに、「出力」に <code>テストデータ</code>、「ステータス出力」に黄色のステータス（<code>"text":"処理中..."</code>）が出る。1秒後に、「ステータス出力」に緑のステータス（<code>"text":"完了"</code>）が出る。status ノードは、ステータスが変わるたびに msg を1つ出すので、1回押すと「ステータス出力」には2つ届く</td>
+            </tr>
+            <tr>
+                <td>「実行」</td>
+                <td>「成功」に <code>5</code> が出るか、「エラー内容」にエラーの内容が出るかの、どちらか。どちらになるかは押すたびに変わるので、何回か押して両方を確かめる</td>
+            </tr>
+        </table>
+
+        <p>「ステータス出力」と「エラー内容」に出るオブジェクトは、次の形をしています。<code>source</code> は、ステータスを変えたノード、またはエラーを起こしたノードを表します。見張る相手が複数あるときに、どのノードのことかを見分けるのに使います。</p>
+        <div class="code-block">// 「ステータス出力」（msg.status）
+{"fill":"yellow","shape":"ring","text":"処理中...",
+ "source":{"id":"cs_func_status","type":"function","name":"処理中表示"}}
+
+// 「エラー内容」（msg.error）
+{"message":"ランダムエラー発生",
+ "source":{"id":"cs_func_error","type":"function","name":"ランダムエラー","count":1}}</div>
+
+        <table>
+            <tr>
+                <th>項目</th>
+                <th>意味</th>
+            </tr>
+            <tr>
+                <td><code>fill</code>、<code>shape</code>、<code>text</code></td>
+                <td>ステータスの色、形（<code>dot</code> は塗りつぶした丸、<code>ring</code> は輪）、文字。<code>node.status()</code> に渡した値がそのまま入る</td>
+            </tr>
+            <tr>
+                <td><code>message</code></td>
+                <td>エラーの文。<code>node.error()</code> の1つ目に渡した文字が入る</td>
+            </tr>
+            <tr>
+                <td><code>source.id</code>、<code>source.type</code>、<code>source.name</code></td>
+                <td>ステータスを変えた、またはエラーを起こしたノードの ID、種類、名前</td>
+            </tr>
+            <tr>
+                <td><code>source.count</code></td>
+                <td>同じ msg が、同じノードで続けてエラーになった回数（エラーのときだけ入る）。ふつうは 1 で、catch で受けた msg を同じノードへ戻す作りにしたときに増える</td>
+            </tr>
+        </table>
+
         <h2 id="section6">6. 演習問題</h2>
         
         <div class="exercise">
