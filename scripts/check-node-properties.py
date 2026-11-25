@@ -69,8 +69,8 @@ ENV_VALUE = re.compile(r"^\$\([a-zA-Z_][a-zA-Z0-9_]*\)$|^\$\{[a-zA-Z_][a-zA-Z0-9
 # （広く書くと、同じノードに後から足した別の違反まで隠してしまう）。
 # 当てはまる違反が無くなった記載は、失敗にする（直したのに残っている記載を見逃さないため）。
 KNOWN = {
-    ("nodered-debug-node-guide.html", "a325a0b5fbc66ec5", 'props の 2 行目 の vt の "string"'):
-        "公式サンプル（common/debug）のまま。inject の topic の型が、エディターに無い \"string\" になっている",
+    ("nodered-debug-node-guide.html", "8035b07f.7547e", 'props の 2 行目 の vt の "string"'):
+        "公式サンプル（common/debug/01）のまま。inject の topic の型が、エディターに無い \"string\" になっている",
     ("nodered-debug-node-guide.html", "dac87e40.90376", 'props の 2 行目 の vt の "string"'):
         "公式サンプル（common/debug/02）のまま",
     ("nodered-debug-node-guide.html", "6f477e7d.3a8da", 'props の 2 行目 の vt の "string"'):
