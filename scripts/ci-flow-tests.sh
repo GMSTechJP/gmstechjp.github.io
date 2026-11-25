@@ -29,6 +29,11 @@ npm install --prefix "$WORK/app" --no-audit --no-fund --loglevel=error --save-ex
 npm install --prefix "$WORK/app" --no-audit --no-fund --loglevel=error --save-exact --ignore-scripts \
     node-red-contrib-ftp@0.0.8 node-red-contrib-ftp-server@1.0.4
 
+# watch ガイドのサンプルフローが監視するフォルダとファイル。watch ノードは、フローを読み込んだ時点で
+# 監視する相手が存在している必要がある（ガイドでも、使う前に作るよう案内している）
+mkdir -p /tmp/uploads /tmp/data
+[ -e /tmp/config.json ] || echo '{"mode":"test"}' > /tmp/config.json
+
 "$WORK/app/node_modules/.bin/node-red" --userDir "$WORK/user" --port "$NODE_RED_PORT" > "$LOG" 2>&1 &
 PID=$!
 trap 'kill "$PID" 2>/dev/null || true' EXIT
