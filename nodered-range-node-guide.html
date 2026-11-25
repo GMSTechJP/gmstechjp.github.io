@@ -145,16 +145,574 @@
         <div class="important">
             <p><strong>サンプルフローのインポート方法:</strong></p>
             <ol>
-                <li>下のサンプルフローJSONをコピー</li>
+                <li>下のフローJSON（公式サンプルフロー、または応用フロー）をコピー</li>
                 <li>Node-REDエディタで <strong>メニュー → 読み込み</strong> を選択</li>
                 <li>JSONをペーストして「読み込み」をクリック</li>
             </ol>
-            <p>このサンプルフローには、以下で説明するパターンの実例が含まれています。</p>
         </div>
 
-        
+        <h3>公式サンプルフロー</h3>
+        <p>最初のサンプルフローは、Node-RED本体に同梱されている公式サンプル4つ（「Scale input value」「Scale input and round to integer」「Limit input」「Scale and wrap input」）を1つのタブにまとめ、名前の無かった inject ノードと debug ノードに日本語の名前を付けたものです。エディタの <strong>メニュー → 読み込み → サンプル → function → range</strong> からも、元の4つを開けます。</p>
         <details>
-            <summary>📥 サンプルフローJSON（クリックで展開）</summary>
+            <summary>📥 公式サンプルフローJSON（クリックで展開）</summary>
+            <div class="flow-json">[
+    {
+        "id": "2afcee6e3e4ef550",
+        "type": "tab",
+        "label": "range",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "827a48c0.912d88",
+        "type": "comment",
+        "z": "2afcee6e3e4ef550",
+        "name": "Map property between different numeric ranges",
+        "info": "Range node can scale a number from one numeric range to another.\n\nSee Node-RED cookbook [item](https://cookbook.nodered.org/basic/map-between-different-number-ranges).",
+        "x": 240,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "bb23bd77.ce725",
+        "type": "inject",
+        "z": "2afcee6e3e4ef550",
+        "name": "例1: 0",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "topic": "",
+        "payload": "0",
+        "payloadType": "num",
+        "x": 170,
+        "y": 120,
+        "wires": [
+            [
+                "42ed281c.790b38"
+            ]
+        ]
+    },
+    {
+        "id": "42ed281c.790b38",
+        "type": "range",
+        "z": "2afcee6e3e4ef550",
+        "minin": "0",
+        "maxin": "1023",
+        "minout": "0",
+        "maxout": "5",
+        "action": "clamp",
+        "round": false,
+        "property": "payload",
+        "name": "",
+        "x": 390,
+        "y": 160,
+        "wires": [
+            [
+                "56e6dd0f.436c24"
+            ]
+        ]
+    },
+    {
+        "id": "54659d5c.0283e4",
+        "type": "inject",
+        "z": "2afcee6e3e4ef550",
+        "name": "例1: 512",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "topic": "",
+        "payload": "512",
+        "payloadType": "num",
+        "x": 170,
+        "y": 160,
+        "wires": [
+            [
+                "42ed281c.790b38"
+            ]
+        ]
+    },
+    {
+        "id": "85ce0127.07b06",
+        "type": "inject",
+        "z": "2afcee6e3e4ef550",
+        "name": "例1: 1023",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "topic": "",
+        "payload": "1023",
+        "payloadType": "num",
+        "x": 170,
+        "y": 200,
+        "wires": [
+            [
+                "42ed281c.790b38"
+            ]
+        ]
+    },
+    {
+        "id": "56e6dd0f.436c24",
+        "type": "debug",
+        "z": "2afcee6e3e4ef550",
+        "name": "例1: 結果",
+        "active": true,
+        "console": "false",
+        "complete": "false",
+        "x": 590,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "990f33d3.3ffe2",
+        "type": "comment",
+        "z": "2afcee6e3e4ef550",
+        "name": "Scale input value &amp; round result to integer",
+        "info": "Range node can map input value to output value according to mapping specification.\nThe result value is rounded to nearest integer if `Round result to the nearest integer?` checkbox is checked.",
+        "x": 240,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "b2639501.5ad638",
+        "type": "inject",
+        "z": "2afcee6e3e4ef550",
+        "name": "例2: 0",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "0",
+        "payloadType": "num",
+        "x": 190,
+        "y": 320,
+        "wires": [
+            [
+                "dc4509ee.773038"
+            ]
+        ]
+    },
+    {
+        "id": "dc4509ee.773038",
+        "type": "range",
+        "z": "2afcee6e3e4ef550",
+        "minin": "0",
+        "maxin": "9",
+        "minout": "0",
+        "maxout": "128",
+        "action": "scale",
+        "round": true,
+        "property": "payload",
+        "name": "",
+        "x": 360,
+        "y": 320,
+        "wires": [
+            [
+                "50991e7e.2ed24"
+            ]
+        ]
+    },
+    {
+        "id": "50991e7e.2ed24",
+        "type": "debug",
+        "z": "2afcee6e3e4ef550",
+        "name": "例2: 結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 520,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "335e877f.d24e98",
+        "type": "inject",
+        "z": "2afcee6e3e4ef550",
+        "name": "例2: 10",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "10",
+        "payloadType": "num",
+        "x": 190,
+        "y": 360,
+        "wires": [
+            [
+                "dc4509ee.773038"
+            ]
+        ]
+    },
+    {
+        "id": "5d88207d.4189",
+        "type": "inject",
+        "z": "2afcee6e3e4ef550",
+        "name": "例2: 99",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "99",
+        "payloadType": "num",
+        "x": 190,
+        "y": 400,
+        "wires": [
+            [
+                "dc4509ee.773038"
+            ]
+        ]
+    },
+    {
+        "id": "f0bc6a80.d52578",
+        "type": "comment",
+        "z": "2afcee6e3e4ef550",
+        "name": "Limit input value",
+        "info": "Range node can map input value to output value according to mapping specification.\nThe result value is limited to specified range if `Scale and limit to the target range` is selected.",
+        "x": 140,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "69652849.749198",
+        "type": "inject",
+        "z": "2afcee6e3e4ef550",
+        "name": "例3: 0",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "0",
+        "payloadType": "num",
+        "x": 170,
+        "y": 520,
+        "wires": [
+            [
+                "104f6f14.1c72e1"
+            ]
+        ]
+    },
+    {
+        "id": "104f6f14.1c72e1",
+        "type": "range",
+        "z": "2afcee6e3e4ef550",
+        "minin": "0",
+        "maxin": "100",
+        "minout": "0",
+        "maxout": "90",
+        "action": "clamp",
+        "round": false,
+        "property": "payload",
+        "name": "",
+        "x": 330,
+        "y": 520,
+        "wires": [
+            [
+                "10fcbed4.9c8d71"
+            ]
+        ]
+    },
+    {
+        "id": "10fcbed4.9c8d71",
+        "type": "debug",
+        "z": "2afcee6e3e4ef550",
+        "name": "例3: 結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 500,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "93bb4526.7d6e28",
+        "type": "inject",
+        "z": "2afcee6e3e4ef550",
+        "name": "例3: 10",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "10",
+        "payloadType": "num",
+        "x": 170,
+        "y": 560,
+        "wires": [
+            [
+                "104f6f14.1c72e1"
+            ]
+        ]
+    },
+    {
+        "id": "6892dfd8.42386",
+        "type": "inject",
+        "z": "2afcee6e3e4ef550",
+        "name": "例3: 100",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "100",
+        "payloadType": "num",
+        "x": 170,
+        "y": 600,
+        "wires": [
+            [
+                "104f6f14.1c72e1"
+            ]
+        ]
+    },
+    {
+        "id": "808e354d.8de148",
+        "type": "comment",
+        "z": "2afcee6e3e4ef550",
+        "name": "Scale and wrap input value",
+        "info": "Range node can map input value to output value according to mapping specification.\nThe result value is wrapped if `Scale and wrap within the target range` is selected.",
+        "x": 170,
+        "y": 660,
+        "wires": []
+    },
+    {
+        "id": "2f033c72.51dcc4",
+        "type": "inject",
+        "z": "2afcee6e3e4ef550",
+        "name": "例4: 0",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "0",
+        "payloadType": "num",
+        "x": 170,
+        "y": 720,
+        "wires": [
+            [
+                "cdaa82c4.820de"
+            ]
+        ]
+    },
+    {
+        "id": "cdaa82c4.820de",
+        "type": "range",
+        "z": "2afcee6e3e4ef550",
+        "minin": "0",
+        "maxin": "9",
+        "minout": "0",
+        "maxout": "90",
+        "action": "roll",
+        "round": false,
+        "property": "payload",
+        "name": "",
+        "x": 330,
+        "y": 720,
+        "wires": [
+            [
+                "77f8872b.2a9968"
+            ]
+        ]
+    },
+    {
+        "id": "77f8872b.2a9968",
+        "type": "debug",
+        "z": "2afcee6e3e4ef550",
+        "name": "例4: 結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 500,
+        "y": 720,
+        "wires": []
+    },
+    {
+        "id": "84ac6a7e.77b8d8",
+        "type": "inject",
+        "z": "2afcee6e3e4ef550",
+        "name": "例4: 10",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "10",
+        "payloadType": "num",
+        "x": 170,
+        "y": 760,
+        "wires": [
+            [
+                "cdaa82c4.820de"
+            ]
+        ]
+    },
+    {
+        "id": "92f554c3.b08ad8",
+        "type": "inject",
+        "z": "2afcee6e3e4ef550",
+        "name": "例4: 100",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "100",
+        "payloadType": "num",
+        "x": 170,
+        "y": 800,
+        "wires": [
+            [
+                "cdaa82c4.820de"
+            ]
+        ]
+    }
+]</div>
+        </details>
+
+        <h4>フローの読み解き</h4>
+        <p>フローには、公式サンプルの4つの例が、上から順に並んでいます。それぞれの先頭に、英語の comment ノードがあります。どの例も、3つの inject → range → debug という同じ並びで、違うのは range の設定だけです。名前の無かった inject と debug には、「例1: 512」「例1: 結果」のように、例の番号を付けた名前を付けてあります。inject の名前の数が、そのボタンが送る <code>msg.payload</code> の値です。</p>
+
+        <table>
+            <tr>
+                <th>例</th>
+                <th>comment ノードの見出し（意味）</th>
+                <th>range の設定</th>
+                <th>ボタンと、「例N: 結果」に出る値</th>
+            </tr>
+            <tr>
+                <td><strong>例1</strong></td>
+                <td>Map property between different numeric ranges（値を、別の数の範囲に写す）</td>
+                <td>入力値の範囲 0〜1023、出力値の範囲 0〜5。「動作」は「入力値の範囲外の値を最小値/最大値とし拡大/縮小」。四捨五入はオフ</td>
+                <td>0 → <code>0</code>、512 → <code>2.5024437927663734</code>、1023 → <code>5</code></td>
+            </tr>
+            <tr>
+                <td><strong>例2</strong></td>
+                <td>Scale input value &amp; round result to integer（入力を拡大/縮小し、結果を整数に丸める）</td>
+                <td>入力値の範囲 0〜9、出力値の範囲 0〜128。「動作」は「msg.payloadの値を拡大/縮小」。「小数値を四捨五入し整数値へ変換」がオン</td>
+                <td>0 → <code>0</code>、10 → <code>142</code>、99 → <code>1408</code></td>
+            </tr>
+            <tr>
+                <td><strong>例3</strong></td>
+                <td>Limit input value（入力の値を制限する）</td>
+                <td>入力値の範囲 0〜100、出力値の範囲 0〜90。「動作」は「入力値の範囲外の値を最小値/最大値とし拡大/縮小」</td>
+                <td>0 → <code>0</code>、10 → <code>9</code>、100 → <code>90</code></td>
+            </tr>
+            <tr>
+                <td><strong>例4</strong></td>
+                <td>Scale and wrap input value（入力を拡大/縮小し、折り返す）</td>
+                <td>入力値の範囲 0〜9、出力値の範囲 0〜90。「動作」は「入力値の範囲外の値を範囲幅で割った余りとし拡大/縮小」</td>
+                <td>0 → <code>0</code>、10 → <code>10</code>、100 → <code>10</code></td>
+            </tr>
+        </table>
+
+        <p>それぞれの例で確かめることは、次のとおりです。</p>
+        <ul>
+            <li><strong>例1:</strong> 0〜1023 は、マイコンのアナログ入力（10 ビットの ADC）でよく使う範囲で、それを 0〜5（ボルト）に写しています。四捨五入がオフなので、512 は <code>2.5</code> ちょうどではなく、<code>512 ÷ 1023 × 5</code> の計算結果がそのまま出ます。</li>
+            <li><strong>例2:</strong> 10 と 99 は、入力値の範囲（0〜9）の外にあります。「msg.payloadの値を拡大/縮小」は範囲で制限しないので、出力値の範囲（0〜128）を超えた値が出ます。10 は <code>10 ÷ 9 × 128 = 142.2…</code> で、四捨五入されて <code>142</code> になります。</li>
+            <li><strong>例3:</strong> 3つのボタンの値（0、10、100）は、どれも入力値の範囲の中にあります。このため、制限が働く様子は、ボタンを押すだけでは見えません。「例3: 100」の inject を開いて値を 150 に変えると、結果は <code>135</code> ではなく、上限の <code>90</code> になります。</li>
+            <li><strong>例4:</strong> 10 と 100 は範囲の外にあります。どちらも、範囲の幅（9）で割った余りが 1 なので、1 を入れたときと同じ <code>10</code>（<code>1 ÷ 9 × 90</code>）になります。角度のように、端まで行くと最初に戻る値に使います。</li>
+        </ul>
+
+        <h3>応用（サイト独自）: 「動作」の比較と温度変換</h3>
+        <p>ここから先は公式サンプルではなく、<strong>本サイトが用意した応用教材</strong>です。同じ入力を3つの「動作」で変換して比べる部分と、摂氏を華氏に変換する部分があり、下のパターン1・2の実例になっています。</p>
+        <details>
+            <summary>📥 応用フローJSON（クリックで展開）</summary>
             <div class="flow-json">[
     {
         "id": "range_sample_tab",
@@ -411,12 +969,41 @@
     }
 ]</div>
         </details>
-        
-        
-        <h3>使用パターン</h3>
-        
+
+        <h4>フローの読み解き</h4>
+        <p>応用フローは、3つの部分に分かれています。2つ目と3つ目の部分は、先頭の comment ノードの名前で見分けられます。</p>
+
+        <table>
+            <tr>
+                <th>部分</th>
+                <th>ノードの並び</th>
+                <th>range の設定と、ボタンを押すと出るもの</th>
+                <th>パターン</th>
+            </tr>
+            <tr>
+                <td><strong>基本の変換</strong>（先頭の「📏 Range ノード サンプル」のすぐ下）</td>
+                <td>「50を送信」（inject）→「0-100 → 0-255」（range）→「基本変換結果」（debug）</td>
+                <td>入力値の範囲 0〜100、出力値の範囲 0〜255、四捨五入がオン。50 を送ると、<code>127.5</code> が四捨五入されて <code>128</code> が出る</td>
+                <td>―（下のパターンには無い）</td>
+            </tr>
+            <tr>
+                <td><strong>━━━ 範囲制限デモ ━━━</strong></td>
+                <td>「150を送信（範囲外）」（inject）から、「クランプ」「拡大/縮小のみ」「折り返し」の3つの range へ同じ msg を送り、それぞれの debug に出す</td>
+                <td>3つの range は、範囲（0〜100 → 0〜255）と四捨五入（オン）が同じで、「動作」だけが違う。150 を送ると、「クランプ: 255」に <code>255</code>、「拡大/縮小: 383」に <code>383</code>、「折り返し: 128」に <code>128</code> が出る。debug の名前に、出るはずの値を書いてある</td>
+                <td>パターン1</td>
+            </tr>
+            <tr>
+                <td><strong>━━━ 温度変換デモ ━━━</strong></td>
+                <td>「25°C」（inject）→「摂氏→華氏」（range）→「77°F」（debug）</td>
+                <td>入力値の範囲 0〜100、出力値の範囲 32〜212、四捨五入はオフ。出力値の範囲を 0 から始めないことで、掛け算と足し算（× 1.8 + 32）を1つのノードで行っている。25 を送ると <code>77</code> が出る</td>
+                <td>パターン2</td>
+            </tr>
+        </table>
+
+        <p>「動作」の4つ目の選択肢（値を拡大/縮小(入力範囲外の時はメッセージを削除)）を使う range ノードは、公式サンプルにも応用フローにも含まれていません。</p>
+
         <h3>パターン1: 範囲制限モードの比較</h3>
-        <p>サンプルフローの「範囲制限デモ」を参照してください。同じ入力値（150）に対して、3つのモードで異なる結果になります。</p>
+        <p>応用フローの「範囲制限デモ」を参照してください。同じ入力値（150）に対して、3つのモードで異なる結果になります。</p>
         <p><strong>用途:</strong> 範囲外の入力値をどう扱うかを3つの方式で比較</p>
         <div class="node-example">
             <span class="node node-inject">150を送信</span>
@@ -434,12 +1021,12 @@
         </table>
         
         <h3>パターン2: 温度変換（摂氏→華氏）</h3>
-        <p>サンプルフローの「温度変換デモ」を参照してください。</p>
+        <p>応用フローの「温度変換デモ」を参照してください。</p>
         <p><strong>用途:</strong> 摂氏の温度を華氏に変換</p>
         <div class="node-example">
             <span class="node node-inject">25°C</span>
             <span class="arrow">→</span>
-            <span class="node node-range">C→F変換</span>
+            <span class="node node-range">摂氏→華氏</span>
             <span class="arrow">→</span>
             <span class="node node-debug">77°F</span>
         </div>
