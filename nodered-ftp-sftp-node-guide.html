@@ -663,7 +663,7 @@
             <tr>
                 <td><strong>list</strong></td>
                 <td>ディレクトリの中身を一覧する</td>
-                <td>ファイル情報の配列。名前、種別、サイズ、更新日時などを含む</td>
+                <td>ファイル情報の配列。名前、種別、サイズ、更新日時などを含む（各項目の意味は 10 章の「<a href="#list-output">一覧の出力の読み方</a>」）</td>
             </tr>
             <tr>
                 <td><strong>get</strong></td>
@@ -1241,6 +1241,89 @@ sudo ufw allow from 192.168.1.0/24 to any port 7022:7032 proto tcp</div>
 ]</div>
         </details>
 
+        <h4>フローの読み解き</h4>
+        <p>フローは4つの部分に分かれている。コメントノードの番号（1〜4）が、下の表の番号に当たる。1 と 2 の ftp in ノードは同じ FTP のコンフィグノード（<code>test.rebex.net</code> の 21 番）を使い、3 の sftp in ノードは SFTP のコンフィグノード（同じサーバーの 22 番）を使う。</p>
+
+        <table>
+            <tr>
+                <th>部分</th>
+                <th>ノードの並び</th>
+                <th>設定と、その理由</th>
+            </tr>
+            <tr>
+                <td><strong>1. 一覧</strong></td>
+                <td>「一覧を要求」（inject）→「FTP list」（ftp in）→「一覧」（debug）</td>
+                <td>Operation は <code>list</code>。「ファイル名」欄の <code>/</code> は、一覧するディレクトリ（サーバーの最上位）である。FTP の list は、対象のディレクトリをこの欄に書く。結果は <code>msg.payload</code> に配列で入る</td>
+            </tr>
+            <tr>
+                <td><strong>2. 送信</strong></td>
+                <td>「送信を要求」（inject）→「FTP put」（ftp in）→「送信の結果」（debug）</td>
+                <td>Operation は <code>put</code>。「ローカルファイル名」の <code>/tmp/reading.csv</code>（Node-RED のマシンにあるファイル）を、「ファイル名」の <code>/upload/reading.csv</code>（サーバー側の保存先）へ送る。このサーバーは読み取り専用なので、送信は断られる。「送信の結果」には何も出ず、ノードの下に赤いステータスが出て、4 の経路へ進む</td>
+            </tr>
+            <tr>
+                <td><strong>3. 取得</strong></td>
+                <td>「取得を要求」（inject）→「SFTP get」（sftp in）→「保存先を読む」（file in）→「ファイルの中身」（debug）</td>
+                <td>Operation は <code>get</code>。「ファイル名」の <code>/readme.txt</code>（サーバー側）を、「ローカルファイル名」の <code>/tmp/readme.txt</code>（Node-RED のマシン）へ保存する。get は中身を <code>msg.payload</code> に入れないので、後ろの file in ノードで、保存したファイルを読み直している</td>
+            </tr>
+            <tr>
+                <td><strong>4. 失敗を捕まえる</strong></td>
+                <td>「転送エラー」（catch）→「エラー内容」（debug）</td>
+                <td>ボタンは無い。1〜3 のどれかが失敗したときに動く。catch ノードは、対象を3つの転送ノードだけに絞ってある。debug は <code>msg.error</code> を表示するので、エラーの文と、失敗したノードの名前（<code>source.name</code>）が分かる</td>
+            </tr>
+        </table>
+
+        <p>inject ノードは、どれも動かすきっかけとして置いてあるだけで、送っている値（時刻）は使われない。ファイル名は、すべて各ノードの設定欄に書いてある。フローの中でファイル名を決めたいときは、設定欄を空にして <code>msg.filename</code> などで渡す（演習1）。</p>
+
+        <h4 id="list-output">一覧の出力の読み方</h4>
+        <p>「一覧を要求」を押すと、debug「一覧」に次のような配列が出る。配列の1要素が、ファイルまたはフォルダ1つを表す。</p>
+        <div class="code-block">[{"type":"d","name":"pub","size":0,"date":"2023-03-31T00:00:00.000Z", …},
+ {"type":"-","name":"readme.txt","size":379,"date":"2023-09-19T00:00:00.000Z", …}]</div>
+
+        <table>
+            <tr>
+                <th>項目</th>
+                <th>意味</th>
+                <th>上の例</th>
+            </tr>
+            <tr>
+                <td><code>type</code></td>
+                <td>種別。<code>d</code> はフォルダ、<code>-</code> はファイル、<code>l</code> はリンク</td>
+                <td><code>pub</code> はフォルダ、<code>readme.txt</code> はファイル</td>
+            </tr>
+            <tr>
+                <td><code>name</code></td>
+                <td>名前</td>
+                <td><code>pub</code>、<code>readme.txt</code></td>
+            </tr>
+            <tr>
+                <td><code>size</code></td>
+                <td>大きさ（バイト）</td>
+                <td><code>readme.txt</code> は 379 バイト</td>
+            </tr>
+            <tr>
+                <td><code>date</code></td>
+                <td>最後に更新された日時</td>
+                <td>2023-09-19</td>
+            </tr>
+            <tr>
+                <td><code>rights</code></td>
+                <td>権限。持ち主（<code>user</code>）・グループ（<code>group</code>）・その他（<code>other</code>）ごとに、<code>r</code>（読む）・<code>w</code>（書く）・<code>x</code>（実行する。フォルダでは中に入る）の組み合わせ</td>
+                <td><code>readme.txt</code> は、持ち主が <code>rw</code></td>
+            </tr>
+            <tr>
+                <td><code>owner</code>、<code>group</code></td>
+                <td>持ち主のユーザーと、グループ</td>
+                <td><code>demo</code>、<code>users</code></td>
+            </tr>
+            <tr>
+                <td><code>sticky</code>、<code>acl</code></td>
+                <td>特殊な権限の印。ふつうは <code>false</code></td>
+                <td>どちらも <code>false</code></td>
+            </tr>
+        </table>
+
+        <p>ファイルだけを取り出すには、後ろの処理で <code>type</code> が <code>-</code> の要素を選ぶ。この項目の並びは FTP の list のものである。SFTP の list は、更新日時が <code>modifyTime</code>（1970年からのミリ秒）になるなど、項目が少し違う。</p>
+
         <h3>サーバーとして受け取る</h3>
         <p>ポート 7021 で待ち受け、届いたファイルを保存する。動的認証の例も含めている。</p>
         <p><strong>💼 使いどころ:</strong> 他の機器から送られてくるファイルを受け止めて保存し、接続ごとに許可を判断したい場面で使います。</p>
@@ -1380,6 +1463,29 @@ sudo ufw allow from 192.168.1.0/24 to any port 7022:7032 proto tcp</div>
     }
 ]</div>
         </details>
+
+        <h4>フローの読み解き</h4>
+        <p>このフローには inject ノードが無い。ftp server ノード「受信（ポート7021）」が待ち受けていて、外から接続が来ると動く。ftp server ノードの2つの出力から、2本の経路に分かれている。接続が来ると、先に出力2の経路（認証）が動き、許可されたあとでファイルが届くと、出力1の経路（保存）が動く。</p>
+
+        <table>
+            <tr>
+                <th>経路</th>
+                <th>ノードの並び</th>
+                <th>していることと、その理由</th>
+            </tr>
+            <tr>
+                <td><strong>出力2：認証</strong></td>
+                <td>「受信（ポート7021）」の出力2 →「接続を許可するか判定する」（function）→「認証の記録」（debug）</td>
+                <td>ftp server ノードの Username 欄を空にしてあるので、接続のたびに、相手が名乗ったユーザー名とパスワードが出力2から出る（7 章の動的認証モード）。function ノードは、ユーザー名が <code>camera</code>、パスワードが <code>change-me</code> のときだけ <code>msg.authenticate(true)</code> を呼んで許可する。そのあと <code>msg.payload</code> をユーザー名と判定に置き換えているので、debug にパスワードは出ない</td>
+            </tr>
+            <tr>
+                <td><strong>出力1：保存</strong></td>
+                <td>「受信（ポート7021）」の出力1 →「保存先を組み立てる」（function）→「受信フォルダへ書き出す」（file）→「保存したパス」（debug）</td>
+                <td>出力1には、<code>msg.topic</code> にファイル名、<code>msg.payload</code> に中身（Buffer）が入って出る。function ノードは、ファイル名の末尾（最後の <code>/</code> より後ろ）だけを取り出し、<code>/tmp/ftp-received/</code> の下のパスを <code>msg.filename</code> に入れる。file ノードは、保存先を <code>msg.filename</code> から受け取り、フォルダが無ければ作って、同じ名前のファイルは上書きする。ftp server ノードは受け取ったファイルを5秒後に消すので、この経路が無いとファイルは残らない</td>
+            </tr>
+        </table>
+
+        <p>ftp server ノードの Port は 7021、Passive Mode Port Range は <code>7022-7032</code> にしてある。FTP は、ログイン用の接続とは別に、データを運ぶ接続を張る（2 章のパッシブモード）。その接続に使うポートの範囲が後者である。別のマシンから送るときは、両方をファイアウォールで開ける。</p>
 
         <div class="tip">
             <strong>手元で試すには：</strong>
