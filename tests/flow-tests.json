@@ -998,6 +998,168 @@
                 ],
                 "allow_unsafe": true
             }
+        },
+        "nodered-file-node-guide.html": {
+            "file_sample_tab": {
+                "note": "書き込み先は /tmp の下（サンプルのまま）。ファイルの書き込みが終わってから次のボタンを押すよう、ボタンの間をあける。「存在しないファイル」は、読み込みをわざと失敗させて catch で受け取ることを確かめる",
+                "inject": [
+                    "ログ追記",
+                    "ファイル読み込み",
+                    "設定を保存",
+                    "イベント発生",
+                    "存在しないファイル"
+                ],
+                "gap": 1,
+                "expect": [
+                    {
+                        "debug": "書き込み完了",
+                        "match": "^\\d{4}-\\d{2}-\\d{2}T[\\d:.]+Z - センサー値: 25\\.5℃$"
+                    },
+                    {
+                        "debug": "ファイル内容",
+                        "match": "\\d{4}-\\d{2}-\\d{2}T[\\d:.]+Z - センサー値: 25\\.5℃"
+                    },
+                    {
+                        "debug": "保存完了",
+                        "contains": "\"appName\": \"My IoT App\""
+                    },
+                    {
+                        "debug": "ファイル名確認",
+                        "match": "^/tmp/events_\\d{4}-\\d{2}-\\d{2}\\.log$"
+                    },
+                    {
+                        "debug": "読み込み結果",
+                        "absent": true
+                    },
+                    {
+                        "debug": "エラー内容",
+                        "contains": "ENOENT"
+                    }
+                ],
+                "allow_unsafe": true
+            },
+            "ex1_tab": {
+                "note": "演習2（演習1 が書いた /tmp/exercise1.log を読む）と一緒に動かす",
+                "with": [
+                    "ex2_tab"
+                ],
+                "inject": [
+                    "ログ追加",
+                    "読み込み"
+                ],
+                "gap": 1,
+                "expect": [
+                    {
+                        "debug": "完了",
+                        "match": "^\\d{4}-\\d{2}-\\d{2}T[\\d:.]+Z - イベント発生$"
+                    },
+                    {
+                        "debug": "内容表示",
+                        "match": "\\d{4}-\\d{2}-\\d{2}T[\\d:.]+Z - イベント発生"
+                    }
+                ],
+                "allow_unsafe": true
+            },
+            "ex2_tab": {
+                "covered_by": "ex1_tab"
+            },
+            "ex3_tab": {
+                "inject": [
+                    "設定保存",
+                    "設定読込"
+                ],
+                "gap": 1,
+                "expect": [
+                    {
+                        "debug": "保存完了",
+                        "match": "\"server\": \"localhost\",\\s+\"port\": 8080,\\s+\"debug\": true"
+                    },
+                    {
+                        "debug": "設定オブジェクト",
+                        "contains": "\"port\":8080"
+                    }
+                ],
+                "allow_unsafe": true
+            },
+            "ex4_tab": {
+                "note": "「古いファイル削除」は、7日前の日付のファイルを消す。7日前のファイルは CI の環境に無く、手元では有ったり無かったりするので、消す対象のファイル名を今日の日付に書き換えて動かす。直前の「センサーデータ」が作ったファイルを消し、消せたときに出る msg が「削除結果」に届くことを確かめる",
+                "override": {
+                    "ex4_change_del": {
+                        "rules": [
+                            {
+                                "t": "set",
+                                "p": "filename",
+                                "pt": "msg",
+                                "to": "\"/tmp/sensor_\" & $substring($now(), 0, 10) & \".log\"",
+                                "tot": "jsonata"
+                            }
+                        ]
+                    }
+                },
+                "inject": [
+                    "センサーデータ",
+                    "古いファイル削除"
+                ],
+                "gap": 1,
+                "expect": [
+                    {
+                        "debug": "保存先",
+                        "match": "^/tmp/sensor_\\d{4}-\\d{2}-\\d{2}\\.log$"
+                    },
+                    {
+                        "debug": "削除結果",
+                        "match": "^/tmp/sensor_\\d{4}-\\d{2}-\\d{2}\\.log$"
+                    }
+                ],
+                "allow_unsafe": true
+            }
+        },
+        "nodered-watch-node-guide.html": {
+            "watch_sample_tab": {
+                "note": "監視するフォルダ /tmp/uploads と /tmp/data、ファイル /tmp/config.json は、ci-flow-tests.sh が Node-RED を起動する前に作る（watch ノードは、フローを読み込んだ時点で監視する相手が存在している必要がある）。「テストファイル作成」が /tmp/uploads にファイルを作り、同じフォルダを監視しているパターン1 とパターン4 が反応することを確かめる",
+                "inject": [
+                    "テストファイル作成"
+                ],
+                "after": 6,
+                "expect": [
+                    {
+                        "debug": "作成完了",
+                        "match": "^/tmp/uploads/test_\\d+\\.txt$"
+                    },
+                    {
+                        "debug": "変更検知",
+                        "match": "\"payload\":\"/tmp/uploads/test_\\d+\\.txt\".*\"event\":\"update\".*\"type\":\"file\""
+                    },
+                    {
+                        "debug": "小さいファイル",
+                        "match": "^/tmp/uploads/test_\\d+\\.txt$"
+                    },
+                    {
+                        "debug": "大きいファイル",
+                        "absent": true
+                    }
+                ],
+                "skip_debug": {
+                    "設定内容": "パターン2 は、/tmp/config.json を Node-RED の外で書き換えたときに動く。フローにボタンが無い",
+                    "CSV処理": "パターン3 は、/tmp/data に Node-RED の外からファイルを置いたときに動く。フローにボタンが無い",
+                    "画像処理": "パターン3（同上）",
+                    "JSON処理": "パターン3（同上）",
+                    "その他": "パターン3（同上）"
+                },
+                "allow_unsafe": true
+            },
+            "ex1_tab": {
+                "manual": "/tmp/mywatch にファイルを置いて確かめる。監視する相手の変化を、Node-RED の外でファイルを置く・書き換えることで起こす演習。フローにボタンが無く、CI の実行役はファイルを置かない"
+            },
+            "ex2_tab": {
+                "manual": "/tmp/app_config.json を書き換えて確かめる。監視する相手の変化を、Node-RED の外でファイルを置く・書き換えることで起こす演習。フローにボタンが無く、CI の実行役はファイルを置かない"
+            },
+            "ex3_tab": {
+                "manual": "/tmp/images に画像ファイルを置いて確かめる。監視する相手の変化を、Node-RED の外でファイルを置く・書き換えることで起こす演習。フローにボタンが無く、CI の実行役はファイルを置かない"
+            },
+            "ex4_tab": {
+                "manual": "/tmp/ftp_incoming に CSV ファイルを置いて確かめる。監視する相手の変化を、Node-RED の外でファイルを置く・書き換えることで起こす演習。フローにボタンが無く、CI の実行役はファイルを置かない"
+            }
         }
     }
 }

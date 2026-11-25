@@ -48,7 +48,7 @@ def watch():
     node, _, outs = nrnode(250, 90, 'watch', C, w=100, inputs=0)
     p.add(node, eye(250, 50, 0.8))
     p.arrow(175, 100, 196, 92, '#bbb', 1.5, '4 3')
-    c, w, h = msgcard(335, 40, ['payload: "/data/inbox/new.csv"', 'file: "new.csv"', 'event: "change"', 'type: "file"'], '出ていく msg', stroke='#7cb342', hl=(0,))
+    c, w, h = msgcard(335, 40, ['payload: "/data/inbox/new.csv"', 'file: "new.csv"', 'event: "update"', 'type: "file"'], '出ていく msg', stroke='#7cb342', hl=(0,))
     p.add(wire(outs[0][0], outs[0][1], 335, 40 + h / 2), c)
     return p
 

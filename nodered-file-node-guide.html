@@ -199,7 +199,15 @@ return msg;</div>
             <p>このサンプルフローには、以下で説明するパターンの実例が含まれています。</p>
         </div>
 
-        
+        <div class="tip">
+            <p><strong>📌 公式サンプルについて:</strong> Node-RED本体には、write file と read file の公式サンプルが同梱されています。エディタの <strong>メニュー → 読み込み → サンプル → storage → write file</strong>（または <strong>read file</strong>）から開けます。このガイドでは、次の理由で、公式サンプルではなくサイト独自のサンプルフローを最初に載せています。</p>
+            <ul>
+                <li>公式サンプルは、どれも <code>/tmp/hello.txt</code> に書き込みます。Windows には <code>/tmp</code> フォルダがふつう無く、公式サンプルの write file ノードは「ディレクトリが存在しない場合は作成」がオフなので、Windows では書き込みに失敗します。</li>
+                <li>公式サンプルどうしで、ノードの ID が重なっています（write file の1つ目と read file の1つ目など）。このため、1つのタブにまとめて載せられません。別々に読み込むときも、先に読み込んだものが残っていると、ID の重なりの通知が出ます。</li>
+            </ul>
+            <p>下のサンプルフローは、「ディレクトリが存在しない場合は作成」をオンにしてあるので、Windows でも書き込めます（<code>/tmp</code> は、Node-RED を起動したドライブの直下の <code>tmp</code> フォルダとして作られます）。</p>
+        </div>
+
         <details>
             <summary>📥 サンプルフローJSON（クリックで展開）</summary>
             <div class="flow-json">[
@@ -575,9 +583,54 @@ return msg;</div>
     }
 ]</div>
         </details>
-        
-        
-        <h3>使用パターン</h3>
+
+        <h4>フローの読み解き</h4>
+        <p>フローは、5つの部分に分かれています。各部分の先頭にある comment ノードの名前が、下の表の「部分」と、その下のパターン1〜5に当たります。</p>
+
+        <table>
+            <tr>
+                <th>部分</th>
+                <th>ノードの並び</th>
+                <th>設定と、その理由</th>
+                <th>ボタンを押すと出るもの</th>
+            </tr>
+            <tr>
+                <td><strong>ファイルへの書き込み（追記）</strong></td>
+                <td>「ログ追記」（inject）→「タイムスタンプ追加」（function）→「ログ追記」（write file）→「書き込み完了」（debug）</td>
+                <td>write file の「ファイル名」は <code>/tmp/nodered_sample.log</code>、「動作」は「ファイルへ追記」、「メッセージの入力のたびに改行を追加」と「ディレクトリが存在しない場合は作成」がオン。function が、行の先頭に時刻を付ける</td>
+                <td>「書き込み完了」に、書き込んだ1行（<code>2026-11-25T15:30:48.468Z - センサー値: 25.5℃</code> の形）が出る。write file は、書き込んだあと、受け取った msg をそのまま次へ送る。押すたびに、ファイルに1行ずつ増える</td>
+            </tr>
+            <tr>
+                <td><strong>ファイルの読み込み</strong></td>
+                <td>「ファイル読み込み」（inject）→「ログ読み込み」（read file）→「ファイル内容」（debug）</td>
+                <td>read file の「ファイル名」は、上の部分と同じ <code>/tmp/nodered_sample.log</code>。「出力形式」は「文字列」で、ファイル全体を1つの文字列で出す</td>
+                <td>「ファイル内容」に、それまでに追記した行がすべて、改行でつながった1つの文字列で出る。上の「ログ追記」を1回も押していないと、ファイルが無いのでエラーになる</td>
+            </tr>
+            <tr>
+                <td><strong>上書き保存</strong></td>
+                <td>「設定を保存」（inject）→「設定オブジェクト」（function）→「設定ファイル保存」（write file）→「保存完了」（debug）</td>
+                <td>write file の「ファイル名」は <code>/tmp/nodered_config.json</code>、「動作」は「ファイルを上書き」、改行の追加はオフ。function が、設定のオブジェクトを、字下げ付きの JSON の文字列にする（<code>JSON.stringify</code> の3つ目の引数の <code>2</code> が、字下げの幅）</td>
+                <td>「保存完了」に、保存した JSON の文字列が出る。押すたびにファイルが作り直され、<code>updatedAt</code>（保存した時刻）だけが変わる。追記と違い、行は増えない</td>
+            </tr>
+            <tr>
+                <td><strong>動的ファイル名（日付別ログ）</strong></td>
+                <td>「イベント発生」（inject）→「日付別ファイル名」（function）→「動的ファイル」（write file）→「ファイル名確認」（debug）</td>
+                <td>write file の「ファイル名」は <code>msg.filename</code>。function が、<code>msg.filename</code> に <code>/tmp/events_2026-11-25.log</code> のような日付入りの名前を入れる。日付が変わると、書き込み先のファイルが自動で変わる</td>
+                <td>「ファイル名確認」に、書き込んだファイルの名前が出る（この debug は <code>msg.filename</code> を表示する設定）。ファイルには <code>時刻 | ボタンが押されました</code> の1行が追記される</td>
+            </tr>
+            <tr>
+                <td><strong>エラーハンドリング</strong></td>
+                <td>「存在しないファイル」（inject）→「読み込み試行」（read file）→「読み込み結果」（debug）。別の行に「ファイルエラー捕捉」（catch）→「エラー内容」（debug）</td>
+                <td>inject が、<code>msg.filename</code> に、存在しないファイル（<code>/nonexistent/path/file.txt</code>）を入れて送る。catch の対象は「読み込み試行」だけ。「エラー内容」は <code>msg.error.message</code> を表示する設定</td>
+                <td>読み込みは失敗し、「読み込み結果」には何も出ない。「エラー内容」に <code>Error: ENOENT: no such file or directory, open '/nonexistent/path/file.txt'</code> が出る。<code>ENOENT</code> は「ファイルやフォルダが無い」を表す</td>
+            </tr>
+        </table>
+
+        <ul>
+            <li><strong>ファイルの置き場所:</strong> <code>/tmp</code> は、Linux・macOS・Raspberry Pi の、一時ファイル用のフォルダです（再起動で消えることがあります）。確かめ終わったら、<code>nodered_sample.log</code>、<code>nodered_config.json</code>、<code>events_日付.log</code> は消して構いません。共有サーバーで学ぶ場合は、ページの先頭の注意のとおり、ファイル名を自分専用のものに変えてください。</li>
+            <li><strong>日付別ログの日付:</strong> ファイル名の日付は、世界協定時（UTC）の日付です。日本時間より9時間遅いので、日本時間の午前9時より前に押すと、前の日の日付になります。</li>
+        </ul>
+
         
         <h3>パターン1: ファイルへの書き込み（追記）</h3>
         <p>サンプルフローの「ファイルへの書き込み（追記）」を参照してください。</p>

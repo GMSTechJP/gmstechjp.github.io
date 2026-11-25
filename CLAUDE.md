@@ -153,6 +153,7 @@ curl https://raw.githubusercontent.com/node-red/node-red/master/packages/node_mo
 - Dashboard 2.0: FlowFuse リポジトリの `examples/`。
 - 公式サンプルが複数あるノードは、inject ガイドの流儀に合わせて **1つのタブに統合**する。
   ノード ID・英語コメント・構成は公式のまま保持し、ノード名だけ日本語化してよい。
+  タブをまたぐこと自体が主題の公式サンプル（link の「Link across tabs」）は、公式のタブのまま載せる。
 - 公式サンプルに含まれない独自の教材（ブラウザテストページ等）を追加する場合は、
   **「サイト独自の応用例」であることを本文で明示**し、公式サンプルと同じ節に混ぜない。
 - **例外**: 公式サンプルが、このサイトの学習環境で動かない、または初心者を誤らせる内容を
@@ -162,6 +163,10 @@ curl https://raw.githubusercontent.com/node-red/node-red/master/packages/node_mo
   - 該当: TCP（公式サンプルは待ち受けにポート 1881〜1883 を使い、共有クラウドのエディターの
     ポートと、MQTT の標準のポート 1883 と重なる。3つ目のサンプルの区切り文字が
     `¥n`（U+00A5 と n）で、nc などで改行を送ると区切られない。2026-10-23 確認）
+  - 該当: write file・read file（file ガイド）と watch（公式サンプルは `/tmp/hello.txt` に書き込み、
+    write file の「ディレクトリが存在しない場合は作成」がオフなので、`/tmp` の無い Windows では
+    書き込めない。write file・read file・watch の公式サンプルの間でノード ID が重なっていて、
+    1つのタブにまとめられない。2026-11-26 確認）
   - 独自のサンプルフローは、公式サンプルのように本家が動作を保証しないため、
     後述の「フローを CI で動かして確かめる」の対象に必ず入れる
 
@@ -664,6 +669,10 @@ NODE_RED_PORT=18800 PORT_OFFSET=20000 bash scripts/ci-flow-tests.sh
   一度流して、不合格になることを確かめる
 - MQTT の外部ブローカー、Dashboard 2.0、サードパーティのノードを使うガイドを対象に入れる
   ときは、CI にブローカーやノードの導入を足す（入れる前に相談する）
+- watch ノードは、フローを読み込んだ時点で、監視するフォルダ・ファイルが存在している必要がある。
+  CI で動かすタブが監視する相手は、`scripts/ci-flow-tests.sh` が Node-RED を起動する前に作る
+  （今は watch ガイドのサンプルの `/tmp/uploads`、`/tmp/data`、`/tmp/config.json`）。
+  ファイルを Node-RED の外で置いて確かめる演習は、`manual` に理由を書く
 - CI に入れたサードパーティのノードは、`scripts/ci-flow-tests.sh` で、版を固定し、インストール時の
   スクリプトを実行せずに入れる（今は FTP ガイドの node-red-contrib-ftp 0.0.8 と
   node-red-contrib-ftp-server 1.0.4）。版は `gen-node-schemas.mjs` の `PACKAGES` と合わせる。
@@ -1393,8 +1402,9 @@ curl -o inject-source.html \
 | 2026-11-24 | 1.16.0 | フローを CI で動かす仕組みに、FTP で送る ftp_uploads、ftp・sftp の接続先の external、ftp server の待ち受けの重なりの検査を追加。対象に FTP・SFTP を追加 |
 | 2026-11-25 | 1.17.0 | 公開したフローの設定ノードの中身を変えるときは ID も変える決まりを追加（「コピーを読み込み」が同じ ID の既存の設定ノードを使うため） |
 | 2026-11-25 | 1.18.0 | サンプルフローに「フローの読み解き」を付ける決まりと、書く内容を追加 |
+| 2026-11-26 | 1.19.0 | 公式サンプル第一の原則の例外に write file・read file・watch を追加。タブをまたぐ公式サンプルの扱いと、watch を CI で動かす準備を追加。対象に file・watch を追加 |
 
 ---
 
 **作成者**: Claude Sonnet 4.5
-**最終更新**: 2026-11-25
+**最終更新**: 2026-11-26
