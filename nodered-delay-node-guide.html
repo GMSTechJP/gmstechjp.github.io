@@ -592,7 +592,7 @@
             <tr>
                 <td><strong>msg.rate</strong></td>
                 <td>レートを動的に変更</td>
-                <td>msg.rate = "2/s"（1秒に2回）</td>
+                <td>msg.rate = 500（ミリ秒単位。500ミリ秒に1件＝1秒に2件）。「msg.rate(ミリ秒単位)で流量値を上書き」をオンにしたときだけ使われる</td>
             </tr>
             <tr>
                 <td><strong>msg.reset</strong></td>
@@ -622,14 +622,15 @@
             </ol>
             <p>このサンプルフローには、以下で説明する全パターンの実例が含まれています。</p>
         </div>
-        
+
+        <p>サンプルフローは、Node-RED本体に同梱されている公式サンプル5つ（「Delay message」から「Limit message rate for each topic」まで）を1つのタブにまとめ、名前の無かった inject ノードと debug ノードに日本語の名前を付けたものです。エディタの <strong>メニュー → 読み込み → サンプル → function → delay</strong> からも、元の5つを開けます。</p>
+
         <details>
             <summary>📋 サンプルフロー（クリックで展開）</summary>
             <p style="margin: 10px 0; color: #666;"><small>参照元：NodeREDエディター内サンプルフロー</small></p>
-            <div class="flow-json">
-[
+            <div class="flow-json">[
     {
-        "id": "5de2cee3922f8186",
+        "id": "7feaabd51ac8013f",
         "type": "tab",
         "label": "delay",
         "disabled": false,
@@ -637,23 +638,28 @@
         "env": []
     },
     {
-        "id": "c1fce30a7a997845",
+        "id": "87bd706a.aec93",
         "type": "comment",
-        "z": "5de2cee3922f8186",
+        "z": "7feaabd51ac8013f",
         "name": "Delay message",
         "info": "Delay node can delay sending input message to output port by a specified amount of time.",
-        "x": 200,
-        "y": 80,
+        "x": 160,
+        "y": 60,
         "wires": []
     },
     {
-        "id": "54c1e915df89ce76",
+        "id": "1d17715c.34170f",
         "type": "inject",
-        "z": "5de2cee3922f8186",
-        "name": "",
+        "z": "7feaabd51ac8013f",
+        "name": "例1: 実行",
         "props": [
-            {"p": "payload"},
-            {"p": "topic", "vt": "str"}
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
         ],
         "repeat": "",
         "crontab": "",
@@ -662,28 +668,35 @@
         "topic": "",
         "payload": "Hello, World!",
         "payloadType": "str",
-        "x": 250,
-        "y": 140,
-        "wires": [["28cb0141268e5da4", "61d5ac69a4e4d65b"]]
+        "x": 210,
+        "y": 120,
+        "wires": [
+            [
+                "26b43de5.4df8f2",
+                "9930fecd.ee0c8"
+            ]
+        ]
     },
     {
-        "id": "61d5ac69a4e4d65b",
+        "id": "9930fecd.ee0c8",
         "type": "debug",
-        "z": "5de2cee3922f8186",
-        "name": "即時出力",
+        "z": "7feaabd51ac8013f",
+        "name": "例1: すぐの出力",
         "active": true,
         "tosidebar": true,
         "console": false,
         "tostatus": false,
         "complete": "false",
-        "x": 460,
-        "y": 140,
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 410,
+        "y": 120,
         "wires": []
     },
     {
-        "id": "28cb0141268e5da4",
+        "id": "26b43de5.4df8f2",
         "type": "delay",
-        "z": "5de2cee3922f8186",
+        "z": "7feaabd51ac8013f",
         "name": "",
         "pauseType": "delay",
         "timeout": "3",
@@ -695,60 +708,85 @@
         "randomLast": "5",
         "randomUnits": "seconds",
         "drop": false,
-        "allowrate": false,
-        "outputs": 1,
-        "x": 440,
-        "y": 200,
-        "wires": [["2bac60bdace9d64f"]]
+        "x": 400,
+        "y": 180,
+        "wires": [
+            [
+                "c8c2796c.dcb9f8"
+            ]
+        ]
     },
     {
-        "id": "2bac60bdace9d64f",
+        "id": "c8c2796c.dcb9f8",
         "type": "change",
-        "z": "5de2cee3922f8186",
+        "z": "7feaabd51ac8013f",
         "name": "Goodbye, World!",
-        "rules": [{"t": "set", "p": "payload", "pt": "msg", "to": "Goodbye, World!", "tot": "str"}],
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "Goodbye, World!",
+                "tot": "str"
+            }
+        ],
         "action": "",
         "property": "",
         "from": "",
         "to": "",
         "reg": false,
-        "x": 630,
-        "y": 200,
-        "wires": [["f2eb7500f8c0d6d3"]]
+        "x": 590,
+        "y": 180,
+        "wires": [
+            [
+                "c58a290e.2fa438"
+            ]
+        ]
     },
     {
-        "id": "f2eb7500f8c0d6d3",
+        "id": "c58a290e.2fa438",
         "type": "debug",
-        "z": "5de2cee3922f8186",
-        "name": "3秒後出力",
+        "z": "7feaabd51ac8013f",
+        "name": "例1: 遅れた出力",
         "active": true,
         "tosidebar": true,
         "console": false,
         "tostatus": false,
         "complete": "false",
-        "x": 830,
-        "y": 200,
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 790,
+        "y": 180,
         "wires": []
     },
     {
         "id": "c15b8c3e.955ed",
         "type": "comment",
-        "z": "5de2cee3922f8186",
+        "z": "7feaabd51ac8013f",
         "name": "Delay message by message property",
-        "info": "Delay node can delay sending input message to output port by a specified amount of time by `msg.delay` property.",
-        "x": 270,
-        "y": 280,
+        "info": "Delay node can delay sending input message to output port by a specified amount of time by  `msg.delay` property.",
+        "x": 210,
+        "y": 320,
         "wires": []
     },
     {
         "id": "a5ed5817.9df448",
         "type": "inject",
-        "z": "5de2cee3922f8186",
-        "name": "1秒遅延",
+        "z": "7feaabd51ac8013f",
+        "name": "例2: 1秒遅らせる",
         "props": [
-            {"p": "payload"},
-            {"p": "topic", "vt": "str"},
-            {"p": "delay", "v": "1000", "vt": "num"}
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            },
+            {
+                "p": "delay",
+                "v": "1000",
+                "vt": "num"
+            }
         ],
         "repeat": "",
         "crontab": "",
@@ -757,29 +795,36 @@
         "topic": "",
         "payload": "delay 1s",
         "payloadType": "str",
-        "x": 240,
-        "y": 340,
-        "wires": [["5cf53f4.25b7ec", "59b7b67a.a8e888"]]
+        "x": 180,
+        "y": 380,
+        "wires": [
+            [
+                "5cf53f4.25b7ec",
+                "59b7b67a.a8e888"
+            ]
+        ]
     },
     {
         "id": "59b7b67a.a8e888",
         "type": "debug",
-        "z": "5de2cee3922f8186",
-        "name": "即時",
+        "z": "7feaabd51ac8013f",
+        "name": "例2: すぐの出力",
         "active": true,
         "tosidebar": true,
         "console": false,
         "tostatus": false,
         "complete": "false",
-        "x": 450,
-        "y": 340,
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 390,
+        "y": 380,
         "wires": []
     },
     {
         "id": "5cf53f4.25b7ec",
         "type": "delay",
-        "z": "5de2cee3922f8186",
-        "name": "msg.delay使用",
+        "z": "7feaabd51ac8013f",
+        "name": "",
         "pauseType": "delayv",
         "timeout": "5",
         "timeoutUnits": "seconds",
@@ -790,50 +835,75 @@
         "randomLast": "5",
         "randomUnits": "seconds",
         "drop": false,
-        "allowrate": false,
-        "outputs": 1,
-        "x": 460,
-        "y": 400,
-        "wires": [["fc989f41.c4114"]]
+        "x": 380,
+        "y": 440,
+        "wires": [
+            [
+                "fc989f41.c4114"
+            ]
+        ]
     },
     {
         "id": "fc989f41.c4114",
         "type": "change",
-        "z": "5de2cee3922f8186",
-        "name": "Goodbye!",
-        "rules": [{"t": "set", "p": "payload", "pt": "msg", "to": "Goodbye!", "tot": "str"}],
+        "z": "7feaabd51ac8013f",
+        "name": "Goodbye, World!",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "Goodbye, World!",
+                "tot": "str"
+            }
+        ],
         "action": "",
         "property": "",
         "from": "",
         "to": "",
         "reg": false,
-        "x": 640,
-        "y": 400,
-        "wires": [["74ba3d1c.666034"]]
+        "x": 570,
+        "y": 440,
+        "wires": [
+            [
+                "74ba3d1c.666034"
+            ]
+        ]
     },
     {
         "id": "74ba3d1c.666034",
         "type": "debug",
-        "z": "5de2cee3922f8186",
-        "name": "遅延後",
+        "z": "7feaabd51ac8013f",
+        "name": "例2: 遅れた出力",
         "active": true,
         "tosidebar": true,
         "console": false,
         "tostatus": false,
         "complete": "false",
-        "x": 820,
-        "y": 400,
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 770,
+        "y": 440,
         "wires": []
     },
     {
         "id": "6cdf7297.bf5a8c",
         "type": "inject",
-        "z": "5de2cee3922f8186",
-        "name": "10秒遅延",
+        "z": "7feaabd51ac8013f",
+        "name": "例2: 10秒遅らせる",
         "props": [
-            {"p": "payload"},
-            {"p": "topic", "vt": "str"},
-            {"p": "delay", "v": "10000", "vt": "num"}
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            },
+            {
+                "p": "delay",
+                "v": "10000",
+                "vt": "num"
+            }
         ],
         "repeat": "",
         "crontab": "",
@@ -842,26 +912,39 @@
         "topic": "",
         "payload": "delay 10s",
         "payloadType": "str",
-        "x": 240,
-        "y": 400,
-        "wires": [["59b7b67a.a8e888", "5cf53f4.25b7ec"]]
+        "x": 180,
+        "y": 440,
+        "wires": [
+            [
+                "59b7b67a.a8e888",
+                "5cf53f4.25b7ec"
+            ]
+        ]
     },
     {
         "id": "b0200f61.5efa5",
         "type": "comment",
-        "z": "5de2cee3922f8186",
+        "z": "7feaabd51ac8013f",
         "name": "Reset or flush pending message",
         "info": "Delay node can reset or flush delayed message by sending it a message with `reset` or `flush` property.",
-        "x": 250,
-        "y": 500,
+        "x": 170,
+        "y": 580,
         "wires": []
     },
     {
         "id": "d5cd8991.e6d2e8",
         "type": "inject",
-        "z": "5de2cee3922f8186",
-        "name": "メッセージ送信",
-        "props": [{"p": "payload"}, {"p": "topic", "vt": "str"}],
+        "z": "7feaabd51ac8013f",
+        "name": "例3: 実行",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
         "repeat": "",
         "crontab": "",
         "once": false,
@@ -869,32 +952,39 @@
         "topic": "",
         "payload": "Hello, World!",
         "payloadType": "str",
-        "x": 260,
-        "y": 560,
-        "wires": [["607f556b.3ec5fc", "fd14cb.2044db38"]]
+        "x": 170,
+        "y": 640,
+        "wires": [
+            [
+                "607f556b.3ec5fc",
+                "fd14cb.2044db38"
+            ]
+        ]
     },
     {
         "id": "fd14cb.2044db38",
         "type": "debug",
-        "z": "5de2cee3922f8186",
-        "name": "即時",
+        "z": "7feaabd51ac8013f",
+        "name": "例3: すぐの出力",
         "active": true,
         "tosidebar": true,
         "console": false,
         "tostatus": false,
         "complete": "false",
-        "x": 450,
-        "y": 560,
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 370,
+        "y": 640,
         "wires": []
     },
     {
         "id": "607f556b.3ec5fc",
         "type": "delay",
-        "z": "5de2cee3922f8186",
-        "name": "10秒遅延",
+        "z": "7feaabd51ac8013f",
+        "name": "",
         "pauseType": "delay",
-        "timeout": "10",
-        "timeoutUnits": "seconds",
+        "timeout": "1",
+        "timeoutUnits": "minutes",
         "rate": "1",
         "nbRateUnits": "1",
         "rateUnits": "second",
@@ -902,86 +992,130 @@
         "randomLast": "5",
         "randomUnits": "seconds",
         "drop": false,
-        "allowrate": false,
-        "outputs": 1,
-        "x": 450,
-        "y": 620,
-        "wires": [["d1fc6763.2a30c8"]]
+        "x": 360,
+        "y": 700,
+        "wires": [
+            [
+                "d1fc6763.2a30c8"
+            ]
+        ]
     },
     {
         "id": "d1fc6763.2a30c8",
         "type": "change",
-        "z": "5de2cee3922f8186",
-        "name": "Goodbye!",
-        "rules": [{"t": "set", "p": "payload", "pt": "msg", "to": "Goodbye!", "tot": "str"}],
+        "z": "7feaabd51ac8013f",
+        "name": "Goodbye, World!",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "Goodbye, World!",
+                "tot": "str"
+            }
+        ],
         "action": "",
         "property": "",
         "from": "",
         "to": "",
         "reg": false,
-        "x": 620,
-        "y": 620,
-        "wires": [["15486d4a.80c6f3"]]
+        "x": 550,
+        "y": 700,
+        "wires": [
+            [
+                "15486d4a.80c6f3"
+            ]
+        ]
     },
     {
         "id": "15486d4a.80c6f3",
         "type": "debug",
-        "z": "5de2cee3922f8186",
-        "name": "10秒後",
+        "z": "7feaabd51ac8013f",
+        "name": "例3: 遅れた出力",
         "active": true,
         "tosidebar": true,
         "console": false,
         "tostatus": false,
         "complete": "false",
-        "x": 800,
-        "y": 620,
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 750,
+        "y": 700,
         "wires": []
     },
     {
         "id": "2b8b28c7.4c8978",
         "type": "inject",
-        "z": "5de2cee3922f8186",
+        "z": "7feaabd51ac8013f",
         "name": "reset",
-        "props": [{"p": "topic", "vt": "str"}, {"p": "reset", "v": "true", "vt": "bool"}],
+        "props": [
+            {
+                "p": "topic",
+                "vt": "str"
+            },
+            {
+                "p": "reset",
+                "v": "true",
+                "vt": "bool"
+            }
+        ],
         "repeat": "",
         "crontab": "",
         "once": false,
         "onceDelay": 0.1,
         "topic": "",
-        "x": 230,
-        "y": 620,
-        "wires": [["607f556b.3ec5fc"]]
+        "x": 150,
+        "y": 700,
+        "wires": [
+            [
+                "607f556b.3ec5fc"
+            ]
+        ]
     },
     {
         "id": "3a7e1bec.8bc3d4",
         "type": "inject",
-        "z": "5de2cee3922f8186",
+        "z": "7feaabd51ac8013f",
         "name": "flush",
-        "props": [{"p": "topic", "vt": "str"}, {"p": "flush", "v": "true", "vt": "bool"}],
+        "props": [
+            {
+                "p": "topic",
+                "vt": "str"
+            },
+            {
+                "p": "flush",
+                "v": "true",
+                "vt": "bool"
+            }
+        ],
         "repeat": "",
         "crontab": "",
         "once": false,
         "onceDelay": 0.1,
         "topic": "",
-        "x": 230,
-        "y": 680,
-        "wires": [["607f556b.3ec5fc"]]
+        "x": 150,
+        "y": 760,
+        "wires": [
+            [
+                "607f556b.3ec5fc"
+            ]
+        ]
     },
     {
         "id": "2d14f1a7.e776ce",
         "type": "comment",
-        "z": "5de2cee3922f8186",
+        "z": "7feaabd51ac8013f",
         "name": "Slow down messages passing through a flow",
-        "info": "Delay node can be used to slow down messages passing through a flow.",
-        "x": 290,
-        "y": 760,
+        "info": "Delay node can be used to slow down messages passing through a flow.\n\nSee Node-RED cookbook [item](https://cookbook.nodered.org/basic/rate-limit-messages).",
+        "x": 230,
+        "y": 860,
         "wires": []
     },
     {
         "id": "af78b43e.9817d8",
         "type": "inject",
-        "z": "5de2cee3922f8186",
-        "name": "配列送信",
+        "z": "7feaabd51ac8013f",
+        "name": "Inject Array",
         "repeat": "",
         "crontab": "",
         "once": false,
@@ -989,14 +1123,18 @@
         "topic": "",
         "payload": "[0,1,2,3,4,5,6,7,8,9]",
         "payloadType": "json",
-        "x": 240,
-        "y": 820,
-        "wires": [["a35943e3.eaf0a"]]
+        "x": 190,
+        "y": 920,
+        "wires": [
+            [
+                "a35943e3.eaf0a"
+            ]
+        ]
     },
     {
         "id": "a35943e3.eaf0a",
         "type": "split",
-        "z": "5de2cee3922f8186",
+        "z": "7feaabd51ac8013f",
         "name": "",
         "splt": "\\n",
         "spltType": "str",
@@ -1004,15 +1142,19 @@
         "arraySpltType": "len",
         "stream": false,
         "addname": "",
-        "x": 390,
-        "y": 820,
-        "wires": [["23eacc60.7290a4"]]
+        "x": 330,
+        "y": 920,
+        "wires": [
+            [
+                "23eacc60.7290a4"
+            ]
+        ]
     },
     {
         "id": "23eacc60.7290a4",
         "type": "delay",
-        "z": "5de2cee3922f8186",
-        "name": "1msg/秒",
+        "z": "7feaabd51ac8013f",
+        "name": "",
         "pauseType": "rate",
         "timeout": "5",
         "timeoutUnits": "seconds",
@@ -1023,43 +1165,53 @@
         "randomLast": "5",
         "randomUnits": "seconds",
         "drop": false,
-        "allowrate": false,
-        "outputs": 1,
-        "x": 520,
-        "y": 820,
-        "wires": [["b5b7746a.53bf88"]]
+        "x": 470,
+        "y": 920,
+        "wires": [
+            [
+                "b5b7746a.53bf88"
+            ]
+        ]
     },
     {
         "id": "b5b7746a.53bf88",
         "type": "debug",
-        "z": "5de2cee3922f8186",
-        "name": "1秒ごと",
+        "z": "7feaabd51ac8013f",
+        "name": "Debug",
         "active": true,
         "tosidebar": true,
         "console": false,
-        "tostatus": true,
+        "tostatus": false,
         "complete": "payload",
         "targetType": "msg",
-        "x": 660,
-        "y": 820,
+        "x": 610,
+        "y": 920,
         "wires": []
     },
     {
         "id": "3dc5015b.96c97e",
         "type": "comment",
-        "z": "5de2cee3922f8186",
+        "z": "7feaabd51ac8013f",
         "name": "Limit rate of message transfer for each topic",
-        "info": "Delay node can limit of message transmission from input to output port by a specified number of message per a specified time.",
-        "x": 290,
-        "y": 900,
+        "info": "Delay node can limit of message transmission from input to output port by a specified number of message per a specified time.\nIf `For each topic` is selected, messages are grouped by `msg.topic` value.  When grouping messages by topic, intermediate messages are dropped and the last messages received sent.",
+        "x": 210,
+        "y": 1100,
         "wires": []
     },
     {
         "id": "bdafe4c6.4d5658",
         "type": "inject",
-        "z": "5de2cee3922f8186",
-        "name": "トピック別データ",
-        "props": [{"p": "payload"}, {"p": "topic", "vt": "str"}],
+        "z": "7feaabd51ac8013f",
+        "name": "例5: 実行",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
         "repeat": "",
         "crontab": "",
         "once": false,
@@ -1067,48 +1219,19 @@
         "topic": "",
         "payload": "[{\"topic\":\"apple\",\"payload\":1},{\"topic\":\"apple\",\"payload\":2},{\"topic\":\"apple\",\"payload\":3},{\"topic\":\"orange\",\"payload\":1},{\"topic\":\"orange\",\"payload\":2},{\"topic\":\"orange\",\"payload\":3},{\"topic\":\"banana\",\"payload\":1},{\"topic\":\"banana\",\"payload\":2},{\"topic\":\"banana\",\"payload\":3}]",
         "payloadType": "json",
-        "x": 260,
-        "y": 960,
-        "wires": [["f86dc462.195818"]]
-    },
-    {
-        "id": "f86dc462.195818",
-        "type": "split",
-        "z": "5de2cee3922f8186",
-        "name": "",
-        "splt": "\\n",
-        "spltType": "str",
-        "arraySplt": 1,
-        "arraySpltType": "len",
-        "stream": false,
-        "addname": "",
-        "x": 410,
-        "y": 960,
-        "wires": [["9feb3aac.616c38"]]
-    },
-    {
-        "id": "9feb3aac.616c38",
-        "type": "change",
-        "z": "5de2cee3922f8186",
-        "name": "topic設定",
-        "rules": [
-            {"t": "set", "p": "topic", "pt": "msg", "to": "payload.topic", "tot": "msg"},
-            {"t": "set", "p": "payload", "pt": "msg", "to": "payload.payload", "tot": "msg"}
-        ],
-        "action": "",
-        "property": "",
-        "from": "",
-        "to": "",
-        "reg": false,
-        "x": 560,
-        "y": 960,
-        "wires": [["e0bdfcc1.cdf48"]]
+        "x": 150,
+        "y": 1160,
+        "wires": [
+            [
+                "f86dc462.195818"
+            ]
+        ]
     },
     {
         "id": "e0bdfcc1.cdf48",
         "type": "delay",
-        "z": "5de2cee3922f8186",
-        "name": "トピック別最新",
+        "z": "7feaabd51ac8013f",
+        "name": "",
         "pauseType": "timed",
         "timeout": "5",
         "timeoutUnits": "seconds",
@@ -1119,30 +1242,145 @@
         "randomLast": "5",
         "randomUnits": "seconds",
         "drop": true,
-        "allowrate": false,
-        "outputs": 1,
-        "x": 740,
-        "y": 960,
-        "wires": [["29d8beea.6b37f2"]]
+        "x": 690,
+        "y": 1160,
+        "wires": [
+            [
+                "29d8beea.6b37f2"
+            ]
+        ]
     },
     {
         "id": "29d8beea.6b37f2",
         "type": "debug",
-        "z": "5de2cee3922f8186",
-        "name": "最新のみ",
+        "z": "7feaabd51ac8013f",
+        "name": "例5: 結果",
         "active": true,
         "tosidebar": true,
         "console": false,
-        "tostatus": true,
+        "tostatus": false,
         "complete": "false",
-        "x": 920,
-        "y": 960,
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 890,
+        "y": 1160,
+        "wires": []
+    },
+    {
+        "id": "f86dc462.195818",
+        "type": "split",
+        "z": "7feaabd51ac8013f",
+        "name": "",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "x": 290,
+        "y": 1160,
+        "wires": [
+            [
+                "9feb3aac.616c38"
+            ]
+        ]
+    },
+    {
+        "id": "9feb3aac.616c38",
+        "type": "change",
+        "z": "7feaabd51ac8013f",
+        "name": "set topic&amp;payload",
+        "rules": [
+            {
+                "t": "set",
+                "p": "topic",
+                "pt": "msg",
+                "to": "payload.topic",
+                "tot": "msg"
+            },
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "payload.payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 470,
+        "y": 1160,
+        "wires": [
+            [
+                "e0bdfcc1.cdf48"
+            ]
+        ]
+    },
+    {
+        "id": "949199e8.89bc88",
+        "type": "comment",
+        "z": "7feaabd51ac8013f",
+        "name": "↑ pass last message of each topic",
+        "info": "",
+        "x": 740,
+        "y": 1200,
         "wires": []
     }
-]
-            </div>
+]</div>
         </details>
-        
+
+        <h4>フローの読み解き</h4>
+        <p>フローには、公式サンプルの5つの例が、上から順に並んでいます。それぞれの先頭に、英語の comment ノードがあります。例の番号が、下のパターンの番号に当たります。delay ノードには名前が付いていないので、ここでは種類の名前で呼びます。</p>
+        <p>例1〜3 は、同じ作りです。inject の出力が2つに分かれ、一方はそのまま「すぐの出力」（debug）へ、もう一方は delay →「Goodbye, World!」（change）→「遅れた出力」（debug）へ進みます。change は、<code>msg.payload</code> を <code>Goodbye, World!</code> に書き換えます。遅れて届いたほうを、debug に出る文字で見分けるための作りです。</p>
+
+        <table>
+            <tr>
+                <th>例</th>
+                <th>comment ノードの見出し（意味）</th>
+                <th>delay の設定</th>
+                <th>ボタンを押すと出るもの</th>
+            </tr>
+            <tr>
+                <td><strong>例1</strong></td>
+                <td>Delay message（メッセージを遅らせる）</td>
+                <td>「動作」は「メッセージの遅延」で、「指定した時間遅延」の 3 秒</td>
+                <td>「例1: 実行」を押すと、すぐに「例1: すぐの出力」に <code>Hello, World!</code>、3秒後に「例1: 遅れた出力」に <code>Goodbye, World!</code></td>
+            </tr>
+            <tr>
+                <td><strong>例2</strong></td>
+                <td>Delay message by message property（msg のプロパティで決めた時間だけ遅らせる）</td>
+                <td>「msg.delay に遅延を設定」。遅らせる時間は、届いた msg の <code>msg.delay</code>（ミリ秒）で決まる</td>
+                <td>「例2: 1秒遅らせる」（<code>msg.delay</code> が 1000）を押すと、1秒後に「例2: 遅れた出力」に <code>Goodbye, World!</code>。「例2: 10秒遅らせる」（10000）では10秒後。「例2: すぐの出力」には、押したボタンに応じて <code>delay 1s</code> か <code>delay 10s</code> がすぐに出る</td>
+            </tr>
+            <tr>
+                <td><strong>例3</strong></td>
+                <td>Reset or flush pending message（待たせている msg を、取り消す・すぐ出す）</td>
+                <td>「指定した時間遅延」の 1 分。待っている間に、「reset」「flush」（inject）で操作する</td>
+                <td>「例3: 実行」を押したあと、1分たつ前に「flush」を押すと、待っていた msg がすぐに「例3: 遅れた出力」に出る。「reset」を押すと、待っていた msg は捨てられ、1分たっても何も出ない。何も押さなければ、1分後に出る</td>
+            </tr>
+            <tr>
+                <td><strong>例4</strong></td>
+                <td>Slow down messages passing through a flow（フローを流れる msg を遅くする）</td>
+                <td>「動作」は「メッセージの流量制限」で、1秒に1メッセージ。前に split があり、配列を1個ずつの msg に分ける</td>
+                <td>「Inject Array」（<code>[0,1,…,9]</code> を送る）を押すと、「Debug」に <code>0</code> から <code>9</code> が、1秒に1つずつ出る</td>
+            </tr>
+            <tr>
+                <td><strong>例5</strong></td>
+                <td>Limit rate of message transfer for each topic（トピックごとに、msg を送る頻度を制限する）</td>
+                <td>「メッセージの流量制限」の「msg.topic毎」で、流量は2秒に1メッセージ、「中間メッセージを削除」、「指定した時間後にキューにある全トピックのメッセージを出力」。前の split と「set topic&amp;payload」（change）が、配列の各要素を <code>msg.topic</code> と <code>msg.payload</code> の付いた msg にする</td>
+                <td>「例5: 実行」（apple・orange・banana の3つのトピックに、値 1、2、3 を続けて送る）を押すと、2秒以内に、「例5: 結果」に、トピックごとの最後の値（apple の <code>3</code>、orange の <code>3</code>、banana の <code>3</code>）だけがまとめて出る。途中の 1 と 2 は捨てられる</td>
+            </tr>
+        </table>
+
+        <ul>
+            <li><strong>例3の flush で、出力が2つ出る:</strong> 「flush」を押すと、「例3: 遅れた出力」に <code>Goodbye, World!</code> が2つ出ます。1つは待っていた msg、もう1つは「flush」のボタンが送った msg 自身です。公式サンプルの「flush」は <code>msg.flush</code> のほかに <code>msg.topic</code> も付けて送るので、delay がその msg も通します（<code>msg.flush</code> だけの msg なら通しません）。</li>
+            <li><strong>待っている msg の数:</strong> 待たせる時間が 1 秒より長い delay ノードは、待っている msg の数を、ノードの下に青い丸と数字で表示します。例3で「例3: 実行」を2回押すと 2 になり、「reset」か「flush」で 0 に戻ります。</li>
+            <li><strong>例5の下の comment:</strong> 「↑ pass last message of each topic」は、「トピックごとの最後の msg を通す」という意味で、すぐ上の delay ノードの説明です。</li>
+        </ul>
+
         <h3>パターン1: 固定時間の遅延</h3>
         <p><strong>用途:</strong> 一定時間を置いてからのメッセージ送出</p>
         
@@ -1168,7 +1406,9 @@
 遅延時間: 3秒
 
 入力: 10:00:00 に "Hello, World!"
-出力: 10:00:03 に "Hello, World!"（3秒後）</div>
+出力: 10:00:03 に、3秒遅れて届く
+      （サンプルフローでは、遅れたほうを見分けられるよう、
+        途中の change が "Goodbye, World!" に書き換えている）</div>
         
         <h3>パターン2: msg.delayによる動的遅延</h3>
         <p><strong>用途:</strong> メッセージごとに異なる遅延時間を設定</p>
@@ -1208,7 +1448,7 @@
                 <span class="merge-row"><span class="node node-inject">reset</span><span class="arrow">→</span></span>
                 <span class="merge-row"><span class="node node-inject">flush</span><span class="arrow">→</span></span>
             </span>
-            <span class="node node-delay">Delay<br><small>(10秒)</small></span>
+            <span class="node node-delay">Delay<br><small>(1分)</small></span>
             <span class="arrow">→</span>
             <span class="node node-debug">Debug</span>
         </div>
@@ -1223,13 +1463,13 @@
         
         <p><strong>設定例:</strong></p>
         <div class="code-block">Resetの場合:
-  1. メッセージを送信（10秒遅延開始）
-  2. 5秒後にresetを送信
+  1. メッセージを送信（1分の遅延開始）
+  2. 1分たつ前にresetを送信
   3. 待機中のメッセージは破棄される（出力なし）
 
 Flushの場合:
-  1. メッセージを送信（10秒遅延開始）
-  2. 5秒後にflushを送信
+  1. メッセージを送信（1分の遅延開始）
+  2. 1分たつ前にflushを送信
   3. 待機中のメッセージが即座に出力される</div>
         
         <h3>パターン4: レート制限（流量制御）</h3>
@@ -1307,7 +1547,7 @@ Flushの場合:
   orange:1 → orange:2 → orange:3
   banana:1 → banana:2 → banana:3
 
-出力（2秒後）:
+出力（2秒ごとの区切りで。押してから2秒以内）:
   apple:3（最新のみ）
   orange:3（最新のみ）
   banana:3（最新のみ）</div>
@@ -2092,12 +2332,12 @@ Delayノード（レート: 1msg/分）
         <h3>ノードステータスの意味</h3>
         
         <div style="margin: 15px 0;">
-            <span class="status-indicator status-queued">⏳ 3 queued</span>
-            <span style="margin-left: 10px;">= キューに3メッセージ待機中</span>
+            <span class="status-indicator status-queued">🔵 3</span>
+            <span style="margin-left: 10px;">= 待っているメッセージが3件ある（青い丸と数字。遅延では、待たせる時間が1秒より長いときに表示される）</span>
         </div>
         <div style="margin: 15px 0;">
-            <span class="status-indicator status-active">🟢 rate limited</span>
-            <span style="margin-left: 10px;">= レート制限が有効</span>
+            <span class="status-indicator status-active">🔵 0</span>
+            <span style="margin-left: 10px;">= 待っているメッセージが無い</span>
         </div>
         
         <h2>9. 追加リソース</h2>
