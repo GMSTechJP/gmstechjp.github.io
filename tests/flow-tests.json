@@ -255,6 +255,10 @@
                         "contains": "\"timezone\":\"Asia/Tokyo\""
                     },
                     {
+                        "debug": "時刻表示",
+                        "match": "\"formatted\":\"\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}\""
+                    },
+                    {
                         "debug": "クライアントエラー (4xx)",
                         "contains": "404"
                     }
@@ -292,7 +296,7 @@
                 ],
                 "external": [
                     "postman-echo.com",
-                    "timeapi.io"
+                    "time.now"
                 ]
             },
             "ex1_tab": {
@@ -312,15 +316,15 @@
                 "expect": [
                     {
                         "debug": "NY時刻",
-                        "contains": "\"timeZone\":\"America/New_York\""
+                        "contains": "\"timezone\":\"America/New_York\""
                     },
                     {
                         "debug": "NY時刻",
-                        "contains": "\"dateTime\":"
+                        "match": "\"datetime\":\"\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?-0[45]:00\""
                     }
                 ],
                 "external": [
-                    "timeapi.io"
+                    "time.now"
                 ]
             },
             "ex3_tab": {
@@ -376,16 +380,16 @@
                 "requests": [
                     {
                         "path": "/api/tokyo-time",
-                        "match": "^\\{\"timeZone\":\"Asia/Tokyo\",\"date\":\"\\d{2}/\\d{2}/\\d{4}\",\"time\":\"\\d{2}:\\d{2}\",\"dayOfWeek\":\"\\w+\"\\}$",
+                        "match": "^\\{\"timezone\":\"Asia/Tokyo\",\"datetime\":\"\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?\\+09:00\",\"utc_offset\":\"\\+09:00\",\"abbreviation\":\"JST\"\\}$",
                         "not_contains": [
-                            "year",
-                            "milliSeconds"
+                            "client_ip",
+                            "unixtime"
                         ],
                         "content_type": "application/json"
                     }
                 ],
                 "external": [
-                    "timeapi.io"
+                    "time.now"
                 ]
             },
             "ex6_tab": {
