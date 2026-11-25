@@ -496,8 +496,8 @@ python3 scripts/live-check-flow.py nodered-mqtt-node-guide.html --blocks 2,3 \
 - 既存のタブには触れない。ノードの ID にはブロックごとの接頭辞を付けるので、同じフローが
   読み込み済みでも重ならない。エディターで未デプロイの変更があると「サーバー側でフローが
   更新された」と通知が出るため、利用者の Node-RED で実行する前に一言断る
-- ID を変えても重なるもの（websocket-listener のパス、http in の URL、TCP・UDP の待ち受け
-  ポート、MQTT ブローカー設定の固定のクライアント ID）が既存のフローと重なるときは、
+- ID を変えても重なるもの（websocket-listener のパス、http in の URL、TCP・UDP・ftp server の
+  待ち受けポート、MQTT ブローカー設定の固定のクライアント ID）が既存のフローと重なるときは、
   追加せずに中止する（終了コード 2）。同じ待ち受けを2つ置くと利用者のフローが動かなくなり、
   同じクライアント ID で接続するとブローカーが先の接続を切るため。確かめるには、エディターで
   既存のタブを無効にするなど、利用者の了解を得てから行う
@@ -576,11 +576,16 @@ python3 scripts/live-check-flow.py nodered-mqtt-node-guide.html --blocks 2,3 \
   演習の成功の条件に書いた curl をそのまま写し、`status`・`contains`・`not_contains`・
   `match`・`content_type` で応答を確かめる。作成した ID を後のリクエストで使うときは
   `"save": {"id": "note.id"}` で覚え、`path` に `{id}` と書く
+- `ftp_uploads` は、テストの実行役が FTP で送るファイル（ガイドの `curl -T` の代わり）。
+  `port`・`user`・`password`・`file`・`body` を書き、`"refused": true` はログインが断られることを
+  確かめる（誤ったパスワードで送るなど）。動かすタブの ftp server の待ち受けには、`ftp_uploads` で
+  送るか、同じフローの ftp in が localhost でつなぐ（どちらも無いと失敗）
 - エラーの経路（つながらない相手を呼ぶなど）をわざと通してステータスが赤になるノードは、
   `allow_status` に名前と理由を書く。書かないと、赤のステータスは不合格になる
-- 公開の外部 API（timeapi.io など）を呼ぶ部分も、manual にせず動かす。外部の API が
-  使えなくなると、演習の時間の利用者も同じところで止まるため。呼ぶホストは `external` に
-  書く（書き漏らすと失敗）。PR の CI（validate.yml）では不合格にし、デプロイの前
+- 公開の外部 API（timeapi.io など）や公開の試験用サーバー（FTP・SFTP の test.rebex.net など）を
+  使う部分も、manual にせず動かす。外部のサービスが使えなくなると、演習の時間の利用者も
+  同じところで止まるため。http request が呼ぶホストと、ftp in・sftp in の設定ノードの接続先は
+  `external` に書く（書き漏らすと失敗）。PR の CI（validate.yml）では不合格にし、デプロイの前
   （deploy.yml）では警告にとどめる。外部のサービスが一時的に止まっただけで、ほかの修正の
   公開を止めないため。警告が続くときは、ガイドの API を見直す
 - 2台の PC で通信する演習など、送り先が手元に無いフローは、`override` でノードの設定を
@@ -594,8 +599,8 @@ python3 scripts/live-check-flow.py nodered-mqtt-node-guide.html --blocks 2,3 \
 # 記載の漏れだけ調べる（Node-RED 不要）
 python3 scripts/test-flows.py --coverage
 
-# 手元の Node-RED で動かす。読み込み済みのフローとポートが重ならないよう、TCP・UDP の
-# ポートをずらす（一時的なタブを足して、終わったら消す）
+# 手元の Node-RED で動かす。読み込み済みのフローとポートが重ならないよう、TCP・UDP・
+# ftp server のポートをずらす（一時的なタブを足して、終わったら消す）
 python3 scripts/test-flows.py --port-offset 10000 --guide nodered-tcp-node-guide.html
 
 # CI と同じ手順（空の Node-RED を別のポートで起動する）
@@ -606,6 +611,10 @@ NODE_RED_PORT=18800 PORT_OFFSET=20000 bash scripts/ci-flow-tests.sh
   一度流して、不合格になることを確かめる
 - MQTT の外部ブローカー、Dashboard 2.0、サードパーティのノードを使うガイドを対象に入れる
   ときは、CI にブローカーやノードの導入を足す（入れる前に相談する）
+- CI に入れたサードパーティのノードは、`scripts/ci-flow-tests.sh` で、版を固定し、インストール時の
+  スクリプトを実行せずに入れる（今は FTP ガイドの node-red-contrib-ftp 0.0.8 と
+  node-red-contrib-ftp-server 1.0.4）。版は `gen-node-schemas.mjs` の `PACKAGES` と合わせる。
+  `--save-exact` を外さない（版を範囲で記録すると、2回目の `npm install` が Node-RED の版を上げる）
 
 ### 環境バッジ（☁️ クラウドOK）との整合性
 
@@ -1328,8 +1337,9 @@ curl -o inject-source.html \
 | 2026-11-06 | 1.13.0 | 枠からはみ出す表を、js/table-fit.js が枠の中でスクロールさせ、案内を表示する決まりを追加 |
 | 2026-11-07 | 1.14.0 | 狭い画面で列が潰れた表に幅を確保する決まりと、見出しと部品の折り返しを整える共有スタイル（css/text-wrap.css）を追加 |
 | 2026-11-13 | 1.15.0 | 設定・選択が要る欄に、エディターで選べる値が入っているかの検査（scripts/check-node-properties.py、tests/node-schemas.json、scripts/gen-node-schemas.mjs）を追加 |
+| 2026-11-24 | 1.16.0 | フローを CI で動かす仕組みに、FTP で送る ftp_uploads、ftp・sftp の接続先の external、ftp server の待ち受けの重なりの検査を追加。対象に FTP・SFTP を追加 |
 
 ---
 
 **作成者**: Claude Sonnet 4.5
-**最終更新**: 2026-11-13
+**最終更新**: 2026-11-24

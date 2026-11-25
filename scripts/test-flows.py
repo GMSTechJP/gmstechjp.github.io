@@ -27,7 +27,11 @@ tests/flow-tests.json に載せたガイド（対象のガイド）では、次�
   "save": {"id": "note.id"} で応答の値を覚え、後の path に {id} と書いて使える
 - エラーの経路をわざと通すとき、そのノードのステータスが赤・黄になるのを許すには、
   "allow_status" にノードの名前と理由を書く
-- http request が手元以外のホスト（外部の API など）を呼ぶときは、そのホストを "external" に書く。
+- ftp server の待ち受けは、"ftp_uploads" で送るか、同じフローの ftp in が localhost でつなぐ。
+  "ftp_uploads" は、テストの実行役が FTP で送るファイル（ガイドの curl -T の代わり）。
+  {"port", "user", "password", "file", "body"} で、"refused": true はログインが断られることを確かめる
+- http request が手元以外のホスト（外部の API など）を呼ぶとき、ftp in・sftp in の設定ノードが
+  手元以外につなぐときは、そのホストを "external" に書く。
   --external-warn を付けると、その記載の不合格は警告にとどめる（デプロイの前に使う。
   外部のサービスが一時的に止まっただけで、ほかの修正の公開を止めないため）
 - 記載のタブがガイドに無い（タブの ID を変えた・消した）ときも失敗にする
@@ -66,9 +70,11 @@ _spec.loader.exec_module(live)
 
 ENTRY_KEYS = {"expect", "inject", "with", "covered_by", "manual", "skip_inject", "skip_debug",
               "requests", "skip_http", "allow_status", "external", "override", "wait", "after", "gap",
-              "allow_unsafe", "note"}
+              "allow_unsafe", "ftp_uploads", "note"}
 REQUEST_KEYS = {"method", "path", "json", "body", "headers", "status", "contains", "not_contains",
                 "match", "content_type", "save"}
+UPLOAD_KEYS = {"port", "user", "password", "file", "body", "refused"}
+LOCAL_HOSTS = ("localhost", "127.0.0.1")
 # 同じフローの http request が待ち受けを呼んでいると見なす送り先（このサイトのフローは 1880 を使う）
 SELF_HOSTS = ("localhost:1880", "127.0.0.1:1880")
 DEFAULTS = {"wait": 3, "after": 3, "gap": 1}
@@ -128,16 +134,43 @@ def self_calls(flow):
 
 
 def external_hosts(flow, override):
-    """http request が設定の URL で呼ぶ、手元以外のホスト（override で書き換えた後の値で見る）。"""
+    """http request が設定の URL で呼ぶホストと、ftp in・sftp in が使う設定ノードの接続先のうち、
+    手元以外のもの（override で書き換えた後の値で見る）。"""
     hosts = set()
-    for n in flow:
-        if n.get("type") != "http request" or n.get("d"):
+    nodes = {n["id"]: {**n, **override.get(n["id"], {})} for n in flow}
+    for n in nodes.values():
+        if n.get("d"):
             continue
-        u = str({**n, **override.get(n["id"], {})}.get("url") or "")
-        host = urllib.parse.urlsplit(u).hostname
-        if host and host not in ("localhost", "127.0.0.1") and "{{" not in u:
-            hosts.add(host)
+        if n.get("type") == "http request":
+            u = str(n.get("url") or "")
+            host = urllib.parse.urlsplit(u).hostname
+            if host and host not in LOCAL_HOSTS and "{{" not in u:
+                hosts.add(host)
+        elif n.get("type") in ("ftp in", "sftp in"):
+            conf = nodes.get(n.get("ftp") or n.get("sftp") or "", {})
+            # 設定ノードのホストが空のときは、ノードが localhost につなぐ
+            host = str(conf.get("host") or "localhost")
+            if host not in LOCAL_HOSTS:
+                hosts.add(host)
     return hosts
+
+
+def ftp_servers(flow, override):
+    """有効な ftp server ノードの待ち受けポート（override で書き換えた後の値で見る）。"""
+    nodes = [{**n, **override.get(n["id"], {})} for n in flow]
+    return {str(n.get("port") or 7021) for n in nodes if n.get("type") == "ftp-server" and not n.get("d")}
+
+
+def local_ftp_ports(flow, override):
+    """有効な ftp in が、設定ノードで手元（localhost）につなぐポート。"""
+    nodes = {n["id"]: {**n, **override.get(n["id"], {})} for n in flow}
+    ports = set()
+    for n in nodes.values():
+        if n.get("type") == "ftp in" and not n.get("d"):
+            conf = nodes.get(n.get("ftp") or "", {})
+            if str(conf.get("host") or "localhost") in LOCAL_HOSTS:
+                ports.add(str(conf.get("port") or 21))
+    return ports
 
 
 def check_entry(guide, tab, entry, spec, by_tab):
@@ -216,13 +249,29 @@ def check_entry(guide, tab, entry, spec, by_tab):
     for key, reason in entry.get("skip_http", {}).items():
         if not str(reason).strip():
             errs.append(f"{where}: 「{key}」を確かめない理由を書く")
+    # ftp server の待ち受けは、ftp_uploads で送るか、同じフローの ftp in が localhost でつなぐ
+    for u in entry.get("ftp_uploads", []):
+        if set(u) - UPLOAD_KEYS or not str(u.get("file", "")).strip() \
+                or not str(u.get("port", "")).isdigit() or "/" in str(u.get("file", "")):
+            errs.append(f"{where}: ftp_uploads の書き方が誤っている（port は数字、file は / を含まない名前）: {u}")
+        if not isinstance(u.get("refused", False), bool):
+            errs.append(f"{where}: ftp_uploads の refused は true か false で書く: {u}")
+    # ログインが断られることだけでは、受け取れることを確かめていない。成功する送信を数える
+    reached = {str(u.get("port")) for u in entry.get("ftp_uploads", []) if u.get("refused") is not True} | \
+        local_ftp_ports(flow, entry.get("override", {}))
+    servers = ftp_servers(flow, entry.get("override", {}))
+    for port in sorted(servers - reached):
+        errs.append(f"{where}: ftp server の待ち受け（ポート {port}）に、ftp_uploads で送るか"
+                    "（refused でないものを1件以上）、同じフローの ftp in で localhost からつなぐ")
+    for port in sorted({str(u.get("port")) for u in entry.get("ftp_uploads", [])} - servers):
+        errs.append(f"{where}: ftp_uploads のポート {port} で待ち受ける ftp server が、動かすブロックに無い")
     # 外部のサービスに頼る部分は、どのホストに頼るかを external に書く（CI で扱いを分けるため）
     needed = external_hosts(flow, entry.get("override", {}))
     listed = set(entry.get("external", []))
     for host in sorted(needed - listed):
         errs.append(f"{where}: 外部のホスト {host} を呼んでいる。external に書く")
     for host in sorted(listed - needed):
-        errs.append(f"{where}: external の {host} を、動かすブロックの http request が呼んでいない")
+        errs.append(f"{where}: external の {host} を、動かすブロックの http request・ftp in・sftp in が使っていない")
     for name, reason in entry.get("allow_status", {}).items():
         if not any(n.get("name") == name for n in flow):
             errs.append(f"{where}: allow_status のノード「{name}」が、動かすブロックに無い")
@@ -268,13 +317,28 @@ def untargeted(spec_all):
 
 # 待ち受けと接続先のポート番号を持つノードと、その欄
 PORT_FIELDS = {"tcp in": ("port",), "tcp out": ("port",), "tcp request": ("port",),
-               "udp in": ("port",), "udp out": ("port", "outport")}
+               "udp in": ("port",), "udp out": ("port", "outport"), "ftp-server": ("port",)}
+
+
+def shift_port(value, offset):
+    """ポート番号を offset だけずらす。数値は数値のまま、文字列は文字列のまま返す。"""
+    if isinstance(value, int) and not isinstance(value, bool):
+        return value + offset
+    if str(value).isdigit():
+        return str(int(value) + offset)
+    return value
+
+
+def shift_range(value, offset):
+    """"7022-7032" のようなポートの範囲を offset だけずらす。"""
+    return re.sub(r"\d+", lambda m: str(int(m.group()) + offset), str(value)) if value else value
 
 
 def apply_override(block, override, port_offset=0, node_red_port=1880):
     """ノードの設定を書き換えた写しを返す（例: 相手の PC の IP を 127.0.0.1 にする）。
 
-    port_offset を指定すると、TCP・UDP のポート番号をずらす。手元の Node-RED で、
+    port_offset を指定すると、TCP・UDP・ftp server のポート番号（ftp server のパッシブモードの
+    範囲と、localhost につなぐ ftp の設定ノードのポートを含む）をずらす。手元の Node-RED で、
     利用者が読み込み済みの同じフロー（同じポートで待ち受けている）と重ならないようにするため。
     node_red_port が 1880 でないときは、フローが自分自身を呼ぶ :1880 を、
     動かしている Node-RED のポートに書き換える（手元で別のポートに起動して動かすため）。
@@ -282,9 +346,16 @@ def apply_override(block, override, port_offset=0, node_red_port=1880):
     b = copy.deepcopy(block)
     for n in b["flow"]:
         n.update(override.get(n["id"], {}))
-        for field in PORT_FIELDS.get(n.get("type"), ()):
-            if port_offset and str(n.get(field, "")).isdigit():
-                n[field] = str(int(n[field]) + port_offset)
+        if port_offset:
+            if n.get("type") == "ftp-server":
+                n.setdefault("port", 7021)  # 欄が無いときの既定のポートも、ずらす
+            for field in PORT_FIELDS.get(n.get("type"), ()):
+                if field in n:
+                    n[field] = shift_port(n[field], port_offset)
+            if n.get("type") == "ftp-server":
+                n["passiveportrange"] = shift_range(n.get("passiveportrange"), port_offset)
+            if n.get("type") == "ftp" and str(n.get("host") or "localhost") in LOCAL_HOSTS:
+                n["port"] = shift_port(n.get("port") or "21", port_offset)
         if node_red_port != 1880 and n.get("type") != "comment":
             for k, v in n.items():
                 n[k] = to_port(v, node_red_port)
@@ -315,7 +386,7 @@ def main():
     ap.add_argument("--external-warn", action="store_true",
                     help="外部のサービスに頼る記載（external）の不合格を、警告にとどめる（デプロイの前に使う）")
     ap.add_argument("--port-offset", type=int, default=0,
-                    help="TCP・UDP のポート番号をずらして動かす（手元で、読み込み済みのフローと重ならないように）")
+                    help="TCP・UDP・ftp server のポート番号をずらして動かす（手元で、読み込み済みのフローと重ならないように）")
     args = ap.parse_args()
     url = args.url.rstrip("/")
 
@@ -372,10 +443,12 @@ def main():
             picked = [apply_override(by_tab[t], entry.get("override", {}), args.port_offset, port)
                       for t in [tab] + entry.get("with", [])]
             opts = {k: entry.get(k, v) for k, v in DEFAULTS.items()}
+            uploads = [dict(u, port=int(u["port"]) + args.port_offset)
+                       for u in entry.get("ftp_uploads", [])]
             try:
                 code = live.check(url, picked, f"{guide} {tab}",
                                   inject=entry.get("inject", []), expect=entry["expect"],
-                                  requests=entry.get("requests", []),
+                                  requests=entry.get("requests", []), ftp_uploads=uploads,
                                   allow_status=set(entry.get("allow_status", {})),
                                   allow_unsafe=entry.get("allow_unsafe", False), **opts)
             except live.LiveCheckError as e:

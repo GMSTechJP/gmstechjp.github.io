@@ -21,7 +21,13 @@ if curl -s -m 2 -o /dev/null "http://localhost:$NODE_RED_PORT/"; then
     exit 2
 fi
 
-npm install --prefix "$WORK/app" --no-audit --no-fund --loglevel=error "node-red@$NODE_RED_VERSION"
+# --save-exact: 版を範囲（^5.0.7）で記録すると、次の npm install が Node-RED を新しい版に上げてしまう
+npm install --prefix "$WORK/app" --no-audit --no-fund --loglevel=error --save-exact "node-red@$NODE_RED_VERSION"
+# 対象のガイドが使うサードパーティのノード。版は scripts/gen-node-schemas.mjs の PACKAGES と合わせる。
+# インストール時のスクリプトは実行しない（あるのは ssh2 と cpu-features の、任意のネイティブの
+# 高速化のビルドだけで、無くても ssh2 は JavaScript だけで動く）
+npm install --prefix "$WORK/app" --no-audit --no-fund --loglevel=error --save-exact --ignore-scripts \
+    node-red-contrib-ftp@0.0.8 node-red-contrib-ftp-server@1.0.4
 
 "$WORK/app/node_modules/.bin/node-red" --userDir "$WORK/user" --port "$NODE_RED_PORT" > "$LOG" 2>&1 &
 PID=$!

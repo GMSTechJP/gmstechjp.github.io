@@ -1724,6 +1724,10 @@ sudo ufw allow from 192.168.1.0/24 to any port 7022:7032 proto tcp</div>
         "ip": "",
         "port": 7021,
         "passiveportrange": "7022-7032",
+        "credentials": {
+            "username": "camera",
+            "password": "change-me"
+        },
         "x": 190,
         "y": 140,
         "wires": [
@@ -1877,7 +1881,10 @@ sudo ufw allow from 192.168.1.0/24 to any port 7022:7032 proto tcp</div>
 ]</div>
                 <p>switch ノードの正規表現のルールでは「大文字、小文字を区別しない」をオンにしてある。カメラは <code>photo.JPG</code> のように拡張子を大文字で付けることが多く、区別すると画像が「その他」へ振り分けられてしまう。</p>
                 <p>分岐を function ノードの複数出力ではなく switch ノードで書いているのは、条件をエディター上で読めるようにするためである。振り分けの規則を後から変える人は、コードを開かずに済む。</p>
-                <p><code>ftp server</code> ノードの出力2（動的認証）は、この例では Username を設定して使わない前提のため、配線を空にしてある。</p>
+                <p><code>ftp server</code> ノードには、Username に <code>camera</code>、Password に <code>change-me</code> を設定してある（フローでは <code>"credentials"</code> に書いてある）。Username を設定すると動的認証を使わないので、出力2の配線は空のままでよい。Username を空にしたまま出力2をどこにも繋がないと、認証の返事をする相手がいないため、ログインが終わらず、ファイルを1つも受け取れない。</p>
+                <p>動作を確かめるには、デプロイしたあと、ターミナルで画像と CSV を1つずつ送る。debug に <code>/tmp/inbox/images/photo.JPG</code> と <code>/tmp/inbox/others/reading.csv</code> が出れば振り分けられている。</p>
+                <div class="code-block">curl -T photo.JPG ftp://localhost:7021/ --user camera:change-me
+curl -T reading.csv ftp://localhost:7021/ --user camera:change-me</div>
             </details>
         </div>
 
