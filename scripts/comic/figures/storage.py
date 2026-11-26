@@ -83,4 +83,97 @@ def ftp():
     return p
 
 
-FIGURES = {'file-write': file_write, 'file-read': file_read, 'watch-basic': watch, 'sqlite-basic': sqlite, 'ftp-get': ftp}
+# ---- FTP ガイドの演習の図（どんな処理を作るか） ----------------------------
+# 解答のノードは描かない。入るものと出るものだけを描き、作る部分は「作るフロー」とする。
+
+MONO = "'Courier New', monospace"
+
+
+def mono(x, y, t, fs=10, fill=INK, anchor='start'):
+    """等幅の文字（ファイル名、パス）"""
+    return (f'<text x="{x}" y="{y}" font-size="{fs}" fill="{fill}" text-anchor="{anchor}" '
+            f'font-family="{MONO}" style="white-space:pre">{esc(t)}</text>')
+
+
+def folder(x, y, w, h, label, note=None):
+    """フォルダ（左上につまみの付いた箱）。(x, y) は左上。中身は呼び出し側で描く"""
+    s = [f'<path d="M{x} {y} h40 l8 8 h{w-48} v{h-8} h-{w} z" fill="#fff8e1" stroke="{INK}" stroke-width="1.8"/>',
+         text(x + 8, y + 25, label, 11, INK, 'start', 'bold')]
+    if note:
+        s.append(text(x + w - 8, y + 25, note, 9, '#546e7a', 'end'))
+    return ''.join(s)
+
+
+def subfolder(x, y, w, name, new=False):
+    """フォルダの中の小さいフォルダ。new は、今回できたもの（色と文字の両方で示す）"""
+    fill, stroke = ('#fff59d', ORANGE) if new else ('#ffe082', INK)
+    s = [f'<path d="M{x} {y} h16 l4 4 h{w-20} v22 h-{w} z" fill="{fill}" stroke="{stroke}" stroke-width="1.5"/>',
+         mono(x + 8, y + 19, name)]
+    if new:
+        s.append(text(x + w - 6, y + 19, 'できる', 9, ORANGE, 'end', 'bold'))
+    return ''.join(s)
+
+
+def filerow(x, y, w, name, keep=True):
+    """フォルダの中のファイル 1 件。keep は、取り出す対象かどうか（色と × の両方で示す）"""
+    if keep:
+        return (f'<rect x="{x}" y="{y}" width="{w}" height="22" rx="3" fill="#e8f5e9" stroke="{GREEN}" stroke-width="1.5"/>'
+                + mono(x + 7, y + 15, name))
+    return (f'<rect x="{x}" y="{y}" width="{w}" height="22" rx="3" fill="#eceff1" stroke="#90a4ae" stroke-width="1.5"/>'
+            + mono(x + 7, y + 15, name, fill='#546e7a') + xmark(x + w - 12, y + 11, 4))
+
+
+def ftp_ex1():
+    p = Panel('日を変えて実行するたびに、その日の日付を名前にしたフォルダが、FTP サーバーの /upload の下に 1 つずつ増えていく（作ったフォルダを残すサーバーの場合）', 560, 190, 'ftpx1')
+    days = [('8月11日に実行', ['2026-08-11']),
+            ('8月12日に実行', ['2026-08-11', '2026-08-12']),
+            ('8月13日に実行', ['2026-08-11', '2026-08-12', '2026-08-13'])]
+    for i, (title, names) in enumerate(days):
+        x = 12 + 186 * i
+        p.add(text(x + 82, 20, title, 12, INK, weight='bold'),
+              folder(x, 32, 164, 148, '/upload', 'サーバーの中'))
+        for j, name in enumerate(names):
+            p.add(subfolder(x + 14, 66 + 36 * j, 136, name, new=(j == len(names) - 1)))
+        if i < len(days) - 1:
+            p.arrow(x + 167, 106, x + 183, 106, INK, 2)
+    return p
+
+
+def ftp_ex2():
+    p = Panel('SFTP サーバーの /pub/example にある .png と readme.txt のうち、名前が .png で終わるものだけを、ファイル名の配列にして送り出す', 560, 200, 'ftpx2')
+    p.add(folder(10, 14, 186, 176, '/pub/example', 'サーバーの中'))
+    files = [('imap-console-client.png', True), ('KeyGenerator.png', True), ('readme.txt', False), ('WinFormClient.png', True)]
+    for j, (name, keep) in enumerate(files):
+        p.add(filerow(20, 48 + 28 * j, 166, name, keep))
+    p.add(text(103, 177, '… ほかにも .png がある', 10, INK))
+    p.add(pc(268, 92, 'happy', '作るフロー'),
+          text(268, 148, '.png だけ残す', 11, GREEN, weight='bold'),
+          text(268, 166, 'readme.txt は入れない', 10, RED))
+    p.arrow(200, 92, 240, 92, GREEN, 2)
+    c, w, h = msgcard(340, 40, ['payload: [', '  "imap-console-client.png",', '  "KeyGenerator.png",', '  …', ']'],
+                      '出ていく msg', stroke='#7cb342')
+    p.arrow(296, 92, 336, 92, GREEN, 2)
+    p.add(c)
+    return p
+
+
+def ftp_ex3():
+    p = Panel('カメラや計測器から FTP で届いたファイルを拡張子で見分けて、画像は /tmp/inbox/images/ へ、それ以外は /tmp/inbox/others/ へ保存する', 560, 200, 'ftpx3')
+    p.add(text(66, 26, 'カメラが送る', 11, INK, weight='bold'), doc(14, 34, [], 'photo.JPG', 104),
+          text(66, 124, '計測器が送る', 11, INK, weight='bold'), doc(14, 132, [], 'reading.csv', 104))
+    p.arrow(124, 52, 218, 86, INK, 2)
+    p.arrow(124, 142, 218, 100, INK, 2)
+    p.add(text(166, 100, 'FTP で送信', 10, INK))
+    p.add(text(245, 60, '拡張子で見分ける', 11, INK, weight='bold'),
+          pc(245, 92, 'happy', '作るフロー'))
+    p.add(folder(372, 12, 178, 82, '/tmp/inbox/images/'), doc(392, 48, [], 'photo.JPG', 104),
+          folder(372, 106, 178, 82, '/tmp/inbox/others/'), doc(392, 142, [], 'reading.csv', 104))
+    p.arrow(272, 84, 368, 56, GREEN, 2)
+    p.arrow(272, 100, 368, 146, BLUE, 2)
+    p.add(text(314, 58, '画像', 10, GREEN, weight='bold'),
+          text(300, 142, 'それ以外', 10, BLUE, weight='bold'))
+    return p
+
+
+FIGURES = {'file-write': file_write, 'file-read': file_read, 'watch-basic': watch, 'sqlite-basic': sqlite, 'ftp-get': ftp,
+           'ftp-ex1-mkdir': ftp_ex1, 'ftp-ex2-png': ftp_ex2, 'ftp-ex3-sort': ftp_ex3}
