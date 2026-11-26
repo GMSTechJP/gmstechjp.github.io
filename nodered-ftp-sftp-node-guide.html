@@ -18,7 +18,8 @@
         .important { background-color: #eceff1; border-left: 4px solid #37474f; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
         .tip { background-color: #e8f5e9; border-left: 4px solid #4caf50; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
         /* 手順の箇条書き。入れ子で字下げが重なるので、狭い画面でも本文の幅が残るよう詰める */
-        #try-local ol, #try-local ul, #ex4-lan ol, #ex4-lan ul { padding-left: 1.4em; }
+        #try-local ol, #try-local ul, #ex4-lan ol, #ex4-lan ul, #ex3-sort ol, #ex3-sort ul { padding-left: 1.4em; }
+        .exercise code { overflow-wrap: anywhere; }
         .warning { background-color: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
         .danger { background-color: #ffebee; border-left: 4px solid #e53935; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
         .thirdparty { background: linear-gradient(135deg, #eceff1 0%, #cfd8dc 100%); border: 2px solid #607d8b; border-radius: 8px; padding: 18px 22px; margin: 20px 0; }
@@ -1613,7 +1614,10 @@ curl.exe -T reading.csv ftp://localhost:7021/ --user camera:change-me</div>
             <p><strong>成功の条件:</strong> ボタンを押すと、自分のフローの debug に <code>mkdir operation successful.</code> が出る。サーバーのサンプルフローの「認証の記録」の debug には、ユーザー名 <code>camera</code> と判定「許可」が出る。サーバーのサンプルフローをデプロイしていないと、ノードの下に赤いステータスが出て、デバッグのサイドバーには接続のエラーが出る。自分のフローの debug ノードには何も届かない。</p>
             <p>このサーバーは、接続のたびに空のファイルシステムを作り直す。作ったフォルダは残らないので、一覧では確かめられない。自分の FTP サーバーがあるときは、接続設定をそのサーバーに書き換えて、フォルダができたことをサーバー側で確かめるとよい。</p>
 
-            <p><strong>ヒント：</strong> 「ファイル名」の欄を空にしておくと、<code>msg.filename</code> の値が使われる。日付入りのパスは、Change ノードの「値の代入」で <code>msg.filename</code> に「JSONata式」型の <code>"/upload/" &amp; $now("[Y0001]-[M01]-[D01]", "+0900")</code> を設定して作れる（<code>$now()</code> の2つ目の引数 <code>"+0900"</code> は日本時間の指定）。</p>
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>「ファイル名」の欄を空にしておくと、<code>msg.filename</code> の値が使われる。日付入りのパスは、Change ノードの「値の代入」で <code>msg.filename</code> に「JSONata式」型の <code>"/upload/" &amp; $now("[Y0001]-[M01]-[D01]", "+0900")</code> を設定して作れる（<code>$now()</code> の2つ目の引数 <code>"+0900"</code> は日本時間の指定）。</p>
+            </details>
             <details>
                 <summary>解答例（クリックで展開）</summary>
                 <div class="flow-json">[
@@ -1766,7 +1770,10 @@ curl.exe -T reading.csv ftp://localhost:7021/ --user camera:change-me</div>
             <p><strong>接続先:</strong> サーバーは用意しなくてよい。10 章の「<a href="#s10">接続先のサーバー</a>」の表の値（ホスト <code>test.rebex.net</code>、ポート 22、ユーザー名 <code>demo</code>、パスワード <code>password</code>）を、SFTP の接続設定に入れる。会社のネットワークでは、外向きの 22 番が塞がれていて接続できないことがある。</p>
             <p><strong>成功の条件:</strong> ボタンを押すと、debug に <code>["imap-console-client.png", "KeyGenerator.png", …]</code> のような、名前が <code>.png</code> で終わるものだけの配列が出る（2026-11-26 時点で 15 個）。<code>readme.txt</code> が入っていなければ、絞り込めている。</p>
 
-            <p><strong>ヒント：</strong> 絞り込みは <code>sftp in</code> の設定だけでできる。一覧の各要素は名前のほかにサイズや更新日時も持つオブジェクトである。名前だけの配列にするには、Change ノードで <code>msg.payload</code> に「JSONata式」型の <code>[payload.name]</code> を設定する（外側の <code>[ ]</code> は、1件だけのときも配列にするため）。</p>
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>絞り込みは <code>sftp in</code> の設定だけでできる。一覧の各要素は名前のほかにサイズや更新日時も持つオブジェクトである。名前だけの配列にするには、Change ノードで <code>msg.payload</code> に「JSONata式」型の <code>[payload.name]</code> を設定する（外側の <code>[ ]</code> は、1件だけのときも配列にするため）。</p>
+            </details>
             <details>
                 <summary>解答例（クリックで展開）</summary>
                 <div class="flow-json">[
@@ -1894,7 +1901,7 @@ curl.exe -T reading.csv ftp://localhost:7021/ --user camera:change-me</div>
             </details>
         </div>
 
-        <div class="exercise">
+        <div class="exercise" id="ex3-sort">
             <h3>演習3：受け取ったファイルを種類ごとに振り分ける<span class="difficulty difficulty-hard">上級</span></h3>
             <p>ネットワークカメラが画像を、計測器が CSV を、同じ FTP サーバーへ送ってくる。届いたファイルを拡張子で見分け、画像は <code>/tmp/inbox/images/</code> へ、それ以外は <code>/tmp/inbox/others/</code> へ保存するフローを組んでほしい。</p>
             <p><strong>作る処理のイメージ:</strong></p>
@@ -1912,8 +1919,8 @@ curl.exe -T reading.csv ftp://localhost:7021/ --user camera:change-me</div>
             <p><strong>作る範囲:</strong></p>
             <div class="sys-map">
                 <div class="sys-actor">
-                    <div class="sys-name">カメラや計測器</div>
-                    <div class="sys-role">画像や CSV を送ってくる<br>（既にある機器）</div>
+                    <div class="sys-name">ターミナルの curl</div>
+                    <div class="sys-role">カメラや計測器の代わりに<br>画像と CSV を送る<br>（ガイドのコマンドを使う）</div>
                 </div>
                 <div class="sys-link">
                     <div class="sys-req">FTP で送信 &rarr;</div>
@@ -1924,8 +1931,70 @@ curl.exe -T reading.csv ftp://localhost:7021/ --user camera:change-me</div>
                     <div class="sys-role">FTP サーバー側<br>届いたファイルを<br>拡張子で振り分けて保存する</div>
                 </div>
             </div>
+            <p>実物のカメラや計測器は使わない。送る側は、ターミナルの <code>curl</code> コマンドで代用する。10 章のクライアントのサンプルフローは、接続先が公開の試験用サーバーなので、この演習の送る側には使えない。</p>
 
-            <p><strong>ヒント：</strong> ファイル名は <code>msg.topic</code> に入る。分岐の条件はノードの設定として見えるようにしておくと、あとから読みやすい。保存先のパスは、Change ノードで <code>msg.filename</code> に「JSONata式」型の <code>"/tmp/inbox/images/" &amp; $split(topic, "/")[-1]</code> のように作れる。<code>$split(topic, "/")[-1]</code> は、<code>/</code> で区切った最後の部分（ファイル名）を取り出す。</p>
+            <p><strong>作るもの:</strong></p>
+            <ul>
+                <li><code>ftp server</code> ノードで、ポート 7021 で待ち受ける。Passive Mode Port Range は <code>7022-7032</code>、Username は <code>camera</code>、Password は <code>change-me</code> にする（10 章のサーバーのサンプルフローと同じ値で、下のコマンドがこの値で接続する）</li>
+                <li>ファイル名の拡張子が <code>.jpg</code>、<code>.jpeg</code>、<code>.png</code>、<code>.gif</code> のものは <code>/tmp/inbox/images/</code> へ、それ以外は <code>/tmp/inbox/others/</code> へ保存する。<code>photo.JPG</code> のように、拡張子が大文字でも画像として扱う</li>
+                <li>保存したパス（<code>msg.filename</code>）を debug に出す</li>
+            </ul>
+
+            <p><strong>動作の確かめ方:</strong> フローをデプロイしたあと、ターミナル（Windows ではコマンドプロンプト）で、次の 1〜2 を順に進める。</p>
+            <ol>
+                <li>
+                    <strong>送るファイルを2つ用意して、そのフォルダへ移る。</strong>振り分けはファイル名だけで決まるので、<code>photo.JPG</code> は本物の画像でなくてよい。次のコマンドは、ホームフォルダに <code>ftp-test</code> というフォルダを作り、その中に、<code>hello</code> と1行だけ書いたファイルを2つ作る。新しいフォルダの中に作るのは、ホームフォルダにある同じ名前の自分のファイルを上書きしないためである。<code>ftp-test</code> というフォルダを既に使っていて、その中に同じ名前のファイルがあるときは、上書きされる。そのときは、コマンドの <code>ftp-test</code> を別の名前に書き換える。
+                    <p>macOS と Linux：</p>
+                    <div class="code-block">mkdir -p ~/ftp-test
+cd ~/ftp-test
+echo hello &gt; photo.JPG
+echo hello &gt; reading.csv</div>
+                    <p>Windows：</p>
+                    <div class="code-block">mkdir "%USERPROFILE%\ftp-test"
+cd /d "%USERPROFILE%\ftp-test"
+echo hello &gt; photo.JPG
+echo hello &gt; reading.csv</div>
+                    <p>どの行も、何も表示されずに入力待ちに戻れば、できている。Windows でやり直したときは、1行目で、フォルダが既に存在するという表示が出る。そのまま2行目へ進んでよい。</p>
+                </li>
+                <li>
+                    <strong>2つのファイルを、1つずつ送る。</strong>
+                    <div class="code-block">curl -T photo.JPG ftp://localhost:7021/ --user camera:change-me
+curl -T reading.csv ftp://localhost:7021/ --user camera:change-me</div>
+                </li>
+            </ol>
+            <p><strong>PowerShell で実行する場合：</strong>1〜2 を次のように書く。<code>%USERPROFILE%</code> の代わりに <code>$HOME</code> と書き、<code>curl</code> は <code>curl.exe</code> と書く（理由は 10 章の「<a href="#try-local">手元で試すには</a>」）。</p>
+            <div class="code-block">mkdir -Force "$HOME\ftp-test"
+cd "$HOME\ftp-test"
+echo hello &gt; photo.JPG
+echo hello &gt; reading.csv
+curl.exe -T photo.JPG ftp://localhost:7021/ --user camera:change-me
+curl.exe -T reading.csv ftp://localhost:7021/ --user camera:change-me</div>
+            <p>PowerShell では、1行目の <code>mkdir</code> だけ、作ったフォルダの情報（<code>Directory:</code> で始まる表）が表示される。それで正常である。</p>
+            <p><strong>うまくいかないとき：</strong><code>curl:</code> で始まる行が出たら、送信は失敗している。行の中身から、どこを確かめればよいかが分かる。</p>
+            <ul>
+                <li><code>curl: Can't open 'photo.JPG'</code>：送るファイルを開けない。1 のコマンドでファイルを作ったかと、今いるフォルダが <code>ftp-test</code> かを確かめる</li>
+                <li><code>curl: (7) Failed to connect to localhost port 7021</code>：ポート 7021 に接続できない。この演習のフローをデプロイしたかを確かめる。待ち受けていれば、ftp server ノードの下に、<code>:7021 - IDLE</code> で終わる青いステータスが出ている</li>
+                <li><code>curl: (67) Access denied: 530</code>：ユーザー名かパスワードが違う。ftp server ノードの Username と Password が、<code>camera</code> と <code>change-me</code> になっているかを確かめる</li>
+            </ul>
+
+            <p><strong>成功の条件:</strong></p>
+            <ul>
+                <li>ターミナルには、どちらのコマンドでも <code>% Total</code> で始まる進み具合の表が出る。<code>curl:</code> で始まる行は出ない</li>
+                <li><code>photo.JPG</code> を送ると、debug に <code>/tmp/inbox/images/photo.JPG</code> が出る。<code>images</code> ではなく <code>others</code> のパスが出たときは、大文字の拡張子を画像と見分けられていない</li>
+                <li><code>reading.csv</code> を送ると、debug に <code>/tmp/inbox/others/reading.csv</code> が出る</li>
+                <li><code>/tmp/inbox/images/</code> に <code>photo.JPG</code> が、<code>/tmp/inbox/others/</code> に <code>reading.csv</code> が保存されている。次のコマンドで一覧を表示して確かめる</li>
+            </ul>
+            <p>macOS と Linux：</p>
+            <div class="code-block">ls /tmp/inbox/images /tmp/inbox/others</div>
+            <p>Windows：</p>
+            <div class="code-block">dir C:\tmp\inbox\images
+dir C:\tmp\inbox\others</div>
+            <p><code>images</code> の一覧に <code>photo.JPG</code>、<code>others</code> の一覧に <code>reading.csv</code> があればよい。振り分けを直す前に送ったファイルは、消すまでフォルダに残るので、一覧にほかのファイルが出ていてもよい。直したあとの結果は、debug の表示で確かめる。Windows では、<code>/tmp/inbox/</code> は Node-RED を起動したドライブの直下の <code>\tmp\inbox\</code>（多くは <code>C:\tmp\inbox\</code>）になる。</p>
+
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>ファイル名は <code>msg.topic</code> に入る。分岐の条件はノードの設定として見えるようにしておくと、あとから読みやすい。保存先のパスは、Change ノードで <code>msg.filename</code> に「JSONata式」型の <code>"/tmp/inbox/images/" &amp; $split(topic, "/")[-1]</code> のように作れる。<code>$split(topic, "/")[-1]</code> は、<code>/</code> で区切った最後の部分（ファイル名）を取り出す。</p>
+            </details>
             <details>
                 <summary>解答例（クリックで展開）</summary>
                 <div class="flow-json">[
@@ -2103,9 +2172,6 @@ curl.exe -T reading.csv ftp://localhost:7021/ --user camera:change-me</div>
                 <p>switch ノードの正規表現のルールでは「大文字、小文字を区別しない」をオンにしてある。カメラは <code>photo.JPG</code> のように拡張子を大文字で付けることが多く、区別すると画像が「その他」へ振り分けられてしまう。</p>
                 <p>分岐を function ノードの複数出力ではなく switch ノードで書いているのは、条件をエディター上で読めるようにするためである。振り分けの規則を後から変える人は、コードを開かずに済む。</p>
                 <p><code>ftp server</code> ノードには、Username に <code>camera</code>、Password に <code>change-me</code> を設定してある（フローでは <code>"credentials"</code> に書いてある）。Username を設定すると動的認証を使わないので、出力2の配線は空のままでよい。Username を空にしたまま出力2をどこにも繋がないと、認証の返事をする相手がいないため、ログインが終わらず、ファイルを1つも受け取れない。</p>
-                <p>動作を確かめるには、デプロイしたあと、ターミナルで画像と CSV を1つずつ送る。送るファイルの用意から送信までの進め方は、10 章の「<a href="#try-local">手元で試すには</a>」と同じである（PowerShell では、<code>curl</code> を <code>curl.exe</code> と書く）。振り分けはファイル名だけで決まるので、<code>photo.JPG</code> は本物の画像でなくてよい。<code>reading.csv</code> と同じコマンドで、名前だけを変えて作れる。debug に <code>/tmp/inbox/images/photo.JPG</code> と <code>/tmp/inbox/others/reading.csv</code> が出れば振り分けられている。</p>
-                <div class="code-block">curl -T photo.JPG ftp://localhost:7021/ --user camera:change-me
-curl -T reading.csv ftp://localhost:7021/ --user camera:change-me</div>
             </details>
         </div>
 

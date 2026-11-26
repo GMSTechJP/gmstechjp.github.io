@@ -979,7 +979,10 @@
                 <li><code>motion</code> や <code>joystick</code> のメッセージはデバッグパネルに一切表示されない</li>
                 <li>デバッグパネルのペイロードに <code>temperature</code>・<code>humidity</code>・<code>pressure</code> の3つのキーが含まれている</li>
             </ul>
-            <p><strong>ヒント:</strong> SwitchノードでSwitchの条件を <code>msg.topic == "environment"</code> にします。</p>
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>SwitchノードでSwitchの条件を <code>msg.topic == "environment"</code> にします。</p>
+            </details>
             <details>
                 <summary>📋 解答フロー（クリックで展開）</summary>
                 <div class="flow-json">
@@ -1064,7 +1067,10 @@
                 <li>ENTER キーや長押し（state: 2）では何も起きない（余分な反応がない）</li>
                 <li>方向を変えるたびに即座に色が切り替わる（前の色が残らない）</li>
             </ul>
-            <p><strong>ヒント:</strong> Switchノードで <code>msg.payload.key</code> の値（UP/DOWN/LEFT/RIGHT）ごとに出力を分岐し、各Changeノードで <code>msg.payload</code> を <code>*,*,色</code> に設定します。</p>
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>Switchノードで <code>msg.payload.key</code> の値（UP/DOWN/LEFT/RIGHT）ごとに出力を分岐し、各Changeノードで <code>msg.payload</code> を <code>*,*,色</code> に設定します。</p>
+            </details>
             <details>
                 <summary>📋 解答フロー（クリックで展開）</summary>
                 <div class="flow-json">
@@ -1205,13 +1211,15 @@
             <div class="tip">
                 <p><strong>💡 なぜ傾きを使うのか:</strong> <code>orientation.roll</code>（左右の傾き）と <code>orientation.pitch</code>（前後の傾き）は、ボードを手で傾けるだけで確実に大きく変化します。実際に手に持って試してみましょう。</p>
             </div>
-            <p><strong>ヒント:</strong></p>
-            <ul>
-                <li>1つ目の Switchノードで <code>msg.topic</code> が <code>motion</code> のメッセージだけを通します（環境センサーやジョイスティックのメッセージを除くため）</li>
-                <li>2つ目の Switchノードでは、プロパティの種類を「JSONata式」にして <code>$abs(payload.orientation.roll) &gt; 30 or $abs(payload.orientation.pitch) &gt; 30</code> と書き、ルールを「trueである」にします。<code>$abs()</code> は絶対値で、左右・前後のどちら向きに傾けても判定できます</li>
-                <li>通ったメッセージは、Changeノードで <code>msg.payload</code> に文字列 <code>*,*,orange</code>（全面をオレンジ）を設定します</li>
-                <li>Triggerノードの「新たなメッセージを受け取った時に遅延を延長」を有効にすると（「指定した時間待機」を選んだときに表示される欄）、傾けている間は消灯タイマーがリセットされ続け、戻したときだけカウントが始まります</li>
-            </ul>
+            <details>
+                <summary>💡 ヒント</summary>
+                <ul>
+                    <li>1つ目の Switchノードで <code>msg.topic</code> が <code>motion</code> のメッセージだけを通します（環境センサーやジョイスティックのメッセージを除くため）</li>
+                    <li>2つ目の Switchノードでは、プロパティの種類を「JSONata式」にして <code>$abs(payload.orientation.roll) &gt; 30 or $abs(payload.orientation.pitch) &gt; 30</code> と書き、ルールを「trueである」にします。<code>$abs()</code> は絶対値で、左右・前後のどちら向きに傾けても判定できます</li>
+                    <li>通ったメッセージは、Changeノードで <code>msg.payload</code> に文字列 <code>*,*,orange</code>（全面をオレンジ）を設定します</li>
+                    <li>Triggerノードの「新たなメッセージを受け取った時に遅延を延長」を有効にすると（「指定した時間待機」を選んだときに表示される欄）、傾けている間は消灯タイマーがリセットされ続け、戻したときだけカウントが始まります</li>
+                </ul>
+            </details>
             <details>
                 <summary>📋 解答フロー（クリックで展開）</summary>
                 <div class="flow-json">
