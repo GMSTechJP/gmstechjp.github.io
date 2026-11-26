@@ -869,20 +869,10 @@
                 "after": 20
             },
             "tab_ftp_server": {
-                "note": "ガイドの curl -T の代わりに、テストの実行役が FTP で送る。演習1の接続先（192.168.1.50）は、このタブの ftp server ノード（localhost:7021、camera / change-me）に書き換えて一緒に動かす。ftp server ノードは接続のたびに空のファイルシステムを作るので、フォルダを作る操作は成功する",
+                "note": "ガイドの curl -T の代わりに、テストの実行役が FTP で送る。演習1は、このタブの ftp server ノード（localhost:7021、camera / change-me）を接続先にしているので、一緒に動かす。ftp server ノードは接続のたびに空のファイルシステムを作るので、フォルダを作る操作は成功する",
                 "with": [
                     "tab_ex1"
                 ],
-                "override": {
-                    "ex1_conf": {
-                        "host": "localhost",
-                        "port": "7021",
-                        "user": "camera",
-                        "credentials": {
-                            "password": "change-me"
-                        }
-                    }
-                },
                 "inject": [
                     "実行"
                 ],
@@ -931,27 +921,18 @@
                 "covered_by": "tab_ftp_server"
             },
             "tab_ex2": {
-                "note": "演習の接続先（192.168.1.60 の /data）が手元に無いため、CI では公開の試験用サーバー test.rebex.net の / を一覧する。/ には CSV が無いので、パターンを *.txt にして、readme.txt だけが残り pub が外れることで絞り込みを確かめる",
-                "override": {
-                    "ex2_conf": {
-                        "host": "test.rebex.net",
-                        "username": "demo",
-                        "credentials": {
-                            "password": "password"
-                        }
-                    },
-                    "ex2_list": {
-                        "path": "/",
-                        "pattern": "*.txt"
-                    }
-                },
+                "note": "公開の試験用サーバー test.rebex.net の /pub/example を一覧する。このフォルダには画像（.png）と readme.txt があるので、配列の全部が .png で終わること（readme.txt が外れること）で絞り込みを確かめる",
                 "inject": [
                     "実行"
                 ],
                 "expect": [
                     {
-                        "debug": "CSVの一覧",
-                        "match": "^\\[\"readme\\.txt\"\\]$"
+                        "debug": "画像の一覧",
+                        "match": "^\\[\"[^\"]+\\.png\"(,\"[^\"]+\\.png\")*\\]$"
+                    },
+                    {
+                        "debug": "画像の一覧",
+                        "contains": "\"WinFormClient.png\""
                     }
                 ],
                 "external": [
