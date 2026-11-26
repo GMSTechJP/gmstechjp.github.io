@@ -175,5 +175,22 @@ def ftp_ex3():
     return p
 
 
+def ftp_ex4():
+    p = Panel('B さんの Node-RED が、自分の PC で作ったファイルを、社内 LAN を通して A さんの Node-RED へ FTP で送り、A さんの Node-RED がそれをフォルダに保存する', 560, 140, 'ftpx4')
+    p.add(text(105, 22, 'Bさんの PC（送る側）', 12, INK, weight='bold'),
+          doc(14, 56, [], 'from-b.txt', 96),
+          text(62, 102, 'こんにちは、Bです', 10, INK),
+          pc(170, 70, 'happy', '作るフロー'))
+    p.arrow(114, 69, 142, 69, INK, 2)
+    p.arrow(198, 69, 338, 69, GREEN, 2)
+    p.add(text(268, 58, 'FTP で送信', 11, GREEN, weight='bold'),
+          text(268, 88, '社内 LAN を通る', 10, INK))
+    p.add(text(450, 22, 'Aさんの PC（受ける側）', 12, INK, weight='bold'),
+          pc(366, 70, 'happy', '作るフロー'),
+          folder(422, 36, 130, 86, '/tmp/ftp-lan/'), doc(438, 74, [], 'from-b.txt', 96))
+    p.arrow(392, 69, 418, 69, INK, 2)
+    return p
+
+
 FIGURES = {'file-write': file_write, 'file-read': file_read, 'watch-basic': watch, 'sqlite-basic': sqlite, 'ftp-get': ftp,
-           'ftp-ex1-mkdir': ftp_ex1, 'ftp-ex2-png': ftp_ex2, 'ftp-ex3-sort': ftp_ex3}
+           'ftp-ex1-mkdir': ftp_ex1, 'ftp-ex2-png': ftp_ex2, 'ftp-ex3-sort': ftp_ex3, 'ftp-ex4-lan': ftp_ex4}
