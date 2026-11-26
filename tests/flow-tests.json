@@ -978,6 +978,48 @@
                     }
                 ],
                 "allow_unsafe": true
+            },
+            "tab_ex4c": {
+                "with": [
+                    "tab_ex4s"
+                ],
+                "note": "2台の PC でファイルを送る演習。CI では、送り先（相手の PC の IP）を 127.0.0.1 にして1台で動かす。Bさんのフローが作ったファイルを put で送り、Aさんのフローが保存して読み直した中身で確かめる。誤ったパスワードの接続を ftp server ノードが断ることも、テストの実行役が FTP で送って確かめる",
+                "override": {
+                    "ex4c_conf_partner7041": {
+                        "host": "127.0.0.1"
+                    }
+                },
+                "inject": [
+                    "送る"
+                ],
+                "ftp_uploads": [
+                    {
+                        "port": 7041,
+                        "user": "guest",
+                        "password": "wrong",
+                        "file": "denied.txt",
+                        "body": "x\n",
+                        "refused": true
+                    }
+                ],
+                "expect": [
+                    {
+                        "debug": "Bさん側: 送信の結果",
+                        "match": "^Put operation successful\\.$"
+                    },
+                    {
+                        "debug": "Aさん側: 保存したパス",
+                        "match": "^/tmp/ftp-lan/from-b\\.txt$"
+                    },
+                    {
+                        "debug": "Aさん側: 届いた中身",
+                        "match": "^こんにちは、Bです$"
+                    }
+                ],
+                "allow_unsafe": true
+            },
+            "tab_ex4s": {
+                "covered_by": "tab_ex4c"
             }
         },
         "nodered-file-node-guide.html": {

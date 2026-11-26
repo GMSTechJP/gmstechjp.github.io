@@ -18,7 +18,7 @@
         .important { background-color: #eceff1; border-left: 4px solid #37474f; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
         .tip { background-color: #e8f5e9; border-left: 4px solid #4caf50; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
         /* 手順の箇条書き。入れ子で字下げが重なるので、狭い画面でも本文の幅が残るよう詰める */
-        #try-local ol, #try-local ul { padding-left: 1.4em; }
+        #try-local ol, #try-local ul, #ex4-lan ol, #ex4-lan ul { padding-left: 1.4em; }
         .warning { background-color: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
         .danger { background-color: #ffebee; border-left: 4px solid #e53935; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
         .thirdparty { background: linear-gradient(135deg, #eceff1 0%, #cfd8dc 100%); border: 2px solid #607d8b; border-radius: 8px; padding: 18px 22px; margin: 20px 0; }
@@ -1561,6 +1561,8 @@ curl.exe -T reading.csv ftp://localhost:7021/ --user camera:change-me</div>
 
         <h2 id="s11">11. 演習問題</h2>
 
+        <p>演習1〜3は、1台の Node-RED で進められる。演習4は2人1組で、社内 LAN にある相手の Node-RED へファイルを送る。</p>
+
         <div class="exercise">
             <h3>演習1：日付のフォルダを作る<span class="difficulty difficulty-easy">初級</span></h3>
             <p>FTP サーバー側に、今日の日付を名前にしたフォルダ（例：<code>/upload/2026-08-13</code>）を作るフローを組んでほしい。フォルダ名は実行するたびに変わるため、ノードの設定欄には固定の値を書けない。</p>
@@ -2104,6 +2106,400 @@ curl.exe -T reading.csv ftp://localhost:7021/ --user camera:change-me</div>
                 <p>動作を確かめるには、デプロイしたあと、ターミナルで画像と CSV を1つずつ送る。送るファイルの用意から送信までの進め方は、10 章の「<a href="#try-local">手元で試すには</a>」と同じである（PowerShell では、<code>curl</code> を <code>curl.exe</code> と書く）。振り分けはファイル名だけで決まるので、<code>photo.JPG</code> は本物の画像でなくてよい。<code>reading.csv</code> と同じコマンドで、名前だけを変えて作れる。debug に <code>/tmp/inbox/images/photo.JPG</code> と <code>/tmp/inbox/others/reading.csv</code> が出れば振り分けられている。</p>
                 <div class="code-block">curl -T photo.JPG ftp://localhost:7021/ --user camera:change-me
 curl -T reading.csv ftp://localhost:7021/ --user camera:change-me</div>
+            </details>
+        </div>
+
+        <div class="exercise" id="ex4-lan">
+            <h3>演習4：2人でファイルを送る（社内 LAN）<span class="difficulty difficulty-hard">上級</span></h3>
+            <p>2人1組になり、Aさんが FTP サーバーでファイルを受け取って保存し、Bさんが FTP クライアントで Aさんへファイルを送るフローを、それぞれ組んでほしい。演習1〜3の相手は、同じ PC の中か、インターネット上の試験用サーバーだった。この演習では、社内 LAN にある相手の Node-RED へ、実際にネットワークを越えてファイルを送る。</p>
+            <p><strong>作る処理のイメージ:</strong></p>
+            <figure class="comic-fig">
+                <!-- comic:begin ftp-ex4-lan -->
+                <svg class="comic" viewBox="0 0 560 140" role="img" aria-label="B さんの Node-RED が、自分の PC で作ったファイルを、社内 LAN を通して A さんの Node-RED へ FTP で送り、A さんの Node-RED がそれをフォルダに保存する" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', 'Hiragino Sans', 'Meiryo', sans-serif"><defs><marker id="mftpx4k" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#37474f"/></marker><marker id="mftpx4r" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#c62828"/></marker><marker id="mftpx4g" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#2e7d32"/></marker><marker id="mftpx4b" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#1976d2"/></marker><marker id="mftpx4o" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#ef6c00"/></marker></defs><text x="105" y="22" font-size="12" fill="#37474f" text-anchor="middle" font-weight="bold">Bさんの PC（送る側）</text><path d="M14 56 h80 l16 16 v10 h-96 z" fill="#fff" stroke="#37474f" stroke-width="1.8"/><path d="M94 56 v16 h16" fill="none" stroke="#37474f" stroke-width="1.5"/><text x="22" y="72" font-size="11" fill="#37474f" text-anchor="start" font-weight="bold">from-b.txt</text><text x="62" y="102" font-size="10" fill="#37474f" text-anchor="middle" font-weight="normal">こんにちは、Bです</text><rect x="148" y="53" width="44" height="32" rx="4" fill="#fff" stroke="#37474f" stroke-width="2"/><rect x="152" y="57" width="36" height="24" rx="2" fill="#e3f2fd"/><rect x="166" y="85" width="8" height="5" fill="#37474f"/><rect x="158" y="90" width="24" height="3" rx="1" fill="#37474f"/><path d="M162 65 q3 -4 6 0 M172 65 q3 -4 6 0" fill="none" stroke="#37474f" stroke-width="1.8"/><path d="M163 71 Q170 79 177 71" fill="none" stroke="#37474f" stroke-width="2"/><text x="170" y="107" font-size="12" fill="#37474f" text-anchor="middle" font-weight="normal">作るフロー</text><line x1="114" y1="69" x2="142" y2="69" stroke="#37474f" stroke-width="2" marker-end="url(#mftpx4k)"/><line x1="198" y1="69" x2="338" y2="69" stroke="#2e7d32" stroke-width="2" marker-end="url(#mftpx4g)"/><text x="268" y="58" font-size="11" fill="#2e7d32" text-anchor="middle" font-weight="bold">FTP で送信</text><text x="268" y="88" font-size="10" fill="#37474f" text-anchor="middle" font-weight="normal">社内 LAN を通る</text><text x="450" y="22" font-size="12" fill="#37474f" text-anchor="middle" font-weight="bold">Aさんの PC（受ける側）</text><rect x="344" y="53" width="44" height="32" rx="4" fill="#fff" stroke="#37474f" stroke-width="2"/><rect x="348" y="57" width="36" height="24" rx="2" fill="#e3f2fd"/><rect x="362" y="85" width="8" height="5" fill="#37474f"/><rect x="354" y="90" width="24" height="3" rx="1" fill="#37474f"/><path d="M358 65 q3 -4 6 0 M368 65 q3 -4 6 0" fill="none" stroke="#37474f" stroke-width="1.8"/><path d="M359 71 Q366 79 373 71" fill="none" stroke="#37474f" stroke-width="2"/><text x="366" y="107" font-size="12" fill="#37474f" text-anchor="middle" font-weight="normal">作るフロー</text><path d="M422 36 h40 l8 8 h82 v78 h-130 z" fill="#fff8e1" stroke="#37474f" stroke-width="1.8"/><text x="430" y="61" font-size="11" fill="#37474f" text-anchor="start" font-weight="bold">/tmp/ftp-lan/</text><path d="M438 74 h80 l16 16 v10 h-96 z" fill="#fff" stroke="#37474f" stroke-width="1.8"/><path d="M518 74 v16 h16" fill="none" stroke="#37474f" stroke-width="1.5"/><text x="446" y="90" font-size="11" fill="#37474f" text-anchor="start" font-weight="bold">from-b.txt</text><line x1="392" y1="69" x2="418" y2="69" stroke="#37474f" stroke-width="2" marker-end="url(#mftpx4k)"/></svg>
+                <!-- comic:end -->
+                <figcaption>Bさんの PC で作ったファイルが、社内 LAN を通って、Aさんの PC のフォルダに保存される</figcaption>
+            </figure>
+            <p><strong>💼 使いどころ:</strong> LAN の中の機器（カメラ、計測器、別の PC の Node-RED など）からファイルを受け取る場面と、LAN の中の FTP サーバーへファイルを送る場面で使います。</p>
+            <div class="warning">
+                <strong>社内 LAN での学習に限って行う：</strong>
+                <p>FTP は、ユーザー名とパスワードも、ファイルの中身も、暗号化せずに送る（<a href="#s2">2 章</a>）。同じ LAN にいる人には読み取られうるので、パスワードには演習用の値（<code>change-me</code>）だけを使い、ふだん使っているパスワードを入れない。Aさんが開けたポートには、ユーザー名とパスワードを知っていれば、同じ LAN の誰でもファイルを送れる。終わったら、Aさんはフローを削除するか、タブを無効にしてデプロイし、ポートを閉じる。</p>
+            </div>
+            <p><strong>作る範囲:</strong></p>
+            <div class="sys-map">
+                <div class="sys-actor sys-build">
+                    <div><span class="sys-badge">Bさんが作る</span></div>
+                    <div class="sys-name">Bさんの Node-RED</div>
+                    <div class="sys-role">FTP クライアント側<br>ファイルを作って<br>Aさんへ送る</div>
+                </div>
+                <div class="sys-link">
+                    <div class="sys-req">（Aさんの IP）:7041 へ from-b.txt &rarr;</div>
+                    <div class="sys-res">&larr; 送信の結果</div>
+                </div>
+                <div class="sys-actor sys-build">
+                    <div><span class="sys-badge">Aさんが作る</span></div>
+                    <div class="sys-name">Aさんの Node-RED</div>
+                    <div class="sys-role">FTP サーバー側<br>7041 番で待ち受け<br>届いたファイルを保存する</div>
+                </div>
+            </div>
+
+            <p><strong>Aさんが Bさんに伝える値:</strong> Bさんは、次の4つを FTP の接続設定に入れる。IP アドレスだけは PC ごとに違うので、Aさんが調べて伝える（調べ方はヒント）。</p>
+            <table>
+                <tr>
+                    <th>項目</th>
+                    <th>値</th>
+                </tr>
+                <tr>
+                    <td>ホスト</td>
+                    <td>Aさんの PC の IP アドレス（例：<code>192.168.1.10</code>）</td>
+                </tr>
+                <tr>
+                    <td>ポート</td>
+                    <td><code>7041</code></td>
+                </tr>
+                <tr>
+                    <td>ユーザ名</td>
+                    <td><code>guest</code>（Aさんが ftp server ノードの Username に設定する値）</td>
+                </tr>
+                <tr>
+                    <td>パスワード</td>
+                    <td><code>change-me</code>（同じく Password に設定する値）</td>
+                </tr>
+            </table>
+
+            <p><strong>作るもの:</strong></p>
+            <ul>
+                <li>Aさん（受ける側）：<code>ftp server</code> ノードを、Port <code>7041</code>、Passive Mode Port Range <code>7042-7052</code>、Username <code>guest</code>、Password <code>change-me</code> で置く。届いたファイルを <code>/tmp/ftp-lan/</code> へ同じ名前で保存し、保存したパスとファイルの中身を、debug で確かめられるようにする</li>
+                <li>Bさん（送る側）：Inject の文字（例：「こんにちは、Bです」）を、自分の PC のファイル <code>/tmp/ftp-send/from-b.txt</code> に書く。そのファイルを <code>ftp in</code> ノードの put で Aさんへ送り、結果を debug に表示する</li>
+                <li>送れたら役割を入れ替え、両方を体験する</li>
+            </ul>
+            <p>ポートは、10 章のサーバーのサンプルフローと演習3（どちらも 7021 番）とは別の番号にしてある。それらを同じ Node-RED にデプロイしたままでも、待ち受けは重ならない。</p>
+
+            <p><strong>成功の条件:</strong></p>
+            <ul>
+                <li>Bさんの debug に <code>Put operation successful.</code> が出る</li>
+                <li>Aさんの debug に、保存したパス <code>/tmp/ftp-lan/from-b.txt</code> と、Bさんが書いた文字（<code>こんにちは、Bです</code>）が出る</li>
+                <li>役割を入れ替えても、同じように送れる</li>
+                <li>送れないとき、Aさん自身の PC から送れるかどうかで、フロー側の問題かネットワーク側の問題かを切り分けられる（手順はヒントの「送れないときの切り分け順」）</li>
+            </ul>
+
+            <details>
+                <summary>💡 ヒント</summary>
+                <p><strong>自分の IP アドレスの調べ方:</strong> Aさんが、自分の PC で調べる。</p>
+                <p>Windows（コマンドプロンプト）：</p>
+                <div class="code-block">ipconfig</div>
+                <p>使っている接続（Wi-Fi やイーサネット）の「IPv4 アドレス」の行が、IP アドレスである。</p>
+                <p>ラズパイと Linux：</p>
+                <div class="code-block">hostname -I</div>
+                <p>Mac は、「システム設定」の「ネットワーク」で、使っている接続（Wi-Fi など）の「詳細」を開き、「TCP/IP」の「IPアドレス」を見る。詳しくは<a href="nodered-local-pi-exercise-guide.html#common">ローカル/ラズパイ演習ガイドの共通の準備</a>にある。</p>
+                <p><strong>ftp server ノードの下に出るアドレス:</strong> デプロイすると、Aさんの <code>ftp server</code> ノードの下に <code>192.168.1.10:7041 - IDLE</code> のような表示が出る。先頭は、ノードが自動で選んだ、この PC の IP アドレスである。VPN や仮想のネットワークがある PC では、社内 LAN のものと違うアドレスが出ることがある。そのときは、ノードの「IP」の欄に、上で調べた社内 LAN の IP アドレスを入れて、デプロイし直す。</p>
+                <p><strong>ファイアウォール:</strong> FTP は、ログイン用の 7041 番のほかに、ファイルを運ぶための 7042〜7052 番も使う（<a href="#s2">2 章</a>のパッシブモード）。Windows では、Defender ファイアウォールが受信をブロックすることがある。初回の待ち受けのときに出る許可のダイアログで許可するか、7041 番と 7042〜7052 番の両方の受信を許可する（<a href="nodered-local-pi-exercise-guide.html#win">Windows 編</a>）。Mac でファイアウォールをオンにしているときは、初回に出るダイアログで許可する。ラズパイや Linux で ufw を使っているときは、<a href="#s9">9 章</a>の「ポートを開ける範囲」の例にならって、7041 番と 7042〜7052 番を許可する。</p>
+                <p><strong>Aさんのノード:</strong></p>
+                <ul>
+                    <li><code>ftp server</code>：Port、Passive Mode Port Range、Username、Password を上の値にする。Username を入れると、ノードが自分でログインを判定するので、出力2は配線しなくてよい</li>
+                    <li>Change：届いたファイルの名前は <code>msg.topic</code> に入る。<code>msg.filename</code> に、「JSONata式」型の <code>"/tmp/ftp-lan/" &amp; $split(topic, "/")[-1]</code> を設定して、保存先のパスを作る</li>
+                    <li>file（書き込み）：「ファイル名」を <code>msg.filename</code> にし、「ディレクトリが存在しない場合は作成」をオンにする</li>
+                    <li>file in（読み出し）：保存したファイルを読み直すと、中身を文字として debug に出せる。<code>ftp server</code> の出力の <code>msg.payload</code> はバイナリ（Buffer）なので、そのままでは読みにくい</li>
+                </ul>
+                <p><strong>Bさんのノード:</strong></p>
+                <ul>
+                    <li>file（書き込み）：「ファイル名」を <code>/tmp/ftp-send/from-b.txt</code> にし、「ディレクトリが存在しない場合は作成」をオンにする</li>
+                    <li><code>ftp in</code>：Operation を <code>put</code> にする。「ローカルファイル名」は、Bさんの PC にある送るファイル（<code>/tmp/ftp-send/from-b.txt</code>）、「ファイル名」は、Aさんの側での名前（<code>/from-b.txt</code>）である</li>
+                    <li>FTP の接続設定：ホストに Aさんの IP アドレス、ポートに <code>7041</code>、ユーザ名に <code>guest</code>、パスワードに <code>change-me</code> を入れる</li>
+                </ul>
+                <p>Windows では、<code>/tmp/ftp-send/</code> と <code>/tmp/ftp-lan/</code> は、Node-RED を起動したドライブの直下の <code>\tmp\ftp-send\</code> と <code>\tmp\ftp-lan\</code>（多くは C ドライブ）になる。</p>
+                <p><strong>送れないときの切り分け順:</strong> Bさんの <code>ftp in</code> ノードの下に赤いステータスが出て、debug に <code>Put operation successful.</code> が出ないときは、次の順に確かめる。1 と 2 で送る <code>reading.csv</code> は、10 章の「<a href="#try-local">手元で試すには</a>」の手順 1 と 2 で用意する。PowerShell では、<code>curl</code> を <code>curl.exe</code> と書く。</p>
+                <ol>
+                    <li>
+                        <strong>Aさんが、自分の PC から自分のサーバーへ送る。</strong>
+                        <div class="code-block">curl -T reading.csv ftp://localhost:7041/ --user guest:change-me</div>
+                        <p>Aさんの debug に <code>/tmp/ftp-lan/reading.csv</code> が出れば、Aさんのフローは動いている。出なければ、フロー側の問題である。<code>curl: (7)</code> で始まる行が出るときは、デプロイしていないか、Port の値が違う。<code>curl: (67) Access denied: 530</code> が出るときは、Username か Password の値が違う。</p>
+                    </li>
+                    <li>
+                        <strong>Bさんが、自分の PC のターミナルから Aさんへ送る。</strong><code>192.168.1.10</code> を、Aさんの IP アドレスに書き換える。
+                        <div class="code-block">curl -T reading.csv ftp://192.168.1.10:7041/ --user guest:change-me</div>
+                        <p>Aさんの debug に <code>/tmp/ftp-lan/reading.csv</code> が出れば、ネットワークは通じている。出ないときは、<code>curl:</code> で始まる行と、Aさんの <code>ftp server</code> ノードの下の表示から、どこで止まったかを見分ける。</p>
+                        <ul>
+                            <li>行に <code>port 7041</code> とある。または、Bさんが送っている間も、Aさんのノードの下が <code>IDLE</code> のまま変わらない：ログイン用の接続が届いていない。IP アドレスが違うか、7041 番がファイアウォールで塞がれている</li>
+                            <li>行に 7042〜7052 のどれかの番号がある。または、Aさんのノードの下が緑になって Bさんのアドレスが出るのに、ファイルが保存されない：ファイルを運ぶ接続ができていない。7042〜7052 番がファイアウォールで塞がれているか、ノードの下のアドレスが社内 LAN のものでない（上の「ftp server ノードの下に出るアドレス」）</li>
+                            <li><code>curl: (67) Access denied: 530</code>：ユーザー名かパスワードが違う</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>ターミナルからは送れるのに、Node-RED からだけ失敗する。</strong>Bさんの FTP の接続設定の、ホスト、ポート、ユーザ名、パスワードのつづりを確かめる。
+                    </li>
+                </ol>
+                <p>Bさんの <code>ftp in</code> ノードの下のステータスと、デバッグのサイドバーに出るエラーからも、見当が付く。</p>
+                <table>
+                    <tr>
+                        <th>エラーの文字</th>
+                        <th>確かめる場所</th>
+                    </tr>
+                    <tr>
+                        <td><code>connect ECONNREFUSED 192.168.1.10:7041</code></td>
+                        <td>Aさんの PC には届いたが、7041 番で待ち受けているものが無いか、ファイアウォールが接続を断っている。Aさんがフローをデプロイしたか、接続設定のポートが <code>7041</code> か、Aさんの PC のファイアウォールを確かめる</td>
+                    </tr>
+                    <tr>
+                        <td><code>Not logged in.</code></td>
+                        <td>ログインを断られた。接続設定のユーザ名とパスワードが、Aさんの <code>ftp server</code> ノードの Username と Password と同じかを確かめる</td>
+                    </tr>
+                    <tr>
+                        <td><code>Timeout while connecting to server</code></td>
+                        <td>10 秒待っても、Aさんの PC から返事が無い。接続設定のホスト（IP アドレス）、Aさんの PC のファイアウォール（7041 番）、2人が同じ LAN にいるかを確かめる</td>
+                    </tr>
+                </table>
+            </details>
+
+            <details>
+                <summary>解答例フロー（受ける側・Aさん）</summary>
+                <div class="flow-json">[
+    {
+        "id": "tab_ex4s",
+        "type": "tab",
+        "label": "演習4：Aさん（受ける側）",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "ex4s_srv",
+        "type": "ftp-server",
+        "z": "tab_ex4s",
+        "name": "受信（ポート7041）",
+        "ip": "",
+        "port": 7041,
+        "passiveportrange": "7042-7052",
+        "credentials": {
+            "username": "guest",
+            "password": "change-me"
+        },
+        "x": 190,
+        "y": 140,
+        "wires": [
+            [
+                "ex4s_change"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "ex4s_change",
+        "type": "change",
+        "z": "tab_ex4s",
+        "name": "保存先を決める",
+        "rules": [
+            {
+                "t": "set",
+                "p": "filename",
+                "pt": "msg",
+                "to": "\"/tmp/ftp-lan/\" &amp; $split(topic, \"/\")[-1]",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 420,
+        "y": 140,
+        "wires": [
+            [
+                "ex4s_file"
+            ]
+        ]
+    },
+    {
+        "id": "ex4s_file",
+        "type": "file",
+        "z": "tab_ex4s",
+        "name": "保存",
+        "filename": "filename",
+        "filenameType": "msg",
+        "appendNewline": false,
+        "createDir": true,
+        "overwriteFile": "true",
+        "encoding": "none",
+        "x": 610,
+        "y": 140,
+        "wires": [
+            [
+                "ex4s_debug_path",
+                "ex4s_read"
+            ]
+        ]
+    },
+    {
+        "id": "ex4s_debug_path",
+        "type": "debug",
+        "z": "tab_ex4s",
+        "name": "Aさん側: 保存したパス",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "filename",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 830,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "ex4s_read",
+        "type": "file in",
+        "z": "tab_ex4s",
+        "name": "保存したファイルを読む",
+        "filename": "filename",
+        "filenameType": "msg",
+        "format": "utf8",
+        "chunk": false,
+        "sendError": false,
+        "encoding": "none",
+        "allProps": false,
+        "x": 840,
+        "y": 180,
+        "wires": [
+            [
+                "ex4s_debug_body"
+            ]
+        ]
+    },
+    {
+        "id": "ex4s_debug_body",
+        "type": "debug",
+        "z": "tab_ex4s",
+        "name": "Aさん側: 届いた中身",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1090,
+        "y": 180,
+        "wires": []
+    }
+]</div>
+                <p><code>ftp server</code> ノードは、ファイルが届くたびに、出力1から <code>msg.topic</code> にファイル名、<code>msg.payload</code> に中身（Buffer）を入れて送り出す。「保存先を決める」が保存先のパスを <code>msg.filename</code> に作り、「保存」がそのパスへ書き込む。</p>
+                <p>「保存」の後ろは2つに分かれる。「Aさん側: 保存したパス」は <code>msg.filename</code> を表示し、「保存したファイルを読む」は書き込んだファイルを文字として読み直して、「Aさん側: 届いた中身」に渡す。file ノードは書き終えてから msg を送り出すので、すぐ後ろで読んでも、中身は欠けない。</p>
+                <p>Username に <code>guest</code>、Password に <code>change-me</code> を設定してある（フローでは <code>"credentials"</code> に書いてある）。ユーザー名かパスワードが違う接続は、ノードが断る。</p>
+            </details>
+
+            <details>
+                <summary>解答例フロー（送る側・Bさん）</summary>
+                <p>読み込んだら、FTP の接続設定の「ホスト」を、Aさんから聞いた IP アドレスに書き換える（下の例は <code>192.168.1.10</code>）。送る文字は、Inject ノードの <code>msg.payload</code> で変えられる。</p>
+                <div class="flow-json">[
+    {
+        "id": "tab_ex4c",
+        "type": "tab",
+        "label": "演習4：Bさん（送る側）",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "ex4c_conf_partner7041",
+        "type": "ftp",
+        "host": "192.168.1.10",
+        "port": "7041",
+        "secure": false,
+        "secureOptions": "",
+        "user": "guest",
+        "connTimeout": "10000",
+        "pasvTimeout": "10000",
+        "keepalive": "10000",
+        "credentials": {
+            "password": "change-me"
+        }
+    },
+    {
+        "id": "ex4c_inject",
+        "type": "inject",
+        "z": "tab_ex4c",
+        "name": "送る",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "こんにちは、Bです",
+        "payloadType": "str",
+        "x": 150,
+        "y": 140,
+        "wires": [
+            [
+                "ex4c_file"
+            ]
+        ]
+    },
+    {
+        "id": "ex4c_file",
+        "type": "file",
+        "z": "tab_ex4c",
+        "name": "送るファイルを作る",
+        "filename": "/tmp/ftp-send/from-b.txt",
+        "filenameType": "str",
+        "appendNewline": false,
+        "createDir": true,
+        "overwriteFile": "true",
+        "encoding": "none",
+        "x": 360,
+        "y": 140,
+        "wires": [
+            [
+                "ex4c_put"
+            ]
+        ]
+    },
+    {
+        "id": "ex4c_put",
+        "type": "ftp in",
+        "z": "tab_ex4c",
+        "ftp": "ex4c_conf_partner7041",
+        "operation": "put",
+        "filename": "/from-b.txt",
+        "localFilename": "/tmp/ftp-send/from-b.txt",
+        "name": "Aさんへ送る",
+        "x": 590,
+        "y": 140,
+        "wires": [
+            [
+                "ex4c_debug"
+            ]
+        ]
+    },
+    {
+        "id": "ex4c_debug",
+        "type": "debug",
+        "z": "tab_ex4c",
+        "name": "Bさん側: 送信の結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 820,
+        "y": 140,
+        "wires": []
+    }
+]</div>
+                <p>「送るファイルを作る」が、Inject の文字を <code>/tmp/ftp-send/from-b.txt</code> に書く。<code>ftp in</code> の put が送るのは <code>msg.payload</code> ではなく、「ローカルファイル名」のファイルである。そのため、先にファイルを作っている。</p>
+                <p>「Aさんへ送る」は、そのファイルを Aさんのサーバーへ <code>/from-b.txt</code> という名前で送る。送れると、<code>msg.payload</code> が <code>Put operation successful.</code> に置き換わる。送れないときは msg を送り出さないので、「Bさん側: 送信の結果」には何も出ない。</p>
             </details>
         </div>
 
