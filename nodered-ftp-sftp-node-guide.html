@@ -1508,6 +1508,9 @@ sudo ufw allow from 192.168.1.0/24 to any port 7022:7032 proto tcp</div>
                     <p>Windows：</p>
                     <div class="code-block">echo hello &gt; "%USERPROFILE%\reading.csv"</div>
                     <p>何も表示されずに入力待ちに戻れば、作れている。すでにある自分のファイルを送るときは、この手順を飛ばしてよい。</p>
+                    <p><code>~</code> と <code>%USERPROFILE%</code> は、どちらも自分のホームフォルダを表す。<code>%USERPROFILE%</code> は Windows の環境変数（OS が値を覚えている、名前の付いた設定）で、ホームフォルダのパス（多くは <code>C:\Users\ユーザー名</code>）が入っている。コマンドプロンプトは、<code>%</code> で囲んだ名前を、実行する前にその値へ置き換える。<code>"</code> で囲んでいるのは、ユーザー名に空白があっても、パスが途中で切れないようにするためである。置き換わるパスは、次のコマンドで確かめられる（確かめなくても、先へ進める）。</p>
+                    <div class="code-block">echo %USERPROFILE%</div>
+                    <p><code>C:\Users\taro</code> のように、自分のホームフォルダのパスが表示される。<code>%USERPROFILE%</code> という文字がそのまま表示されたときは、PowerShell で実行している。下の「PowerShell で実行する場合」の書き方を使う。</p>
                 </li>
                 <li>
                     <strong>ファイルを置いたフォルダへ移る。</strong>3 のコマンドは、今いるフォルダからファイルを探す。1行目でホームフォルダへ移り、2行目でファイルがあることを確かめる。
@@ -1526,12 +1529,18 @@ dir /b reading.csv</div>
                     <p>macOS には <code>ftp</code> コマンドが入っていないため、<code>curl</code> を使う。Windows 10（バージョン 1803 以降）と Windows 11 にも <code>curl</code> が入っているので、コマンドプロンプトでは同じ行がそのまま動く。</p>
                 </li>
                 <li>
-                    <strong>届いたことを確かめる。</strong>次の3つがそろえば、送信から保存まで動いている。
+                    <strong>届いたことを確かめる。</strong>まず、画面の表示を2か所で見る。
                     <ul>
-                        <li>ターミナルに、<code>% Total</code> で始まる進み具合の表が出る。<code>curl:</code> で始まる行は出ずに、入力待ちに戻る</li>
-                        <li>Node-RED の debug サイドバーで、「認証の記録」にユーザー名 <code>camera</code> と判定「許可」が出る。続けて、「保存したパス」に <code>/tmp/ftp-received/reading.csv</code> が出る</li>
-                        <li>保存されたファイルの中身を表示すると、1 で書いた <code>hello</code> が出る。macOS と Linux では <code>cat /tmp/ftp-received/reading.csv</code>、Windows では <code>type C:\tmp\ftp-received\reading.csv</code> で表示する（Node-RED を C ドライブ以外から起動しているときは、<code>C:</code> をそのドライブに書き換える）</li>
+                        <li>ターミナル：<code>% Total</code> で始まる進み具合の表が出る。<code>curl:</code> で始まる行は出ずに、入力待ちに戻る</li>
+                        <li>Node-RED の debug サイドバー：「認証の記録」にユーザー名 <code>camera</code> と判定「許可」が出る。続けて、「保存したパス」に <code>/tmp/ftp-received/reading.csv</code> が出る</li>
                     </ul>
+                    <p>次に、保存されたファイルの中身を表示する。</p>
+                    <p>macOS と Linux：</p>
+                    <div class="code-block">cat /tmp/ftp-received/reading.csv</div>
+                    <p>Windows：</p>
+                    <div class="code-block">type C:\tmp\ftp-received\reading.csv</div>
+                    <p>1 で書いた <code>hello</code> が表示されれば、送信から保存まで動いている。自分のファイルを送ったときは、コマンドの <code>reading.csv</code> をその名前に書き換える。表示されるのは、そのファイルの中身である。</p>
+                    <p>ファイルが見つからないというエラーが出たときは、debug サイドバーに「保存したパス」が出ているかを確かめる。出ていなければ、3 に戻って、ターミナルに <code>curl:</code> で始まる行が出ていないかを見る。出ているのに見つからないときは、探している場所が違う。Windows では、Node-RED を起動したドライブを確かめ、C 以外なら <code>C:</code> をそのドライブに書き換える。Node-RED を Docker や別のマシンで動かしているときは、ファイルはその中に保存されている。</p>
                 </li>
             </ol>
             <p><strong>うまくいかないとき：</strong>3 のあとに <code>curl:</code> で始まる行が出たら、送信は失敗している。行の中身から、どこを確かめればよいかが分かる。</p>
