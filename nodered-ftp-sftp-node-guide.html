@@ -17,6 +17,8 @@
         .container { background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
         .important { background-color: #eceff1; border-left: 4px solid #37474f; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
         .tip { background-color: #e8f5e9; border-left: 4px solid #4caf50; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+        /* 手順の箇条書き。入れ子で字下げが重なるので、狭い画面でも本文の幅が残るよう詰める */
+        #try-local ol, #try-local ul { padding-left: 1.4em; }
         .warning { background-color: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
         .danger { background-color: #ffebee; border-left: 4px solid #e53935; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
         .thirdparty { background: linear-gradient(135deg, #eceff1 0%, #cfd8dc 100%); border: 2px solid #607d8b; border-radius: 8px; padding: 18px 22px; margin: 20px 0; }
@@ -1495,16 +1497,57 @@ sudo ufw allow from 192.168.1.0/24 to any port 7022:7032 proto tcp</div>
 
         <p>ftp server ノードの Port は 7021、Passive Mode Port Range は <code>7022-7032</code> にしてある。FTP は、ログイン用の接続とは別に、データを運ぶ接続を張る（2 章のパッシブモード）。その接続に使うポートの範囲が後者である。別のマシンから送るときは、両方をファイアウォールで開ける。</p>
 
-        <div class="tip">
+        <div class="tip" id="try-local">
             <strong>手元で試すには：</strong>
-            <p>相手の機器がなくても、同じマシンから送れば動作を確かめられる。上のサーバーフローをデプロイしたあと、ターミナル（Windows ではコマンドプロンプト）で、送りたいファイルのあるフォルダへ移って次を実行する。<code>/tmp/ftp-received/</code> にファイルが現れ、debug に「保存したパス」が出る。</p>
-            <div class="code-block">curl -T reading.csv ftp://localhost:7021/ --user camera:change-me</div>
-            <p><code>-T</code> は送るファイル、<code>--user</code> はユーザー名とパスワードである。macOS には <code>ftp</code> コマンドが入っていないため、<code>curl</code> を使う。Windows 10（バージョン 1803 以降）と Windows 11 にも <code>curl</code> が入っているので、コマンドプロンプトでは同じ行がそのまま動く。</p>
-            <p><strong>PowerShell で実行する場合:</strong> <code>curl</code> を <code>curl.exe</code> と書く。</p>
-            <div class="code-block">curl.exe -T reading.csv ftp://localhost:7021/ --user camera:change-me</div>
-            <p>Windows PowerShell では、<code>curl</code> という名前が PowerShell 独自の別のコマンド（<code>Invoke-WebRequest</code>）に割り当てられていて、<code>-T</code> を付けるとエラーになる。<code>curl.exe</code> と拡張子まで書くと、本来の curl が呼び出される。</p>
-            <p><strong>Windows での保存先:</strong> <code>/tmp/ftp-received/</code> は、Node-RED を起動したドライブの直下の <code>\tmp\ftp-received\</code>（多くは <code>C:\tmp\ftp-received\</code>）になる。フォルダは、無ければ file ノードが作る。debug に出るパスは <code>/tmp/ftp-received/reading.csv</code> のままである。</p>
-            <p>このサーバーは、クライアントのサンプルフローの接続先には使えない。ノードは接続のたびに空のファイルシステムを作り直すため、一覧は常に空になり、取得もできない。</p>
+            <p>相手の機器がなくても、同じマシンから <code>curl</code> コマンドでファイルを送れば、動作を確かめられる。上のサーバーフローをデプロイしてから、ターミナル（Windows ではコマンドプロンプト）を開いて、次の 1〜4 を順に進める。</p>
+            <ol>
+                <li>
+                    <strong>送るファイルを用意する。</strong>中身は何でもよい。次のコマンドは、<code>hello</code> と1行だけ書いた <code>reading.csv</code> というファイルを、ホームフォルダに作る。
+                    <p>macOS と Linux：</p>
+                    <div class="code-block">echo hello &gt; ~/reading.csv</div>
+                    <p>Windows：</p>
+                    <div class="code-block">echo hello &gt; "%USERPROFILE%\reading.csv"</div>
+                    <p>何も表示されずに入力待ちに戻れば、作れている。すでにある自分のファイルを送るときは、この手順を飛ばしてよい。</p>
+                </li>
+                <li>
+                    <strong>ファイルを置いたフォルダへ移る。</strong>3 のコマンドは、今いるフォルダからファイルを探す。1行目でホームフォルダへ移り、2行目でファイルがあることを確かめる。
+                    <p>macOS と Linux：</p>
+                    <div class="code-block">cd ~
+ls reading.csv</div>
+                    <p>Windows：</p>
+                    <div class="code-block">cd /d "%USERPROFILE%"
+dir /b reading.csv</div>
+                    <p><code>reading.csv</code> と表示されれば、ファイルはこのフォルダにある。ファイルが無いときは、macOS と Linux では <code>No such file or directory</code>、Windows では「ファイルが見つかりません」と表示される。そのときは 1 に戻る。自分のファイルを送るときは、<code>~</code> や <code>%USERPROFILE%</code> の代わりに、そのファイルを保存したフォルダを書く。</p>
+                </li>
+                <li>
+                    <strong>ファイルを送る。</strong><code>-T</code> の後ろに、送るファイルの名前を書く。
+                    <div class="code-block">curl -T reading.csv ftp://localhost:7021/ --user camera:change-me</div>
+                    <p><code>-T reading.csv</code> が送るファイルである。自分のファイルを送るときは、<code>reading.csv</code> をそのファイルの名前に書き換える。<code>ftp://localhost:7021/</code> は送り先で、このマシンのポート 7021、つまり上のサーバーフローを指す。<code>--user camera:change-me</code> は、ユーザー名とパスワードを <code>:</code> でつないだものである。</p>
+                    <p>macOS には <code>ftp</code> コマンドが入っていないため、<code>curl</code> を使う。Windows 10（バージョン 1803 以降）と Windows 11 にも <code>curl</code> が入っているので、コマンドプロンプトでは同じ行がそのまま動く。</p>
+                </li>
+                <li>
+                    <strong>届いたことを確かめる。</strong>次の3つがそろえば、送信から保存まで動いている。
+                    <ul>
+                        <li>ターミナルに、<code>% Total</code> で始まる進み具合の表が出る。<code>curl:</code> で始まる行は出ずに、入力待ちに戻る</li>
+                        <li>Node-RED の debug サイドバーで、「認証の記録」にユーザー名 <code>camera</code> と判定「許可」が出る。続けて、「保存したパス」に <code>/tmp/ftp-received/reading.csv</code> が出る</li>
+                        <li>保存されたファイルの中身を表示すると、1 で書いた <code>hello</code> が出る。macOS と Linux では <code>cat /tmp/ftp-received/reading.csv</code>、Windows では <code>type C:\tmp\ftp-received\reading.csv</code> で表示する（Node-RED を C ドライブ以外から起動しているときは、<code>C:</code> をそのドライブに書き換える）</li>
+                    </ul>
+                </li>
+            </ol>
+            <p><strong>うまくいかないとき：</strong>3 のあとに <code>curl:</code> で始まる行が出たら、送信は失敗している。行の中身から、どこを確かめればよいかが分かる。</p>
+            <ul>
+                <li><code>curl: Can't open 'reading.csv'</code>：送るファイルを開けない。多くは、今いるフォルダにその名前のファイルが無い。2 に戻って、フォルダとファイル名を確かめる</li>
+                <li><code>curl: (7) Failed to connect to localhost port 7021</code>：ポート 7021 に接続できない。まず、サーバーフローを読み込んで、デプロイしたかを確かめる</li>
+                <li><code>curl: (67) Access denied: 530</code>：ユーザー名かパスワードが違う。<code>camera:change-me</code> のつづりを確かめる。このとき、debug の「認証の記録」には判定「拒否」が出る</li>
+            </ul>
+            <p><strong>PowerShell で実行する場合：</strong>1〜3 を次のように書く。</p>
+            <div class="code-block">echo hello &gt; "$HOME\reading.csv"
+cd $HOME
+dir reading.csv
+curl.exe -T reading.csv ftp://localhost:7021/ --user camera:change-me</div>
+            <p>PowerShell は <code>%USERPROFILE%</code> という書き方を読み替えないので、ホームフォルダは <code>$HOME</code> と書く。3行目は、ファイルがあれば <code>reading.csv</code> の行を含む一覧を表示し、無ければ赤いエラーを表示する。<code>curl</code> は <code>curl.exe</code> と書く。Windows PowerShell では、<code>curl</code> という名前が PowerShell 独自の別のコマンド（<code>Invoke-WebRequest</code>）に割り当てられていて、<code>-T</code> を付けるとエラーになる。<code>curl.exe</code> と拡張子まで書くと、本来の curl が呼び出される。4 の中身の表示（<code>type</code>）も、同じ PowerShell で行う。Windows PowerShell が <code>&gt;</code> で作るファイルは文字コードが UTF-16 で、PowerShell の <code>type</code> はそれを読める。</p>
+            <p><strong>Windows での保存先：</strong><code>/tmp/ftp-received/</code> は、Node-RED を起動したドライブの直下の <code>\tmp\ftp-received\</code>（多くは <code>C:\tmp\ftp-received\</code>）になる。フォルダは、無ければ file ノードが作る。debug に出るパスは <code>/tmp/ftp-received/reading.csv</code> のままである。</p>
+            <p><strong>クライアントのサンプルフローの接続先には使えない：</strong>ノードは接続のたびに空のファイルシステムを作り直すため、一覧は常に空になり、取得もできない。</p>
         </div>
 
         <h2 id="s11">11. 演習問題</h2>
@@ -2028,7 +2071,7 @@ sudo ufw allow from 192.168.1.0/24 to any port 7022:7032 proto tcp</div>
                 <p>switch ノードの正規表現のルールでは「大文字、小文字を区別しない」をオンにしてある。カメラは <code>photo.JPG</code> のように拡張子を大文字で付けることが多く、区別すると画像が「その他」へ振り分けられてしまう。</p>
                 <p>分岐を function ノードの複数出力ではなく switch ノードで書いているのは、条件をエディター上で読めるようにするためである。振り分けの規則を後から変える人は、コードを開かずに済む。</p>
                 <p><code>ftp server</code> ノードには、Username に <code>camera</code>、Password に <code>change-me</code> を設定してある（フローでは <code>"credentials"</code> に書いてある）。Username を設定すると動的認証を使わないので、出力2の配線は空のままでよい。Username を空にしたまま出力2をどこにも繋がないと、認証の返事をする相手がいないため、ログインが終わらず、ファイルを1つも受け取れない。</p>
-                <p>動作を確かめるには、デプロイしたあと、ターミナルで画像と CSV を1つずつ送る。debug に <code>/tmp/inbox/images/photo.JPG</code> と <code>/tmp/inbox/others/reading.csv</code> が出れば振り分けられている。</p>
+                <p>動作を確かめるには、デプロイしたあと、ターミナルで画像と CSV を1つずつ送る。送るファイルの用意から送信までの進め方は、10 章の「<a href="#try-local">手元で試すには</a>」と同じである（PowerShell では、<code>curl</code> を <code>curl.exe</code> と書く）。振り分けはファイル名だけで決まるので、<code>photo.JPG</code> は本物の画像でなくてよい。<code>reading.csv</code> と同じコマンドで、名前だけを変えて作れる。debug に <code>/tmp/inbox/images/photo.JPG</code> と <code>/tmp/inbox/others/reading.csv</code> が出れば振り分けられている。</p>
                 <div class="code-block">curl -T photo.JPG ftp://localhost:7021/ --user camera:change-me
 curl -T reading.csv ftp://localhost:7021/ --user camera:change-me</div>
             </details>
