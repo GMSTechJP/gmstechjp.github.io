@@ -894,12 +894,12 @@ sudo ufw allow from 192.168.1.0/24 to any port 7022:7032 proto tcp</div>
         </table>
 
         <p>このサーバーは読み取り専用である。一覧（list）と取得（get）は成功するが、送信（put）などの書き込みは失敗する。サンプルフローでは、送信の失敗を「4. 転送の失敗を捕まえる」で受け取る例として使う。</p>
-        <p>他社が好意で公開しているサーバーなので、接続を確かめる程度の用途にとどめる。会社のネットワークでは、外向きの 21 番・22 番が塞がれていて接続できないことがある。自分のサーバーにつなぐときは、コンフィグノードのホスト名・ユーザー名・パスワードを書き換える。11 章の演習1・演習2のフローは、接続先が仮のアドレス（<code>192.168.1.50</code> など）のままなので、自分のサーバーに合わせて書き換えてから動かす。</p>
+        <p>他社が好意で公開しているサーバーなので、接続を確かめる程度の用途にとどめる。会社のネットワークでは、外向きの 21 番・22 番が塞がれていて接続できないことがある。自分のサーバーにつなぐときは、コンフィグノードのホスト名・ユーザー名・パスワードを書き換える。11 章の演習2も、この試験用サーバーにつなぐ。演習1はフォルダを作るので、読み取り専用のこのサーバーでは動かせない。代わりに、このあとの「サーバーとして受け取る」のサンプルフローを接続先にする。</p>
 
         <div class="tip">
             <strong>📌 コンフィグノードにある <code>"credentials"</code> について</strong>
             <p>パスワードは、ふつうはフローをエクスポートしても書き出されない。本ガイドのフローでは、読み込んですぐ試せるよう、FTP・SFTP のコンフィグノードに試験用サーバーの公開パスワードを <code>"credentials"</code> として書いてある。自分のサーバーのパスワードを、このようにフローへ書いて人に渡してはいけない。</p>
-            <p>演習1の FTP のコンフィグノードには、空のパスワード（<code>"credentials": {"password": ""}</code>）を入れてある。これが無いと、パスワードを一度も保存していないコンフィグノードがデプロイ時に作れず、<code>Cannot read properties of undefined (reading 'password')</code> というエラーになる。<code>node-red-contrib-ftp</code>（v0.0.8）が、資格情報の無いコンフィグノードを想定していないためである。パスワードが空のときは <code>anonymous@</code> が使われる。</p>
+            <p>パスワードの要らない FTP サーバーにつなぐフローを人に渡すときも、FTP のコンフィグノードの <code>"credentials"</code> は消さず、空のパスワード（<code>"credentials": {"password": ""}</code>）を残す。これが無いと、パスワードを一度も保存していないコンフィグノードがデプロイ時に作れず、<code>Cannot read properties of undefined (reading 'password')</code> というエラーになる。<code>node-red-contrib-ftp</code>（v0.0.8）が、資格情報の無いコンフィグノードを想定していないためである。パスワードが空のときは <code>anonymous@</code> が使われる。</p>
             <p>一度読み込んでパスワードを書き換えたあとに、同じフローを「置き換え」で読み込み直すと、パスワードはフローに書いてある値に戻る。入れ直すか、「コピーを読み込み」を選ぶ。</p>
             <p>ほかから手に入れたフロー（自分でエクスポートして別の Node-RED へ読み込んだものを含む）で同じエラーが出たら、FTP のコンフィグノードを開いて「更新」を押し、デプロイし直す。パスワード欄は空のままでもよい。編集画面で一度保存すれば、資格情報が保存される。</p>
         </div>
@@ -1526,9 +1526,31 @@ sudo ufw allow from 192.168.1.0/24 to any port 7022:7032 proto tcp</div>
                 </div>
                 <div class="sys-actor">
                     <div class="sys-name">FTP サーバー</div>
-                    <div class="sys-role">別のホストで動いている<br>（先に用意しておくもの）</div>
+                    <div class="sys-role">10 章のサーバーのサンプルフロー<br>（先にデプロイしておく）</div>
                 </div>
             </div>
+
+            <p><strong>接続先:</strong> フォルダを作るには、書き込める FTP サーバーが要る。10 章の「<a href="#s10">サーバーとして受け取る</a>」のサンプルフローを、同じ Node-RED に読み込んでデプロイしておき、それを接続先にする。FTP の接続設定には、次の値を入れる。</p>
+            <table>
+                <tr>
+                    <th>項目</th>
+                    <th>値</th>
+                </tr>
+                <tr>
+                    <td>ホスト</td>
+                    <td><code>localhost</code></td>
+                </tr>
+                <tr>
+                    <td>ポート</td>
+                    <td><code>7021</code></td>
+                </tr>
+                <tr>
+                    <td>ユーザー / パスワード</td>
+                    <td><code>camera</code> / <code>change-me</code>（サンプルフローが許可する値）</td>
+                </tr>
+            </table>
+            <p><strong>成功の条件:</strong> ボタンを押すと、自分のフローの debug に <code>mkdir operation successful.</code> が出る。サーバーのサンプルフローの「認証の記録」の debug には、ユーザー名 <code>camera</code> と判定「許可」が出る。サーバーのサンプルフローをデプロイしていないと、ノードの下に赤いステータスが出て、デバッグのサイドバーには接続のエラーが出る。自分のフローの debug ノードには何も届かない。</p>
+            <p>このサーバーは、接続のたびに空のファイルシステムを作り直す。作ったフォルダは残らないので、一覧では確かめられない。自分の FTP サーバーがあるときは、接続設定をそのサーバーに書き換えて、フォルダができたことをサーバー側で確かめるとよい。</p>
 
             <p><strong>ヒント：</strong> 「ファイル名」の欄を空にしておくと、<code>msg.filename</code> の値が使われる。日付入りのパスは、Change ノードの「値の代入」で <code>msg.filename</code> に「JSONata式」型の <code>"/upload/" &amp; $now("[Y0001]-[M01]-[D01]", "+0900")</code> を設定して作れる（<code>$now()</code> の2つ目の引数 <code>"+0900"</code> は日本時間の指定）。</p>
             <details>
@@ -1543,18 +1565,18 @@ sudo ufw allow from 192.168.1.0/24 to any port 7022:7032 proto tcp</div>
         "env": []
     },
     {
-        "id": "ex1_conf",
+        "id": "ex1_conf_local7021",
         "type": "ftp",
-        "host": "192.168.1.50",
-        "port": "21",
+        "host": "localhost",
+        "port": "7021",
         "secure": false,
         "secureOptions": "",
-        "user": "nodered",
+        "user": "camera",
         "connTimeout": "10000",
         "pasvTimeout": "10000",
         "keepalive": "10000",
         "credentials": {
-            "password": ""
+            "password": "change-me"
         }
     },
     {
@@ -1617,7 +1639,7 @@ sudo ufw allow from 192.168.1.0/24 to any port 7022:7032 proto tcp</div>
         "id": "ex1_mkdir",
         "type": "ftp in",
         "z": "tab_ex1",
-        "ftp": "ex1_conf",
+        "ftp": "ex1_conf_local7021",
         "operation": "mkdir",
         "filename": "",
         "localFilename": "",
@@ -1653,25 +1675,28 @@ sudo ufw allow from 192.168.1.0/24 to any port 7022:7032 proto tcp</div>
         </div>
 
         <div class="exercise">
-            <h3>演習2：CSV ファイルだけを一覧する<span class="difficulty difficulty-medium">中級</span></h3>
-            <p>SFTP サーバーの <code>/data</code> にはさまざまなファイルが置かれている。この中から拡張子が <code>.csv</code> のものだけを取り出し、ファイル名の配列にして debug へ流してほしい。</p>
+            <h3>演習2：画像ファイルだけを一覧する<span class="difficulty difficulty-medium">中級</span></h3>
+            <p>10 章の試験用サーバー（<code>test.rebex.net</code>）の <code>/pub/example</code> には、画像（<code>.png</code>）と <code>readme.txt</code> が置かれている。この中から拡張子が <code>.png</code> のものだけを取り出し、ファイル名の配列にして debug へ流してほしい。</p>
             <p><strong>💼 使いどころ:</strong> たくさんのファイルの中から、特定の拡張子のものだけを取り出したい場面で使います。</p>
             <p><strong>作る範囲:</strong></p>
             <div class="sys-map">
                 <div class="sys-actor sys-build">
                     <div><span class="sys-badge">これを作る</span></div>
                     <div class="sys-name">Node-RED</div>
-                    <div class="sys-role">SFTP クライアント側<br>一覧から .csv だけを残す</div>
+                    <div class="sys-role">SFTP クライアント側<br>一覧から .png だけを残す</div>
                 </div>
                 <div class="sys-link">
-                    <div class="sys-req">/data の一覧を要求 &rarr;</div>
+                    <div class="sys-req">/pub/example の一覧を要求 &rarr;</div>
                     <div class="sys-res">&larr; ファイル情報の配列</div>
                 </div>
                 <div class="sys-actor">
                     <div class="sys-name">SFTP サーバー</div>
-                    <div class="sys-role">OpenSSH の sftp<br>（先に用意しておくもの）</div>
+                    <div class="sys-role">test.rebex.net<br>（公開の試験用サーバー）</div>
                 </div>
             </div>
+
+            <p><strong>接続先:</strong> サーバーは用意しなくてよい。10 章の「<a href="#s10">接続先のサーバー</a>」の表の値（ホスト <code>test.rebex.net</code>、ポート 22、ユーザー名 <code>demo</code>、パスワード <code>password</code>）を、SFTP の接続設定に入れる。会社のネットワークでは、外向きの 22 番が塞がれていて接続できないことがある。</p>
+            <p><strong>成功の条件:</strong> ボタンを押すと、debug に <code>["imap-console-client.png", "KeyGenerator.png", …]</code> のような、名前が <code>.png</code> で終わるものだけの配列が出る（2026-11-26 時点で 15 個）。<code>readme.txt</code> が入っていなければ、絞り込めている。</p>
 
             <p><strong>ヒント：</strong> 絞り込みは <code>sftp in</code> の設定だけでできる。一覧の各要素は名前のほかにサイズや更新日時も持つオブジェクトである。名前だけの配列にするには、Change ノードで <code>msg.payload</code> に「JSONata式」型の <code>[payload.name]</code> を設定する（外側の <code>[ ]</code> は、1件だけのときも配列にするため）。</p>
             <details>
@@ -1680,26 +1705,29 @@ sudo ufw allow from 192.168.1.0/24 to any port 7022:7032 proto tcp</div>
     {
         "id": "tab_ex2",
         "type": "tab",
-        "label": "演習2：CSVだけ一覧",
+        "label": "演習2：画像だけ一覧",
         "disabled": false,
         "info": "",
         "env": []
     },
     {
-        "id": "ex2_conf",
+        "id": "ex2_conf_sftp_rebex",
         "type": "sftp",
-        "host": "192.168.1.60",
+        "host": "test.rebex.net",
         "port": "22",
         "forceIPv4": false,
         "forceIPv6": false,
-        "username": "nodered",
+        "username": "demo",
         "privateKey": "",
         "readyTimeout": "20000",
         "strictVendor": true,
         "debug": "",
         "retries": "2",
         "retry_factor": "2",
-        "retry_minTimeout": "2000"
+        "retry_minTimeout": "2000",
+        "credentials": {
+            "password": "password"
+        }
     },
     {
         "id": "ex2_inject",
@@ -1734,13 +1762,13 @@ sudo ufw allow from 192.168.1.0/24 to any port 7022:7032 proto tcp</div>
         "id": "ex2_list",
         "type": "sftp in",
         "z": "tab_ex2",
-        "sftp": "ex2_conf",
+        "sftp": "ex2_conf_sftp_rebex",
         "operation": "list",
-        "path": "/data",
-        "pattern": "*.csv",
+        "path": "/pub/example",
+        "pattern": "*.png",
         "filename": "",
         "localFilename": "",
-        "name": "CSVだけ一覧",
+        "name": "画像だけ一覧",
         "x": 390,
         "y": 100,
         "wires": [
@@ -1780,7 +1808,7 @@ sudo ufw allow from 192.168.1.0/24 to any port 7022:7032 proto tcp</div>
         "id": "ex2_debug",
         "type": "debug",
         "z": "tab_ex2",
-        "name": "CSVの一覧",
+        "name": "画像の一覧",
         "active": true,
         "tosidebar": true,
         "console": false,
