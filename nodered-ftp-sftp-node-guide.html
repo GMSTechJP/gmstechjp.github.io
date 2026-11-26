@@ -705,6 +705,14 @@
             <span class="node node-debug">debug</span>
         </div>
 
+        <div class="warning">
+            <strong>ftp in の get は、書き終わる前に次のノードへ進む：</strong>
+            <p>上の図が sftp in なのには理由がある。sftp in の get は、ファイルを書き終えてから msg を送り出す。ftp in の get は、書き出しを始めた時点で msg を送り出す。そのため、ftp in のすぐ後ろに file in ノードを置くと、書き終わる前のファイルを読むことがある。</p>
+            <p>10 章の試験用サーバーにある 80,000 バイトの画像（<code>/pub/example/WinFormClient.png</code>）を ftp in で取得し、すぐ後ろの file in で読むと、読めたのは 0 バイトだった。379 バイトの <code>/readme.txt</code> は全部読めたので、小さいファイルで試すと気づけない。sftp in では、どちらも全部読めた（node-red-contrib-ftp 0.0.8、2026-11-26 確認）。</p>
+            <p>この動作は、ノードの説明には書かれていない。同じパッケージの sftp in とも食い違うので、仕様ではなく、ノードの不具合とみられる。配布元のリポジトリに、この件の報告は無い（2026-11-26 確認）。</p>
+            <p>ftp in で取得した中身を読むときは、間に <a href="nodered-delay-node-guide.html">delay ノード</a>を挟んで待つ（上の画像は、3 秒待つと全部読めた）。必要な時間はファイルの大きさと回線の速さで変わるので、余裕を持たせる。サーバーが SFTP にも対応しているなら、sftp in を使うほうが確実である。</p>
+        </div>
+
         <p>操作のあと、メッセージには実際に使われたパスが書き戻される。<code>msg.filename</code> と <code>msg.localFilename</code> は常にセットされ、SFTP ではこれに加えて <code>msg.path</code> と <code>msg.pattern</code> も付く。後段でログを残すときに使える。</p>
 
         <h3>失敗したときの振る舞い</h3>
@@ -1263,7 +1271,7 @@ sudo ufw allow from 192.168.1.0/24 to any port 7022:7032 proto tcp</div>
             <tr>
                 <td><strong>3. 取得</strong></td>
                 <td>「取得を要求」（inject）→「SFTP get」（sftp in）→「保存先を読む」（file in）→「ファイルの中身」（debug）</td>
-                <td>Operation は <code>get</code>。「ファイル名」の <code>/readme.txt</code>（サーバー側）を、「ローカルファイル名」の <code>/tmp/readme.txt</code>（Node-RED のマシン）へ保存する。get は中身を <code>msg.payload</code> に入れないので、後ろの file in ノードで、保存したファイルを読み直している</td>
+                <td>Operation は <code>get</code>。「ファイル名」の <code>/readme.txt</code>（サーバー側）を、「ローカルファイル名」の <code>/tmp/readme.txt</code>（Node-RED のマシン）へ保存する。get は中身を <code>msg.payload</code> に入れないので、後ろの file in ノードで、保存したファイルを読み直している。取得だけ sftp in を使うのは、sftp in の get がファイルを書き終えてから次へ進むためである。ftp in でも取得はできるが、書き終わる前に次へ進むので、すぐ後ろで読むと中身が欠けることがある（<a href="#s6">6 章</a>）</td>
             </tr>
             <tr>
                 <td><strong>4. 失敗を捕まえる</strong></td>
@@ -1489,9 +1497,13 @@ sudo ufw allow from 192.168.1.0/24 to any port 7022:7032 proto tcp</div>
 
         <div class="tip">
             <strong>手元で試すには：</strong>
-            <p>相手の機器がなくても、同じマシンから送れば動作を確かめられる。上のサーバーフローをデプロイしたあと、ターミナルで、送りたいファイルのあるフォルダへ移って次を実行する。<code>/tmp/ftp-received/</code> にファイルが現れ、debug に「保存したパス」が出る。</p>
+            <p>相手の機器がなくても、同じマシンから送れば動作を確かめられる。上のサーバーフローをデプロイしたあと、ターミナル（Windows ではコマンドプロンプト）で、送りたいファイルのあるフォルダへ移って次を実行する。<code>/tmp/ftp-received/</code> にファイルが現れ、debug に「保存したパス」が出る。</p>
             <div class="code-block">curl -T reading.csv ftp://localhost:7021/ --user camera:change-me</div>
-            <p><code>-T</code> は送るファイル、<code>--user</code> はユーザー名とパスワードである。macOS には <code>ftp</code> コマンドが入っていないため、<code>curl</code> を使う。</p>
+            <p><code>-T</code> は送るファイル、<code>--user</code> はユーザー名とパスワードである。macOS には <code>ftp</code> コマンドが入っていないため、<code>curl</code> を使う。Windows 10（バージョン 1803 以降）と Windows 11 にも <code>curl</code> が入っているので、コマンドプロンプトでは同じ行がそのまま動く。</p>
+            <p><strong>PowerShell で実行する場合:</strong> <code>curl</code> を <code>curl.exe</code> と書く。</p>
+            <div class="code-block">curl.exe -T reading.csv ftp://localhost:7021/ --user camera:change-me</div>
+            <p>Windows PowerShell では、<code>curl</code> という名前が PowerShell 独自の別のコマンド（<code>Invoke-WebRequest</code>）に割り当てられていて、<code>-T</code> を付けるとエラーになる。<code>curl.exe</code> と拡張子まで書くと、本来の curl が呼び出される。</p>
+            <p><strong>Windows での保存先:</strong> <code>/tmp/ftp-received/</code> は、Node-RED を起動したドライブの直下の <code>\tmp\ftp-received\</code>（多くは <code>C:\tmp\ftp-received\</code>）になる。フォルダは、無ければ file ノードが作る。debug に出るパスは <code>/tmp/ftp-received/reading.csv</code> のままである。</p>
             <p>このサーバーは、クライアントのサンプルフローの接続先には使えない。ノードは接続のたびに空のファイルシステムを作り直すため、一覧は常に空になり、取得もできない。</p>
         </div>
 
@@ -2099,6 +2111,11 @@ curl -T reading.csv ftp://localhost:7021/ --user camera:change-me</div>
                 <td>別のマシンへ移したらパスワードが消えている</td>
                 <td>資格情報の暗号鍵が移行先と違う</td>
                 <td><code>settings.js</code> の <code>credentialSecret</code> を自分で決めておく</td>
+            </tr>
+            <tr>
+                <td>ftp in の get の後ろの file in が、空か途中までの中身を返す</td>
+                <td>ftp in の get は、ファイルを書き終える前に msg を送り出す</td>
+                <td>間に delay ノードを挟んで待つ。または sftp in を使う（<a href="#s6">6 章</a>）</td>
             </tr>
             <tr>
                 <td>watch ノードが反応するが中身が途中までしかない</td>
