@@ -895,13 +895,16 @@ WHERE ts &lt; strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-30 days');</div>
             <h3>演習 1：湿度を記録する<span class="difficulty difficulty-easy">初級</span></h3>
             <p>サンプル 1 のフローを改造し、<code>name</code> が <code>humidity</code>、<code>value</code> が 40 から 60 の間の値になる記録用の Inject と Change を追加せよ。事前定義文のノードは既存のものを共有してよい。</p>
             <p><strong>💼 使いどころ:</strong> 同じテーブルに別の測定項目を追加して記録する場面で使います。</p>
-            <p><strong>ヒント</strong>：追加するのは Inject と Change だけである。Change の「値の代入」で、<code>msg.params</code> に「JSONata式」型の次の式を設定する。</p>
-            <div class="code-block">{
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>追加するのは Inject と Change だけである。Change の「値の代入」で、<code>msg.params</code> に「JSONata式」型の次の式を設定する。</p>
+                <div class="code-block">{
     "$ts": $now(),
     "$name": "humidity",
     "$value": $round(40 + $random() * 20, 1)
 }</div>
-            <p><code>$now()</code> は現在時刻を UTC の ISO 8601 形式（<code>toISOString()</code> と同じ形）で返す。<code>$random()</code> は0以上1未満の乱数、<code>$round(…, 1)</code> は小数点以下1桁に丸める関数である。キーの <code>"$ts"</code> などは、事前定義文の <code>$ts</code> などに対応する名前で、JSONata の関数ではない。</p>
+                <p><code>$now()</code> は現在時刻を UTC の ISO 8601 形式（<code>toISOString()</code> と同じ形）で返す。<code>$random()</code> は0以上1未満の乱数、<code>$round(…, 1)</code> は小数点以下1桁に丸める関数である。キーの <code>"$ts"</code> などは、事前定義文の <code>$ts</code> などに対応する名前で、JSONata の関数ではない。</p>
+            </details>
             <details>
                 <summary>解答例（クリックで展開）</summary>
                 <div class="flow-json">[
@@ -1010,7 +1013,10 @@ WHERE ts &lt; strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-30 days');</div>
             <h3>演習 2：直近 1 時間の最大、最小、平均<span class="difficulty difficulty-medium">中級</span></h3>
             <p><code>temperature</code> について、直近 1 時間の最大値、最小値、平均値、件数を 1 行で返す SQL を書き、実行するフローを作れ。</p>
             <p><strong>💼 使いどころ:</strong> 直近の測定値の傾向を、1 回の問い合わせでまとめて把握する場面で使います。</p>
-            <p><strong>ヒント</strong>：集計関数は <code>MAX()</code>、<code>MIN()</code>、<code>AVG()</code>、<code>COUNT(*)</code>。1 時間前の時刻は、保存形式にそろえて <code>strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-1 hour')</code> で作る。<code>datetime('now', '-1 hour')</code> を使うとパターン 4 の落とし穴を踏む。</p>
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>集計関数は <code>MAX()</code>、<code>MIN()</code>、<code>AVG()</code>、<code>COUNT(*)</code>。1 時間前の時刻は、保存形式にそろえて <code>strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-1 hour')</code> で作る。<code>datetime('now', '-1 hour')</code> を使うとパターン 4 の落とし穴を踏む。</p>
+            </details>
             <details>
                 <summary>解答例（クリックで展開）</summary>
                 <div class="flow-json">[
@@ -1093,7 +1099,10 @@ WHERE ts &lt; strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-30 days');</div>
             <h3>演習 3：閾値超過を別テーブルに残す<span class="difficulty difficulty-hard">上級</span></h3>
             <p>測定値が 24.0 を超えたときだけ、<code>alerts</code> テーブルに記録するフローを作れ。<code>alerts</code> は <code>id</code>、<code>ts</code>、<code>name</code>、<code>value</code> を持つものとする。判定には Switch ノードを使うこと。</p>
             <p><strong>💼 使いどころ:</strong> 異常値だけを別のテーブルに分けて残し、後から異常の履歴だけを追える場面で使います。</p>
-            <p><strong>ヒント</strong>：Change で <code>msg.params</code> を組み立てたあと（組み立て方は演習 1 と同じ）、<a href="nodered-switch-node-guide.html">Switch</a> で <code>msg.params.$value</code> を評価する。SQL 側は事前定義文にする。</p>
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>Change で <code>msg.params</code> を組み立てたあと（組み立て方は演習 1 と同じ）、<a href="nodered-switch-node-guide.html">Switch</a> で <code>msg.params.$value</code> を評価する。SQL 側は事前定義文にする。</p>
+            </details>
             <details>
                 <summary>解答例（クリックで展開）</summary>
                 <div class="flow-json">[

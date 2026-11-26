@@ -1613,7 +1613,10 @@ curl.exe -T reading.csv ftp://localhost:7021/ --user camera:change-me</div>
             <p><strong>成功の条件:</strong> ボタンを押すと、自分のフローの debug に <code>mkdir operation successful.</code> が出る。サーバーのサンプルフローの「認証の記録」の debug には、ユーザー名 <code>camera</code> と判定「許可」が出る。サーバーのサンプルフローをデプロイしていないと、ノードの下に赤いステータスが出て、デバッグのサイドバーには接続のエラーが出る。自分のフローの debug ノードには何も届かない。</p>
             <p>このサーバーは、接続のたびに空のファイルシステムを作り直す。作ったフォルダは残らないので、一覧では確かめられない。自分の FTP サーバーがあるときは、接続設定をそのサーバーに書き換えて、フォルダができたことをサーバー側で確かめるとよい。</p>
 
-            <p><strong>ヒント：</strong> 「ファイル名」の欄を空にしておくと、<code>msg.filename</code> の値が使われる。日付入りのパスは、Change ノードの「値の代入」で <code>msg.filename</code> に「JSONata式」型の <code>"/upload/" &amp; $now("[Y0001]-[M01]-[D01]", "+0900")</code> を設定して作れる（<code>$now()</code> の2つ目の引数 <code>"+0900"</code> は日本時間の指定）。</p>
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>「ファイル名」の欄を空にしておくと、<code>msg.filename</code> の値が使われる。日付入りのパスは、Change ノードの「値の代入」で <code>msg.filename</code> に「JSONata式」型の <code>"/upload/" &amp; $now("[Y0001]-[M01]-[D01]", "+0900")</code> を設定して作れる（<code>$now()</code> の2つ目の引数 <code>"+0900"</code> は日本時間の指定）。</p>
+            </details>
             <details>
                 <summary>解答例（クリックで展開）</summary>
                 <div class="flow-json">[
@@ -1766,7 +1769,10 @@ curl.exe -T reading.csv ftp://localhost:7021/ --user camera:change-me</div>
             <p><strong>接続先:</strong> サーバーは用意しなくてよい。10 章の「<a href="#s10">接続先のサーバー</a>」の表の値（ホスト <code>test.rebex.net</code>、ポート 22、ユーザー名 <code>demo</code>、パスワード <code>password</code>）を、SFTP の接続設定に入れる。会社のネットワークでは、外向きの 22 番が塞がれていて接続できないことがある。</p>
             <p><strong>成功の条件:</strong> ボタンを押すと、debug に <code>["imap-console-client.png", "KeyGenerator.png", …]</code> のような、名前が <code>.png</code> で終わるものだけの配列が出る（2026-11-26 時点で 15 個）。<code>readme.txt</code> が入っていなければ、絞り込めている。</p>
 
-            <p><strong>ヒント：</strong> 絞り込みは <code>sftp in</code> の設定だけでできる。一覧の各要素は名前のほかにサイズや更新日時も持つオブジェクトである。名前だけの配列にするには、Change ノードで <code>msg.payload</code> に「JSONata式」型の <code>[payload.name]</code> を設定する（外側の <code>[ ]</code> は、1件だけのときも配列にするため）。</p>
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>絞り込みは <code>sftp in</code> の設定だけでできる。一覧の各要素は名前のほかにサイズや更新日時も持つオブジェクトである。名前だけの配列にするには、Change ノードで <code>msg.payload</code> に「JSONata式」型の <code>[payload.name]</code> を設定する（外側の <code>[ ]</code> は、1件だけのときも配列にするため）。</p>
+            </details>
             <details>
                 <summary>解答例（クリックで展開）</summary>
                 <div class="flow-json">[
@@ -1925,7 +1931,10 @@ curl.exe -T reading.csv ftp://localhost:7021/ --user camera:change-me</div>
                 </div>
             </div>
 
-            <p><strong>ヒント：</strong> ファイル名は <code>msg.topic</code> に入る。分岐の条件はノードの設定として見えるようにしておくと、あとから読みやすい。保存先のパスは、Change ノードで <code>msg.filename</code> に「JSONata式」型の <code>"/tmp/inbox/images/" &amp; $split(topic, "/")[-1]</code> のように作れる。<code>$split(topic, "/")[-1]</code> は、<code>/</code> で区切った最後の部分（ファイル名）を取り出す。</p>
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>ファイル名は <code>msg.topic</code> に入る。分岐の条件はノードの設定として見えるようにしておくと、あとから読みやすい。保存先のパスは、Change ノードで <code>msg.filename</code> に「JSONata式」型の <code>"/tmp/inbox/images/" &amp; $split(topic, "/")[-1]</code> のように作れる。<code>$split(topic, "/")[-1]</code> は、<code>/</code> で区切った最後の部分（ファイル名）を取り出す。</p>
+            </details>
             <details>
                 <summary>解答例（クリックで展開）</summary>
                 <div class="flow-json">[
