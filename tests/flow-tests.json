@@ -1183,6 +1183,117 @@
             "ex4_tab": {
                 "manual": "/tmp/ftp_incoming に CSV ファイルを置いて確かめる。監視する相手の変化を、Node-RED の外でファイルを置く・書き換えることで起こす演習。フローにボタンが無く、CI の実行役はファイルを置かない"
             }
+        },
+        "nodered-regex-guide.html": {
+            "regex_sample_tab": {
+                "inject": [
+                    "report.csv を送る",
+                    "photo.JPG を送る",
+                    "data.csv.bak を送る",
+                    "memo.txt を送る",
+                    "空白の多い文字列を送る",
+                    "REPORT.CSV を送る",
+                    "090-1234-5678 を送る"
+                ],
+                "expect": [
+                    {
+                        "debug": "CSV",
+                        "match": "^report\\.csv$"
+                    },
+                    {
+                        "debug": "画像",
+                        "match": "^photo\\.JPG$"
+                    },
+                    {
+                        "debug": "その他",
+                        "match": "^data\\.csv\\.bak$"
+                    },
+                    {
+                        "debug": "その他",
+                        "match": "^memo\\.txt$"
+                    },
+                    {
+                        "debug": "置き換えた結果",
+                        "match": "^温度 25\\.5 ℃$"
+                    },
+                    {
+                        "debug": "JSONata の結果",
+                        "contains": "\"元の名前\":\"REPORT.CSV\",\"CSVか\":true,\"JSONの名前\":\"REPORT.json\""
+                    },
+                    {
+                        "debug": "JavaScript の結果",
+                        "contains": "\"すべて置き換え\":\"09012345678\",\"1つ目だけ\":\"0901234-5678\",\"数字とハイフンだけか\":true"
+                    }
+                ]
+            },
+            "regex_ex1_tab": {
+                "inject": [
+                    "ERROR: disk full を送る",
+                    "error: timeout を送る",
+                    "INFO: started を送る",
+                    "No error found を送る"
+                ],
+                "expect": [
+                    {
+                        "debug": "エラーの行",
+                        "match": "^ERROR: disk full$"
+                    },
+                    {
+                        "debug": "エラーの行",
+                        "match": "^error: timeout$"
+                    },
+                    {
+                        "debug": "その他の行",
+                        "match": "^INFO: started$"
+                    },
+                    {
+                        "debug": "その他の行",
+                        "match": "^No error found$"
+                    }
+                ]
+            },
+            "regex_ex2_tab": {
+                "inject": [
+                    "2026/11/27 10:30:00 を送る",
+                    "2026/1/5 9:05:00 を送る"
+                ],
+                "expect": [
+                    {
+                        "debug": "ファイル名に使える形",
+                        "match": "^2026-11-27_10-30-00$"
+                    },
+                    {
+                        "debug": "ファイル名に使える形",
+                        "match": "^2026-1-5_9-05-00$"
+                    }
+                ]
+            },
+            "regex_ex3_tab": {
+                "inject": [
+                    "line1_20261127.csv を送る",
+                    "LINE2_20261128.CSV を送る",
+                    "readme.txt を送る",
+                    "line3_backup.csv を送る"
+                ],
+                "expect": [
+                    {
+                        "debug": "取り出した結果",
+                        "contains": "\"ライン\":1,\"日付\":\"20261127\""
+                    },
+                    {
+                        "debug": "取り出した結果",
+                        "contains": "\"ライン\":2,\"日付\":\"20261128\""
+                    },
+                    {
+                        "debug": "対象外",
+                        "match": "^readme\\.txt$"
+                    },
+                    {
+                        "debug": "対象外",
+                        "match": "^line3_backup\\.csv$"
+                    }
+                ]
+            }
         }
     }
 }
