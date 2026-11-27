@@ -1,0 +1,2231 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node-RED 正規表現ガイド</title>
+    <link rel="stylesheet" href="css/node-diagram.css">
+    <script src="js/node-diagram.js" defer></script>
+    <link rel="stylesheet" href="css/text-wrap.css">
+    <script src="js/table-fit.js" defer></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', 'Hiragino Sans', 'Yu Gothic UI', 'Meiryo', sans-serif;
+            line-height: 1.8;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        h1 {
+            color: #8f0000;
+            border-bottom: 3px solid #8f0000;
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            color: #c00000;
+            margin-top: 30px;
+            border-left: 5px solid #c00000;
+            padding-left: 15px;
+        }
+
+        h3 {
+            color: #555;
+            margin-top: 25px;
+        }
+
+        h4 {
+            color: #666;
+            margin-top: 20px;
+        }
+
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .code-block {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+        }
+
+        .important {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .tip {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .warning {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background-color: #e2d96e;
+            color: #333;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        ul, ol {
+            padding-left: 25px;
+        }
+
+        li {
+            margin: 6px 0;
+        }
+
+        .flow-json {
+            background-color: #263238;
+            color: #aed581;
+            padding: 15px;
+            padding-top: 40px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            position: relative;
+            white-space: pre;
+        }
+
+        .copy-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 6px 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: 'Segoe UI', sans-serif;
+            transition: background-color 0.2s;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .copy-button:hover {
+            background-color: #0056b3;
+        }
+
+        .copy-button.copied {
+            background-color: #28a745;
+        }
+
+        .copy-button svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+        }
+
+        details {
+            margin: 15px 0;
+        }
+
+        summary {
+            cursor: pointer;
+            padding: 10px;
+            background-color: #6c757d;
+            color: white;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        summary:hover {
+            background-color: #5a6268;
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: space-between;
+            margin: 30px 0;
+            padding: 15px;
+            background: #eceff1;
+            border-radius: 8px;
+        }
+
+        .nav-links a {
+            color: #1976d2;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+
+        .toc {
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .toc h3 {
+            margin-top: 0;
+        }
+
+        .toc ol {
+            margin: 0;
+        }
+
+        .toc a {
+            color: #1976d2;
+            text-decoration: none;
+        }
+
+        .toc a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 640px) {
+            .container { overflow-wrap: break-word; }
+        }
+
+        .exercise {
+            background-color: #e3f2fd;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 2px solid #2196f3;
+        }
+
+        .exercise h3 {
+            color: #1976d2;
+            margin-top: 0;
+        }
+
+        .exercise code {
+            overflow-wrap: anywhere;
+        }
+
+        .difficulty {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .difficulty-easy { background-color: #c8e6c9; color: #2e7d32; }
+        .difficulty-medium { background-color: #fff9c4; color: #b25a00; }
+        .difficulty-hard { background-color: #ffcdd2; color: #c62828; }
+
+        @media (max-width: 640px) {
+            .exercise { padding: 14px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Node-RED 正規表現ガイド</h1>
+        <div data-envbadge="1" style="margin:12px 0;"><span style="display:inline-block;padding:3px 12px;border-radius:12px;font-size:0.85em;font-weight:bold;background:#e3f2fd;color:#0d47a1;border:1px solid #90caf9;">☁️ クラウドOK</span> <a href="nodered-learning-environment-guide.html" style="font-size:0.82em;">環境とは？</a></div>
+
+        <p><strong>正規表現</strong>は、文字列の「形」を書き表すための記法です。「末尾が <code>.csv</code>」「先頭が <code>error</code>」「数字が1つ以上続く」のような条件を、短い記号の並びで書けます。Node-RED では、switch ノードの条件、change ノードの置換、JSONata 式、function ノードの JavaScript で使います。</p>
+
+        <p>このガイドの目標は、サイトのサンプルフローや演習の解答例に出てくる正規表現を読めて、少し直せるようになることです。扱う記号は、サイトに実際に出てくるものに絞っています。扱わない記号は、<a href="#s10">まとめ</a>で外部の資料を案内します。</p>
+
+        <div class="tip">
+            <strong>前提知識：</strong> <a href="nodered-switch-node-guide.html">switch ノードガイド</a>と <a href="nodered-change-node-guide.html">change ノードガイド</a>の内容を把握している読者を想定しています。JSONata と function ノードは、使う箇所だけ読めば足ります。
+        </div>
+
+        <div class="toc">
+            <h3>目次</h3>
+            <ol>
+                <li><a href="#s1">正規表現とは</a></li>
+                <li><a href="#s2">記号の読み方</a></li>
+                <li><a href="#s3">1つの例を読み解く</a></li>
+                <li><a href="#s4">書く場所ごとの違い</a></li>
+                <li><a href="#s5">フローの JSON での見え方</a></li>
+                <li><a href="#s6">正規表現と混同しやすいもの</a></li>
+                <li><a href="#s7">サンプルフロー</a></li>
+                <li><a href="#s8">演習問題</a></li>
+                <li><a href="#s9">うまく一致しないとき</a></li>
+                <li><a href="#s10">まとめ</a></li>
+            </ol>
+        </div>
+
+        <h2 id="s1">1. 正規表現とは</h2>
+
+        <h3>「含む」では足りない場面</h3>
+
+        <p>フォルダに届いたファイルのうち、CSV だけを処理したいとします。ファイル名に <code>.csv</code> を含むかどうかで調べると、<code>data.csv.bak</code>（CSV の控え）まで CSV として扱ってしまいます。調べたいのは「含むかどうか」ではなく、「末尾が <code>.csv</code> かどうか」です。</p>
+
+        <p>正規表現では、この条件を <code>\.csv$</code> と書きます。<code>\.</code> がピリオド、<code>csv</code> がその3文字、<code>$</code> が「ここで文字列が終わる」という位置を表します。</p>
+
+        <table>
+            <tr>
+                <th>ファイル名</th>
+                <th><code>.csv</code> を含む</th>
+                <th>正規表現 <code>\.csv$</code></th>
+            </tr>
+            <tr>
+                <td><code>report.csv</code></td>
+                <td>当てはまる</td>
+                <td>一致する</td>
+            </tr>
+            <tr>
+                <td><code>data.csv.bak</code></td>
+                <td>当てはまる（意図と違う）</td>
+                <td>一致しない</td>
+            </tr>
+            <tr>
+                <td><code>memo.txt</code></td>
+                <td>当てはまらない</td>
+                <td>一致しない</td>
+            </tr>
+        </table>
+
+        <p>正規表現に書いた形を<strong>パターン</strong>、文字列がその形に当てはまることを「一致する」（マッチする）と呼びます。</p>
+
+        <h3>Node-RED で正規表現を書く場所</h3>
+
+        <p>正規表現を書く場所は4つあります。記号の意味はどこでも同じですが、パターンの囲み方と、大文字と小文字の扱い方が場所ごとに違います。違いは<a href="#s4">セクション 4</a>でまとめます。</p>
+
+        <table>
+            <tr>
+                <th>場所</th>
+                <th>何に使うか</th>
+                <th>書き方の例</th>
+            </tr>
+            <tr>
+                <td><strong>switch ノード</strong>の条件「正規表現にマッチ」</td>
+                <td>文字列の形で、メッセージを振り分ける</td>
+                <td><code>\.csv$</code></td>
+            </tr>
+            <tr>
+                <td><strong>change ノード</strong>の「値の置換」</td>
+                <td>形に当てはまる部分を、別の文字列に置き換える</td>
+                <td><code>\s+</code></td>
+            </tr>
+            <tr>
+                <td><strong>JSONata 式</strong>の <code>$contains</code>、<code>$replace</code>、<code>$match</code>、<code>$split</code></td>
+                <td>式の中で、調べる、置き換える、取り出す、区切る</td>
+                <td><code>$replace(payload, /\.csv$/, ".json")</code></td>
+            </tr>
+            <tr>
+                <td><strong>function ノード</strong>の JavaScript</td>
+                <td>コードの中で、調べる、置き換える、取り出す、区切る</td>
+                <td><code>text.replace(/-/g, "")</code></td>
+            </tr>
+        </table>
+
+        <h2 id="s2">2. 記号の読み方</h2>
+
+        <h3>記号でない文字は、その文字そのもの</h3>
+
+        <p>パターン <code>csv</code> は、「c、s、v がこの順に並んでいる」という形を表します。位置を指定しなければ、文字列のどこにあっても一致します。<code>csv</code> は <code>report.csv</code> にも、<code>csv-tool</code> にも、<code>mycsvfile</code> にも一致します。</p>
+
+        <p>大文字と小文字は、何も指定しなければ区別します。<code>csv</code> は <code>REPORT.CSV</code> に一致しません。区別をやめる方法は書く場所ごとに違うので、<a href="#s4">セクション 4</a>で説明します。</p>
+
+        <h3>位置を表す記号</h3>
+
+        <table>
+            <tr>
+                <th>記号</th>
+                <th>意味</th>
+                <th>例</th>
+                <th>一致する</th>
+                <th>一致しない</th>
+            </tr>
+            <tr>
+                <td><code>^</code></td>
+                <td>文字列の先頭</td>
+                <td><code>^error</code></td>
+                <td><code>error: timeout</code></td>
+                <td><code>No error found</code></td>
+            </tr>
+            <tr>
+                <td><code>$</code></td>
+                <td>文字列の末尾</td>
+                <td><code>csv$</code></td>
+                <td><code>report.csv</code></td>
+                <td><code>data.csv.bak</code></td>
+            </tr>
+        </table>
+
+        <p><code>^</code> と <code>$</code> で両側をはさむと、「文字列の全体がこの形」という条件になります。<code>^ok$</code> は <code>ok</code> だけに一致し、<code>ok!</code> や <code>look</code> には一致しません。</p>
+
+        <h3>文字の種類を表す記号</h3>
+
+        <table>
+            <tr>
+                <th>記号</th>
+                <th>意味</th>
+                <th>例</th>
+                <th>一致する</th>
+                <th>一致しない</th>
+            </tr>
+            <tr>
+                <td><code>.</code></td>
+                <td>どの文字でもよい1文字（改行を除く）</td>
+                <td><code>a.c</code></td>
+                <td><code>abc</code>、<code>a-c</code></td>
+                <td><code>ac</code></td>
+            </tr>
+            <tr>
+                <td><code>\.</code></td>
+                <td>ピリオドそのもの</td>
+                <td><code>\.csv$</code></td>
+                <td><code>report.csv</code></td>
+                <td><code>report_csv</code></td>
+            </tr>
+            <tr>
+                <td><code>\d</code></td>
+                <td>数字1文字（0〜9）</td>
+                <td><code>\d\d</code></td>
+                <td><code>42</code>、<code>line12</code></td>
+                <td><code>line7</code></td>
+            </tr>
+            <tr>
+                <td><code>\s</code></td>
+                <td>空白1文字（スペース、タブ、改行、全角スペース）</td>
+                <td><code>a\sb</code></td>
+                <td><code>a b</code></td>
+                <td><code>ab</code></td>
+            </tr>
+            <tr>
+                <td><code>[ ]</code></td>
+                <td>中に並べた文字のどれか1文字</td>
+                <td><code>[/:]</code></td>
+                <td><code>10:30</code>、<code>11/27</code></td>
+                <td><code>10-30</code></td>
+            </tr>
+        </table>
+
+        <p><code>[ ]</code> の中では、<code>-</code> で範囲を書けます。<code>[0-9]</code> は数字1文字（<code>\d</code> と同じ）、<code>[A-Z]</code> は大文字のアルファベット1文字、<code>[0-9a-f]</code> は数字か a〜f のどれか1文字です。</p>
+
+        <div class="important">
+            <strong>ピリオドは <code>\.</code> と書く：</strong>
+            <p><code>.</code> は「どの文字でもよい1文字」なので、<code>.csv$</code> は <code>report_csv</code> や <code>mycsv</code> にも一致します。拡張子のピリオドを調べるときは、<code>\</code> を前に置いて <code>\.</code> と書きます。</p>
+            <p>このガイドで扱う記号の文字（<code>.</code>、<code>^</code>、<code>$</code>、<code>|</code>、<code>(</code>、<code>)</code>、<code>?</code>、<code>+</code>、<code>*</code>、<code>[</code>、<code>]</code>、<code>\</code>）は、どれも前に <code>\</code> を置くと、その文字そのものを表します。</p>
+        </div>
+
+        <h3>繰り返しを表す記号</h3>
+
+        <p>次の3つは、直前の1文字（または <code>( )</code> でまとめた部分）が何回続くかを表します。</p>
+
+        <table>
+            <tr>
+                <th>記号</th>
+                <th>意味</th>
+                <th>例</th>
+                <th>一致する</th>
+                <th>一致しない</th>
+            </tr>
+            <tr>
+                <td><code>?</code></td>
+                <td>あってもなくてもよい（0回か1回）</td>
+                <td><code>jpe?g</code></td>
+                <td><code>jpg</code>、<code>jpeg</code></td>
+                <td><code>jpag</code></td>
+            </tr>
+            <tr>
+                <td><code>+</code></td>
+                <td>1回以上続く</td>
+                <td><code>^\d+$</code></td>
+                <td><code>7</code>、<code>2026</code></td>
+                <td><code>12a</code>、空の文字列</td>
+            </tr>
+            <tr>
+                <td><code>*</code></td>
+                <td>0回以上続く（無くてもよい）</td>
+                <td><code>^ab*c$</code></td>
+                <td><code>ac</code>、<code>abc</code>、<code>abbc</code></td>
+                <td><code>adc</code></td>
+            </tr>
+        </table>
+
+        <p><code>.*</code> は「どの文字が何文字あってもよい」という意味で、よく使われます（改行は含みません）。<code>^error.*timeout$</code> は、<code>error</code> で始まり <code>timeout</code> で終わる文字列に一致します。</p>
+
+        <h3>「または」と、まとめる記号</h3>
+
+        <table>
+            <tr>
+                <th>記号</th>
+                <th>意味</th>
+                <th>例</th>
+                <th>一致する</th>
+                <th>一致しない</th>
+            </tr>
+            <tr>
+                <td><code>|</code></td>
+                <td>または</td>
+                <td><code>png|gif</code></td>
+                <td><code>logo.png</code>、<code>anime.gif</code></td>
+                <td><code>photo.jpg</code></td>
+            </tr>
+            <tr>
+                <td><code>( )</code></td>
+                <td>ひとまとまりにする</td>
+                <td><code>\.(png|gif)$</code></td>
+                <td><code>logo.png</code>、<code>anime.gif</code></td>
+                <td><code>png.txt</code>、<code>logo.png.bak</code></td>
+            </tr>
+        </table>
+
+        <p><code>|</code> は、<code>( )</code> で囲まないと、パターン全体を左右に分けます。<code>\.png|gif$</code> は「<code>.png</code> を含む」または「末尾が <code>gif</code>」という意味になり、<code>logo.png.bak</code> にも一致します。「ピリオドのあとに png か gif が来て、そこで終わる」と書くには、<code>\.(png|gif)$</code> のように <code>( )</code> で「または」の範囲を区切ります。</p>
+
+        <p><code>( )</code> には、もう1つ役割があります。JSONata や JavaScript では、<code>( )</code> で囲んだ部分に一致した文字列を、あとから取り出せます。使い方は<a href="#s4-jsonata">JSONata の説明</a>で示します。</p>
+
+        <h2 id="s3">3. 1つの例を読み解く</h2>
+
+        <p><a href="nodered-ftp-sftp-node-guide.html">FTP・SFTP ガイド</a>の演習に、届いたファイルが画像かどうかを調べる次のパターンが出てきます。</p>
+
+        <div class="code-block">\.(jpe?g|png|gif)$</div>
+
+        <p>左から順に、部品に分けて読みます。</p>
+
+        <table>
+            <tr>
+                <th>部品</th>
+                <th>意味</th>
+            </tr>
+            <tr>
+                <td><code>\.</code></td>
+                <td>ピリオドそのもの</td>
+            </tr>
+            <tr>
+                <td><code>(</code> … <code>)</code></td>
+                <td>中の3つのうち、どれか1つ</td>
+            </tr>
+            <tr>
+                <td><code>jpe?g</code></td>
+                <td><code>jp</code>、あってもなくてもよい <code>e</code>、<code>g</code>。つまり <code>jpg</code> か <code>jpeg</code></td>
+            </tr>
+            <tr>
+                <td><code>|png</code></td>
+                <td>または <code>png</code></td>
+            </tr>
+            <tr>
+                <td><code>|gif</code></td>
+                <td>または <code>gif</code></td>
+            </tr>
+            <tr>
+                <td><code>$</code></td>
+                <td>ここで文字列が終わる</td>
+            </tr>
+        </table>
+
+        <p>まとめると、「ピリオドのあとに jpg、jpeg、png、gif のどれかが来て、そこで終わる」という形です。いくつかのファイル名で確かめます。</p>
+
+        <table>
+            <tr>
+                <th>ファイル名</th>
+                <th>結果</th>
+                <th>理由</th>
+            </tr>
+            <tr>
+                <td><code>photo.jpg</code></td>
+                <td>一致する</td>
+                <td>末尾が <code>.jpg</code></td>
+            </tr>
+            <tr>
+                <td><code>photo.jpeg</code></td>
+                <td>一致する</td>
+                <td><code>e?</code> が <code>e</code> に当たる</td>
+            </tr>
+            <tr>
+                <td><code>logo.png</code></td>
+                <td>一致する</td>
+                <td>末尾が <code>.png</code></td>
+            </tr>
+            <tr>
+                <td><code>photo.jpg.bak</code></td>
+                <td>一致しない</td>
+                <td><code>.jpg</code> のあとに文字が続き、<code>$</code> に合わない</td>
+            </tr>
+            <tr>
+                <td><code>jpg.txt</code></td>
+                <td>一致しない</td>
+                <td><code>jpg</code> の前にピリオドが無い</td>
+            </tr>
+            <tr>
+                <td><code>photo.JPG</code></td>
+                <td>一致しない</td>
+                <td>大文字と小文字を区別する。区別をやめれば一致する</td>
+            </tr>
+        </table>
+
+        <p>カメラは <code>photo.JPG</code> のように拡張子を大文字で付けることがあります。FTP・SFTP ガイドの解答例は、switch ノードの「大文字、小文字を区別しない」をオンにして、大文字の拡張子も画像として扱っています。</p>
+
+        <h2 id="s4">4. 書く場所ごとの違い</h2>
+
+        <p>同じパターンでも、書く場所によって囲み方と指定のしかたが変わります。ここを取り違えると、パターンが正しくても一致しません。</p>
+
+        <table>
+            <tr>
+                <th>場所</th>
+                <th>パターンの書き方</th>
+                <th>大文字と小文字を区別しない</th>
+                <th>一致する箇所が複数あるとき</th>
+            </tr>
+            <tr>
+                <td><strong>switch</strong>「正規表現にマッチ」</td>
+                <td>欄にパターンだけを書く<br><code>\.csv$</code></td>
+                <td>「大文字、小文字を区別しない」をオンにする</td>
+                <td>一致するかどうかだけを調べる</td>
+            </tr>
+            <tr>
+                <td><strong>change</strong>「値の置換」</td>
+                <td>「検索する文字列」の型を「正規表現」にして、パターンだけを書く<br><code>\s+</code></td>
+                <td>指定できない（区別する）</td>
+                <td>すべて置き換える</td>
+            </tr>
+            <tr>
+                <td><strong>JSONata</strong></td>
+                <td><code>/</code> で囲む<br><code>/\.csv$/</code></td>
+                <td>うしろに <code>i</code> を付ける<br><code>/\.csv$/i</code></td>
+                <td><code>$replace</code> はすべて置き換え、<code>$match</code> はすべて返す</td>
+            </tr>
+            <tr>
+                <td><strong>JavaScript</strong>（function）</td>
+                <td><code>/</code> で囲む<br><code>/\.csv$/</code></td>
+                <td>うしろに <code>i</code> を付ける<br><code>/\.csv$/i</code></td>
+                <td><code>replace</code> と <code>match</code> は、うしろに <code>g</code> を付けたときだけ、すべてが対象になる。<code>split</code> は、<code>g</code> が無くてもすべての箇所で区切る</td>
+            </tr>
+        </table>
+
+        <p><code>/</code> のうしろに付ける <code>i</code> や <code>g</code> を<strong>フラグ</strong>と呼びます。<code>i</code> は「大文字と小文字を区別しない」、<code>g</code> は「一致したすべてを対象にする」という指定です。2つを同時に付けるときは、<code>/-/gi</code> のように並べます。</p>
+
+        <h3 id="s4-switch">switch ノード</h3>
+
+        <p>条件の種類で「正規表現にマッチ」を選ぶと、パターンを書く欄と「大文字、小文字を区別しない」のチェックボックスが出ます。</p>
+
+        <ul>
+            <li>欄にはパターンだけを書きます。<code>/</code> で囲みません。<code>/\.csv$/</code> と書くと、<code>/</code> という文字も探す対象になり、一致しなくなります</li>
+            <li>調べるのは、文字列のどこかがパターンに一致するかどうかです。全体が一致することを求めるときは、<code>^</code> と <code>$</code> ではさみます</li>
+            <li>調べる値が数値のときは、文字列に直してから調べます。<code>msg.payload</code> が数値の <code>404</code> なら、<code>^4</code> に一致します</li>
+            <li>パターンに誤りがあると（括弧の閉じ忘れなど）、メッセージが届いた時点でエラーになり、どの出力にも送られません。debug サイドバーに、<code>Invalid regular expression</code> を含むエラーが出ます</li>
+        </ul>
+
+        <h3 id="s4-change">change ノード</h3>
+
+        <p>ルールの種類で「値の置換」を選び、「検索する文字列」の欄の左の型を「正規表現」に切り替えます。型が「文字列」のままだと、<code>\s+</code> は記号として働かず、<code>\s+</code> という3文字そのものを探します。</p>
+
+        <ul>
+            <li>欄にはパターンだけを書きます。<code>/</code> で囲まず、<code>i</code> や <code>g</code> も付けません</li>
+            <li>一致したところは、すべて置き換わります。1つ目だけを置き換える指定はありません</li>
+            <li>大文字と小文字は区別します。区別をやめる指定はありません。両方に一致させるには、<code>[Cc][Ss][Vv]</code> のように1文字ずつ <code>[ ]</code> で書くか、JSONata の <code>$replace</code> と <code>i</code> を使います</li>
+            <li>置き換わるのは、プロパティの値が文字列のときだけです。値が数値のときは、何も変わりません</li>
+            <li>パターンに誤りがあると、デプロイした時点で、debug サイドバーに「操作対象のプロパティが不正」で始まるエラーが出ます（Node-RED が英語で動いているときは <code>Invalid 'from' property</code>）。メッセージが届く前に分かります</li>
+        </ul>
+
+        <h3 id="s4-jsonata">JSONata 式</h3>
+
+        <p>JSONata では、パターンを <code>/</code> で囲んで書きます。文字列を受け取る次の4つの関数に、文字列の代わりに渡せます。関数の基本は <a href="nodered-jsonata-guide.html">JSONata式ガイド</a>にあります。</p>
+
+        <table>
+            <tr>
+                <th>関数</th>
+                <th>すること</th>
+                <th>例（<code>payload</code> が <code>REPORT.CSV</code> のとき）</th>
+                <th>結果</th>
+            </tr>
+            <tr>
+                <td><code>$contains</code></td>
+                <td>一致するかどうかを調べる</td>
+                <td><code>$contains(payload, /\.csv$/i)</code></td>
+                <td><code>true</code></td>
+            </tr>
+            <tr>
+                <td><code>$replace</code></td>
+                <td>一致したところを、すべて置き換える</td>
+                <td><code>$replace(payload, /\.csv$/i, ".json")</code></td>
+                <td><code>"REPORT.json"</code></td>
+            </tr>
+            <tr>
+                <td><code>$match</code></td>
+                <td>一致したところを取り出す</td>
+                <td><code>$match(payload, /\.csv$/i).match</code></td>
+                <td><code>".CSV"</code></td>
+            </tr>
+            <tr>
+                <td><code>$split</code></td>
+                <td>一致したところで区切って、配列にする</td>
+                <td><code>$split(payload, /\./)</code></td>
+                <td><code>["REPORT", "CSV"]</code></td>
+            </tr>
+        </table>
+
+        <ul>
+            <li>付けられるフラグは <code>i</code> と <code>m</code> です（<code>m</code> は、複数行の文字列で、<code>^</code> と <code>$</code> を各行の先頭と末尾にも一致させる指定）。<code>g</code> は付けられません（式のエラーになります）。<code>$replace</code> は、<code>g</code> が無くてもすべてを置き換えます</li>
+            <li><code>*</code> や <code>?</code> だけでできたパターン（<code>\d*</code> など）は、何もない位置（長さ 0）にも一致します。<code>$replace</code>、<code>$match</code>、<code>$split</code> は、長さ 0 の一致が起きると、エラーになることがあります。<code>\d+</code> のように、1文字以上に一致する形で書きます</li>
+        </ul>
+
+        <p><code>$match</code> は、一致したところごとに、次の3つを持つオブジェクトを返します。一致が1つならオブジェクトが1つ、複数ならその配列、一致が無ければ何も返しません。</p>
+
+        <table>
+            <tr>
+                <th>項目</th>
+                <th>内容</th>
+            </tr>
+            <tr>
+                <td><code>match</code></td>
+                <td>一致した文字列</td>
+            </tr>
+            <tr>
+                <td><code>index</code></td>
+                <td>一致した位置（先頭が 0）</td>
+            </tr>
+            <tr>
+                <td><code>groups</code></td>
+                <td>パターンの <code>( )</code> で囲んだ部分に一致した文字列の配列。<code>( )</code> の順に並ぶ</td>
+            </tr>
+        </table>
+
+        <p><code>groups</code> を使うと、文字列の一部を取り出せます。<code>payload</code> が <code>line1_20261127.csv</code> のとき、次の式は <code>["1", "20261127"]</code> を返します。1つ目の <code>( )</code> がライン番号、2つ目の <code>( )</code> が日付に当たります。</p>
+
+        <div class="code-block">$match(payload, /^line(\d+)_(\d+)\.csv$/).groups</div>
+
+        <h3 id="s4-js">JavaScript（function ノード）</h3>
+
+        <p>JavaScript でも、パターンを <code>/</code> で囲んで書きます。文字列のメソッドに渡すか、パターンの <code>test()</code> を呼びます。<code>text</code> が <code>090-1234-5678</code> のときの結果を示します。</p>
+
+        <table>
+            <tr>
+                <th>書き方</th>
+                <th>すること</th>
+                <th>結果</th>
+            </tr>
+            <tr>
+                <td><code>/^[0-9-]+$/.test(text)</code></td>
+                <td>一致するかどうかを調べる</td>
+                <td><code>true</code></td>
+            </tr>
+            <tr>
+                <td><code>text.replace(/-/g, "")</code></td>
+                <td>一致したすべてを置き換える</td>
+                <td><code>"09012345678"</code></td>
+            </tr>
+            <tr>
+                <td><code>text.replace(/-/, "")</code></td>
+                <td>1つ目だけを置き換える</td>
+                <td><code>"0901234-5678"</code></td>
+            </tr>
+            <tr>
+                <td><code>text.match(/\d+/g)</code></td>
+                <td>一致したすべてを配列で取り出す</td>
+                <td><code>["090", "1234", "5678"]</code></td>
+            </tr>
+            <tr>
+                <td><code>text.split(/-/)</code></td>
+                <td>一致したところで区切って、配列にする</td>
+                <td><code>["090", "1234", "5678"]</code></td>
+            </tr>
+        </table>
+
+        <div class="important">
+            <strong>JavaScript の <code>replace</code> は、<code>g</code> が無いと1つ目だけ：</strong>
+            <p>change ノードと JSONata の <code>$replace</code> は、何も指定しなくてもすべてを置き換えます。JavaScript の <code>replace</code> だけは、<code>g</code> を付けないと1つ目で止まります。置き換え漏れがあるときは、<code>g</code> を付け忘れていないかを確かめます。</p>
+        </div>
+
+        <p>パターンの中で <code>/</code> そのものを探すときは、<code>\/</code> と書きます。<code>/</code> がパターンの終わりと区別できなくなるためです。<code>"2026/11/27".replace(/\//g, "-")</code> は <code>"2026-11-27"</code> になります。switch と change の欄では <code>/</code> で囲まないので、<code>/</code> はそのまま書けます。</p>
+
+        <h2 id="s5">5. フローの JSON での見え方</h2>
+
+        <p>ガイドのフローの JSON を開くと、パターンの <code>\</code> が2つ並んでいます。</p>
+
+        <table>
+            <tr>
+                <th>見る場所</th>
+                <th>表示</th>
+            </tr>
+            <tr>
+                <td>エディターの switch の欄</td>
+                <td><code>\.csv$</code></td>
+            </tr>
+            <tr>
+                <td>フローの JSON</td>
+                <td><code>"v": "\\.csv$"</code></td>
+            </tr>
+        </table>
+
+        <p>これは誤りではありません。JSON では、文字列の中に <code>\</code> という文字を1つ書くとき、<code>\\</code> と2つ並べる決まりがあります。フローを読み込むと、エディターの欄には <code>\</code> が1つの <code>\.csv$</code> が出ます。</p>
+
+        <div class="tip">
+            <strong>欄に入力するときは <code>\</code> を1つ：</strong>
+            <p>エディターの欄に自分で入力するときは、<code>\.csv$</code> のように <code>\</code> を1つだけ書きます。JSON の見た目をまねて <code>\\.csv$</code> と入力すると、「<code>\</code> という文字のあとに、どれか1文字と csv が続く」という別のパターンになり、<code>report.csv</code> に一致しません。</p>
+        </div>
+
+        <p>JSONata の式と function のコードも、フローの JSON では同じように <code>\</code> が2つになります。エディターで開けば、<code>\</code> は1つです。</p>
+
+        <h2 id="s6">6. 正規表現と混同しやすいもの</h2>
+
+        <p>同じ記号を、正規表現とは別の意味で使う書き方が2つあります。どちらも正規表現ではないので、ここまでの記号の読み方は当てはまりません。</p>
+
+        <table>
+            <tr>
+                <th>書き方</th>
+                <th>出てくる場所</th>
+                <th>その場所での意味</th>
+                <th>正規表現での意味</th>
+            </tr>
+            <tr>
+                <td><code>*.csv</code> の <code>*</code></td>
+                <td>ターミナルのコマンド（<code>ls *.csv</code> など）</td>
+                <td>どんな文字列でもよい</td>
+                <td>直前の1文字が0回以上続く</td>
+            </tr>
+            <tr>
+                <td><code>sensor/+/temp</code> の <code>+</code></td>
+                <td>MQTT のトピック</td>
+                <td>1階層分の、どんな文字列でもよい</td>
+                <td>直前の1文字が1回以上続く</td>
+            </tr>
+        </table>
+
+        <ul>
+            <li>ターミナルの <code>*.csv</code> は、正規表現では <code>\.csv$</code> と書きます。<code>*.csv</code> をそのまま switch の欄に書くと、<code>*</code> の前に繰り返す文字が無いため、エラーになります</li>
+            <li>MQTT のトピックの <code>+</code> と <code>#</code> は、ワイルドカードと呼ばれる MQTT の決まりです。使い方は <a href="nodered-mqtt-node-guide.html">MQTT ガイド</a>にあります</li>
+        </ul>
+
+        <h2 id="s7">7. サンプルフロー</h2>
+
+        <div class="tip">
+            <strong>公式サンプルについて：</strong>
+            <p>Node-RED に同梱の公式サンプル（switch が 9 件、change が 7 件）には、正規表現を使うものがありません（Node-RED 5.0.7 で確認）。このため、次のフローはこのサイトが独自に用意したものです。</p>
+        </div>
+
+        <p>正規表現を書く4つの場所を、1つのタブで順に試せます。外部への接続は無く、inject のボタンを押すと debug サイドバーに結果が出ます。</p>
+
+        <div class="node-example">
+            <span class="node node-inject">ファイル名<br><small>4種類</small></span>
+            <span class="arrow">→</span>
+            <span class="node node-switch outputs-3">拡張子で振り分け</span>
+            <span class="branch">
+                <span class="branch-row"><span class="arrow">→</span><span class="node node-debug">CSV</span></span>
+                <span class="branch-row"><span class="arrow">→</span><span class="node node-debug">画像</span></span>
+                <span class="branch-row"><span class="arrow">→</span><span class="node node-debug">その他</span></span>
+            </span>
+        </div>
+
+        <details>
+            <summary>📋 サンプルフロー（クリックで展開）</summary>
+            <div class="flow-json">[
+    {
+        "id": "regex_sample_tab",
+        "type": "tab",
+        "label": "正規表現サンプル",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "regex_s_c1",
+        "type": "comment",
+        "z": "regex_sample_tab",
+        "name": "1. switch で振り分ける（正規表現にマッチ）",
+        "info": "",
+        "x": 220,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "regex_s_in1_1",
+        "type": "inject",
+        "z": "regex_sample_tab",
+        "name": "report.csv を送る",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "report.csv",
+        "payloadType": "str",
+        "x": 200,
+        "y": 100,
+        "wires": [
+            [
+                "regex_s_switch"
+            ]
+        ]
+    },
+    {
+        "id": "regex_s_in1_2",
+        "type": "inject",
+        "z": "regex_sample_tab",
+        "name": "photo.JPG を送る",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "photo.JPG",
+        "payloadType": "str",
+        "x": 200,
+        "y": 160,
+        "wires": [
+            [
+                "regex_s_switch"
+            ]
+        ]
+    },
+    {
+        "id": "regex_s_in1_3",
+        "type": "inject",
+        "z": "regex_sample_tab",
+        "name": "data.csv.bak を送る",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "data.csv.bak",
+        "payloadType": "str",
+        "x": 200,
+        "y": 220,
+        "wires": [
+            [
+                "regex_s_switch"
+            ]
+        ]
+    },
+    {
+        "id": "regex_s_in1_4",
+        "type": "inject",
+        "z": "regex_sample_tab",
+        "name": "memo.txt を送る",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "memo.txt",
+        "payloadType": "str",
+        "x": 200,
+        "y": 280,
+        "wires": [
+            [
+                "regex_s_switch"
+            ]
+        ]
+    },
+    {
+        "id": "regex_s_switch",
+        "type": "switch",
+        "z": "regex_sample_tab",
+        "name": "拡張子で振り分け",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "regex",
+                "v": "\\.csv$",
+                "vt": "str",
+                "case": false
+            },
+            {
+                "t": "regex",
+                "v": "\\.(jpe?g|png|gif)$",
+                "vt": "str",
+                "case": true
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 3,
+        "x": 470,
+        "y": 190,
+        "wires": [
+            [
+                "regex_s_dbg_csv"
+            ],
+            [
+                "regex_s_dbg_img"
+            ],
+            [
+                "regex_s_dbg_other"
+            ]
+        ]
+    },
+    {
+        "id": "regex_s_dbg_csv",
+        "type": "debug",
+        "z": "regex_sample_tab",
+        "name": "CSV",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 720,
+        "y": 130,
+        "wires": []
+    },
+    {
+        "id": "regex_s_dbg_img",
+        "type": "debug",
+        "z": "regex_sample_tab",
+        "name": "画像",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 720,
+        "y": 190,
+        "wires": []
+    },
+    {
+        "id": "regex_s_dbg_other",
+        "type": "debug",
+        "z": "regex_sample_tab",
+        "name": "その他",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 720,
+        "y": 250,
+        "wires": []
+    },
+    {
+        "id": "regex_s_c2",
+        "type": "comment",
+        "z": "regex_sample_tab",
+        "name": "2. change で置き換える（値の置換）",
+        "info": "",
+        "x": 190,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "regex_s_in2",
+        "type": "inject",
+        "z": "regex_sample_tab",
+        "name": "空白の多い文字列を送る",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "温度   25.5    ℃",
+        "payloadType": "str",
+        "x": 200,
+        "y": 420,
+        "wires": [
+            [
+                "regex_s_change"
+            ]
+        ]
+    },
+    {
+        "id": "regex_s_change",
+        "type": "change",
+        "z": "regex_sample_tab",
+        "name": "続いた空白を1つにする",
+        "rules": [
+            {
+                "t": "change",
+                "p": "payload",
+                "pt": "msg",
+                "from": "\\s+",
+                "fromt": "re",
+                "to": " ",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 470,
+        "y": 420,
+        "wires": [
+            [
+                "regex_s_dbg_change"
+            ]
+        ]
+    },
+    {
+        "id": "regex_s_dbg_change",
+        "type": "debug",
+        "z": "regex_sample_tab",
+        "name": "置き換えた結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 720,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "regex_s_c3",
+        "type": "comment",
+        "z": "regex_sample_tab",
+        "name": "3. JSONata で調べる、置き換える",
+        "info": "",
+        "x": 180,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "regex_s_in3",
+        "type": "inject",
+        "z": "regex_sample_tab",
+        "name": "REPORT.CSV を送る",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "REPORT.CSV",
+        "payloadType": "str",
+        "x": 200,
+        "y": 560,
+        "wires": [
+            [
+                "regex_s_jsonata"
+            ]
+        ]
+    },
+    {
+        "id": "regex_s_jsonata",
+        "type": "change",
+        "z": "regex_sample_tab",
+        "name": "JSONata で調べる",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "{\n    \"元の名前\": payload,\n    \"CSVか\": $contains(payload, /\\.csv$/i),\n    \"JSONの名前\": $replace(payload, /\\.csv$/i, \".json\")\n}",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 470,
+        "y": 560,
+        "wires": [
+            [
+                "regex_s_dbg_jsonata"
+            ]
+        ]
+    },
+    {
+        "id": "regex_s_dbg_jsonata",
+        "type": "debug",
+        "z": "regex_sample_tab",
+        "name": "JSONata の結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 720,
+        "y": 560,
+        "wires": []
+    },
+    {
+        "id": "regex_s_c4",
+        "type": "comment",
+        "z": "regex_sample_tab",
+        "name": "4. function（JavaScript）で使う",
+        "info": "",
+        "x": 180,
+        "y": 640,
+        "wires": []
+    },
+    {
+        "id": "regex_s_in4",
+        "type": "inject",
+        "z": "regex_sample_tab",
+        "name": "090-1234-5678 を送る",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "090-1234-5678",
+        "payloadType": "str",
+        "x": 200,
+        "y": 700,
+        "wires": [
+            [
+                "regex_s_func"
+            ]
+        ]
+    },
+    {
+        "id": "regex_s_func",
+        "type": "function",
+        "z": "regex_sample_tab",
+        "name": "JavaScript で置き換える",
+        "func": "// 届いた文字列（例: \"090-1234-5678\"）\nconst text = msg.payload;\n\nmsg.payload = {\n    // g を付けると、一致したすべてを置き換える\n    \"すべて置き換え\": text.replace(/-/g, \"\"),\n    // g が無いと、1つ目だけを置き換える\n    \"1つ目だけ\": text.replace(/-/, \"\"),\n    // test() は、一致するかどうかを true か false で返す\n    \"数字とハイフンだけか\": /^[0-9-]+$/.test(text)\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 470,
+        "y": 700,
+        "wires": [
+            [
+                "regex_s_dbg_func"
+            ]
+        ]
+    },
+    {
+        "id": "regex_s_dbg_func",
+        "type": "debug",
+        "z": "regex_sample_tab",
+        "name": "JavaScript の結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 720,
+        "y": 700,
+        "wires": []
+    }
+]</div>
+        </details>
+
+        <h4>フローの読み解き</h4>
+
+        <p>フローは4つの部分に分かれていて、それぞれの先頭にコメントノードがあります。上の図は1つ目の部分です。残りの3つは、どれも inject、処理するノード、debug が1つずつ横に並びます。</p>
+
+        <table>
+            <tr>
+                <th>コメントノード</th>
+                <th>ノードの並び</th>
+                <th>正規表現を書いている場所</th>
+            </tr>
+            <tr>
+                <td>1. switch で振り分ける（正規表現にマッチ）</td>
+                <td>inject 4つ → switch「拡張子で振り分け」→ debug「CSV」「画像」「その他」</td>
+                <td>switch の条件</td>
+            </tr>
+            <tr>
+                <td>2. change で置き換える（値の置換）</td>
+                <td>inject「空白の多い文字列を送る」→ change「続いた空白を1つにする」→ debug「置き換えた結果」</td>
+                <td>change の「検索する文字列」</td>
+            </tr>
+            <tr>
+                <td>3. JSONata で調べる、置き換える</td>
+                <td>inject「REPORT.CSV を送る」→ change「JSONata で調べる」→ debug「JSONata の結果」</td>
+                <td>change の「代入する値」の JSONata 式</td>
+            </tr>
+            <tr>
+                <td>4. function（JavaScript）で使う</td>
+                <td>inject「090-1234-5678 を送る」→ function「JavaScript で置き換える」→ debug「JavaScript の結果」</td>
+                <td>function のコード</td>
+            </tr>
+        </table>
+
+        <p><strong>1. switch で振り分ける</strong></p>
+
+        <p>switch「拡張子で振り分け」は、<code>msg.payload</code>（ファイル名）を上から順に3つの条件で調べます。条件の下の選択は「全ての条件を適用」のままです。1つ目と2つ目のパターンに同時に一致するファイル名は無く、「その他」はどの条件にも当てはまらなかったときだけ出るので、1つのファイル名が2つの debug に出ることはありません。</p>
+
+        <table>
+            <tr>
+                <th>出力</th>
+                <th>条件</th>
+                <th>大文字、小文字を区別しない</th>
+                <th>つながる debug</th>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>正規表現にマッチ <code>\.csv$</code></td>
+                <td>オフ</td>
+                <td>CSV</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>正規表現にマッチ <code>\.(jpe?g|png|gif)$</code></td>
+                <td>オン</td>
+                <td>画像</td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td>その他</td>
+                <td>（欄なし）</td>
+                <td>その他</td>
+            </tr>
+        </table>
+
+        <p>4つの inject を押すと、次の debug に出ます。</p>
+
+        <table>
+            <tr>
+                <th>押す inject</th>
+                <th>出る debug</th>
+                <th>理由</th>
+            </tr>
+            <tr>
+                <td>report.csv を送る</td>
+                <td>CSV</td>
+                <td>末尾が <code>.csv</code></td>
+            </tr>
+            <tr>
+                <td>photo.JPG を送る</td>
+                <td>画像</td>
+                <td>2つ目の条件は大文字と小文字を区別しないので、<code>.JPG</code> も <code>jpe?g</code> に一致する</td>
+            </tr>
+            <tr>
+                <td>data.csv.bak を送る</td>
+                <td>その他</td>
+                <td><code>.csv</code> のあとに <code>.bak</code> が続き、<code>$</code> に合わない</td>
+            </tr>
+            <tr>
+                <td>memo.txt を送る</td>
+                <td>その他</td>
+                <td>どちらのパターンにも一致しない</td>
+            </tr>
+        </table>
+
+        <p>1つ目の条件は大文字と小文字を区別するので、inject のファイル名を <code>REPORT.CSV</code> に書き換えて押すと、「その他」に出ます。条件の「大文字、小文字を区別しない」をオンにしてデプロイすると、「CSV」に出るようになります。</p>
+
+        <p><strong>2. change で置き換える</strong></p>
+
+        <p>inject は、空白がいくつも続く文字列 <code>温度   25.5    ℃</code> を送ります。change「続いた空白を1つにする」は「値の置換」のルールで、「検索する文字列」が正規表現の <code>\s+</code>、「置換後の文字列」がスペース1つです。<code>\s+</code> は「空白が1つ以上続いたところ」なので、続いた空白がそれぞれスペース1つになり、debug「置き換えた結果」に <code>温度 25.5 ℃</code> が出ます。空白が続く箇所は2つありますが、change はすべてを置き換えるので、両方とも1つになります。</p>
+
+        <p><strong>3. JSONata で調べる、置き換える</strong></p>
+
+        <p>inject は <code>REPORT.CSV</code> を送ります。change「JSONata で調べる」は、<code>msg.payload</code> に次の JSONata 式の結果を代入します。</p>
+
+        <div class="code-block">{
+    "元の名前": payload,
+    "CSVか": $contains(payload, /\.csv$/i),
+    "JSONの名前": $replace(payload, /\.csv$/i, ".json")
+}</div>
+
+        <p>どちらのパターンにも <code>i</code> を付けているので、大文字の <code>.CSV</code> に一致します。debug「JSONata の結果」には、次のオブジェクトが出ます。</p>
+
+        <table>
+            <tr>
+                <th>項目</th>
+                <th>値</th>
+                <th>意味</th>
+            </tr>
+            <tr>
+                <td>元の名前</td>
+                <td><code>"REPORT.CSV"</code></td>
+                <td>届いた文字列</td>
+            </tr>
+            <tr>
+                <td>CSVか</td>
+                <td><code>true</code></td>
+                <td>末尾が <code>.csv</code>（大文字でもよい）かどうか</td>
+            </tr>
+            <tr>
+                <td>JSONの名前</td>
+                <td><code>"REPORT.json"</code></td>
+                <td>末尾の <code>.csv</code> を <code>.json</code> に置き換えた名前</td>
+            </tr>
+        </table>
+
+        <p>式の <code>i</code> を2つとも消してデプロイすると、「CSVか」が <code>false</code> になり、「JSONの名前」は <code>REPORT.CSV</code> のまま変わりません。</p>
+
+        <p><strong>4. function（JavaScript）で使う</strong></p>
+
+        <p>inject は <code>090-1234-5678</code> を送ります。function「JavaScript で置き換える」は、同じ文字列に3つの処理をして、結果をオブジェクトにまとめます。function ノードを使っているのは、JavaScript での書き方を示すためです。</p>
+
+        <table>
+            <tr>
+                <th>項目</th>
+                <th>コード</th>
+                <th>値</th>
+            </tr>
+            <tr>
+                <td>すべて置き換え</td>
+                <td><code>text.replace(/-/g, "")</code></td>
+                <td><code>"09012345678"</code></td>
+            </tr>
+            <tr>
+                <td>1つ目だけ</td>
+                <td><code>text.replace(/-/, "")</code></td>
+                <td><code>"0901234-5678"</code></td>
+            </tr>
+            <tr>
+                <td>数字とハイフンだけか</td>
+                <td><code>/^[0-9-]+$/.test(text)</code></td>
+                <td><code>true</code></td>
+            </tr>
+        </table>
+
+        <p>1つ目と2つ目の違いは <code>g</code> の有無だけです。3つ目の <code>^[0-9-]+$</code> は、「先頭から末尾まで、数字かハイフンが1文字以上続く」という形です。<code>[ ]</code> の中で <code>-</code> そのものを表すときは、<code>[0-9-]</code> のように末尾に置きます。</p>
+
+        <h3>パターンを試すには</h3>
+
+        <p>このフローは、自分のパターンを試す場所としても使えます。1つ目の部分の inject の文字列と、switch のパターンを書き換えてデプロイし、ボタンを押すと、一致するかどうかが debug の出る先で分かります。一致する例と一致しない例の両方を inject に用意しておくと、パターンが広すぎる（余計なものまで一致する）場合にも気づけます。</p>
+
+        <h2 id="s8">8. 演習問題</h2>
+
+        <p>どの演習も、標準のノードだけで作れます。外部への接続はありません。</p>
+
+        <div class="exercise">
+            <h3>演習1：ログの行を振り分ける<span class="difficulty difficulty-easy">初級</span></h3>
+            <p>装置が出すログの行のうち、エラーの行だけを取り出すフローを作ってください。エラーの行は <code>ERROR</code> か <code>error</code> で始まります。行の途中に error という語があるだけの行は、エラーの行ではありません。</p>
+
+            <p><strong>作る処理のイメージ:</strong></p>
+            <div class="node-example">
+                <span class="node node-inject">ログの行<br><small>4種類</small></span>
+                <span class="arrow">→</span>
+                <span class="node node-switch outputs-2">先頭が error か</span>
+                <span class="branch">
+                    <span class="branch-row"><span class="arrow">→</span><span class="node node-debug">エラーの行</span></span>
+                    <span class="branch-row"><span class="arrow">→</span><span class="node node-debug">その他の行</span></span>
+                </span>
+            </div>
+
+            <p><strong>作るもの:</strong></p>
+            <ul>
+                <li>inject を4つ置き、<code>msg.payload</code> に文字列で <code>ERROR: disk full</code>、<code>error: timeout</code>、<code>INFO: started</code>、<code>No error found</code> を1つずつ設定する</li>
+                <li>switch で、<code>msg.payload</code> の先頭が error（大文字でも小文字でもよい）の行と、それ以外の行に分ける</li>
+                <li>debug を2つ置き、名前を「エラーの行」「その他の行」にする</li>
+            </ul>
+
+            <p><strong>成功の条件:</strong></p>
+            <ul>
+                <li><code>ERROR: disk full</code> と <code>error: timeout</code> の inject を押すと、debug「エラーの行」に出る</li>
+                <li><code>INFO: started</code> と <code>No error found</code> の inject を押すと、debug「その他の行」に出る。<code>No error found</code> が「エラーの行」に出たときは、先頭かどうかを調べられていない</li>
+            </ul>
+
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>switch の条件は2つにする。1つ目を「正規表現にマッチ」にし、先頭を表す記号を使ったパターンを書く。大文字の <code>ERROR</code> にも一致させるには、パターンを書き足すのではなく、条件の「大文字、小文字を区別しない」をオンにする。2つ目の条件は「その他」にする。</p>
+            </details>
+            <details>
+                <summary>解答例（クリックで展開）</summary>
+                <div class="flow-json">[
+    {
+        "id": "regex_ex1_tab",
+        "type": "tab",
+        "label": "演習1：ログの行を振り分ける",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "regex_e1_in1",
+        "type": "inject",
+        "z": "regex_ex1_tab",
+        "name": "ERROR: disk full を送る",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "ERROR: disk full",
+        "payloadType": "str",
+        "x": 200,
+        "y": 80,
+        "wires": [
+            [
+                "regex_e1_switch"
+            ]
+        ]
+    },
+    {
+        "id": "regex_e1_in2",
+        "type": "inject",
+        "z": "regex_ex1_tab",
+        "name": "error: timeout を送る",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "error: timeout",
+        "payloadType": "str",
+        "x": 200,
+        "y": 140,
+        "wires": [
+            [
+                "regex_e1_switch"
+            ]
+        ]
+    },
+    {
+        "id": "regex_e1_in3",
+        "type": "inject",
+        "z": "regex_ex1_tab",
+        "name": "INFO: started を送る",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "INFO: started",
+        "payloadType": "str",
+        "x": 200,
+        "y": 200,
+        "wires": [
+            [
+                "regex_e1_switch"
+            ]
+        ]
+    },
+    {
+        "id": "regex_e1_in4",
+        "type": "inject",
+        "z": "regex_ex1_tab",
+        "name": "No error found を送る",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "No error found",
+        "payloadType": "str",
+        "x": 200,
+        "y": 260,
+        "wires": [
+            [
+                "regex_e1_switch"
+            ]
+        ]
+    },
+    {
+        "id": "regex_e1_switch",
+        "type": "switch",
+        "z": "regex_ex1_tab",
+        "name": "先頭が error か",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "regex",
+                "v": "^error",
+                "vt": "str",
+                "case": true
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 470,
+        "y": 170,
+        "wires": [
+            [
+                "regex_e1_dbg_error"
+            ],
+            [
+                "regex_e1_dbg_other"
+            ]
+        ]
+    },
+    {
+        "id": "regex_e1_dbg_error",
+        "type": "debug",
+        "z": "regex_ex1_tab",
+        "name": "エラーの行",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 720,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "regex_e1_dbg_other",
+        "type": "debug",
+        "z": "regex_ex1_tab",
+        "name": "その他の行",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 720,
+        "y": 200,
+        "wires": []
+    }
+]</div>
+            </details>
+            <p><strong>解答例の説明:</strong> switch「先頭が error か」の1つ目の条件は、正規表現にマッチ <code>^error</code> で、「大文字、小文字を区別しない」がオンです。<code>^</code> があるので、<code>No error found</code> は一致せず、2つ目の条件「その他」から debug「その他の行」へ出ます。</p>
+        </div>
+
+        <div class="exercise">
+            <h3>演習2：日時をファイル名に使える形にする<span class="difficulty difficulty-medium">中級</span></h3>
+            <p>計測した日時 <code>2026/11/27 10:30:00</code> を、保存するファイルの名前に使いたいとします。<code>/</code> と <code>:</code> はファイル名に使えない OS があり、空白も扱いにくいので、<code>2026-11-27_10-30-00</code> の形に直すフローを作ってください。</p>
+
+            <p><strong>作る処理のイメージ:</strong></p>
+            <div class="node-example">
+                <span class="node node-inject">日時の文字列</span>
+                <span class="arrow">→</span>
+                <span class="node node-change">記号を置き換える</span>
+                <span class="arrow">→</span>
+                <span class="node node-debug">ファイル名に使える形</span>
+            </div>
+
+            <p><strong>作るもの:</strong></p>
+            <ul>
+                <li>inject を2つ置き、<code>msg.payload</code> に文字列で <code>2026/11/27 10:30:00</code> と <code>2026/1/5 9:05:00</code> を設定する</li>
+                <li>change で、<code>msg.payload</code> の <code>/</code> と <code>:</code> を <code>-</code> に、空白を <code>_</code> に置き換える</li>
+                <li>debug を1つ置き、名前を「ファイル名に使える形」にする</li>
+            </ul>
+
+            <p><strong>成功の条件:</strong></p>
+            <ul>
+                <li><code>2026/11/27 10:30:00</code> の inject を押すと、debug に <code>2026-11-27_10-30-00</code> が出る</li>
+                <li><code>2026/1/5 9:05:00</code> の inject を押すと、debug に <code>2026-1-5_9-05-00</code> が出る</li>
+                <li><code>2026-11/27 10:30:00</code> のように、記号が一部だけ残っているときは、1つの記号しか置き換えられていない</li>
+            </ul>
+
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>change の「値の置換」のルールを2つ並べる。どちらも「検索する文字列」の型を「正規表現」にする。<code>/</code> と <code>:</code> は、「どれか1文字」を表す <code>[ ]</code> を使うと、1つのルールで両方を置き換えられる。空白は <code>\s</code> で表せる。change はルールを上から順に実行するので、2つ目のルールは、1つ目で置き換えたあとの文字列を受け取る。</p>
+            </details>
+            <details>
+                <summary>解答例（クリックで展開）</summary>
+                <div class="flow-json">[
+    {
+        "id": "regex_ex2_tab",
+        "type": "tab",
+        "label": "演習2：日時をファイル名に使える形にする",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "regex_e2_in1",
+        "type": "inject",
+        "z": "regex_ex2_tab",
+        "name": "2026/11/27 10:30:00 を送る",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "2026/11/27 10:30:00",
+        "payloadType": "str",
+        "x": 200,
+        "y": 80,
+        "wires": [
+            [
+                "regex_e2_change"
+            ]
+        ]
+    },
+    {
+        "id": "regex_e2_in2",
+        "type": "inject",
+        "z": "regex_ex2_tab",
+        "name": "2026/1/5 9:05:00 を送る",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "2026/1/5 9:05:00",
+        "payloadType": "str",
+        "x": 200,
+        "y": 140,
+        "wires": [
+            [
+                "regex_e2_change"
+            ]
+        ]
+    },
+    {
+        "id": "regex_e2_change",
+        "type": "change",
+        "z": "regex_ex2_tab",
+        "name": "記号を置き換える",
+        "rules": [
+            {
+                "t": "change",
+                "p": "payload",
+                "pt": "msg",
+                "from": "[/:]",
+                "fromt": "re",
+                "to": "-",
+                "tot": "str"
+            },
+            {
+                "t": "change",
+                "p": "payload",
+                "pt": "msg",
+                "from": "\\s",
+                "fromt": "re",
+                "to": "_",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 470,
+        "y": 110,
+        "wires": [
+            [
+                "regex_e2_dbg"
+            ]
+        ]
+    },
+    {
+        "id": "regex_e2_dbg",
+        "type": "debug",
+        "z": "regex_ex2_tab",
+        "name": "ファイル名に使える形",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 720,
+        "y": 110,
+        "wires": []
+    }
+]</div>
+            </details>
+            <p><strong>解答例の説明:</strong> change「記号を置き換える」には、「値の置換」のルールが2つあります。1つ目は正規表現 <code>[/:]</code> を <code>-</code> に、2つ目は正規表現 <code>\s</code> を <code>_</code> に置き換えます。change は一致したすべてを置き換えるので、2つある <code>/</code> も、2つある <code>:</code> も、1つのルールで置き換わります。</p>
+        </div>
+
+        <div class="exercise">
+            <h3>演習3：ファイル名からラインと日付を取り出す<span class="difficulty difficulty-hard">上級</span></h3>
+            <p>製造ラインごとの記録が、<code>line1_20261127.csv</code> のように「line、ライン番号、<code>_</code>、日付、<code>.csv</code>」という名前のファイルで届きます。この形の名前からライン番号と日付を取り出し、形が違う名前は対象外として分けるフローを作ってください。</p>
+
+            <p><strong>作る処理のイメージ:</strong></p>
+            <div class="node-example">
+                <span class="node node-inject">ファイル名<br><small>4種類</small></span>
+                <span class="arrow">→</span>
+                <span class="node node-switch outputs-2">決まった形の名前か</span>
+                <span class="branch">
+                    <span class="branch-row"><span class="arrow">→</span><span class="node node-change">ラインと日付を取り出す</span><span class="arrow">→</span><span class="node node-debug">取り出した結果</span></span>
+                    <span class="branch-row"><span class="arrow">→</span><span class="node node-debug">対象外</span></span>
+                </span>
+            </div>
+
+            <p><strong>作るもの:</strong></p>
+            <ul>
+                <li>inject を4つ置き、<code>msg.payload</code> に文字列で <code>line1_20261127.csv</code>、<code>LINE2_20261128.CSV</code>、<code>readme.txt</code>、<code>line3_backup.csv</code> を1つずつ設定する</li>
+                <li>switch で、「line、数字、<code>_</code>、数字、<code>.csv</code>」の形の名前（大文字でもよい）と、それ以外に分ける</li>
+                <li>形が合う名前は、change の JSONata 式で <code>{"ライン": 1, "日付": "20261127"}</code> の形のオブジェクトにする。ラインは数値、日付は文字列にする</li>
+                <li>debug を2つ置き、名前を「取り出した結果」「対象外」にする</li>
+            </ul>
+
+            <p><strong>成功の条件:</strong></p>
+            <ul>
+                <li><code>line1_20261127.csv</code> の inject を押すと、debug「取り出した結果」に <code>{"ライン": 1, "日付": "20261127"}</code> が出る</li>
+                <li><code>LINE2_20261128.CSV</code> の inject を押すと、debug「取り出した結果」に <code>{"ライン": 2, "日付": "20261128"}</code> が出る</li>
+                <li><code>readme.txt</code> と <code>line3_backup.csv</code> の inject を押すと、debug「対象外」にファイル名が出る。<code>line3_backup.csv</code> は、<code>_</code> のあとが数字ではないので対象外になる</li>
+            </ul>
+
+            <details>
+                <summary>💡 ヒント</summary>
+                <p>switch のパターンは、<code>^</code> と <code>$</code> ではさんで、名前の全体が形に合うことを調べる。数字が1文字以上続くところは <code>\d+</code> と書ける。</p>
+                <p>取り出しには、JSONata の <code>$match</code> を使う。パターンの中で、取り出したい部分（ライン番号と日付）をそれぞれ <code>( )</code> で囲むと、結果の <code>groups</code> に、囲んだ順に入る。<code>groups[0]</code> がライン番号、<code>groups[1]</code> が日付になる。取り出した値は文字列なので、ラインは <code>$number()</code> で数値に直す。JSONata のパターンでは、大文字と小文字を区別しない指定を <code>i</code> で付ける。</p>
+            </details>
+            <details>
+                <summary>解答例（クリックで展開）</summary>
+                <div class="flow-json">[
+    {
+        "id": "regex_ex3_tab",
+        "type": "tab",
+        "label": "演習3：ファイル名からラインと日付を取り出す",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "regex_e3_in1",
+        "type": "inject",
+        "z": "regex_ex3_tab",
+        "name": "line1_20261127.csv を送る",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "line1_20261127.csv",
+        "payloadType": "str",
+        "x": 200,
+        "y": 80,
+        "wires": [
+            [
+                "regex_e3_switch"
+            ]
+        ]
+    },
+    {
+        "id": "regex_e3_in2",
+        "type": "inject",
+        "z": "regex_ex3_tab",
+        "name": "LINE2_20261128.CSV を送る",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "LINE2_20261128.CSV",
+        "payloadType": "str",
+        "x": 200,
+        "y": 140,
+        "wires": [
+            [
+                "regex_e3_switch"
+            ]
+        ]
+    },
+    {
+        "id": "regex_e3_in3",
+        "type": "inject",
+        "z": "regex_ex3_tab",
+        "name": "readme.txt を送る",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "readme.txt",
+        "payloadType": "str",
+        "x": 200,
+        "y": 200,
+        "wires": [
+            [
+                "regex_e3_switch"
+            ]
+        ]
+    },
+    {
+        "id": "regex_e3_in4",
+        "type": "inject",
+        "z": "regex_ex3_tab",
+        "name": "line3_backup.csv を送る",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "line3_backup.csv",
+        "payloadType": "str",
+        "x": 200,
+        "y": 260,
+        "wires": [
+            [
+                "regex_e3_switch"
+            ]
+        ]
+    },
+    {
+        "id": "regex_e3_switch",
+        "type": "switch",
+        "z": "regex_ex3_tab",
+        "name": "決まった形の名前か",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "regex",
+                "v": "^line\\d+_\\d+\\.csv$",
+                "vt": "str",
+                "case": true
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 470,
+        "y": 170,
+        "wires": [
+            [
+                "regex_e3_change"
+            ],
+            [
+                "regex_e3_dbg_other"
+            ]
+        ]
+    },
+    {
+        "id": "regex_e3_change",
+        "type": "change",
+        "z": "regex_ex3_tab",
+        "name": "ラインと日付を取り出す",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "(\n    $m := $match(payload, /^line(\\d+)_(\\d+)\\.csv$/i);\n    {\n        \"ライン\": $number($m.groups[0]),\n        \"日付\": $m.groups[1]\n    }\n)",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 720,
+        "y": 140,
+        "wires": [
+            [
+                "regex_e3_dbg"
+            ]
+        ]
+    },
+    {
+        "id": "regex_e3_dbg",
+        "type": "debug",
+        "z": "regex_ex3_tab",
+        "name": "取り出した結果",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 960,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "regex_e3_dbg_other",
+        "type": "debug",
+        "z": "regex_ex3_tab",
+        "name": "対象外",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 720,
+        "y": 220,
+        "wires": []
+    }
+]</div>
+            </details>
+            <p><strong>解答例の説明:</strong> switch「決まった形の名前か」の1つ目の条件は、正規表現にマッチ <code>^line\d+_\d+\.csv$</code> で、「大文字、小文字を区別しない」がオンです。change「ラインと日付を取り出す」は、次の JSONata 式の結果を <code>msg.payload</code> に代入します。</p>
+            <div class="code-block">(
+    $m := $match(payload, /^line(\d+)_(\d+)\.csv$/i);
+    {
+        "ライン": $number($m.groups[0]),
+        "日付": $m.groups[1]
+    }
+)</div>
+            <p>1行目で <code>$match</code> の結果を変数 <code>$m</code> に入れ、そのあとで <code>groups</code> の1つ目と2つ目を取り出しています。switch と JSONata で同じパターンを使っていますが、JSONata の方は <code>/</code> で囲み、取り出す部分に <code>( )</code> を足し、<code>i</code> を付けています。</p>
+        </div>
+
+        <h2 id="s9">9. うまく一致しないとき</h2>
+
+        <table>
+            <tr>
+                <th>症状</th>
+                <th>原因</th>
+                <th>対処</th>
+            </tr>
+            <tr>
+                <td><code>photo.JPG</code> のような大文字の文字列が一致しない</td>
+                <td>大文字と小文字を区別している</td>
+                <td>switch は「大文字、小文字を区別しない」をオンにする。JSONata と JavaScript は <code>i</code> を付ける。change は指定できないので、<code>[Jj][Pp][Gg]</code> のように書くか、JSONata の <code>$replace</code> を使う</td>
+            </tr>
+            <tr>
+                <td><code>data.csv.bak</code> のような、余計な文字列まで一致する</td>
+                <td>位置を指定していない</td>
+                <td>末尾を調べるなら <code>$</code>、先頭を調べるなら <code>^</code> を付ける</td>
+            </tr>
+            <tr>
+                <td><code>report_csv</code> のような、ピリオドの無い文字列まで一致する</td>
+                <td><code>.</code> が「どの文字でもよい1文字」として働いている</td>
+                <td>ピリオドは <code>\.</code> と書く</td>
+            </tr>
+            <tr>
+                <td>switch や change で、正しいはずのパターンが一致しない</td>
+                <td>欄に <code>/\.csv$/</code> や <code>/csv/i</code> のように、<code>/</code> やフラグまで書いている</td>
+                <td>欄にはパターンだけを書く。<code>/</code> とフラグは、JSONata と JavaScript での書き方</td>
+            </tr>
+            <tr>
+                <td>change で、記号が働かず何も置き換わらない</td>
+                <td>「検索する文字列」の型が「文字列」のままになっている</td>
+                <td>型を「正規表現」に切り替える</td>
+            </tr>
+            <tr>
+                <td>自分で入力したパターンだけ一致しない</td>
+                <td>フローの JSON をまねて、欄に <code>\\.csv$</code> と入力している</td>
+                <td>欄では <code>\</code> を1つにする（<a href="#s5">セクション 5</a>）</td>
+            </tr>
+            <tr>
+                <td>function で、1つ目しか置き換わらない</td>
+                <td><code>replace</code> のパターンに <code>g</code> が無い</td>
+                <td><code>/-/g</code> のように <code>g</code> を付ける</td>
+            </tr>
+            <tr>
+                <td>switch で、debug に <code>Invalid regular expression</code> を含むエラーが出る</td>
+                <td>パターンの書き方に誤りがある。<code>Unterminated group</code> は括弧の閉じ忘れ、<code>Nothing to repeat</code> は <code>*</code> や <code>+</code> の前に繰り返す文字が無い</td>
+                <td>エラーの文に出ているパターンを見直す。<code>*.csv</code> のような書き方は正規表現ではない（<a href="#s6">セクション 6</a>）</td>
+            </tr>
+            <tr>
+                <td>JSONata の式で、<code>/-/g</code> と書くとエラーになる</td>
+                <td>JSONata のパターンには <code>g</code> を付けられない</td>
+                <td><code>g</code> を消す。<code>$replace</code> は <code>g</code> が無くてもすべてを置き換える</td>
+            </tr>
+            <tr>
+                <td>JSONata で <code>Regular expression matches zero length string</code> というエラーが出る</td>
+                <td>パターンが、何もない位置（長さ 0）に一致している</td>
+                <td><code>*</code> を <code>+</code> にするなど、1文字以上に一致する形に直す</td>
+            </tr>
+        </table>
+
+        <h2 id="s10">10. まとめ</h2>
+
+        <div class="important">
+            <strong>正規表現の要点：</strong>
+            <ul>
+                <li>正規表現は、文字列の形を書き表す記法。「末尾が <code>.csv</code>」は <code>\.csv$</code> と書く</li>
+                <li>位置は <code>^</code>（先頭）と <code>$</code>（末尾）で指定する。指定しなければ、文字列のどこにあっても一致する</li>
+                <li>ピリオドそのものは <code>\.</code> と書く。<code>.</code> だけだと、ピリオド以外の文字にも一致する</li>
+                <li>switch と change の欄には、パターンだけを書く。JSONata と JavaScript では <code>/</code> で囲む</li>
+                <li>大文字と小文字を区別しない指定は、switch はチェックボックス、JSONata と JavaScript は <code>i</code>。change には無い</li>
+                <li>JavaScript の <code>replace</code> は、<code>g</code> を付けないと1つ目だけを置き換える</li>
+                <li>フローの JSON では <code>\</code> が <code>\\</code> と書かれる。エディターの欄では <code>\</code> は1つ</li>
+            </ul>
+        </div>
+
+        <h3>このガイドで扱わなかったもの</h3>
+
+        <p>回数を数で指定する <code>{3}</code>、<code>[ ]</code> の中の否定 <code>[^ ]</code>、英数字を表す <code>\w</code>、語の区切りを表す <code>\b</code>、先読みと後読みなどは扱っていません。必要になったときは、次の資料を参照してください。Node-RED の switch、change、function は JavaScript の正規表現をそのまま使うので、JavaScript の資料がそのまま当てはまります。</p>
+
+        <ul>
+            <li><a href="https://developer.mozilla.org/ja/docs/Web/JavaScript/Guide/Regular_expressions" target="_blank" rel="noopener">正規表現 — MDN Web Docs</a>（JavaScript の正規表現の解説。日本語）</li>
+            <li><a href="https://docs.jsonata.org/regex" target="_blank" rel="noopener">Using Regular Expressions — JSONata Documentation</a>（JSONata での正規表現の使い方。英語）</li>
+        </ul>
+
+        <div class="tip">
+            <strong>関連ガイド：</strong>
+            <ul>
+                <li><a href="nodered-switch-node-guide.html">switch ノードガイド</a>：条件の種類と、振り分けの設定</li>
+                <li><a href="nodered-change-node-guide.html">change ノードガイド</a>：「値の置換」のルールの設定</li>
+                <li><a href="nodered-jsonata-guide.html">JSONata式ガイド</a>：JSONata 式の基本と文字列の関数</li>
+                <li><a href="nodered-function-node2-javascript-guide.html">JavaScript関数とメソッド 基礎ガイド</a>：文字列を扱う JavaScript のメソッド</li>
+                <li><a href="nodered-watch-node-guide.html">watch ノードガイド</a>：ファイル名を正規表現で振り分けるサンプルフロー</li>
+            </ul>
+        </div>
+
+        <div class="nav-links">
+            <a href="nodered-jsonata-guide.html">← JSONata式ガイドへ</a>
+            <a href="nodered-javascript-operators-guide.html">JavaScript演算子 基礎ガイドへ →</a>
+        </div>
+
+        <hr style="margin-top: 40px;">
+
+        <p style="text-align: center; color: #999; margin-top: 20px;">
+            <small>Node-RED 正規表現ガイド</small>
+        </p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var codeBlocks = document.querySelectorAll('.flow-json');
+            codeBlocks.forEach(function(block) {
+                var originalText = block.textContent;
+                var button = document.createElement('button');
+                button.className = 'copy-button';
+                button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                button.addEventListener('click', function() {
+                    navigator.clipboard.writeText(originalText.trim()).then(function() {
+                        button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>コピーしました!';
+                        button.classList.add('copied');
+                        setTimeout(function() {
+                            button.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>コピー';
+                            button.classList.remove('copied');
+                        }, 2000);
+                    }).catch(function(err) {
+                        console.error('コピーに失敗しました:', err);
+                    });
+                });
+                block.appendChild(button);
+            });
+        });
+    </script>
+    <a href="index.html" style="position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px; background: linear-gradient(135deg, #42b883 0%, #35495e 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; transition: transform 0.3s, box-shadow 0.3s;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 6px 16px rgba(0,0,0,0.4)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.3)';" title="トップページへ">🏠</a>
+</body>
+</html>
