@@ -558,7 +558,7 @@
             <tr>
                 <td><strong>パターン3: ファイル種別による振り分け</strong></td>
                 <td>「データフォルダ監視」（watch）→「拡張子で振り分け」（switch）→「CSV処理」「画像処理」「JSON処理」「その他」（debug）</td>
-                <td>watch の「ファイル」は <code>/tmp/data</code>。switch は、<code>msg.file</code>（フォルダの部分を除いたファイル名）を正規表現で調べ、末尾が <code>.csv</code>、<code>.jpg</code>・<code>.png</code>・<code>.gif</code>、<code>.json</code>、それ以外の4つに分ける</td>
+                <td>watch の「ファイル」は <code>/tmp/data</code>。switch は、<code>msg.file</code>（フォルダの部分を除いたファイル名）を正規表現で調べ、末尾が <code>.csv</code>、<code>.jpg</code>・<code>.png</code>・<code>.gif</code>、<code>.json</code>、それ以外の4つに分ける。パターンの読み方は<a href="nodered-regex-guide.html">正規表現ガイド</a>にある</td>
                 <td><code>/tmp/data</code> に <code>sample.csv</code> を置くと「CSV処理」に、<code>photo.png</code> を置くと「画像処理」に、ファイル名が出る</td>
             </tr>
             <tr>
@@ -818,7 +818,7 @@ msg.size = 1024</div>
                 <p><strong>Switchノードの設定:</strong></p>
                 <ul>
                     <li>プロパティ: msg.file</li>
-                    <li>正規表現: <code>\.(jpg|jpeg|png)$</code></li>
+                    <li>正規表現: <code>\.(jpg|jpeg|png)$</code>（記号の読み方は<a href="nodered-regex-guide.html">正規表現ガイド</a>）</li>
                 </ul>
                 <p><strong>Changeノードの設定:</strong></p>
                 <ul>
@@ -880,7 +880,7 @@ msg.size = 1024</div>
                 </ul>
                 <p><strong>JSONへの変換（Change ノード＋JSON ノード）:</strong></p>
                 <ul>
-                    <li>Change の「値の代入」で、<code>msg.outputFile</code> に「JSONata式」型の <code>"/tmp/ftp_processed/" &amp; $replace(file, /\.csv$/, "") &amp; ".json"</code> を設定する。<code>$replace()</code> の2つ目の引数 <code>/\.csv$/</code> は「末尾の .csv」を表す正規表現で、これを空文字に置き換えて拡張子を除く</li>
+                    <li>Change の「値の代入」で、<code>msg.outputFile</code> に「JSONata式」型の <code>"/tmp/ftp_processed/" &amp; $replace(file, /\.csv$/, "") &amp; ".json"</code> を設定する。<code>$replace()</code> の2つ目の引数 <code>/\.csv$/</code> は「末尾の .csv」を表す正規表現で、これを空文字に置き換えて拡張子を除く（JSONata での正規表現の書き方は<a href="nodered-regex-guide.html#s4-jsonata">正規表現ガイド</a>）</li>
                     <li>同じ Change で、<code>msg.payload</code> に「JSONata式」型の <code>{"originalFile": filename, "processedAt": $now(), "recordCount": $count(payload), "data": payload}</code> を設定する。<code>$count()</code> は配列の要素数を返す</li>
                     <li>JSON ノードの「動作」を「常にJSON文字列に変換」、「JSON文字列フォーマット」をオンにして、読みやすい形の文字列にする</li>
                     <li>Write File ノードの「ファイル名」は <code>msg.outputFile</code> にする</li>
